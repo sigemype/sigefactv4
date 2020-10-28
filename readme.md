@@ -1,5 +1,3 @@
-<img src="icon_pro3.jpg" width="120">
-
 # **Facturador PRO 3**
 
 
@@ -7,7 +5,7 @@
 
 [Windows - Linux](https://docs.google.com/document/d/1izr-fbKyOAAQDG46SpMAZtLytMxGEUdCEVh2VWGik_E/edit "Clic")
 <br>
-[Docker - Linux](https://docs.google.com/document/d/1eKZwozEZkDKjYMSkQG_oFdMbnMVYlMfkQK-BfCNTm5w/edit?usp=sharing "Clic")
+[Docker - Linux](https://drive.google.com/file/d/1vWawGZsS9fEFdD9v3HA-vKMsfH4ieaRE/view?usp=sharing "Clic")
 <br>
 [Docker - Linux - SSL](https://docs.google.com/document/d/1V54AoYPSNqgi2M9ddck6gh3AgQspZ-eH37_1BU7Gpuo/edit?usp=sharingg "Clic")
 <br>
@@ -19,9 +17,8 @@
 ### Scripts de instalación con Docker
 
 Linux - Ubuntu 18 - Docker - SSL opcional<br>
-[Guia](https://gitlab.com/b.mendoza/facturadorpro3/snippets/1971490 "Clic")<br>
-[Script](https://gitlab.com/b.mendoza/facturadorpro3/snippets/1971490/raw "Clic")<br>
-
+[Guia](https://drive.google.com/file/d/1p5omfe_QZ360Utc-tenxE-sozKJHMgcW/view?usp=sharing "clic") <br>
+[Script](https://drive.google.com/file/d/1M1GMvhT9YS9RQ-r76RWXXenzy3wc2z0i/view?usp=sharing "clic" )
 
 ### Manuales de actualización
 
@@ -29,11 +26,6 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 
 [Con Docker](https://docs.google.com/document/d/1ekGySBjGHspbPEE3OLkMGlWwjLvudmyLKo9Et-Cxejk/edit "Clic")
 <br>
-
-* Docker - Script automático
-
-[Pasos para la ejecución](https://gitlab.com/b.mendoza/facturadorpro3/-/wikis/Script-Update-Docker)<br>
-[Script](blob/master/script-update.sh)<br>
 
 
 ### Manuales de actualización de SSL gratuito
@@ -55,23 +47,6 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 [Documentación](https://docs.google.com/document/d/1QO3H2nhV6dubGFc-IOrXY1X1hobmKkSmutfrtKbelTw/edit "Clic")<br>
 
 [Colección para Postman](https://drive.google.com/file/d/18u_2U8z4tADIlZ0DbWg8-wg3JYYnT_t9/view?usp=sharing "Clic")
-
-## Pruebas online
-
-### Panel de administración
-
-[URL](https://facturalo.pro "Clic")
-<br>
-Usuario: admin@gmail.com<br>
-Contraseña: 123456
-
-### Panel de cliente
-
-[URL](https://demo.facturalo.pro "Clic")
-<br>
-Usuario: demo@gmail.com<br>
-Contraseña: 123456
-
 
 ## Manuales adicionales
 
@@ -119,19 +94,9 @@ Procedimiento para solucionar error 1033 SUNAT: [Guía](https://docs.google.com/
 Recreación de documentos: [Guía](https://drive.google.com/open?id=1_ZvNpA3_IyvEiQ2NSaiW_rsBhVNbK7YD-_l1kbrEGwQ "Clic")<br>
 Manual de cambios privados: [Guía](https://drive.google.com/open?id=1ePniWwGvylJDzHTcPOj6E_nQtD_eO6PCReB_xwzOn98 "Clic")<br>
 Validador documentos: [Guía](https://docs.google.com/document/d/1v6XpJrEwCx3suRzRsa4-3-kcAghRvS9DHS5esb89SuI/edit "Clic")<br>
-Proyecto Espejo (Mirror/Fork) (Por actualizar): [Guía](https://docs.google.com/document/d/1ePniWwGvylJDzHTcPOj6E_nQtD_eO6PCReB_xwzOn98/edit "Clic")<br>
-Migracion Jira-Issues(Gitlab): [Guía](https://docs.google.com/document/d/156wEGBlBiM35aFWbbnEi6HTWhag2TWtUMHkz_aoP7Lg/edit?usp=sharing "Clic")<br>
 
-## Soporte
+## Factura Perú
 
-* Use Issues como sistema de tickets para añadir sus sugerencias, problemas o inquietudes
-* Inconvenientes con facturación serán atendidos con prioridad
-* Una vez obtiene acceso al repositorio tendrá un año de vigencia, pasado el año debe renovar su contrato
-* Toda instalación es gestionada mediante los canales de Slack
-* Nuevas instalaciones o actualizaciones deben ser programadas y gestionadas, para ser ejecutada el mismo día debe haber un problema previo
-
-## FacturaloPeru
-
-[facturaloperu.com](http://facturaloperu.com "Clic")<br>
-soporte@facturaloperu.com<br>
-wsapp: 930 973 902<br>
+[facturaperu.org.pe](http://facturaperu.org.pe "Clic")<br>
+soporte@facturaperu.org.pe<br>
+wsapp: 977860500<b>
