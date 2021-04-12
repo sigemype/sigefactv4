@@ -1,0 +1,56 @@
+sigefact.comversion: '3'
+
+services:
+    nginx1:
+        image: rash07/nginx
+        working_dir: /var/www/html
+        environment:
+            VIRTUAL_HOST: sigefact.com, *.sigefact.com
+        volumes:
+            - ./:/var/www/html
+            - /root/proxy/fpms/facturadorpro31:/etc/nginx/sites-available
+        restart: always
+    fpm1:
+        image: rash07/php:2.0
+        working_dir: /var/www/html
+        volumes:
+            - ./ssh:/root/.ssh
+            - ./ssh:/var/www/.ssh
+            - ./:/var/www/html
+        restart: always
+    mariadb1:
+        image: mariadb
+        environment:
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_PORT_HOST=${MYSQL_PORT_HOST}
+        volumes:
+            - mysqldata1:/var/lib/mysql
+        ports:
+            - "${MYSQL_PORT_HOST}:3306"
+        restart: always
+    redis1:
+        image: redis:alpine
+        volumes:
+            - redisdata1:/data
+        restart: always
+    scheduling1:
+        image: rash07/scheduling
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+        restart: always
+
+networks:
+    default:
+        external:
+            name: proxynet
+
+volumes:
+    redisdata1:
+        driver: "local"
+    mysqldata1:
+        driver: "local"
+

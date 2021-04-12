@@ -142,7 +142,7 @@
         <td width="16.6%" class="desc">O/C</td>
         <td width="16.6%" class="desc">CONDICIONES DE PAGO</td>
         <td width="16.6%" class="desc">VENDEDOR</td>
-        <td width="16.6%" class="desc">GUIA DE REMOSIÓN</td>
+        <td width="16.6%" class="desc">GUIA DE REMISIÓN</td>
         <td width="16.6%" class="desc">AGENCIA DE TRANSPORTE</td>
     </tr>
     <tr>
