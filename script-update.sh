@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BRANCH=${1:-'master'}
+BRANCH=${1:-'main'}
 SERVICE_NUMBER=${2:-'1'}
 
 git pull origin "$BRANCH"
