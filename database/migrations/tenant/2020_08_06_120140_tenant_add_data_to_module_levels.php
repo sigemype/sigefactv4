@@ -13,14 +13,12 @@ class TenantAddDataToModuleLevels extends Migration
      */
     public function up()
     {
-        
-        DB::table('module_levels')->insert([
 
+        DB::table('module_levels')->insert([
             ['value' => 'sale-opportunity', 'description' => 'Oportunidad de venta', 'module_id' => 1],
             ['value' => 'contracts', 'description' => 'Contratos', 'module_id' => 1],
             ['value' => 'order-note', 'description' => 'Pedidos', 'module_id' => 1],
             ['value' => 'technical-service', 'description' => 'Servicios de soporte técnico', 'module_id' => 1],
-
         ]);
 
         DB::table('module_levels')->where('value', 'incentives')->update(['description' => 'Comisiones']);

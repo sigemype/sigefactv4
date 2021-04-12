@@ -2230,6 +2230,7 @@ class TenantLocationTable extends Migration
             ['id' => '211102', 'description' => 'Cabana', 'province_id' => '2111'],
             ['id' => '211103', 'description' => 'Cabanillas', 'province_id' => '2111'],
             ['id' => '211104', 'description' => 'Caracoto', 'province_id' => '2111'],
+            ['id' => '211105', 'description' => 'San Miguel', 'province_id' => '2111'],
             ['id' => '211201', 'description' => 'Sandia', 'province_id' => '2112'],
             ['id' => '211202', 'description' => 'Cuyocuyo', 'province_id' => '2112'],
             ['id' => '211203', 'description' => 'Limbani', 'province_id' => '2112'],
