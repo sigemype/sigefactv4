@@ -6,6 +6,7 @@ use App\Models\Tenant\Catalogs\Country;
 use App\Models\Tenant\Catalogs\Department;
 use App\Models\Tenant\Catalogs\District;
 use App\Models\Tenant\Catalogs\Province;
+use Modules\Inventory\Models\Warehouse;
 
 class Establishment extends ModelTenant
 {
@@ -24,6 +25,7 @@ class Establishment extends ModelTenant
         'web_address',
         'aditional_information',
         'customer_id',
+        'logo',
     ];
 
     public function country()
@@ -51,9 +53,15 @@ class Establishment extends ModelTenant
         $address = ($this->address != '-')? $this->address.' ,' : '';
         return "{$address} {$this->department->description} - {$this->province->description} - {$this->district->description}";
     }
-    
+
     public function customer()
     {
         return $this->belongsTo(Person::class, 'customer_id');
     }
+
+    public function warehouse()
+    {
+        return $this->hasOne(Warehouse::class);
+    }
+
 }

@@ -20,8 +20,23 @@ class Configuration extends Model
         'token_public_culqui',
         'token_private_culqui',
         'url_apiruc',
-        'token_apiruc'
+        'token_apiruc',
+        'login',
+        'use_login_global'
     ];
 
+    public function getUseLoginGlobalAttribute($value)
+    {
+        return $value ? true : false;
+    }
 
+    public function setLoginAttribute($value)
+    {
+        $this->attributes['login'] = is_null($value) ? null : json_encode($value);
+    }
+
+    public function getLoginAttribute($value)
+    {
+        return is_null($value) ? null : (object) json_decode($value);
+    }
 }

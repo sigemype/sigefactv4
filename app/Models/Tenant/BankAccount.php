@@ -22,16 +22,8 @@ class BankAccount extends ModelTenant
         'cci',
         'status',
         'initial_balance',
+        'show_in_documents'
     ];
-
-    // protected static function boot()
-    // {
-    //     parent::boot();
-
-    //     static::addGlobalScope('active', function (Builder $builder) {
-    //         $builder->where('status', 1);
-    //     });
-    // }
 
     public function bank()
     {
@@ -47,5 +39,9 @@ class BankAccount extends ModelTenant
     {
         return $this->morphMany(GlobalPayment::class, 'destination')->with(['payment']);
     }
- 
+
+    public function getShowInDocumentsAttribute($value)
+    {
+        return $value ? true : false;
+    }
 }

@@ -38,7 +38,8 @@ class Retention extends ModelTenant
 
         'has_xml',
         'has_pdf',
-        'has_cdr'
+        'has_cdr',
+        'soap_shipping_response',
     ];
 
     protected $casts = [
@@ -73,6 +74,16 @@ class Retention extends ModelTenant
     public function setLegendsAttribute($value)
     {
         $this->attributes['legends'] = (is_null($value))?null:json_encode($value);
+    }
+
+    public function getSoapShippingResponseAttribute($value)
+    {
+        return (is_null($value))?null:(object) json_decode($value);
+    }
+
+    public function setSoapShippingResponseAttribute($value)
+    {
+        $this->attributes['soap_shipping_response'] = (is_null($value))?null:json_encode($value);
     }
 
     public function user()

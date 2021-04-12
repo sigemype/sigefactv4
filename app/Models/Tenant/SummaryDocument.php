@@ -10,6 +10,7 @@ class SummaryDocument extends ModelTenant
     protected $fillable = [
         'summary_id',
         'document_id',
+        'description'
     ];
 
     public function document()

@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Notifications\Tenant\PasswordResetNotification;
 use Hyn\Tenancy\Traits\UsesTenantConnection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -156,10 +157,14 @@ class User extends Authenticatable
         }
         return false;
     }
-    
+
     public function user_commission()
     {
         return $this->hasOne(UserCommission::class);
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new PasswordResetNotification($token));
+    }
 }

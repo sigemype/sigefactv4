@@ -34,7 +34,8 @@ class Person extends ModelTenant
         'person_type_id',
         'comment',
         'enabled',
-        'contact'
+        'contact',
+        'internal_code',
     ];
 
     // protected static function boot()

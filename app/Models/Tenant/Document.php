@@ -84,7 +84,10 @@ class Document extends ModelTenant
         'payment_method_type_id',
         'regularize_shipping',
         'response_regularize_shipping',
-
+        'seller_id',
+        'reference_data',
+        'terms_condition',
+        'payment_condition_id'
     ];
 
     protected $casts = [
@@ -292,6 +295,10 @@ class Document extends ModelTenant
         return $this->hasMany(DocumentPayment::class);
     }
 
+    public function fee()
+    {
+        return $this->hasMany(DocumentFee::class);
+    }
 
     public function inventory_kardex()
     {
@@ -349,7 +356,8 @@ class Document extends ModelTenant
     public function scopeWhereTypeUser($query)
     {
         $user = auth()->user();
-        return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
+        return ($user->type == 'admin') ? null : $query->where('user_id', $user->id);
+        // return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
     }
 
     public function scopeWhereNotSent($query)
@@ -381,17 +389,17 @@ class Document extends ModelTenant
     {
         return $query->where('affectation_type_prepayment', $type);
     }
-    
+
     public function scopeWhereStateTypeAccepted($query)
     {
         return $query->whereIn('state_type_id', ['01','03','05','07','13']);
     }
-    
+
     public function payment_method_type()
     {
         return $this->belongsTo(PaymentMethodType::class);
     }
-    
+
     public function scopeWhereRegularizeShipping($query)
     {
         return  $query->where('state_type_id', '01')->where('regularize_shipping', true);
@@ -400,5 +408,10 @@ class Document extends ModelTenant
     public function order_note()
     {
         return $this->belongsTo(OrderNote::class);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class);
     }
 }

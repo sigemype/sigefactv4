@@ -123,6 +123,9 @@ class SaleNoteItem extends ModelTenant
         $db_raw =  DB::raw("sale_note_items.id as id, sale_notes.series as series, sale_notes.number as number, 
                             sale_note_items.item as item, sale_note_items.quantity as quantity, sale_note_items.item_id as item_id,sale_notes.date_of_issue as date_of_issue");
 
+        if (isset($params['establishment_id'])) {
+            $query->where('establishment_id', $params['establishment_id']);
+        }
         if($params['person_id']){
 
             return $query->whereHas('sale_note', function($q) use($params){
@@ -137,15 +140,23 @@ class SaleNoteItem extends ModelTenant
         }
 
         
-        return $query->whereHas('sale_note', function($q) use($params){
+        $data = $query->whereHas('sale_note', function($q) use($params){
                     $q->whereBetween($params['date_range_type_id'], [$params['date_start'], $params['date_end']])
-                        ->where('user_id', $params['seller_id'])
+                        // ->where('user_id', $params['seller_id'])
                         ->whereTypeUser();
                 })
                 ->join('sale_notes', 'sale_note_items.sale_note_id', '=', 'sale_notes.id')
                 ->select($db_raw)
                 ->latest('id');
 
+        
+        $sellers = json_decode($params['sellers']);
+
+        if(count($sellers) > 0){
+            $data = $data->whereHas('sale_note', function($q) use($params, $sellers){$q->whereIn('user_id', $sellers);});
+        }
+
+        return $data;
     }
 
     public function warehouse()

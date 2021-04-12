@@ -22,6 +22,7 @@ class Item extends ModelTenant
         'name',
         'second_name',
         'description',
+        'model',
         'technical_specifications',
         'item_type_id',
         'internal_id',
@@ -67,6 +68,8 @@ class Item extends ModelTenant
         'series_enabled',
         'purchase_has_igv',
         'web_platform_id',
+        'has_plastic_bag_taxes',
+        'barcode',
         // 'warehouse_id'
     ];
 
@@ -209,7 +212,10 @@ class Item extends ModelTenant
 
     public function brand()
     {
-        return $this->belongsTo(Brand::class);
+        return $this->belongsTo(Brand::class)->withDefault([
+            'id' => '',
+            'name' => ''
+        ]);
     }
 
     public function category()
@@ -237,10 +243,14 @@ class Item extends ModelTenant
         return $this->hasMany(ItemLotsGroup::class, 'item_id');
     }
 
-
     public function scopeWhereNotService($query)
     {
         return $query->where('unit_type_id','!=', 'ZZ');
+    }
+
+    public function scopeWhereService($query)
+    {
+        return $query->where('unit_type_id', 'ZZ');
     }
 
     public  function document_items()
@@ -252,7 +262,7 @@ class Item extends ModelTenant
     {
         return $this->hasMany(SaleNoteItem::class, 'item_id');
     }
-    
+
     public function scopeWhereFilterValuedKardex($query, $params)
     {
 
@@ -299,15 +309,15 @@ class Item extends ModelTenant
     {
         return $query->where('active', false);
     }
-    
+
     public function scopeWhereHasInternalId($query)
     {
         return $query->where('internal_id','!=', null);
     }
-    
+
     public function web_platform()
     {
         return $this->belongsTo(WebPlatform::class);
     }
-    
+
 }

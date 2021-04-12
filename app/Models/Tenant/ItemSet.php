@@ -22,5 +22,9 @@ class ItemSet extends ModelTenant
         return $this->belongsTo(Item::class, 'individual_item_id');
     }
  
+    public function relation_item()
+    {
+        return $this->belongsTo(Item::class, 'individual_item_id');
+    }
 
 }

@@ -1,30 +1,30 @@
-# **Facturador PRO 3**
+# ** Facturador PRO 4 **
 
 
 ## Manuales de Instalación
 
-[Windows - Linux](https://docs.google.com/document/d/1izr-fbKyOAAQDG46SpMAZtLytMxGEUdCEVh2VWGik_E/edit "Clic")
+[Windows - Linux](https://drive.google.com/file/d/1GowS3z9dbrN6htRcWybJG-X68PZbfdO2/view?usp=sharing "Clic")
 <br>
-[Docker - Linux](https://drive.google.com/file/d/1vWawGZsS9fEFdD9v3HA-vKMsfH4ieaRE/view?usp=sharing "Clic")
+[Docker - Linux](https://drive.google.com/file/d/1WrDb-zBLUJtRtgz9NhlP3dvWoXU1KCRt/view?usp=sharing "Clic")
 <br>
-[Docker - Linux - SSL](https://docs.google.com/document/d/1V54AoYPSNqgi2M9ddck6gh3AgQspZ-eH37_1BU7Gpuo/edit?usp=sharingg "Clic")
+[Docker - Linux - SSL](https://drive.google.com/file/d/1sOFAZWh9i4YI6_ngxRjSAtrL2MJlqu_x/view?usp=sharing "Clic")
 <br>
-[Valet - Linux](https://docs.google.com/document/d/1x1SZnhzDITta6k-pOQC75xQKWowCgSUSRoa434gglQA/edit?usp=sharing "Clic")
+[Valet - Linux](https://drive.google.com/file/d/1G-FPQvzF5X2d0wPlYNenl8IQBQf1Canw/view?usp=sharing "Clic")
 <br>
-[Linux - gestión externa de SSL](https://docs.google.com/document/d/1D87YJ9fq9yHiAauu6SGVugiC3m_i42DrFUt6VKYXuDI/edit?usp=sharing "Clic")
+[Linux - gestión externa de SSL](https://drive.google.com/file/d/1-cFdZ1CFeERbaHP_WN4hZV9qZnLyPz6h/view?usp=sharing "Clic")
 
 
 ### Scripts de instalación con Docker
 
 Linux - Ubuntu 18 - Docker - SSL opcional<br>
-[Guia](https://drive.google.com/file/d/1p5omfe_QZ360Utc-tenxE-sozKJHMgcW/view?usp=sharing "clic") <br>
-[Script](https://drive.google.com/file/d/1M1GMvhT9YS9RQ-r76RWXXenzy3wc2z0i/view?usp=sharing "clic" )
+[Guia](https://drive.google.com/file/d/1c0D3nU3E2TfDKG2GDUWzmqbeOjYOxfkg/view?usp=sharing "clic") <br>
+[Script](https://drive.google.com/file/d/14ff72Jy2qq8l1rqiWEGG48NW4xe1un-Y/view?usp=sharing "clic" )
 
 ### Manuales de actualización
 
 * Docker - Comandos manuales
 
-[Con Docker](https://docs.google.com/document/d/1ekGySBjGHspbPEE3OLkMGlWwjLvudmyLKo9Et-Cxejk/edit "Clic")
+[Con Docker](https://drive.google.com/file/d/1xS2EPIVDpfV0tkcuO14I1DgjSpUxo7XF/view?usp=sharing "Clic")
 <br>
 
 
@@ -32,71 +32,85 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 
 * Docker
 
-[SSL](https://docs.google.com/document/d/1kcgtIDrOWnGKQbWO3sW2KEkUoNdadIB5YHBgaSb87uA/edit "Clic")
+[SSL](https://drive.google.com/file/d/1zixiayWttXdk5Obb2xmYKRgfGCiUi9or/view?usp=sharing "Clic")
 
 
 ### Manuales de Usuario
 
-[Manual de usuario](https://docs.google.com/document/d/1i7yKGy3rIvv9TrnwRWZifTuZMMnZ8dbWpqcjPZ3ClmE/edit "Clic")<br>
-[Manual de Tareas Programadas](https://docs.google.com/document/d/1Cu3Kpgv9HvMAV4fwVNbR-CFc0uTu_-qEVLT-MIuxBTQ/edit?usp=sharing "Clic")<br>
-[Manual de Cambio de Entorno](https://docs.google.com/document/d/1IBXczY4b1YvSnGdFlIklpb8HGlQcP1lN44rpXbtYyUc/edit "Clic")<br>
-[Manual de Pruebas](https://docs.google.com/document/d/1ht9JS7VdXiZrPmsqe3Dz-325lN_qEHDVVbieYU4Kay8/edit "Clic")
+[YouTube Tutorial](https://www.youtube.com/watch?v=a-tH1iYFuYM "Clic")<br>
+[Manual de usuario](https://drive.google.com/file/d/1MRYuJczgGjVsrKMGDjnWlELmVeQ8NZt6/view?usp=sharing "Clic")<br>
+[Manual de Tareas Programadas](https://drive.google.com/file/d/1Z35qKjdoY5lMyXhtcUu6D3fjRAw0Je3U/view?usp=sharing "Clic")<br>
+[Manual de Cambio de Entorno](https://drive.google.com/file/d/1gmWB3LXZ2XP57tJWQSuhEjXlHcTPA03V/view?usp=sharing "Clic")<br>
+[Manual de Pruebas](https://drive.google.com/file/d/1qBwn8oebHXMFIW9_ZNg9mMMbnslE5TFD/view?usp=sharing "Clic")
 
 ## API
 
-[Documentación](https://docs.google.com/document/d/1QO3H2nhV6dubGFc-IOrXY1X1hobmKkSmutfrtKbelTw/edit "Clic")<br>
+[Documentación](https://drive.google.com/file/d/13o7umOH0UyokqGZUBhRS1KXgkhut3XCo/view?usp=sharing "Clic")<br>
 
-[Colección para Postman](https://drive.google.com/file/d/18u_2U8z4tADIlZ0DbWg8-wg3JYYnT_t9/view?usp=sharing "Clic")
+[Colección para Postman](https://drive.google.com/file/d/1HL9D96vdFRTLINxulLyoQ0znt-L34NKK/view?usp=sharing "Clic")
 
 ## Manuales adicionales
 
 ### Conexión
-Conexión remota al servidor: [Guía](https://docs.google.com/document/d/1m7xmQ_yLBO2MQVew6ZrlCdvIMLNg2_EzEJmntDM_Jms/edit?usp=sharing "Clic")<br>
-Guía acceso SSH - Putty: [Guía](https://docs.google.com/document/d/1PmQejvNd_dkXVm8DPUYlQTag0wvES46tMpxX3MPhkNY/edit# "Clic")<br>
-Conexión servidor Winscp: [Guía](https://docs.google.com/document/d/1Xpri2102N4b5C-dG-FVPXW5ZWjEz5S4iDjpvl7Zwq2E/edit# "Clic")<br>
-Montar proyecto en /home: [Guía](https://docs.google.com/document/d/12o5dp0eccGgraKj3P-ly_wWmIcl2G0gUTZEgVi-AFtk/edit?usp=sharing "Clic")<br>
+Conexión remota al servidor: [Guía](https://drive.google.com/file/d/1pC0-M7jtopujc-Zhrt43eMiIRYV5z6sy/view?usp=sharing "Clic")<br>
+Guía acceso SSH - Putty: [Guía](https://drive.google.com/file/d/1BdfbV0QHK6LVlhbZlKNZaDXvdaySNO4M/view?usp=sharing "Clic")<br>
+Conexión servidor Winscp: [Guía](https://drive.google.com/file/d/1f2QI2YUUOGGtaqc6mMj1r2rQGgkftd5x/view?usp=sharing "Clic")<br>
+Montar proyecto en /home: [Guía](https://drive.google.com/file/d/17PLjrQq1guQiALZ4PcAMwQnbseiZdTtT/view?usp=sharing "Clic")<br>
 
 ### Manipulación de archivos dentro del servidor
-Documentación del archivo .ENV: [Guía](https://docs.google.com/document/d/1XpNPg32CrihM1wYWjttwON-2R6nln7-70vBLZnD1UjE/edit?usp=sharing "Clic")<br>
-Incrementar recursos - servidor: [Guía](https://drive.google.com/open?id=1IQad7UnljZEPd4hYWx5ZlR3LJliFGT25AjiI4-TlcJU "Clic")<br>
-Incrementar recursos - aplicación: [Guía](https://drive.google.com/open?id=1_A06M8AKR514XdctOpi8yIHOQd2cMIzm1BAdNCLUoew "Clic")<br>
-Configuracion de correo electrónico emisor: [Guía](https://docs.google.com/document/d/1sBXGgKZwcgKZTMTT_qQldpRT13jzEL4Q1S_yPpY-nOo/edit?usp=sharing "Clic")<br>
-Manual - Cambio de dominio: [Guía](https://docs.google.com/document/d/14rbElqQ6Ru6hh3UCZm4wTKIUCm_hPbMNYz9EH8fcPRo/edit?usp=sharing "Clic")<br>
-Linux - Eliminar temporales: [Guía](https://docs.google.com/document/d/17-9F9xrQepGfSkZIiCcty-B0GAjeJnN5KO8p0rOBYxY/edit?usp=sharing "Clic")<br>
-Linux - Eliminar archivos por extensión: [Guía](https://docs.google.com/document/d/1M1s6EYF7sA89JccrXh7d_UhLB367F7Kk41yKCpSIzdo/edit#heading=h.ghi3ru1xdrna "Clic")<br>
-Configuración servidor alterno SUNAT: [Guía](https://docs.google.com/document/d/1pr-9ewFYY7JFtYg-0V5MY4R16OGv-02VH5MqXjeUCh0/edit#heading=h.nezjsyganf1w "Clic")<br>
-Habilitar debug: [Guía](https://drive.google.com/open?id=1OdU-rDjr_cxM7t3fujBxPnEQn7qMoxIO6KZNjiKzyvU "Clic")<br>
-Configuración de API RUC/DNI (APIPERU): [Guía](https://docs.google.com/document/d/15_MjQBamZI20UC08p-zC9N3yrMhIqh8iObikZ_eNKKg/edit?usp=sharing "Clic")<br>
-Configuración de tareas programadas (crontab-LAMP): [Guía](https://docs.google.com/document/d/1fv_wWZSbbhEBo_uHiIE80y7PcU3m-A-HhPTPgQBth3Y/edit?usp=sharing "Clic")<br>
+Documentación del archivo .ENV: [Guía](https://drive.google.com/file/d/1FeCQmD4jplPBcMvq4TBDzOiZfnkNAABg/view?usp=sharing "Clic")<br>
+Incrementar recursos - servidor: [Guía](https://drive.google.com/file/d/1Wj6eGv0QN11MgvQ-Y4QUyqcRfaN4seUW/view?usp=sharing "Clic")<br>
+Incrementar recursos - aplicación: [Guía](https://drive.google.com/file/d/1eX4BkjzOIuEobhZIJScOJI2ee5d6S7U0/view?usp=sharing "Clic")<br>
+Configuracion de correo electrónico emisor: [Guía](https://drive.google.com/file/d/1a41ZgkPoiXIyJK-lcAkXFalJRWlATOPZ/view?usp=sharing "Clic")<br>
+Manual - Cambio de dominio: [Guía](https://drive.google.com/file/d/1xIz3RkexgL0VlwfVBTrXzvCSGV85pFFi/view?usp=sharing "Clic")<br>
+Linux - Eliminar temporales: [Guía](https://drive.google.com/file/d/1ND9lLcpyfYCEin451qJ0M1pCKxmpbX4N/view?usp=sharing "Clic")<br>
+Linux - Eliminar archivos por extensión: [Guía](https://drive.google.com/file/d/1mfL9cyJ591TD2gjaAd-6hO8PbT69JyFT/view?usp=sharing "Clic")<br>
+Configuración servidor alterno SUNAT: [Guía](https://drive.google.com/file/d/1PLbCuhC7_2oHPrqbNioxYAI6nkFdc3Ap/view?usp=sharing "Clic")<br>
+Habilitar debug: [Guía](https://drive.google.com/file/d/1KrloOMSDcFfLriq82DW1bd9O7lQFv6H5/view?usp=sharing "Clic")<br>
+Configuración de API RUC/DNI (APIPERU): [Guía](https://drive.google.com/file/d/1kLpnKxcCXGm8uUG75zrY0TIDIMKUTDz7/view?usp=sharing "Clic")<br>
+Configuración de tareas programadas (crontab-LAMP): [Guía](https://drive.google.com/file/d/1gR08nuyelxs4bQP6c9y_KztLw8H5qbNf/view?usp=sharing "Clic")<br>
 
 ### Base de datos
-Guía acceso a base de datos: [Guía](https://drive.google.com/open?id=1uZ_qt34I8HucJYmt_RfI2orgfl9_dpqIh8RukwiG1uM "Clic")<br>
+Guía acceso a base de datos: [Guía](https://drive.google.com/file/d/15LtxOmP3lWF3Q9krR5nwWrLZqqGvIyyB/view?usp=sharing "Clic")<br>
 
 ### Docker
-Iniciar servicios docker: [Guía](https://docs.google.com/document/d/1MMuyeYE53RjDaOR2OLPsCtpxicDzqowlvoMTWpkBaSM/edit# "Clic")<br>
-Guía generar backup: [Guía](https://drive.google.com/open?id=15dD0KPmDPIeM5y6QdLJivEI-ryS75s2uuJJlusNTr1g "Clic")<br>
-Restauración de Mysql|Docker: [Guía](https://docs.google.com/document/d/1Aze-O_a0aseyjaDXsD1iHflPr6ptZ8Cq6BWRrs6GhsM/edit?usp=sharing "Clic")<br>
+Iniciar servicios docker: [Guía](https://drive.google.com/file/d/14kIHNclpL7Dc3z7rzxOJTDbeCJ7mHXZL/view?usp=sharing "Clic")<br>
+Guía generar backup: [Guía](https://drive.google.com/file/d/1e7rBSNAlStQqIQvQgj94FqqvtET_UtBn/view?usp=sharing "Clic")<br>
+Restauración de Mysql|Docker: [Guía](https://drive.google.com/file/d/1_TDNkflAODVmymKDh-8uEmDQiqz2IflS/view?usp=sharing "Clic")<br>
 
 ### Servidores
-Guía incrementar espacio disco: [Guía](https://docs.google.com/document/d/1hpEQUs9OFha_35yyLb1cMKeluD-dEku5lQsQ3TJFib8/edit "Clic")<br>
-Limpiar inodes: [Guía](https://drive.google.com/open?id=1foPKDI3V3Z9uKTjRc2SPSoztVSOBevPAluT2BqFbfxA "Clic")<br>
-Migración servidor: [Guía](https://docs.google.com/document/d/1HjAoa2d6mPDVY5lrDxprwfteKrP6n100LeSox_g34Eg/edit "Clic")<br>
-Manual de configuración offline: [Guía](https://drive.google.com/open?id=1s9VE08nVjqyKGQ2BiupfQ0yODVBfTfhkSjjZuZLyv38 "Clic")<br>
-Habilitar puertos en Google Cloud: [Manual](https://docs.google.com/document/d/1pbCXJyRyR4VOaQ2BE3aJp-3_vhFIp-b6RXnT_6rtw1o/edit?usp=sharing "clic")<br>
+Guía incrementar espacio disco: [Guía](https://drive.google.com/file/d/1flzFaLlMThbCI_58ve2a3v1TDBtluSys/view?usp=sharing "Clic")<br>
+Limpiar inodes: [Guía](https://drive.google.com/file/d/11P2wDBP6u0u_pkb5YdnyewjY2T5QDubf/view?usp=sharing "Clic")<br>
+Migración servidor: [Guía](https://drive.google.com/file/d/12MdHQCErv5TL1R569veecG4ymCLKGkOl/view?usp=sharing "Clic")<br>
+Manual de configuración offline: [Guía](https://drive.google.com/file/d/1MZlOrW0IVANSfzDpG6cxqA_EUsVRIfc4/view?usp=sharing "Clic")<br>
+Habilitar puertos en Google Cloud: [Manual](https://drive.google.com/file/d/1fGuW4iSlXjUhn00p4K1vqxEy4rMRupjg/view?usp=sharing "clic")<br>
 
 ### Laragon
-Acceso red local - laragon: [Guía](https://docs.google.com/document/d/13kOE5N5LJtCJIr3hswrfNgBYxi9wx07YwUCrAfgyCoQ/edit "Clic")<br>
+Acceso red local - laragon: [Guía](https://drive.google.com/file/d/1gRU4DuksFjLjVZYpuPkRaLv4iZ49SDgg/view?usp=sharing "Clic")<br>
+YouTube Tutorial Instalación Local: [Guía](https://youtu.be/8jASU58TdKg "Clic")<br>
 
 ### Errores comunes
-Procedimiento para solucionar error 1033 SUNAT: [Guía](https://docs.google.com/document/d/1V9xyhH4JRJqFf-8zFBG9lOlmy07ts9dZCcJlQFEcFf8/edit# "Clic")<br>
+Procedimiento para solucionar error 1033 SUNAT: [Guía](https://drive.google.com/file/d/1_h1CHvB9J2EKY-kFaXV-LVPGm9Oy7FF-/view?usp=sharing "Clic")<br>
 
 ### No clasificados
-Recreación de documentos: [Guía](https://drive.google.com/open?id=1_ZvNpA3_IyvEiQ2NSaiW_rsBhVNbK7YD-_l1kbrEGwQ "Clic")<br>
-Manual de cambios privados: [Guía](https://drive.google.com/open?id=1ePniWwGvylJDzHTcPOj6E_nQtD_eO6PCReB_xwzOn98 "Clic")<br>
-Validador documentos: [Guía](https://docs.google.com/document/d/1v6XpJrEwCx3suRzRsa4-3-kcAghRvS9DHS5esb89SuI/edit "Clic")<br>
+Recreación de documentos: [Guía](https://drive.google.com/file/d/1fD2-XN4eavBEbEXGJuxEbjbqR_mMGp0K/view?usp=sharing "Clic")<br>
+Manual de cambios privados: [Guía](https://drive.google.com/file/d/1bUFNi6JmOB70MkfkA76lx37skF0b6LDv/view?usp=sharing "Clic")<br>
+Validador documentos: [Guía](https://drive.google.com/file/d/1Q8SblYp-fd1x30emqeNO6qPTx_XyjaJE/view?usp=sharing "Clic")<br>
 
 ## Factura Perú
 
-[facturaperu.org.pe](http://facturaperu.org.pe "Clic")<br>
-soporte@facturaperu.org.pe<br>
-wsapp: 977860500<b>
+[facturaperu.com.pe](http://facturaperu.com.pe "Clic")<br>
+soporte@facturaperu.com.pe<br>
+WhatsApp: 977860500<b>
+
+
+### Panel de cliente
+
+[URL](https://demo.e.org.pe "Clic")
+<br>
+Usuario: demo@e.org.pe<br>
+Contraseña: 123456
+
+### Software para grabar pantalla
+Contraseña: camtasia: [Descargar](https://drive.google.com/file/d/1lJ4N3whm9AMRmRl0oW-5ptf0uCx26Eek/view?usp=sharing "Clic")<br>
+

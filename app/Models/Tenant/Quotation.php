@@ -62,9 +62,10 @@ class Quotation extends ModelTenant
         'changed',
         'account_number',
         'terms_condition',
+        'referential_information',
         'contact',
         'phone',
-
+        'seller_id',
     ];
 
     protected $casts = [
@@ -265,5 +266,12 @@ class Quotation extends ModelTenant
     public function contract()
     {
         return $this->hasOne(Contract::class);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id')->withDefault([
+            'name' => ''
+        ]);
     }
 }

@@ -60,8 +60,11 @@ class SaleNote extends ModelTenant
         'series',
         'number',
         'paid',
+        'payment_method_type_id',
         'license_plate',
-        'plate_number'
+        'observation',
+        'reference_data',
+        'plate_number',
     ];
 
     protected $casts = [
@@ -262,9 +265,14 @@ class SaleNote extends ModelTenant
         return $query->where('changed', false);
     }
     
-
     public function quotation()
     {
         return $this->belongsTo(Quotation::class);
     }
+    
+    public function payment_method_type()
+    {
+        return $this->belongsTo(PaymentMethodType::class);
+    }
+    
 }
