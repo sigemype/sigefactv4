@@ -21,57 +21,73 @@ class ExchangeRate
 
     private function search($month, $year)
     {
-        // $client = new  Client(['base_uri' => 'http://www.sunat.gob.pe/cl-at-ittipcam/', 'verify' => false]);
-        // try {
-        //     $response = $client->request('GET', "tcS01Alias?mes={$month}&anho={$year}", ['http_errors' => true, 'timeout' => 4]);
-        // } catch (ClientException $e) {
-        //     dd($e);
-        //     return $e->getResponse();
-
-        // } catch (RequestException $e) {
-        //     dd($e);
-        //     return $e->getResponse();
-
-        // }
 
         try {
 
-            // $url = "http://www.sunat.gob.pe/cl-at-ittipcam/tcS01Alias?mes={$month}&anho={$year}";
-            $url = "https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias?mes={$month}&anho={$year}";
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL,$url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            $response = curl_exec ($ch);
-            curl_close ($ch);
-            // dd($response);
+            // $url = "https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias?mes={$month}&anho={$year}";
+            // $url = 'http://www.sunat.gob.pe/a/txt/tipoCambio.txt';
+            // $ch = curl_init();
+            // curl_setopt($ch, CURLOPT_URL,$url);
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            // $response = curl_exec ($ch);
+            // curl_close ($ch);
 
-            //dd($response->getStatusCode());
-            // if ($response->getStatusCode() == 200 && $response != "") {
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'http://www.sunat.gob.pe/a/txt/tipoCambio.txt',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+
             if ($response != "") {
-                // $html = $response->getBody()->getContents();
                 $html = $response;
-                $xp = new DiDom($html);
-                $sub_headings = $xp->find('form table');
-                $trs = $sub_headings[1]->find('tr');
-                $values = [];
 
-                for($i = 1; $i < count($trs); $i++)
-                {
-                    $tr = $trs[$i];
-                    $tds = $tr->find('td');
+                $explode = explode('|', $html);
 
-                    foreach($tds as $td)
-                    {
-                        $values[] = trim(preg_replace("/[\t|\n|\r]+/", '', $td->text()));
-                    }
-                }
+                $values[] = [
+                    (int)substr($html,0,2),
+                    $explode[1],
+                    $explode[2]
+                ];
 
-                return collect($values)->chunk(3)->toArray();
+                // dd($response, $explode, $values);
+
+                return collect($values)->toArray();
+
+
+                // $xp = new DiDom($html);
+                // $sub_headings = $xp->find('form table');
+                // $trs = $sub_headings[1]->find('tr');
+                // $values = [];
+
+                // for($i = 1; $i < count($trs); $i++)
+                // {
+                //     $tr = $trs[$i];
+                //     $tds = $tr->find('td');
+
+                //     foreach($tds as $td)
+                //     {
+                //         $values[] = trim(preg_replace("/[\t|\n|\r]+/", '', $td->text()));
+                //     }
+                // }
+
+                // return collect($values)->chunk(3)->toArray();
             }
 
         } catch (Exception $e) {
-
+            // dd($e);
             Log::info("Error consulta T/C: ".$e->getMessage());
             return false;
 
@@ -93,6 +109,8 @@ class ExchangeRate
         $date = Carbon::parse($date);
 
         $res = $this->searchByDay($date);
+        // dd($res);
+
         $date = $date->addDay(-1);
 
         if(!$res){
@@ -124,6 +142,7 @@ class ExchangeRate
             foreach ($exchange_rates as $row)
             {
                 $new_row = array_values($row);
+
                 if ($new_row[0] == (int)$day) {
                     return [
                         'date_data' => $date->format('Y-m-d'),
