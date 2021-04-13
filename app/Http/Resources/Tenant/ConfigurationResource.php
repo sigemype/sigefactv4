@@ -32,6 +32,7 @@ class ConfigurationResource extends JsonResource
             'visual' => $this->visual,
             'enable_whatsapp' => (bool) $this->enable_whatsapp,
             'terms_condition' => $this->terms_condition,
+            'terms_condition_sale' => $this->terms_condition_sale,
             'cotizaction_finance' => (bool) $this->cotizaction_finance,
             'include_igv' => (bool) $this->include_igv,
             'product_only_location' => (bool) $this->product_only_location,
@@ -39,6 +40,8 @@ class ConfigurationResource extends JsonResource
             'default_document_type_03' => (bool) $this->default_document_type_03,
             'header_image' => $this->header_image,
             'destination_sale' => (bool) $this->destination_sale,
-        ];
+            'quotation_allow_seller_generate_sale' => $this->quotation_allow_seller_generate_sale,
+            'finances' => $this->finances,
+            ];
     }
 }

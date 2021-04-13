@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Traits;
-use App\Models\Tenant\Kardex; 
-use App\Models\Tenant\Item; 
- 
+use App\Models\Tenant\Item;
+use App\Models\Tenant\Kardex;
+use Modules\Inventory\Models\ItemWarehouse;
+use Modules\Inventory\Models\InventoryConfiguration;
+
 
 
 trait KardexTrait
 {
-    
+
     public function saveKardex($type, $item_id, $id, $quantity, $relation) {
-        
+
         $kardex = Kardex::create([
             'type' => $type,
             'date_of_issue' => date('Y-m-d'),
@@ -30,7 +32,14 @@ trait KardexTrait
         $item = Item::find($item_id);
         $item->stock = ($is_sale) ? $item->stock - $quantity : $item->stock + $quantity;
         $item->save();
-        
+
+    }
+
+    public function restoreStockInWarehpuse($item_id, $warehouse_id, $quantity)
+    {
+        $item_warehouse = ItemWarehouse::firstOrNew(['item_id' => $item_id, 'warehouse_id' => $warehouse_id]);
+        $item_warehouse->stock = $item_warehouse->stock + $quantity;
+        $item_warehouse->save();
     }
 
 }

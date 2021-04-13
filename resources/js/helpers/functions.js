@@ -1,5 +1,4 @@
 function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
-
     // console.log(currency_type_id_new, exchange_rate_sale)
 
     let currency_type_id_old = row_old.item.currency_type_id
@@ -122,14 +121,14 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
 
     row.discounts.forEach((discount, index) => {
 
-        if(discount.is_amount){ 
+        if(discount.is_amount){
 
             if (discount.discount_type.base) {
 
-                discount.base = _.round(total_value_partial, 2) 
+                discount.base = _.round(total_value_partial, 2)
                 //amount and percentage are equals in input
                 discount.amount = _.round(discount.percentage, 2)
-                
+
                 discount.percentage =  _.round(100 * (parseFloat(discount.amount) / parseFloat(discount.base)),2)
 
                 discount.factor = _.round(discount.percentage / 100, 2)
@@ -142,15 +141,15 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
                 let affectation_igv_type_exonerated = ['20','21','30','31','32','33','34','35','36','37']
 
                 if (!affectation_igv_type_exonerated.includes(row.affectation_igv_type_id)) {
-                    total_value_partial = (aux_total_line - discount.percentage) / (1 + percentage_igv / 100)  
+                    total_value_partial = (aux_total_line - discount.percentage) / (1 + percentage_igv / 100)
                 }else{
-                    total_value_partial = aux_total_line - discount.percentage  
+                    total_value_partial = aux_total_line - discount.percentage
                 }
 
-                discount.base = _.round(aux_total_line, 2) 
+                discount.base = _.round(aux_total_line, 2)
                 //amount and percentage are equals in input
                 discount.amount = _.round(discount.percentage, 2)
-                
+
                 discount.percentage =  _.round(100 * (parseFloat(discount.amount) / parseFloat(discount.base)),2)
 
                 discount.factor = _.round(discount.percentage / 100, 2)
@@ -171,7 +170,7 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
             }
 
         }
-        
+
         row.discounts.splice(index, discount)
     })
 
@@ -244,7 +243,7 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
     if(row_old.has_plastic_bag_taxes){
         row.total_plastic_bag_taxes = _.round(row.quantity * row.item.amount_plastic_bag_taxes, 1)
     }
-    
+
     // console.log(row)
     return row
 }

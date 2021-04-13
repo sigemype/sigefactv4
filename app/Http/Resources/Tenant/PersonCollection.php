@@ -19,6 +19,7 @@ class PersonCollection extends ResourceCollection
                 'id' => $row->id,
                 'number' => $row->number,
                 'name' => $row->name,
+                'internal_code' => $row->internal_code,
                 'document_type' => $row->identity_document_type->description,
                 'enabled' => (bool) $row->enabled,
                 'created_at' => $row->created_at->format('Y-m-d H:i:s'),

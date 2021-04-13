@@ -441,15 +441,10 @@
                 // return unit_price.toFixed(6)
             },
             async isGeneratePurchaseOrder(){
-
-                // console.log(this.purchase_order_id)
                 if(this.purchase_order_id){
 
                     await this.$http.get(`/purchase-orders/record/${this.purchase_order_id}`)
                         .then(response => {
-
-                            // console.log(response)
-
                             let purchase_order = response.data.data.purchase_order
                             let warehouse = response.data.data.warehouse
                             let supp = purchase_order.supplier
@@ -459,8 +454,6 @@
                             } else if (supp.identity_document_type_id == 1) {
                                 this.form.document_type_id = "03"
                             }
-
-                            // console.log(purchase_order.supplier_id)
 
                             this.form.items = response.data.data.purchase_order.items
                             this.form.supplier_id = purchase_order.supplier_id
@@ -544,7 +537,7 @@
                     payment_destination_id: this.getPaymentDestinationId(),
                     payment: 0,
                 });
-                
+
                 this.setTotalDefaultPayment()
 
             },
@@ -757,8 +750,6 @@
                 let total_value = 0
                 let total = 0
 
-                // console.log(this.form.items)
-
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
@@ -932,7 +923,6 @@
             },
             addRowLot({lots, indexItem})
             {
-                console.log(lots, indexItem)
                 this.form.items[indexItem].lots = lots
             },
             async validationItemSeries()

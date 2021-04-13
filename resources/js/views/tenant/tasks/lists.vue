@@ -41,14 +41,14 @@
         },
         methods: {
             refresh() {
-                axios.post(`/${this.resource}/tables`).then((response) => {
+                this.$http.post(`/${this.resource}/tables`).then((response) => {
                     this.tableData = response.data;
                 }).catch((error) => {
                     console.log(error);
                 }).then(() => {});
             },
             handleDelete(index, row) {
-                axios.delete(`/${this.resource}/${row.id}`).then((response) => {
+                this.$http.delete(`/${this.resource}/${row.id}`).then((response) => {
                     if (response.data.success) {
                         this.$message.success(response.data.message);
                         this.tableData.splice(index, 1);

@@ -35,6 +35,7 @@
                         <th>Comprobantes</th>
                         <th>Notas de venta</th>
                         <th>Oportunidad Venta</th>
+                        <th v-if="columns.referential_information.visible">Inf.Referencial</th>
                         <th v-if="columns.contract.visible">Contrato</th>
                         <!-- <th>Estado</th> -->
                         <th class="text-center">Moneda</th>
@@ -127,6 +128,7 @@
                             </el-popover>
                         </td>
                         <!-- <td>{{ row.state_type_description }}</td> -->
+                        <td v-if="columns.referential_information.visible">{{ row.referential_information }}</td>
                         <td v-if="columns.contract.visible">{{ row.contract_number_full }}</td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
 
@@ -149,7 +151,7 @@
                         </td>
 
                         <td class="text-right">
-                            <button v-if="row.state_type_id != '11' && row.btn_generate && typeUser == 'admin' && soapCompany != '03'"
+                            <button v-if="row.btn_options"
                                     type="button"
                                     class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickOptions(row.id)" >
@@ -185,7 +187,7 @@
                               :recordId="recordId"
                               :showClose="true"></quotation-options-pdf>
 
-                              
+
             <quotation-payments :showDialog.sync="showDialogPayments"
                                 :recordId="recordId"></quotation-payments>
         </div>
@@ -240,6 +242,10 @@
                     delivery_date: {
                         title: 'T.Entrega',
                         visible: false
+                    },
+                    referential_information: {
+                        title: 'Inf.Referencial',
+                        visible: false,
                     }
                 }
             }
@@ -250,7 +256,7 @@
         methods: {
             clickPrintContract(external_id){
                 window.open(`/contracts/print/${external_id}/a4`, '_blank');
-            } , 
+            } ,
             clickPayment(recordId) {
                 this.recordId = recordId;
                 this.showDialogPayments = true;

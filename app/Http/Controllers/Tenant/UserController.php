@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Models\Tenant\User;
+use App\Models\Tenant\Module;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\Establishment;
 use App\Http\Requests\Tenant\UserRequest;
 use App\Http\Resources\Tenant\UserResource;
-use App\Models\Tenant\Establishment;
-use App\Models\Tenant\Module;
-use App\Models\Tenant\User;
-use App\Http\Resources\Tenant\UserCollection;
 use Modules\LevelAccess\Models\ModuleLevel;
+use App\Http\Resources\Tenant\UserCollection;
 
 class UserController extends Controller
 {
@@ -27,7 +28,27 @@ class UserController extends Controller
 
     public function tables()
     {
-        $modules = Module::orderBy('order_menu')->get();
+        $modulesTenant = DB::connection('tenant')
+            ->table('module_user')
+            ->where('user_id', 1)
+            ->select('module_id')
+            ->get()
+            ->pluck('module_id')
+            ->all();
+
+        $levelsTenant = DB::connection('tenant')
+            ->table('module_level_user')
+            ->where('user_id', 1)
+            ->get()
+            ->pluck('module_level_id')
+            ->toArray();
+
+        $modules = Module::with(['levels' => function ($query) use ($levelsTenant) {
+            $query->whereIn('id', $levelsTenant);
+        }])
+            ->orderBy('order_menu')
+            ->whereIn('id', $modulesTenant)
+            ->get();
         $datasource = [];
         $children = array();
 
@@ -40,24 +61,6 @@ class UserController extends Controller
                     array_push($datasource, ['id' => $modules[$i]->id . '-' . $modules[$i]->levels[$j]->id, 'pid' => $modules[$i]->id, 'name' => $modules[$i]->levels[$j]->description, 'isChecked' => $isChecked]);
                 }
             endif;
-            /*if (count($modules[$i]->levels) > 0) {
-                for ($j = 0; $j < count($modules[$i]->levels); $j++) {
-                    array_push($children, ['id'=>$modules[$i]->levels[$j]->id.'-'.$modules[$i]->levels[$j]->description,'label'=>$modules[$i]->levels[$j]->description]);
-                }
-            }*/
-
-            /*if (count($modules[$i]->levels) > 0) :
-                $datasource_1 = [
-                    'id' => $modules[$i]->id,
-                    'label' => $modules[$i]->description,
-                    'children' => $children
-                ];
-            else :
-                $datasource_1 = [
-                    'id' => $modules[$i]->id,
-                    'label' => $modules[$i]->description
-                ];
-            endif;*/
             if (count($modules[$i]->levels) > 0) :
                 $hasChild = true;
                 $expanded = true;
@@ -67,7 +70,6 @@ class UserController extends Controller
         }
 
         $establishments = Establishment::orderBy('description')->get();
-        //dd($datasource);
         $types = [['type' => 'admin', 'description' => 'Administrador'], ['type' => 'seller', 'description' => 'Vendedor']];
 
         return compact('modules', 'establishments', 'types', 'datasource');

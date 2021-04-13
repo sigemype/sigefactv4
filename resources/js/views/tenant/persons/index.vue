@@ -20,6 +20,7 @@
                     <tr slot="heading">
                         <th>#</th>
                         <th>Nombre</th>
+                        <th>Cód interno</th>
                         <th class="text-right">Tipo de documento</th>
                         <th class="text-right">Número</th>
                         <th class="text-right">Acciones</th>
@@ -27,6 +28,7 @@
                     <tr slot-scope="{ index, row }" :class="{ disable_color : !row.enabled}">
                         <td>{{ index }}</td>
                         <td>{{ row.name }}</td>
+                        <td>{{ row.internal_code }}</td>
                         <td class="text-right">{{ row.document_type }}</td>
                         <td class="text-right">{{ row.number }}</td>
                         <td class="text-right">
@@ -55,7 +57,8 @@
             <persons-import :showDialog.sync="showImportDialog"
                             :type="type"></persons-import>
 
-            <persons-export :showDialog.sync="showExportDialog"></persons-export>
+            <persons-export :showDialog.sync="showExportDialog"
+                            :type="type"></persons-export>
 
         </div>
     </div>

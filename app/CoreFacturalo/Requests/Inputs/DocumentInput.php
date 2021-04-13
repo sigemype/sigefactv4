@@ -77,6 +77,7 @@ class DocumentInput
             'date_of_issue' => $inputs['date_of_issue'],
             'time_of_issue' => $inputs['time_of_issue'],
             'customer_id' => $inputs['customer_id'],
+            'seller_id' => Functions::valueKeyInArray($inputs, 'seller_id'),
             'customer' => $customer,
             'currency_type_id' => $inputs['currency_type_id'],
             'purchase_order' => $inputs['purchase_order'],
@@ -125,6 +126,11 @@ class DocumentInput
             'payments' => Functions::valueKeyInArray($inputs, 'payments', []),
             'send_server' => false,
             'payment_method_type_id' => Functions::valueKeyInArray($inputs, 'payment_method_type_id'),
+            'reference_data' => Functions::valueKeyInArray($inputs, 'reference_data'),
+            'terms_condition' => $inputs['terms_condition'] ?? '',
+            'dispatches_relateds' => $inputs['dispatches_relateds'] ?? null,
+            'payment_condition_id' => key_exists('payment_condition_id', $inputs)?$inputs['payment_condition_id']:'01',
+            'fee' => Functions::valueKeyInArray($inputs, 'fee', []),
         ];
     }
 
@@ -147,7 +153,8 @@ class DocumentInput
                         'amount_plastic_bag_taxes' => $item->amount_plastic_bag_taxes,
                         'is_set' => $item->is_set,
                         'lots' => self::lots($row),
-                        'IdLoteSelected' => ( isset($row['IdLoteSelected']) ? $row['IdLoteSelected'] : null )
+                        'IdLoteSelected' => ( isset($row['IdLoteSelected']) ? $row['IdLoteSelected'] : null ),
+                        'model' => $item->model,
                     ],
                     'quantity' => $row['quantity'],
                     'unit_value' => $row['unit_value'],
@@ -197,6 +204,7 @@ class DocumentInput
             return [];
         }
     }
+
     private static function attributes($inputs)
     {
         if(array_key_exists('attributes', $inputs)) {
@@ -378,6 +386,31 @@ class DocumentInput
                 $payment_method_id = $detraction['payment_method_id'];
                 $bank_account = $detraction['bank_account'];
 
+
+                //detraction transport
+                $reference_value_service = null;
+                $reference_value_effective_load = null;
+                $reference_value_payload = null;
+                $origin_location_id = [];
+                $origin_address = null;
+                $delivery_location_id = [];
+                $delivery_address = null;
+                $trip_detail = null;
+
+                if($inputs['operation_type_id'] === '1004'){
+
+                    $reference_value_service = $detraction['reference_value_service'];
+                    $reference_value_effective_load = $detraction['reference_value_effective_load'];
+                    $reference_value_payload = $detraction['reference_value_payload'];
+                    $origin_location_id = $detraction['origin_location_id'];
+                    $origin_address = $detraction['origin_address'];
+                    $delivery_location_id = $detraction['delivery_location_id'];
+                    $delivery_address = $detraction['delivery_address'];
+                    $trip_detail = $detraction['trip_detail'];
+
+                }
+                //detraction transport
+
                 $pay_constancy = array_key_exists('pay_constancy', $detraction) ? $detraction['pay_constancy']:null;
                 $set_image_pay_constancy = null;
                 $image_pay_constancy = array_key_exists('image_pay_constancy', $detraction) ? $detraction['image_pay_constancy']:null;
@@ -404,6 +437,14 @@ class DocumentInput
                     'bank_account' => $bank_account,
                     'pay_constancy' => $pay_constancy,
                     'image_pay_constancy' => $set_image_pay_constancy,
+                    'reference_value_service' => $reference_value_service,
+                    'reference_value_effective_load' => $reference_value_effective_load,
+                    'reference_value_payload' => $reference_value_payload,
+                    'origin_location_id' => $origin_location_id,
+                    'origin_address' => $origin_address,
+                    'delivery_location_id' => $delivery_location_id,
+                    'delivery_address' => $delivery_address,
+                    'trip_detail' => $trip_detail,
                 ];
             }
         }

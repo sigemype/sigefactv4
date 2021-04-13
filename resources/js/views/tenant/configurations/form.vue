@@ -151,12 +151,22 @@
                             </div>
                             <div class="col-md-6 mt-4">
                                 <a href="#" @click.prevent="showDialogTermsCondition = true" class="text-center font-weight-bold text-info">[+ Términos y condiciones - Cotización]</a>
+                                <br>
+                                <br>
+                                <a href="#" @click.prevent="showDialogTermsConditionSales = true" class="text-center font-weight-bold text-info">[+ Términos y condiciones - Ventas]</a>
                             </div>
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">Mostrar cotización en finanzas</label>
                                 <div class="form-group" :class="{'has-danger': errors.cotizaction_finance}">
                                     <el-switch v-model="form.cotizaction_finance" active-text="Si" inactive-text="No" @change="submit"></el-switch>
                                     <small class="form-control-feedback" v-if="errors.cotizaction_finance" v-text="errors.cotizaction_finance[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Permitir generar comprobante de pago desde cotización a vendedores</label>
+                                <div class="form-group" :class="{'has-danger': errors.quotation_allow_seller_generate_sale}">
+                                    <el-switch v-model="form.quotation_allow_seller_generate_sale" active-text="Si" inactive-text="No" @change="submit"></el-switch>
+                                    <small class="form-control-feedback" v-if="errors.quotation_allow_seller_generate_sale" v-text="errors.quotation_allow_seller_generate_sale[0]"></small>
                                 </div>
                             </div>
                         </div>
@@ -216,6 +226,25 @@
 
 
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 class="separator-title">Finanzas</h3>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Aplicar penalidad a los pagos vencidos</label>
+                                    <el-switch v-model="form.finances.apply_arrears" @change="submit" active-text="Si" inactive-text="No" ></el-switch>
+                                </div>
+                                <div class="form-group" v-if="form.finances.apply_arrears" style="max-width: 300px;">
+                                    <label>Cantidad a aplicar por día</label>
+                                    <el-input placeholder="Please input" v-model="form.finances.arrears_amount" class="input-with-select">
+                                        <el-button slot="append" @click="submit">
+                                            <i class="fa fa-save"></i>
+                                        </el-button>
+                                    </el-input>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -223,6 +252,9 @@
             <terms-condition :showDialog.sync="showDialogTermsCondition"
                             :form="form"
                             :showClose="false"></terms-condition>
+            <terms-condition-sale :showDialog.sync="showDialogTermsConditionSales"
+                            :form="form"
+                            :showClose="false"></terms-condition-sale>
         </div>
     </div>
 </template>
@@ -230,19 +262,23 @@
 <script>
 
     import TermsCondition from '@views/quotations/partials/terms_condition.vue'
+    import TermsConditionSale from '@views/documents/partials/terms_condition.vue'
 
     export default {
         props:['typeUser'],
-        components: {TermsCondition},
+        components: {TermsCondition, TermsConditionSale},
 
         data() {
             return {
                 headers: headers_token,
-                showDialogTermsCondition:false,
+                showDialogTermsCondition: false,
+                showDialogTermsConditionSales: false,
                 loading_submit: false,
                 resource: 'configurations',
                 errors: {},
-                form: {},
+                form: {
+                    finances: {}
+                },
                 affectation_igv_types: [],
                 placeholder:'',
 
@@ -313,6 +349,8 @@
                     legend_footer: false,
                     default_document_type_03: false,
                     destination_sale: false,
+                    quotation_allow_seller_generate_sale: false,
+                    finances: {}
                 };
             },
             submit() {

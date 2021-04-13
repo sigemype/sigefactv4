@@ -36,6 +36,7 @@ class ClientCollection extends ResourceCollection
                 'start_billing_cycle' => ( $row->start_billing_cycle ) ? $row->start_billing_cycle->format('Y-m-d') : '',
                 'count_doc_month' => $row->count_doc_month,
                 'select_date_billing' => '',
+                'soap_type' => $row->soap_type,
             ];
         });
     }

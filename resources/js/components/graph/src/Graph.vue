@@ -46,7 +46,7 @@
             createChart() {
                 if (this.chart) {
                     this.chart.destroy();
-                    console.log('destroy');
+                    // console.log('destroy');
                 }
                 this.chart = new Chart(this.$refs.canvas.getContext('2d'), {
                     type: this.type,

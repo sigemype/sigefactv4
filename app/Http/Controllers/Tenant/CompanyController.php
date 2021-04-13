@@ -58,13 +58,22 @@ class CompanyController extends Controller
             $name = $type.'_'.$company->number.'.'.$ext;
 
 
-            if (($type === 'logo')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+            if (($type === 'logo')) {
+                $v = request()->validate(['file' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+                $file->storeAs(($type === 'logo') ? 'public/uploads/logos' : 'certificates', $name);
+            }
 
-            $file->storeAs(($type === 'logo') ? 'public/uploads/logos' : 'certificates', $name);
+            if (($type === 'logo_store')) {
+                request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+                $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
+            }
 
-            if (($type === 'logo_store')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
-
-            $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
+			if (($type === 'favicon')) {
+                request()->validate(['file' => 'required|image|mimes:png|max:1024']);
+                $filename = time() . '.' . $ext;
+                $name = 'storage/uploads/favicons/' . $filename;
+			    $file->storeAs('public/uploads/favicons', $filename);
+            }
 
 
             if (($type === 'img_firm')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);

@@ -2,40 +2,41 @@
 
 namespace App\CoreFacturalo;
 
-use App\CoreFacturalo\Helpers\QrCode\QrCodeGenerate;
-use App\CoreFacturalo\Helpers\Xml\XmlFormat;
-use App\CoreFacturalo\Helpers\Xml\XmlHash;
-use App\CoreFacturalo\Helpers\Storage\StorageDocument;
-use App\CoreFacturalo\WS\Client\WsClient;
-use App\CoreFacturalo\WS\Services\BillSender;
-use App\CoreFacturalo\WS\Services\ConsultCdrService;
-use App\CoreFacturalo\WS\Services\ExtService;
-use App\CoreFacturalo\WS\Services\SummarySender;
-use App\CoreFacturalo\WS\Services\SunatEndpoints;
-use App\CoreFacturalo\WS\Signed\XmlSigned;
-use App\CoreFacturalo\WS\Validator\XmlErrorCodeProvider;
+use Exception;
+use Mpdf\Mpdf;
+use Mpdf\HTMLParserMode;
+use App\Traits\KardexTrait;
+use App\Models\Tenant\Voided;
 use App\Models\Tenant\Company;
-use App\Mail\Tenant\DocumentEmail;
 use App\Models\Tenant\Invoice;
-use Illuminate\Support\Facades\Mail;
+use App\Models\Tenant\Summary;
+use Mpdf\Config\FontVariables;
 use App\Models\Tenant\Dispatch;
 use App\Models\Tenant\Document;
 use App\Models\Tenant\Retention;
-use App\Models\Tenant\Summary;
-use App\Models\Tenant\Voided;
-use Exception;
-use Mpdf\HTMLParserMode;
-use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
-use Mpdf\Config\FontVariables;
 use App\Models\Tenant\Perception;
+use App\Mail\Tenant\DocumentEmail;
 use App\Models\Tenant\Configuration;
+use Illuminate\Support\Facades\Mail;
 use Modules\Finance\Traits\FinanceTrait;
-
+use App\CoreFacturalo\WS\Client\WsClient;
+use App\CoreFacturalo\Helpers\Xml\XmlHash;
+use App\CoreFacturalo\WS\Signed\XmlSigned;
+use App\CoreFacturalo\Helpers\Xml\XmlFormat;
+use App\CoreFacturalo\WS\Services\BillSender;
+use App\CoreFacturalo\WS\Services\ExtService;
+use App\CoreFacturalo\WS\Services\SummarySender;
+use App\CoreFacturalo\WS\Services\SunatEndpoints;
+use App\CoreFacturalo\Helpers\QrCode\QrCodeGenerate;
+use App\CoreFacturalo\WS\Services\ConsultCdrService;
+use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\CoreFacturalo\WS\Validator\XmlErrorCodeProvider;
+use Modules\Inventory\Models\Warehouse;
 
 class Facturalo
 {
-    use StorageDocument, FinanceTrait;
+    use StorageDocument, FinanceTrait, KardexTrait;
 
     const REGISTERED = '01';
     const SENT = '03';
@@ -112,6 +113,7 @@ class Facturalo
             case 'invoice':
                 $document = Document::create($inputs);
                 $this->savePayments($document, $inputs['payments']);
+                $this->saveFee($document, $inputs['fee']);
                 foreach ($inputs['items'] as $row) {
                     $document->items()->create($row);
                 }
@@ -267,7 +269,7 @@ class Facturalo
         $template = new Template();
         $pdf = new Mpdf();
 
-        $format_pdf = $this->actions['format_pdf'];
+        $format_pdf = $this->actions['format_pdf'] ?? null;
 
         $this->document = ($document != null) ? $document : $this->document;
         $format_pdf = ($format != null) ? $format : $format_pdf;
@@ -283,11 +285,17 @@ class Facturalo
         $pdf_margin_bottom = 15;
         $pdf_margin_left = 15;
 
-        if ($base_pdf_template === 'full_height') {
+        if (in_array($base_pdf_template, ['full_height', 'default3_new'])) {
             $pdf_margin_top = 5;
             $pdf_margin_right = 5;
             $pdf_margin_bottom = 5;
             $pdf_margin_left = 5;
+        }
+        if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
+            $pdf_margin_top = 15;
+            $pdf_margin_right = 5;
+            $pdf_margin_bottom = 15;
+            $pdf_margin_left = 14;
         }
 
         $html = $template->pdf($base_pdf_template, $this->type, $this->company, $this->document, $format_pdf);
@@ -321,6 +329,7 @@ class Facturalo
             $total_taxed       = $this->document->total_taxed != '' ? '10' : '0';
             $perception       = $this->document->perception != '' ? '10' : '0';
             $detraction       = $this->document->detraction != '' ? '50' : '0';
+            $detraction       += ($this->document->detraction && $this->document->invoice->operation_type_id == '1004') ? 45 : 0;
 
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
@@ -441,8 +450,12 @@ class Facturalo
         } else {
 
             if ($base_pdf_template === 'brand') {
-                $pdf_margin_top = 100;
+                $pdf_margin_top = 93.7;
                 $pdf_margin_bottom = 74;
+            }
+            if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
+                $pdf_margin_top = 110;
+                $pdf_margin_bottom = 125;
             }
 
             $pdf_font_regular = config('tenant.pdf_name_regular');
@@ -493,12 +506,6 @@ class Facturalo
 
         $stylesheet = file_get_contents($path_css);
 
-        if ($base_pdf_template === 'brand') {
-
-            $html_header = $template->pdfHeader($base_pdf_template, $this->company, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
-            $pdf->SetHTMLHeader($html_header);
-        }
-
         if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
             // dd($base_pdf_template);// = config(['tenant.pdf_template'=> $configuration]);
             if(config('tenant.pdf_template_footer')) {
@@ -515,6 +522,26 @@ class Facturalo
             }
 //            $html_footer = $template->pdfFooter();
 //            $pdf->SetHTMLFooter($html_footer);
+        }
+
+        if ($base_pdf_template === 'brand') {
+
+            $html_header = $template->pdfHeader($base_pdf_template, $this->company, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
+            $pdf->SetHTMLHeader($html_header);
+
+            if (($format_pdf === 'ticket') || ($format_pdf === 'ticket_58') || ($format_pdf === 'ticket_50') || ($format_pdf === 'a5')) {
+                $pdf->SetHTMLHeader("");
+                $pdf->SetHTMLFooter("");
+            }
+        }
+
+        if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
+
+            $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
+            $pdf->SetHTMLHeader($html_header);
+
+            $html_footer_blank = $template->pdfFooterBlank($base_pdf_template, $this->document);
+            $pdf->SetHTMLFooter($html_footer_blank);
         }
 
         $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
@@ -592,7 +619,11 @@ class Facturalo
         }
         if($code === 'HTTP') {
 //            $message = 'La SUNAT no responde a su solicitud, vuelva a intentarlo.';
-            // throw new Exception("Code: {$code}; Description: {$message}");
+
+            if(in_array($this->type, ['retention', 'dispatch'])){
+                throw new Exception("Code: {$code}; Description: {$message}");
+            }
+
             $this->updateRegularizeShipping($code, $message);
             return;
         }
@@ -602,7 +633,11 @@ class Facturalo
         }
         if((int)$code < 2000) {
             //Excepciones
-            // throw new Exception("Code: {$code}; Description: {$message}");
+
+            if(in_array($this->type, ['retention', 'dispatch'])){
+                throw new Exception("Code: {$code}; Description: {$message}");
+            }
+
             $this->updateRegularizeShipping($code, $message);
             return;
 
@@ -919,8 +954,6 @@ class Facturalo
             });
         }
 
-        // dd($payments, $balance, $this->apply_change);
-
         foreach ($payments as $row) {
 
             if($balance < 0 && !$this->apply_change){
@@ -939,4 +972,46 @@ class Facturalo
         }
     }
 
+    public function update($inputs,$id)
+    {
+
+        $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
+        $this->type = @$inputs['type'];
+        switch ($this->type) {
+            case 'invoice':
+                $document = Document::find($id);
+                $document->fill($inputs);
+                $document->save();
+
+                $document->payments()->delete();
+                $this->savePayments($document, $inputs['payments']);
+
+                $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
+                foreach ($document->items as $it) {
+                    $this->restoreStockInWarehpuse($it->item_id, $warehouse->id, $it->quantity);
+                }
+
+                $document->items()->delete();
+                foreach ($inputs['items'] as $row) {
+                    $document->items()->create($row);
+                }
+
+                $this->updatePrepaymentDocuments($inputs);
+
+                if($inputs['hotel']){
+                    $document->hotel()->update($inputs['hotel']);
+                }
+
+                $document->invoice()->update($inputs['invoice']);
+                $this->document = Document::find($document->id);
+                break;
+        }
+    }
+
+    private function saveFee($document, $fee)
+    {
+        foreach ($fee as $row) {
+            $document->fee()->create($row);
+        }
+    }
 }

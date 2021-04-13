@@ -131,8 +131,8 @@
     @endif
     @isset($document->quotation->delivery_date)
         <tr>
-            <td><p class="desc">T. Entrega</p></td>
-            <td><p class="desc">{{ $document->quotation->delivery_date}}</p></td>
+            <td><p class="desc">F. Entrega</p></td>
+            <td><p class="desc">{{ $document->date_of_issue->addDays($document->quotation->delivery_date)->format('d-m-Y')}}</p></td>
         </tr>
     @endisset
     @isset($document->quotation->sale_opportunity)
@@ -335,7 +335,7 @@
             <br>
             @if(in_array($document->document_type->id,['01','03']))
                 @foreach($accounts as $account)
-                    <p>
+                    <p class="desc">
                     <span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}}
                     <span class="font-bold">N°:</span> {{$account->number}}
                     @if($account->cci)
@@ -359,7 +359,7 @@
             <td class="desc pt-5">
                 <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
-        </tr> 
+        </tr>
     @endif
     @if($payments->count())
         <tr>
@@ -373,6 +373,19 @@
             </tr>
         @endforeach
     @endif
+
+    <tr>
+        <td class="desc pt-5">
+            <strong>Vendedor:</strong>
+        </td>
+    </tr>
+    <tr>
+        @if ($document->seller)
+            <td class="desc">{{ $document->seller->name }}</td>
+        @else
+            <td class="desc">{{ $document->user->name }}</td>
+        @endif
+    </tr>
 
     <tr>
         <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>

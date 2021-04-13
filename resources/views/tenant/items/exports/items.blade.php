@@ -24,6 +24,7 @@
                                 <th>Nombre</th>
                                 <th>Nombre alternativo</th>
                                 <th>Descripción</th>
+                                <th>Modelo</th>
                                 <th>Unidad de medida</th>
                                 <th>Posee IGV</th>
                                 <th>Categoría</th>
@@ -40,6 +41,7 @@
                                 <td class="celda">{{$value->name}}</td>
                                 <td class="celda">{{$value->second_name }}</td>
                                 <td class="celda">{{$value->description }}</td>
+                                <td class="celda">{{$value->model }}</td>
                                 <td class="celda">{{$value->unit_type_id }}</td>
                                 <td class="celda">{{$value->has_igv }}</td>
                                 <td class="celda">{{$value->category_id }}</td>

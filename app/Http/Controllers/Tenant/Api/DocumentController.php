@@ -1,17 +1,16 @@
 <?php
 namespace App\Http\Controllers\Tenant\Api;
 
-use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentControllerSend;
+use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\Http\Controllers\Controller;
-use App\CoreFacturalo\WS\Zip\ZipFly;
 use App\Http\Resources\Tenant\DocumentCollection;
-use Illuminate\Support\Facades\DB;
-use App\CoreFacturalo\Facturalo;
 use App\Models\Tenant\Document;
 use App\Models\Tenant\StateType;
-use Illuminate\Http\Request;
 use Exception;
+use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentControllerSend;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -24,7 +23,7 @@ class DocumentController extends Controller
 
     public function store(Request $request)
     {
-        $fact = DB::connection('tenant')->transaction(function () use($request) {
+        $fact = DB::connection('tenant')->transaction(function () use ($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
             $facturalo->createXmlUnsigned();
@@ -56,21 +55,21 @@ class DocumentController extends Controller
             'links' => [
                 'xml' => $document->download_external_xml,
                 'pdf' => $document->download_external_pdf,
-                'cdr' => ($response['sent'])?$document->download_external_cdr:'',
+                'cdr' => ($response['sent']) ? $document->download_external_cdr : '',
             ],
-            'response' => ($response['sent'])?array_except($response, 'sent'):[]
+            'response' => ($response['sent']) ? array_except($response, 'sent') : [],
         ];
     }
 
     public function send(Request $request)
     {
-        if($request->has('external_id')) {
+        if ($request->has('external_id')) {
             $external_id = $request->input('external_id');
             $document = Document::where('external_id', $external_id)->first();
-            if(!$document) {
+            if (!$document) {
                 throw new Exception("El documento con código externo {$external_id}, no se encuentra registrado.");
             }
-            if($document->group_id !== '01') {
+            if ($document->group_id !== '01') {
                 throw new Exception("El tipo de documento {$document->document_type_id} es inválido, no es posible enviar.");
             }
             $fact = new Facturalo();
@@ -85,18 +84,19 @@ class DocumentController extends Controller
                     'filename' => $document->filename,
                     'external_id' => $document->external_id,
                     'state_type_id' => $document->state_type_id,
-                    'state_type_description' => $this->getStateTypeDescription($document->state_type_id)
+                    'state_type_description' => $this->getStateTypeDescription($document->state_type_id),
                 ],
                 'links' => [
                     'cdr' => $document->download_external_cdr,
                 ],
-                'response' => array_except($response, 'sent')
+                'response' => array_except($response, 'sent'),
             ];
         }
     }
 
-    public function storeServer(Request $request) {
-        $fact = DB::connection('tenant')->transaction(function() use($request) {
+    public function storeServer(Request $request)
+    {
+        $fact = DB::connection('tenant')->transaction(function () use ($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
 
@@ -106,7 +106,7 @@ class DocumentController extends Controller
         $document = $fact->getDocument();
         $data_json = $document->data_json;
 
-       // $zipFly = new ZipFly();
+        // $zipFly = new ZipFly();
 
         $this->uploadStorage($document->filename, base64_decode($data_json->file_xml_signed), 'signed');
         $this->uploadStorage($document->filename, base64_decode($data_json->file_pdf), 'pdf');
@@ -117,8 +117,11 @@ class DocumentController extends Controller
         $document->save();
 
         // Send SUNAT
-        if($document->group_id === '01'){
-            if ($data_json->query) DocumentControllerSend::send($document->id);
+        if ($document->group_id === '01') {
+            if ($data_json->query) {
+                DocumentControllerSend::send($document->id);
+            }
+
         }
 
         return [
@@ -126,34 +129,52 @@ class DocumentController extends Controller
         ];
     }
 
-    public function documentCheckServer($external_id) {
+    public function documentCheckServer($external_id)
+    {
         $document = Document::where('external_id', $external_id)->first();
 
         if ($document->state_type_id === '05' && $document->group_id === '01') {
             $file_cdr = base64_encode($this->getStorage($document->filename, 'cdr'));
-        }
-        else {
+        } else {
             $file_cdr = null;
         }
 
         return [
             'success' => true,
             'state_type_id' => $document->state_type_id,
-            'file_cdr' => $file_cdr
+            'file_cdr' => $file_cdr,
         ];
     }
 
-    private function getStateTypeDescription($id){
+    private function getStateTypeDescription($id)
+    {
         return StateType::find($id)->description;
     }
 
-
-
-    public function lists()
+    public function lists($startDate = null, $endDate = null)
     {
-        $record = Document::orderBy('created_at', 'desc')->take(50)->get();
+        if ($startDate == null) {
+            $record = Document::orderBy('date_of_issue', 'desc')
+                ->take(50)
+                ->get();
+        } else {
+            $record = Document::whereBetween('date_of_issue', [$startDate, $endDate])
+                ->orderBy('date_of_issue', 'desc')
+                ->get();
+        }
         $records = new DocumentCollection($record);
         return $records;
+    }
+
+    public function updatestatus(Request $request)
+    {
+        $record = Document::whereExternal_id($request->externail_id)->first();
+        $record->state_type_id = $request->state_type_id;
+        $record->save();
+
+        return [
+            'success' => true,
+        ];
     }
 
 }

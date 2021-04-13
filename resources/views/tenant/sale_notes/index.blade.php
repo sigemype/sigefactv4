@@ -2,6 +2,6 @@
 
 @section('content')
 
-    <tenant-sale-notes-index :soap-company="{{ json_encode($soap_company) }}"></tenant-sale-notes-index>
+    <tenant-sale-notes-index :soap-company="{{ json_encode($soap_company) }}" :type-user="{{ json_encode(auth()->user()->type) }}"></tenant-sale-notes-index>
 
 @endsection

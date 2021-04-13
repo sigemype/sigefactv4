@@ -274,8 +274,6 @@ export default {
       } else {
 
         this.$http.get(`/${this.resource}/tables`).then((response) => {
-
-
           this.fields = {
             dataSource: response.data.datasource,
             id: "id",
@@ -290,31 +288,7 @@ export default {
         });
       }
     },
-    /*async changeModule(module_id, checked) {
-      if (module_id == 1) {
-        if (checked) {
-          // console.log(mdl)
-          if (this.form.levels.length == 0) {
-            let mdl = await _.find(this.modules, { id: module_id });
-            mdl.levels.forEach((level) => {
-              this.form.levels.push({
-                id: level.id,
-                level_id: level.id,
-                module_id: level.module_id,
-                description: level.description,
-                checked: false,
-              });
-            });
-            this.show_levels = true;
-          }
-        } else {
-          this.form.levels = [];
-          this.show_levels = false;
-        }
-      }
-    },*/
     submit() {
-      // console.log(this.form)
       this.loading_submit = true;
       this.$http
         .post(`/${this.resource}`, this.form)
@@ -340,9 +314,6 @@ export default {
         .then(() => {
           this.loading_submit = false;
         });
-    },
-    itemClick(node) {
-      console.log(node.model.text + " clicked !");
     },
     nodeChecked: function (args) {
       this.form.levels = [];

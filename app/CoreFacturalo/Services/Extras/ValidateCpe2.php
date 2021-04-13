@@ -66,7 +66,8 @@ class ValidateCpe2
     public function __construct()
     {
         $this->client = new Client([
-            'base_uri' => 'https://www.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/',
+            // 'base_uri' => 'https://www.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/',
+            'base_uri' => 'https://ww1.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/',
             'defaults' => [
                 'exceptions' => false,
                 'allow_redirects' => false

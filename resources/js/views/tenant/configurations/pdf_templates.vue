@@ -76,7 +76,7 @@
             });
 
             await this.$http.get(`/${this.resource}/getFormats`) .then(response => {
-                if (response.data !== '') this.formatos = response.data
+                if (response.data !== '') this.formatos = response.data.filter(r => this.imageGuide(r.formats))
                 // console.log(this.formatos)
             });
 
@@ -105,7 +105,16 @@
                 this.template = $value
 
                 this.modalImage = true
-            }
+            },
+            imageGuide(folder){
+                let url = this.path.origin+'/templates/pdf/'+folder+'/image.png'
+                // console.log(url)
+                var http = new XMLHttpRequest();
+                http.open('HEAD', url, false);
+                http.send();
+                console.log(http.status)
+                return http.status!=404;
+            },
         }
     }
 </script>

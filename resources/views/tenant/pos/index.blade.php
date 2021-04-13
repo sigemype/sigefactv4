@@ -14,7 +14,8 @@
     <tenant-pos-index
      	:configuration="{{ $configuration}}"
      	:soap-company="{{ json_encode($soap_company) }}"
-      :business-turns="{{ $business_turns }}">
+      :business-turns="{{ $business_turns }}"
+      :type-user="{{json_encode(Auth::user()->type)}}">
     </tenant-pos-index>
 @endsection
 

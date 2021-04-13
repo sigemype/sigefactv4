@@ -79,9 +79,9 @@
                             <el-input v-model="form.trade_address"></el-input>
                             <small class="form-control-feedback" v-if="errors.trade_address" v-text="errors.trade_address[0]"></small>
                         </div>
-                    </div> 
+                    </div>
                 </div>
-                 <div class="row">  
+                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.email}">
                             <label class="control-label">Correo de contacto</label>
@@ -97,7 +97,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">   
+                <div class="row">
                     <div class="col-md-12">
                         <div class="form-group" :class="{'has-danger': errors.aditional_information}">
                             <label class="control-label">Información adicional</label>
@@ -105,7 +105,7 @@
                             <small class="form-control-feedback" v-if="errors.aditional_information" v-text="errors.aditional_information[0]"></small>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-6 col-md-6">
                         <div class="form-group">
                             <label class="control-label">
@@ -124,7 +124,12 @@
 
                         </div>
                     </div>
-
+                    <div class="col-lg-6 col-md-6 form-group" style="padding-top: 29px;">
+                        <img v-if="preview" :src="preview" alt="Vista previa" class="img-fluid img-thumbnail mb-2">
+                        <input type="file" ref="inputFile" class="hidden" @change="onSelectImage" accept="image/png, image/jpeg, image/jpg">
+                        <span class="text-muted">Se recomienda resoluciones 700x300</span>
+                        <el-button @click="onOpenFileLogo">Cambiar logo del establecimiento</el-button>
+                    </div>
                 </div>
             </div>
             <div class="form-actions text-right mt-4">
@@ -156,6 +161,8 @@
                 customers: [],
                 all_customers: [],
                 loading_search:false,
+                file: null,
+                preview: null,
             }
         },
         async created() {
@@ -172,6 +179,20 @@
             await this.filterCustomers()
         },
         methods: {
+            onSelectImage(event) {
+                const files = event.target.files;
+                if (files) {
+                    const file = files[0];
+                    this.preview = URL.createObjectURL(file);
+                    this.file = file;
+                } else {
+                    this.preview = null;
+                    this.file = null;
+                }
+            },
+            onOpenFileLogo() {
+                this.$refs.inputFile.click();
+            },
             searchRemoteCustomers(input) {
 
                 if (input.length > 0) {
@@ -214,6 +235,8 @@
                     aditional_information: null,
                     customer_id: null,
                 }
+                this.file = null;
+                this.preview = null;
             },
             async create() {
                 this.titleDialog = (this.recordId)? 'Editar Establecimiento':'Nuevo Establecimiento'
@@ -221,7 +244,9 @@
                     await this.$http.get(`/${this.resource}/record/${this.recordId}`)
                         .then(response => {
                             if (response.data !== '') {
-                                this.form = response.data.data
+                                this.form = response.data.data;
+                                this.preview = this.form.logo;
+                                delete this.form.logo;
                                 this.filterProvinces()
                                 this.filterDistricts()
                                 this.searchRemoteCustomers(this.form.customer_number)
@@ -230,8 +255,18 @@
                 }
             },
             submit() {
+                const data = new FormData();
+                for (var key in this.form) {
+                    const value = this.form[key];
+                    if (value) {
+                        data.append(key, value);
+                    }
+                }
+                if (this.file) {
+                    data.append('file', this.file);
+                }
                 this.loading_submit = true
-                this.$http.post(`/${this.resource}`, this.form)
+                this.$http.post(`/${this.resource}`, data)
                     .then(response => {
                         if (response.data.success) {
                             this.$message.success(response.data.message)

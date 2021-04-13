@@ -14,6 +14,7 @@ use App\Models\Tenant\StateType;
 use Modules\Document\Http\Requests\ValidateDocumentsRequest;
 use App\CoreFacturalo\Services\Extras\ValidateCpe2;
 use App\Models\Tenant\Company;
+use Illuminate\Support\Facades\DB;
 
 class ValidateDocumentController extends Controller
 {
@@ -111,4 +112,56 @@ class ValidateDocumentController extends Controller
 
     }
     
+    public function regularize(ValidateDocumentsRequest $request)
+    {
+        
+        $document_state = [
+            'ACEPTADO' => '05',
+            'ENVIADO' => '03',
+            'OBSERVADO' => '07',
+            'RECHAZADO' => '09',
+            'ANULADO' => '11',
+            'POR ANULAR' => '13',
+        ];
+
+        $records = $this->getRecords($request)->get();
+
+        DB::connection('tenant')->transaction(function() use($records, $document_state){
+        
+            foreach ($records as $document)
+            {
+                reValidate:
+                $validate_cpe = new ValidateCpe2();
+                $response = $validate_cpe->search($document->company->number,
+                                                    $document->document_type_id,
+                                                    $document->series,
+                                                    $document->number,
+                                                    $document->date_of_issue,
+                                                    $document->total
+                                                );
+
+                if ($response['success']) {
+
+                    $response_description = mb_strtoupper($response['data']['comprobante_estado_descripcion']);
+
+                    $state_type_id = isset($document_state[$response_description]) ? $document_state[$response_description] : null;
+
+                    if($state_type_id){
+                        $document->state_type_id = $state_type_id;
+                        $document->update();
+                    }
+    
+                } else {
+                    goto reValidate;
+                }
+            }
+
+        });
+
+        return [
+            'success' => true,
+            'message' => 'Estados regularizados correctamente'
+        ];
+
+    }
 }

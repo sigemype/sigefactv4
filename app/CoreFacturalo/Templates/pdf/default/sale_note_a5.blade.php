@@ -5,6 +5,7 @@
     $left =  ($document->series) ? $document->series : $document->prefix;
     $tittle = $left.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
     $payments = $document->payments;
+    $accounts = \App\Models\Tenant\BankAccount::all();
 
 @endphp
 <html>
@@ -60,13 +61,19 @@
     <tr>
         <td class="align-top">Dirección:</td>
         <td colspan="3">
-            {{ $customer->address }}
-            {{ ($customer->district_id !== '-')? ', '.$customer->district->description : '' }}
-            {{ ($customer->province_id !== '-')? ', '.$customer->province->description : '' }}
-            {{ ($customer->department_id !== '-')? '- '.$customer->department->description : '' }}
+            {{ strtoupper($customer->address) }}
+            {{ ($customer->district_id !== '-')? ', '.strtoupper($customer->district->description) : '' }}
+            {{ ($customer->province_id !== '-')? ', '.strtoupper($customer->province->description) : '' }}
+            {{ ($customer->department_id !== '-')? '- '.strtoupper($customer->department->description) : '' }}
         </td>
     </tr>
     @endif
+    <tr>
+        <td>Teléfono:</td>
+        <td>{{ $customer->telephone }}</td>
+        <td>Vendedor:</td>
+        <td>{{ $document->user->name }}</td>
+    </tr>
     @if ($document->plate_number !== null)
     <tr>
         <td width="15%">N° Placa:</td>
@@ -83,6 +90,18 @@
         <td class="align-top">Estado:</td>
         <td colspan="3">PENDIENTE DE PAGO</td>
     </tr>
+    @endif
+    @if ($document->observation)
+    <tr>
+        <td class="align-top">Observación:</td>
+        <td colspan="3">{{ $document->observation }}</td>
+    </tr>
+    @endif
+    @if ($document->reference_data)
+        <tr>
+            <td class="align-top">D. Referencia:</td>
+            <td colspan="3">{{ $document->reference_data }}</td>
+        </tr>
     @endif
 </table>
 
@@ -138,6 +157,14 @@
                         <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
                     @endforeach
                 @endif
+                @if($row->item->is_set == 1)
+
+                 <br>
+                 @inject('itemSet', 'App\Services\ItemSetService')
+                 @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                     {{$item}}<br>
+                 @endforeach
+                @endif
             </td>
             <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
             <td class="text-right align-top">
@@ -183,12 +210,12 @@
                 <td class="text-right font-bold">{{ number_format($document->total_exonerated, 2) }}</td>
             </tr>
         @endif
-        @if($document->total_taxed > 0)
+        {{-- @if($document->total_taxed > 0)
             <tr>
                 <td colspan="5" class="text-right font-bold">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold">{{ number_format($document->total_taxed, 2) }}</td>
             </tr>
-        @endif
+        @endif --}}
       @if($document->total_discount > 0)
             <tr>
                 <td colspan="5" class="text-right font-bold">{{(($document->total_prepayment > 0) ? 'ANTICIPO':'DESCUENTO TOTAL')}}: {{ $document->currency_type->symbol }}</td>
@@ -205,6 +232,35 @@
         </tr>
     </tbody>
 </table>
+
+<table class="full-width">
+    <tr>
+        <td width="65%" style="text-align: top; vertical-align: top;">
+            <br>
+            @foreach($accounts as $account)
+                <p>
+                <span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}}
+                <span class="font-bold">N°:</span> {{$account->number}}
+                @if($account->cci)
+                - <span class="font-bold">CCI:</span> {{$account->cci}}
+                @endif
+                </p>
+            @endforeach
+        </td>
+    </tr>
+</table>
+<br>
+@if($document->payment_method_type_id && $payments->count() == 0)
+    <table class="full-width">
+        <tr>
+            <td>
+                <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
+            </td>
+        </tr>
+    </table>
+@endif
+
+@if($payments->count())
 <table class="full-width">
 <tr>
     <td>
@@ -222,5 +278,7 @@
     </tr>
 
 </table>
+@endif
+
 </body>
 </html>

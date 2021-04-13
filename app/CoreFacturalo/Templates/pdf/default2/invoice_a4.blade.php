@@ -107,6 +107,13 @@
                         <br/><small>{{ $dtos->factor * 100 }}% {{$dtos->description }}</small>
                     @endforeach
                 @endif
+                @if($row->item->is_set == 1)
+                    <br>
+                    @inject('itemSet', 'App\Services\ItemSetService')
+                    @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                        {{$item}}<br>
+                    @endforeach
+                @endif
             </td>
             <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
             <td class="text-right align-top">
@@ -198,5 +205,16 @@
         </td>
     </tr>
 </table>
+@if ($document->terms_condition)
+    <br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    </table>
+@endif
 </body>
 </html>

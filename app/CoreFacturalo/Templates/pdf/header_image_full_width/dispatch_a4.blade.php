@@ -5,6 +5,7 @@
 
     $document_number = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
     $document_type_driver = App\Models\Tenant\Catalogs\IdentityDocumentType::findOrFail($document->driver->identity_document_type_id);
+    $configuration = \App\Models\Tenant\Configuration::first();
 @endphp
 <html>
 <head>
@@ -12,37 +13,34 @@
     {{--<link href="{{ $path_style }}" rel="stylesheet" />--}}
 </head>
 <body>
-<table class="full-width">
+
+<table class="full-width" >
     <tr>
-        @if($company->logo)
-            <td width="10%">
-                <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" alt="{{ $company->name }}"  class="company_logo" style="max-width: 300px">
+        @if($configuration->header_image)
+            <td width="75%" class="pr-2">
+                <div class="company_logo_box">
+                    <img style="width: 90%" height="100px" src="data:{{mime_content_type(public_path("storage/uploads/header_images/{$configuration->header_image}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/header_images/{$configuration->header_image}")))}}" alt="{{$configuration->id}}" >
+                    {{-- <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;"> --}}
+                </div>
+            </td>
+            <td width="25%" class="border-box py-4 px-2 text-center">
+                <h5>{{ 'RUC '.$company->number }}</h5>
+                <h5 class="text-center">{{ $document->document_type->description }}</h5>
+                <h3 class="text-center">{{ $document_number }}</h3>
             </td>
         @else
-            <td width="10%">
+            <td width="75%">
                 {{--<img src="{{ asset('logo/logo.jpg') }}" class="company_logo" style="max-width: 150px">--}}
             </td>
+            <td width="25%" class="border-box py-4 px-2 text-center">
+                <h5>{{ 'RUC '.$company->number }}</h5>
+                <h5 class="text-center">{{ $document->document_type->description }}</h5>
+                <h3 class="text-center">{{ $document_number }}</h3>
+            </td>
         @endif
-        <td width="50%" class="pl-3">
-            <div class="text-left">
-                <h3 class="">{{ $company->name }}</h3>
-                <h4>{{ 'RUC '.$company->number }}</h4>
-                <h5>
-                    {{ ($establishment->address !== '-')? $establishment->address : '' }}
-                    {{ ($establishment->district_id !== '-')? ', '.$establishment->district->description : '' }}
-                    {{ ($establishment->province_id !== '-')? ', '.$establishment->province->description : '' }}
-                    {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
-                </h5>
-                <h5>{{ ($establishment->email !== '-')? $establishment->email : '' }}</h5>
-                <h5>{{ ($establishment->telephone !== '-')? $establishment->telephone : '' }}</h5>
-            </div>
-        </td>
-        <td width="40%" class="border-box p-4 text-center">
-            <h4 class="text-center">{{ $document->document_type->description }}</h4>
-            <h3 class="text-center">{{ $document_number }}</h3>
-        </td>
     </tr>
 </table>
+
 <table class="full-width border-box mt-10 mb-10">
     <thead>
     <tr>

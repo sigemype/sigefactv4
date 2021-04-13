@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Controller;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use DateTime;
-use Artisan;
 use Config;
+use Artisan;
+use DateTime;
 use Exception;
 use App\Traits\BackupTrait;
-
+use Illuminate\Http\Request;
+use App\Models\System\Client;
+use Hyn\Tenancy\Models\Website;
+use Hyn\Tenancy\Models\Hostname;
+use App\Http\Controllers\Controller;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Storage;
 
 class BackupController extends Controller
 {
@@ -31,18 +32,50 @@ class BackupController extends Controller
 
         $most_recent = $this->mostRecent();
 
-        return view('system.backup.index')->with('disc_used', $disc_used)->with('storage_size', $storage_size)->with('last_zip', $most_recent);
+        $clients = Client::without(['hostname','plan'])
+            ->select('hostname_id', 'name')
+            ->get();
+
+        return view('system.backup.index')->with('disc_used', $disc_used)->with('storage_size', $storage_size)->with('last_zip', $most_recent)->with('clients', $clients);
     }
 
-    public function db()
+    public function db(Request $request)
     {
-        $output = Artisan::call('bk:bd');
+        $request->validate([
+            'type' => 'required|in:individual,todos',
+            'hostname_id' => 'nullable|required_if:type,individual',
+        ]);
+
+        $database = '';
+        if ($request->type === 'individual') {
+            $hostname = Hostname::findOrFail($request->hostname_id);
+            $website = Website::findOrFail($hostname->website_id);
+            $database = $website->uuid;
+        }
+        $output = Artisan::call('bk:bd', [
+            'type' => $request->type,
+            'database' => $database,
+        ]);
         return json_encode($output);
     }
 
-    public function files()
+    public function files(Request $request)
     {
-        $output = Artisan::call('bk:files');
+        $request->validate([
+            'type' => 'required|in:individual,todos',
+            'hostname_id' => 'nullable|required_if:type,individual',
+        ]);
+
+        $folder = '';
+        if ($request->type === 'individual') {
+            $hostname = Hostname::findOrFail($request->hostname_id);
+            $website = Website::findOrFail($hostname->website_id);
+            $folder = $website->uuid;
+        }
+        $output = Artisan::call('bk:files', [
+            'type' => $request->type,
+            'folder' => $folder,
+        ]);
         return json_encode($output);
     }
 
@@ -72,7 +105,7 @@ class BackupController extends Controller
             $fileFrom = Storage::get($most_recent['path']);
 
             $upload = Storage::disk('ftp')->put($fileTo, $fileFrom);
-            
+
             return [
                 'success' => $upload,
                 'message' => 'Proceso finalizado satisfactoriamente'
@@ -80,7 +113,7 @@ class BackupController extends Controller
 
 
         } catch (Exception $e) {
-            
+
             $this->setErrorLog($e);
             return $this->getErrorMessage("Lo sentimos, ocurrió un error inesperado: {$e->getMessage()}");
 
@@ -95,6 +128,7 @@ class BackupController extends Controller
         if (count($zips) > 0) {
             $name_zips = [];
             $most_recent_time = '';
+            $last_date = null;
 
             foreach($zips as $zip){
                 $zip_explode = explode( '/', $zip);
@@ -106,11 +140,13 @@ class BackupController extends Controller
                         $most_recent_time = $datetime;
                         $most_recent_path = $zip;
                         $most_recent_name = $zip_explode[2];
+                        $last_date = $last;
                     }
                 }
             }
 
             return [
+                'date' => \Carbon\Carbon::createFromTimestamp($last_date)->format('d-m-Y \a \l\a\s H:i'),
                 'path' => $most_recent_path,
                 'name' => $most_recent_name
             ];
@@ -119,12 +155,12 @@ class BackupController extends Controller
         }
     }
 
-    
+
     public function download($filename)
     {
 
         return Storage::download('backups'.DIRECTORY_SEPARATOR.'zip'.DIRECTORY_SEPARATOR.$filename);
- 
+
     }
-    
+
 }

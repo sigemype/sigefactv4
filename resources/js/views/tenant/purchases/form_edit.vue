@@ -33,7 +33,7 @@
                                 <small class="form-control-feedback" v-if="errors.number" v-text="errors.number[0]"></small>
                             </div>
                         </div>
-                        
+
 
 
                         <div class="col-lg-2">
@@ -43,7 +43,7 @@
                                 <small class="form-control-feedback" v-if="errors.date_of_issue" v-text="errors.date_of_issue[0]"></small>
                             </div>
                         </div>
-                        
+
                         <div class="col-lg-2">
                             <div class="form-group" :class="{'has-danger': errors.date_of_due}">
                                 <label class="control-label">Fec. Vencimiento</label>
@@ -98,13 +98,13 @@
                         </div>
 
                         <div class="col-md-8 mt-4">
-                            <div class="form-group" > 
+                            <div class="form-group" >
                                 <el-checkbox v-model="form.has_client" @change="changeHasClient">¿Desea agregar el cliente para esta compra?</el-checkbox>
                             </div>
                         </div>
 
                         <div class="col-md-8 mt-2 mb-2">
-                            <div class="form-group" > 
+                            <div class="form-group" >
                                 <el-checkbox v-model="form.has_payment" @change="changeHasPayment">¿Desea agregar pagos a esta compra?</el-checkbox>
                             </div>
                         </div>
@@ -138,7 +138,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(row, index) in form.payments" :key="index"> 
+                                    <tr v-for="(row, index) in form.payments" :key="index">
                                         <td>
                                             <div class="form-group mb-2 mr-2">
                                                 <el-select v-model="row.payment_method_type_id" @change="changePaymentMethodType(true,index)">
@@ -163,16 +163,16 @@
                                                 <el-input v-model="row.payment"></el-input>
                                             </div>
                                         </td>
-                                        <td class="series-table-actions text-center"> 
+                                        <td class="series-table-actions text-center">
                                             <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
                                                 <i class="fa fa-trash"></i>
                                             </button>
-                                        </td> 
+                                        </td>
                                         <br>
                                     </tr>
-                                </tbody> 
-                            </table> 
-                        
+                                </tbody>
+                            </table>
+
 
                         </div>
                         <div class="col-lg-12 col-md-6 d-flex align-items-end mt-4">
@@ -272,8 +272,8 @@
                                     </div>
                                 </div>
                                 <h3 class="text-right" v-if="form.total > 0 && !hide_button"><b>MONTO TOTAL : </b>{{ currency_type.symbol }} {{ total_amount }}</h3>
-                                
-                                
+
+
                             </template>
                         </div>
                     </div>
@@ -394,13 +394,13 @@
             await this.changeHasClient()
         },
         methods: {
-            
+
             changeHasPayment(){
 
                 if(!this.form.has_payment){
                     this.form.payments = []
                 }
-                
+
             },
             changeHasClient(){
 
@@ -437,7 +437,7 @@
                 // return unit_price.toFixed(6)
             },
             async validate_payments(){
- 
+
                 let error_by_item = 0
                 let acum_total = 0
                 let q_affectation_free = 0
@@ -499,7 +499,7 @@
 
                 this.setTotalDefaultPayment()
 
-            },   
+            },
             setTotalDefaultPayment(){
 
                 if(this.form.payments.length > 0){
@@ -527,17 +527,17 @@
                 }
             },
             keyupEnterSupplier(){
-            
+
                 if(this.input_person.number){
 
-                    if(!isNaN(parseInt(this.input_person.number))){ 
+                    if(!isNaN(parseInt(this.input_person.number))){
 
                         switch (this.input_person.number.length) {
                             case 8:
                                 this.input_person.identity_document_type_id = '1'
                                 this.showDialogNewPerson = true
                                 break;
-                        
+
                             case 11:
                                 this.input_person.identity_document_type_id = '6'
                                 this.showDialogNewPerson = true
@@ -549,11 +549,11 @@
                         }
                     }
                 }
-            }, 
-            keyupSupplier(e){ 
+            },
+            keyupSupplier(e){
 
                 if(e.key !== "Enter"){
-                    
+
                     this.input_person.number = this.$refs.select_person.$el.getElementsByTagName('input')[0].value
                     let exist_persons = this.suppliers.filter((supplier)=>{
                         let pos = supplier.description.search(this.input_person.number);
@@ -562,17 +562,17 @@
 
                     this.input_person.number = (exist_persons.length == 0) ? this.input_person.number : null
                 }
-            
+
             },
             inputSeries(){
 
                 const pattern = new RegExp('^[A-Z0-9]+$', 'i');
-                if(!pattern.test(this.form.series)){ 
+                if(!pattern.test(this.form.series)){
                     this.form.series = this.form.series.substring(0, this.form.series.length - 1);
                 } else {
                     this.form.series = this.form.series.toUpperCase()
                 }
-                
+
             },
             initRecord()
             {
@@ -606,14 +606,13 @@
                     this.changeDocumentType()
                     // this.changePaymentMethodType()
                     this.calculateTotal()
-                    
+
                    // this.calculateTotal()
                 })
             },
             getPayments(payments){
 
                 payments.forEach(it => {
-                    console.log(it.global_payment.destination_type )
                     it.payment_destination_id = it.global_payment.destination_type ==  "App\Models\Tenant\Cash" ? 'cash':it.global_payment.destination_id
                 });
 
@@ -641,16 +640,15 @@
                 }
             },
             changeSupplier(){
-                this.calculatePerception() 
+                this.calculatePerception()
             },
             filterSuppliers() {
-
                 if(this.form.document_type_id === '01') {
-                    this.suppliers = _.filter(this.all_suppliers, {'identity_document_type_id': '6'})
+                    this.suppliers = _.filter(this.all_suppliers, (item) => { return ['6', '0'].includes(item.identity_document_type_id)})
                     this.selectSupplier()
 
                 } else {
-                    this.suppliers = _.filter(this.all_suppliers, (c) => { return c.identity_document_type_id !== '6' })
+                    this.suppliers = this.all_suppliers;
                     this.selectSupplier()
                 }
             },
@@ -799,7 +797,7 @@
 
             },
             calculatePerception(){
-                
+
                 let supplier = _.find(this.all_suppliers,{'id':this.form.supplier_id})
 
                 if(supplier){
@@ -813,9 +811,9 @@
 
                         this.form.perception_date = moment().format('YYYY-MM-DD')
 
-                        this.form.items.forEach((row) => { 
-                            quantity_item_perception += (row.item.has_perception) ? 1:0 
-                            total_perception += (row.item.has_perception) ? (parseFloat(row.unit_price) * parseFloat(row.quantity) * (parseFloat(row.item.percentage_perception)/100)) : 0 
+                        this.form.items.forEach((row) => {
+                            quantity_item_perception += (row.item.has_perception) ? 1:0
+                            total_perception += (row.item.has_perception) ? (parseFloat(row.unit_price) * parseFloat(row.quantity) * (parseFloat(row.item.percentage_perception)/100)) : 0
                         });
 
                         this.is_perception_agent = (quantity_item_perception > 0) ? true : false
@@ -833,8 +831,8 @@
                     }
 
                 }
-                
-                
+
+
             },
             validatePaymentDestination(){
 
@@ -851,7 +849,7 @@
             },
             async submit() {
 
-                
+
                 let validate = await this.validate_payments()
                 if(!validate.success) {
                     return this.$message.error(validate.message);

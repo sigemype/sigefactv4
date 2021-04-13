@@ -77,12 +77,22 @@
             }
         },
         created() {
-            
-            this.$eventHub.$on('valueLoading', (loading) => {
-                this.loading_submit = loading
-            })
+            this.events()
         },
-        methods: {  
+        methods: { 
+            events(){
+
+                this.$eventHub.$on('valueLoading', (loading) => {
+                    this.loading_text = 'Validando documentos electrónicos...'
+                    this.loading_submit = loading
+                })
+
+                this.$eventHub.$on('valueLoadingRegularize', (loading) => {
+                    this.loading_text = 'Regularizando documentos electrónicos...'
+                    this.loading_submit = loading
+                })
+
+            } 
         }
     }
 </script>

@@ -224,6 +224,7 @@
                 <th>RUC</th>
                 <th>Plan</th>
                 <th>Correo</th>
+                <th>Entorno</th>
                 <th class="text-center">Comprobantes</th>
                 <th class="text-center">Usuarios</th>
                 <th class="text-center">F.Creación</th>
@@ -248,6 +249,11 @@
                 <td>{{ row.number }}</td>
                 <td>{{ row.plan }}</td>
                 <td>{{ row.email }}</td>
+                <td>
+                  <span v-if="row.soap_type == '01'" class="badge badge-default">Demo</span>
+                  <span v-if="row.soap_type == '02'" class="badge badge-success">Producción</span>
+                  <span v-if="row.soap_type == '03'" class="badge badge-info">Interno</span>
+                </td>
                 <td class="text-center">
                   <template v-if="row.max_documents !== 0 && row.count_doc > row.max_documents">
                     <el-popover

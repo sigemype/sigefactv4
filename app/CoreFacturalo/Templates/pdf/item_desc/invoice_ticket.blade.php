@@ -144,7 +144,7 @@
         </tr>
         <tr>
             <td  class="align-top"><p class="desc">Monto detracción:</p></td>
-            <td><p class="desc">{{ $document->currency_type->symbol }} {{ $document->detraction->amount}}</p></td>
+            <td><p class="desc">S/ {{ $document->detraction->amount}}</p></td>
         </tr>
         @if($document->detraction->pay_constancy)
         <tr>

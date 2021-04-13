@@ -44,6 +44,7 @@ if($current_hostname) {
                 Route::get('', 'ValidateDocumentController@index')->name('tenant.validate_documents.index')->middleware('tenant.internal.mode');
                 Route::get('records', 'ValidateDocumentController@records');
                 Route::get('data_table', 'ValidateDocumentController@data_table');
+                Route::post('regularize', 'ValidateDocumentController@regularize');
 
             });
 

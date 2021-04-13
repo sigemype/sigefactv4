@@ -58,6 +58,8 @@ class PersonInput
             'email' =>  ($customer_address) ? $customer_address->email : $person->email,  //$person->email,
             'telephone' => ($customer_address) ? $customer_address->telephone : $person->telephone, //$person->telephone,
             'perception_agent' => $person->perception_agent,
+            'address_id' => $address_id,
+            'internal_code' => $person->internal_code,
         ];
     }
 }

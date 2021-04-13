@@ -12,38 +12,40 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="row in warehouses">
+                            <tr v-for="(row, index) in warehouses" :key="index">
                                 <th>{{ row.warehouse_description }}</th>
                                 <th class="text-right">{{ row.stock }}</th>
                             </tr>
                             </tbody>
                         </table>
 
-                        <h5>Lista de Precios Creados</h5>
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th>Unidad</th>
-                              <th>Description</th>
-                              <th>Factor</th>
-                              <th>Precio 1</th>
-                              <th>Precio 2</th>
-                              <th>Precio 3</th>
-                              <th>P.Defecto</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr v-for="row in unit_type">
-                              <th>{{ row.unit_type_id }}</th>
-                              <th>{{ row.description }}</th>
-                              <th>{{ row.quantity_unit }}</th>
-                              <th>{{ row.price1 }}</th>
-                              <th>{{ row.price2 }}</th>
-                              <th>{{ row.price3 }}</th>
-                              <th>{{ row.price_default }}</th>
-                            </tr>
-                          </tbody>
-                        </table>
+                        <template v-if="item_unit_types.length > 0">
+                            <h5>Lista de Precios Creados</h5>
+                            <table class="table">
+                            <thead>
+                                <tr>
+                                <th>Unidad</th>
+                                <th>Description</th>
+                                <th>Factor</th>
+                                <th>Precio 1</th>
+                                <th>Precio 2</th>
+                                <th>Precio 3</th>
+                                <th>P.Defecto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, index) in item_unit_types" :key="index">
+                                <th>{{ row.unit_type_id }}</th>
+                                <th>{{ row.description }}</th>
+                                <th>{{ row.quantity_unit }}</th>
+                                <th>{{ row.price1 }}</th>
+                                <th>{{ row.price2 }}</th>
+                                <th>{{ row.price3 }}</th>
+                                <th>Precio {{ row.price_default }}</th>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </template>
 
                     </div>
                 </div>
@@ -59,7 +61,7 @@
 
 
     export default {
-        props:['showDialog', 'warehouses', 'unit_type'],
+        props:['showDialog', 'warehouses', 'item_unit_types'],
         data() {
             return {
                 showImportDialog: false,

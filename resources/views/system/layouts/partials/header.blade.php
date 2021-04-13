@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header" style="left:0;">
     <div class="logo-container">
         <a href="{{route('system.dashboard')}}" class="logo pt-2 pt-md-0">
             @if (file_exists(public_path('theme/logo.svg')))

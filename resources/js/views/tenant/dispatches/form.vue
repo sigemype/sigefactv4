@@ -356,7 +356,7 @@
     import DispatchOptions from './partials/options.vue'
 
     export default {
-        props: ['document', 'typeDocument', 'dispatch'],
+        props: ['document', 'typeDocument', 'dispatch', 'sale_note'],
         components: {PersonForm, Items, DispatchOptions},
         data() {
             return {
@@ -394,6 +394,7 @@
             }
         },
         async created() {
+
             this.initForm();
             await this.$http.post(`/${this.resource}/tables`).then(response => {
                 this.identityDocumentTypes = response.data.identityDocumentTypes;
@@ -431,6 +432,24 @@
             ]
             this.form.delivery.address = this.document.customer.address
 
+            this.form.packages_number = _.sumBy(this.document.items, (o) => { return parseFloat(o.quantity) })
+
+            let total_weight = 0
+
+            this.form.items.forEach(element => {
+                if(element.attributes){
+
+                    Object.values(element.attributes).forEach(attr => {
+                        if(attr.attribute_type_id === '5032'){
+                            total_weight += parseFloat(attr.value) * parseFloat(element.quantity)  
+                        }
+                    });
+                }
+            })
+
+            this.form.total_weight = total_weight
+
+
             if(this.dispatch){
 
                 this.form.transfer_reason_description = this.dispatch.transfer_reason_description
@@ -462,6 +481,7 @@
                     reference_document_id: this.typeDocument == 'i' ?  this.document.id : null,
                     reference_quotation_id: this.typeDocument == 'q' ?  this.document.id : null,
                     reference_order_note_id: this.typeDocument == 'on' ?  this.document.id : null,
+                    reference_sale_note_id: this.sale_note ?  this.sale_note.id : null,
                     establishment_id: null,
                     document_type_id: '09',
                     series_id: null,

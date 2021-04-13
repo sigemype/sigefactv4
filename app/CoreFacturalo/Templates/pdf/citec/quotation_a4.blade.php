@@ -11,7 +11,7 @@
 
     if($config->formats == "citec")
     {
-        $miimage = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'citec'.DIRECTORY_SEPARATOR.'pape_membretado.jpg');
+        $miimage = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'citec'.DIRECTORY_SEPARATOR.'papel_membretado.jpg');
     }
 
 
@@ -149,13 +149,13 @@
                         <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
                     @endforeach
                 @endif
-
                 @if($row->item->is_set == 1)
                  <br>
-                @inject('itemSet', 'App\Services\ItemSetService')
-                    {{join( "-", $itemSet->getItemsSet($row->item_id) )}}
+                    @inject('itemSet', 'App\Services\ItemSetService')
+                    @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                        {{$item}}<br>
+                    @endforeach
                 @endif
-
             </td>
             <td class="text-center align-top">
                 @if(((int)$row->quantity != $row->quantity))

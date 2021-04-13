@@ -108,7 +108,7 @@ class Functions
                 ->with('identity_document_type')
                 ->find($inputs['customer_id']);
             
-            if (!in_array($person->identity_document_type_id, ['1','6','4'], true)) throw new Exception("El tipo doc. identidad {$person->identity_document_type->description} del cliente no es valido.");
+            if (!in_array($person->identity_document_type_id, ['1','6','4','7'], true)) throw new Exception("El tipo doc. identidad {$person->identity_document_type->description} del cliente no es valido.");
         }
 
     }

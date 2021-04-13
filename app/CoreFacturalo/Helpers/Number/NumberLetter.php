@@ -28,7 +28,7 @@ class NumberLetter
     ];
 
     private static $DECENAS = [
-        'venti',
+        'veinti',
         'treinta ',
         'cuarenta ',
         'cincuenta ',

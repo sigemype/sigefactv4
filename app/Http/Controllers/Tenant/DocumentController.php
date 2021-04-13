@@ -1,59 +1,63 @@
 <?php
 namespace App\Http\Controllers\Tenant;
 
-use App\CoreFacturalo\Facturalo;
-use App\CoreFacturalo\Helpers\Storage\StorageDocument;
-use App\CoreFacturalo\WS\Zip\ZipFly;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\DocumentEmailRequest;
-use App\Http\Requests\Tenant\DocumentRequest;
-use App\Http\Requests\Tenant\DocumentVoidedRequest;
-use App\Http\Resources\Tenant\DocumentCollection;
-use App\Http\Resources\Tenant\DocumentResource;
-use App\Mail\Tenant\DocumentEmail;
-use App\Models\Tenant\Catalogs\AffectationIgvType;
-use App\Models\Tenant\Catalogs\ChargeDiscountType;
-use App\Models\Tenant\Catalogs\CurrencyType;
-use App\Models\Tenant\Catalogs\DocumentType;
-use App\Models\Tenant\Catalogs\NoteCreditType;
-use App\Models\Tenant\Catalogs\NoteDebitType;
-use App\Models\Tenant\Catalogs\OperationType;
-use App\Models\Tenant\Catalogs\PriceType;
-use App\Models\Tenant\Catalogs\SystemIscType;
-use App\Models\Tenant\Catalogs\AttributeType;
-use App\Models\Tenant\Catalogs\DetractionType;
-use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
-use App\Models\Tenant\Company;
-use App\Models\Tenant\Configuration;
-use App\Models\Tenant\Document;
-use App\Models\Tenant\Establishment;
-use App\Models\Tenant\StateType;
-use App\Models\Tenant\PaymentMethodType;
+use App\Models\Tenant\PaymentCondition;
+use Exception;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Nexmo\Account\Price;
 use App\Models\Tenant\Item;
+use App\Models\Tenant\User;
+use App\Traits\OfflineTrait;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Excel;
 use App\Models\Tenant\Person;
 use App\Models\Tenant\Series;
-use App\Models\Tenant\Warehouse;
-use Exception;
-use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Http\Request;
-use Nexmo\Account\Price;
-use Illuminate\Support\Facades\Cache;
-use App\Imports\DocumentsImport;
-use App\Imports\DocumentsImportTwoFormat;
-use Maatwebsite\Excel\Excel;
-use Modules\BusinessTurn\Models\BusinessTurn;
 use App\Exports\PaymentExport;
-use Modules\Item\Models\Category;
-use Modules\Item\Http\Requests\CategoryRequest;
-use Modules\Item\Http\Requests\BrandRequest;
+use App\Models\Tenant\Company;
 use Modules\Item\Models\Brand;
-use Carbon\Carbon;
-use App\Traits\OfflineTrait;
-use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
+use App\Models\Tenant\Document;
+use App\CoreFacturalo\Facturalo;
+use App\Imports\DocumentsImport;
+use App\Models\Tenant\StateType;
+use App\Models\Tenant\Warehouse;
+use Modules\Item\Models\Category;
+use App\Mail\Tenant\DocumentEmail;
+use Illuminate\Support\Facades\DB;
+use App\CoreFacturalo\WS\Zip\ZipFly;
+use App\Http\Controllers\Controller;
+use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Establishment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use App\Models\Tenant\PaymentMethodType;
 use Modules\Finance\Traits\FinanceTrait;
+use App\Imports\DocumentsImportTwoFormat;
+use App\Models\Tenant\Catalogs\PriceType;
+use App\Models\Tenant\Catalogs\CurrencyType;
+use App\Models\Tenant\Catalogs\DocumentType;
+use Modules\Item\Http\Requests\BrandRequest;
+use App\Http\Requests\Tenant\DocumentRequest;
+use App\Models\Tenant\Catalogs\AttributeType;
+use App\Models\Tenant\Catalogs\NoteDebitType;
+use App\Models\Tenant\Catalogs\OperationType;
+use App\Models\Tenant\Catalogs\SystemIscType;
+use Modules\BusinessTurn\Models\BusinessTurn;
+use App\Models\Tenant\Catalogs\DetractionType;
+use App\Models\Tenant\Catalogs\NoteCreditType;
+use App\Http\Resources\Tenant\DocumentResource;
+use Modules\Item\Http\Requests\CategoryRequest;
+use App\Http\Resources\Tenant\DocumentCollection;
+use App\Http\Requests\Tenant\DocumentEmailRequest;
+use App\Models\Tenant\Catalogs\AffectationIgvType;
+use App\Models\Tenant\Catalogs\ChargeDiscountType;
+use App\Http\Requests\Tenant\DocumentUpdateRequest;
+use App\Http\Requests\Tenant\DocumentVoidedRequest;
+use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
+use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
+use App\Models\Tenant\Dispatch;
 
 class DocumentController extends Controller
 {
@@ -64,6 +68,7 @@ class DocumentController extends Controller
     {
 
         $this->middleware('input.request:document,web', ['only' => ['store']]);
+        $this->middleware('input.request:documentUpdate,web', ['only' => ['update']]);
     }
 
     public function index()
@@ -165,11 +170,13 @@ class DocumentController extends Controller
         $company = Company::active();
         $document_type_03_filter = config('tenant.document_type_03_filter');
         $user = auth()->user()->type;
+        $sellers = User::whereIn('type', ['seller'])->orWhere('id', auth()->user()->id)->get();
         $payment_method_types = $this->table('payment_method_types');
         $business_turns = BusinessTurn::where('active', true)->get();
         $enabled_discount_global = config('tenant.enabled_discount_global');
         $is_client = $this->getIsClient();
         $select_first_document_type_03 = config('tenant.select_first_document_type_03');
+        $payment_conditions = PaymentCondition::all();
 
         $document_types_guide = DocumentType::whereIn('id', ['09', '31'])->get()->transform(function($row) {
             return [
@@ -196,8 +203,8 @@ class DocumentController extends Controller
         return compact( 'customers','establishments', 'series', 'document_types_invoice', 'document_types_note',
                         'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
                         'discount_types', 'charge_types', 'company', 'document_type_03_filter',
-                        'document_types_guide', 'user','payment_method_types','enabled_discount_global',
-                        'business_turns','is_client','select_first_document_type_03', 'payment_destinations');
+                        'document_types_guide', 'user', 'sellers','payment_method_types','enabled_discount_global',
+                        'business_turns','is_client','select_first_document_type_03', 'payment_destinations', 'payment_conditions');
 
     }
 
@@ -231,8 +238,7 @@ class DocumentController extends Controller
                     'identity_document_type_code' => $row->identity_document_type->code,
                     'addresses' => $row->addresses,
                     'address' =>  $row->address,
-
-
+                    'internal_code' => $row->internal_code
                 ];
             });
             return $customers;
@@ -283,6 +289,7 @@ class DocumentController extends Controller
                 return [
                     'id' => $row->id,
                     'full_description' => $detail['full_description'],
+                    'model' => $row->model,
                     'brand' => $detail['brand'],
                     'category' => $detail['category'],
                     'stock' => $detail['stock'],
@@ -297,6 +304,7 @@ class DocumentController extends Controller
                     'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
                     'calculate_quantity' => (bool) $row->calculate_quantity,
                     'has_igv' => (bool) $row->has_igv,
+                    'has_plastic_bag_taxes' => (bool) $row->has_plastic_bag_taxes,
                     'amount_plastic_bag_taxes' => $row->amount_plastic_bag_taxes,
                     'item_unit_types' => collect($row->item_unit_types)->transform(function($row) {
                         return [
@@ -405,6 +413,8 @@ class DocumentController extends Controller
         $document = $fact->getDocument();
         $response = $fact->getResponse();
 
+        $this->associateDispatchesToDocument($request, $document->id);
+
         return [
             'success' => true,
             'data' => [
@@ -413,6 +423,79 @@ class DocumentController extends Controller
 
             ],
         ];
+    }
+
+    private function associateDispatchesToDocument(Request $request, int $documentId)
+    {
+        $dispatches_relateds = $request->dispatches_relateds;
+        if ($dispatches_relateds) {
+            foreach ($dispatches_relateds as $dispatch) {
+                $dispatchToArray = explode('-', $dispatch);
+                if (count($dispatchToArray) === 2) {
+                    Dispatch::where('series', $dispatchToArray[0])
+                        ->where('number', $dispatchToArray[1])
+                        ->update([
+                            'reference_document_id' => $documentId,
+                        ]);
+
+                    $document = Dispatch::where('series', $dispatchToArray[0])
+                        ->where('number', $dispatchToArray[1])
+                        ->first();
+
+                    if ($document) {
+                        $facturalo = new Facturalo();
+                        $facturalo->createPdf($document, 'dispatch', 'a4');
+                    }
+                }
+            }
+        }
+    }
+
+    public function edit($documentId)
+    {
+        if(auth()->user()->type == 'integrator') {
+            return redirect('/documents');
+        }
+        $configuration = Configuration::first();
+        $is_contingency = 0;
+        $isUpdate = true;
+        return view('tenant.documents.form', compact('is_contingency', 'configuration', 'documentId', 'isUpdate'));
+    }
+
+    public function update(DocumentUpdateRequest $request, $id)
+    {
+        $fact = DB::connection('tenant')->transaction(function () use ($request, $id) {
+            $facturalo = new Facturalo();
+            $facturalo->update($request->all(), $id);
+
+            $facturalo->createXmlUnsigned();
+            $facturalo->signXmlUnsigned();
+            $facturalo->updateHash();
+            $facturalo->updateQr();
+            $facturalo->createPdf();
+
+            return $facturalo;
+        });
+
+        $document = $fact->getDocument();
+        $response = $fact->getResponse();
+
+        return [
+            'success' => true,
+            'data'    => [
+                'id'       => $document->id,
+                'response' => $response,
+            ],
+        ];
+    }
+
+    public function show($documentId)
+    {
+        $document = Document::findOrFail($documentId);
+        return response()->json([
+            'data' => $document,
+            'success' => true,
+        ], 200);
     }
 
     public function reStore($document_id)
@@ -591,7 +674,10 @@ class DocumentController extends Controller
 
     public function getIdentityDocumentTypeId($document_type_id, $operation_type_id){
 
-        if($operation_type_id === '0101' || $operation_type_id === '1001') {
+        // if($operation_type_id === '0101' || $operation_type_id === '1001') {
+
+        if(in_array($operation_type_id, ['0101', '1001', '1004'])) {
+
             if($document_type_id == '01'){
                 $identity_document_type_id = [6];
             }else{

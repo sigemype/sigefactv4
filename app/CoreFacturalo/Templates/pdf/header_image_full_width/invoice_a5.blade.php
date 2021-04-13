@@ -7,6 +7,7 @@
     //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
     $document_number = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
     $accounts = \App\Models\Tenant\BankAccount::all();
+    $configuration = \App\Models\Tenant\Configuration::first();
 
     if($document_base) {
         $affected_document_number = ($document_base->affected_document) ? $document_base->affected_document->series.'-'.str_pad($document_base->affected_document->number, 8, '0', STR_PAD_LEFT) : $document_base->data_affected_document->series.'-'.str_pad($document_base->data_affected_document->number, 8, '0', STR_PAD_LEFT);
@@ -34,7 +35,33 @@
     </div>
 @endif
 <table class="full-width">
+    @if(in_array($document->document_type_id, ['01', '03']))
     <tr>
+        @if($configuration->header_image)
+            <td width="75%" class="pr-2">
+                <div class="company_logo_box">
+                    <img style="width: 90%" height="100px" src="data:{{mime_content_type(public_path("storage/uploads/header_images/{$configuration->header_image}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/header_images/{$configuration->header_image}")))}}" alt="{{$configuration->id}}" >
+                    {{-- <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;"> --}}
+                </div>
+            </td>
+            <td width="25%" class="border-box py-4 px-2 text-center">
+                <h5>{{ 'RUC '.$company->number }}</h5>
+                <h5 class="text-center">{{ $document->document_type->description }}</h5>
+                <h3 class="text-center">{{ $document_number }}</h3>
+            </td>
+        @else
+            <td width="75%">
+                {{--<img src="{{ asset('logo/logo.jpg') }}" class="company_logo" style="max-width: 150px">--}}
+            </td>
+            <td width="25%" class="border-box py-4 px-2 text-center">
+                <h5>{{ 'RUC '.$company->number }}</h5>
+                <h5 class="text-center">{{ $document->document_type->description }}</h5>
+                <h3 class="text-center">{{ $document_number }}</h3>
+            </td>
+        @endif
+    </tr>
+    @else
+
         @if($company->logo)
             <td width="20%">
                 <div class="company_logo_box">
@@ -46,95 +73,72 @@
                 {{--<img src="{{ asset('logo/logo.jpg') }}" class="company_logo" style="max-width: 150px">--}}
             </td>
         @endif
-        <td width="50%" class="pl-3">
-            <div class="text-left">
-                <h4 class="">{{ $company->name }}</h4>
-                <h5>{{ 'RUC '.$company->number }}</h5>
-                <h6 style="text-transform: uppercase;">
-                    {{ ($establishment->address !== '-')? $establishment->address : '' }}
-                    {{ ($establishment->district_id !== '-')? ', '.$establishment->district->description : '' }}
-                    {{ ($establishment->province_id !== '-')? ', '.$establishment->province->description : '' }}
-                    {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
-                </h6>
+        <tr>
 
-                @isset($establishment->trade_address)
-                    <h6>{{ ($establishment->trade_address !== '-')? 'D. Comercial: '.$establishment->trade_address : '' }}</h6>
-                @endisset
+            <td>
+                <div class="text-left">
+                    <h4 class="">{{ $company->name }}</h4>
+                    <h5>{{ 'RUC '.$company->number }}</h5>
+                    <h6 style="text-transform: uppercase;">
+                        {{ ($establishment->address !== '-')? $establishment->address : '' }}
+                        {{ ($establishment->district_id !== '-')? ', '.$establishment->district->description : '' }}
+                        {{ ($establishment->province_id !== '-')? ', '.$establishment->province->description : '' }}
+                        {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
+                    </h6>
 
-                <h6>{{ ($establishment->telephone !== '-')? 'Central telefónica: '.$establishment->telephone : '' }}</h6>
+                    @isset($establishment->trade_address)
+                        <h6>{{ ($establishment->trade_address !== '-')? 'D. Comercial: '.$establishment->trade_address : '' }}</h6>
+                    @endisset
 
-                <h6>{{ ($establishment->email !== '-')? 'Email: '.$establishment->email : '' }}</h6>
+                    <h6>{{ ($establishment->telephone !== '-')? 'Central telefónica: '.$establishment->telephone : '' }}</h6>
 
-                @isset($establishment->web_address)
-                    <h6>{{ ($establishment->web_address !== '-')? 'Web: '.$establishment->web_address : '' }}</h6>
-                @endisset
+                    <h6>{{ ($establishment->email !== '-')? 'Email: '.$establishment->email : '' }}</h6>
 
-                @isset($establishment->aditional_information)
-                    <h6>{{ ($establishment->aditional_information !== '-')? $establishment->aditional_information : '' }}</h6>
-                @endisset
-            </div>
-        </td>
+                    @isset($establishment->web_address)
+                        <h6>{{ ($establishment->web_address !== '-')? 'Web: '.$establishment->web_address : '' }}</h6>
+                    @endisset
+
+                    @isset($establishment->aditional_information)
+                        <h6>{{ ($establishment->aditional_information !== '-')? $establishment->aditional_information : '' }}</h6>
+                    @endisset
+                </div>
+            </td>
+        </tr>
         <td width="30%" class="border-box py-4 px-2 text-center">
             <h5 class="text-center">{{ $document->document_type->description }}</h5>
             <h3 class="text-center">{{ $document_number }}</h3>
         </td>
-    </tr>
+
+    @endif
 </table>
-<table class="full-width mt-2">
+<table class="full-width mt-5">
+
     <tr>
-        <td width="120px">FECHA DE EMISIÓN</td>
+        <td width="120px">Cliente:</td>
+        <td width="8px">:</td>
+        <td>{{ $customer->name }}</td>
+
+        <td width="120px">Fecha de emisión</td>
         <td width="8px">:</td>
         <td>{{$document->date_of_issue->format('Y-m-d')}}</td>
 
-        @if ($document->detraction)
 
-            <td width="120px">N. CTA DETRACCIONES</td>
-            <td width="8px" class="align-top">:</td>
-            <td class="align-top">{{ $document->detraction->bank_account}}</td>
-        @endif
     </tr>
-
-    @if($invoice)
-        <tr>
-            <td width="120px">FECHA DE VENCIMIENTO</td>
-            <td width="8px" class="align-top"> :</td>
-            <td class="align-top">{{$invoice->date_of_due->format('Y-m-d')}}</td>
-        </tr>
-    @endif
-
-    @if ($document->detraction)
-        <td width="120px">B/S SUJETO A DETRACCIÓN</td>
+    <tr>
+        <td width="120px">{{ $customer->identity_document_type->description }}</td>
         <td width="8px">:</td>
-        @inject('detractionType', 'App\Services\DetractionTypeService')
-        <td width="220px">{{$document->detraction->detraction_type_id}} - {{ $detractionType->getDetractionTypeDescription($document->detraction->detraction_type_id ) }}</td>
-
-    @endif
-    <tr>
-        <td>CLIENTE:</td>
-        <td>:</td>
-        <td>{{ $customer->name }}</td>
-
-        @if ($document->detraction)
-            <td width="120px">MÉTODO DE PAGO</td>
-            <td width="8px">:</td>
-            <td width="220px">{{ $detractionType->getPaymentMethodTypeDescription($document->detraction->payment_method_id ) }}</td>
-        @endif
-    </tr>
-    <tr>
-        <td>{{ $customer->identity_document_type->description }}</td>
-        <td>:</td>
         <td>{{$customer->number}}</td>
 
-
-        @if ($document->detraction)
-            <td width="120px">P. DETRACCIÓN</td>
+        @if($invoice)
+            <td width="150px">Fecha de vencimiento</td>
             <td width="8px">:</td>
-            <td>{{ $document->detraction->percentage}}%</td>
+            <td>{{$invoice->date_of_due->format('Y-m-d')}}</td>
         @endif
+
     </tr>
     @if ($customer->address !== '')
     <tr>
-        <td class="align-top">DIRECCIÓN:</td>
+        <td class="align-top">Dirección:</td>
         <td>:</td>
         <td>
             {{ $customer->address }}
@@ -143,24 +147,51 @@
             {{ ($customer->department_id !== '-')? '- '.$customer->department->description : '' }}
         </td>
 
-        @if ($document->detraction)
-            <td width="120px">MONTO DETRACCIÓN</td>
+    </tr>
+    @endif
+
+
+    @if ($document->detraction)
+    <tr>
+
+        <td width="120px">N. CTA DETRACCIONES</td>
+        <td width="8px">:</td>
+        <td>{{ $document->detraction->bank_account}}</td>
+
+
+        <td width="140px">B/S SUJETO A DETRACCIÓN</td>
+        <td width="8px">:</td>
+        @inject('detractionType', 'App\Services\DetractionTypeService')
+        <td width="220px">{{$document->detraction->detraction_type_id}} - {{ $detractionType->getDetractionTypeDescription($document->detraction->detraction_type_id ) }}</td>
+
+    </tr>
+    <tr>
+        <td width="120px">MÉTODO DE PAGO</td>
+        <td width="8px">:</td>
+        <td width="220px">{{ $detractionType->getPaymentMethodTypeDescription($document->detraction->payment_method_id ) }}</td>
+
+        <td width="120px">P. DETRACCIÓN</td>
+        <td width="8px">:</td>
+        <td>{{ $document->detraction->percentage}}%</td>
+    </tr>
+
+    <tr>
+        <td width="120px">MONTO DETRACCIÓN</td>
+        <td width="8px">:</td>
+        <td>{{ $document->currency_type->symbol }} {{ $document->detraction->amount}}</td>
+
+        @if($document->detraction->pay_constancy)
+        <tr>
+            <td colspan="3">
+            </td>
+            <td width="120px">CONSTANCIA DE PAGO</td>
             <td width="8px">:</td>
-            <td>{{ $document->currency_type->symbol }} {{ $document->detraction->amount}}</td>
-        @endif
-        @if ($document->detraction)
-            @if($document->detraction->pay_constancy)
-            <tr>
-                <td colspan="3">
-                </td>
-                <td width="120px">C. PAGO</td>
-                <td width="8px">:</td>
-                <td>{{ $document->detraction->pay_constancy}}</td>
-            </tr>
-            @endif
+            <td>{{ $document->detraction->pay_constancy}}</td>
+        </tr>
         @endif
     </tr>
     @endif
+
 </table>
 
 {{--<table class="full-width mt-3">--}}
@@ -197,6 +228,8 @@
 </table>
 @endif
 
+
+
 @if ($document->reference_guides)
 <br/>
 <strong>Guias de remisión</strong>
@@ -210,7 +243,6 @@
     @endforeach
 </table>
 @endif
-
 
 
 <table class="full-width mt-3">
@@ -235,12 +267,14 @@
             <td width="120px">COTIZACIÓN</td>
             <td width="8px">:</td>
             <td>{{ $document->quotation->identifier }}</td>
+
             @isset($document->quotation->delivery_date)
                     <td width="120px">F. ENTREGA</td>
                     <td width="8px">:</td>
                     <td>{{ $document->quotation->delivery_date->format('Y-m-d')}}</td>
             @endisset
         </tr>
+
     @endif
     @isset($document->quotation->sale_opportunity)
         <tr>
@@ -254,9 +288,10 @@
         <td width="120px">DOC. AFECTADO</td>
         <td width="8px">:</td>
         <td>{{ $affected_document_number }}</td>
-
-        <td width="120px">TIPO DE NOTA</td>
-        <td width="8px">:</td>
+    </tr>
+    <tr>
+        <td>TIPO DE NOTA</td>
+        <td>:</td>
         <td>{{ ($document_base->note_type === 'credit')?$document_base->note_credit_type->description:$document_base->note_debit_type->description}}</td>
     </tr>
     <tr>
@@ -285,9 +320,10 @@
     <tr class="bg-grey">
         <th class="border-top-bottom text-center py-2" width="8%">CANT.</th>
         <th class="border-top-bottom text-center py-2" width="8%">UNIDAD</th>
+        <th class="border-top-bottom text-center py-2" width="12%">COD.</th>
         <th class="border-top-bottom text-left py-2">DESCRIPCIÓN</th>
         <th class="border-top-bottom text-right py-2" width="12%">P.UNIT</th>
-        <th class="border-top-bottom text-right py-2" width="8%">DTO.</th>
+        {{-- <th class="border-top-bottom text-right py-2" width="8%">DTO.</th> --}}
         <th class="border-top-bottom text-right py-2" width="12%">TOTAL</th>
     </tr>
     </thead>
@@ -302,6 +338,7 @@
                 @endif
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+            <td class="text-center align-top">{{ $row->item->internal_id }}</td>
             <td class="text-left align-top">
 
                 @if($row->name_product_pdf)
@@ -335,7 +372,7 @@
                 @endif
             </td>
             <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
-            <td class="text-right align-top">
+            {{-- <td class="text-right align-top">
                 @if($row->discounts)
                     @php
                         $total_discount_line = 0;
@@ -347,7 +384,7 @@
                 @else
                 0
                 @endif
-            </td>
+            </td> --}}
             <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
         </tr>
         <tr>

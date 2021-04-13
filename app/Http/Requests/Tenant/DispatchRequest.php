@@ -28,6 +28,7 @@ class DispatchRequest extends FormRequest
             // ],
             'delivery.address'=> [
                 'required',
+                'max:100',
                
             ],
             'dispatcher.identity_document_type_id'=> [
@@ -63,6 +64,7 @@ class DispatchRequest extends FormRequest
             ],
             'origin.address'=> [
                 'required',
+                'max:100',
             ],
 
             

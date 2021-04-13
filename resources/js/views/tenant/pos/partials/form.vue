@@ -169,6 +169,12 @@
                                         </div>
                                     </div>   
 
+                                    <div class="col-md-4 center-el-checkbox mt-3">
+                                        <div class="form-group" :class="{'has-danger': errors.has_plastic_bag_taxes}">
+                                            <el-checkbox v-model="form.has_plastic_bag_taxes">Impuesto a la Bolsa Plástica</el-checkbox><br>
+                                            <small class="form-control-feedback" v-if="errors.has_plastic_bag_taxes" v-text="errors.has_plastic_bag_taxes[0]"></small>
+                                        </div>
+                                    </div>
                                     
                                     
                                        
@@ -326,6 +332,7 @@
                     image: null,
                     image_url: null,
                     temp_path: null,
+                    has_plastic_bag_taxes: false,
                 }
                 this.show_has_igv = true
             },

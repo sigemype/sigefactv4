@@ -130,6 +130,13 @@
                         <br/><small>{{ $dtos->factor * 100 }}% {{$dtos->description }}</small>
                     @endforeach
                 @endif
+                @if($row->item->is_set == 1)
+                    <br>
+                    @inject('itemSet', 'App\Services\ItemSetService')
+                    @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                        {{$item}}<br>
+                    @endforeach
+                @endif
             </td>
             <td class="text-right desc-9 align-top">{{ number_format($row->unit_price, 2) }}</td>
             <td class="text-right desc-9 align-top">{{ number_format($row->total, 2) }}</td>
@@ -212,6 +219,16 @@
     <tr>
         <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
     </tr>
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc">
+                <br>
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+                <br><br>
+            </td>
+        </tr>
+    @endif
     <tr>
         <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>

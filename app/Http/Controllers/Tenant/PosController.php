@@ -60,7 +60,11 @@ class PosController extends Controller
         $configuration =  Configuration::first();
 
         $items = Item::where('description','like', "%{$request->input_item}%")
-                            ->orWhere('internal_id','like', "%{$request->input_item}%")
+                            // ->orWhere('internal_id','like', "%{$request->input_item}%")
+                            ->orWhere(function ($query) use ($request) {
+                                $query->where('internal_id','like', "%{$request->input_item}%")
+                                    ->orWhere('barcode', "{$request->input_item}");
+                            })
                             ->orWhereHas('category', function($query) use($request) {
                                 $query->where('name', 'like', '%' . $request->input_item . '%');
                             })
@@ -106,6 +110,8 @@ class PosController extends Controller
                                     'unit_type' => $row->item_unit_types,
                                     'category' => ($row->category) ? $row->category->name : null,
                                     'brand' => ($row->brand) ? $row->brand->name : null,
+                                    'has_plastic_bag_taxes' => (bool) $row->has_plastic_bag_taxes,
+                                    'amount_plastic_bag_taxes' => $row->amount_plastic_bag_taxes,
                                 ];
                             });
 
@@ -204,6 +210,9 @@ class PosController extends Controller
                                     'unit_type' => $row->item_unit_types,
                                     'category' => ($row->category) ? $row->category->name : null,
                                     'brand' => ($row->brand) ? $row->brand->name : null,
+                                    'has_plastic_bag_taxes' => (bool) $row->has_plastic_bag_taxes,
+                                    'amount_plastic_bag_taxes' => $row->amount_plastic_bag_taxes,
+
                                 ];
                             });
             return $items;

@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\Tenant\Api;
 
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\Tenant\Item;
 use App\Models\Tenant\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Tenant\Person;
-use App\Models\Tenant\Item;
-use App\Models\Tenant\Catalogs\AffectationIgvType;
+use App\Models\Tenant\Series;
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Document;
 use App\Mail\Tenant\DocumentEmail;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\Configuration;
-use App\Models\Tenant\Series;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Tenant\PersonRequest;
 use Modules\Item\Http\Requests\ItemRequest;
 use Modules\Dashboard\Helpers\DashboardData;
-
+use Modules\Item\Http\Requests\ItemUpdateRequest;
+use App\Models\Tenant\Catalogs\AffectationIgvType;
+use App\Models\Tenant\Warehouse;
+use Modules\Inventory\Models\ItemWarehouse;
 
 class MobileController extends Controller
 {
@@ -89,15 +91,18 @@ class MobileController extends Controller
                 'identity_document_type_code' => $row->identity_document_type->code
             ];
         });*/
+        $establishment_id = auth()->user()->establishment_id;
+        $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
-        $items = Item::whereWarehouse()
+        $items = Item::with(['brand', 'category'])
+                    ->whereWarehouse()
                     ->whereHasInternalId()
                     ->whereNotIsSet()
                     ->whereIsActive()
                     ->orderBy('description')
                     ->take(20)
                     ->get()
-                    ->transform(function($row){
+                    ->transform(function($row) use($warehouse){
                         $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
 
                         return [
@@ -119,6 +124,10 @@ class MobileController extends Controller
                             'has_igv' => (bool) $row->has_igv,
                             'is_set' => (bool) $row->is_set,
                             'aux_quantity' => 1,
+                    'brand' => $row->brand->name,
+                    'category' => $row->brand->name,
+                    'stock' => ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock,
+                    'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
 
                         ];
                     });
@@ -203,6 +212,13 @@ class MobileController extends Controller
     public function person(PersonRequest $request)
     {
         $row = new Person();
+		if ($request->department_id === '-') {
+			$request->merge([
+				'department_id' => null,
+				'province_id'   => null,
+				'district_id'   => null
+			]);
+		}
         $row->fill($request->all());
         $row->save();
 
@@ -228,6 +244,8 @@ class MobileController extends Controller
 
     public function searchItems(Request $request)
     {
+        $establishment_id = auth()->user()->establishment_id;
+        $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
         $items = Item::where('description', 'like', "%{$request->input}%" )
                     ->orWhere('internal_id', 'like', "%{$request->input}%")
@@ -237,7 +255,7 @@ class MobileController extends Controller
                     ->whereIsActive()
                     ->orderBy('description')
                     ->get()
-                    ->transform(function($row){
+                    ->transform(function($row) use($warehouse){
 
                         $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
 
@@ -260,6 +278,10 @@ class MobileController extends Controller
                             'has_igv' => (bool) $row->has_igv,
                             'is_set' => (bool) $row->is_set,
                             'aux_quantity' => 1,
+                    'brand' => $row->brand->name,
+                    'category' => $row->brand->name,
+                    'stock' => ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock,
+                    'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
                             'warehouses' => collect($row->warehouses)->transform(function($row) {
                                 return [
                                     'warehouse_description' => $row->warehouse->description,
@@ -338,6 +360,39 @@ class MobileController extends Controller
         ];
     }
 
+    public function updateItem(ItemUpdateRequest $request, $itemId)
+    {
+        $row = Item::findOrFail($itemId);
 
+        $row->fill($request->only('internal_id', 'barcode', 'model', 'has_igv', 'description', 'sale_unit_price', 'stock_min', 'item_code'));
+        $row->save();
+
+        $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
+
+        return [
+            'success' => true,
+            'msg' => 'Producto editado con éxito',
+            'data' => (object)[
+                'id' => $row->id,
+                'item_id' => $row->id,
+                'name' => $row->name,
+                'full_description' => $full_description,
+                'description' => $row->description,
+                'currency_type_id' => $row->currency_type_id,
+                'internal_id' => $row->internal_id,
+                'item_code' => $row->item_code,
+                'currency_type_symbol' => $row->currency_type->symbol,
+                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'purchase_unit_price' => $row->purchase_unit_price,
+                'unit_type_id' => $row->unit_type_id,
+                'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
+                'calculate_quantity' => (bool) $row->calculate_quantity,
+                'has_igv' => (bool) $row->has_igv,
+                'is_set' => (bool) $row->is_set,
+                'aux_quantity' => 1,
+            ],
+        ];
+    }
 }
 

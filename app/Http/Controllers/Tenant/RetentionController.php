@@ -43,8 +43,9 @@ class RetentionController extends Controller
     public function records(Request $request)
     {
         $records = Retention::where($request->column, 'like', "%{$request->value}%")
-                            ->orderBy('series')
-                            ->orderBy('number', 'desc');
+                            // ->orderBy('series')
+                            // ->orderBy('number', 'desc');
+                            ->latest();
 
         return new RetentionCollection($records->paginate(config('tenant.items_per_page')));
     }
@@ -77,7 +78,7 @@ class RetentionController extends Controller
     {
         if ($table === 'suppliers') { 
 
-            $suppliers = Person::whereType('suppliers')->orderBy('name')->get()->transform(function($row) {
+            $suppliers = Person::whereType('suppliers')->where('identity_document_type_id', '6')->orderBy('name')->get()->transform(function($row) {
                 return [
                     'id' => $row->id,
                     'description' => $row->number.' - '.$row->name,
@@ -120,7 +121,12 @@ class RetentionController extends Controller
 
         return [
             'success' => true,
-            'message' => "Se generó la retención {$document->series}-{$document->number}"
+            'message' => "Se generó la retención {$document->series}-{$document->number}",
+            'data' => [
+                'id' => $document->id,
+                'response' =>$response
+
+            ],
         ];
     }
 

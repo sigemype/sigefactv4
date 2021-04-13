@@ -6,7 +6,7 @@
 
     //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
     $document_number = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
-    $accounts = \App\Models\Tenant\BankAccount::all();
+    $accounts = \App\Models\Tenant\BankAccount::where('show_in_documents', true)->get();
 
     if($document_base) {
 
@@ -515,7 +515,16 @@
             <br>
             @if(in_array($document->document_type->id,['01','03']))
                 @foreach($accounts as $account)
-                    <p><span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}} {{$account->number}}</p>
+                    <p>
+                        <span class="font-bold">{{$account->bank->description}} </span>
+                        {{$account->currency_type->description}}
+                        <strong> N°: </strong>
+                        {{$account->number}}
+                        @if ($account->cci)
+                            <strong> CCI: </strong>
+                            {{ $account->cci }}
+                        @endif
+                    </p>
                 @endforeach
             @endif
         </td>

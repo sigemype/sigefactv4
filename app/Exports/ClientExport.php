@@ -19,9 +19,16 @@ class ClientExport implements  FromView, ShouldAutoSize
         return $this;
     }
 
+    public function type($type) {
+        $this->type = $type;
+
+        return $this;
+    }
+
     public function view(): View {
         return view('tenant.persons.exports.persons', [
             'records'=> $this->records,
+            'type'=> $this->type,
         ]);
     }
 

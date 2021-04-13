@@ -8,7 +8,7 @@
         .border-custom {
             border-color: rgba(0,136,204, .5) !important;
         }
-        @media only screen and (min-width: 768px) { 
+        @media only screen and (min-width: 768px) {
         	.inner-wrapper {
 			    padding-top: 60px !important;
 			}
@@ -20,7 +20,7 @@
 @endpush
 
 @section('content')
-    <tenant-documents-invoice :is_contingency="{{ json_encode($is_contingency) }}" :type-user="{{json_encode(Auth::user()->type)}}" :configuration="{{ $configuration }}"></tenant-documents-invoice>
+    <tenant-documents-invoice :is_contingency="{{ json_encode($is_contingency) }}" :type-user="{{json_encode(Auth::user()->type)}}" :configuration="{{ $configuration }}" :document-id="{{ $documentId ?? 0 }}" :is-update="{{ json_encode($isUpdate ?? false) }}"></tenant-documents-invoice>
 @endsection
 
 @push('scripts')
@@ -30,7 +30,7 @@
 		count = count + 1;
 		if (count == 1) {
 			$("#card-section").removeClass("card-collapsed");
-		}		
+		}
 	});
 </script>
 @endpush

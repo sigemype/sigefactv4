@@ -57,7 +57,8 @@ class SaleNoteResource2 extends JsonResource
             'additional_information' => $this->additional_information,
             'quantity_period' => $this->quantity_period,
             'type_period' => $this->type_period,
-            'actions' => $this->actions
+            'actions' => $this->actions,
+            'observation' => $this->observation,
         ];
     }
 

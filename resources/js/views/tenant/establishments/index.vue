@@ -65,7 +65,7 @@
     export default {
         props:['typeUser'],
         mixins: [deletable],
-        components: {EstablishmentsForm,EstablishmentSeries},
+        components: {EstablishmentsForm, EstablishmentSeries},
         data() {
             return {
                 showDialog: false,
@@ -73,6 +73,7 @@
                 recordId: null,
                 records: [],
                 showDialogSeries: false,
+                establishment: null,
             }
         },
         created() {

@@ -23,8 +23,7 @@ class RedirectModule
         if(!$request->ajax()){
 
             if(count($modules)){
-
-                if(count($modules) < 9){
+                // if(count($modules) < 15){
 
                     $group = $this->getGroup($path, $module);
 
@@ -34,7 +33,7 @@ class RedirectModule
                         }
                     }
 
-                }
+                // }
 
             }
         }
@@ -77,6 +76,12 @@ class RedirectModule
 
             case 'establishments':
                 return redirect()->route('tenant.users.index');
+
+            case 'hotels':
+                return redirect()->url('/');
+
+            case 'documentary-procedure':
+                return redirect()->url('/');
 
             /*case 'ecommerce':
                 return redirect()->route('tenant.ecommerce.index');*/
@@ -255,6 +260,12 @@ class RedirectModule
         }
         elseif($path[0] == "promotions"){
             $group = "ecommerce";
+        }
+        elseif($path[0] == "hotels"){
+            $group = "hotels";
+        }
+        elseif($path[0] == "documentary-procedure"){
+            $group = "documentary-procedure";
         }
 
         else{

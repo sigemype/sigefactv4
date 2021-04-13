@@ -35,7 +35,7 @@
 <div style="z-index: 1; position: absolute;width: 280px; left: 410px;">
         <div class="pb-4 pt-2 px-3 text-center" style="background-color: rgb(40,87,165);">
                 <h3 style="color:white;font-weight:bold" class="text-center">R.U.C. {{$company->number }}</h3>
-                <h3  style="color:white;font-weight:bold" class="text-center">{{ $document->document_type->description }}</h3>
+                <h3  style="color:white;font-weight:bold;{{$document->document_type->id == '03' ? 'font-size: 14px;' : ''}}" class="text-center">{{ $document->document_type->description }}</h3>
                 <h3  style="color:white;font-weight:bold" class="text-center">{{ $document_number }}</h3>
         </div>
 </div>
@@ -147,6 +147,13 @@
                     @if($row->discounts)
                         @foreach($row->discounts as $dtos)
                             <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
+                        @endforeach
+                    @endif
+                    @if($row->item->is_set == 1)
+                        <br>
+                        @inject('itemSet', 'App\Services\ItemSetService')
+                        @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                            {{$item}}<br>
                         @endforeach
                     @endif
                 </td>

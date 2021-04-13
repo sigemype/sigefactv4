@@ -35,11 +35,18 @@
                             <small class="form-control-feedback" v-if="errors.name" v-text="errors.name[0]"></small>
                         </div>
                     </div> -->
-                     <div class="col-md-9">
+                     <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.name}">
                             <label class="control-label">Descripción</label>
                             <el-input v-model="form.name" dusk="name"></el-input>
                             <small class="form-control-feedback" v-if="errors.name" v-text="errors.name[0]"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" :class="{'has-danger': errors.model}">
+                            <label class="control-label">Modelo</label>
+                            <el-input v-model="form.model" dusk="model"></el-input>
+                            <small class="form-control-feedback" v-if="errors.model" v-text="errors.model[0]"></small>
                         </div>
                     </div>
 
@@ -131,6 +138,14 @@
                             <small class="form-control-feedback" v-if="errors.has_igv" v-text="errors.has_igv[0]"></small>
                         </div>
                     </div>
+
+                    <div class="col-md-3 center-el-checkbox">
+                        <div class="form-group" :class="{'has-danger': errors.has_plastic_bag_taxes}">
+                            <el-checkbox v-model="form.has_plastic_bag_taxes">Impuesto a la Bolsa Plástica</el-checkbox><br>
+                            <small class="form-control-feedback" v-if="errors.has_plastic_bag_taxes" v-text="errors.has_plastic_bag_taxes[0]"></small>
+                        </div>
+                    </div>
+
                     <div class="col-md-3">
                         <div class="form-group" :class="{'has-danger': errors.internal_id}">
                             <label class="control-label">Código Interno
@@ -174,7 +189,7 @@
                             <el-checkbox v-model="form.lots_enabled" @change="changeLotsEnabled">¿Maneja lotes?</el-checkbox><br>
                         </div>
                     </div>
-                    <div class="col-md-3" v-show="form.unit_type_id !='ZZ' && form.lots_enabled && !recordId">
+                    <div class="col-md-3" v-show="form.unit_type_id !='ZZ' && form.lots_enabled">
                         <div class="form-group" :class="{'has-danger': errors.lot_code}">
                             <label class="control-label">
                                 <!-- <el-checkbox v-model="enabled_lots"  @change="changeEnabledPercentageOfProfit">Código lote</el-checkbox> -->
@@ -252,6 +267,13 @@
                             <el-input v-model="form.line" >
                             </el-input>
                             <small class="form-control-feedback" v-if="errors.line" v-text="errors.line[0]"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-3" >
+                        <div class="form-group" :class="{'has-danger': errors.barcode}">
+                            <label class="control-label">Código de barra</label>
+                            <el-input v-model="form.barcode" ></el-input>
+                            <small class="form-control-feedback" v-if="errors.barcode" v-text="errors.barcode[0]"></small>
                         </div>
                     </div>
 
@@ -523,7 +545,7 @@
     import LotsForm from './partials/lots.vue'
 
     export default {
-        props: ['showDialog', 'recordId', 'external'],
+        props: ['showDialog', 'recordId', 'external', 'type'],
         components: {LotsForm},
 
         data() {
@@ -744,6 +766,7 @@
                     series_enabled: false,
                     purchase_has_igv: true,
                     web_platform_id:null,
+                    has_plastic_bag_taxes: false,
                 }
                 this.show_has_igv = true
                 this.purchase_show_has_igv = true
@@ -791,9 +814,9 @@
                 this.setDefaultConfiguration()
             },
             create() {
-
-
-
+                if (this.type) {
+                    this.form.unit_type_id = 'ZZ';
+                }
                 this.titleDialog = (this.recordId)? 'Editar Producto':'Nuevo Producto'
                 if (this.recordId) {
                     this.$http.get(`/${this.resource}/record/${this.recordId}`)
@@ -844,7 +867,7 @@
                 let error_by_item = 0
 
                 if(this.form.item_unit_types.length > 0){
-                    
+
                     this.form.item_unit_types.forEach(item => {
 
                         if(parseFloat(item.quantity_unit) < 0.0001){
@@ -878,7 +901,7 @@
 
                 }*/
 
-                if(!this.recordId && this.form.lots_enabled){
+                if(this.form.lots_enabled){
 
                     if(!this.form.lot_code)
                         return this.$message.error('Código de lote es requerido');

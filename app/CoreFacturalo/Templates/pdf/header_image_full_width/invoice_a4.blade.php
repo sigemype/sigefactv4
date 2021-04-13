@@ -324,13 +324,14 @@
     <tr class="bg-grey">
         <th class="border-top-bottom text-center py-2" width="8%">CANT.</th>
         <th class="border-top-bottom text-center py-2" width="8%">UNIDAD</th>
+        <th class="border-top-bottom text-center py-2" width="12%">COD.</th>
         <th class="border-top-bottom text-left py-2">DESCRIPCIÓN</th>
 
         {{-- <th class="border-top-bottom text-center py-2" width="8%">LOTE</th>
         <th class="border-top-bottom text-center py-2" width="8%">SERIE</th> --}}
 
         <th class="border-top-bottom text-right py-2" width="12%">P.UNIT</th>
-        <th class="border-top-bottom text-right py-2" width="8%">DTO.</th>
+        {{-- <th class="border-top-bottom text-right py-2" width="8%">DTO.</th> --}}
         <th class="border-top-bottom text-right py-2" width="12%">TOTAL</th>
     </tr>
     </thead>
@@ -345,6 +346,7 @@
                 @endif
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+            <td class="text-center align-top">{{ $row->item->internal_id }}</td>
             <td class="text-left align-top">
                 @if($row->name_product_pdf)
                     {!!$row->name_product_pdf!!}
@@ -388,7 +390,7 @@
 
             </td> --}}
             <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
-            <td class="text-right align-top">
+            {{-- <td class="text-right align-top">
                 @if($row->discounts)
                     @php
                         $total_discount_line = 0;
@@ -400,7 +402,7 @@
                 @else
                 0
                 @endif
-            </td>
+            </td> --}}
             <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
         </tr>
         <tr>

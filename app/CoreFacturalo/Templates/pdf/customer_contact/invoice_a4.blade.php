@@ -252,7 +252,7 @@
             @isset($document->quotation->delivery_date)
                     <td width="120px">F. ENTREGA</td>
                     <td width="8px">:</td>
-                    <td>{{ $document->quotation->delivery_date->format('Y-m-d')}}</td>
+                    <td>{{ $document->date_of_issue->addDays($document->quotation->delivery_date)->format('d-m-Y')}}</td>
             @endisset
         </tr>
 
@@ -576,23 +576,21 @@
     </table>
 @endif
 
-@if($document->user)
-     <br>
-    <table class="full-width">
-        <tr>
-            <td>
-                <strong>Vendedor:</strong>
-            </td>
-        </tr>
+<br>
+<table class="full-width">
+    <tr>
+        <td>
+            <strong>Vendedor:</strong>
+        </td>
+    </tr>
+    <tr>
+        @if ($document->seller)
+            <td>{{ $document->seller->name }}</td>
+        @else
+            <td>{{ $document->user->name }}</td>
+        @endif
+    </tr>
+</table>
 
-                <tr>
-                    <td>{{ $document->user->name }}</td>
-                </tr>
-
-        </tr>
-
-    </table>
-
-@endif
 </body>
 </html>

@@ -359,7 +359,7 @@
             <td class="desc pt-5">
                 <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
-        </tr> 
+        </tr>
     @endif
     @if($payments->count())
         <tr>
@@ -372,6 +372,17 @@
                 <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
             </tr>
         @endforeach
+    @endif
+
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc">
+                <br>
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+                <br><br>
+            </td>
+        </tr>
     @endif
 
     <tr>

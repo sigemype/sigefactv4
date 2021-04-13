@@ -1,6 +1,6 @@
 <template>
     <el-dialog :title="titleDialog" :visible="showDialog" @open="create" width="30%" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" append-to-body>
-            
+
         <div class="row mb-4" v-if="form.response_message">
             <div class="col-md-12">
                 <el-alert
@@ -16,7 +16,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold" v-if="!locked_emission.success">
                 <el-alert    :title="locked_emission.message"    type="warning"    show-icon>  </el-alert>
             </div>
-            
+
             <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('a4')">
                     <i class="fa fa-file-alt"></i>
@@ -24,7 +24,7 @@
                 <p>Imprimir A4</p>
             </div>
              <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
-               
+
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('ticket')">
                     <i class="fa fa-receipt"></i>
                 </button>
@@ -32,7 +32,7 @@
             </div>
 
              <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
-                
+
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('ticket_50')">
                     <i class="fa fa-receipt"></i>
                 </button>
@@ -40,7 +40,7 @@
             </div>
 
             <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
-                
+
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('a5')">
                     <i class="fa fa-receipt"></i>
                 </button>
@@ -95,7 +95,7 @@
             </template>
             <template v-else>
                 <el-button class="list" @click="clickFinalize">Ir al listado</el-button>
-                <el-button type="primary" @click="clickNewDocument">Nuevo comprobante</el-button>
+                <el-button v-if="!isUpdate" type="primary" @click="clickNewDocument">Nuevo comprobante</el-button>
             </template>
         </span>
     </el-dialog>
@@ -103,7 +103,7 @@
 
 <script>
     export default {
-        props: ['showDialog', 'recordId', 'showClose','isContingency','generatDispatch','dispatchId'],
+        props: ['showDialog', 'recordId', 'showClose','isContingency','generatDispatch','dispatchId', 'isUpdate'],
         data() {
             return {
                 titleDialog: null,
@@ -120,13 +120,13 @@
         },
         methods: {
             clickSendWhatsapp() {
-                
+
                 if(!this.form.customer_telephone){
                     return this.$message.error('El número es obligatorio')
                 }
 
                 window.open(`https://wa.me/51${this.form.customer_telephone}?text=${this.form.message_text}`, '_blank');
-            
+
             },
             initForm() {
                 this.errors = {};
@@ -152,7 +152,7 @@
                 }
             },
             async create() {
-                
+
                 await this.getCompany()
                 await this.getRecord()
 
@@ -162,7 +162,7 @@
                 });
             },
             async getCompany(){
-                
+
                 await this.$http.get(`/companies/record`)
                     .then(response => {
                         if (response.data !== '') {

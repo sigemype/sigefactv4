@@ -41,9 +41,13 @@
                         </div>
                     </div> 
                      
-                    <div class="col-lg-4 col-md-4 col-md-4 col-sm-12 mt-4"> 
+                    <div class="col-lg-8 col-md-8 col-md-8 col-sm-12 mt-4"> 
                         <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-check" >Validar documentos</el-button>
                         <el-button class="submit" type="info" @click.prevent="cleanInputs"  icon="el-icon-delete" >Limpiar </el-button>
+
+                        <template v-if="records.length > 0">
+                            <el-button class="submit" type="danger" @click.prevent="clickRegularizeDocuments" icon="el-icon-edit" >Regularizar documentos</el-button>
+                        </template>
 
                     </div>             
                     
@@ -131,6 +135,40 @@
 
         },
         methods: {
+            clickRegularizeDocuments() {
+
+                this.$confirm('¿Desea actualizar el estado de los documentos con los ubicados en SUNAT?', 'Regularizar documentos', {
+                    confirmButtonText: 'Regularizar',
+                    cancelButtonText: 'Cancelar',
+                    type: 'warning'
+                }).then(() => {
+
+                    this.$eventHub.$emit('valueLoadingRegularize', true)
+
+                    this.$http.post(`/${this.resource}/regularize`, this.search)
+                        .then(response => {
+                            if (response.data.success) {
+                                this.$message.success(response.data.message)
+                                this.getRecordsByFilter()
+                            } else {
+                                this.$message.error(response.data.message)
+                            }
+                        })
+                        .catch(error => {
+                            if (error.response.status === 500) {
+                                this.$message.error('Error al intentar regularizar');
+                            } else {
+                                console.log(error.response.data.message)
+                            }
+                        })
+                        .then(()=>{
+                            this.$eventHub.$emit('valueLoadingRegularize', false)
+                        })
+
+                }).catch(error => {
+                    console.log(error)
+                });
+            },
             clickSeeMore(){
                 this.see_more = (this.see_more) ? false : true
             },

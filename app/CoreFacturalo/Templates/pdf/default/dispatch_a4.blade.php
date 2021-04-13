@@ -57,13 +57,22 @@
     </tr>
     <tr>
         <td>RUC: {{ $customer->number }}
-                 {{ ($customer->district_id !== '-')? ', '.$customer->district->description : '' }}
-                 {{ ($customer->province_id !== '-')? ', '.$customer->province->description : '' }}
-                 {{ ($customer->department_id !== '-')? '- '.$customer->department->description : '' }}
         </td>
     </tr>
     <tr>
-        <td>Dirección: {{ $customer->address }}</td>
+        <td>Dirección: {{ $customer->address }}
+            {{ ($customer->district_id !== '-')? ', '.$customer->district->description : '' }}
+            {{ ($customer->province_id !== '-')? ', '.$customer->province->description : '' }}
+            {{ ($customer->department_id !== '-')? '- '.$customer->department->description : '' }}
+        </td>
+    </tr>
+    @if ($customer->telephone)
+    <tr>
+        <td>Teléfono:{{ $customer->telephone }}</td>
+    </tr>
+    @endif
+    <tr>
+        <td>Vendedor: {{ $document->user->name }}</td>
     </tr>
     </tbody>
 </table>
@@ -125,6 +134,7 @@
         <th class="border-top-bottom text-center">Item</th>
         <th class="border-top-bottom text-center">Código</th>
         <th class="border-top-bottom text-left">Descripción</th>
+        <th class="border-top-bottom text-left">Modelo</th>
         <th class="border-top-bottom text-center">Unidad</th>
         <th class="border-top-bottom text-right">Cantidad</th>
     </tr>
@@ -135,6 +145,7 @@
             <td class="text-center">{{ $loop->iteration }}</td>
             <td class="text-center">{{ $row->item->internal_id }}</td>
             <td class="text-left">{{ $row->item->description }}</td>
+            <td class="text-left">{{ $row->item->model ?? '' }}</td>
             <td class="text-center">{{ $row->item->unit_type_id }}</td>
             <td class="text-right">
                 @if(((int)$row->quantity != $row->quantity))
@@ -185,5 +196,17 @@
 </table>
 @endif
 
+@if ($document->reference_sale_note_id)
+<table class="full-width border-box">
+    @if($document->sale_note)
+    <tr>
+        <td class="text-bold border-bottom font-bold">NOTA DE VENTA</td>
+    </tr>
+    <tr>
+        <td>{{ ($document->sale_note) ? $document->sale_note->number_full : "" }}</td>
+    </tr>
+    @endif
+</table>
+@endif
 </body>
 </html>

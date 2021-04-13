@@ -69,8 +69,12 @@
 </table>
 <table class="full-width">
     <tr>
-        <td width="" class="pt-3"><p class="desc">F. Emisión:</p></td>
-        <td width="" class="pt-3"><p class="desc">{{ $document->date_of_issue->format('Y-m-d') }}</p></td>
+        <td class="pt-3"><p class="desc">F. Emisión:</p></td>
+        <td class="pt-3"><p class="desc">{{ $document->date_of_issue->format('Y-m-d') }}</p></td>
+    </tr>
+    <tr>
+        <td><p class="desc">H. Emisión:</p></td>
+        <td><p class="desc">{{ $document->time_of_issue }}</p></td>
     </tr>
 
     @if($document->date_of_due)

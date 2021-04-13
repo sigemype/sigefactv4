@@ -62,7 +62,9 @@ class DocumentTransform
             'hotel' => Functions::valueKeyInArray($inputs, 'hotel',[]),
             'transport' => Functions::valueKeyInArray($inputs, 'transport',[]),
             'payments' => self::payments($inputs),
-            'data_json' => $inputs
+            'data_json' => $inputs,
+            'fee' => self::fee($inputs),
+            'payment_condition_id' => Functions::valueKeyInArray($inputs, 'codigo_condicion_de_pago', '01'),
         ];
 
         $inputs_transform = self::invoice($inputs_transform, $inputs);
@@ -328,4 +330,19 @@ class DocumentTransform
         return [];
     }
 
+    private static function fee($inputs)
+    {
+        $fee = [];
+        if (key_exists('cuotas', $inputs)) {
+            foreach ($inputs['cuotas'] as $row) {
+                $fee[] = [
+                    'date' => $row['fecha'],
+                    'currency_type_id' => $row['codigo_tipo_moneda'],
+                    'amount' => $row['monto'],
+                ];
+            }
+        }
+
+        return $fee;
+    }
 }

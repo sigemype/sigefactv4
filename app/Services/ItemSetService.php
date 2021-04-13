@@ -12,8 +12,17 @@ class ItemSetService
         $result = array();
 
         foreach ($records as $row) {
-            array_push($result, $row->individual_item->description);
+            
+            if(((int)$row->quantity != $row->quantity)){
+                $quantity = $row->quantity;
+            }
+            else{
+                $quantity = number_format($row->quantity, 0);
+            }
+
+            array_push($result, "{$quantity} - {$row->individual_item->description}");
         }
+
 
         return $result;
     }

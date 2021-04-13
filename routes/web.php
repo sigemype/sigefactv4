@@ -171,15 +171,18 @@ if ($hostname) {
             Route::get('documents/search/customer/{id}', 'Tenant\DocumentController@searchCustomerById');
             Route::get('documents/search/externalId/{external_id}', 'Tenant\DocumentController@searchExternalId');
 
-            Route::get('documents', 'Tenant\DocumentController@index')->name('tenant.documents.index')->middleware(['redirect.level','tenant.internal.mode']);
+            Route::get('documents', 'Tenant\DocumentController@index')->name('tenant.documents.index')->middleware(['redirect.level', 'tenant.internal.mode']);
             Route::get('documents/columns', 'Tenant\DocumentController@columns');
             Route::get('documents/records', 'Tenant\DocumentController@records');
-            Route::get('documents/create', 'Tenant\DocumentController@create')->name('tenant.documents.create')->middleware(['redirect.level','tenant.internal.mode']);
+            Route::get('documents/create', 'Tenant\DocumentController@create')->name('tenant.documents.create')->middleware(['redirect.level', 'tenant.internal.mode']);
             Route::get('documents/create_tensu', 'Tenant\DocumentController@create_tensu')->name('tenant.documents.create_tensu');
+            Route::get('documents/{id}/edit', 'Tenant\DocumentController@edit')->middleware(['redirect.level', 'tenant.internal.mode']);
+            Route::get('documents/{id}/show', 'Tenant\DocumentController@show');
 
             Route::get('documents/tables', 'Tenant\DocumentController@tables');
             Route::get('documents/record/{document}', 'Tenant\DocumentController@record');
             Route::post('documents', 'Tenant\DocumentController@store');
+            Route::post('documents/{id}/update', 'Tenant\DocumentController@update');
             Route::get('documents/send/{document}', 'Tenant\DocumentController@send');
             // Route::get('documents/consult_cdr/{document}', 'Tenant\DocumentController@consultCdr');
             Route::post('documents/email', 'Tenant\DocumentController@email');
@@ -191,14 +194,13 @@ if ($hostname) {
             Route::get('documents/locked_emission', 'Tenant\DocumentController@messageLockedEmission');
             Route::get('documents/note/has-documents/{document}', 'Tenant\NoteController@hasDocuments');
 
-           Route::get('document_payments/records/{document_id}', 'Tenant\DocumentPaymentController@records');
-           Route::get('document_payments/document/{document_id}', 'Tenant\DocumentPaymentController@document');
-           Route::get('document_payments/tables', 'Tenant\DocumentPaymentController@tables');
-           Route::post('document_payments', 'Tenant\DocumentPaymentController@store');
-           Route::delete('document_payments/{document_payment}', 'Tenant\DocumentPaymentController@destroy');
-           Route::get('document_payments/initialize_balance', 'Tenant\DocumentPaymentController@initialize_balance');
-           Route::get('document_payments/report/{start}/{end}/{report}', 'Tenant\DocumentPaymentController@report');
-
+            Route::get('document_payments/records/{document_id}', 'Tenant\DocumentPaymentController@records');
+            Route::get('document_payments/document/{document_id}', 'Tenant\DocumentPaymentController@document');
+            Route::get('document_payments/tables', 'Tenant\DocumentPaymentController@tables');
+            Route::post('document_payments', 'Tenant\DocumentPaymentController@store');
+            Route::delete('document_payments/{document_payment}', 'Tenant\DocumentPaymentController@destroy');
+            Route::get('document_payments/initialize_balance', 'Tenant\DocumentPaymentController@initialize_balance');
+            Route::get('document_payments/report/{start}/{end}/{report}', 'Tenant\DocumentPaymentController@report');
 
             Route::get('documents/send_server/{document}/{query?}', 'Tenant\DocumentController@sendServer');
             Route::get('documents/check_server/{document}', 'Tenant\DocumentController@checkServer');
@@ -213,6 +215,7 @@ if ($hostname) {
             Route::delete('documents/delete_document/{document_id}', 'Tenant\DocumentController@destroyDocument');
 
             Route::get('documents/data-table/items', 'Tenant\DocumentController@getDataTableItem');
+
 
             //Contingencies
             Route::get('contingencies', 'Tenant\ContingencyController@index')->name('tenant.contingencies.index')->middleware('redirect.level','tenant.internal.mode');

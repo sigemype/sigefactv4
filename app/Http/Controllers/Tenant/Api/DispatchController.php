@@ -15,6 +15,12 @@ class DispatchController extends Controller
 
     public function store(Request $request)
     {
+        
+        $request->validate([
+            'delivery.address' => 'required|max:100',
+            'origin.address' => 'required|max:100',
+        ]);
+
         $fact = DB::connection('tenant')->transaction(function () use($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());

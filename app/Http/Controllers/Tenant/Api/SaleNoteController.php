@@ -400,4 +400,18 @@ class SaleNoteController extends Controller
 
     }
 
+    public function email(Request $request)
+    {
+        $company = Company::active();
+        $record = SaleNote::find($request->input('id'));
+        $customer_email = $request->input('email');
+
+        Mail::to($customer_email)->send(new SaleNoteEmail($company, $record));
+
+        return [
+            'success' => true,
+            'message'=> 'Email enviado correctamente.'
+        ];
+    }
+
 }

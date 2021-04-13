@@ -18,7 +18,7 @@ class BackupDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'bk:bd';
+    protected $signature = 'bk:bd --type={type} --database={database?}';
 
     /**
      * The console command description.
@@ -51,28 +51,36 @@ class BackupDatabase extends Command
     public function handle()
     {
         try {
-
-            $today = now()->format('dmY');
-            if (!is_dir(storage_path('app/backups'))) mkdir(storage_path('app/backups'));
-            if (!is_dir(storage_path('app/backups/'.$today))) mkdir(storage_path('app/backups/'.$today));
-
-            $dbs = DB::table('websites')->get()->toArray();
-            $db_admin = config('database.connections.mysql.database');
-
+            $type = $this->argument('type');
+            $database = $this->argument('database');
             $this->initDbConfig();
 
+			if ($type === 'individual') {
+                if (!is_dir(storage_path('app/backups/' . $database))) mkdir(storage_path('app/backups/' . $database));
 
-            foreach ($dbs as $db) {
-                
-                $tenant_dump = new IMysqldump\Mysqldump('mysql:host='.$this->host.';dbname='.$db->uuid, $this->username, $this->password);
-                $tenant_dump->start(storage_path("app/backups/{$today}/{$db->uuid}.sql"));
+				$tenant_dump = new IMysqldump\Mysqldump(
+                    'mysql:host=' . $this->host . ';dbname=' . $database, $this->username, $this->password
+                );
+				$tenant_dump->start(storage_path("app/backups/{$database}/{$database}.sql"));
+                Log::info('Backup ' . $database . ' database success');
+			} else {
+                $today = now()->format('dmY');
+                if (!is_dir(storage_path('app/backups'))) mkdir(storage_path('app/backups'));
+                if (!is_dir(storage_path('app/backups/'.$today))) mkdir(storage_path('app/backups/'.$today));
 
-            }
+				$dbs = DB::table('websites')->get()->toArray();
+				$db_admin = config('database.connections.mysql.database');
 
-            $system_dump = new IMysqldump\Mysqldump('mysql:host='.$this->host.';dbname='.$db_admin, $this->username, $this->password);
-            $system_dump->start(storage_path("app/backups/{$today}/{$db_admin}.sql"));
- 
-            Log::info('Backup database success');
+				foreach ($dbs as $db) {
+					$tenant_dump = new IMysqldump\Mysqldump('mysql:host=' . $this->host . ';dbname=' . $db->uuid, $this->username, $this->password);
+					$tenant_dump->start(storage_path("app/backups/{$today}/{$db->uuid}.sql"));
+				}
+
+				$system_dump = new IMysqldump\Mysqldump('mysql:host=' . $this->host . ';dbname=' . $db_admin, $this->username, $this->password);
+				$system_dump->start(storage_path("app/backups/{$today}/{$db_admin}.sql"));
+
+				Log::info('Backup database success');
+			}
 
 
         }catch (Exception $e) {
@@ -88,7 +96,7 @@ class BackupDatabase extends Command
 
     }
 
-    
+
     private function initDbConfig(){
 
         $dbConfig = config('database.connections.' . config('tenancy.db.system-connection-name', 'system'));

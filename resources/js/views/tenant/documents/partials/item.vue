@@ -11,30 +11,6 @@
                             </label>
 
                             <template v-if="!search_item_by_barcode" id="select-append">
-                                <!-- <el-input id="custom-input">
-                                    <el-select :disabled="recordItem != null"
-                                            v-model="form.item_id" @change="changeItem"
-                                            filterable
-                                            placeholder="Buscar"
-                                            popper-class="el-select-items"
-                                            dusk="item_id"
-                                            @visible-change="focusTotalItem"
-                                            slot="prepend"
-                                            id="select-width">
-                                        <el-tooltip v-for="option in items"  :key="option.id" placement="top">
-                                            <div slot="content">
-                                                Marca: {{option.brand}} <br>
-                                                Categoria: {{option.category}} <br>
-                                                Stock: {{option.stock}} <br>
-                                                Precio: {{option.currency_type_symbol}} {{option.sale_unit_price}} <br>
-                                            </div>
-                                            <el-option  :value="option.id" :label="option.full_description"></el-option>
-                                        </el-tooltip>
-                                    </el-select>
-                                    <el-tooltip slot="append" class="item" effect="dark" content="Ver Stock del Producto" placement="bottom" :disabled="recordItem != null">
-                                        <el-button :disabled="isEditItemNote"  @click.prevent="clickWarehouseDetail()"><i class="fa fa-search"></i></el-button>
-                                    </el-tooltip>
-                                </el-input> -->
                                 <el-input id="custom-input">
                                     <el-select :disabled="recordItem != null"
                                             v-model="form.item_id"
@@ -71,27 +47,19 @@
                             <template v-else>
                                 <el-input id="custom-input">
                                     <el-select :disabled="recordItem != null" v-model="form.item_id"
-                                            @change="changeItem"
-                                            filterable
-                                            placeholder="Buscar"
-                                            popper-class="el-select-items"
-                                            dusk="item_id"
-                                            @visible-change="focusTotalItem"
-                                            slot="prepend"
-                                            id="select-width"
-                                            remote
-                                            :remote-method="searchRemoteItems"
-                                            :loading="loading_search">
-
-                                          <el-tooltip v-for="option in items"  :key="option.id" placement="top">
-                                            <div slot="content">
-                                                Marca: {{option.brand}} <br>
-                                                Categoria: {{option.category}} <br>
-                                                Stock: {{option.stock}} <br>
-                                                Precio: {{option.currency_type_symbol}} {{option.sale_unit_price}} <br>
-                                            </div>
-                                            <el-option  :value="option.id" :label="option.full_description"></el-option>
-                                        </el-tooltip>
+                                        ref="selectBarcode"
+                                        @change="changeItem"
+                                        filterable
+                                        placeholder="Buscar"
+                                        popper-class="el-select-items"
+                                        slot="prepend"
+                                        id="select-width"
+                                        value-key="id"
+                                        remote
+                                        :remote-method="searchRemoteItems"
+                                        :loading="loading_search"
+                                    >
+                                        <el-option v-for="option in items"  :key="option.id" :value="option.id" :label="option.full_description"></el-option>
                                     </el-select>
                                     <el-tooltip slot="append" class="item" effect="dark" content="Ver Stock del Producto" placement="bottom" :disabled="recordItem != null">
                                         <el-button :disabled="isEditItemNote"  @click.prevent="clickWarehouseDetail()"><i class="fa fa-search"></i></el-button>
@@ -131,26 +99,33 @@
                         </div>
                     </div> -->
 
-                    <div class="col-md-3 col-sm-3">
+                    <div class="col-md-4 col-sm-4">
                         <div class="form-group" :class="{'has-danger': errors.quantity}">
 
                             <label class="control-label">Cantidad</label>
-                            <el-input v-model="form.quantity" :disabled="form.item.calculate_quantity" @blur="validateQuantity" >
-                                <el-button slot="prepend" icon="el-icon-minus" @click="clickDecrease" :disabled="form.quantity < 0.01 || form.item.calculate_quantity"></el-button>
-                                <el-button slot="append" icon="el-icon-plus" @click="clickIncrease"  :disabled="form.item.calculate_quantity"></el-button>
+                            <el-input v-model="form.quantity" :disabled="form.item.calculate_quantity" @blur="validateQuantity" @input.native="changeValidateQuantity" ref="inputQuantity">
+                                <el-button style="padding-right: 5px ;padding-left: 12px" slot="prepend" icon="el-icon-minus" @click="clickDecrease" :disabled="form.quantity < 0.01 || form.item.calculate_quantity"></el-button>
+                                <el-button style="padding-right: 5px ;padding-left: 12px" slot="append" icon="el-icon-plus" @click="clickIncrease"  :disabled="form.item.calculate_quantity"></el-button>
                             </el-input>
                             <small class="form-control-feedback" v-if="errors.quantity" v-text="errors.quantity[0]"></small>
 
                         </div>
                     </div>
 
-                    <div class="col-md-3 col-sm-3">
+                    <div class="col-md-4 col-sm-4">
                         <div class="form-group" :class="{'has-danger': errors.unit_price_value}">
                             <label class="control-label">Precio Unitario</label>
-                            <el-input v-model="form.unit_price_value" @input="calculateQuantity" :readonly="typeUser === ''">
+                            <el-input v-model="form.unit_price_value" @input="calculateQuantity" :readonly="typeUser === 'seller'">
                                 <template slot="prepend" v-if="form.item.currency_type_symbol">{{ form.item.currency_type_symbol }}</template>
                             </el-input>
                             <small class="form-control-feedback" v-if="errors.unit_price_value" v-text="errors.unit_price[0]"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-4">
+                        <div class="form-group">
+                            <label class="control-label">Total</label>
+                            <el-input v-model="readonly_total" @input="calculateTotal" readonly></el-input>
                         </div>
                     </div>
 
@@ -551,7 +526,7 @@
     import VueCkeditor from 'vue-ckeditor5'
 
     export default {
-        props: ['recordItem','showDialog', 'operationTypeId', 'currencyTypeIdActive', 'exchangeRateSale', 'typeUser', 
+        props: ['recordItem','showDialog', 'operationTypeId', 'currencyTypeIdActive', 'exchangeRateSale', 'typeUser',
                 'isEditItemNote', 'configuration', 'documentTypeId', 'noteCreditOrDebitTypeId'],
         components: {ItemForm, WarehousesDetail, LotsGroup, SelectLotsForm, 'vue-ckeditor': VueCkeditor.component},
         data() {
@@ -590,15 +565,14 @@
                 editors: {
                   classic: ClassicEditor
                 },
-                value1: 'hello'
+                value1: 'hello',
+                readonly_total: 0
                 //item_unit_type: {}
             }
         },
         created() {
             this.initForm()
             this.$http.get(`/${this.resource}/item/tables`).then(response => {
-               // console.log('tablas new edit')
-                // this.items = response.data.items
                 this.all_items = response.data.items
                 this.operation_types = response.data.operation_types
                 this.all_affectation_igv_types = response.data.affectation_igv_types
@@ -616,7 +590,6 @@
             })
 
             this.$eventHub.$on('selectWarehouseId', (warehouse_id) => {
-                // console.log(warehouse_id)
                 this.form.warehouse_id = warehouse_id
             })
         },
@@ -638,7 +611,11 @@
                 if(this.form.quantity <= this.getMinQuantity()){
                     this.setMinQuantity()
                 }
-                // console.log(isNaN(Number(this.form.quantity)))
+
+                this.calculateTotal()
+            },
+            changeValidateQuantity(event) {
+                this.calculateTotal()
             },
             getMinQuantity(){
                 return 0.01
@@ -655,27 +632,25 @@
                     return
                 }
 
+                this.calculateTotal()
+
             },
             clickIncrease(){
                 this.form.quantity = parseInt(this.form.quantity + 1)
+                this.calculateTotal()
             },
             async searchRemoteItems(input) {
-                // console.log(input)
-
                 if (input.length > 2) {
-
                     this.loading_search = true
-                    let parameters = `input=${input}`
-
-
-                    await this.$http.get(`/${this.resource}/search-items/?${parameters}`)
+                    const params = {
+                        'input': input,
+                        'search_by_barcode': this.search_item_by_barcode ? 1 : 0
+                    }
+                    await this.$http.get(`/${this.resource}/search-items/`, { params })
                             .then(response => {
-                                // console.log(response)
                                 this.items = response.data.items
                                 this.loading_search = false
-
                                 this.enabledSearchItemsBarcode()
-
                                 if(this.items.length == 0){
                                     this.filterItems()
                                 }
@@ -689,13 +664,12 @@
                 this.items = this.all_items
             },
             enabledSearchItemsBarcode(){
-
-                if(this.search_item_by_barcode){
-
-                    if (this.items.length == 1){
-
-                        this.form.item_id = this.items[0].id
-                        this.changeItem()
+                if(this.search_item_by_barcode) {
+                    this.$refs.selectBarcode.$data.selectedLabel = '';
+                    if (this.items.length == 1) {
+                        this.form.item_id = this.items[0].id;
+                        this.$refs.selectBarcode.blur();
+                        this.changeItem();
                     }
                 }
             },
@@ -707,7 +681,6 @@
                     this.form.item_id = item.id
                     this.changeItem()
                 }
-                // console.log(item)
             },
             clickWarehouseDetail(){
 
@@ -770,7 +743,6 @@
 
 
                 if (this.recordItem) {
-                    // console.log(this.recordItem)
                     await this.reloadDataItems(this.recordItem.item_id)
                     this.form.item_id = await this.recordItem.item_id
                     await this.changeItem()
@@ -790,7 +762,6 @@
                             this.form.item.lots = this.recordItem.item.lots
                             await this.regularizeLots()
                             this.lots = this.form.item.lots
-                            // console.log(this.lots)
                         }
 
                     }
@@ -811,29 +782,27 @@
                 if(this.form.document_item_id && this.form.item.lots.length > 0){
 
                     await this.$http.get(`/${this.resource}/regularize-lots/${this.form.document_item_id}`).then((response) => {
-    
+
                                         let all_lots = this.form.item.lots
                                         let available_lots = response.data
-                                        
+
                                         all_lots.forEach((lot, index)  => {
-    
+
                                             let exist_lot = _.find(available_lots, (it) =>{
                                                 return it.id == lot.id
                                             })
-    
+
                                             if(!exist_lot){
                                                 this.form.item.lots.splice(index, 1)
-                                            } 
-                                        
+                                            }
+
                                         })
-    
-                                        // console.log(response)
                                     })
                                     .catch(error => {
                                     })
                                     .then(() => {
                                     })
-                                    
+
                 }
 
             },
@@ -906,21 +875,20 @@
                 this.$emit('update:showDialog', false)
             },
             async changeItem() {
-
                 this.form.item = _.find(this.items, {'id': this.form.item_id});
                 this.form.item_unit_types = _.find(this.items, {'id': this.form.item_id}).item_unit_types
                 this.form.unit_price_value = this.form.item.sale_unit_price;
                 this.lots = this.form.item.lots
 
                 this.form.has_igv = this.form.item.has_igv;
+                this.form.has_plastic_bag_taxes = this.form.item.has_plastic_bag_taxes;
                 this.form.affectation_igv_type_id = this.form.item.sale_affectation_igv_type_id;
                 this.form.quantity = 1;
                 this.cleanTotalItem();
                 this.showListStock = true
 
 
-                if(this.form.item.attributes.length > 0)
-                {
+                if(this.form.item.attributes.length > 0) {
                     const contex = this
                     this.form.item.attributes.forEach((row)=>{
 
@@ -934,10 +902,7 @@
                         })
                     })
                 }
-
                 this.form.lots_group = this.form.item.lots_group
-
-                // console.log(this.recordItem)
                 // if (!this.recordItem) {
                 //     await this.form.item.warehouses.forEach(element => {
                 //         if(element.checked){
@@ -956,11 +921,13 @@
                 }
             },
             calculateQuantity() {
-                // debugger
                 if(this.form.item.calculate_quantity) {
-                    //console.log('entro')
                     this.form.quantity = _.round((this.total_item / this.form.unit_price_value), 4)
                 }
+                this.calculateTotal()
+            },
+            calculateTotal() {
+                this.readonly_total = _.round((this.form.quantity * this.form.unit_price_value), 4)
             },
             cleanTotalItem(){
                 this.total_item = null
@@ -991,18 +958,10 @@
 
                 let IdLoteSelected = this.form.IdLoteSelected
                 let document_item_id = this.form.document_item_id
-
-                // console.log(this.form)
-                // return
-                // console.log
                 this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
-                // console.log(this.row, this.form)
-
 
                 let select_lots = await _.filter(this.row.item.lots, {'has_sale':true})
                 let un_select_lots = await _.filter(this.row.item.lots, {'has_sale':false})
-
-                // console.log(select_lots.length)
 
                 if(this.form.item.series_enabled){
                     if(select_lots.length != this.form.quantity)

@@ -9,25 +9,22 @@
                                 Producto/Servicio
                                 <a href="#" @click.prevent="showDialogNewItem = true">[+ Nuevo]</a>
                             </label>
-
-                            <!-- <el-select v-model="form.item_id" @change="changeItem" filterable  ref="select_item" @focus="focusSelectItem">
-                                <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.full_description"></el-option>
-                            </el-select> -->
-
-
                             <template  id="select-append">
                                 <el-input id="custom-input">
                                     <el-select
-                                            v-model="form.item_id" @change="changeItem"
-                                            filterable
-                                            placeholder="Buscar"
-                                            popper-class="el-select-items"
-                                            ref="select_item"
-                                            @focus="focusSelectItem"
-                                            slot="prepend"
-                                            id="select-width">
+                                        v-model="form.item_id" @change="changeItem"
+                                        filterable
+                                        placeholder="Buscar"
+                                        remote
+                                        :remote-method="searchRemoteItems"
+                                        :loading="loading_search"
+                                        popper-class="el-select-items"
+                                        ref="select_item"
+                                        @focus="focusSelectItem"
+                                        slot="prepend"
+                                        id="select-width">
 
-                                            <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.full_description"></el-option>
+                                        <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.full_description"></el-option>
                                     </el-select>
                                     <el-tooltip slot="append" class="item" effect="dark" content="Ver Stock del Producto" placement="bottom" >
                                         <el-button @click.prevent="clickWarehouseDetail()"><i class="fa fa-search"></i></el-button>
@@ -81,7 +78,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(row, index) in item_unit_types">
+                                    <tr v-for="(row, index) in item_unit_types" :key="index">
                                             <td class="text-center">{{row.unit_type_id}}</td>
                                             <td class="text-center">{{row.description}}</td>
                                             <td class="text-center">{{row.quantity_unit}}</td>
@@ -108,20 +105,6 @@
                             <small class="form-control-feedback" v-if="errors.total_item" v-text="errors.total_item[0]"></small>
                         </div>
                     </div>
-                    <!--<div class="col-md-6" v-show="has_list_prices">
-                        <div class="form-group" :class="{'has-danger': errors.item_unit_type_id}">
-                            <label class="control-label">Presentación</label>
-                            <el-select v-model="form.item_unit_type_id" filterable @change="changePresentation">
-                                <el-option v-for="option in item_unit_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                            </el-select>
-                            <el-radio-group v-if="form.item_unit_type_id" v-model="item_unit_type.price_default" @change="changePresentation">
-                                <el-radio :label="1">Precio 1</el-radio>
-                                <el-radio :label="2">Precio 2</el-radio>
-                                <el-radio :label="3">Precio 3</el-radio>
-                            </el-radio-group>
-                            <small class="form-control-feedback" v-if="errors.item_unit_type_id" v-text="errors.item_unit_type_id[0]"></small>
-                        </div>
-                    </div>-->
                     <div class="clearfix"></div>
                     <div class="col-md-12 mt-3">
                         <label class="control-label">Atributo extra (visible en PDF)</label>
@@ -136,6 +119,12 @@
                         <div class="form-group" :class="{'has-danger': errors.extra_attr_value}">
                             <el-input v-model="form.extra_attr_value"></el-input>
                             <small class="form-control-feedback" v-if="errors.extra_attr_value" v-text="errors.extra_attr_value[0]"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 mt-2">
+                        <div class="form-group">
+                            <label class="control-label">Nombre producto en PDF</label>
+                            <vue-ckeditor type="classic" v-model="form.name_product_pdf" :editors="editors"></vue-ckeditor>
                         </div>
                     </div>
                     <div class="col-md-12 mt-3">
@@ -164,7 +153,7 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr v-for="(row, index) in form.discounts">
+                                            <tr v-for="(row, index) in form.discounts" :key="index">
                                                 <td>
                                                     <el-select v-model="row.discount_type_id" @change="changeDiscountType(index)">
                                                         <el-option v-for="option in discount_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
@@ -198,7 +187,7 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr v-for="(row, index) in form.charges">
+                                            <tr v-for="(row, index) in form.charges" :key="index">
                                                 <td>
                                                     <el-select v-model="row.charge_type_id" @change="changeChargeType(index)">
                                                         <el-option v-for="option in charge_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
@@ -231,7 +220,7 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr v-for="(row, index) in form.attributes">
+                                            <tr v-for="(row, index) in form.attributes" :key="index">
                                                 <td>
                                                     <el-select v-model="row.attribute_type_id" filterable @change="changeAttributeType(index)">
                                                         <el-option v-for="option in attribute_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
@@ -254,7 +243,7 @@
             </div>
             <div class="form-actions text-right pt-2">
                 <el-button @click.prevent="close()">Cerrar</el-button>
-                <el-button type="primary" native-type="submit" v-if="form.item_id">Agregar</el-button>
+                <el-button type="primary" native-type="submit" v-if="form.item_id">{{ titleAction }}</el-button>
             </div>
         </form>
         <item-form :showDialog.sync="showDialogNewItem"
@@ -274,14 +263,15 @@
 }
 </style>
 <script>
-
     import itemForm from '../../items/form.vue'
     import {calculateRowItem} from '../../../../helpers/functions'
     import WarehousesDetail from './warehouses.vue'
+    import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+    import VueCkeditor from 'vue-ckeditor5'
 
     export default {
-        props: ['showDialog', 'currencyTypeIdActive', 'exchangeRateSale'],
-        components: {itemForm, WarehousesDetail},
+        props: ['showDialog', 'currencyTypeIdActive', 'exchangeRateSale', 'recordItem'],
+        components: {itemForm, WarehousesDetail, 'vue-ckeditor': VueCkeditor.component},
         data() {
             return {
                 titleDialog: 'Agregar Producto o Servicio',
@@ -290,6 +280,7 @@
                 showWarehousesDetail: false,
                 errors: {},
                 form: {},
+                all_items: [],
                 items: [],
                 aux_items: [],
                 affectation_igv_types: [],
@@ -302,29 +293,61 @@
                 total_item: 0,
                 has_list_prices: false,
                 warehousesDetail:[],
+                loading_search:false,
                 item_unit_types: [],
-                item_unit_type: {}
+                item_unit_type: {},
+                editors: {
+                  classic: ClassicEditor
+                },
+                titleAction: null
             }
         },
         created() {
             this.initForm()
-            this.$http.get(`/${this.resource}/item/tables`).then(response => {
-                this.items = response.data.items
-                this.affectation_igv_types = response.data.affectation_igv_types
-                this.system_isc_types = response.data.system_isc_types
-                this.discount_types = response.data.discount_types
-                this.charge_types = response.data.charge_types
-                this.attribute_types = response.data.attribute_types
-                // this.filterItems()
-
-            })
+            this.getTables()
 
             this.$eventHub.$on('reloadDataItems', (item_id) => {
                 this.reloadDataItems(item_id)
             })
         },
         methods: {
+            getTables(){
 
+                this.$http.get(`/${this.resource}/item/tables`).then(response => {
+                    this.all_items = response.data.items
+                    this.affectation_igv_types = response.data.affectation_igv_types
+                    this.system_isc_types = response.data.system_isc_types
+                    this.discount_types = response.data.discount_types
+                    this.charge_types = response.data.charge_types
+                    this.attribute_types = response.data.attribute_types
+                    this.filterItems()
+
+                })
+            },
+            async searchRemoteItems(input) {
+
+                if (input.length > 2) {
+
+                    this.loading_search = true
+                    let parameters = `input=${input}`
+
+                    await this.$http.get(`/${this.resource}/search-items/?${parameters}`)
+                            .then(response => {
+                                this.items = response.data.items
+                                this.loading_search = false
+
+                                if(this.items.length == 0){
+                                    this.filterItems()
+                                }
+                            })
+                } else {
+                    this.filterItems()
+                }
+
+            },
+            filterItems() {
+                this.items = this.all_items
+            },
             clickWarehouseDetail(){
 
                 if(!this.form.item_id){
@@ -335,9 +358,6 @@
 
                 this.warehousesDetail = item.warehouses
                 this.showWarehousesDetail = true
-            },
-            filterItems(){
-                // this.items = this.items.filter(item => item.warehouses.length >0)
             },
             initForm() {
                 this.errors = {};
@@ -368,11 +388,23 @@
                 this.item_unit_type = {};
                 this.has_list_prices = false;
             },
-            // initializeFields() {
-            //     this.form.affectation_igv_type_id = this.affectation_igv_types[0].id
-            // },
-            create() {
-            //     this.initializeFields()
+            async create() {
+                this.titleDialog = (this.recordItem) ? ' Editar Producto o Servicio' : ' Agregar Producto o Servicio';
+                this.titleAction = (this.recordItem) ? ' Editar' : ' Agregar';
+
+                if (this.recordItem) {
+                    await this.reloadDataItems(this.recordItem.item_id)
+                    this.form.item_id = this.recordItem.item_id
+                    await this.changeItem();
+                    this.form.quantity = this.recordItem.quantity
+                    this.form.unit_price = this.recordItem.unit_price
+                    this.form.has_plastic_bag_taxes = (this.recordItem.total_plastic_bag_taxes > 0) ? true : false
+                    this.form.warehouse_id = this.recordItem.warehouse_id
+                    if(this.recordItem.name_product_pdf){
+                        this.form.name_product_pdf = this.recordItem.name_product_pdf
+                    }
+                    this.calculateQuantity()
+                }
             },
             clickAddDiscount() {
                 this.form.discounts.push({
@@ -432,9 +464,9 @@
                 this.initForm()
                 this.$emit('update:showDialog', false)
             },
-            changeItem() {
-                this.getItems();
-                this.form.item = _.find(this.items, {'id': this.form.item_id});
+            async changeItem() {
+                // this.getItems();
+                this.form.item = await _.find(this.items, {'id': this.form.item_id});
                 this.form.unit_price = this.form.item.sale_unit_price;
 
                 this.form.has_igv = this.form.item.has_igv;
@@ -486,6 +518,8 @@
                 this.form.unit_price = valor
                 this.form.item.unit_type_id = row.unit_type_id
                 this.form.item_unit_type_id = row.id
+                this.getTables()
+
             },
             clickAddItem() {
                 if (this.validateTotalItem().total_item) return;
@@ -499,18 +533,24 @@
                 this.form.item.extra_attr_name = this.form.extra_attr_name;
                 this.form.item.extra_attr_value = this.form.extra_attr_value;
 
+                this.form.input_unit_price_value = this.form.unit_price_value;
+
                 this.form.item.presentation = this.item_unit_type;
                 this.form.affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.affectation_igv_type_id});
                 this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
-
+                this.row.item.name_product_pdf = this.row.name_product_pdf || '';
+                if (this.recordItem) {
+                    this.row.indexi = this.recordItem.indexi
+                }
                 this.initForm();
-
-                // this.initializeFields()
                 this.$emit('add', this.row);
-                this.setFocusSelectItem()
+                if (this.recordItem) {
+                    this.close();
+                } else {
+                    this.setFocusSelectItem();
+                }
             },
             focusSelectItem(){
-                // console.log("foc")
                 this.$refs.select_item.$el.getElementsByTagName('input')[0].focus()
             },
             setFocusSelectItem(){
@@ -527,9 +567,9 @@
                 }
             },
             getItems() {
-                this.$http.get(`/${this.resource}/item/tables`).then(response => {
-                    this.items = response.data.items
-                })
+                // this.$http.get(`/${this.resource}/item/tables`).then(response => {
+                //     this.items = response.data.items
+                // })
             },
             validateTotalItem(){
 
@@ -542,14 +582,26 @@
 
                 return this.errors
             },
-            reloadDataItems(item_id) {
-                this.$http.get(`/${this.resource}/table/items`).then((response) => {
-                    this.items = response.data
-                    this.form.item_id = item_id
-                    this.changeItem()
-                    // this.filterItems()
+            async reloadDataItems(item_id) {
 
-                })
+                if(!item_id){
+
+                    await this.$http.get(`/${this.resource}/table/items`).then((response) => {
+                        this.items = response.data
+                        this.form.item_id = item_id
+                    })
+
+                }else{
+
+                    await this.$http.get(`/${this.resource}/search/item/${item_id}`).then((response) => {
+
+                        this.items = response.data.items
+                        this.form.item_id = item_id
+                        this.changeItem()
+
+                    })
+                }
+
             },
         }
     }

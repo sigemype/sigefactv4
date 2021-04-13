@@ -56,7 +56,17 @@ class EstablishmentController extends Controller
     {
         $id = $request->input('id');
         $establishment = Establishment::firstOrNew(['id' => $id]);
+        if ($request->hasFile('file') && $request->file('file')->isValid()) {
+            $request->validate(['file' => 'mimes:jpeg,png,jpg|max:1024']);
+            $file = $request->file('file');
+            $ext = $file->getClientOriginalExtension();
+            $filename = time() . '.' . $ext;
+            $file->storeAs('public/uploads/logos', $filename);
+            $path = 'storage/uploads/logos/' . $filename;
+            $request->merge(['logo' => $path]);
+        }
         $establishment->fill($request->all());
+
         $establishment->save();
 
         if(!$id) {

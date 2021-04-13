@@ -71,6 +71,8 @@ trait StorageDocument
                 break;
             case 'purchase':
                 $extension = 'pdf';
+            case 'devolution':
+                $extension = 'pdf';
                 break;
         }
         $this->_filename = $filename.'.'.$extension;

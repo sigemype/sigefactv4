@@ -4,7 +4,7 @@
     $invoice = $document->invoice;
     //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
     $document_number = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
-    $accounts = \App\Models\Tenant\BankAccount::all();
+    $accounts = \App\Models\Tenant\BankAccount::where('show_in_documents', true)->get();
     $document_base = ($document->note) ? $document->note : null;
     $payments = $document->payments;
 
@@ -21,10 +21,7 @@
 
 @endphp
 <html>
-<head>
-    {{--<title>{{ $document_number }}</title>--}}
-    {{--<link href="{{ $path_style }}" rel="stylesheet" />--}}
-</head>
+<head></head>
 <body>
 
 @if($company->logo)
@@ -117,6 +114,93 @@
             </td>
         </tr>
     @endif
+
+    @if ($document->reference_data)
+        <tr>
+            <td class="align-top"><p class="desc">D. Referencia:</p></td>
+            <td>
+                <p class="desc">
+                    {{ $document->reference_data }}
+                </p>
+            </td>
+        </tr>
+    @endif
+
+    @if ($document->detraction)
+        <tr>
+            <td  class="align-top"><p class="desc">N. Cta Detracciones:</p></td>
+            <td><p class="desc">{{ $document->detraction->bank_account}}</p></td>
+        </tr>
+        <tr>
+            <td  class="align-top"><p class="desc">B/S Sujeto a detracción:</p></td>
+            @inject('detractionType', 'App\Services\DetractionTypeService')
+            <td><p class="desc">{{$document->detraction->detraction_type_id}} - {{ $detractionType->getDetractionTypeDescription($document->detraction->detraction_type_id ) }}</p></td>
+        </tr>
+        <tr>
+            <td  class="align-top"><p class="desc">Método de pago:</p></td>
+            <td><p class="desc">{{ $detractionType->getPaymentMethodTypeDescription($document->detraction->payment_method_id ) }}</p></td>
+        </tr>
+        <tr>
+            <td  class="align-top"><p class="desc">Porcentaje detracción:</p></td>
+            <td><p class="desc">{{ $document->detraction->percentage}}%</p></td>
+        </tr>
+        <tr>
+            <td  class="align-top"><p class="desc">Monto detracción:</p></td>
+            <td><p class="desc">S/ {{ $document->detraction->amount}}</p></td>
+        </tr>
+        @if($document->detraction->pay_constancy)
+        <tr>
+            <td  class="align-top"><p class="desc">Constancia de pago:</p></td>
+            <td><p class="desc">{{ $document->detraction->pay_constancy}}</p></td>
+        </tr>
+        @endif
+
+
+        @if($invoice->operation_type_id == '1004')
+        <tr>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td colspan="2">DETALLE - SERVICIOS DE TRANSPORTE DE CARGA</td>
+        </tr>
+        <tr>
+            <td class="align-top"><p class="desc">Ubigeo origen:</p></td>
+            <td><p class="desc">{{ $document->detraction->origin_location_id[2] }}</p></td>
+        </tr>
+        <tr>
+            <td  class="align-top"><p class="desc">Dirección origen:</td>
+            <td><p class="desc">{{ $document->detraction->origin_address }}</td>
+        </tr>
+        <tr>
+            <td class="align-top"><p class="desc">Ubigeo destino:</p></td>
+            <td><p class="desc">{{ $document->detraction->delivery_location_id[2] }}</p></td>
+        </tr>
+        <tr>
+
+            <td  class="align-top"><p class="desc">Dirección destino:</p></td>
+            <td><p class="desc">{{ $document->detraction->delivery_address }}</p></td>
+        </tr>
+        <tr>
+            <td class="align-top"><p class="desc">Valor referencial servicio de transporte:</p></td>
+            <td><p class="desc">{{ $document->detraction->reference_value_service }}</p></td>
+        </tr>
+        <tr>
+
+            <td  class="align-top"><p class="desc">Valor referencia carga efectiva:</p></td>
+            <td><p class="desc">{{ $document->detraction->reference_value_effective_load }}</p></td>
+        </tr>
+        <tr>
+            <td class="align-top"><p class="desc">Valor referencial carga útil:</p></td>
+            <td><p class="desc">{{ $document->detraction->reference_value_payload }}</p></td>
+        </tr>
+        <tr>
+            <td  class="align-top"><p class="desc">Detalle del viaje:</p></td>
+            <td><p class="desc">{{ $document->detraction->trip_detail }}</p></td>
+        </tr>
+        @endif
+
+    @endif
+
     @if ($document->purchase_order)
         <tr>
             <td><p class="desc">Orden de Compra:</p></td>
@@ -131,8 +215,8 @@
     @endif
     @isset($document->quotation->delivery_date)
         <tr>
-            <td><p class="desc">T. Entrega</p></td>
-            <td><p class="desc">{{ $document->quotation->delivery_date}}</p></td>
+            <td><p class="desc">F. Entrega</p></td>
+            <td><p class="desc">{{ $document->date_of_issue->addDays($document->quotation->delivery_date)->format('d-m-Y') }}</p></td>
         </tr>
     @endisset
     @isset($document->quotation->sale_opportunity)
@@ -236,6 +320,10 @@
                     @foreach($row->discounts as $dtos)
                         <br/><small>{{ $dtos->factor * 100 }}% {{$dtos->description }}</small>
                     @endforeach
+                @endif
+                @if($document->has_prepayment)
+                    <br>
+                    *** Pago Anticipado ***
                 @endif
             </td>
             <td class="text-right desc-9 align-top">{{ number_format($row->unit_price, 2) }}</td>
@@ -359,7 +447,7 @@
             <td class="desc pt-5">
                 <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
-        </tr> 
+        </tr>
     @endif
     @if($payments->count())
         <tr>
@@ -372,6 +460,27 @@
                 <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
             </tr>
         @endforeach
+    @endif
+    <tr>
+        <td class="desc">
+            <strong>Vendedor:</strong>
+        </td>
+    </tr>
+    <tr>
+        @if ($document->seller)
+            <td class="desc">{{ $document->seller->name }}</td>
+        @else
+            <td class="desc">{{ $document->user->name }}</td>
+        @endif
+    </tr>
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc">
+                <br>
+                <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
     @endif
 
     <tr>

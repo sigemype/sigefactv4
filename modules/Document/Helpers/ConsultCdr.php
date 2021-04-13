@@ -64,6 +64,8 @@ class ConsultCdr
             $cdrResponse = $res->getCdrResponse();
             $code = $cdrResponse->getCode();
             $description = $cdrResponse->getDescription();
+
+            // dd($cdrResponse, $res->getCdrZip());
             // $this->updateState(self::ACCEPTED);
 
             $this->response = [
@@ -99,7 +101,11 @@ class ConsultCdr
         if((int)$code === 0) {
 
             $this->uploadFile($res->getCdrZip(), 'cdr');
-            $this->updateState(self::ACCEPTED);
+
+            if($this->document->state_type_id == '01'){
+                $this->updateState(self::ACCEPTED);
+            }
+
             return;
         }
 
@@ -110,13 +116,18 @@ class ConsultCdr
         } elseif ((int)$code < 4000) {
             //Rechazo
             $this->uploadFile($res->getCdrZip(), 'cdr');
-            $this->updateState(self::REJECTED);
+
+            if($this->document->state_type_id == '01'){
+                $this->updateState(self::REJECTED);
+            }
 
         } else {
 
             $this->uploadFile($res->getCdrZip(), 'cdr');
-            $this->updateState(self::OBSERVED);
 
+            if($this->document->state_type_id == '01'){
+                $this->updateState(self::OBSERVED);
+            }
             //Observaciones
         }
         return;

@@ -305,7 +305,10 @@
     </tr>
 </table>
 <br>
-{{-- <table class="full-width">
+
+@if(!$document->quotation)
+
+<table class="full-width">
 <tr>
     <td>
     <strong>PAGOS:</strong> </td></tr>
@@ -321,6 +324,39 @@
         <tr><td><strong>SALDO:</strong> {{ $document->currency_type->symbol }} {{ number_format($document->total - $payment, 2) }}</td>
     </tr>
 
-</table> --}}
+</table>
+
+@else
+    <table class="full-width">
+        <tr>
+        <td>
+        <strong>PAGOS:</strong> </td></tr>
+            @php
+                $payment = 0;
+            @endphp
+            @foreach($document->quotation->payments as $row)
+                <tr><td>- {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->quotation->currency_type->symbol }} {{ $row->payment }}</td></tr>
+                @php
+                    $payment += (float) $row->payment;
+                @endphp
+            @endforeach
+            <tr><td><strong>SALDO:</strong> {{ $document->quotation->currency_type->symbol }} {{ number_format($document->quotation->total - $payment, 2) }}</td>
+        </tr>
+
+    </table>
+@endif
+@if ($document->seller->name)
+<br>
+<table class="full-width">
+    <tr>
+        <td>
+            <strong>Vendedor:</strong>
+        </td>
+    </tr>
+    <tr>
+        <td>{{ $document->seller->name }}</td>
+    </tr>
+</table>
+@endif
 </body>
 </html>

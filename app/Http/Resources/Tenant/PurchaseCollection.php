@@ -63,6 +63,7 @@ class PurchaseCollection extends ResourceCollection
                         'quantity' => round($row->quantity,2)
                     ];
                 }),
+                'print_a4' => url('')."/purchases/print/{$row->external_id}/a4",
             ];
         });
     }

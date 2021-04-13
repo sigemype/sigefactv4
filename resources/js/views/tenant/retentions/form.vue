@@ -46,7 +46,7 @@
                         <div class="col-lg-2">
                             <div class="form-group" :class="{'has-danger': errors.date_of_issue}">
                                 <label class="control-label">Fecha de emisión</label>
-                                <el-date-picker v-model="form.date_of_issue" type="date" value-format="yyyy-MM-dd" :clearable="false"></el-date-picker>
+                                <el-date-picker v-model="form.date_of_issue" type="date" value-format="yyyy-MM-dd" :clearable="false" :picker-options="disabledDateOfIssue"></el-date-picker>
                                 <small class="form-control-feedback" v-if="errors.date_of_issue" v-text="errors.date_of_issue[0]"></small>
                             </div>
                         </div>
@@ -156,6 +156,10 @@
         <supplier-form :showDialog.sync="showDialogNewSupplier"
                        type="suppliers"
                        :external="true"></supplier-form>
+
+        <retention-options :showDialog.sync="showDialogOptions"
+                            :recordId="recordId"
+                            :showClose="false"></retention-options>
     </div>
 </template>
 
@@ -163,9 +167,10 @@
 
     import RetentionFormDocument from './partials/document.vue'
     import SupplierForm from '../persons/form.vue'
+    import RetentionOptions from './partials/options.vue'
 
     export default {
-        components: {RetentionFormDocument, SupplierForm},
+        components: {RetentionFormDocument, SupplierForm, RetentionOptions},
         data() {
             return {
                 resource: 'retentions',
@@ -180,6 +185,13 @@
                 all_series: [],
                 series: [],
                 retention_types: [], 
+                showDialogOptions: false,
+                recordId: null,
+                disabledDateOfIssue: {
+                  disabledDate(time) {
+                    return time.getTime() > moment().subtract(1, 'days');
+                  }
+                },
             }
         },
         created() {
@@ -216,7 +228,7 @@
                     document_type_id: null,
                     series_id: null,
                     number: '#',
-                    date_of_issue: moment().format('YYYY-MM-DD'),
+                    date_of_issue: moment().subtract(1, 'days').format('YYYY-MM-DD'),
                     time_of_issue: moment().format('HH:mm:ss'),
                     supplier_id: null,
                     currency_type_id: null,
@@ -232,10 +244,15 @@
                 }
             }, 
             resetForm() {
+
                 this.initForm()
                 // this.form.soap_type_id = this.company.soap_type_id
                 this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
+                this.form.retention_type_id = (this.retention_types.length > 0)?this.retention_types[0].id:null
+                this.form.document_type_id = '20'
                 this.changeDocumentType()
+                this.changeRetentionType()
+
             },
             async changeRetentionType(){
                 let retention_type = await _.find(this.retention_types,{'id' : this.form.retention_type_id})
@@ -270,7 +287,8 @@
                 let total_retention = 0
 
                 this.form.documents.forEach((row) => {
-                    total += parseFloat(row.total_document)
+                    total += parseFloat(row.total_payment)
+                    // total += parseFloat(row.total_document)
                     total_retention += parseFloat(row.total_retention)
                 });
 
@@ -282,8 +300,13 @@
                 this.$http.post(`/${this.resource}`, this.form)
                     .then(response => {
                         if (response.data.success) {
-                            this.$message.success(response.data.message)
-                            location.href = '/retentions'
+                            
+                            this.resetForm()
+                            this.recordId = response.data.data.id
+                            this.showDialogOptions = true
+                            // this.$message.success(response.data.message)
+                            // location.href = '/retentions'
+
                         } else {
                             this.$message.error(response.data.message)
                         }

@@ -30,6 +30,7 @@ class EstablishmentResource extends JsonResource
             'aditional_information' => $this->aditional_information,
             'customer_id' => $this->customer_id,
             'customer_number' => optional($this->customer)->number,
+            'logo' => $this->logo ? asset($this->logo) : null,
         ];
     }
 }

@@ -1,11 +1,7 @@
 <template>
-    <div class="card card-collapsed">
+    <div class="card">
         <div class="card-header bg-info">
             <h3 class="my-0">Listado de Atributos</h3>
-            <div class="card-actions">
-                <a href="#" class="card-action card-action-toggle text-white" data-card-toggle=""></a>
-                <a href="#" class="card-action card-action-dismiss text-white" data-card-dismiss=""></a>
-            </div>
         </div>
         <div class="card-body">
             <div class="row">
@@ -25,7 +21,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="(row, index) in records">
+                    <tr v-for="(row, index) in records" :key="index">
                         <td>{{ index + 1 }}</td>
                         <td>{{ row.id }}</td>
                         <td>{{ row.description }}</td>

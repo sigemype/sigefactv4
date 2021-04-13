@@ -93,6 +93,22 @@
                                     <div class="sub-title text-danger"><small>Se recomienda resoluciones 700x300</small></div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Favicon</label>
+                                    <el-input v-model="form.favicon" :readonly="true">
+                                        <el-upload slot="append"
+                                                   :headers="headers"
+                                                   :data="{'type': 'favicon'}"
+                                                   action="/companies/uploads"
+                                                   :show-file-list="false"
+                                                   :on-success="successUpload">
+                                            <el-button type="primary" icon="el-icon-upload"></el-button>
+                                        </el-upload>
+                                    </el-input>
+                                    <div class="sub-title text-danger"><small>Se recomienda una imagen con fondo transparente y cuadrada en formato PNG</small></div>
+                                </div>
+                            </div>
                             <div class="col-md-6" v-if="form.soap_type_id == '02'">
                                 <div class="form-group" :class="{'has-danger': errors.certificate_due}">
                                     <label class="control-label">Vencimiento de Certificado</label>

@@ -201,19 +201,38 @@ class PersonController extends Controller
 
     }
 
-    public function export(Request $request)
+    public function export($type, Request $request)
     {
-        $date = $request->month_start.'-01';
-        $start_date = Carbon::parse($date);
-        $end_date = Carbon::parse($date)->addMonth()->subDay();
-        // dd($start_date.' - '.$end_date);
 
-        $records = Person::whereBetween('created_at', [$start_date, $end_date])->get();
-        // dd(new PersonCollection($records));
+        // dd($request->all(), $type);
+        $d_start = null;
+        $d_end = null;
+        $period = $request->period;
+
+        switch ($period) {
+            case 'month':
+                $d_start = Carbon::parse($request->month_start.'-01')->format('Y-m-d');
+                $d_end = Carbon::parse($request->month_start.'-01')->endOfMonth()->format('Y-m-d');
+                break;
+            case 'between_months':
+                $d_start = Carbon::parse($request->month_start.'-01')->format('Y-m-d');
+                $d_end = Carbon::parse($request->month_end.'-01')->endOfMonth()->format('Y-m-d');
+                break;
+        }
+
+        // $date = $request->month_start.'-01';
+        // $d_start = Carbon::parse($date);
+        // $d_end = Carbon::parse($date)->addMonth()->subDay();
+        // dd($d_start.' - '.$d_end);
+
+        $records = ($period == 'all') ? Person::where('type', $type)->get() : Person::where('type', $type)->whereBetween('created_at', [$d_start, $d_end])->get();
+
+        $filename = ($type == 'customers') ? 'Reporte_Clientes_':'Reporte_Proveedores_';
 
         return (new ClientExport)
                 ->records($records)
-                ->download('Reporte_Clientes_'.Carbon::now().'.xlsx');
+                ->type($type)
+                ->download($filename.Carbon::now().'.xlsx');
 
     }
 

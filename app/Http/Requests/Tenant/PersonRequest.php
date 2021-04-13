@@ -55,7 +55,8 @@ class PersonRequest extends FormRequest
             'email' => [
                 'nullable',
                 'email',
-            ]
+            ],
+            'internal_code' => 'max:100'
         ];
     }
 }

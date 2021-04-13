@@ -147,7 +147,7 @@
     </tr>
     <tr>
         <td class="desc"></td>
-        <td class="desc"></td>
+        <td class="desc">{{$document->purchase_order}}</td>
         <td class="desc">
             @php
                 $payment = 0;

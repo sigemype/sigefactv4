@@ -26,10 +26,10 @@
                                 <!-- <el-checkbox v-model="form.has_prepayment" :disabled="prepayment_deduction">¿Es un pago anticipado?</el-checkbox>
                                 <el-checkbox v-model="prepayment_deduction" @change="changePrepaymentDeduction" :disabled="form.has_prepayment">Deducción de los pagos anticipados</el-checkbox> -->
 
-                                <el-checkbox v-model="form.has_prepayment" v-if="!prepayment_deduction" @change="changeHasPrepayment">¿Es un pago anticipado?</el-checkbox>
-                                <el-checkbox v-model="prepayment_deduction" @change="changePrepaymentDeduction" v-if="!form.has_prepayment">Deducción de los pagos anticipados</el-checkbox>
+                                <el-checkbox v-model="form.has_prepayment" v-if="!prepayment_deduction" @change="changeHasPrepayment" class="full">¿Es un pago anticipado?</el-checkbox>
+                                <el-checkbox v-model="prepayment_deduction" @change="changePrepaymentDeduction" v-if="!form.has_prepayment" class="full">Deducción de los pagos anticipados</el-checkbox>
 
-                                <el-switch v-if="form.has_prepayment || prepayment_deduction" v-model="form.affectation_type_prepayment"
+                                <!-- <el-switch v-if="form.has_prepayment || prepayment_deduction" v-model="form.affectation_type_prepayment"
                                         @change="changeAffectationTypePrepayment"
                                         active-color="#409EFF"
                                         inactive-color="#409EFF"
@@ -37,7 +37,19 @@
                                         inactive-text="Gravado"
                                         :active-value="20"
                                         :inactive-value="10">
-                                </el-switch>
+                                </el-switch> -->
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <el-select v-if="form.has_prepayment || prepayment_deduction" v-model="form.affectation_type_prepayment" @change="changeAffectationTypePrepayment" class="border-left rounded-left border-info mb-2">
+                                            <el-option :key="10" :value="10" label="Gravado"></el-option>
+                                            <el-option :key="20" :value="20" label="Exonerado"></el-option>
+                                            <el-option :key="30" :value="30" label="Inafecto"></el-option>
+                                        </el-select>
+                                    </div>
+                                    <div class="col-md-6"></div>
+                                </div>
+
 
                             </template>
                         </div>
@@ -69,7 +81,7 @@
                             <div class="col-lg-2">
                                 <div class="form-group" :class="{'has-danger': errors.operation_type_id}">
                                     <label class="control-label">Tipo Operación
-                                    <template v-if="form.operation_type_id == '1001' && has_data_detraction" >
+                                    <template v-if="(form.operation_type_id == '1001' || form.operation_type_id == '1004') && has_data_detraction" >
                                         <a href="#" @click.prevent="showDialogDocumentDetraction = true" class="text-center font-weight-bold text-info"> [+ Ver datos]</a>
                                     </template>
 
@@ -100,7 +112,7 @@
                             </div>
                         </div>
                         <div class="row mt-1">
-                            <div class="col-lg-6 pb-2">
+                            <div :class="seller_class">
                                 <div class="form-group" :class="{'has-danger': errors.customer_id}">
                                     <label class="control-label font-weight-bold text-info">
                                         Cliente
@@ -123,6 +135,14 @@
                                     <label class="control-label font-weight-bold text-info">Dirección</label>
                                     <el-select v-model="form.customer_address_id">
                                         <el-option v-for="option in customer_addresses" :key="option.id" :value="option.id" :label="option.address"></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+                            <div v-if="typeUser == 'admin'" class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="control-label">Vendedor</label>
+                                    <el-select v-model="form.seller_id">
+                                        <el-option v-for="option in sellers" :key="option.id" :value="option.id" :label="option.name"></el-option>
                                     </el-select>
                                 </div>
                             </div>
@@ -150,7 +170,7 @@
                                             <i class="fa fa-info-circle"></i>
                                         </el-tooltip>
                                     </label>
-                                    <el-input v-model="form.exchange_rate_sale"></el-input>
+                                    <el-input :disabled="isUpdate" v-model="form.exchange_rate_sale"></el-input>
                                     <small class="form-control-feedback" v-if="errors.exchange_rate_sale" v-text="errors.exchange_rate_sale[0]"></small>
                                 </div>
                             </div>
@@ -162,7 +182,60 @@
                                 </div>
                             </template>
                         </div>
-
+<!--                        <div class="row mt-1">-->
+<!--                            <div class="col-lg-2">-->
+<!--                                <div class="form-group" :class="{'has-danger': errors.payment_condition_id}">-->
+<!--                                    <label class="control-label">Condición de pago</label>-->
+<!--                                    <el-select v-model="form.payment_condition_id" @change="changePaymentCondition">-->
+<!--                                        <el-option v-for="option in payment_conditions" :key="option.id"-->
+<!--                                                   :value="option.id" :label="option.name"></el-option>-->
+<!--                                    </el-select>-->
+<!--                                    <small class="form-control-feedback" v-if="errors.payment_condition_id"-->
+<!--                                           v-text="errors.payment_condition_id[0]"></small>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="row">-->
+<!--                            <div class="col-lg-4" v-if="form.payment_condition_id === '02'">-->
+<!--                                <table v-if="form.fee.length>0" style="width: 100%">-->
+<!--                                    <thead>-->
+<!--                                    <tr>-->
+<!--                                        <th class="pb-2">Fecha</th>-->
+<!--                                        <th class="pb-2">Monto</th>-->
+<!--                                        <th style="width: 50px">-->
+<!--                                            <a href="#" @click.prevent="clickAddFee"-->
+<!--                                               class="text-center font-weight-bold text-info">[+Agregar]</a>-->
+<!--                                        </th>-->
+<!--                                    </tr>-->
+<!--                                    </thead>-->
+<!--                                    <tbody>-->
+<!--                                    <tr v-for="(row, index) in form.fee" :key="index">-->
+<!--                                        <td>-->
+<!--                                            <div class="form-group mb-2 mr-2">-->
+<!--                                                <el-date-picker v-model="row.date" type="date"-->
+<!--                                                                value-format="yyyy-MM-dd"-->
+<!--                                                                format="dd/MM/yyyy"-->
+<!--                                                                :clearable="false"></el-date-picker>-->
+<!--                                            </div>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <div class="form-group mb-2 mr-2">-->
+<!--                                                <el-input v-model="row.amount"></el-input>-->
+<!--                                            </div>-->
+<!--                                        </td>-->
+<!--                                        <td class="series-table-actions text-center">-->
+<!--                                            <button type="button"-->
+<!--                                                    class="btn waves-effect waves-light btn-xs btn-danger"-->
+<!--                                                    v-if="index > 0"-->
+<!--                                                    @click.prevent="clickRemoveFee(index)">-->
+<!--                                                <i class="fa fa-trash"></i>-->
+<!--                                            </button>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                    </tbody>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                        </div>-->
                             <!-- <div class="row mb-3" v-if="form.operation_type_id == '1001'">
                                 <div class="col-lg-4">
                                     <div class="form-group" >
@@ -193,70 +266,69 @@
                                     </div>
                                 </div>
                             </div> -->
-
                         <div class="row" >
-                            <div class="col-lg-8" v-if="!is_receivable">
-                                    <table>
-                                        <thead>
-                                            <tr width="100%">
-                                                <th v-if="form.payments.length>0" class="pb-2">Método de pago</th>
-                                                <template v-if="enabled_payments">
-                                                    <th v-if="form.payments.length>0" class="pb-2">Destino
-                                                        <el-tooltip class="item" effect="dark" content="Aperture caja o cuentas bancarias" placement="top-start">
-                                                            <i class="fa fa-info-circle"></i>
-                                                        </el-tooltip>
-                                                    </th>
-                                                    <th v-if="form.payments.length>0" class="pb-2">Referencia</th>
-                                                    <th v-if="form.payments.length>0" class="pb-2">Monto</th>
-                                                    <th width="15%"><a href="#" @click.prevent="clickAddPayment" class="text-center font-weight-bold text-info">[+ Agregar]</a></th>
-                                                </template>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(row, index) in form.payments" :key="index">
-                                                <td>
-                                                    <div class="form-group mb-2 mr-2">
-                                                        <el-select v-model="row.payment_method_type_id" @change="changePaymentMethodType(index)">
-                                                            <el-option v-for="option in payment_method_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                                        </el-select>
-                                                    </div>
-                                                </td>
-                                                <template v-if="enabled_payments">
-                                                    <td>
-                                                        <div class="form-group mb-2 mr-2">
-                                                            <el-select v-model="row.payment_destination_id" filterable >
-                                                                <el-option v-for="option in payment_destinations" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                                                <!-- <el-option v-for="option in payment_destinations" @change="changeDestinationSale(index)" :key="option.id" :value="option.id" :label="option.description"></el-option> -->
-                                                            </el-select>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="form-group mb-2 mr-2"  >
-                                                            <el-input v-model="row.reference"></el-input>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="form-group mb-2 mr-2" >
-                                                            <el-input v-model="row.payment"></el-input>
-                                                        </div>
-                                                    </td>
-                                                    <td class="series-table-actions text-center">
-                                                        <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </template>
+<!--                            <div class="col-lg-8" v-if="!is_receivable && form.payment_condition_id === '01'">-->
+<!--                                    <table>-->
+<!--                                        <thead>-->
+<!--                                            <tr width="100%">-->
+<!--                                                <th v-if="form.payments.length>0" class="pb-2">Método de pago</th>-->
+<!--                                                <template v-if="enabled_payments">-->
+<!--                                                    <th v-if="form.payments.length>0" class="pb-2">Destino-->
+<!--                                                        <el-tooltip class="item" effect="dark" content="Aperture caja o cuentas bancarias" placement="top-start">-->
+<!--                                                            <i class="fa fa-info-circle"></i>-->
+<!--                                                        </el-tooltip>-->
+<!--                                                    </th>-->
+<!--                                                    <th v-if="form.payments.length>0" class="pb-2">Referencia</th>-->
+<!--                                                    <th v-if="form.payments.length>0" class="pb-2">Monto</th>-->
+<!--                                                    <th width="15%"><a href="#" @click.prevent="clickAddPayment" class="text-center font-weight-bold text-info">[+ Agregar]</a></th>-->
+<!--                                                </template>-->
+<!--                                            </tr>-->
+<!--                                        </thead>-->
+<!--                                        <tbody>-->
+<!--                                            <tr v-for="(row, index) in form.payments" :key="index">-->
+<!--                                                <td>-->
+<!--                                                    <div class="form-group mb-2 mr-2">-->
+<!--                                                        <el-select v-model="row.payment_method_type_id" @change="changePaymentMethodType(index)">-->
+<!--                                                            <el-option v-for="option in payment_method_types" :key="option.id" :value="option.id" :label="option.description"></el-option>-->
+<!--                                                        </el-select>-->
+<!--                                                    </div>-->
+<!--                                                </td>-->
+<!--                                                <template v-if="enabled_payments">-->
+<!--                                                    <td>-->
+<!--                                                        <div class="form-group mb-2 mr-2">-->
+<!--                                                            <el-select v-model="row.payment_destination_id" filterable >-->
+<!--                                                                <el-option v-for="option in payment_destinations" :key="option.id" :value="option.id" :label="option.description"></el-option>-->
+<!--                                                                &lt;!&ndash; <el-option v-for="option in payment_destinations" @change="changeDestinationSale(index)" :key="option.id" :value="option.id" :label="option.description"></el-option> &ndash;&gt;-->
+<!--                                                            </el-select>-->
+<!--                                                        </div>-->
+<!--                                                    </td>-->
+<!--                                                    <td>-->
+<!--                                                        <div class="form-group mb-2 mr-2"  >-->
+<!--                                                            <el-input v-model="row.reference"></el-input>-->
+<!--                                                        </div>-->
+<!--                                                    </td>-->
+<!--                                                    <td>-->
+<!--                                                        <div class="form-group mb-2 mr-2" >-->
+<!--                                                            <el-input v-model="row.payment"></el-input>-->
+<!--                                                        </div>-->
+<!--                                                    </td>-->
+<!--                                                    <td class="series-table-actions text-center">-->
+<!--                                                        <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">-->
+<!--                                                            <i class="fa fa-trash"></i>-->
+<!--                                                        </button>-->
+<!--                                                    </td>-->
+<!--                                                </template>-->
 
-                                                <br>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                <!-- <template v-else>
-                                    <el-checkbox v-model="enabled_payments" class=" font-weight-bold" @change="changeEnabledPayments">¿Habilitar pagos?</el-checkbox>
-                                </template> -->
+<!--                                                <br>-->
+<!--                                            </tr>-->
+<!--                                        </tbody>-->
+<!--                                    </table>-->
+<!--                                &lt;!&ndash; <template v-else>-->
+<!--                                    <el-checkbox v-model="enabled_payments" class=" font-weight-bold" @change="changeEnabledPayments">¿Habilitar pagos?</el-checkbox>-->
+<!--                                </template> &ndash;&gt;-->
 
 
-                            </div>
+<!--                            </div>-->
                                 <!-- <div class="col-lg-4" v-if="form.operation_type_id == '1001'">
                                     <div class="form-group">
                                         <label class="control-label">N° Constancia de pago - detracción</label>
@@ -450,6 +522,11 @@
                                                 </div>
                                             </template>
 
+                                            <div class="col-12">
+                                                <br>
+                                                <span class="mr-3">Mostrar términos y condiciones.</span>
+                                                <el-switch v-model="form.show_terms_condition"></el-switch>
+                                            </div>
                                         </div>
                                     </el-collapse-item>
                                 </el-collapse>
@@ -473,8 +550,8 @@
                                                 <th width="8%"></th>
                                             </tr>
                                         </thead>
-                                        <tbody v-if="form.items.length > 0">
-                                            <tr v-for="(row, index) in form.items">
+                                        <tbody >
+                                            <tr v-for="(row, index) in form.items" :key="index">
                                                 <td>{{index + 1}}</td>
                                                 <td>{{row.item.description}} {{row.item.presentation.hasOwnProperty('description') ? row.item.presentation.description : ''}}<br/><small>{{row.affectation_igv_type.description}}</small></td>
                                                 <td class="text-center">{{row.item.unit_type_id}}</td>
@@ -496,16 +573,102 @@
 
                                                 </td>
                                             </tr>
-                                            <tr><td colspan="9"></td></tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <button type="button"
+                                                        class="btn waves-effect waves-light btn-primary"
+                                                        @click.prevent="clickAddItemInvoice"
+                                                        style="width: 180px;">+ Agregar Producto</button>
+                                                </td>
+                                                <td colspan="3"></td>
+                                                <td colspan="4">
+                                                    <table style="width: 100%;">
+                                                        <tr v-if="form.total_taxed > 0 && enabled_discount_global">
+                                                            <td>
+                                                                DESCUENTO
+                                                                <template v-if="is_amount"> MONTO</template>
+                                                                <template v-else> %</template>
+                                                                <el-checkbox class="ml-1 mr-1" v-model="is_amount" @change="changeTypeDiscount"></el-checkbox>
+
+                                                            </td>
+                                                            <td>:</td>
+                                                            <td class="text-right">
+                                                                <el-input class="input-custom" v-model="total_global_discount" @input="calculateTotal"></el-input>
+                                                            </td>
+                                                        </tr>
+
+                                                        <template v-if="form.detraction">
+                                                            <tr v-if="form.detraction.amount > 0">
+                                                                <td>M. DETRACCIÓN</td>
+                                                                <td>:</td>
+                                                                <td class="text-right">{{ currency_type.symbol }} {{ form.detraction.amount }}</td>
+                                                            </tr>
+                                                        </template>
+
+                                                        <tr v-if="form.total_exportation > 0">
+                                                            <td>OP.EXPORTACIÓN</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_exportation }}</td>
+                                                        </tr>
+                                                        <tr v-if="form.total_free > 0">
+                                                            <td>OP.GRATUITAS</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_free }}</td>
+                                                        </tr>
+                                                        <tr v-if="form.total_unaffected > 0">
+                                                            <td>OP.INAFECTAS</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_unaffected }}</td>
+                                                        </tr>
+                                                        <tr v-if="form.total_exonerated > 0">
+                                                            <td>OP.EXONERADAS</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_exonerated }}</td>
+                                                        </tr>
+                                                        <tr v-if="form.total_taxed > 0">
+                                                            <td>OP.GRAVADA</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_taxed }}</td>
+                                                        </tr>
+                                                        <tr v-if="form.total_prepayment > 0">
+                                                            <td>ANTICIPOS</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_prepayment }}</td>
+                                                        </tr>
+                                                        <!-- <tr v-if="form.total_discount > 0">
+                                                            <td>DESCUENTOS</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_discount }}</td>
+                                                        </tr> -->
+                                                        <tr v-if="form.total_igv > 0">
+                                                            <td>IGV</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_igv }}</td>
+                                                        </tr>
+                                                        <tr v-if="form.total_plastic_bag_taxes > 0">
+                                                            <td>ICBPER</td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total_plastic_bag_taxes }}</td>
+                                                        </tr>
+
+                                                        <tr v-if="form.total > 0">
+                                                            <td><strong>TOTAL A PAGAR</strong></td>
+                                                            <td>:</td>
+                                                            <td class="text-right">{{ currency_type.symbol }} {{ form.total }}</td>
+                                                        </tr>
+
+                                                    </table>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <div class="col-lg-12 col-md-6 d-flex align-items-end">
-                                <div class="form-group">
-                                    <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="clickAddItemInvoice">+ Agregar Producto</button>
-                                </div>
-                            </div>
+<!--                            <div class="col-lg-12 col-md-6 d-flex align-items-end">-->
+<!--                                <div class="form-group">-->
+<!--                                    <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="clickAddItemInvoice">+ Agregar Producto</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
 
                             <!-- <div class="col-md-4">
                                 <p class="text-right" v-if="form.total > 0">
@@ -521,84 +684,123 @@
                                 <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
                             </div>  -->
 
-                            <div class="col-md-12" style="display: flex; flex-direction: column; align-items: flex-end;">
-                                <table>
-                                    <tr v-if="form.total_taxed > 0 && enabled_discount_global">
-                                        <td>
-                                            DESCUENTO
-                                            <template v-if="is_amount"> MONTO</template>
-                                            <template v-else> %</template>
-                                            <el-checkbox class="ml-1 mr-1" v-model="is_amount" @change="changeTypeDiscount"></el-checkbox>
-
-                                        </td>
-                                        <td>:</td>
-                                        <td class="text-right">
-                                            <el-input class="input-custom" v-model="total_global_discount" @input="calculateTotal"></el-input>
-                                        </td>
-                                    </tr>
-
-                                    <tr v-if="form.detraction.amount > 0">
-                                        <td>M. DETRACCIÓN</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.detraction.amount }}</td>
-                                    </tr>
-
-                                    <tr v-if="form.total_exportation > 0">
-                                        <td>OP.EXPORTACIÓN</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_exportation }}</td>
-                                    </tr>
-                                    <tr v-if="form.total_free > 0">
-                                        <td>OP.GRATUITAS</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_free }}</td>
-                                    </tr>
-                                    <tr v-if="form.total_unaffected > 0">
-                                        <td>OP.INAFECTAS</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_unaffected }}</td>
-                                    </tr>
-                                    <tr v-if="form.total_exonerated > 0">
-                                        <td>OP.EXONERADAS</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_exonerated }}</td>
-                                    </tr>
-                                    <tr v-if="form.total_taxed > 0">
-                                        <td>OP.GRAVADA</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_taxed }}</td>
-                                    </tr>
-                                    <tr v-if="form.total_prepayment > 0">
-                                        <td>ANTICIPOS</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_prepayment }}</td>
-                                    </tr>
-                                    <!-- <tr v-if="form.total_discount > 0">
-                                        <td>DESCUENTOS</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_discount }}</td>
-                                    </tr> -->
-                                    <tr v-if="form.total_igv > 0">
-                                        <td>IGV</td>
-                                        <td>:</td>
-                                        <td class="text-right">{{ currency_type.symbol }} {{ form.total_igv }}</td>
-                                    </tr>
-
-                                </table>
-
-                                <template v-if="form.total > 0">
-                                    <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
-                                </template>
-                            </div>
 
                         </div>
-
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col-12 mt-2 mb-4 text-center">
+                                        <el-switch v-model="form.payment_condition_id"
+                                                   inactive-text="Crédito"
+                                                   inactive-value="02"
+                                                   active-text="Contado"
+                                                   active-value="01"
+                                                   @change="changePaymentCondition"></el-switch>
+                                    </div>
+                                    <div class="col-12" v-if="form.payment_condition_id === '02'" style="display: flex; justify-content: center">
+                                        <table v-if="form.fee.length>0">
+                                            <thead>
+                                            <tr>
+                                                <th class="text-left" style="width: 100px">Fecha</th>
+                                                <th class="text-left" style="width: 100px">Monto</th>
+                                                <th style="width: 30px"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-for="(row, index) in form.fee" :key="index">
+                                                <td>
+                                                    <el-date-picker v-model="row.date" type="date"
+                                                                    value-format="yyyy-MM-dd"
+                                                                    format="dd/MM/yyyy"
+                                                                    :clearable="false"></el-date-picker>
+                                                </td>
+                                                <td>
+                                                    <el-input v-model="row.amount"></el-input>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button"
+                                                            class="btn waves-effect waves-light btn-xs btn-danger"
+                                                            v-if="index > 0"
+                                                            @click.prevent="clickRemoveFee(index)">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="4" class="pt-3">
+                                                        <a href="#" @click.prevent="clickAddFee"
+                                                           class="text-center font-weight-bold text-info">[+Agregar cuota]</a>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div class="col-12" v-if="!is_receivable && form.payment_condition_id === '01'" style="display: flex; justify-content: center">
+                                        <table>
+                                            <thead>
+                                            <tr>
+                                                <th v-if="form.payments.length>0" style="width: 120px">Método de pago</th>
+                                                <template v-if="enabled_payments">
+                                                    <th v-if="form.payments.length>0" style="width: 120px">Destino
+                                                        <el-tooltip class="item" effect="dark" content="Aperture caja o cuentas bancarias" placement="top-start">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </el-tooltip>
+                                                    </th>
+                                                    <th v-if="form.payments.length>0" style="width: 100px">Referencia</th>
+                                                    <th v-if="form.payments.length>0" style="width: 100px">Monto</th>
+                                                    <th style="width: 30px"></th>
+                                                </template>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-for="(row, index) in form.payments" :key="index">
+                                                <td>
+                                                    <el-select v-model="row.payment_method_type_id" @change="changePaymentMethodType(index)">
+                                                        <el-option v-for="option in payment_method_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                                    </el-select>
+                                                </td>
+                                                <template v-if="enabled_payments">
+                                                    <td>
+                                                        <el-select v-model="row.payment_destination_id" filterable >
+                                                            <el-option v-for="option in payment_destinations" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                                            <!-- <el-option v-for="option in payment_destinations" @change="changeDestinationSale(index)" :key="option.id" :value="option.id" :label="option.description"></el-option> -->
+                                                        </el-select>
+                                                    </td>
+                                                    <td>
+                                                        <el-input v-model="row.reference"></el-input>
+                                                    </td>
+                                                    <td>
+                                                        <el-input v-model="row.payment"></el-input>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                            </tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <td colspan="5" class="pt-3">
+                                                    <a href="#" @click.prevent="clickAddPayment"
+                                                       class="text-center font-weight-bold text-info">[+Agregar pago]</a>
+                                                </td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
 
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
-                        <el-button class="submit" type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && this.dateValid">Generar</el-button>
+                        <el-button class="submit" type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && this.dateValid">{{ btnText }}</el-button>
                     </div>
                 </form>
             </div>
@@ -623,6 +825,7 @@
         <document-options :showDialog.sync="showDialogOptions"
                           :recordId="documentNewId"
                           :isContingency="is_contingency"
+                          :isUpdate="isUpdate"
                           :showClose="false"></document-options>
 
 
@@ -641,6 +844,7 @@
         <document-detraction
             :detraction="form.detraction"
             :total="form.total"
+            :operation-type-id="form.operation_type_id"
             :currency-type-id-active="form.currency_type_id"
             :exchange-rate-sale="form.exchange_rate_sale"
             :showDialog.sync="showDialogDocumentDetraction"
@@ -671,10 +875,10 @@
     import DocumentHotelForm from '../../../../../modules/BusinessTurn/Resources/assets/js/views/hotels/form.vue'
     import DocumentTransportForm from '../../../../../modules/BusinessTurn/Resources/assets/js/views/transports/form.vue'
     import DocumentDetraction from './partials/detraction.vue'
-import moment from 'moment'
+    import moment from 'moment'
 
     export default {
-        props: ['typeUser', 'configuration'],
+        props: ['typeUser', 'configuration', 'documentId', 'isUpdate'],
         components: {DocumentFormItem, PersonForm, DocumentOptions, Logo, DocumentHotelForm, DocumentDetraction, DocumentTransportForm},
         mixins: [functions, exchangeRate],
         data() {
@@ -700,7 +904,6 @@ import moment from 'moment'
                 loading_form: false,
                 errors: {},
                 form: {},
-                form_payment: {},
                 document_types: [],
                 currency_types: [],
                 discount_types: [],
@@ -710,6 +913,7 @@ import moment from 'moment'
                 form_payment: {},
                 document_types_guide: [],
                 customers: [],
+                sellers: [],
                 company: null,
                 document_type_03_filter: null,
                 operation_types: [],
@@ -739,6 +943,9 @@ import moment from 'moment'
                 form_cash_document: {},
                 enabled_payments: true,
                 readonly_date_of_due: false,
+                seller_class: 'col-lg-6 pb-2',
+                btnText: 'Generar',
+                payment_conditions: []
             }
         },
         async created() {
@@ -753,6 +960,7 @@ import moment from 'moment'
                     this.operation_types = response.data.operation_types
                     this.all_series = response.data.series
                     this.all_customers = response.data.customers
+                    this.sellers = response.data.sellers
                     this.discount_types = response.data.discount_types
                     this.charges_types = response.data.charges_types
                     this.payment_method_types = response.data.payment_method_types
@@ -765,11 +973,15 @@ import moment from 'moment'
                     this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null;
                     this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null;
                     this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null;
+                    this.form.seller_id = (this.sellers.length > 0)?this.sellers[0].id:null;
                     // this.prepayment_documents = response.data.prepayment_documents;
                     this.is_client = response.data.is_client;
                     // this.cat_payment_method_types = response.data.cat_payment_method_types;
                     // this.all_detraction_types = response.data.detraction_types;
                     this.payment_destinations = response.data.payment_destinations
+                    this.payment_conditions = response.data.payment_conditions;
+
+                    this.seller_class = (this.user == 'admin')?'col-lg-4 pb-2':'col-lg-6 pb-2';
 
                     this.selectDocumentType()
 
@@ -785,16 +997,217 @@ import moment from 'moment'
             })
             this.$eventHub.$on('initInputPerson', () => {
                 this.initInputPerson()
-            })
+            });
+            if (this.documentId) {
+                this.btnText = 'Actualizar';
+                this.loading_submit = true;
+                await this.$http.get(`/documents/${this.documentId}/show`).then(response => {
+                    this.onSetFormData(response.data.data);
+                }).finally(() => this.loading_submit = false);
+            }
+
+            const itemsFromDispatches = localStorage.getItem('items');
+            if (itemsFromDispatches) {
+                const itemsParsed = JSON.parse(itemsFromDispatches);
+                const items = itemsParsed.map(i => i.item_id);
+                const params = {
+                    items_id: items
+                }
+                localStorage.removeItem('items');
+                await this.$http.get('/documents/search-items', { params }).then(response => {
+                    const itemsResponse = response.data.items.map(i => {
+                        i.affectation_igv_type = {
+                            active: 1,
+                            description: "Gravado - Operación Onerosa",
+                            exportation: 0,
+                            free: 0,
+                            id: "10",
+                        }
+                        i.presentation = {};
+                        i.unit_price = i.sale_unit_price;
+                        i.item = {
+                            amount_plastic_bag_taxes: i.amount_plastic_bag_taxes,
+                            attributes: i.attributes,
+                            brand: i.brand,
+                            calculate_quantity: i.calculate_quantity,
+                            category: i.category,
+                            currency_type_id: i.currency_type_id,
+                            currency_type_symbol: i.currency_type_symbol,
+                            description: i.description,
+                            full_description: i.full_description,
+                            has_igv: i.has_igv,
+                            has_plastic_bag_taxes: i.has_plastic_bag_taxes,
+                            id: i.id,
+                            internal_id: i.internal_id,
+                            item_unit_types: i.item_unit_types,
+                            lots: i.lots,
+                            lots_enabled: i.lots_enabled,
+                            lots_group: i.lots_group,
+                            model: i.model,
+                            presentation: {},
+                            purchase_affectation_igv_type_id: i.purchase_affectation_igv_type_id,
+                            purchase_unit_price: i.purchase_unit_price,
+                            sale_affectation_igv_type_id: i.sale_affectation_igv_type_id,
+                            sale_unit_price: i.sale_unit_price,
+                            series_enabled: i.series_enabled,
+                            stock: i.stock,
+                            unit_price: i.sale_unit_price,
+                            unit_type_id: i.unit_type_id,
+                            warehouses: i.warehouses,
+                        };
+                        i.IdLoteSelected = null;
+                        i.affectation_igv_type_id = "10";
+                        i.discounts = [];
+                        i.charges = [];
+                        i.item_id = i.id;
+                        i.unit_price_value = i.sale_unit_price;
+                        i.input_unit_price_value = i.sale_unit_price;
+                        i.quantity = itemsParsed.find(ip => ip.item_id == i.id).quantity;
+                        i.warehouse_id = null;
+                        return i;
+                    });
+                    this.form.items = itemsResponse.map(i => {
+                        return calculateRowItem(i, this.form.currency_type_id, this.form.exchange_rate_sale)
+                    });
+                });
+            }
+            const clientfromDispatches = localStorage.getItem('client');
+            if (clientfromDispatches) {
+                const client = JSON.parse(clientfromDispatches);
+                if (client.identity_document_type_id == 1) {
+                    this.form.document_type_id = '03'
+                } else if (client.identity_document_type_id == 6) {
+                    this.form.document_type_id = '01'
+                }
+                this.searchRemoteCustomers(client.number);
+                this.form.customer_id = client.id;
+                this.changeEstablishment();
+                this.filterSeries();
+                this.filterCustomers();
+                this.changeCurrencyType()
+                localStorage.removeItem('client');
+            }
+            const dispatchesNumbersFromDispatches = localStorage.getItem('dispatches');
+            if (dispatchesNumbersFromDispatches) {
+                this.form.dispatches_relateds = JSON.parse(dispatchesNumbersFromDispatches);
+                localStorage.removeItem('dispatches')
+            }
         },
         methods: {
+            async onSetFormData(data) {
+                this.form = {
+                    establishment_id: data.establishment_id,
+                    document_type_id: data.document_type_id,
+                    id: data.id,
+                    hash: data.hash,
+                    number: data.number,
+                    date_of_issue: moment(data.date_of_issue).format('YYYY-MM-DD'),
+                    time_of_issue: data.time_of_issue,
+                    customer_id: data.customer_id,
+                    currency_type_id: data.currency_type_id,
+                    exchange_rate_sale: data.exchange_rate_sale,
+                    additional_information: this.onPrepareAdditionalInformation(data.additional_information),
+                    external_id: data.external_id,
+                    filename: data.filename,
+                    group_id: data.group_id,
+                    perception: data.perception,
+                    note: data.note,
+                    plate_number: data.plate_number,
+                    payments: data.payments,
+                    prepayments: data.prepayments || [],
+                    legends: [],
+                    detraction: data.detraction,
+                    affectation_type_prepayment: data.affectation_type_prepayment,
+                    purchase_order:  data.purchase_order,
+                    pending_amount_prepayment: data.pending_amount_prepayment || 0,
+                    payment_method_type_id: data.payment_method_type_id,
+                    charges: data.charges || [],
+                    discounts: data.discounts || [],
+                    seller_id: data.seller_id,
+                    items: this.onPrepareItems(data.items),
+                    series: data.series,
+                    state_type_id: data.state_type_id,
+                    total_discount: parseFloat(data.total_discount),
+                    total_exonerated: parseFloat(data.total_exonerated),
+                    total_exportation: parseFloat(data.total_exportation),
+                    total_free: parseFloat(data.total_free),
+                    total_igv: parseFloat(data.total_igv),
+                    total_isc: parseFloat(data.total_isc),
+                    total_base_isc: parseFloat(data.total_base_isc),
+                    total_base_other_taxes: parseFloat(data.total_base_other_taxes),
+                    total_other_taxes: parseFloat(data.total_other_taxes),
+                    total_plastic_bag_taxes: parseFloat(data.total_plastic_bag_taxes),
+                    total_prepayment: parseFloat(data.total_prepayment),
+                    total_taxed: parseFloat(data.total_taxed),
+                    total_taxes: parseFloat(data.total_taxes),
+                    total_unaffected: parseFloat(data.total_unaffected),
+                    total_value: parseFloat(data.total_value),
+                    total_charge: parseFloat(data.total_charge),
+                    total: parseFloat(data.total),
+                    series_id: this.onSetSeriesId(data.document_type_id, data.series),
+                    operation_type_id: data.invoice.operation_type_id,
+                    terms_condition: data.terms_condition || '',
+                    guides: data.guides || [],
+                    show_terms_condition: data.terms_condition ? true : false,
+                    attributes: [],
+                    customer: data.customer,
+                    has_prepayment: false,
+                    actions: {
+                        format_pdf:'a4',
+                    },
+                    hotel: {},
+                    transport: {},
+                    customer_address_id:null,
+                    type: 'invoice',
+                    invoice: {
+                        operation_type_id: data.invoice.operation_type_id,
+                        date_of_due: data.invoice.date_of_due,
+                    },
+                    payment_condition_id: '01',
+                    fee: []
+                }
+
+                if (! data.guides) {
+                    this.clickAddInitGuides();
+                }
+
+                this.establishment = data.establishment;
+
+                this.changeDateOfIssue();
+                this.filterCustomers();
+                this.changeDestinationSale();
+                this.calculateTotal();
+            },
+            onPrepareAdditionalInformation(data) {
+                if (typeof data === 'object') {
+                    if (data[0]) {
+                        return data;
+                    }
+                    return null;
+                }
+                return null;
+            },
+            onPrepareItems(items) {
+                return items.map(i => {
+                    i.unit_price_value = i.unit_value;
+                    i.input_unit_price_value = i.unit_value;
+                    i.additional_information = this.onPrepareAdditionalInformation(i.additional_information);
+                    return i;
+                });
+            },
+            onSetSeriesId(documentType, serie) {
+                const find = this.all_series.find(s => s.document_type_id == documentType && s.number == serie);
+                if (find) {
+                    return find.id;
+                }
+                return null;
+            },
             getPrepayment(index){
                 return _.find(this.prepayment_documents, {id: this.form.prepayments[index].document_id})
             },
             inputAmountPrepayment(index){
 
                 let prepayment = this.getPrepayment(index)
-                // console.log(prepayment)
 
                 if(parseFloat(this.form.prepayments[index].amount) > parseFloat(prepayment.amount)){
 
@@ -809,24 +1222,15 @@ import moment from 'moment'
 
             },
             changeDestinationSale() {
-
                 if(this.configuration.destination_sale && this.payment_destinations.length > 0) {
-
                     let cash = _.find(this.payment_destinations, {id : 'cash'})
-
-                    if(cash){
-                    
+                    if (cash) {
                         this.form.payments[0].payment_destination_id = cash.id
-                    
-                    }else{
-
+                    } else {
                         this.form.payment_destination_id = this.payment_destinations[0].id
                         this.form.payments[0].payment_destination_id = this.payment_destinations[0].id
                     }
-                    // console.log('log', this.form.payments[index].payment_destination_id)
-                    // console.log('aqui', this.payment_destinations[0].id)
                 }
-
             },
             changePaymentDestination(index){
                 // if(this.form.payments[index].payment_method_type_id=='01'){
@@ -898,13 +1302,9 @@ import moment from 'moment'
                 }
             },
             addDocumentDetraction(detraction) {
-
                 this.form.detraction = detraction
-
                 // this.has_data_detraction = (detraction.pay_constancy || detraction.detraction_type_id || detraction.payment_method_id || (detraction.amount && detraction.amount >0)) ? true:false
                 this.has_data_detraction = (detraction) ? detraction.has_data_detraction:false
-
-                // console.log(this.form.detraction)
             },
             clickAddItemInvoice(){
                 this.recordItem = null
@@ -921,7 +1321,21 @@ import moment from 'moment'
                     global_discount += parseFloat(item.amount)
                 })
 
-                let base = (this.form.affectation_type_prepayment == 10) ? parseFloat(this.form.total_taxed):parseFloat(this.form.total_exonerated)
+                // let base = (this.form.affectation_type_prepayment == 10) ? parseFloat(this.form.total_taxed):parseFloat(this.form.total_exonerated)
+                let base = 0
+
+                switch (this.form.affectation_type_prepayment) {
+                    case 10:
+                        base = parseFloat(this.form.total_taxed)
+                        break;
+                    case 20:
+                        base = parseFloat(this.form.total_exonerated)
+                        break;
+                    case 30:
+                        base = parseFloat(this.form.total_unaffected)
+                        break;
+                }
+
                 let amount = _.round(parseFloat(global_discount), 2)
                 let factor = _.round(amount/base, 4)
 
@@ -933,8 +1347,6 @@ import moment from 'moment'
                     let discount = _.find(this.form.discounts,{'discount_type_id':'04'})
 
                     if(global_discount>0 && !discount){
-                        // console.log("gl 0")
-
                         this.form.total_discount =  _.round(amount,2)
                         this.form.total_taxed =  _.round(base - amount,2)
                         this.form.total_value =  _.round(base - amount,2)
@@ -971,7 +1383,7 @@ import moment from 'moment'
 
                     }
 
-                }else{
+                }else if(this.form.affectation_type_prepayment == 20){
 
                     let exonerated_discount = _.find(this.form.discounts,{'discount_type_id':'05'})
 
@@ -982,8 +1394,6 @@ import moment from 'moment'
                     this.form.total =  this.form.total_value
 
                     if(global_discount>0 && !exonerated_discount){
-
-                        // console.log("gl 0")
                         this.form.discounts.push({
                                 discount_type_id: '05',
                                 description: 'Descuentos globales por anticipos exonerados',
@@ -998,6 +1408,34 @@ import moment from 'moment'
 
                         if(position > -1){
 
+                            this.form.discounts[position].base = base
+                            this.form.discounts[position].amount = amount
+                            this.form.discounts[position].factor = factor
+
+                        }
+
+                    }
+
+                }else if(this.form.affectation_type_prepayment == 30){
+
+                    let unaffected_discount = _.find(this.form.discounts,{'discount_type_id':'06'})
+
+                    this.form.total_discount =  _.round(amount,2)
+                    this.form.total_unaffected =  _.round(base - amount,2)
+                    this.form.total_value =  this.form.total_unaffected
+                    this.form.total =  this.form.total_value
+
+                    if(global_discount>0 && !unaffected_discount){
+                        this.form.discounts.push({
+                                discount_type_id: '06',
+                                description: 'Descuentos globales por anticipos inafectos',
+                                factor: factor,
+                                amount: amount,
+                                base: base
+                            })
+                    } else {
+                        let position = this.form.discounts.indexOf(unaffected_discount);
+                        if(position > -1){
                             this.form.discounts[position].base = base
                             this.form.discounts[position].amount = amount
                             this.form.discounts[position].factor = factor
@@ -1053,12 +1491,12 @@ import moment from 'moment'
                     await this.getDocumentsPrepayment()
 
                 }
-                // else{
+                else{
 
                     // this.form.total_prepayment = 0
                     // await this.deletePrepaymentDiscount()
-
-                // }
+                    this.cleanValueATPrepayment()
+                }
 
             },
             setPendingAmount(){
@@ -1097,10 +1535,10 @@ import moment from 'moment'
 
                 let discount = await _.find(this.form.discounts, {'discount_type_id':'04'})
                 let discount_exonerated = await _.find(this.form.discounts, {'discount_type_id':'05'})
+                let discount_unaffected = await _.find(this.form.discounts, {'discount_type_id':'06'})
 
                 let pos = this.form.discounts.indexOf(discount)
                 if (pos > -1) {
-                    // console.log(' ya existe en la colección de verduras.');
                     this.form.discounts.splice(pos, 1)
                     this.changeTotalPrepayment()
                 }
@@ -1110,6 +1548,13 @@ import moment from 'moment'
                     this.form.discounts.splice(pos_exonerated, 1)
                     this.changeTotalPrepayment()
                 }
+
+                let pos_unaffected = this.form.discounts.indexOf(discount_unaffected)
+                if (pos_unaffected > -1) {
+                    this.form.discounts.splice(pos_unaffected, 1)
+                    this.changeTotalPrepayment()
+                }
+
             },
             getDocumentsPrepayment(){
                 this.$http.get(`/${this.resource}/prepayments/${this.form.affectation_type_prepayment}`).then((response) => {
@@ -1131,11 +1576,9 @@ import moment from 'moment'
 
             addDocumentHotel(hotel) {
                 this.form.hotel = hotel
-                // console.log(this.form.hotel)
             },
             addDocumentTransport(transport) {
                 this.form.transport = transport
-                // console.log(this.form.transport)
             },
             changeIsReceivable(){
 
@@ -1151,7 +1594,7 @@ import moment from 'moment'
                     payment_destination_id: this.getPaymentDestinationId(),
                     payment: 0,
                 });
-                
+
             },
             getPaymentDestinationId() {
 
@@ -1169,19 +1612,14 @@ import moment from 'moment'
             clickCancel(index) {
                 this.form.payments.splice(index, 1);
             },
-            ediItem(row, index)
-            {
+            ediItem(row, index) {
                 row.indexi = index
                 this.recordItem = row
                 this.showDialogAddItem = true
-
             },
-
             searchRemoteCustomers(input) {
 
                 if (input.length > 0) {
-                // if (input!="") {
-                    // console.log("a")
                     this.loading_search = true
                     let parameters = `input=${input}&document_type_id=${this.form.document_type_id}&operation_type_id=${this.form.operation_type_id}`
 
@@ -1192,13 +1630,11 @@ import moment from 'moment'
                                 this.input_person.number = null
 
                                 if(this.customers.length == 0){
-                                    // console.log("b")
                                     this.filterCustomers()
                                     this.input_person.number = input
                                 }
                             })
                 } else {
-                    // this.customers = []
                     this.filterCustomers()
                     this.input_person.number = null
                 }
@@ -1210,6 +1646,7 @@ import moment from 'moment'
                     establishment_id: null,
                     document_type_id: null,
                     series_id: null,
+                    seller_id: null,
                     number: '#',
                     date_of_issue: moment().format('YYYY-MM-DD'),
                     time_of_issue: moment().format('HH:mm:ss'),
@@ -1257,6 +1694,10 @@ import moment from 'moment'
                     customer_address_id:null,
                     pending_amount_prepayment:0,
                     payment_method_type_id:null,
+                    show_terms_condition: true,
+                    terms_condition: '',
+                    payment_condition_id: '01',
+                    fee: []
                 }
 
                 this.form_cash_document = {
@@ -1295,6 +1736,7 @@ import moment from 'moment'
                 this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
                 this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
                 this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
+                this.form.seller_id = (this.sellers.length > 0)?this.sellers[0].id:null;
                 this.selectDocumentType()
                 this.changeEstablishment()
                 this.changeDocumentType()
@@ -1323,6 +1765,13 @@ import moment from 'moment'
                     if(!legend) this.form.legends.push({code:'2006', value:'Operación sujeta a detracción'})
                     this.form.detraction.bank_account = this.company.detraction_account
 
+                }else if(this.form.operation_type_id === '1004'){
+
+                    this.showDialogDocumentDetraction = true
+                    let legend = await _.find(this.form.legends,{'code':'2006'})
+                    if(!legend) this.form.legends.push({code:'2006', value:'Operación Sujeta a Detracción - Servicios de Transporte - Carga'})
+                    this.form.detraction.bank_account = this.company.detraction_account
+
                 }else{
 
                     _.remove(this.form.legends,{'code':'2006'})
@@ -1331,27 +1780,21 @@ import moment from 'moment'
                 }
             },
             async changeDetractionType(){
-                // let detraction_type = await _.find(this.detraction_types, {'id':this.form.detraction.detraction_type_id})
-
                 if(this.form.detraction){
-
                     this.form.detraction.amount = (this.form.currency_type_id == 'PEN') ? _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage)/100),2) : _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage)/100),2)
-
-                    // this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage)/100),2)
-                    // console.log(this.form.detraction.amount)
                 }
             },
             validateDetraction(){
 
-                if(this.form.operation_type_id === '1001'){
+                if(['1001', '1004'].includes(this.form.operation_type_id)){
 
                     let detraction = this.form.detraction
 
                     let tot = (this.form.currency_type_id == 'PEN') ? this.form.total:(this.form.total * this.form.exchange_rate_sale)
-                    // console.log(tot)
+                    let total_restriction = (this.form.operation_type_id == '1001') ? 700 : 400
 
-                    if(tot <= 700)
-                        return {success:false, message:'El importe de la operación debe ser mayor a S/ 700.00 o equivalente en USD'}
+                    if(tot <= total_restriction)
+                        return {success:false, message:`El importe de la operación debe ser mayor a S/ ${total_restriction}.00 o equivalente en USD`}
 
                     if(!detraction.detraction_type_id)
                         return {success:false, message:'El campo bien o servicio sujeto a detracción es obligatorio'}
@@ -1396,7 +1839,6 @@ import moment from 'moment'
             },
             cleanCustomer(){
                 this.form.customer_id = null
-                // this.customers = []
             },
             changeDateOfIssue() {
               let minDate = moment().subtract(7, 'days')
@@ -1405,16 +1847,17 @@ import moment from 'moment'
                 this.dateValid=false
               } else { this.dateValid = true }
                 this.form.date_of_due = this.form.date_of_issue
-                this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
-                    this.form.exchange_rate_sale = response
-                })
+                if (! this.isUpdate) {
+                    this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
+                        this.form.exchange_rate_sale = response
+                    });
+                }
             },
             assignmentDateOfPayment(){
                 this.form.payments.forEach((payment)=>{
                     payment.date_of_payment = this.form.date_of_issue
                 })
             },
-
             filterSeries() {
                 this.form.series_id = null
                 this.series = _.filter(this.all_series, {'establishment_id': this.form.establishment_id,
@@ -1423,8 +1866,8 @@ import moment from 'moment'
                 this.form.series_id = (this.series.length > 0)?this.series[0].id:null
             },
             filterCustomers() {
-                // this.form.customer_id = null
-                if(this.form.operation_type_id === '0101' || this.form.operation_type_id === '1001') {
+                if (['0101', '1001', '1004'].includes(this.form.operation_type_id)) {
+
                     if(this.form.document_type_id === '01') {
                         this.customers = _.filter(this.all_customers, {'identity_document_type_id': '6'})
                     } else {
@@ -1434,6 +1877,7 @@ import moment from 'moment'
                             this.customers = this.all_customers
                         }
                     }
+
                 } else {
                     this.customers = this.all_customers
                 }
@@ -1457,8 +1901,7 @@ import moment from 'moment'
                 this.form.guides.splice(index, 1)
             },
             addRow(row) {
-                if(this.recordItem)
-                {
+                if(this.recordItem) {
                     //this.form.items.$set(this.recordItem.indexi, row)
                     this.form.items[this.recordItem.indexi] = row
                     this.recordItem = null
@@ -1551,12 +1994,13 @@ import moment from 'moment'
                 if(this.prepayment_deduction)
                     this.discountGlobalPrepayment()
 
-                if(this.form.operation_type_id === '1001')
+                if(['1001', '1004'].includes(this.form.operation_type_id))
                     this.changeDetractionType()
 
                 this.setTotalDefaultPayment()
                 this.setPendingAmount()
 
+                this.calculateFee();
             },
             setTotalDefaultPayment(){
 
@@ -1602,14 +2046,9 @@ import moment from 'moment'
                     this.form.discounts[0].amount = _.round(amount,2)
                     this.form.discounts[0].factor = factor
                 }
-
-
-                // console.log(this.form.discounts)
             },
             async deleteInitGuides(){
-                //eliminando guias null
                 await _.remove(this.form.guides,{'number':null})
-
             },
             async asignPlateNumberToItems(){
 
@@ -1667,7 +2106,9 @@ import moment from 'moment'
 
             },
             async submit() {
-
+                if (this.form.show_terms_condition) {
+                    this.form.terms_condition = this.configuration.terms_condition_sale;
+                }
                 if(this.form.has_prepayment || this.prepayment_deduction){
                     let error_prepayment = await this.validateAffectationTypePrepayment()
                     if(!error_prepayment.success)
@@ -1703,7 +2144,11 @@ import moment from 'moment'
                 }
 
                 this.loading_submit = true
-                this.$http.post(`/${this.resource}`, this.form).then(response => {
+                let path = `/${this.resource}`;
+                if (this.isUpdate) {
+                    path = `/${this.resource}/${this.form.id}/update`;
+                }
+                this.$http.post(path, this.form).then(response => {
                     if (response.data.success) {
                         this.$eventHub.$emit('reloadDataItems', null)
                         this.resetForm();
@@ -1719,15 +2164,13 @@ import moment from 'moment'
                         this.$message.error(response.data.message);
                     }
                 }).catch(error => {
-
-                    //alert('sdsd')
                     if (error.response.status === 422) {
                         this.errors = error.response.data;
                     }
                     else {
                         this.$message.error(error.response.data.message);
                     }
-                }).then(() => {
+                }).finally(() => {
                     this.loading_submit = false;
                 });
             },
@@ -1780,7 +2223,7 @@ import moment from 'moment'
                     this.form.customer_id = customer_id
                 })
             },
-             changeCustomer() {
+            changeCustomer() {
                 this.customer_addresses = [];
                 let customer = _.find(this.customers, {'id': this.form.customer_id});
                 this.customer_addresses = customer.addresses;
@@ -1797,6 +2240,42 @@ import moment from 'moment'
                     let address = _.find(this.customer_addresses, {'main' : 1});
                     this.form.customer_address_id = address.id;
                 }*/
+            },
+            changePaymentCondition() {
+                this.form.fee = [];
+                this.form.payments = [];
+                if(this.form.payment_condition_id === '01') {
+                    this.clickAddPayment();
+                }
+                if(this.form.payment_condition_id === '02') {
+                    this.clickAddFee();
+                }
+            },
+            clickAddFee() {
+                this.form.fee.push({
+                    id: null,
+                    date: moment().format('YYYY-MM-DD'),
+                    currency_type_id: this.form.currency_type_id,
+                    amount: 0,
+                });
+                this.calculateFee();
+            },
+            clickRemoveFee(index) {
+                this.form.fee.splice(index, 1);
+                this.calculateFee();
+            },
+            calculateFee() {
+                let fee_count = this.form.fee.length;
+                let total = this.form.total;
+                let accumulated = 0;
+                let amount = _.round(total / fee_count, 2);
+                _.forEach(this.form.fee, row => {
+                    accumulated += amount;
+                    if (total - accumulated < 0) {
+                        amount = _.round(total - accumulated + amount, 2);
+                    }
+                    row.amount = amount;
+                })
             }
         }
     }

@@ -9,7 +9,7 @@
     </head>
     <body>
         <div>
-            <h3 align="center" class="title"><strong>Reporte Clientes</strong></h3>
+            <h3 align="center" class="title"><strong>{{ ($type == 'customers') ? 'Reporte Clientes':'Reporte Proveedores' }}</strong></h3>
 
         </div>
         <br>
@@ -24,6 +24,7 @@
                                 <th>Número de documento</th>
                                 <th>Nombre</th>
                                 <th>Nombre comercial</th>
+                                <th>Código interno</th>
                                 <th>Correo</th>
                                 <th>Teléfono</th>
                             </tr>
@@ -34,8 +35,9 @@
                                 <td class="celda">{{$loop->iteration}}</td>
                                 <td class="celda">{{$value->identity_document_type->description}}</td>
                                 <td class="celda">{{$value->number}}</td>
+                                <td class="celda">{{$value->name }}</td>
                                 <td class="celda">{{$value->trade_name }}</td>
-                                <td class="celda">{{$value->trade_name }}</td>
+                                <td class="celda">{{$value->internal_code }}</td>
                                 <td class="celda">{{$value->email }}</td>
                                 <td class="celda">{{$value->telephone }}</td>
                             </tr>

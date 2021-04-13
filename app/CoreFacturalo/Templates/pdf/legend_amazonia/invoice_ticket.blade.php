@@ -240,7 +240,14 @@
             </td>
             <td class="text-center desc-9 align-top">{{ $row->item->unit_type_id }}</td>
             <td class="text-left desc-9 align-top">
-                {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                @if($row->name_product_pdf)
+                    {!!$row->name_product_pdf!!}
+                @else
+                    {!!$row->item->description!!}
+                @endif
+                @if (!empty($row->item->presentation))
+                    {!!$row->item->presentation->description!!}
+                @endif
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)
                         <br/>{!! $attr->description !!} : {{ $attr->value }}
@@ -422,6 +429,15 @@
                 </tr>
 
         </tr>
+
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc pt-2">
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    @endif
 
     <tr>
         <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>

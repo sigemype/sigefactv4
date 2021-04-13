@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\System\Configuration as SystemConfiguration;
+use App\Models\Tenant\Company;
+use App\Models\Tenant\Configuration;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Support\Facades\Config;
 
 class LoginController extends Controller
 {
@@ -45,6 +47,13 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        return view('tenant.auth.login');
+        $config = SystemConfiguration::first();
+        if (! $config->use_login_global) {
+            $config = Configuration::first();
+        }
+        $useLoginGlobal = $config->use_login_global;
+        $login = $config->login;
+        $company = Company::first();
+        return view('tenant.auth.login', compact('company', 'login', 'useLoginGlobal'));
     }
 }

@@ -48,7 +48,7 @@ use Modules\Item\Models\ItemLotsGroup;
 use App\Models\Tenant\Configuration;
 use Modules\Inventory\Traits\InventoryTrait;
 use Modules\Document\Traits\SearchTrait;
-
+use App\Models\Tenant\BankAccount;
 
 class SaleNoteController extends Controller
 {
@@ -123,9 +123,9 @@ class SaleNoteController extends Controller
             $records = $records->where('series', 'like', '%' . $request->series . '%');
         }
 
-        if($request->paid != null)
+        if($request->total_canceled != null)
         {
-            $records = $records->where('paid', $request->paid);
+            $records = $records->where('total_canceled', $request->total_canceled);
         }
 
         return $records;
@@ -463,7 +463,7 @@ class SaleNoteController extends Controller
                 }
             }
             $legends = $this->document->legends != '' ? '10' : '0';
-
+            $bank_accounts = BankAccount::count() * 6;
 
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
@@ -481,6 +481,7 @@ class SaleNoteController extends Controller
                     $customer_address +
                     $p_order +
                     $legends +
+                    $bank_accounts +
                     $total_exportation +
                     $total_free +
                     $total_unaffected +
@@ -599,6 +600,14 @@ class SaleNoteController extends Controller
                 }
                 $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
             // }
+        }
+
+        if ($base_template === 'brand') {
+
+            if (($format_pdf === 'ticket') || ($format_pdf === 'ticket_58') || ($format_pdf === 'ticket_50')) {
+                $pdf->SetHTMLHeader("");
+                $pdf->SetHTMLFooter("");
+            }
         }
 
         $this->uploadFile($this->document->filename, $pdf->output('', 'S'), 'sale_note');
@@ -841,7 +850,7 @@ class SaleNoteController extends Controller
 
         if($row->unit_type_id != 'ZZ')
         {
-            $warehouse_stock = ($row->warehouses && $warehouse) ? number_format($row->warehouses->where('warehouse_id', $warehouse->id)->first()->stock,2) : 0;
+            $warehouse_stock = ($row->warehouses && $warehouse) ? number_format($row->warehouses->where('warehouse_id', $warehouse->id)->first() != null ? $row->warehouses->where('warehouse_id', $warehouse->id)->first()->stock : 0 ,2) : 0;
             $stock = ($row->warehouses && $warehouse) ? "{$warehouse_stock}" : "";
         }
         else{
@@ -973,18 +982,20 @@ class SaleNoteController extends Controller
 
         if(!$sale_note_item->item->is_set){
 
+            $presentationQuantity = (!empty($sale_note_item->item->presentation)) ? $sale_note_item->item->presentation->quantity_unit : 1;
+
             $sale_note_item->sale_note->inventory_kardex()->create([
                 'date_of_issue' => date('Y-m-d'),
                 'item_id' => $sale_note_item->item_id,
                 'warehouse_id' => $warehouse_id,
-                'quantity' => $sale_note_item->quantity,
+                'quantity' => $sale_note_item->quantity * $presentationQuantity,
             ]);
 
             $wr = ItemWarehouse::where([['item_id', $sale_note_item->item_id],['warehouse_id', $warehouse_id]])->first();
 
             if($wr)
             {
-                $wr->stock =  $wr->stock + $sale_note_item->quantity;
+                $wr->stock =  $wr->stock + ($sale_note_item->quantity * $presentationQuantity);
                 $wr->save();
             }
 

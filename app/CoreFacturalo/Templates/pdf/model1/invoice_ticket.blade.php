@@ -72,7 +72,16 @@
                     @foreach($document->items as $index => $row)
                     <tr>
                         <td class="cell-center">{{ round($row->quantity, 0) }}</td>
-                        <td>{{ $row->item->description }}</td>
+                        <td>
+                            {{ $row->item->description }}
+                            @if($row->item->is_set == 1)
+                                <br>
+                                @inject('itemSet', 'App\Services\ItemSetService')
+                                @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                                    {{$item}}<br>
+                                @endforeach
+                            @endif
+                        </td>
                         <td class="cell-right">{{ number_format($row->unit_price, 2) }}</td>
                         <td class="cell-right">
                              @if($row->discounts)

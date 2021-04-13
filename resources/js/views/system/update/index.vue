@@ -1,81 +1,86 @@
 <template>
     <div class="row">
-        <div class="card col-md-12">
-            <div class="card-header justify-content-center d-block">
-                <p class="text-center text-muted mb-0 mt-2">Disponible para instalaciones con el script Docker desde Mayo 2020</p>
-                <div class="text-center mt-2">
-                    <el-button @click.prevent="start()" :loading="loading_submit">Iniciar Proceso</el-button>
-                </div>
-                <p class="text-center text-muted mb-0 mt-2">Versión actual: <span>{{version}}</span></p>
-                <p class="text-right mb-0 mt-2"><a href="https://gitlab.com/b.mendoza/facturadorpro3/-/wikis/Script-Update-Docker" class="text-info" target="BLANK">Actualización alternativa con script</a></p>
-                <p class="text-right mb-0 mt-2">
-                    <el-tooltip content="Instalaciones anteriores de Mayo 2020" placement="top">
-                        <a href="https://gitlab.com/b.mendoza/facturadorpro3/-/wikis/config-auto-update" class="text-info" target="BLANK">Configuación para disponer de actualiciones automáticas</a>
-                    </el-tooltip>
-                </p>
-            </div>
-            <div class="card-body">
-
-                <div v-if="content.status == true && content.step == 'updating'" id="response-content">
-
-                    <h3>Obteniendo rama del repositorio</h3>
-                    <el-progress :percentage="branch.percent"></el-progress>
-
-                    <div v-if="branch.status == 'success'">
-                        <h4>Rama actual: <strong>{{branch.name}}</strong></h4>
-                        <span class="text-danger">{{branch.error}}</span><br>
-                        <!-- <span class="text-danger">{{branch.status}}</span> -->
-                        <hr>
-                        <h3>Descargando actualización</h3>
-                        <h4>Log: {{pull.content}}</h4>
-                        <span class="text-danger">{{pull.error}}</span><br>
-                        <!-- <span class="text-danger">{{pull.status}}</span> -->
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title text-center">
+                        <i class="fab fa-gitlab" style="color: rgb(41, 41, 97);"></i>
+                        <p class="">
+                            Versión:{{version}}
+                        </p>
+                        <button type="button" class="btn btn-primary" @click.prevent="start()" :loading="loading_submit">Iniciar proceso</button>
                     </div>
+                    <div v-if="content.status == true && content.step == 'updating'" id="response-content">
 
-                    <div v-if="pull.status == 'success'">
-                        <div v-if="pull.updated == false">
-                            <div v-if="artisan.migrate.status == 'success'">
-                                <hr>
-                                <h3>Corriendo migraciones en administrador</h3>
-                                <h4>Log: {{artisan.migrate.content}}</h4>
-                                <span class="text-danger">{{artisan.migrate.error}}</span><br>
-                                <!-- <span class="text-danger">{{artisan.migrate.status}}</span> -->
-                            </div>
+                        <h3>Obteniendo rama del repositorio</h3>
+                        <el-progress :percentage="branch.percent"></el-progress>
 
-                            <div v-if="artisan.tenancy_migrate.status == 'success'">
-                                <hr>
-                                <h3>Corriendo migraciones en cliente</h3>
-                                <h4>Log: {{artisan.tenancy_migrate.content}}</h4>
-                                <span class="text-danger">{{artisan.tenancy_migrate.error}}</span><br>
-                                <!-- <span class="text-danger">{{artisan.tenancy_migrate.status}}</span> -->
-                            </div>
-
-                            <div v-if="artisan.clear.status == 'success'">
-                                <hr>
-                                <h3>Eliminando Caché</h3>
-                                <h4>Log: {{artisan.clear.content}}</h4>
-                                <span class="text-danger">{{artisan.clear.error}}</span><br>
-                                <!-- <span class="text-danger">{{artisan.clear.status}}</span> -->
-                            </div>
-
-                            <div v-if="composer.install.status == 'success'">
-                                <h3>Actualizando dependencias</h3>
-                                <h4>Log:</h4>
-                                <pre>
-                                    {{composer.install.content}}
-                                </pre>
-                                <span class="text-danger">{{composer.install.error}}</span><br>
-                                <!-- <span class="text-danger">{{composer.install.status}}</span> -->
-                            </div>
-                        </div>
-                        <div v-else>
+                        <div v-if="branch.status == 'success'">
+                            <h4>Rama actual: <strong>{{branch.name}}</strong></h4>
+                            <span class="text-danger">{{branch.error}}</span><br>
+                            <!-- <span class="text-danger">{{branch.status}}</span> -->
                             <hr>
-                            <h3>El sistema está actualizado</h3>
+                            <h3>Descargando actualización</h3>
+                            <h4>Log: {{pull.content}}</h4>
+                            <span class="text-danger">{{pull.error}}</span><br>
+                            <!-- <span class="text-danger">{{pull.status}}</span> -->
+                        </div>
+
+                        <div v-if="pull.status == 'success'">
+                            <div v-if="pull.updated == false">
+                                <div v-if="artisan.migrate.status == 'success'">
+                                    <hr>
+                                    <h3>Corriendo migraciones en administrador</h3>
+                                    <h4>Log: {{artisan.migrate.content}}</h4>
+                                    <span class="text-danger">{{artisan.migrate.error}}</span><br>
+                                    <!-- <span class="text-danger">{{artisan.migrate.status}}</span> -->
+                                </div>
+
+                                <div v-if="artisan.tenancy_migrate.status == 'success'">
+                                    <hr>
+                                    <h3>Corriendo migraciones en cliente</h3>
+                                    <h4>Log: {{artisan.tenancy_migrate.content}}</h4>
+                                    <span class="text-danger">{{artisan.tenancy_migrate.error}}</span><br>
+                                    <!-- <span class="text-danger">{{artisan.tenancy_migrate.status}}</span> -->
+                                </div>
+
+                                <div v-if="artisan.clear.status == 'success'">
+                                    <hr>
+                                    <h3>Eliminando Caché</h3>
+                                    <h4>Log: {{artisan.clear.content}}</h4>
+                                    <span class="text-danger">{{artisan.clear.error}}</span><br>
+                                    <!-- <span class="text-danger">{{artisan.clear.status}}</span> -->
+                                </div>
+
+                                <div v-if="composer.install.status == 'success'">
+                                    <h3>Actualizando dependencias</h3>
+                                    <h4>Log:</h4>
+                                    <pre>
+                                        {{composer.install.content}}
+                                    </pre>
+                                    <span class="text-danger">{{composer.install.error}}</span><br>
+                                    <!-- <span class="text-danger">{{composer.install.status}}</span> -->
+                                </div>
+                            </div>
+                            <div v-else>
+                                <hr>
+                                <h3>El sistema está actualizado</h3>
+                            </div>
                         </div>
                     </div>
-
                 </div>
+            </div>
+        </div>
 
+        <div class="col-12 col-md-6" style="">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title text-center">
+                        <i class="fas fa-file-alt" style="color: rgb(41, 41, 97);"></i>
+                        <p>Changelog</p>
+                    </div>
+                    <div v-html="changelog" style="max-height: 600px; overflow-y: auto;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -92,6 +97,7 @@
                 form: {},
                 loading_submit: false,
                 version: '',
+                changelog: '',
                 content: {
                     status: false,
                 },
@@ -142,6 +148,7 @@
         },
         created() {
             this.getVersion()
+            this.getChangelog()
         },
         methods: {
             async start() {
@@ -190,6 +197,20 @@
                 }).catch(error => {
                     if (error.response.status !== 200) {
                         this.version.error = error.response.data.message
+                    } else {
+                        console.log(error)
+                    }
+                })
+            },
+            getChangelog() {
+                this.$http.get(`/${this.resource}/changelog`)
+                .then(response => {
+                    if (response.data !== '') {
+                        this.changelog = response.data
+                    }
+                }).catch(error => {
+                    if (error.response.status !== 200) {
+                        this.changelog.error = error.response.data.message
                     } else {
                         console.log(error)
                     }

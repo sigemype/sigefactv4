@@ -386,13 +386,14 @@
     @if ($document->prepayments)
         @foreach($document->prepayments as $p)
         <tr>
-            <td class="text-center align-top">
-                1
-            </td>
+            <td class="text-center align-top"></td>
+            <td class="text-center align-top">1</td>
             <td class="text-center align-top">NIU</td>
             <td class="text-left align-top">
                 ANTICIPO: {{($p->document_type_id == '02')? 'FACTURA':'BOLETA'}} NRO. {{$p->number}}
             </td>
+            <td class="text-center align-top"></td>
+            <td class="text-center align-top"></td>
             <td class="text-right align-top">-{{ number_format($p->total, 2) }}</td>
             <td class="text-right align-top">
                 0
@@ -400,7 +401,7 @@
             <td class="text-right align-top">-{{ number_format($p->total, 2) }}</td>
         </tr>
         <tr>
-            <td colspan="8" class="border-bottom"></td>
+            <td colspan="9" class="border-bottom"></td>
         </tr>
         @endforeach
     @endif
@@ -586,7 +587,17 @@
         </tr>
 
     </table>
-
+@endif
+@if ($document->terms_condition)
+    <br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    </table>
 @endif
 </body>
 </html>

@@ -32,22 +32,51 @@
 
             </div>
             <div class="h-25 bg-info" style="overflow-y: auto">
-                <div class="row m-0 p-0 bg-white h-25 d-flex align-items-center">
-                    <div class="col-sm-6 py-1">
-                        <p class="font-weight-semibold mb-0">SUBTOTAL</p>
+                <template v-if="form.total_plastic_bag_taxes > 0">
+                    <div class="row m-0 p-0 bg-white h-17 d-flex align-items-center">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">SUBTOTAL</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{ form.total_taxed }}</p>
+                        </div>
                     </div>
-                    <div class="col-sm-6 py-1 text-right">
-                        <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{ form.total_taxed }}</p>
+                    <div class="row m-0 p-0 bg-white h-17 d-flex align-items-center">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">IGV</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{form.total_igv}}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="row m-0 p-0 bg-white h-25 d-flex align-items-center">
-                    <div class="col-sm-6 py-1">
-                        <p class="font-weight-semibold mb-0">IGV</p>
+                    <div class="row m-0 p-0 bg-white h-17 d-flex align-items-center">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">ICBPER</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{form.total_plastic_bag_taxes}}</p>
+                        </div>
                     </div>
-                    <div class="col-sm-6 py-1 text-right">
-                        <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{form.total_igv}}</p>
+                </template>
+                <template v-else>
+                    <div class="row m-0 p-0 bg-white h-25 d-flex align-items-center">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">SUBTOTAL</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{ form.total_taxed }}</p>
+                        </div>
                     </div>
-                </div>
+                    <div class="row m-0 p-0 bg-white h-25 d-flex align-items-center">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">IGV</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{currencyTypeActive.symbol}} {{form.total_igv}}</p>
+                        </div>
+                    </div>
+                </template>
+
                 <!-- <div class="row m-0 p-0 bg-white">
                     <div class="col-sm-6 py-1">
                         <p class="font-weight-semibold mb-0">DESCUENTO</p>
@@ -165,6 +194,23 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-lg-8">
+                    <div class="card card-default">
+                        <div class="card-body text-center">
+                            <div class="row col-lg-12">
+                                <div class="col-md-12 col-lg-12">
+                                    <div class="form-group">
+                                        <label class="control-label">Datos de referencia</label>
+                                        <el-input type="textarea" v-model="form.reference_data"></el-input>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
                 <div class="col-lg-8">
                     <div class="card card-default">
                         <div class="card-body">

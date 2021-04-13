@@ -126,7 +126,11 @@
     <tr>
         <td class="align-top">Vendedor:</td>
         <td colspan="3">
-            {{ $document->user->name }}
+            @if ($document->seller->name)
+                {{ $document->seller->name }}
+            @else
+                {{ $document->user->name }}
+            @endif
         </td>
     </tr>
     @if($document->person->contact != null)
@@ -137,7 +141,7 @@
         </tr>
         @endif
     @endif
-    
+
     @if ($document->contact)
     <tr>
         <td class="align-top">Contacto:</td>
@@ -145,7 +149,7 @@
             {{ $document->contact }}
         </td>
     </tr>
-    @endif 
+    @endif
     @if ($document->phone)
     <tr>
         <td class="align-top">Telf. Contacto:</td>
@@ -153,7 +157,7 @@
             {{ $document->phone }}
         </td>
     </tr>
-    @endif 
+    @endif
 
 </table>
 

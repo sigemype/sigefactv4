@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :title="title" :visible="showDialog" @close="close" @open="getData" width="65%">
+    <el-dialog :title="title" :visible="showDialog" @close="close" @open="getData" width="65%" :close-on-click-modal="false" :close-on-press-escape="false">
         <div class="form-body">
             <div class="row">
                 <div class="col-md-12" v-if="records.length > 0">
@@ -72,7 +72,7 @@
                                     </td>
                                     <td>
                                         <div class="form-group mb-0">
-                                            
+
                                             <el-upload
                                                     :data="{'index': index}"
                                                     :headers="headers"
@@ -188,19 +188,19 @@
                 }
 
                 // console.log(this.records)
-            
+
             },
             cleanFileList(){
                 this.fileList = []
             },
-            handleRemove(file, fileList) {       
-                
+            handleRemove(file, fileList) {
+
                 this.records[this.index_file].filename = null
                 this.records[this.index_file].temp_path = null
                 this.fileList = []
                 this.index_file = null
 
-            }, 
+            },
             initForm() {
                 this.records = [];
                 this.fileList = [];

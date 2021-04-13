@@ -14,7 +14,7 @@ class BackupFiles extends Command
      *
      * @var string
      */
-    protected $signature = 'bk:files';
+    protected $signature = 'bk:files --type={type} --folder={folder}';
 
     /**
      * The console command description.
@@ -41,15 +41,27 @@ class BackupFiles extends Command
     public function handle()
     {
         try {
-            $today = now()->format('dmYHi');
-            $path_sql = now()->format('dmY');
             if (!is_dir(storage_path('app/backups'))) mkdir(storage_path('app/backups'));
             if (!is_dir(storage_path('app/backups/zip'))) mkdir(storage_path('app/backups/zip'));
-            $zip = Zip::create(storage_path('app/backups/zip/'.$today.'_storage.zip'));
-            $zip->add(storage_path('app/tenancy/tenants/'), true);
-            $zip->add(storage_path('app/backups/'.$path_sql.'/'), true);
+            $type = $this->argument('type');
 
-            Log::info('Backup storage success');
+            if ($type === 'individual') {
+                $folder = $this->argument('folder');
+
+                $zip = Zip::create(storage_path('app/backups/zip/'. $folder .'.zip'));
+                $zip->add(storage_path('app/tenancy/tenants/' . $folder) . '/', true);
+                $zip->add(storage_path('app/backups/'. $folder . '/'), true);
+
+                Log::info('Backup ' . $folder . ' storage success');
+            } else {
+                $today = now()->format('dmYHi');
+                $path_sql = now()->format('dmY');
+                $zip = Zip::create(storage_path('app/backups/zip/'.$today.'_storage.zip'));
+                $zip->add(storage_path('app/tenancy/tenants/'), true);
+                $zip->add(storage_path('app/backups/'.$path_sql.'/'), true);
+
+                Log::info('Backup storage success');
+            }
         } catch (Throwable $e) {
             Log::error('Backup failed', $e);
         }

@@ -20,6 +20,8 @@ class ItemResource extends JsonResource
             'technical_specifications' => $this->technical_specifications,
             'name' => $this->name,
             'second_name' => $this->second_name,
+            'model' => $this->model,
+            'barcode' => $this->barcode,
             'warehouse_id' => $this->warehouse_id,
             'internal_id' => $this->internal_id,
             'item_code' => $this->item_code,
@@ -51,6 +53,7 @@ class ItemResource extends JsonResource
             'date_of_due' => $this->date_of_due,
             'image_url' => ($this->image !== 'imagen-no-disponible.jpg') ? asset('storage'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR.$this->image) : asset("/logo/{$this->image}"),
             'apply_store' => (bool)$this->apply_store,
+            'has_plastic_bag_taxes' => (bool)$this->has_plastic_bag_taxes,
             'tags' => $this->tags,
             'tags_id' => $this->tags->pluck('tag_id'),
             // 'individual_items' => collect($this->sets)->pluck('individual_item_id'),
@@ -87,11 +90,11 @@ class ItemResource extends JsonResource
                     'individual_item_id' => $row->individual_item_id,
                     'full_description' => $full_description,
                     'sale_unit_price' => (float) $row->individual_item->sale_unit_price,
-                    'quantity' => (float) $row->quantity, 
+                    'quantity' => (float) $row->quantity,
                 ];
             }),
             'web_platform_id' => $this->web_platform_id,
-            
+
             // 'warehouses' => collect($this->warehouses)->transform(function($row) {
             //     return [
             //         'warehouse_description' => $row->warehouse->description,

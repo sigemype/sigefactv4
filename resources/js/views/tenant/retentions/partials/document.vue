@@ -33,6 +33,7 @@
                                             type="date"
                                             value-format="yyyy-MM-dd"
                                             :clearable="false"
+                                            :picker-options="disabledDateOfIssue"
                                             @change="changeDateOfIssue"></el-date-picker>
                             <small class="form-control-feedback" v-if="errors.date_of_issue" v-text="errors.date_of_issue[0]"></small>
                         </div>
@@ -63,13 +64,17 @@
                     <div class="col-lg-3">
                         <div class="form-group" :class="{'has-danger': errors.date_of_retention}">
                             <label class="control-label">Fecha de retención</label>
-                            <el-date-picker v-model="form.date_of_retention" type="date" value-format="yyyy-MM-dd" :clearable="false"></el-date-picker>
+                            <el-date-picker v-model="form.date_of_retention" type="date" value-format="yyyy-MM-dd" :clearable="false" :picker-options="disabledDateOfIssue"></el-date-picker>
                             <small class="form-control-feedback" v-if="errors.date_of_retention" v-text="errors.date_of_retention[0]"></small>
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <div class="form-group" :class="{'has-danger': errors.total_retention}">
-                            <label class="control-label">Total retención</label>
+                            <label class="control-label">Total retención
+                                <el-tooltip class="item" effect="dark" content="Total comprobante por Tasa de retención" placement="top-start">
+                                    <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+                            </label>
                             <el-input v-model="form.total_retention"></el-input>
                             <small class="form-control-feedback" v-if="errors.total_retention" v-text="errors.total_retention[0]"></small>
                         </div>
@@ -83,7 +88,11 @@
                     </div>
                     <div class="col-lg-3">
                         <div class="form-group" :class="{'has-danger': errors.total_payment}">
-                            <label class="control-label">Total pagado</label>
+                            <label class="control-label">Total pagado
+                                <el-tooltip class="item" effect="dark" content="Importe total a pagar (neto) = Total pagos - Total retención" placement="top-start">
+                                    <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+                            </label>
                             <el-input v-model="form.total_payment"></el-input>
                             <small class="form-control-feedback" v-if="errors.total_payment" v-text="errors.total_payment[0]"></small>
                         </div>
@@ -105,16 +114,21 @@
                                     <th>#</th>
                                     <th>Fecha de Pago</th>
                                     <th>Moneda</th>
-                                    <th class="text-right">Total</th>
+                                    <th class="text-right">Total
+                                        <el-tooltip class="item" effect="dark" content="Importe del pago sin retención" placement="top-start">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </th>
                                     <th></th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="(row, index) in form.payments">
+                                <tr v-for="(row, index) in form.payments" :key="index">
                                     <td>{{ index + 1 }}</td>
                                     <td><el-date-picker v-model="row.date_of_payment"
                                                         type="date"
                                                         value-format="yyyy-MM-dd"
+                                                        :picker-options="disabledDateOfIssue"
                                                         :clearable="false"></el-date-picker>
                                     </td>
                                     <td>
@@ -123,7 +137,7 @@
                                         </el-select>
                                     </td>
                                     <td class="text-right">
-                                        <el-input v-model="row.total_payment"></el-input>
+                                        <el-input v-model="row.total_payment" @blur="blurTotalPayment(index)"></el-input>
                                     </td>
                                     <td class="text-right">
                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemovePayment(index)">x</button>
@@ -158,7 +172,12 @@
                 form: {},
                 document_types: [],
                 currency_types: [],
-                retention_types: []
+                retention_types: [],
+                disabledDateOfIssue: {
+                  disabledDate(time) {
+                    return time.getTime() > moment().subtract(1, 'days');
+                  }
+                },
             }
         },
         created() {
@@ -170,6 +189,14 @@
             })
         },
         methods: {
+            blurTotalPayment(index = null){
+
+                let sum_total_payment = _.sumBy(this.form.payments, (o) => { return parseFloat(o.total_payment); });
+                // console.log(index, sum_total_payment)
+
+                this.form.total_payment = sum_total_payment - this.form.total_retention
+
+            },
             initForm() {
                 this.errors = {}
                 this.form = {
@@ -177,10 +204,10 @@
                     document_type_description:null,
                     series: null,
                     number: null,
-                    date_of_issue: moment().format('YYYY-MM-DD'),
+                    date_of_issue: moment().subtract(1, 'days').format('YYYY-MM-DD'),
                     currency_type_id: null,
                     total_document: 0,
-                    date_of_retention: moment().format('YYYY-MM-DD'),
+                    date_of_retention: moment().subtract(1, 'days').format('YYYY-MM-DD'),
                     total_retention: 0,
                     total_to_pay: 0,
                     total_payment: 0,
@@ -198,6 +225,7 @@
                 // console.log(this.activeRetentionType)
                 if(this.activeRetentionType && this.form.total_document && this.form.total_document > 0){
                     this.form.total_retention = _.round(parseFloat(this.form.total_document) * (parseFloat(this.activeRetentionType.percentage)/100),2)
+                    this.blurTotalPayment()
                 }else{
                     this.form.total_retention = 0
                 }
@@ -215,11 +243,19 @@
                 this.changeDocumentType()
             },
             clickAddPayment() {
+
+                if(this.form.payments.length == 1){
+                    return this.$message.error('Solo puede agregar 1 pago')
+                }
+
                 this.form.payments.push({
                     date_of_payment: this.form.date_of_issue,
                     currency_type_id: this.form.currency_type_id,
-                    total_payment: this.form.total_payment
+                    total_payment: (this.form.payments.length == 0) ? this.form.total_document:0
                 })
+
+                this.blurTotalPayment()
+
             },
             clickRemovePayment(index) {
                 this.form.payments.splice(index, 1)
@@ -252,6 +288,11 @@
                 if(this.form.total_document<=0 || this.form.total_retention<=0 || this.form.total_to_pay<=0 || this.form.total_payment<=0 )
                     return { success:false, message:'Los totales deben ser mayores a cero' }
                      
+                let sum_total_payment = _.sumBy(this.form.payments, (o) => { return parseFloat(o.total_payment); });
+
+                if(sum_total_payment > this.form.total_document)
+                    return { success:false, message:'La sumatoria de pagos no puede ser mayor al Total del comprobante' }
+
                 return {
                     success:true
                 }

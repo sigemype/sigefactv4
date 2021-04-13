@@ -76,7 +76,7 @@ class DocumentCollection extends ResourceCollection
 
             $total_payment = $row->payments->sum('payment');
             $balance = number_format($row->total - $total_payment,2, ".", "");
-            
+
             $message_regularize_shipping = null;
 
             if($row->regularize_shipping) {
@@ -84,7 +84,7 @@ class DocumentCollection extends ResourceCollection
             }
 
             return [
-                
+
                 'id' => $row->id,
                 'group_id' => $row->group_id,
                 'soap_type_id' => $row->soap_type_id,
@@ -136,6 +136,7 @@ class DocumentCollection extends ResourceCollection
                 'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),
                 'user_name' => ($row->user) ? $row->user->name : '',
                 'user_email' => ($row->user) ? $row->user->email : '',
+                'user_id' => $row->user_id,
                 'external_id' => $row->external_id,
 
                 'notes' => (in_array($row->document_type_id, ['01', '03'])) ? $row->affected_documents->transform(function($row) {

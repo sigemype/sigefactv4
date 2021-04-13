@@ -45,7 +45,7 @@
                     </div>
                     <div class="col-lg-3 col-md-3">
                         <div class="form-group"  >
-                            <el-select @change="getRequestData" placeholder="Estado de pago" v-model="search.paid" clearable>
+                            <el-select @change="getRequestData" placeholder="Estado de pago" v-model="search.total_canceled" clearable>
                                 <el-option :value="1" label="Pagado"></el-option>
                                 <el-option  :value="0" label="Pendiente"></el-option>
                             </el-select>
@@ -110,7 +110,7 @@
                     column: null,
                     value: null,
                     series: null,
-                    paid: null
+                    total_canceled: null
                 },
                 totals: {
                     total_pen: 0,

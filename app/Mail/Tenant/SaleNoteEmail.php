@@ -33,7 +33,7 @@ class SaleNoteEmail extends Mailable
 
         return $this->subject('Envio de Nota de Venta')
                     ->from(config('mail.username'), 'Nota de Venta')
-                    ->view('tenant.templates.email.document')
+                    ->view('tenant.templates.email.sale_note')
                     ->attachData($pdf, $this->document->filename.'.pdf');
     }
 }

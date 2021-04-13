@@ -1,16 +1,11 @@
 <template>
-  <div class="card card-collapsed">
+  <div class="card">
     <div class="card-header bg-info">
       <h3 class="my-0">Listado de métodos de pago
-        
         <el-tooltip class="item" effect="dark" content="Catálogo de Sunat - Operaciones relacionadas a la misma" placement="top-start">
             <i class="fa fa-info-circle"></i>
         </el-tooltip>
       </h3>
-      <div class="card-actions white-text">
-        <a href="#" class="card-action card-action-toggle text-white" data-card-toggle></a>
-        <a href="#" class="card-action card-action-dismiss text-white" data-card-dismiss></a>
-      </div>
     </div>
     <div class="card-body">
       <div class="row">

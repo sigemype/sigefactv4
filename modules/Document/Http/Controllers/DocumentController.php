@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use App\Models\Tenant\Person;
 use App\Models\Tenant\StateType;
 use App\Models\Tenant\Catalogs\DetractionType;
+use App\Models\Tenant\Catalogs\Department;
 use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
 use App\Traits\OfflineTrait;
 use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
@@ -123,13 +124,13 @@ class DocumentController extends Controller
 
     public function upload(Request $request)
     {
-        
+
         $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg');
-        
+
         if(!$validate_upload['success']){
             return $validate_upload;
         }
-        
+
         if ($request->hasFile('file')) {
             $new_request = [
                 'file' => $request->file('file'),
@@ -172,7 +173,35 @@ class DocumentController extends Controller
         $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         $detraction_types = DetractionType::whereActive()->get();
 
-        return compact( 'detraction_types', 'cat_payment_method_types');
+        $locations = [];
+        $departments = Department::whereActive()->get();
+        foreach ($departments as $department)
+        {
+            $children_provinces = [];
+            foreach ($department->provinces as $province)
+            {
+                $children_districts = [];
+                foreach ($province->districts as $district)
+                {
+                    $children_districts[] = [
+                        'value' => $district->id,
+                        'label' => $district->description
+                    ];
+                }
+                $children_provinces[] = [
+                    'value' => $province->id,
+                    'label' => $province->description,
+                    'children' => $children_districts
+                ];
+            }
+            $locations[] = [
+                'value' => $department->id,
+                'label' => $department->description,
+                'children' => $children_provinces
+            ];
+        }
+
+        return compact( 'detraction_types', 'cat_payment_method_types', 'locations');
 
     }
 
@@ -238,7 +267,7 @@ class DocumentController extends Controller
     {
 
         $prepayment_documents = Document::whereHasPrepayment()->whereAffectationTypePrepayment($type)->get()->transform(function($row) {
-            
+
             $total = round($row->pending_amount_prepayment, 2);
             $amount = ($row->affectation_type_prepayment == '10') ? round($total/1.18, 2) : $total;
 
@@ -263,7 +292,6 @@ class DocumentController extends Controller
     public function searchItems(Request $request)
     {
 
-        // dd($request->all());
         $establishment_id = auth()->user()->establishment_id;
         $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
 
@@ -281,6 +309,7 @@ class DocumentController extends Controller
                     'brand' => $detail['brand'],
                     'category' => $detail['category'],
                     'stock' => $detail['stock'],
+                    'barcode' => $row->barcode,
                     'internal_id' => $row->internal_id,
                     'description' => $row->description,
                     'currency_type_id' => $row->currency_type_id,
@@ -338,8 +367,8 @@ class DocumentController extends Controller
                     // }),
                     'lots_enabled' => (bool) $row->lots_enabled,
                     'series_enabled' => (bool) $row->series_enabled,
-
-
+                    'has_plastic_bag_taxes' => (bool) $row->has_plastic_bag_taxes,
+                    'model' => $row->model,
                 ];
             });
 
@@ -387,7 +416,7 @@ class DocumentController extends Controller
                                         ->whereIn('id', collect($document_item->item->lots)->pluck('id')->toArray())
                                         ->where('has_sale', true)
                                         ->get();
-        
+
 
     }
 
@@ -470,6 +499,7 @@ class DocumentController extends Controller
                 }),
                 'lots_enabled' => (bool) $row->lots_enabled,
                 'series_enabled' => (bool) $row->series_enabled,
+                'has_plastic_bag_taxes' => (bool) $row->has_plastic_bag_taxes,
 
             ];
         });
@@ -477,14 +507,14 @@ class DocumentController extends Controller
         return compact('items');
     }
 
-    
+
     public function consultCdr($document_id)
     {
 
         $document = Document::find($document_id);
 
-        return (new ConsultCdr)->search($document); 
-        
+        return (new ConsultCdr)->search($document);
+
     }
 
 }

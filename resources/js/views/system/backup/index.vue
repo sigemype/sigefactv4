@@ -2,29 +2,42 @@
     <div class="row">
         <div class="card col-md-8">
             <div class="card-header justify-content-center d-block">
-                <div class="text-center mt-2">
-                    <el-button @click.prevent="start()" :loading="loading_submit">Iniciar Proceso</el-button>
-                </div>
+                <h4>Generar backup</h4>
+                <br>
+                <form class="row pt-2" @submit.prevent="onSubmitBackups">
+                    <div class="col-12 mb-2">
+                        <span>Tipo</span> <br>
+                        <el-radio v-model="formBackups.type" label="todos">Todos</el-radio>
+                        <el-radio v-model="formBackups.type" label="individual">Individual</el-radio>
+                    </div>
+                    <div class="col-6 col-md-3 form-group" v-if="formBackups.type === 'individual'" :class="{'has-danger': errors.hostname_id}">
+                        <el-select v-model="formBackups.hostname_id" clearable filterable placeholder="Selecciona un cliente">
+                            <el-option v-for="cl in clients" :key="cl.hostname_id" :label="cl.name" :value="cl.hostname_id"></el-option>
+                        </el-select>
+                        <small class="form-control-feedback" v-if="errors.hostname_id" v-text="errors.hostname_id[0]"></small>
+                    </div>
+                    <div class="col-6 col-md-3 form-group">
+                        <el-button @click.prevent="start()" :loading="loading_submit" :disabled="loading_submit">Iniciar Proceso</el-button>
+                    </div>
+                </form>
+                <br><br>
                 <p class="mb-0">Espacio disponible en disco: {{discUsed}}</p>
                 <p class="mb-0">Espacio ocupado por archivos de facturación: {{storageSize}}</p>
             </div>
             <div class="card-body">
-
-                <h3>Backups</h3>
-
-                <div v-if="db.status == 'success'">
-                    <h3>Base de datos <span v-if="db.error == ''" class="text-success"><i class="fas fa-check"></i></span></h3>
-                    <h4>Log: {{db.content}}</h4>
-                    <span v-if="db.error ==! ''" class="text-danger">{{db.error}}</span>
-
-                </div>
-
-                <div v-if="files.status == 'success'">
-                    <h3>Archivos <span v-if="files.error == ''" class="text-success"><i class="fas fa-check"></i></span></h3>
-                    <h4>Log: {{files.content}}</h4>
-                    <span class="text-danger">{{files.error}}</span><br>
-                </div>
-
+                <p v-if="newLastZip !== ''">Ultimo Backup generado: <strong>{{newLastZip.name}} {{newLastZipDate}}</strong></p>
+                <el-button @click.prevent="clickDownload()" >Descargar</el-button>
+                <hr>
+                <p class="mb-2">Para restaurar una base de datos debe ejecutar los siguientes comandos.</p>
+                <code>mysql -u [user] -p [database_name] < [filename].sql</code>
+                <br>
+                <hr>
+                <p class="mb-2">Para restaurar los archivos descargados debe copiar todas carpetas dentro de la carpeta del cliente.</p>
+                <code>cp [path_del_zip]/signed storage/app/tenancy/tenants/tenancy_[subdominio del cliente]</code> <br>
+                <code>cp [path_del_zip]/unsigned storage/app/tenancy/tenants/tenancy_[subdominio del cliente]</code> <br>
+                <code>cp [path_del_zip]/cdr storage/app/tenancy/tenants/tenancy_[subdominio del cliente]</code> <br>
+                <code>cp [path_del_zip]/pdf storage/app/tenancy/tenants/tenancy_[subdominio del cliente]</code> <br>
+                <p>Repetir para todas las carpetas que estan dentro del .zip</p>
             </div>
         </div>
         <div class="card col-md-4 mt-0">
@@ -32,7 +45,7 @@
                 Enviar por FTP último backup generado
             </div>
             <div class="card-body">
-                <p v-if="newLastZip !== ''">Ultimo Backup generado: {{newLastZip.name}}</p>
+
                 <small class="text-muted">Por seguridad sus datos FTP no son guardados</small>
                 <form v-if="newLastZip !== ''">
                     <div class="form-group" :class="{'has-danger': errors.host}">
@@ -53,8 +66,6 @@
                     </div>
                     <div v-if="newLastZip !== ''" class="form-group">
                         <el-button @click.prevent="uploadFtp()" :loading="loading_upload">Enviar</el-button>
-
-                        <el-button @click.prevent="clickDownload()" >Descargar</el-button>
                     </div>
                 </form>
             </div>
@@ -62,153 +73,166 @@
     </div>
 </template>
 <script>
-    import $ from 'jquery'
+import $ from 'jquery'
 
-    export default {
-        props: ['storageSize','discUsed', 'lastZip'],
-        data() {
-            return {
-                headers: null,
-                resource: 'backup',
-                errors: {},
-                form: {},
-                loading_submit: false,
-                loading_upload: false,
-                db: {
-                    error: '',
-                    content: '',
-                    status: '',
-                },
-                files: {
-                    error: '',
-                    content: '',
-                    status: '',
-                },
-                newLastZip: ''
+export default {
+    props: ['storageSize','discUsed', 'lastZip', 'clients'],
+    data() {
+        return {
+            newLastZipDate: '',
+            headers: null,
+            resource: 'backup',
+            errors: {},
+            form: {},
+            loading_submit: false,
+            loading_upload: false,
+            db: {
+                error: '',
+                content: '',
+                status: '',
+            },
+            files: {
+                error: '',
+                content: '',
+                status: '',
+            },
+            newLastZip: '',
+            formBackups: {
+                type: 'todos',
+            },
+            errors: {},
+        }
+    },
+    created() {
+        this.initForm();
+    },
+    methods: {
+        onGenerateNnameLastFile() {
+            if (this.newLastZip) {
+                if (this.newLastZip.date) {
+                    this.newLastZipDate = `creado el ${this.newLastZip.date}`;
+                }
             }
         },
-        created() {
-            this.initForm()
+        clickDownload() {
+            window.open(`/${this.resource}/download/${this.newLastZip.name}`, '_blank');
         },
-        methods: {
-            clickDownload() {
-                window.open(`/${this.resource}/download/${this.newLastZip.name}`, '_blank');
-            },
-            initForm(){
-
-                this.form = {
-                    host: null,
-                    port: null,
-                    username: null,
-                    password: null,
+        initForm(){
+            this.form = {
+                host: null,
+                port: null,
+                username: null,
+                password: null,
+            }
+            this.newLastZip = this.lastZip;
+            this.onGenerateNnameLastFile();
+        },
+        async start() {
+            this.initContent()
+            this.loading_submit = true
+            this.backupDb()
+        },
+        initContent() {
+            this.db.error = ''
+            this.db.content = ''
+            this.db.status = false
+            this.files.error = ''
+            this.files.content = ''
+            this.files.status = false
+        },
+        backupDb() {
+            this.$http.post(`/${this.resource}/db`, this.formBackups)
+            .then(response => {
+                if (response.data !== '') {
+                    this.db.content = response.data
+                    this.errors = {};
+                    if (response.status === 200) {
+                        this.db.status = 'success'
+                    }
+                    this.backupFiles()
                 }
-
-                this.newLastZip = this.lastZip
-
-            },
-            async start() {
-                this.initContent()
-                this.loading_submit = true
-                this.backupDb()
-            },
-            initContent() {
-                this.db.error = ''
-                this.db.content = ''
-                this.db.status = false
-                this.files.error = ''
-                this.files.content = ''
-                this.files.status = false
-            },
-            backupDb() {
-                this.$http.get(`/${this.resource}/db`)
+            }).catch(error => {
+                const status = error.response.status;
+                if (status === 422) {
+                    this.errors = error.response.data;
+                } else if (status !== 200) {
+                    this.db.error = error.response.data.message
+                    this.db.status = 'false'
+                }
+            }).finally(() => this.loading_submit = false);
+        },
+        backupFiles() {
+            this.$http.post(`/${this.resource}/files`, this.formBackups)
                 .then(response => {
                     if (response.data !== '') {
-                        this.db.content = response.data
+                        this.files.content = response.data
+                        this.errors = {};
                         if (response.status === 200) {
-                            this.db.status = 'success'
+                            this.files.status = 'success'
+                            this.mostRecent()
                         }
-                        this.backupFiles()
+                        this.loading_submit = false
+                    }
+                }).catch(error => {
+                    const status = error.response.status;
+                    if (status === 422) {
+                        this.errors = error.response.data;
+                    } else if (status !== 200) {
+                        this.db.error = error.response.data.message
+                        this.db.status = 'false'
+                    }
+                })
+
+        },
+        mostRecent(){
+            this.$http.get(`/${this.resource}/last-backup`)
+                .then(response => {
+                    if (response.data !== '') {
+                        this.newLastZip = response.data
+                        this.loading_submit = false
+                        this.onGenerateNnameLastFile();
                     }
                 }).catch(error => {
                     if (error.response.status !== 200) {
-                        this.db.error = error.response.data.message
-                        this.db.status = 'false'
+                        this.files.error = error.response.data.message
                     } else {
                         console.log(error)
                     }
                 })
-            },
-            backupFiles() {
-                this.$http.get(`/${this.resource}/files`)
-                    .then(response => {
-                        if (response.data !== '') {
-                            this.files.content = response.data
-                            if (response.status === 200) {
-                                this.files.status = 'success'
-                                this.mostRecent()
-                            }
-                            this.loading_submit = false
-                        }
-                    }).catch(error => {
-                        if (error.response.status !== 200) {
-                            this.files.error = error.response.data.message
-                            this.files.status = 'false'
-                        } else {
-                            console.log(error)
-                        }
-                    })
-
-            },
-            mostRecent(){
-                
-                this.$http.get(`/${this.resource}/last-backup`)
-                    .then(response => {
-                        if (response.data !== '') {
-                            // console.log(response)
-                            this.newLastZip = response.data
-                            this.loading_submit = false
-                        }
-                    }).catch(error => {
-                        if (error.response.status !== 200) {
-                            this.files.error = error.response.data.message
-                        } else {
-                            console.log(error)
-                        }
-                    })
-            },
-            uploadFtp() {
-                this.loading_upload = true
-                this.sendFtp()
-            },
-            sendFtp() {
-                this.$http.post(`${this.resource}/upload`, this.form)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.$message.success(response.data.message)
-                            this.$eventHub.$emit('reloadData')
-                            this.loading_upload = false
-                            // this.close()
-                            this.initForm()
-                        } else {
-                            this.$message.error(response.data.message)
-                        }
-                    })
-                    .catch(error => {
-                        if (error.response.status === 422) {
-                            this.errors = error.response.data
-                        }else if(error.response.status === 500){
-                            this.$message.error(error.response.data.message);
-                        }
-                         else {
-                            console.log(error.response)
-                        }
-                    })
-                    .then(()=>{
+        },
+        uploadFtp() {
+            this.loading_upload = true
+            this.sendFtp()
+        },
+        sendFtp() {
+            this.$http.post(`${this.resource}/upload`, this.form)
+                .then(response => {
+                    if (response.data.success) {
+                        this.$message.success(response.data.message)
+                        this.$eventHub.$emit('reloadData')
                         this.loading_upload = false
-                    })
+                        // this.close()
+                        this.initForm()
+                    } else {
+                        this.$message.error(response.data.message)
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data
+                    }else if(error.response.status === 500){
+                        this.$message.error(error.response.data.message);
+                    }
+                        else {
+                        console.log(error.response)
+                    }
+                })
+                .then(()=>{
+                    this.loading_upload = false
+                })
 
 
-            }
         }
     }
+}
 </script>

@@ -25,6 +25,17 @@ class WsClient
                             DIRECTORY_SEPARATOR.'wsdl'.
                             DIRECTORY_SEPARATOR.'billConsultService.wsdl';
         }
+
+
+        if(config('tenant.soap_stream_context_ssl'))
+        {
+            $parameters['stream_context'] = stream_context_create([
+                                                'ssl' => [
+                                                    'verify_peer' => false,
+                                                ],
+                                            ]);
+        }
+
         $this->client = new SoapClient($wsdl, $parameters);
     }
 

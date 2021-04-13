@@ -51,7 +51,7 @@
             }
         },
         created() {
-            axios.post(`/${this.resource}/commands`).then((response) => {
+            this.$http.post(`/${this.resource}/commands`).then((response) => {
                 this.commnads = response.data;
             }).catch((error) => {
                 console.log(error);
@@ -63,18 +63,18 @@
             },
             submit() {
                 this.loading_submit = true;
-                
-                axios.post(`/${this.resource}`, this.form).then((response) => {
+
+                this.$http.post(`/${this.resource}`, this.form).then((response) => {
                     if (response.data.success) {
                         this.$message.success(response.data.message);
                         this.close();
-                        
+
                         this.form.class = null;
                         this.execution_time = null;
                         this.form.execution_time = null;
-                        
+
                         this.errors = {};
-                        
+
                         this.$emit('refresh');
                     }
                     else {

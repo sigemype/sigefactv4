@@ -34,6 +34,23 @@
                               listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo21">{{ $document->related->document_type_id }}</cbc:DocumentTypeCode>
     </cac:AdditionalDocumentReference>
     @endif
+    <cac:Signature>
+        <cbc:ID>{{ config('configuration.signature_uri') }}</cbc:ID>
+        <cbc:Note>{{ config('configuration.signature_note') }}</cbc:Note>
+        <cac:SignatoryParty>
+            <cac:PartyIdentification>
+                <cbc:ID>{{ $company->number }}</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PartyName>
+                <cbc:Name><![CDATA[{{ $company->trade_name }}]]></cbc:Name>
+            </cac:PartyName>
+        </cac:SignatoryParty>
+        <cac:DigitalSignatureAttachment>
+            <cac:ExternalReference>
+                <cbc:URI>#{{ config('configuration.signature_uri') }}</cbc:URI>
+            </cac:ExternalReference>
+        </cac:DigitalSignatureAttachment>
+    </cac:Signature>
     <cac:DespatchSupplierParty>
         <cbc:CustomerAssignedAccountID schemeID="6">{{ $company->number }}</cbc:CustomerAssignedAccountID>
         <cac:Party>

@@ -144,8 +144,15 @@
                             <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickCreate(row.id)" v-if="row.btn_generate && row.state_type_id != '11'">Editar</button> -->
 
-                            <button data-toggle="tooltip" data-placement="top" title="Editar" type="button" class="btn waves-effect waves-light btn-xs btn-primary"
-                                    @click.prevent="clickCreate(row.id)" v-if="row.btn_generate && row.state_type_id != '11'"><i class="fas fa-file-signature"></i></button>
+                            <button data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Editar"
+                                    type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-primary"
+                                    @click.prevent="clickCreate(row.id)"
+                                    v-if="row.btn_generate && row.state_type_id != '11' && typeUser != 'seller'">
+                                        <i class="fas fa-file-signature"></i>
+                            </button>
 
                             <button data-toggle="tooltip"
                                     data-placement="top"
@@ -159,10 +166,16 @@
 
                             <!-- <button  v-if="row.state_type_id != '11'"  type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickOptions(row.id)">Opciones</button> -->
-                            <template v-for="(document,i) in row.documents" >
-                                <a :href="`/dispatches/create/${document.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
-                                    v-if="row.changed" :key="i"><i class="fas fa-file-alt"></i></a>
-                            </template>
+                            <el-tooltip class="item" effect="dark" content="Generar guía desde CPE" placement="top-start">
+                                <template v-for="(document,i) in row.documents" >
+                                    <a :href="`/dispatches/create/${document.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
+                                        v-if="row.changed" :key="i"><i class="fas fa-file-alt"></i></a>
+                                </template>
+                            </el-tooltip>
+
+                            <el-tooltip class="item" effect="dark" content="Generar guía desde Nota Venta" placement="top-start">
+                                <a :href="`/dispatches/generate/${row.id}`" class="btn waves-effect waves-light btn-xs btn-primary m-1__2"><i class="fas fa-file-alt"></i></a>
+                            </el-tooltip>
 
                             <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickGenerate(row.id)" v-if="!row.changed && row.state_type_id != '11' ">Generar comprobante</button> -->
@@ -201,7 +214,7 @@
     import {deletable} from '../../../mixins/deletable'
 
     export default {
-        props: ['soapCompany'],
+        props: ['soapCompany','typeUser'],
         mixins: [deletable],
         components: {DataTable, SaleNotePayments, SaleNotesOptions, SaleNoteGenerate},
         data() {

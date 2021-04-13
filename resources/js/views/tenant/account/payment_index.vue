@@ -2,10 +2,6 @@
   <div class="card">
     <div class="card-header bg-info">
       <h3 class="my-0">Listado de Pagos</h3>
-      <div class="card-actions">
-        <a href="#" class="card-action card-action-toggle text-white" data-card-toggle></a>
-        <a href="#" class="card-action card-action-dismiss text-white" data-card-dismiss></a>
-      </div>
     </div>
     <div class="card-body">
       <div class="row">
@@ -68,11 +64,11 @@ export default {
     this.getData();
   },
   mounted() {
-   
+
   },
   methods: {
     demo() {
-      
+
     },
     getData() {
       this.$http.get(`/${this.resource}/payment_records`).then(response => {
@@ -81,7 +77,7 @@ export default {
     },
     clickPayment(id, payment) {
       window.execCulqi(id, payment)
-      
+
     }
   }
 };

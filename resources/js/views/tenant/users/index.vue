@@ -7,7 +7,7 @@
             </ol>
             <div class="right-wrapper pull-right">
 
-                <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" v-if="typeUser != 'integrator'" @click.prevent="clickCreate()"><i class="fa fa-plus-circle"></i> Nuevo</button>
+                <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" v-if="typeUser == 'admin'" @click.prevent="clickCreate()"><i class="fa fa-plus-circle"></i> Nuevo</button>
 
                 <!--<button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i class="fa fa-upload"></i> Importar</button>-->
             </div>
@@ -30,7 +30,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(row, index) in records">
+                        <tr v-for="(row, index) in records" :key="index">
                             <td>{{ index + 1 }}</td>
                             <td>{{ row.email }}</td>
                             <td>{{ row.name }}</td>
@@ -38,8 +38,8 @@
                             <td>{{ row.api_token }}</td>
                             <td>{{ row.establishment_description }}</td>
                             <td class="text-right">
-                                <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickCreate(row.id)">Editar</button>
-                                <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"  @click.prevent="clickDelete(row.id)" v-if="row.id != 1">Eliminar</button>
+                                <button v-if="typeUser === 'admin'" type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickCreate(row.id)">Editar</button>
+                                <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"  @click.prevent="clickDelete(row.id)" v-if="row.id != 1 && typeUser === 'admin'">Eliminar</button>
                             </td>
                         </tr>
                         </tbody>

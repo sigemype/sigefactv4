@@ -1,14 +1,40 @@
 <template>
     <el-dialog :title="titleDialog" :visible="showDialog" @open="create" width="30%" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" append-to-body>
      
+        <div class="row mb-4" v-if="form.response_message">
+            <div class="col-md-12">
+                <el-alert
+                    :title="form.response_message"
+                    :type="form.response_type"
+                    show-icon>
+                </el-alert>
+            </div>
+        </div>
+
         <div class="row">
 
-            <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold mt-3">
-                <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickDownload()">
-                    <i class="fa fa-file-alt"></i>
-                </button>
-                <p>Descargar A4</p>
-            </div>
+            <template v-if="form.has_cdr">
+                <div class="col-lg-6 col-md-6 col-sm-6 text-center font-weight-bold mt-3">
+                    <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickDownload()">
+                        <i class="fa fa-file-alt"></i>
+                    </button>
+                    <p>Descargar A4</p>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 text-center font-weight-bold mt-3">
+                    <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickDownloadCdr()">
+                        <i class="fa fa-file-download"></i>
+                    </button>
+                    <p>Descargar CDR</p>
+                </div>  
+            </template>
+            <template v-else>
+                <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold mt-3">
+                    <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickDownload()">
+                        <i class="fa fa-file-alt"></i>
+                    </button>
+                    <p>Descargar A4</p>
+                </div>
+            </template>
 
         </div>
         <div class="row mt-3">
@@ -88,8 +114,12 @@
                     response_message:null,
                     response_type:null,
                     customer_telephone:null,
-                    message_text:null
-                };
+                    message_text:null,
+                    download_cdr: null,
+                    state_type_id: '05',
+                    has_cdr: true,
+                }
+
                 this.locked_emission = {
                     success: true,
                     message: null
@@ -98,6 +128,9 @@
                     soap_type_id: null,
                 }
             },
+            clickDownloadCdr() {
+                window.open(this.form.download_cdr, '_blank');
+            }, 
             async create() {
                 await this.$http.get(`/${this.resource}/record/${this.recordId}`).then(response => {
                     this.form = response.data.data;

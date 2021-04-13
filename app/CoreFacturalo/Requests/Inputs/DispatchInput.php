@@ -71,6 +71,7 @@ class DispatchInput
             'reference_quotation_id' => Functions::valueKeyInArray($inputs, 'reference_quotation_id'),
             'reference_order_note_id' => Functions::valueKeyInArray($inputs, 'reference_order_note_id'),
             'reference_order_form_id' => Functions::valueKeyInArray($inputs, 'reference_order_form_id'),
+            'reference_sale_note_id' => Functions::valueKeyInArray($inputs, 'reference_sale_note_id'),
             'secondary_license_plates' => self::secondary_license_plates($inputs),
         ];
     }
@@ -149,11 +150,14 @@ class DispatchInput
                     'item_id' => $item->id,
                     'item' => [
                         'description' => $item->description,
+                        'model' => $item->model,
                         'item_type_id' => $item->item_type_id,
                         'internal_id' => $item->internal_id,
                         'item_code' => $item->item_code,
                         'item_code_gs1' => $item->item_code_gs1,
                         'unit_type_id' => $item->unit_type_id,
+                        'IdLoteSelected' =>  $row['IdLoteSelected'] ?? null,
+                        'lot_group' => $row['lot_group'] ?? null,
                     ],
                     'quantity' => $row['quantity'],
                 ];

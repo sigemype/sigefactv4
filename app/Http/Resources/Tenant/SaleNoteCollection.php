@@ -65,6 +65,7 @@ class SaleNoteCollection extends ResourceCollection
                 'quotation_number_full' => ($row->quotation) ? $row->quotation->number_full : '',
                 'sale_opportunity_number_full' => isset($row->quotation->sale_opportunity) ? $row->quotation->sale_opportunity->number_full : '',
                 'number_full' => $row->number_full,
+                'print_a4' => url('')."/sale-notes/print/{$row->external_id}/a4",
 
             ];
         });

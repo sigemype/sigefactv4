@@ -63,28 +63,28 @@ class Functions
         }
     }
 
-    public static function item($inputs) {
+    public static function item($inputs)
+    {
+        $item = Item::where('internal_id', $inputs['internal_id'])
+            ->first();
+        if (!$item) {
+            $item = new Item();
+            $item->internal_id = $inputs['internal_id'];
+            $item->description = $inputs['description'];
+            $item->name = $inputs['name'];
+            $item->second_name = $inputs['second_name'];
+            $item->item_type_id = $inputs['item_type_id'];
+            $item->item_code = $inputs['item_code'];
+            $item->item_code_gs1 = $inputs['item_code_gs1'];
+            $item->unit_type_id = $inputs['unit_type_id'];
+            $item->currency_type_id = $inputs['currency_type_id'];
+            $item->sale_unit_price =  $inputs['unit_price'];
+            $item->sale_affectation_igv_type_id = $inputs['affectation_igv_type_id'];
+            $item->purchase_affectation_igv_type_id = $inputs['affectation_igv_type_id'];
+            $item->stock = 0;
+            $item->save();
+        }
 
-        // $establishment_id = auth()->user()->establishment->id;
-        // $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
-
-        $item = Item::updateOrCreate([
-            'internal_id' => $inputs['internal_id'],
-        ], [
-            'description' => $inputs['description'],
-            'name' => $inputs['name'],
-            'second_name' => $inputs['second_name'],
-            'item_type_id' => $inputs['item_type_id'],
-            'item_code' => $inputs['item_code'],
-            'item_code_gs1' => $inputs['item_code_gs1'],
-            'unit_type_id' => $inputs['unit_type_id'],
-            'currency_type_id' => $inputs['currency_type_id'],
-            'sale_unit_price' =>  $inputs['unit_price'],
-            'sale_affectation_igv_type_id' => $inputs['affectation_igv_type_id'],
-            'purchase_affectation_igv_type_id' => $inputs['affectation_igv_type_id'],
-            'stock' => 0,
-            // 'warehouse_id' => $warehouse->id
-        ]);
         return $item->id;
     }
 

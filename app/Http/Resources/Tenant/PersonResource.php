@@ -20,6 +20,7 @@ class PersonResource extends JsonResource
             'identity_document_type_id' => $this->identity_document_type_id,
             'number' => $this->number,
             'name' => $this->name,
+            'internal_code' => $this->internal_code,
             'trade_name' => $this->trade_name,
             'country_id' => $this->country_id,
             'department_id' => $this->department_id,

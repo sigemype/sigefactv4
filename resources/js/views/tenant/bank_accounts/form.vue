@@ -51,6 +51,10 @@
                             <small class="form-control-feedback" v-if="errors.initial_balance" v-text="errors.initial_balance[0]"></small>
                         </div>
                     </div>
+                    <div class="col-12 form-group mt-3">
+                        <el-switch v-model="form.show_in_documents"></el-switch>
+                        <label>Mostrar cuenta en los reportes de comprobantes</label>
+                    </div>
                 </div>
             </div>
             <div class="form-actions text-right mt-4">
@@ -104,6 +108,7 @@
                     currency_type_id: null,
                     cci: null,
                     initial_balance: 0,
+                    show_in_documents: false,
                 }
             },
             create() {
