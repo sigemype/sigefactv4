@@ -162,43 +162,44 @@ class SummaryReportController extends Controller
     }
 
 
-    private function getVoidedDocuments($request){
-
-
+    private function getVoidedDocuments($request)
+    {
         $total = 0;
 
         $voided_documents = Series::query()
-                    ->select('number', 'document_type_id')
-                    ->whereIn('document_type_id', ['01','03'])
-                    ->whereHas('documents')
-                    ->with(['documents' => function($query) use($request) {
-                            $query->whereBetween('date_of_issue', [$request->date_start, $request->date_end])
-                                  ->where('state_type_id', '11')
-                                  ->select('series', 'number', 'state_type_id', 'total_igv', 'total_plastic_bag_taxes', 'total_value', 'total');
-                    }])
-                    ->get()
-                    ->map(function($series) use($total){
+            ->select('number', 'document_type_id')
+            ->whereIn('document_type_id', ['01','03'])
+            ->whereHas('documents', function($query) use($request) {
+                    $query->whereBetween('date_of_issue', [$request->date_start, $request->date_end])
+                            ->where('state_type_id', '11');
+            })
+            ->with(['documents' => function($query) use($request) {
+                    $query->whereBetween('date_of_issue', [$request->date_start, $request->date_end])
+                            ->where('state_type_id', '11')
+                            ->select('series', 'number', 'state_type_id', 'total_igv', 'total_plastic_bag_taxes', 'total_value', 'total', 'currency_type_id');
+            }])
+            ->get()
+            ->map(function($series) use($total){
+                // Estas variables no se usan
+                // $start_number = $series->documents->min('number') ?? 0;
+                // $end_number = $series->documents->max('number') ?? 0;
+                // Eliminando esta linea porque esta volviendo a llamar a la base de datos y no esta filtrando por fechas
+                // $voided = (count($series->documents) > 0) ? $series->documents()->where('state_type_id', '11')->pluck('number')->toArray() : [];
+                $voided = $series->documents->pluck('number')->toArray();
+                $total +=  $series->documents->where('currency_type_id', 'PEN')->sum('total');
+                $doc_dollar = collect($series->documents->where('currency_type_id', 'USD'));
+                foreach ($doc_dollar as $doc) {
+                    $total +=  $doc->total * $doc->exchange_rate_sale;
+                }
 
-                        $start_number = $series->documents->min('number') ?? 0;
-                        $end_number = $series->documents->max('number') ?? 0;
-                        $voided = (count($series->documents) > 0) ? $series->documents()->where('state_type_id', '11')->pluck('number')->toArray() : [];
-
-                        $total +=  $series->documents->where('currency_type_id', 'PEN')->sum('total');
-                        $doc_dollar = collect($series->documents->where('currency_type_id', 'USD'));
-                        foreach ($doc_dollar as $doc) {
-                            $total +=  $doc->total * $doc->exchange_rate_sale;
-                        }
-
-                        return [
-                            'document_type_description' => ($series->document_type_id == '01') ? 'FAC':'BV',
-                            'series' => $series->number,
-                            'voided' => join('; ', $voided),
-                            'total' => number_format($total, 2, ".", ""),
-                        ];
-                    });
-
+                return [
+                    'document_type_description' => ($series->document_type_id == '01') ? 'FAC':'BV',
+                    'series' => $series->number,
+                    'voided' => join('; ', $voided),
+                    'total' => number_format($total, 2, ".", ""),
+                ];
+            });
         return $voided_documents;
-
     }
 
 

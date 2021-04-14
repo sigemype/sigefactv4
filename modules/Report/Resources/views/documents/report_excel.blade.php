@@ -93,12 +93,21 @@
                                 <th>RUC</th>
                                 <th>Estado</th>
                                 <th class="">Moneda</th>
+                                <th class="">Forma de pago</th>
                                 <th>Total Exonerado</th>
                                 <th>Total Inafecto</th>
                                 <th>Total Gratuito</th>
                                 <th>Total Gravado</th>
                                 <th>Total IGV</th>
                                 <th>Total</th>
+
+                                @foreach ($categories as $category)
+                                    <th>{{$category->name}}</th>
+                                @endforeach
+
+                                @foreach ($categories_services as $category)
+                                    <th>{{$category->name}}</th>
+                                @endforeach
                             </tr>
                         </thead>
                         <tbody>
@@ -135,8 +144,10 @@
                                 @endphp
 
                                 <td class="celda">{{$value->currency_type_id}}</td>
-                             
 
+                                <td class="celda">
+                                    {{ ($value->payments()->count() > 0) ? $value->payments()->first()->payment_method_type->description : ''}}
+                                </td>
                                 
                                         
                                 <!-- <td class="celda">{{($signal == '07' || ($signal!='07' && $state =='11')) ? "-" : ""  }}{{$value->total_exonerated}} </td>
@@ -168,8 +179,38 @@
 
                                 @endif
                                 
-                                
-                                
+                                @foreach ($categories as $category)
+
+                                    @php
+                                        $amount = 0;
+                                        // dd($item->relation_item->category_id);
+
+                                        foreach ($value->items as $item) {
+                                            if($item->relation_item->category_id == $category->id){
+                                                $amount += $item->total;
+                                            }
+                                        }
+                                    @endphp
+                                        
+                                    <td>{{$amount}}</td>
+                                @endforeach
+
+
+                                @foreach ($categories_services as $category)
+
+                                    @php
+                                        $quantity = 0;
+
+                                        foreach ($value->items as $item) {
+                                            if($item->relation_item->category_id == $category->id){
+                                                $quantity += $item->quantity;
+                                            }
+                                        }
+                                    @endphp
+                                        
+                                    <td>{{$quantity}}</td>
+                                @endforeach
+
                                 @php
                                 
                                     $value->total_exonerated = (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_exonerated;
@@ -263,7 +304,7 @@
                             @endphp
                             @endforeach
                             <tr>
-                                <td colspan="11"></td>
+                                <td colspan="12"></td>
                                 <!-- <td >Totales</td>
                                 <td>{{$acum_total_exonerado}}</td>
                                 <td>{{$acum_total_inafecto}}</td>
@@ -279,7 +320,7 @@
                                 <td>{{$acum_total}}</td>
                             </tr>
                             <tr>
-                                <td colspan="11"></td>
+                                <td colspan="12"></td>
                                 <td >Totales USD</td>
                                 <td></td>
                                 <td></td>

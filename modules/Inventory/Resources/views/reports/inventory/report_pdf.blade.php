@@ -21,10 +21,12 @@
             .celda {
                 text-align: center;
                 padding: 5px;
+                font-size: 10px;
                 border: 0.1px solid black;
             }
 
             th {
+                font-size: 10px;
                 padding: 5px;
                 text-align: center;
                 border-color: #0088cc;
@@ -88,6 +90,8 @@
                                 <th>Costo</th>
                                 <th>Costo Total</th>
                                 <th>Precio de venta</th>
+                                <th>Marca</th>
+                                <th>F. vencimiento</th>
                                 <th>Almacén</th>
                             </tr>
                         </thead>
@@ -108,6 +112,8 @@
                                     <td class="celda">{{$value->item->purchase_unit_price}}</td>
                                     <td class="celda">{{number_format($total_line, 6)}}</td>
                                     <td class="celda">{{$value->item->sale_unit_price}}</td>
+                                    <td class="celda">{{$value->item->brand->name}}</td>
+                                    <td class="celda">{{$value->item->date_of_due}}</td>
                                     <td class="celda">{{$value->warehouse->description}}</td>
                                 </tr>
                             @endforeach

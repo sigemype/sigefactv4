@@ -63,32 +63,38 @@
 
 
                             </div>
-                            <table width="100%" class="table table-striped table-responsive-xl table-bordered table-hover">
-                                <thead class="">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Descripción</th>
-                                        <th>Categoria</th>
-                                        <th>Inventario actual</th>
-                                        <th>Precio de venta</th>
-                                        <th>Costo</th>
-                                        <th>Almacén</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($reports as $key => $value)
-                                    <tr>
-                                        <td class="celda">{{$loop->iteration}}</td>
-                                        <td class="celda">{{$value->item->internal_id ?? ''}} {{$value->item->internal_id ? '-':''}} {{$value->item->description ?? ''}}</td>
-                                        <td class="celda">{{optional($value->item->category)->name}}</td>
-                                        <td class="celda">{{$value->stock}}</td>
-                                        <td class="celda">{{$value->item->sale_unit_price}}</td>
-                                        <td class="celda">{{$value->item->purchase_unit_price}}</td>
-                                        <td class="celda">{{$value->warehouse->description}}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table width="100%" class="table table-striped table-responsive-xl table-bordered table-hover">
+                                    <thead class="">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Descripción</th>
+                                            <th>Categoria</th>
+                                            <th>Inventario actual</th>
+                                            <th>Precio de venta</th>
+                                            <th>Costo</th>
+                                            <th>Marca</th>
+                                            <th>F. vencimiento</th>
+                                            <th>Almacén</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($reports as $key => $value)
+                                        <tr>
+                                            <td class="celda">{{$loop->iteration}}</td>
+                                            <td class="celda">{{$value->item->internal_id ?? ''}} {{$value->item->internal_id ? '-':''}} {{$value->item->description ?? ''}}</td>
+                                            <td class="celda">{{optional($value->item->category)->name}}</td>
+                                            <td class="celda">{{$value->stock}}</td>
+                                            <td class="celda">{{$value->item->sale_unit_price}}</td>
+                                            <td class="celda">{{$value->item->purchase_unit_price}}</td>
+                                            <td class="celda">{{ $value->item->brand->name }}</td>
+                                            <td class="celda">{{ $value->item->date_of_due }}</td>
+                                            <td class="celda">{{$value->warehouse->description}}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                             Total {{$reports->total()}}
                             <label class="pagination-wrapper ml-2">
                                 {{$reports->appends($_GET)->render()}}

@@ -21,22 +21,24 @@ use Modules\Report\Traits\MassiveDownloadTrait;
 
 class ReportMassiveDownloadController extends Controller
 {
-     
+
     use ReportTrait, MassiveDownloadTrait;
 
-    public function index() 
+    public function index()
     {
         return view('report::massive-downloads.index');
     }
-   
+
 
     public function filter() {
 
         $document_types = DocumentType::whereIn('id', ['01', '03','80', '09'])->get();
+        $sellers = $this->getSellers();
+        $series = $this->getSeries($document_types);
 
         $persons = $this->getPersons('customers');
 
-        return compact('document_types','persons');
+        return compact('document_types','persons','sellers','series');
     }
 
 
@@ -49,7 +51,7 @@ class ReportMassiveDownloadController extends Controller
         if(count($document_types) == 0){
             $document_types = ['all'];
         }
-    
+
         return [
             'total' => $this->getTotals($document_types, $params)
         ];
@@ -70,6 +72,6 @@ class ReportMassiveDownloadController extends Controller
         return $this->toPrintByView('massive_downloads', $this->createPdf($this->getData($document_types, $params)));
 
     }
-  
- 
+
+
 }

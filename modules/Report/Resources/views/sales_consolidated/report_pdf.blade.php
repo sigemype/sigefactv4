@@ -69,12 +69,23 @@
                     <td>
                         <p><strong>Establecimiento: </strong>{{$establishment->address}} - {{$establishment->department->description}} - {{$establishment->district->description}}</p>
                     </td>
+
                     @inject('reportService', 'Modules\Report\Services\ReportService')
-                    @if($params['seller_id'])
-                    <td>
-                        <p><strong>Usuario: </strong>{{$reportService->getUserName($params['seller_id'])}}</p>
-                    </td>
-                    @endif 
+                    @if($params['sellers'])
+                        @php
+                            $sellers = json_decode($params['sellers']);
+                        @endphp
+                        @if(count($sellers) > 0)
+                        <td>
+                            <p><strong>Usuario(s): </strong>
+                            @foreach ($sellers as $seller_id)
+                            - {{$reportService->getUserName($seller_id)}}
+                            @endforeach
+                            </p>
+                        </td>
+                        @endif 
+                    @endif
+                     
                     @if($params['person_id'])
                     <td>
                         <p><strong>Cliente: </strong>{{$reportService->getPersonName($params['person_id'])}}</p>
@@ -94,6 +105,8 @@
                             <tr>
                                 <th class="">#</th>
                                 <th  class="text-center">Documento</th>
+                                <th  class="text-center">Cod. Interno</th>
+                                <th  class="text-center">Unidad</th>
                                 <th  class="text-left">Producto</th>
                                 <th  class="text-center">Cantidad</th>
                             </tr>
@@ -103,6 +116,9 @@
                                 <tr>
                                     <td class="celda">{{$loop->iteration}}</td>
                                     <td class="celda">{{$value->series}}-{{$value->number}}</td> 
+                                    <td class="celda">{{$value->relation_item->internal_id}}</td>
+                                    <td class="celda">{{ ($value->item->presentation) ? $value->item->presentation->unit_type_id : $value->relation_item->unit_type_id}}</td>
+                                    {{-- <td class="celda">{{$value->relation_item->unit_type_id}}</td> --}}
                                     <td class="celda">{{$value->item->description}}</td>
                                     <td class="celda">{{$value->quantity}}</td> 
                                 </tr> 
@@ -112,7 +128,7 @@
                                 @endphp
                             @endforeach
                             <tr>
-                                <td class="celda" colspan="2"></td>
+                                <td class="celda" colspan="4"></td>
                                 <td class="celda" ><strong>Total</strong></td>
                                 <td class="celda">{{$acum_total}}</td>
                             </tr> 

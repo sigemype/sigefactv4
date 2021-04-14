@@ -247,6 +247,13 @@ class InventoryController extends Controller
             $lots = ($request->has('lots')) ? $request->input('lots'):[];
             $detail = $request->input('detail');
 
+            if($quantity_move <= 0) {
+                return  [
+                    'success' => false,
+                    'message' => 'La cantidad a trasladar debe ser mayor a 0'
+                ];
+            }
+
             if($warehouse_id === $warehouse_new_id) {
                 return  [
                     'success' => false,

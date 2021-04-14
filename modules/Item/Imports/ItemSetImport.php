@@ -44,7 +44,7 @@ class ItemSetImport implements ToCollection
 
                 }else{
 
-                    $has_igv = (strtoupper($row[7]) === 'SI')?true:false;
+                    $has_igv = (strtoupper($row[12]) === 'SI')?true:false;
 
                 }
  
@@ -63,11 +63,11 @@ class ItemSetImport implements ToCollection
                 $second_name = $row[10];
                 $web_platform_name = $row[11];
 
-                if(!$item) {
+                $category = $category_name ? Category::updateOrCreate(['name' => $category_name]):null;
+                $brand = $brand_name ? Brand::updateOrCreate(['name' => $brand_name]):null;
+                $web_platform = $web_platform_name ? WebPlatform::updateOrCreate(['name' => $web_platform_name]):null;
 
-                    $category = Category::updateOrCreate(['name' => $category_name]);
-                    $brand = Brand::updateOrCreate(['name' => $brand_name]);
-                    $web_platform = WebPlatform::updateOrCreate(['name' => $web_platform_name]);
+                if(!$item) {
 
                     Item::create([
                         'name' => $name,
@@ -85,9 +85,35 @@ class ItemSetImport implements ToCollection
                         'purchase_affectation_igv_type_id' => $sale_affectation_igv_type_id,
                         'stock' => 0,
                         'stock_min' => 0,
-                        'category_id' => $category->id,
-                        'brand_id' => $brand->id,
-                        'web_platform_id' => $web_platform->id,
+                        'category_id' => optional($category)->id,
+                        'brand_id' => optional($brand)->id,
+                        'web_platform_id' => optional($web_platform)->id,
+                        'is_set' => true,
+                    ]);
+
+                    $registered += 1;
+
+                }else{
+
+                    $item->update([
+                        'name' => $name,
+                        'second_name' => $second_name,
+                        'description' => $description,
+                        'item_type_id' => $item_type_id,
+                        'internal_id' => $internal_id,
+                        'item_code' => $item_code,
+                        'unit_type_id' => $unit_type_id,
+                        'currency_type_id' => $currency_type_id,
+                        'sale_unit_price' => $sale_unit_price,
+                        'sale_affectation_igv_type_id' => $sale_affectation_igv_type_id,
+                        'has_igv' => $has_igv,
+                        'purchase_unit_price' => 0,
+                        'purchase_affectation_igv_type_id' => $sale_affectation_igv_type_id,
+                        'stock' => 0,
+                        'stock_min' => 0,
+                        'category_id' => optional($category)->id,
+                        'brand_id' => optional($brand)->id,
+                        'web_platform_id' => optional($web_platform)->id,
                         'is_set' => true,
                     ]);
 

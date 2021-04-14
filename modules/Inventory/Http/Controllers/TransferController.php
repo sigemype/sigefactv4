@@ -212,7 +212,6 @@ class TransferController extends Controller
 
     public function store(TransferRequest $request)
     {
-
         $result = DB::connection('tenant')->transaction(function () use ($request) {
 
             $row = InventoryTransfer::create([

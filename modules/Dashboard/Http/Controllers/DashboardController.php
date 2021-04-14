@@ -38,6 +38,11 @@ class DashboardController extends Controller
         ];
     }
 
+    public function globalData()
+    {
+        return response()->json((new DashboardData())->globalData(), 200);
+    }
+
     public function data(Request $request)
     {
         return [

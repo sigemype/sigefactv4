@@ -95,6 +95,12 @@
                             </div>
                         </div>
 
+                        <div class="col-lg-3 col-md-3 mt-4" v-if="resource == 'reports/sales'">
+                            <div class="form-group"> 
+                                <el-checkbox v-model="form.include_categories" >¿Incluir categorías?</el-checkbox><br>
+                            </div>
+                        </div>
+
                         <div class="col-lg-3 col-md-3" v-if="resource == 'reports/quotations'">
                             <div class="form-group">
                                 <label class="control-label">
@@ -389,6 +395,7 @@
                     month_end: moment().format('YYYY-MM'),
                     seller_id:null,
                     state_type_id:null,
+                    include_categories: false
                 }
 
             },

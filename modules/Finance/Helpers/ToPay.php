@@ -56,7 +56,7 @@ class ToPay
             // ->join('users', 'users.name', 'like', "%{$user}%")
             $purchases = DB::connection('tenant')
                 ->table('purchases')
-                ->where('supplier_id', $supplier_id)
+                // ->where('supplier_id', $supplier_id)
                 ->where('user_id', $user)
                 ->join('persons', 'persons.id', '=', 'purchases.supplier_id')
                 ->leftJoinSub($purchase_payments, 'payments', function ($join) {
@@ -79,7 +79,7 @@ class ToPay
 
             $purchases = DB::connection('tenant')
                 ->table('purchases')
-                ->where('supplier_id', $supplier_id)
+                // ->where('supplier_id', $supplier_id)
                 ->where('user_id', $user)
                 ->join('persons', 'persons.id', '=', 'purchases.supplier_id')
                 ->leftJoinSub($purchase_payments, 'payments', function ($join) {
@@ -98,6 +98,9 @@ class ToPay
                 ->where('purchases.establishment_id', $establishment_id);
 
         }
+        if ($supplier_id) {
+            $purchases = $purchases->where('supplier_id', $supplier_id);
+        }
 
         /*
          * Sale Notes
@@ -110,7 +113,7 @@ class ToPay
 
             $expenses = DB::connection('tenant')
                 ->table('expenses')
-                ->where('supplier_id', $supplier_id)
+                // ->where('supplier_id', $supplier_id)
                 ->where('user_id', $user)
                 ->join('persons', 'persons.id', '=', 'expenses.supplier_id')
                 ->leftJoinSub($expense_payments, 'payments', function ($join) {
@@ -134,7 +137,7 @@ class ToPay
 
             $expenses = DB::connection('tenant')
                 ->table('expenses')
-                ->where('supplier_id', $supplier_id)
+                // ->where('supplier_id', $supplier_id)
                 ->where('user_id', $user)
                 ->join('persons', 'persons.id', '=', 'expenses.supplier_id')
                 ->leftJoinSub($expense_payments, 'payments', function ($join) {
@@ -152,7 +155,9 @@ class ToPay
                 ->where('expenses.establishment_id', $establishment_id);
                 // ->where('expenses.changed', false)
                 // ->where('expenses.total_canceled', false);
-
+        }
+        if ($supplier_id) {
+            $expenses = $expenses->where('supplier_id', $supplier_id);
         }
 
         $records = $purchases->union($expenses)->get();
@@ -205,7 +210,6 @@ class ToPay
                     'currency_type_id' => $row->currency_type_id,
                     'exchange_rate_sale' => (float)$row->exchange_rate_sale
                 ];
-//            }
         });
     }
 

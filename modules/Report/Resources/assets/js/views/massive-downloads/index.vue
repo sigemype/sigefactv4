@@ -42,14 +42,46 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="control-label">Tipo de documento</label>
-                                        <el-select v-model="form.document_types" 
-                                            multiple 
+                                        <el-select v-model="form.document_types"
+                                            multiple
                                             collapse-tags
                                             >
                                             <el-option v-for="option in document_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
                                         </el-select>
                                     </div>
                                 </div>
+
+                            <!-- Serie -->
+                            <div class="col-lg-3 col-md-3" >
+                                <div class="form-group">
+                                    <label class="control-label">Serie
+                                    </label>
+                                    <el-select v-model="form.series" filterable clearable>
+                                        <el-option v-for="option in series" :key="option.number" :value="option.number" :label="option.number"></el-option>
+                                    </el-select>
+
+                                </div>
+                            </div>
+
+                            <!-- Vendedor -->
+                            <div class="col-lg-6 col-md-6" >
+                                <div class="form-group">
+                                    <label class="control-label">Vendedor
+                                    </label>
+
+                                    <!-- <el-select v-model="form.seller_id" filterable  popper-class="el-select-customers"  clearable
+                                        placeholder="Nombre"
+                                        @change="changeSellers">
+                                        <el-option v-for="option in sellers" :key="option.id" :value="option.id" :label="option.name"></el-option>
+                                    </el-select> -->
+
+                                    <el-select v-model="form.sellers" filterable multiple  popper-class="el-select-customers"  clearable
+                                               placeholder="Nombre"
+                                               @change="changeSellers">
+                                        <el-option v-for="option in sellers" :key="option.id" :value="option.id" :label="option.name"></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
 
                                 <div class="col-md-6" style="margin-top:29px">
                                     <el-button class="submit" type="primary" @click.prevent="getRecords()" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
@@ -70,10 +102,10 @@
 
                         </div>
                     </div>
-                </div>  
-            </div> 
+                </div>
+            </div>
         </div>
- 
+
     </div>
 </template>
 
@@ -82,13 +114,15 @@
     import moment from 'moment'
     import queryString from 'query-string'
 
-    export default { 
+    export default {
         data() {
             return {
-                resource: 'reports/massive-downloads',                 
+                resource: 'reports/massive-downloads',
                 loading_submit:false,
                 form: {},
                 persons: [],
+                series: [],
+                sellers: [],
                 all_persons: [],
                 document_types: [],
                 loading_search:false,
@@ -109,15 +143,17 @@
                 .then(response => {
                     this.all_persons = response.data.persons
                     this.document_types = response.data.document_types
+                    this.sellers = response.data.sellers
+                    this.series = response.data.series
                 });
 
             await this.filterPersons()
 
         },
-        async created() { 
+        async created() {
             this.initForm()
         },
-        methods: { 
+        methods: {
             searchRemotePersons(input) {
 
                 if (input.length > 0) {
@@ -143,6 +179,11 @@
             filterPersons() {
                 this.persons = this.all_persons
             },
+            changeSellers(){
+                this.form.person_id = null
+                this.$eventHub.$emit('changeFilterColumn', 'seller')
+                // this.records = []
+            },
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {
                     this.form.date_end = this.form.date_start
@@ -157,6 +198,8 @@
                     date_start: moment().format('YYYY-MM-DD'),
                     date_end: moment().format('YYYY-MM-DD'),
                     document_types: ['01'],
+                    series:[],
+                    sellers:[],
                     person_id: null,
                     type_person:null,
                 }
@@ -173,14 +216,14 @@
 
 
             },
-            getQueryParameters() { 
+            getQueryParameters() {
 
                 return queryString.stringify({
                     form: JSON.stringify(this.form)
                 })
 
             },
-            
+
         }
     }
 </script>

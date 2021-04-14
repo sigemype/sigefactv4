@@ -84,9 +84,9 @@
                             </div>
                         </div> -->
 
-                        
 
-                        <div class="col-lg-5 col-md-5" >
+
+                        <div class="col-lg-4 col-md-6" >
                             <div class="form-group">
                                 <label class="control-label">
                                     {{(form.type == 'sale') ? 'Clientes':'Proveedores'}}
@@ -102,18 +102,30 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-5 col-md-5" >
-                            <div class="form-group"> 
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
                                 <label class="control-label">Productos
                                 </label>
-                                
+
                                 <el-select v-model="form.item_id" filterable remote  popper-class="el-select-customers"  clearable
                                     placeholder="Código interno o nombre"
                                     :remote-method="searchRemoteItems"
                                     :loading="loading_search_items" >
                                     <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.description"></el-option>
                                 </el-select>
- 
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Marca
+                                </label>
+
+                                <el-select v-model="form.brand_id" filterable  popper-class="el-select-customers"  clearable
+                                    placeholder="Nombre de la marca">
+                                    <el-option v-for="option in brands" :key="option.id" :value="option.id" :label="option.name"></el-option>
+                                </el-select>
+
                             </div>
                         </div>
 
@@ -219,8 +231,9 @@
                 loading_search:false,
                 items: [],
                 all_items: [],
-                web_platforms: [],       
+                web_platforms: [],
                 loading_search_items:false,
+                brands: []
             }
         },
         computed: {
@@ -240,41 +253,42 @@
                     this.all_suppliers = response.data.suppliers
                     this.all_items = response.data.items
                     this.web_platforms = response.data.web_platforms
+                    this.brands = response.data.brands
                 });
 
-                
+
             await this.filterItems()
             await this.filterPersons()
             // await this.getTotals()
             this.form.type_person = this.form.type == 'sale' ? 'customers':'suppliers'
 
         },
-        methods: { 
-            searchRemoteItems(input) {  
-                
-                if (input.length > 0) { 
+        methods: {
+            searchRemoteItems(input) {
+
+                if (input.length > 0) {
 
                     this.loading_search = true
                     let parameters = `input=${input}`
-                    
+
 
                     this.$http.get(`/reports/data-table/items/?${parameters}`)
-                            .then(response => { 
+                            .then(response => {
                                 this.items = response.data.items
                                 this.loading_search = false
-                                
+
                                 if(this.items.length == 0){
                                     this.filterItems()
                                 }
-                            })  
+                            })
                 } else {
                     this.filterItems()
                 }
 
             },
-            filterItems() { 
+            filterItems() {
                 this.items = this.all_items
-            }, 
+            },
             changeType(){
                 this.filterPersons()
                 this.$eventHub.$emit('typeTransaction', this.form.type)
@@ -331,6 +345,7 @@
                     user: null,
                     person_id: null,
                     web_platform_id: null,
+                    brand_id: null,
                     type_person:null,
                     date_start: moment().format('YYYY-MM-DD'),
                     date_end: moment().format('YYYY-MM-DD'),

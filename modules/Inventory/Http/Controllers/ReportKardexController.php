@@ -22,6 +22,7 @@ use Modules\Item\Models\ItemLot;
 
 use Modules\Inventory\Http\Resources\ReportKardexLotsGroupCollection;
 use Modules\Inventory\Http\Resources\ReportKardexItemLotCollection;
+use Modules\Inventory\Models\Devolution;
 
 
 class ReportKardexController extends Controller
@@ -37,7 +38,8 @@ class ReportKardexController extends Controller
         "App\Models\Tenant\Purchase",
         "App\Models\Tenant\SaleNote",
         "Modules\Inventory\Models\Inventory",
-        "Modules\Order\Models\OrderNote"
+        "Modules\Order\Models\OrderNote",
+        Devolution::class
     ];
 
     public function index() {
@@ -162,15 +164,13 @@ class ReportKardexController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function pdf(Request $request) {
-
-        // dd($request->all());
-
         $balance = 0;
         $company = Company::first();
         $establishment = Establishment::first();
         $d = $request->date_start;
         $a = $request->date_end;
         $item_id = $request->item_id;
+        $item = Item::findOrFail($request->item_id);
 
         $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
@@ -195,8 +195,8 @@ class ReportKardexController extends Controller
         }
 
         $models = $this->models;
-
-        $pdf = PDF::loadView('inventory::reports.kardex.report_pdf', compact("reports", "company", "establishment", "balance","models", 'a', 'd',"item_id"));
+        $userWarehouse = auth()->user()->establishment_id;
+        $pdf = PDF::loadView('inventory::reports.kardex.report_pdf', compact("reports", "company", "establishment", "balance","models", 'a', 'd',"item_id", 'userWarehouse', 'item'));
         $filename = 'Reporte_Kardex'.date('YmdHis');
 
         return $pdf->download($filename.'.pdf');
@@ -215,6 +215,7 @@ class ReportKardexController extends Controller
         $d = $request->date_start;
         $a = $request->date_end;
         $item_id = $request->item_id;
+        $item = Item::findOrFail($request->item_id);
 
         $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
@@ -247,6 +248,7 @@ class ReportKardexController extends Controller
             ->models($models)
             ->company($company)
             ->establishment($establishment)
+            ->item($item)
             ->download('ReporteKar'.Carbon::now().'.xlsx');
     }
 

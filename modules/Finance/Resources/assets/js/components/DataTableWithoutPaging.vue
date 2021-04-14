@@ -86,7 +86,7 @@
                                 <td class="text-center">S/ {{totals.t_documents}}</td>
                                 <td class="text-center">S/ {{totals.t_sale_notes}}</td>
                                 <td class="text-center">S/ {{totals.t_quotations}}</td>
-                                <!-- <td class="text-center">S/ {{totals.t_contracts}}</td> -->
+                                <td class="text-center">S/ {{totals.t_contracts}}</td>
                                 <td class="text-center">S/ {{totals.t_technical_services}}</td>
                                 <td class="text-center">S/ {{totals.t_income}}</td>
                                 <td class="text-center">S/ {{totals.t_purchases}}</td>

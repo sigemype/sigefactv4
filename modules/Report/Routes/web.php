@@ -104,10 +104,12 @@ if($current_hostname) {
 
                 Route::get('sales-consolidated', 'ReportSaleConsolidatedController@index')->name('tenant.reports.sales_consolidated.index');
                 Route::get('sales-consolidated/pdf', 'ReportSaleConsolidatedController@pdf');
+                Route::get('sales-consolidated/excel', 'ReportSaleConsolidatedController@excel');
                 Route::get('sales-consolidated/filter', 'ReportSaleConsolidatedController@filter');
                 Route::get('sales-consolidated/records', 'ReportSaleConsolidatedController@records');
                 Route::get('sales-consolidated/totals-by-item', 'ReportSaleConsolidatedController@totalsByItem');
                 Route::get('sales-consolidated/pdf-totals', 'ReportSaleConsolidatedController@pdfTotals');
+                Route::get('sales-consolidated/excel-totals', 'ReportSaleConsolidatedController@excelTotals');
 
 
                 Route::prefix('user-commissions')->group(function () {

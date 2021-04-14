@@ -6,12 +6,15 @@
 
                 <div class="col-md-12" v-loading="loading">
 
-                    <div class="table-responsive mt-3"> 
+                    <div class="table-responsive mt-3">
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th class="text-center">#</th>
-                                    <th class="text-center">Seleccionar</th>
+                                    <th class="text-center">
+                                        Seleccionar<br>
+                                        Marcar todos <el-checkbox v-model="isAllSelected" @change="onSelectedAll"></el-checkbox>
+                                    </th>
                                     <th class="text-center">Fecha Emisión</th>
                                     <th>Cliente</th>
                                     <th>Pedido</th>
@@ -55,14 +58,10 @@
                                     :page-size="pagination.per_page">
                             </el-pagination>
                         </div>
-                    </div> 
-                </div> 
-
-
- 
+                    </div>
+                </div>
             </div>
         </div>
-
         <div class="form-actions text-right pt-2">
             <el-button @click.prevent="close()">Cerrar</el-button>
             <el-button type="primary" @click="submit" v-if="documents.length > 0" :loading="loading_submit">Generar</el-button>
@@ -90,39 +89,48 @@
                 all_series: [],
                 pagination: {},
                 establishment: {},
+                isAllSelected: false,
             }
         },
         async created() {
             await this.getTables()
-        }, 
-        methods: { 
+        },
+        methods: {
+            onSelectedAll(value) {
+                if (value) {
+                    this.records.map((row, i) => {
+                        row.selected = true;
+                        this.addDocument(row, i)
+                    });
+                    this.isAllSelected = true;
+                } else {
+                    this.records.map((row, i) => {
+                        row.selected = false;
+                    });
+                    this.documents = [];
+                    this.isAllSelected = false;
+                }
+            },
             async getTables(){
-
                 await this.$http.get(`/order-notes/document_tables`)
                     .then(response => {
                         // this.document_types = response.data.document_types_invoice;
                         this.all_series = response.data.series
                         this.establishment = response.data.establishment
                     })
-
             },
             changeDocumentType(row, index) {
                 this.filterSeries(row, index);
             },
             filterSeries(row, index) {
-
                 this.records[index].series_id = null
                 this.records[index].series = _.filter(this.all_series, {'establishment_id': this.establishment.id,
                                                          'document_type_id': this.records[index].document_type_id,
                                                          'contingency': 0});
-
                 this.records[index].series_id = (this.records[index].series.length > 0)?this.records[index].series[0].id:null
-
             },
             validateDocuments(){
-
                 let error_by_item = 0
-
                 this.documents.forEach((item)=>{
                     if(!item.series_id) error_by_item++;
                 })
@@ -130,7 +138,6 @@
                 return  {
                     error_by_item : error_by_item,
                 }
-
             },
             async submit() {
 
@@ -160,19 +167,17 @@
                     else {
                         this.$message.error(error.response.data.message);
                     }
-                    
+
                 }).then(() => {
                     this.loading_submit = false;
                 });
             },
-            changeSelected(row, index){
-
+            async changeSelected(row, index){
                 if(row.selected){
-                    this.addDocument(row, index)
+                    await this.addDocument(row, index)
                 }else{
                     this.deleteDocument(row)
                 }
-
             },
             async addDocument(row, index){
 
@@ -180,9 +185,9 @@
                 this.documents.push(doc)
 
             },
-            getDocument(row, index) {
+            async getDocument(row, index) {
 
-                let q = this.records[index].order_note
+                let q = await this.records[index].order_note
 
                 row.establishment_id = q.establishment_id
                 // row.date_of_issue = q.date_of_issue
@@ -227,7 +232,7 @@
                 row.prefix = 'NV'
 
                 row.order_note_id = this.records[index].index_id
-                
+
                 return row
             },
             deleteDocument(row){
@@ -238,7 +243,7 @@
             },
             getRecords(init_current_page = false) {
 
-                if(init_current_page){ 
+                if(init_current_page){
                     this.pagination.current_page = 1
                 }
 
@@ -265,7 +270,7 @@
             verifyOrderNote(row){
 
                 let record = _.find(this.documents, {index_id:row.index_id})
-                
+
                 return record ? true : false
 
             },
@@ -286,7 +291,7 @@
             },
             close() {
                 this.$emit('update:showDialog', false)
-            }, 
+            },
         }
     }
 </script>

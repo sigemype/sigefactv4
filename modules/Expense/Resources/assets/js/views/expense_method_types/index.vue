@@ -1,15 +1,10 @@
 <template>
-    <div class="card card-collapsed">
+    <div class="card">
         <div class="card-header bg-info">
-            <h3 class="my-0">Métodos de gasto
+            <h3 class="my-0">Métodos de gasto</h3>
                 <!-- <el-tooltip class="item" effect="dark" content="Gastos Diversos" placement="top-start">
                     <i class="fa fa-info-circle"></i>
                 </el-tooltip> -->
-            </h3>
-            <div class="card-actions white-text">
-                <a href="#" class="card-action card-action-toggle text-white" data-card-toggle=""></a>
-                <a href="#" class="card-action card-action-dismiss text-white" data-card-dismiss=""></a>
-            </div>
         </div>
         <div class="card-body">
             <div class="row">
@@ -33,7 +28,7 @@
                         <td class="text-right">
 
                             <template v-if="row.id !== 1">
-                            
+
                                 <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickCreate(row.id)">Editar</button>
 
                                 <template v-if="typeUser === 'admin'">

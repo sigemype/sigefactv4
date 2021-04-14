@@ -208,6 +208,12 @@ trait InventoryTrait
 
         if($quantity < 0 && $item_warehouse->item->unit_type_id !== 'ZZ'){
             if (($inventory_configuration->stock_control) && ($item_warehouse->stock < 0)){
+                // return [
+                //     'success' => false,
+                //     'message' => 'El producto {$item_warehouse->item->description} no tiene suficiente stock!'
+                // ];
+                // dd('hasta aqui');
+                // return response()->json(['success' => false, 'message' => El producto {$item_warehouse->item->description} no tiene suficiente stock!]);
                 throw new Exception("El producto {$item_warehouse->item->description} no tiene suficiente stock!");
             }
         }
@@ -418,6 +424,16 @@ trait InventoryTrait
             }
             $lot_group->delete();
         }
+    }
+
+    private function updateStockPurchase($item_id, $quantity, $warehouse_id) {
+
+        $inventory_configuration = InventoryConfiguration::firstOrFail();
+
+        $item_warehouse = ItemWarehouse::firstOrNew(['item_id' => $item_id, 'warehouse_id' => $warehouse_id]);
+        $item_warehouse->stock = $item_warehouse->stock + $quantity;
+
+        $item_warehouse->save();
     }
 
 }

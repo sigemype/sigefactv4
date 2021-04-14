@@ -176,7 +176,6 @@
             },
             getRecords() {
                 return this.$http.get(`/${this.resource}/records?${this.getQueryParameters()}`).then((response) => {
-                    // console.log(response)
                     this.accepted_documents = response.data.accepted_documents
                     this.voided_documents = response.data.voided_documents
                     this.totals_accepted_documents = response.data.totals_accepted_documents
@@ -185,9 +184,6 @@
                 }).catch(error => {
                     if (error.response.status === 422) {
                         this.errors = error.response.data
-                        // console.log(error.response.data)
-                    } else {
-                        // console.log(error.response)
                     }
                 })
                 .then(() => {

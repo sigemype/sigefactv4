@@ -25,13 +25,13 @@ class ItemController extends Controller
 
         $temp = tempnam(sys_get_temp_dir(), 'item_barcode');
 
-        file_put_contents($temp, $generator->getBarcode($item->internal_id, $generator::TYPE_CODE_128, 5, 70, $colour));
+        file_put_contents($temp, $generator->getBarcode($item->barcode, $generator::TYPE_CODE_128, 5, 70, $colour));
 
         $headers = [
             'Content-Type' => 'application/png',
         ];
 
-        return response()->download($temp, "{$item->internal_id}.png", $headers);
+        return response()->download($temp, "{$item->barcode}.png", $headers);
 
     }
 

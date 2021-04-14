@@ -9,8 +9,12 @@ use App\Models\Tenant\SaleNote;
 use Carbon\Carbon;
 use App\Models\Tenant\Person;
 use App\Models\Tenant\Item;
+use App\Models\Tenant\Series;
 use App\Models\Tenant\User;
 use App\Models\Tenant\StateType;
+use App\Models\Tenant\Warehouse;
+use Auth;
+use Modules\Item\Models\Brand;
 use Modules\Item\Models\WebPlatform;
 
 
@@ -18,7 +22,8 @@ trait ReportTrait
 {
 
 
-    public function getRecords($request, $model){
+    public function getRecords($request, $model)
+    {
 
         // dd($request['period']);
         $document_type_id = $request['document_type_id'];
@@ -233,6 +238,22 @@ trait ReportTrait
 
     }
 
+    public function getSeries($document_types)
+    {
+        $series = Series::wherein('document_type_id', $document_types->pluck('id')->toArray());
+        return $series->get();
+    }
+
+    public function getEstablishment()
+    {
+        $establishment = Establishment::select('id', 'description');
+        if (Auth::user()->type !== 'admin') {
+            $establishment = $establishment->where('id', Auth::user()->establishment_id);
+        }
+
+        return $establishment->get();
+    }
+
     public function getDataOfPeriod($request){
 
         $period = $request['period'];
@@ -240,7 +261,7 @@ trait ReportTrait
         $date_end = $request['date_end'];
         $month_start = $request['month_start'];
         $month_end = $request['month_end'];
-        
+
         $d_start = null;
         $d_end = null;
 
@@ -270,34 +291,34 @@ trait ReportTrait
     }
 
     public function getDateRangeTypes($is_sale = false){
- 
+
         if($is_sale){
 
             return [
                 ['id' => 'date_of_issue', 'description' => 'Fecha emisión'],
-            ]; 
+            ];
 
         }
 
         return [
             ['id' => 'date_of_issue', 'description' => 'Fecha emisión'],
             ['id' => 'delivery_date', 'description' => 'Fecha entrega']
-        ]; 
+        ];
 
     }
 
     public function getOrderStateTypes(){
- 
+
         return [
             ['id' => 'all_states', 'description' => 'Todos'],
             ['id' => 'pending', 'description' => 'Pendiente'],
             ['id' => 'processed', 'description' => 'Procesado'],
-        ]; 
+        ];
 
     }
 
     public function getCIDocumentTypes(){
- 
+
         return DocumentType::whereIn('id', ['01', '03', '80'])->get()->transform(function($row) {
             return [
                 'id' => $row->id,
@@ -308,7 +329,7 @@ trait ReportTrait
     }
 
     public function getStateTypesById($params){
- 
+
         return StateType::whereIn('id', $params)->get()->transform(function($row) {
             return [
                 'id' => $row->id,
@@ -317,11 +338,16 @@ trait ReportTrait
         });
 
     }
-    
+
     public function getWebPlatforms(){
- 
+
         return WebPlatform::get();
 
     }
 
+    public function getBrands()
+    {
+        return Brand::orderBy('name')
+            ->get();
+    }
 }

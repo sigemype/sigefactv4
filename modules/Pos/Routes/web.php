@@ -14,6 +14,13 @@ if($current_hostname) {
 
             }); 
 
+            Route::prefix('cash')->group(function() {
+
+                Route::get('report-ticket/{cash}', 'CashController@reportTicket');
+                Route::get('report-excel/{cash}', 'CashController@reportExcel');
+                Route::post('email', 'CashController@email');
+
+            }); 
         });
     });
 }

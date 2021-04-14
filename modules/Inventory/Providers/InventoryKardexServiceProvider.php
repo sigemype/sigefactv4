@@ -13,6 +13,8 @@ use Modules\Order\Models\OrderNote;
 use Modules\Order\Models\OrderNoteItem;
 use Modules\Item\Models\ItemLotsGroup;
 use Modules\Item\Models\ItemLot;
+use Modules\Inventory\Models\DevolutionItem;
+
 
 class InventoryKardexServiceProvider extends ServiceProvider
 {
@@ -33,6 +35,7 @@ class InventoryKardexServiceProvider extends ServiceProvider
         $this->purchase_item_delete();
         $this->item_lot_delete();
 
+        $this->devolution();
 
     }
 
@@ -52,7 +55,6 @@ class InventoryKardexServiceProvider extends ServiceProvider
 
     private function sale() {
         DocumentItem::created(function($document_item) {
-
             if(!$document_item->item->is_set){
 
                 $presentationQuantity = (!empty($document_item->item->presentation)) ? $document_item->item->presentation->quantity_unit : 1;
@@ -277,8 +279,6 @@ class InventoryKardexServiceProvider extends ServiceProvider
 
         OrderNoteItem::created(function ($order_note_item) {
 
-            // \Log::debug($order_note_item);
-
             $presentationQuantity = (!empty($order_note_item->item->presentation)) ? $order_note_item->item->presentation->quantity_unit : 1;
 
             // $warehouse = $this->findWarehouse($order_note_item->order_note->establishment_id);
@@ -340,15 +340,14 @@ class InventoryKardexServiceProvider extends ServiceProvider
             $this->deleteItemSeriesAndGroup($purchase_item);
 
             $this->createInventoryKardex($purchase_item->purchase, $purchase_item->item_id, (-1 * ($purchase_item->quantity * $presentationQuantity)), $warehouse->id);
-            $this->updateStock($purchase_item->item_id, (-1 *($purchase_item->quantity * $presentationQuantity)), $warehouse->id);
+            // $this->updateStock($purchase_item->item_id, (-1 *($purchase_item->quantity * $presentationQuantity)), $warehouse->id);
+            $this->updateStockPurchase($purchase_item->item_id, (-1 *($purchase_item->quantity * $presentationQuantity)), $warehouse->id);
 
         });
     }
     private function item_lot_delete()
     {
         /*ItemLot::deleted(function($item_lot) {
-
-           // \Log::debug($item_lot);
 
             if((bool)$item_lot->has_sale)
             {
@@ -359,6 +358,46 @@ class InventoryKardexServiceProvider extends ServiceProvider
 
 
 
+    private function devolution() {
+
+        DevolutionItem::created(function($devolution_item) {
+
+            $devolution = $devolution_item->devolution;
+
+            $warehouse = $this->findWarehouse($devolution_item->devolution->establishment_id);
+
+            //$this->createInventory($devolution_item->item_id, $factor * $devolution_item->quantity, $warehouse->id);
+            $this->createInventoryKardex($devolution_item->devolution, $devolution_item->item_id, -$devolution_item->quantity, $warehouse->id);
+
+            $this->updateStock($devolution_item->item_id, -$devolution_item->quantity, $warehouse->id);
+
+            if(isset($devolution_item->item->IdLoteSelected))
+            {
+                if($devolution_item->item->IdLoteSelected != null)
+                {
+                    $lot = ItemLotsGroup::find($devolution_item->item->IdLoteSelected);
+                    $lot->quantity = $lot->quantity - $devolution_item->quantity;
+                    $lot->save();
+                }
+            }
+
+            if(isset($devolution_item->item->lots) )
+            {
+                foreach ($devolution_item->item->lots as $it) {
+
+                    if($it->has_sale == true)
+                    {
+                        $r = ItemLot::find($it->id);
+                        $r->has_sale = true;
+                        $r->state = 'Inactivo';
+                        $r->save();
+                    }
+
+                }
+            }
+
+        });
+    }
 
 
 

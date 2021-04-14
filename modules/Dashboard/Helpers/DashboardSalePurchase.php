@@ -44,6 +44,10 @@ class DashboardSalePurchase
                 $d_start = $date_start;
                 $d_end = $date_end;
                 break;
+            case 'last_week':
+                $d_start = $date_start;
+                $d_end = $date_end;
+                break;
         }
 
         return [

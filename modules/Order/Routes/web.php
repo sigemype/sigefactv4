@@ -6,6 +6,7 @@ if($current_hostname) {
     Route::domain($current_hostname->fqdn)->group(function () {
 
         Route::get('order-forms/print/{external_id}/{format?}', 'OrderFormController@toPrint');
+        Route::get('order-notes/print/{external_id}/{format?}', 'OrderNoteController@toPrint');
 
         Route::middleware(['auth', 'locked.tenant'])->group(function () {
 
@@ -28,7 +29,7 @@ if($current_hostname) {
                 Route::get('search/customers', 'OrderNoteController@searchCustomers');
                 Route::get('search/customer/{id}', 'OrderNoteController@searchCustomerById');
                 Route::get('download/{external_id}/{format?}', 'OrderNoteController@download');
-                Route::get('print/{external_id}/{format?}', 'OrderNoteController@toPrint');
+                // Route::get('print/{external_id}/{format?}', 'OrderNoteController@toPrint');
                 Route::post('email', 'OrderNoteController@email');
                 Route::post('duplicate', 'OrderNoteController@duplicate');
                 Route::get('record2/{quotation}', 'OrderNoteController@record2');

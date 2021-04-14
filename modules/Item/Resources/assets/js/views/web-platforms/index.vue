@@ -1,12 +1,7 @@
 <template>
-    <div class="card card-collapsed">
+    <div class="card">
         <div class="card-header bg-info">
-            <h3 class="my-0">Plataformas 
-            </h3>
-            <div class="card-actions white-text">
-                <a href="#" class="card-action card-action-toggle text-white" data-card-toggle=""></a>
-                <a href="#" class="card-action card-action-dismiss text-white" data-card-dismiss=""></a>
-            </div>
+            <h3 class="my-0">Plataformas </h3>
         </div>
         <div class="card-body">
             <div class="row">
@@ -28,7 +23,7 @@
                         <td>{{ index + 1 }}</td>
                         <td>{{ row.name }}</td>
                         <td class="text-right">
-                        
+
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickCreate(row.id)">Editar</button>
                             <template v-if="typeUser === 'admin'">
                                 <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"  @click.prevent="clickDelete(row.id)">Eliminar</button>

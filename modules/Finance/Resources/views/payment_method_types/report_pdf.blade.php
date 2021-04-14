@@ -86,7 +86,7 @@
                                 <th class="">CPE</th>
                                 <th class="">NV</th>
                                 <th class="">COT</th>
-                                {{-- <th class="">Contrato</th> --}}
+                                <th class="">Contrato</th>
                                 <th class="">S. Técnico</th>
                                 <th class="">Ingresos</th>
                                 <th class="">Compras</th>
@@ -101,7 +101,7 @@
                                     <td class="celda">{{$value['document_payment']}}</td>
                                     <td class="celda">{{$value['sale_note_payment']}}</td>
                                     <td class="celda">{{$value['quotation_payment']}}</td>
-                                    {{-- <td class="celda">{{$value['contract_payment']}}</td> --}}
+                                    <td class="celda">{{$value['contract_payment']}}</td>
                                     <td class="celda">{{$value['technical_service_payment']}}</td>
                                     <td class="celda">{{$value['income_payment']}}</td>
                                     <td class="celda"> {{$value['purchase_payment']}}</td>
@@ -116,7 +116,7 @@
                                 <td class="celda">{{$records['totals']['t_documents']}}</td>
                                 <td class="celda">{{$records['totals']['t_sale_notes']}}</td>
                                 <td class="celda">{{$records['totals']['t_quotations']}}</td>
-                                {{-- <td class="celda">{{$records['totals']['t_contracts']}}</td> --}}
+                                <td class="celda">{{$records['totals']['t_contracts']}}</td>
                                 <td class="celda">{{$records['totals']['t_technical_services']}}</td>
                                 <td class="celda">{{$records['totals']['t_income']}}</td>
                                 <td class="celda"> {{$records['totals']['t_purchases']}}</td>

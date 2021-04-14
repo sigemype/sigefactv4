@@ -34,10 +34,22 @@ use Modules\Inventory\Models\Warehouse;
 use App\Models\Tenant\InventoryKardex;
 use App\Models\Tenant\ItemWarehouse;
 use Modules\Item\Models\ItemLotsGroup;
+use Illuminate\Support\Facades\Mail;
+use Modules\Purchase\Mail\PurchaseEmail;
+
+use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\CoreFacturalo\Template;
+use Mpdf\Mpdf;
+use Mpdf\HTMLParserMode;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+use App\Models\Tenant\Configuration;
 
 
 class PurchaseController extends Controller
 {
+
+    use StorageDocument;
 
     public function records()
     {
@@ -127,7 +139,8 @@ class PurchaseController extends Controller
             return $doc;
         });
 
-
+        $this->setFilename($purchase);
+        $this->createPdf($purchase, "a4", $purchase->filename);
 
         return [
             'success' => true,
@@ -138,6 +151,81 @@ class PurchaseController extends Controller
         ];
     }
 
+    private function setFilename($purchase){
+
+        $name = [$purchase->series,$purchase->number,$purchase->id,date('Ymd')];
+        $purchase->filename = join('-', $name);
+        $purchase->save();
+
+    }
+
+    
+    public function createPdf($purchase = null, $format_pdf = null, $filename = null) {
+
+        ini_set("pcre.backtrack_limit", "5000000");
+        $template = new Template();
+        $pdf = new Mpdf();
+
+        $document = ($purchase != null) ? $purchase : $this->purchase;
+        $company = Company::active();
+        $filename = ($filename != null) ? $filename : $this->purchase->filename;
+
+        $base_template = Configuration::first()->formats;
+
+        $html = $template->pdf($base_template, "purchase", $company, $document, $format_pdf);
+
+
+        $pdf_font_regular = config('tenant.pdf_name_regular');
+        $pdf_font_bold = config('tenant.pdf_name_bold');
+
+        if ($pdf_font_regular != false) {
+            $defaultConfig = (new ConfigVariables())->getDefaults();
+            $fontDirs = $defaultConfig['fontDir'];
+
+            $defaultFontConfig = (new FontVariables())->getDefaults();
+            $fontData = $defaultFontConfig['fontdata'];
+
+            $pdf = new Mpdf([
+                'fontDir' => array_merge($fontDirs, [
+                    app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.
+                                                DIRECTORY_SEPARATOR.'pdf'.
+                                                DIRECTORY_SEPARATOR.$base_template.
+                                                DIRECTORY_SEPARATOR.'font')
+                ]),
+                'fontdata' => $fontData + [
+                    'custom_bold' => [
+                        'R' => $pdf_font_bold.'.ttf',
+                    ],
+                    'custom_regular' => [
+                        'R' => $pdf_font_regular.'.ttf',
+                    ],
+                ]
+            ]);
+        }
+
+        $path_css = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.
+                                             DIRECTORY_SEPARATOR.'pdf'.
+                                             DIRECTORY_SEPARATOR.$base_template.
+                                             DIRECTORY_SEPARATOR.'style.css');
+
+        $stylesheet = file_get_contents($path_css);
+
+        $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
+        $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+
+        if ($format_pdf != 'ticket') {
+            if(config('tenant.pdf_template_footer')) {
+                $html_footer = $template->pdfFooter($base_template,$document);
+                $pdf->SetHTMLFooter($html_footer);
+            }
+        }
+
+        $this->uploadFile($filename, $pdf->output('', 'S'), 'purchase');
+    }
+
+    public function uploadFile($filename, $file_content, $file_type) {
+        $this->uploadStorage($filename, $file_content, $file_type);
+    }
 
     public static function convert($inputs)
     {
@@ -208,6 +296,21 @@ class PurchaseController extends Controller
 
                 break;
         }
+    }
+
+
+    public function email(Request $request)
+    {
+        $company = Company::active();
+        $record = Purchase::find($request->input('id'));
+        $supplier_email = $request->input('email');
+
+        Mail::to($supplier_email)->send(new PurchaseEmail($company, $record));
+
+        return [
+            'success' => true,
+            'message'=> 'Email enviado correctamente.'
+        ];
     }
 
 

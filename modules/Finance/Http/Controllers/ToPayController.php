@@ -59,11 +59,9 @@ class ToPayController extends Controller
 
     public function records(Request $request)
     {
-
         return [
             'records' => (new ToPay())->getToPay($request->all())
        ];
-
     }
 
     public function toPayAll()
@@ -102,6 +100,21 @@ class ToPayController extends Controller
                 ->company($company)
                 ->records($records)
                 ->download('Reporte_C_Pagar_F_Pago'.Carbon::now().'.xlsx');
+
+    }
+
+
+    public function pdf(Request $request) {
+
+        $records = (new ToPay())->getToPay($request->all());
+
+        $company = Company::first();
+
+        $pdf = PDF::loadView('finance::to_pay.report_pdf', compact("records", "company"));
+
+        $filename = 'Reporte_Cuentas_Por_Pagar_'.date('YmdHis');
+
+        return $pdf->download($filename.'.pdf');
 
     }
 

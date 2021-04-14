@@ -9,43 +9,44 @@
     </head>
     <body>
         @if(!empty($records))
-            <div class="">
+            <div>
                 <div class=" ">
-                    <table class="">
+                    <table>
                         <thead>
                             <tr>
-                                <th class="">FECHA DE EMISIÓN</th>
-                                <th class="">TIPO DOCUMENTO</th>
-                                <th class="">ID TIPO</th>
-                                <th class="">SERIE</th>
-                                <th class="">NÚMERO</th>
-                                <th class="">ANULADO</th>
-                                <th class="">DOC ENTIDAD TIPO DNI RUC</th>
-                                <th class="">DOC ENTIDAD NÚMERO</th>
-                                <th class="">DENOMINACIÓN ENTIDAD</th>
-                                <th class="">MONEDA</th>
-                                <th class="">TIPO DE CAMBIO</th>
-                                <th class="">UNIDAD DE MEDIDA</th>
-                                <th class="">CÓDIGO INTERNO</th>
-                                <th class="">DESCRIPCIÓN</th>
-                                <th class="">CANTIDAD</th>
-                                <th class="">SERIES</th>
-                                <th class="">COSTO UNIDAD</th>
-                                <th class="">VALOR UNITARIO</th>
-                                <th class="">PRECIO UNITARIO</th>
-                                <th class="">DESCUENTO</th>
-                                <th class="">SUBTOTAL</th>
-                                <th class="">TIPO DE IGV</th>
-                                <th class="">IGV</th>
-                                <th class="">TIPO DE ISC</th>
-                                <th class="">ISC</th>
-                                <th class="">IMPUESTO BOLSAS</th>
-                                <th class="">TOTAL</th>
+                                <th>FECHA DE EMISIÓN</th>
+                                <th>TIPO DOCUMENTO</th>
+                                <th>ID TIPO</th>
+                                <th>SERIE</th>
+                                <th>NÚMERO</th>
+                                <th>ANULADO</th>
+                                <th>DOC ENTIDAD TIPO DNI RUC</th>
+                                <th>DOC ENTIDAD NÚMERO</th>
+                                <th>DENOMINACIÓN ENTIDAD</th>
+                                <th>MONEDA</th>
+                                <th>TIPO DE CAMBIO</th>
+                                <th>UNIDAD DE MEDIDA</th>
+                                <th>CÓDIGO INTERNO</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th>CANTIDAD</th>
+                                <th>SERIES</th>
+                                <th>COSTO UNIDAD</th>
+                                <th>VALOR UNITARIO</th>
+                                <th>PRECIO UNITARIO</th>
+                                <th>DESCUENTO</th>
+                                <th>SUBTOTAL</th>
+                                <th>TIPO DE IGV</th>
+                                <th>IGV</th>
+                                <th>TIPO DE ISC</th>
+                                <th>ISC</th>
+                                <th>IMPUESTO BOLSAS</th>
+                                <th>TOTAL</th>
                                 @if($type == 'sale')
-                                <th class="">TOTAL COMPRA</th>
-                                <th class="">GANANCIA</th>
+                                <th>TOTAL COMPRA</th>
+                                <th>GANANCIA</th>
                                 @endif
-                                <th class="">PLATAFORMA</th>
+                                <th>PLATAFORMA</th>
+                                <th>MARCA</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,16 +64,17 @@
                                                 $series = implode(" - ", $series_data);
                                             }
 
-                                            $purchase_unit_price = 0;
+                                            // $purchase_unit_price = 0;
 
-                                            if($value->relation_item->purchase_unit_price > 0){
-                                                $purchase_unit_price = $value->relation_item->purchase_unit_price;
-                                            }else{
-                                                $purchase_item = \App\Models\Tenant\PurchaseItem::select('unit_price')->where('item_id', $value->item_id)->latest('id')->first();
-                                                $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $value->unit_price;
-                                            }
+                                            // if($value->relation_item->purchase_unit_price > 0){
+                                            //     $purchase_unit_price = $value->relation_item->purchase_unit_price;
+                                            // }else{
+                                            //     $purchase_item = \App\Models\Tenant\PurchaseItem::select('unit_price')->where('item_id', $value->item_id)->latest('id')->first();
+                                            //     $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $value->unit_price;
+                                            // }
 
-                                            $total_item_purchase = $purchase_unit_price * $value->quantity;
+                                            $total_item_purchase = \Modules\Report\Http\Resources\GeneralItemCollection::getPurchaseUnitPrice($value);
+                                            // $total_item_purchase = $purchase_unit_price * $value->quantity;
                                             $utility_item = $value->total - $total_item_purchase;
 
                                         @endphp
@@ -89,7 +91,7 @@
                                             <td class="celda">{{$value->sale_note->currency_type_id}}</td>
                                             <td class="celda">{{$value->sale_note->exchange_rate_sale}}</td>
                                             <td class="celda">{{$value->sale_note->unit_type_id}}</td>
-                                            <td class="celda">{{$value->relation_item->internal_id}}</td>
+                                            <td class="celda">{{$value->relation_item->brand->name}}</td>
                                             <td class="celda">{{$value->item->description}}</td>
                                             <td class="celda">{{$value->quantity}}</td>
 
@@ -115,7 +117,7 @@
                                             <td class="celda">{{ number_format($utility_item ,2) }}</td>
 
                                             <td class="celda">{{ optional($value->relation_item->web_platform)->name }}</td>
-
+                                            <td class="celda">{{$value->relation_item->brand->name}}</td>
                                         </tr>
                                     @endforeach
 
@@ -131,16 +133,16 @@
                                                 $series = implode(" - ", $series_data);
                                             }
 
-                                            $purchase_unit_price = 0;
+                                            // $purchase_unit_price = 0;
 
-                                            if($value->relation_item->purchase_unit_price > 0){
-                                                $purchase_unit_price = $value->relation_item->purchase_unit_price;
-                                            }else{
-                                                $purchase_item = \App\Models\Tenant\PurchaseItem::select('unit_price')->where('item_id', $value->item_id)->latest('id')->first();
-                                                $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $value->unit_price;
-                                            }
+                                            // if($value->relation_item->purchase_unit_price > 0){
+                                            //     $purchase_unit_price = $value->relation_item->purchase_unit_price;
+                                            // }else{
+                                            //     $purchase_item = \App\Models\Tenant\PurchaseItem::select('unit_price')->where('item_id', $value->item_id)->latest('id')->first();
+                                            //     $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $value->unit_price;
+                                            // }
 
-                                            $total_item_purchase = $purchase_unit_price * $value->quantity;
+                                            $total_item_purchase = \Modules\Report\Http\Resources\GeneralItemCollection::getPurchaseUnitPrice($value);
                                             $utility_item = $value->total - $total_item_purchase;
                                         @endphp
 
@@ -179,12 +181,12 @@
                                         <td class="celda">{{$value->total_plastic_bag_taxes}}</td>
 
                                         <td class="celda">{{$value->total}}</td>
-                                        
+
                                         <td class="celda">{{ number_format($total_item_purchase,2) }}</td>
                                         <td class="celda">{{ number_format($utility_item ,2) }}</td>
 
                                         <td class="celda">{{ optional($value->relation_item->web_platform)->name }}</td>
-
+                                        <td class="celda">{{$value->relation_item->brand->name}}</td>
                                     </tr>
                                     @endforeach
 

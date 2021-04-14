@@ -40,7 +40,7 @@ use Modules\Order\Http\Resources\OrderNoteResource2;
 use Modules\Order\Http\Requests\OrderNoteRequest;
 use Modules\Order\Mail\OrderNoteEmail;
 use Modules\Finance\Traits\FinanceTrait;
-use App\Models\Tenant\Configuration; 
+use App\Models\Tenant\Configuration;
 use App\Http\Controllers\Tenant\SaleNoteController;
 use App\CoreFacturalo\Requests\Inputs\DocumentInput;
 use App\CoreFacturalo\Requests\Web\Validation\DocumentValidation;
@@ -114,12 +114,13 @@ class OrderNoteController extends Controller
         return $records;
     }
 
-    
+
     public function documents(Request $request)
     {
 
         $records = OrderNote::doesntHave('documents')
                             ->doesntHave('sale_notes')
+                            ->where('state_type_id', '01')
                             ->whereTypeUser()
                             ->latest();
 
@@ -165,7 +166,7 @@ class OrderNoteController extends Controller
         ];
 
     }
- 
+
 
     public function searchCustomers(Request $request)
     {
@@ -548,7 +549,7 @@ class OrderNoteController extends Controller
 
         // $base_template = config('tenant.pdf_template');
         $base_template = Configuration::first()->formats;
-        
+
         $html = $template->pdf($base_template, "order_note", $company, $document, $format_pdf);
 
         if ($format_pdf === 'ticket' OR $format_pdf === 'ticket_80') {

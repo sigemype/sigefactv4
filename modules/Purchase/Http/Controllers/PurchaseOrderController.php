@@ -108,6 +108,7 @@ class PurchaseOrderController extends Controller
     {
 
         $items = $this->table('items');
+        $categories = [];
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $system_isc_types = SystemIscType::whereActive()->get();
         $price_types = PriceType::whereActive()->get();
@@ -248,6 +249,7 @@ class PurchaseOrderController extends Controller
                         'id' => $row->id,
                         'full_description' => $full_description,
                         'description' => $row->description,
+                        'model' => $row->model,
                         'currency_type_id' => $row->currency_type_id,
                         'currency_type_symbol' => $row->currency_type->symbol,
                         'sale_unit_price' => $row->sale_unit_price,

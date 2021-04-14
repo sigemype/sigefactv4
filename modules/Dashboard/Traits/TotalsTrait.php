@@ -112,11 +112,13 @@ trait TotalsTrait
     {
 
         if($date_start && $date_end){
-            $sale_notes = SaleNote::query()->where('establishment_id', $establishment_id)
+            $sale_notes = SaleNote::query()->whereStateTypeAccepted()
+                                           ->where('establishment_id', $establishment_id)
                                            ->where('changed', false)
                                            ->whereBetween('date_of_issue', [$date_start, $date_end])->get();
         }else{
-            $sale_notes = SaleNote::query()->where('establishment_id', $establishment_id)
+            $sale_notes = SaleNote::query()->whereStateTypeAccepted()
+                                           ->where('establishment_id', $establishment_id)
                                            ->where('changed', false)->get();
         }
 
@@ -196,17 +198,22 @@ trait TotalsTrait
         {
             if($document->currency_type_id == 'PEN'){
 
-                if(in_array($document->state_type_id,['01','03','05','07','13']))
-                    $document_total_payment_pen += collect($document->payments)->sum('payment');
+                if(in_array($document->state_type_id,['01','03','05','07','13'])){
 
-                $document_total_note_credit_pen += ($document->document_type_id == '07') ? $document->total:0; //nota de credito
+                    $document_total_payment_pen += collect($document->payments)->sum('payment');
+                    $document_total_note_credit_pen += ($document->document_type_id == '07') ? $document->total:0; //nota de credito
+
+                }
+
 
             }else{
 
-                if(in_array($document->state_type_id,['01','03','05','07','13']))
+                if(in_array($document->state_type_id,['01','03','05','07','13'])){
+                    
                     $document_total_payment_usd += collect($document->payments)->sum('payment') * $document->exchange_rate_sale;
-
-                $document_total_note_credit_usd += ($document->document_type_id == '07') ? $document->total * $document->exchange_rate_sale:0; //nota de credito
+                    $document_total_note_credit_usd += ($document->document_type_id == '07') ? $document->total * $document->exchange_rate_sale:0; //nota de credito
+                
+                }
 
             }
 

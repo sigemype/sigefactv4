@@ -28,19 +28,18 @@ class ReportInventoryController extends Controller
 
         if($request->warehouse_id && $request->warehouse_id != 'all')
         {
-            $reports = ItemWarehouse::with(['item'])->where('warehouse_id', $request->warehouse_id)->whereHas('item',function($q){
+            $reports = ItemWarehouse::with(['item', 'item.brand'])->where('warehouse_id', $request->warehouse_id)->whereHas('item',function($q){
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->paginate(config('tenant.items_per_page'));
         }
         else{
 
-            $reports = ItemWarehouse::with(['item'])->whereHas('item',function($q){
+            $reports = ItemWarehouse::with(['item', 'item.brand'])->whereHas('item',function($q){
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->paginate(config('tenant.items_per_page'));
         }
-
 
         $warehouses = Warehouse::select('id', 'description')->get();
 
@@ -75,14 +74,14 @@ class ReportInventoryController extends Controller
 
         if($request->warehouse_id && $request->warehouse_id != 'all')
         {
-            $reports = ItemWarehouse::with(['item'])->where('warehouse_id', $request->warehouse_id)->whereHas('item', function($q){
+            $reports = ItemWarehouse::with(['item', 'item.brand'])->where('warehouse_id', $request->warehouse_id)->whereHas('item', function($q){
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
         }
         else{
 
-            $reports = ItemWarehouse::with(['item'])->whereHas('item', function($q){
+            $reports = ItemWarehouse::with(['item', 'item.brand'])->whereHas('item', function($q){
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
@@ -91,6 +90,7 @@ class ReportInventoryController extends Controller
 
 
         $pdf = PDF::loadView('inventory::reports.inventory.report_pdf', compact("reports", "company", "establishment"));
+        $pdf->setPaper('A4', 'landscape');
         $filename = 'Reporte_Inventario'.date('YmdHis');
 
         return $pdf->download($filename.'.pdf');
@@ -108,14 +108,14 @@ class ReportInventoryController extends Controller
 
         if($request->warehouse_id && $request->warehouse_id != 'all')
         {
-            $records = ItemWarehouse::with(['item'])->where('warehouse_id', $request->warehouse_id)->whereHas('item', function($q){
+            $records = ItemWarehouse::with(['item', 'item.brand'])->where('warehouse_id', $request->warehouse_id)->whereHas('item', function($q){
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
 
         }
         else{
-            $records = ItemWarehouse::with(['item'])->whereHas('item', function($q){
+            $records = ItemWarehouse::with(['item', 'item.brand'])->whereHas('item', function($q){
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();

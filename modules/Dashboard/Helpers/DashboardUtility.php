@@ -51,6 +51,10 @@ class DashboardUtility
                 $d_start = $date_start;
                 $d_end = $date_end;
                 break;
+            case 'last_week':
+                $d_start = $date_start;
+                $d_end = $date_end;
+                break;
         }
 
         return [
@@ -67,10 +71,10 @@ class DashboardUtility
         if($d_start && $d_end){
 
             $document_items = DocumentItem::whereHas('document',function($query) use($establishment_id, $d_start, $d_end){
-
                                                 $query->where('establishment_id', $establishment_id)
                                                         ->whereIn('state_type_id', ['01','03','05','07','13'])
-                                                        ->whereBetween('date_of_issue', [$d_start, $d_end]);
+                                                        ->whereBetween('date_of_issue', [$d_start, $d_end])
+                                                        ->whereIn('document_type_id', ['01','03','08']);
                                             })
                                             ->get();
 
@@ -87,7 +91,6 @@ class DashboardUtility
 
 
         }else{
-
             $document_items = DocumentItem::whereHas('document', function($query) use($establishment_id){
 
                                                 $query->where('establishment_id', $establishment_id)
@@ -242,8 +245,7 @@ class DashboardUtility
         ];
     }
 
-    private function getTotalDocumentItems($document_items){
-
+    private function getTotalDocumentItems($document_items) {
         $purchase_unit_price = 0;
         $purchase_currency_type = null;
 
@@ -260,65 +262,57 @@ class DashboardUtility
         $document_purchase_total_usd = 0;
         $document_utility_total_usd = 0;
 
+        $documentsIds = $document_items->pluck('document_id')->all();
+        // Obteniendo todos los documentos de los items q recibe la función
+        $documents = Document::without(['user', 'soap_type', 'state_type', 'document_type', 'currency_type', 'group', 'items', 'invoice', 'note', 'payments'])
+            ->whereIn('id', $documentsIds)
+            ->select('id', 'total', 'document_type_id', 'currency_type_id')
+            ->get();
+
+        foreach ($documents as $doc) {
+            if($doc->currency_type_id === 'PEN'){
+                if(in_array($doc->document_type_id,['01','03','08'])){
+                    $document_sale_total_pen += $doc->total;
+                }else{
+                    $document_sale_total_pen -= $doc->total;
+                }
+            } else {
+                if(in_array($doc->document_type_id,['01','03','08'])){
+                    $document_sale_total_usd += $doc->total * $doc->exchange_rate_sale;
+                }else{
+                    $document_sale_total_usd -= $doc->total * $doc->exchange_rate_sale;
+                }
+            }
+        }
+
         foreach ($document_items as $doc_it) {
-
-            //compra por item
-            // if($doc_it->relation_item->purchase_unit_price > 0){
-
-            //     $purchase_unit_price = $doc_it->relation_item->purchase_unit_price;
-            //     // $purchase_currency_type = $doc_it->relation_item->currency_type_id;
-
-            // }else{
-
-            //     $purchase_item = PurchaseItem::select('unit_price')->where('item_id', $doc_it->item_id)->last();
-            //     $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $doc_it->unit_price;
-            //     // $purchase_currency_type = ($purchase_item) ? $purchase_item->purchase->currency_type_id : $doc_it->document->currency_type_id;
-
-            // }
             $purchase_unit_price = $this->getPurchaseUnitPrice($doc_it);
 
 
             $doc_total_purchase = $purchase_unit_price * $doc_it->quantity;
 
             if($doc_it->document->currency_type_id === 'PEN'){
-
-                // $doc_total_purchase_pen = ($purchase_currency_type == 'PEN') ? ($purchase_unit_price * $doc_it->quantity):($purchase_unit_price * $doc_it->quantity * $doc_it->document->exchange_rate_sale);
-
                 if(in_array($doc_it->document->document_type_id,['01','03','08'])){
-
                     $document_purchase_total_pen += $doc_total_purchase;
-                    $document_sale_total_pen += $doc_it->total;
-
+                    // $document_sale_total_pen += $doc_it->total;
                 }else{
-
                     $document_purchase_total_pen -= $doc_total_purchase;
-                    $document_sale_total_pen -= $doc_it->total;
-
+                    // $document_sale_total_pen -= $doc_it->total;
                 }
-
-            }else{
-
-
+            } else {
                 if(in_array($doc_it->document->document_type_id,['01','03','08'])){
-
                     $document_purchase_total_usd += $doc_total_purchase;
-                    $document_sale_total_usd += $doc_it->total * $doc_it->document->exchange_rate_sale;
-
+                    // $document_sale_total_usd += $doc_it->total * $doc_it->document->exchange_rate_sale;
                 }else{
 
                     $document_purchase_total_usd -= $doc_total_purchase;
-                    $document_sale_total_usd -= $doc_it->total * $doc_it->document->exchange_rate_sale;
+                    // $document_sale_total_usd -= $doc_it->total * $doc_it->document->exchange_rate_sale;
                 }
-
             }
-
-
-
         }
 
         $document_utility_total_pen = $document_sale_total_pen - $document_purchase_total_pen;
         $document_utility_total_usd = $document_sale_total_usd - $document_purchase_total_usd;
-
 
         return [
 

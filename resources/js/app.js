@@ -1,19 +1,11 @@
-
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
 require('./bootstrap');
 
-// window.Vue = require('vue');
 import Vue from 'vue'
 import ElementUI from 'element-ui'
-import Axios from 'axios'
 
 import lang from 'element-ui/lib/locale/lang/es'
 import locale from 'element-ui/lib/locale'
+
 locale.use(lang)
 
 ElementUI.Select.computed.readonly = function () {
@@ -23,17 +15,9 @@ ElementUI.Select.computed.readonly = function () {
 
 export default ElementUI;
 
-//Vue.use(ElementUI)
-Vue.use(ElementUI, {size: 'small'})
+Vue.use(ElementUI, { size: 'small' })
 Vue.prototype.$eventHub = new Vue()
-Vue.prototype.$http = Axios
 
-// import VueCharts from 'vue-charts'
-// Vue.use(VueCharts);
-// import { TableComponent, TableColumn } from 'vue-table-component';
-//
-// Vue.component('table-component', TableComponent);
-// Vue.component('table-column', TableColumn);
 Vue.component('tenant-dashboard-index', require('../../modules/Dashboard/Resources/assets/js/views/index.vue'));
 
 Vue.component('x-graph', require('./components/graph/src/Graph.vue'));
@@ -46,6 +30,8 @@ Vue.component('tenant-certificates-form', require('./views/tenant/certificates/f
 Vue.component('tenant-configurations-form', require('./views/tenant/configurations/form.vue'));
 Vue.component('tenant-configurations-visual', require('./views/tenant/configurations/visual.vue'));
 Vue.component('tenant-configurations-pdf', require('./views/tenant/configurations/pdf_templates.vue'));
+Vue.component('tenant-configurations-pdf-guide', require('./views/tenant/configurations/pdf_guide_templates.vue'));
+Vue.component('tenant-configurations-preprinted-pdf', require('./views/tenant/configurations/pdf_preprinted_templates.vue'));
 // Vue.component('tenant-establishments-form', require('./views/tenant/establishments/form.vue'));
 // Vue.component('tenant-series-form', require('./views/tenant/series/form.vue'));
 Vue.component('tenant-bank_accounts-index', require('./views/tenant/bank_accounts/index.vue'));
@@ -124,6 +110,9 @@ Vue.component('tenant-account-export', require('../../modules/Account/Resources/
 Vue.component('tenant-account-summary-report', require('../../modules/Account/Resources/assets/js/views/summary_report/index.vue'));
 Vue.component('tenant-account-format', require('../../modules/Account/Resources/assets/js/views/account/format.vue'));
 Vue.component('tenant-company-accounts', require('../../modules/Account/Resources/assets/js/views/company_accounts/form.vue'));
+
+Vue.component('tenant-inventory-devolutions-index', require('../../modules/Inventory/Resources/assets/js/devolutions/index.vue'));
+Vue.component('tenant-inventory-devolutions-form', require('../../modules/Inventory/Resources/assets/js/devolutions/form.vue'));
 
 Vue.component('tenant-documents-not-sent', require('../../modules/Document/Resources/assets/js/views/documents/not_sent.vue'));
 Vue.component('tenant-report-purchases-index', require('../../modules/Report/Resources/assets/js/views/purchases/index.vue'));
@@ -239,6 +228,29 @@ Vue.component('system-companies-form', require('./views/system/companies/form.vu
 
 Vue.component('system-accounting-index', require('@viewsModuleAccount/system/accounting/index.vue'));
 
+// Hoteles :: Tarifas
+Vue.component('tenant-hotel-rates', require('@viewsModuleHotel/rates/List.vue'));
+// Hoteles :: Categorías
+Vue.component('tenant-hotel-categories', require('@viewsModuleHotel/categories/List.vue'));
+// Hoteles :: Pisos
+Vue.component('tenant-hotel-floors', require('@viewsModuleHotel/floors/List.vue'));
+// Hoteles :: Habitaciones
+Vue.component('tenant-hotel-rooms', require('@viewsModuleHotel/rooms/List.vue'));
+// Hoteles :: Recepción
+Vue.component('tenant-hotel-reception', require('@viewsModuleHotel/rooms/Reception.vue'));
+// Hoteles :: Rentar habitación
+Vue.component('tenant-hotel-rent', require('@viewsModuleHotel/rooms/Rent.vue'));
+// Hoteles :: Agregar producto a la habitación rentada
+Vue.component('tenant-hotel-rent-add-product', require('@viewsModuleHotel/rooms/AddProductToRoom.vue'));
+// Hoteles :: Checkout
+Vue.component('tenant-hotel-rent-checkout', require('@viewsModuleHotel/rooms/Checkout.vue'));
+
+// Trámite documentario
+Vue.component('tenant-documentary-offices', require('@viewsModuleDocumentary/offices/Offices.vue'));
+Vue.component('tenant-documentary-processes', require('@viewsModuleDocumentary/processes/Processes.vue'));
+Vue.component('tenant-documentary-documents', require('@viewsModuleDocumentary/documents/Documents.vue'));
+Vue.component('tenant-documentary-actions', require('@viewsModuleDocumentary/actions/Actions.vue'));
+Vue.component('tenant-documentary-files', require('@viewsModuleDocumentary/files/Files.vue'));
 
 Vue.component('system-plans-index', require('./views/system/plans/index.vue'));
 Vue.component('system-plans-form', require('./views/system/plans/form.vue'));
@@ -271,6 +283,57 @@ Vue.component('system-configuration-culqi', require('./views/system/configuratio
 //token
 Vue.component('system-configuration-token', require('./views/system/configuration/token_ruc_dni.vue'))
 
+//Configuración global del login
+Vue.component('system-login-settings', require('./views/system/configuration/login.vue'))
+
+// Configuración del login
+Vue.component('tenant-login-page', require('./views/tenant/login/index.vue'))
+
+import moment from 'moment';
+
+Vue.mixin({
+    filters: {
+        toDecimals(number, decimal = 2) {
+            return Number(number).toFixed(decimal);
+        },
+        toDate(date) {
+            if (date) {
+                return moment(date).format('DD/MM/YYYY');
+            }
+            return '';
+        },
+        toTime(time) {
+            if (time) {
+                if (time.length === 5) {
+                    return moment(time + ':00', 'HH:mm:ss').format('HH:mm:ss');
+                }
+                return moment(time, 'HH:mm:ss').format('HH:mm:ss');
+            }
+            return '';
+        },
+        pad(value, fill = '', length = 3) {
+            if (value) {
+                return String(value).padStart(length, fill);
+            }
+            return value;
+        }
+    },
+    methods: {
+        axiosError(error) {
+            const response = error.response;
+            const status = response.status;
+            if (status === 422) {
+                this.errors = response.data
+            }
+            if (status === 500) {
+                this.$message({
+                    type: 'info',
+                    message: response.data.message
+                  });
+            }
+        }
+    }
+})
 const app = new Vue({
     el: '#main-wrapper'
 });

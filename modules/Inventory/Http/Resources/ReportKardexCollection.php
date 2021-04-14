@@ -8,6 +8,8 @@ use Modules\Inventory\Models\InventoryKardex;
 use Modules\Inventory\Models\Warehouse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Modules\Inventory\Models\Devolution;
+
 
 class ReportKardexCollection extends ResourceCollection
 {
@@ -33,7 +35,8 @@ class ReportKardexCollection extends ResourceCollection
             "App\Models\Tenant\Purchase",
             "App\Models\Tenant\SaleNote",
             "Modules\Inventory\Models\Inventory",
-            "Modules\Order\Models\OrderNote"
+            "Modules\Order\Models\OrderNote",
+            Devolution::class
         ];
 
         switch ($row->inventory_kardexable_type) {
@@ -46,7 +49,8 @@ class ReportKardexCollection extends ResourceCollection
                     'date_of_issue' => isset($row->inventory_kardexable->date_of_issue) ? $row->inventory_kardexable->date_of_issue->format('Y-m-d') : '',
                     'type_transaction' => ($row->quantity < 0) ? "Venta":"Anulación Venta",
                     'number' => optional($row->inventory_kardexable)->series.'-'.optional($row->inventory_kardexable)->number,
-                    'input' => ($row->quantity > 0) ?  $row->quantity:"-",
+                    'input' => ($row->quantity > 0) ?  (isset($row->inventory_kardexable->sale_note_id)|| isset($row->inventory_kardexable->order_note_id) ? "-" : $row->quantity):"-",
+                    // 'input' => ($row->quantity > 0) ?  $row->quantity:"-",
                     'output' => ($row->quantity < 0) ?  (isset($row->inventory_kardexable->sale_note_id)|| isset($row->inventory_kardexable->order_note_id) ? "-" : $row->quantity):"-",
                     'balance' => (isset($row->inventory_kardexable->sale_note_id) || isset($row->inventory_kardexable->order_note_id)) ? self::$balance+=0 : self::$balance+= $row->quantity,
                     'sale_note_asoc' => isset($row->inventory_kardexable->sale_note_id)  ? optional($row->inventory_kardexable)->sale_note->number_full:"-",
@@ -90,7 +94,6 @@ class ReportKardexCollection extends ResourceCollection
                 ];
 
             case $models[3]:{
-
                 $transaction = '';
                 $input = '';
                 $output = '';
@@ -112,21 +115,29 @@ class ReportKardexCollection extends ResourceCollection
                 else{
                     $output = ($transaction->type == 'output') ? $row->quantity : "-";
                 }
-
-                return [
+                $user = auth()->user();
+                $return = [
                     'id' => $row->id,
                     'item_name' => $row->item->description,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                     'date_of_issue' => '-',
                     'type_transaction' => $row->inventory_kardexable->description,
                     'number' => "-",
-                    'input' => $input,
-                    'output' => $output,
+                    // 'input' => $input,
+                    // 'output' => $output,
                     'balance' => self::$balance+= $row->quantity,
                     'sale_note_asoc' => '-',
                     'order_note_asoc' => '-',
                     'doc_asoc' => '-'
                 ];
+                if ($row->inventory_kardexable->warehouse_destination_id === $user->establishment_id) {
+                    $return['input'] = $output;
+                    $return['output'] = $input;
+                } else {
+                    $return['input'] = $input;
+                    $return['output'] = $output;
+                }
+                return $return;
             }
 
 
@@ -146,6 +157,22 @@ class ReportKardexCollection extends ResourceCollection
                     'doc_asoc' => '-'
                 ];
 
+            case $models[5]: // Devolution
+                return [
+                    'id' => $row->id,
+                    'item_name' => $row->item->description,
+                    'date_time' => $row->created_at->format('Y-m-d H:i:s'),
+                    'type_transaction' => "Devolución",
+                    'date_of_issue' => isset($row->inventory_kardexable->date_of_issue) ? $row->inventory_kardexable->date_of_issue->format('Y-m-d') : '',
+                    'number' => optional($row->inventory_kardexable)->number_full,
+                    'input' => ($row->quantity > 0) ?  $row->quantity:"-",
+                    'output' => ($row->quantity < 0) ?  $row->quantity:"-",
+                    'balance' => self::$balance+= $row->quantity,
+                    'sale_note_asoc' => '-',
+                    'order_note_asoc' => '-',
+                    'doc_asoc' => '-'
+
+                ];
         }
 
 
@@ -215,7 +242,7 @@ class ReportKardexCollection extends ResourceCollection
                                         ->where([['warehouse_id', $warehouse->id],['item_id',$request->item_id]])
                                         ->whereBetween('date_of_issue', [$request->date_start, $request->date_end])
                                         ->limit(($request->page*20)-20)->get();
-                                        
+
 
                 for($i=0;$i<=count($data)-1;$i++) {
 
@@ -294,7 +321,7 @@ class ReportKardexCollection extends ResourceCollection
                                                         ['date_of_issue', '<', $request->date_start]
                                                     ])->whereNotIn('id', $records_previous->pluck('id')->toArray())->first();
 
-                                                    
+
                 }
 
                 return self::$balance = $quantityOld->quantity;

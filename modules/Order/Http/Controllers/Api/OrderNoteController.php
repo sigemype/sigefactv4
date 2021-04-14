@@ -9,9 +9,29 @@ use Illuminate\Routing\Controller;
 use Modules\Order\Models\OrderNote;
 use Modules\Order\Http\Resources\OrderNoteCollection;
 use Modules\Order\Http\Resources\OrderNoteResource;
+use Modules\Order\Mail\OrderNoteEmail;
+use App\Models\Tenant\Person;
+use Illuminate\Support\Facades\Mail;
+
 
 class OrderNoteController extends Controller
 {
+
+    public function email(Request $request)
+    {
+
+        $order_note = OrderNote::find($request->id);
+        $client = Person::find($order_note->customer_id);
+        $customer_email = $request->input('email');
+
+        Mail::to($customer_email)->send(new OrderNoteEmail($client, $order_note));
+        return [
+            'success' => true,
+            'message'=> 'Email enviado correctamente.'
+        ];
+
+    }
+
     // public function store(OrderNoteRequest $request)
     // {
     //     DB::connection('tenant')->transaction(function () use ($request) {

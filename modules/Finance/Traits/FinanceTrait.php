@@ -141,7 +141,7 @@ trait FinanceTrait
             ['id'=> PurchasePayment::class, 'description' => 'COMPRAS'],
             ['id'=> ExpensePayment::class, 'description' => 'GASTOS'],
             ['id'=> QuotationPayment::class, 'description' => 'COTIZACIÓN'],
-            // ['id'=> ContractPayment::class, 'description' => 'CONTRATO'],
+            ['id'=> ContractPayment::class, 'description' => 'CONTRATO'],
             ['id'=> IncomePayment::class, 'description' => 'INGRESO'],
             // ['id'=> CashTransaction::class, 'description' => 'CAJA CHICA POS'],
             ['id'=> TechnicalServicePayment::class, 'description' => 'SERVICIO TÉCNICO'],
@@ -200,7 +200,8 @@ trait FinanceTrait
         $sale_note_payment = $this->getSumPayment($cash, SaleNotePayment::class);
         $purchase_payment = $this->getSumPayment($cash, PurchasePayment::class); 
         $quotation_payment = $this->getSumPayment($cash, QuotationPayment::class); 
-        $contract_payment = 0; //$this->getSumPayment($cash, ContractPayment::class); 
+        // $contract_payment = 0; //$this->getSumPayment($cash, ContractPayment::class); 
+        $contract_payment = $this->getSumPayment($cash, ContractPayment::class); 
         $income_payment = $this->getSumPayment($cash, IncomePayment::class); 
         $cash_pos = $this->getSumPaymentCashPos($cash, CashTransaction::class); 
         $technical_service_payment = $this->getSumPayment($cash, TechnicalServicePayment::class); 
@@ -246,7 +247,8 @@ trait FinanceTrait
             $sale_note_payment = $this->getSumPayment($row->global_destination, SaleNotePayment::class);
             $purchase_payment = $this->getSumPayment($row->global_destination, PurchasePayment::class); 
             $quotation_payment = $this->getSumPayment($row->global_destination, QuotationPayment::class); 
-            $contract_payment = 0; //$this->getSumPayment($row->global_destination, ContractPayment::class); 
+            // $contract_payment = 0; //$this->getSumPayment($row->global_destination, ContractPayment::class); 
+            $contract_payment = $this->getSumPayment($row->global_destination, ContractPayment::class); 
             $income_payment = $this->getSumPayment($row->global_destination, IncomePayment::class); 
             $technical_service_payment = $this->getSumPayment($row->global_destination, TechnicalServicePayment::class); 
 
@@ -323,7 +325,8 @@ trait FinanceTrait
             $sale_note_payment = $this->getSumByPMT($row->sale_note_payments);
             $purchase_payment = $this->getSumByPMT($row->purchase_payments); 
             $quotation_payment = $this->getSumByPMT($row->quotation_payments); 
-            $contract_payment = 0; //$this->getSumByPMT($row->contract_payments); 
+            $contract_payment = $this->getSumByPMT($row->contract_payments); 
+            // $contract_payment = 0; //$this->getSumByPMT($row->contract_payments); 
             $cash_transaction = $row->cash_transactions->sum('payment'); 
             $income_payment = $this->getSumByPMT($row->income_payments) + $cash_transaction; 
             $technical_service_payment = $this->getSumByPMT($row->technical_service_payments); 
@@ -408,7 +411,7 @@ trait FinanceTrait
             $t_documents += $value['document_payment'];
             $t_sale_notes += $value['sale_note_payment'];
             $t_quotations += $value['quotation_payment'];
-            // $t_contracts += $value['contract_payment'];
+            $t_contracts += $value['contract_payment'];
             $t_purchases += $value['purchase_payment'];
             $t_income += $value['income_payment'];
             $t_technical_services += $value['technical_service_payment'];

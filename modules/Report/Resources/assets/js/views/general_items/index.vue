@@ -19,7 +19,7 @@
                             <!-- <th class="">U. Medida</th> -->
                             <th class="">Cantidad</th>
                             <th>Series</th>
-                            <th class="">Plataforma</th>
+                            <th>Plataforma</th>
                             <th class="">Moneda</th>
                             <th class="">Valor unitario</th>
                             <th class="">Total</th>
@@ -54,8 +54,6 @@
                         </tr>
 
                     </data-table>
-
-
                 </div>
         </div>
 
@@ -63,7 +61,6 @@
 </template>
 
 <script>
-
     import DataTable from '../../components/DataTableGeneralItems.vue'
 
     export default {

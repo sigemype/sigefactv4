@@ -160,8 +160,6 @@
                 }
             }
         },
-        created() {
-        },
         methods: {
             clickEdit(id)
             {

@@ -15,7 +15,7 @@
                                 <div class="col-md-2" >
                                     <div class="form-group">
                                         <label class="control-label">Usuario</label>
-                                        <el-select v-model="form.user" @change="loadToPay">
+                                        <el-select v-model="form.user">
                                             <el-option v-for="option in users" :key="option.id" :value="option.id" :label="option.name"></el-option>
                                         </el-select>
                                     </div>
@@ -24,7 +24,7 @@
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <label class="control-label">Establecimiento</label>
-                                        <el-select v-model="form.establishment_id" @change="loadToPay">
+                                        <el-select v-model="form.establishment_id">
                                             <el-option v-for="option in establishments" :key="option.id" :value="option.id" :label="option.name"></el-option>
                                         </el-select>
                                     </div>
@@ -51,7 +51,6 @@
                                     <div class="col-md-3">
                                         <label class="control-label">Mes al</label>
                                         <el-date-picker v-model="form.month_end" type="month"
-                                                        @change="loadToPay"
                                                         :picker-options="pickerOptionsMonths"
                                                         value-format="yyyy-MM" format="MM/yyyy" :clearable="false"></el-date-picker>
                                     </div>
@@ -69,15 +68,13 @@
                                         <label class="control-label">Fecha al</label>
                                         <el-date-picker v-model="form.date_end" type="date"
                                                         :picker-options="pickerOptionsDates"
-                                                        @change="loadToPay"
                                                         value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="false"></el-date-picker>
                                     </div>
                                 </template>
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="control-label">Proveedor</label>
                                     <el-select
-                                        @change="changeSupplierToPay"
                                         filterable
                                         clearable
                                         v-model="form.supplier_id"
@@ -91,10 +88,13 @@
                                         ></el-option>
                                     </el-select>
                                 </div>
-
-                                <div class="col-md-6" style="margin-top:29px">
+                                <div class="col-md-8" style="margin-top:29px">
+                                    <el-button type="primary" @click="loadToPay" class="mb-2">
+                                        <i class="fa fa-search mr-2"></i>
+                                        Buscar
+                                    </el-button>
                                     <el-button
-                                        class="submit"
+                                        class="submit mb-2"
                                         type="success"
                                         @click.prevent="clickOpen()"
                                         >
@@ -103,7 +103,7 @@
 
                                     <el-button
                                         v-if="records.length > 0"
-                                        class="submit"
+                                        class="submit mb-2"
                                         type="success"
                                         @click.prevent="clickDownload('excel')"
                                         >
@@ -113,7 +113,7 @@
                                     <el-tooltip class="item" effect="dark" content="Reporte por formas de pago (Días)" placement="top-start">
                                         <el-button
                                             v-if="records.length > 0"
-                                            class="submit"
+                                            class="submit mb-2"
                                             type="primary"
                                             @click.prevent="clickDownloadPaymentMethod()"
                                             >
@@ -121,6 +121,14 @@
                                         </el-button>
                                     </el-tooltip>
 
+                                    <el-button
+                                        v-if="records.length > 0"
+                                        class="submit mb-2"
+                                        type="danger"
+                                        @click.prevent="clickDownload('pdf')"
+                                        >
+                                        <i class="fa fa-file-pdf"></i> Exportar PDF
+                                    </el-button>
                                 </div>
                             </div>
                             <div class="row mt-5 mb-3 text-right">
@@ -271,6 +279,7 @@
         data() {
             return {
                 resource: 'finances/to-pay',
+                users: [],
                 form: {},
                 suppliers: [],
                 recordId: null,
@@ -416,7 +425,8 @@
                     date_end: moment().format('YYYY-MM-DD'),
                     month_start: moment().format('YYYY-MM'),
                     month_end: moment().format('YYYY-MM'),
-                    supplier_id: null
+                    supplier_id: null,
+                    user: null,
                 };
             },
             filter() {
@@ -428,15 +438,9 @@
                 });
             },
             loadToPay() {
-
-                if(this.form.supplier_id){
-
-                    this.$http.post(`/${this.resource}/records`, this.form).then(response => {
-                        this.records = response.data.records;
-                        //this.records_base = response.data.records;
-                    });
-
-                }
+                this.$http.post(`/${this.resource}/records`, this.form).then(response => {
+                    this.records = response.data.records;
+                });
             },
             clickPurchasePayment(recordId) {
                 this.recordId = recordId;
@@ -453,21 +457,15 @@
                 let query = queryString.stringify({
                     ...this.form
                 });
+
+                if(type == 'pdf'){
+                    return window.open(`/${this.resource}/${type}?${query}`, "_blank");
+                }
+
                 window.open(`/${this.resource}/to-pay/?${query}`, "_blank");
             },
             clickOpen(){
                 window.open(`/${this.resource}/to-pay-all`, "_blank");
-            },
-            changeSupplierToPay() {
-                if (this.form.supplier_id) {
-
-                    this.loadToPay()
-                    /*this.records = _.filter(this.records_base, {
-                    supplier_id: this.selected_customer
-                    });*/
-                } else {
-                    this.records = []
-                }
             },
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {
@@ -498,7 +496,6 @@
                     this.form.date_start = moment().startOf('month').format('YYYY-MM-DD');
                     this.form.date_end = moment().endOf('month').format('YYYY-MM-DD');
                 }
-                this.loadToPay();
             },
 
         }

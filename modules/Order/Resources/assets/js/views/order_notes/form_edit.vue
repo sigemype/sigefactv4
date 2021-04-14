@@ -24,7 +24,7 @@
                     </div>
                 </header>
                 <form autocomplete="off" @submit.prevent="submit">
-                    <div class="form-body"> 
+                    <div class="form-body">
                         <div class="row mt-1">
                              <div class="col-lg-6 pb-2">
                                 <div class="form-group" :class="{'has-danger': errors.customer_id}">
@@ -32,8 +32,8 @@
                                         Cliente
                                         <a href="#" @click.prevent="showDialogNewPerson = true">[+ Nuevo]</a>
                                     </label>
-                                    <el-select v-model="form.customer_id" filterable remote class="border-left rounded-left border-info" popper-class="el-select-customers" 
-                                        dusk="customer_id"                                    
+                                    <el-select v-model="form.customer_id" filterable remote class="border-left rounded-left border-info" popper-class="el-select-customers"
+                                        dusk="customer_id"
                                         placeholder="Escriba el nombre o número de documento del cliente"
                                         :remote-method="searchRemoteCustomers"
                                         :loading="loading_search">
@@ -51,17 +51,17 @@
                                     <el-date-picker v-model="form.date_of_issue" type="date" value-format="yyyy-MM-dd" :clearable="false" @change="changeDateOfIssue"></el-date-picker>
                                     <small class="form-control-feedback" v-if="errors.date_of_issue" v-text="errors.date_of_issue[0]"></small>
                                 </div>
-                            </div> 
-                            
+                            </div>
+
                             <div class="col-lg-2">
-                                <div class="form-group" :class="{'has-danger': errors.date_of_due}"> 
+                                <div class="form-group" :class="{'has-danger': errors.date_of_due}">
                                     <label class="control-label">Fec. Vencimiento</label>
                                     <el-date-picker v-model="form.date_of_due" type="date" value-format="yyyy-MM-dd" :clearable="true"></el-date-picker>
                                     <small class="form-control-feedback" v-if="errors.date_of_due" v-text="errors.date_of_due[0]"></small>
                                 </div>
                             </div>
                             <div class="col-lg-2">
-                                <div class="form-group" :class="{'has-danger': errors.delivery_date}"> 
+                                <div class="form-group" :class="{'has-danger': errors.delivery_date}">
                                     <label class="control-label">Fec. Entrega</label>
                                     <el-date-picker v-model="form.delivery_date" type="date" value-format="yyyy-MM-dd" :clearable="true"></el-date-picker>
                                     <small class="form-control-feedback" v-if="errors.delivery_date" v-text="errors.delivery_date[0]"></small>
@@ -107,7 +107,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row mt-2">
                             <div class="col-md-12">
                                 <div class="table-responsive">
@@ -128,7 +128,12 @@
                                         <tbody v-if="form.items.length > 0">
                                             <tr v-for="(row, index) in form.items">
                                                 <td>{{index + 1}}</td>
-                                                <td>{{row.item.description}} {{row.item.presentation.hasOwnProperty('description') ? row.item.presentation.description : ''}}<br/><small>{{row.affectation_igv_type.description}}</small></td>
+                                                <td>
+                                                    {{row.item.description}}
+                                                    <template v-if="row.item.presentation">
+                                                        {{row.item.presentation.hasOwnProperty('description') ? row.item.presentation.description : ''}}<br/><small>{{row.affectation_igv_type.description}}</small>
+                                                    </template>
+                                                </td>
                                                 <td class="text-center">{{row.item.unit_type_id}}</td>
                                                 <td class="text-right">{{row.quantity}}</td>
                                                 <!-- <td class="text-right">{{currency_type.symbol}} {{row.unit_price}}</td> -->
@@ -157,7 +162,7 @@
                                     <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="showDialogAddItem = true">+ Agregar Producto</button>
                                 </div>
                             </div>
- 
+
                             <div class="col-md-8 mt-3">
 
                             </div>
@@ -170,13 +175,13 @@
                                 <p class="text-right" v-if="form.total_taxed > 0">OP.GRAVADA: {{ currency_type.symbol }} {{ form.total_taxed }}</p>
                                 <p class="text-right" v-if="form.total_igv > 0">IGV: {{ currency_type.symbol }} {{ form.total_igv }}</p>
                                 <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
-                            </div> 
-                            
+                            </div>
+
                         </div>
 
                     </div>
 
-                    
+
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
                         <el-button class="submit" type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0">Guardar cambios</el-button>
@@ -185,7 +190,7 @@
             </div>
         </div>
 
-        <order-note-form-item :showDialog.sync="showDialogAddItem" 
+        <order-note-form-item :showDialog.sync="showDialogAddItem"
                            :currency-type-id-active="form.currency_type_id"
                            :typeUser="typeUser"
                            :exchange-rate-sale="form.exchange_rate_sale"
@@ -217,7 +222,7 @@
         props: {
             'resourceId': {
                 required: true,
-            
+
                 default: 0
             },
             'typeUser': {
@@ -235,15 +240,15 @@
                 loading_submit: false,
                 loading_form: false,
                 errors: {},
-                form: {}, 
+                form: {},
                 currency_types: [],
                 discount_types: [],
                 charges_types: [],
-                all_customers: [], 
+                all_customers: [],
                 customers: [],
                 company: null,
                 establishments: [],
-                establishment: null, 
+                establishment: null,
                 currency_type: {},
                 orderNoteNewId: null,
                 payment_method_types: [],
@@ -254,23 +259,23 @@
         async created() {
             await this.initForm()
             await this.$http.get(`/${this.resource}/tables`)
-                .then(response => { 
+                .then(response => {
                     this.currency_types = response.data.currency_types
-                    this.establishments = response.data.establishments 
+                    this.establishments = response.data.establishments
                     this.all_customers = response.data.customers
                     this.discount_types = response.data.discount_types
                     this.charges_types = response.data.charges_types
-                    this.company = response.data.company 
+                    this.company = response.data.company
                     this.form.currency_type_id = (this.currency_types.length > 0)?this.currency_types[0].id:null
-                    this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null 
+                    this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
                     this.payment_method_types = response.data.payment_method_types
 
                     this.changeEstablishment()
-                    this.changeDateOfIssue() 
+                    this.changeDateOfIssue()
                     this.changeCurrencyType()
                     this.allCustomers()
                     this.initRecord()
-                   
+
                 })
             this.loading_form = true
             this.$eventHub.$on('reloadDataPersons', (customer_id) => {
@@ -289,15 +294,33 @@
                 }).then(() => {
                     this.$http.delete(`/${this.resource}/destroy_order_note_item/${id}`)
                         .then(res => {
+
                             if(res.data.success) {
+
                                 this.$message.success(res.data.message)
                                 this.clickRemoveItem(index)
                                 this.$eventHub.$emit('reloadDataItems', null)
-                                this.isUpdate() 
+
+                                this.$http.post(`/${this.resource}/update`, this.form).then(response => {
+                                    if (response.data.success) {
+                                        this.isUpdate()
+                                    }
+                                    else {
+                                        this.$message.error(response.data.message);
+                                    }
+                                }).catch(error => {
+                                    if (error.response.status === 422) {
+                                        this.errors = error.response.data;
+                                    }
+                                    else {
+                                        this.$message.error(error.response.data.message);
+                                    }
+                                })
 
                             }else{
                                 this.$message.error(res.data.message)
                             }
+
                         })
                         .catch(error => {
                             if (error.response.status === 500) {
@@ -344,7 +367,7 @@
             {
                 this.$http.get(`/${this.resource}/record/${this.resourceId}` )
                 .then(response => {
-                    
+
                     let dato = response.data.data.order_note
                   //  console.log(dato)
                     this.form.id = dato.id
@@ -360,22 +383,22 @@
                     this.calculateTotal()
                     //console.log(response.data)
                 })
-               
+
             },
 
-            searchRemoteCustomers(input) {  
-                  
-                if (input.length > 0) { 
+            searchRemoteCustomers(input) {
+
+                if (input.length > 0) {
                     this.loading_search = true
                     let parameters = `input=${input}`
 
                     this.$http.get(`/${this.resource}/search/customers?${parameters}`)
-                            .then(response => { 
+                            .then(response => {
                                 this.customers = response.data.customers
                                 this.loading_search = false
                                 if(this.customers.length == 0){this.allCustomers()}
-                            })  
-                } else { 
+                            })
+                } else {
                     this.allCustomers()
                 }
 
@@ -386,7 +409,7 @@
                     id: 0,
                     description: '',
                     prefix:'PD',
-                    establishment_id: null, 
+                    establishment_id: null,
                     date_of_issue: moment().format('YYYY-MM-DD'),
                     time_of_issue: moment().format('HH:mm:ss'),
                     customer_id: null,
@@ -428,16 +451,16 @@
                 this.activePanel = 0
                 this.initForm()
                 this.form.currency_type_id = (this.currency_types.length > 0)?this.currency_types[0].id:null
-                this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null 
-                this.changeEstablishment() 
+                this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
+                this.changeEstablishment()
                 this.changeDateOfIssue()
                 this.changeCurrencyType()
                 this.allCustomers()
-            }, 
+            },
             changeEstablishment() {
                 this.establishment = _.find(this.establishments, {'id': this.form.establishment_id})
-                
-            }, 
+
+            },
             cleanCustomer(){
                 this.form.customer_id = null;
             },
@@ -446,13 +469,13 @@
                 this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
                     this.form.exchange_rate_sale = response
                 })
-            }, 
+            },
             allCustomers() {
                 this.customers = this.all_customers
-            }, 
+            },
             addRow(row) {
                 this.form.items.push(JSON.parse(JSON.stringify(row)));
-                
+
                 this.calculateTotal();
             },
             clickRemoveItem(index) {
@@ -549,11 +572,11 @@
             close() {
                 location.href = `/${this.resource}`
             },
-            reloadDataCustomers(customer_id) { 
+            reloadDataCustomers(customer_id) {
                 this.$http.get(`/${this.resource}/search/customer/${customer_id}`).then((response) => {
                     this.customers = response.data.customers
                     this.form.customer_id = customer_id
-                })                  
+                })
             },
         }
     }

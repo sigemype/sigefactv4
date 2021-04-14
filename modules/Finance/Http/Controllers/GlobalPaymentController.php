@@ -9,7 +9,7 @@ use Modules\Finance\Models\GlobalPayment;
 use App\Models\Tenant\Cash;
 use App\Models\Tenant\BankAccount;
 use App\Models\Tenant\Company;
-use Modules\Finance\Traits\FinanceTrait; 
+use Modules\Finance\Traits\FinanceTrait;
 use Modules\Finance\Http\Resources\GlobalPaymentCollection;
 use Modules\Finance\Exports\GlobalPaymentExport;
 use Barryvdh\DomPDF\Facade as PDF;
@@ -17,7 +17,7 @@ use App\Models\Tenant\Establishment;
 use Carbon\Carbon;
 
 class GlobalPaymentController extends Controller
-{ 
+{
 
     use FinanceTrait;
 
@@ -38,27 +38,24 @@ class GlobalPaymentController extends Controller
 
     public function records(Request $request)
     {
-
-        // dd($request->all());
         $records = $this->getRecords($request->all(), GlobalPayment::class);
-        
+
         return new GlobalPaymentCollection($records->paginate(config('tenant.items_per_page')));
 
     }
 
     public function getRecords($request, $model){
-
         $data_of_period = $this->getDatesOfPeriod($request);
         $payment_type = $request['payment_type'];
         $destination_type = $request['destination_type'];
-        
+
         $params = (object)[
             'date_start' => $data_of_period['d_start'],
             'date_end' => $data_of_period['d_end'],
         ];
-        
+
         $records = $model::whereFilterPaymentType($params);
-    
+
         if($payment_type){
             $records = $records->whereDefinePaymentType($payment_type);
         }
@@ -70,7 +67,7 @@ class GlobalPaymentController extends Controller
         return $records->latest();
     }
 
-    
+
     public function pdf(Request $request) {
 
         $company = Company::first();

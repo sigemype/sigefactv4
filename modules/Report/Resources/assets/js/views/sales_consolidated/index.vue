@@ -9,12 +9,16 @@
                         <tr slot="heading">
                             <th class="">#</th>
                             <th  class="text-left">Documento</th>
+                            <th  class="text-center">Cod. Interno</th>
+                            <th  class="text-center">Unidad</th>
                             <th  class="text-center">Producto</th>
                             <th  class="text-center">Cantidad</th>
                         <tr>
                         <tr slot-scope="{ index, row }">
                             <td>{{ index }}</td> 
                             <td  class="text-left">{{row.series}}-{{row.number}}</td>
+                            <td  class="text-center">{{row.item_internal_id}}</td>
+                            <td  class="text-center">{{row.item_unit_type_id}}</td>
                             <td  class="text-center">{{row.item_description}}</td>
                             <td  class="text-center">{{row.item_quantity}}</td>
                         </tr>

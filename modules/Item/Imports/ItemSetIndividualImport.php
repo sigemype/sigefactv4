@@ -31,7 +31,7 @@ class ItemSetIndividualImport implements ToCollection
 
             $item_set = Item::whereIsSet()->where('internal_id', $internal_id_item_set)->first();
             $record_item_set_individual = Item::whereNotIsSet()->where('internal_id', $internal_id_item_set_individual)->first();
-            
+
             if($item_set && $record_item_set_individual) {
 
                 $item_set_individual = ItemSet::where('item_id', $item_set->id)->where('individual_item_id', $record_item_set_individual->id)->first();
@@ -47,7 +47,7 @@ class ItemSetIndividualImport implements ToCollection
 
                 }
 
-            } 
+            }
 
         }
 

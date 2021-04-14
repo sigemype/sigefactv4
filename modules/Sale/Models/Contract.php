@@ -67,7 +67,7 @@ class Contract extends ModelTenant
         'changed',
         'account_number',
         'terms_condition',
-
+        'seller_id',
     ];
 
     protected $casts = [
@@ -211,7 +211,7 @@ class Contract extends ModelTenant
         return $this->hasMany(ContractItem::class);
     }
 
- 
+
     public function payment_method_type()
     {
         return $this->belongsTo(PaymentMethodType::class);
@@ -253,5 +253,12 @@ class Contract extends ModelTenant
     public function scopeWhereNotChanged($query)
     {
         return $query->where('changed', false);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id')->withDefault([
+            'name' => ''
+        ]);
     }
 }

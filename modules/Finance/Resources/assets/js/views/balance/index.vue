@@ -12,7 +12,7 @@
                             <th class="text-center"> <strong>CPE</strong></th>
                             <th class="text-center"> <strong>N. Venta</strong></th>
                             <th class="text-center"> <strong>Cotización</strong></th>
-                            <!-- <th class="text-center"> <strong>Contrato</strong></th> -->
+                            <th class="text-center"> <strong>Contrato</strong></th>
                             <th class="text-center"> <strong>S. Técnico</strong></th>
                             <th class="text-center"> <strong>Ingresos</strong></th>
                             <th class="text-center"> <strong>Compras</strong></th>
@@ -25,7 +25,7 @@
                             <td class="text-center">S/ {{row.document_payment}}</td>
                             <td class="text-center">S/ {{row.sale_note_payment}}</td>
                             <td class="text-center">S/ {{row.quotation_payment}}</td>
-                            <!-- <td class="text-center">S/ {{row.contract_payment}}</td> -->
+                            <td class="text-center">S/ {{row.contract_payment}}</td>
                             <td class="text-center">S/ {{row.technical_service_payment}}</td>
                             <td class="text-center">S/ {{row.income_payment}}</td>
                             <td class="text-center">S/  {{row.purchase_payment}}</td>

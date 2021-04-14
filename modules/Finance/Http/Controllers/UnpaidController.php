@@ -19,11 +19,12 @@ use Carbon\Carbon;
 use App\Models\Tenant\Person;
 use Modules\Dashboard\Helpers\DashboardView;
 use App\Exports\AccountsReceivable;
+use App\Models\Tenant\Configuration;
 use Modules\Finance\Exports\UnpaidPaymentMethodDayExport;
 use App\Models\Tenant\User;
 use App\Models\Tenant\PaymentMethodType;
 use Modules\Finance\Http\Resources\UnpaidCollection;
-use Modules\Finance\Traits\UnpaidTrait; 
+use Modules\Finance\Traits\UnpaidTrait;
 
 class UnpaidController extends Controller
 {
@@ -65,8 +66,10 @@ class UnpaidController extends Controller
     {
 
         $records = (new DashboardView())->getUnpaidFilterUser($request->all());
-
-        return new UnpaidCollection($records->paginate(config('tenant.items_per_page')));
+        $config = Configuration::first();
+        return (new UnpaidCollection($records->paginate(config('tenant.items_per_page'))))->additional([
+            'configuration' => $config->finances
+        ]);
 
     }
 
@@ -92,6 +95,21 @@ class UnpaidController extends Controller
                 ->company($company)
                 ->records($records)
                 ->download('Reporte_C_Cobrar_F_Pago'.Carbon::now().'.xlsx');
+
+    }
+
+
+    public function pdf(Request $request) {
+
+        $records = $this->transformRecords((new DashboardView())->getUnpaidFilterUser($request->all())->get());
+
+        $company = Company::first();
+
+        $pdf = PDF::loadView('finance::unpaid.reports.report_pdf', compact("records", "company"));
+
+        $filename = 'Reporte_Cuentas_Por_Cobrar_'.date('YmdHis');
+
+        return $pdf->download($filename.'.pdf');
 
     }
 

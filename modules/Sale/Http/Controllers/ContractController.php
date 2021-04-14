@@ -2,45 +2,46 @@
 
 namespace Modules\Sale\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Tenant\Person;
-use App\Models\Tenant\Catalogs\CurrencyType;
-use App\Models\Tenant\Catalogs\ChargeDiscountType;
-use App\Models\Tenant\Establishment;
-use Modules\Sale\Models\Contract;
-use App\CoreFacturalo\Requests\Inputs\Common\LegendInput;
-use App\Models\Tenant\Item;
-use App\Models\Tenant\Series;
-use Modules\Sale\Http\Resources\ContractCollection;
-use Modules\Sale\Http\Resources\ContractResource;
-use App\Models\Tenant\Catalogs\AffectationIgvType;
-use App\Models\Tenant\Catalogs\DocumentType;
-use Illuminate\Support\Facades\DB;
-use App\Models\Tenant\Catalogs\PriceType;
-use App\Models\Tenant\Catalogs\SystemIscType;
-use App\Models\Tenant\Catalogs\AttributeType;
-use App\Models\Tenant\Company;
-use Modules\Sale\Http\Requests\ContractRequest;
-use App\Models\Tenant\Warehouse;
-use App\Models\Tenant\Quotation;
-use Illuminate\Support\Str;
-use App\CoreFacturalo\Requests\Inputs\Common\PersonInput;
-use App\CoreFacturalo\Requests\Inputs\Common\EstablishmentInput;
-use App\CoreFacturalo\Helpers\Storage\StorageDocument;
-use App\CoreFacturalo\Template;
+use Exception;
 use Mpdf\Mpdf;
 use Mpdf\HTMLParserMode;
-use Mpdf\Config\ConfigVariables;
+use App\Models\Tenant\Item;
+use App\Models\Tenant\User;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\Tenant\Person;
+use App\Models\Tenant\Series;
+use App\Models\Tenant\Company;
 use Mpdf\Config\FontVariables;
-use Exception;
+use App\CoreFacturalo\Template;
+use App\Models\Tenant\Quotation;
+use App\Models\Tenant\Warehouse;
+use Mpdf\Config\ConfigVariables;
+use Modules\Sale\Models\Contract;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Establishment;
 use Illuminate\Support\Facades\Mail;
 use Modules\Sale\Mail\ContractEmail;
 use App\Models\Tenant\PaymentMethodType;
 use Modules\Finance\Traits\FinanceTrait;
-use App\Models\Tenant\Configuration;
-// use App\Models\Tenant\StateType;
+use App\Models\Tenant\Catalogs\PriceType;
 use Modules\Sale\Models\ContractStateType;
+use App\Models\Tenant\Catalogs\CurrencyType;
+use App\Models\Tenant\Catalogs\DocumentType;
+use App\Models\Tenant\Catalogs\AttributeType;
+use App\Models\Tenant\Catalogs\SystemIscType;
+use Modules\Sale\Http\Requests\ContractRequest;
+use Modules\Sale\Http\Resources\ContractResource;
+use App\Models\Tenant\Catalogs\AffectationIgvType;
+use App\Models\Tenant\Catalogs\ChargeDiscountType;
+use Modules\Sale\Http\Resources\ContractCollection;
+use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\CoreFacturalo\Requests\Inputs\Common\LegendInput;
+// use App\Models\Tenant\StateType;
+use App\CoreFacturalo\Requests\Inputs\Common\PersonInput;
+use App\CoreFacturalo\Requests\Inputs\Common\EstablishmentInput;
 
 
 class ContractController extends Controller
@@ -60,14 +61,17 @@ class ContractController extends Controller
     public function create($id = null)
     {
         $quotationId = null;
-        return view('sale::contracts.form', compact('id', 'quotationId'));
+        $showPayments = true;
+
+        return view('sale::contracts.form', compact('id', 'quotationId', 'showPayments'));
     }
 
     public function generateContract($quotationId)
     {
         $id = null;
+        $showPayments = false;
 
-        return view('sale::contracts.form', compact('id', 'quotationId'));
+        return view('sale::contracts.form', compact('id', 'quotationId', 'showPayments'));
     }
 
     public function columns()
@@ -147,9 +151,14 @@ class ContractController extends Controller
         $document_type_03_filter = config('tenant.document_type_03_filter');
         $payment_method_types = PaymentMethodType::orderBy('id','desc')->get();
         $payment_destinations = $this->getPaymentDestinations();
+        $configuration = Configuration::select('destination_sale')->first();
+        $sellers = User::without(['establishment'])
+            ->whereIn('type', ['seller'])
+            ->orWhere('id', auth()->user()->id)
+            ->get();
 
-        return compact('customers', 'establishments','currency_types', 'discount_types', 'charge_types',
-                        'company', 'document_type_03_filter','payment_method_types', 'payment_destinations');
+        return compact('customers', 'establishments','currency_types', 'discount_types', 'charge_types', 'configuration',
+                        'company', 'document_type_03_filter','payment_method_types', 'payment_destinations', 'sellers');
 
     }
 
