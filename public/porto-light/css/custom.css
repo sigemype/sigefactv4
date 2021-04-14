@@ -1,7 +1,7 @@
-ul.nav-main > li.nav-active > a {
+/* ul.nav-main > li.nav-active > a {
     -webkit-box-shadow: 4px 0 0 #0088cc inset;
     box-shadow: 4px 0 0 #0088cc inset;
-}
+} */
 
 .bg-info {
     background: #0088cc !important;
@@ -31,9 +31,9 @@ ul.nav-main > li.nav-active > a {
     width: auto;
 }
 
-ul.nav-main li .nav-children li.nav-active > a {
+/* ul.nav-main li .nav-children li.nav-active > a {
     color: #0088CC;
-}
+} */
 
 /*ul.nav-main li i {
     font-size: 2rem;
@@ -54,6 +54,10 @@ ul.nav-main li .nav-children li.nav-active > a {
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   transform: translateY(-20px);
   opacity: 0;
+}
+
+.full{
+  width: 100%;
 }
 
 .warning-demo{
@@ -168,7 +172,7 @@ ul.nav-main li .nav-children li.nav-active > a {
 #switcher-top {
   border-right: 20px solid transparent;
   border-left: 20px solid transparent;
-  border-top: 20px solid #03c9a9;
+  border-top: 20px solid #7367F0;
   position: fixed;
   z-index: 1031;
   left: 50%;
@@ -182,7 +186,7 @@ ul.nav-main li .nav-children li.nav-active > a {
   transition: all 0.5s ease-in-out;
 }
 #switcher-top.active {
-  border-top: 45px solid #03c9a9;
+  border-top: 45px solid #7367F0;
   -webkit-transition: all 0.5s ease-in-out;
   -moz-transition: all 0.5s ease-in-out;
   -ms-transition: all 0.5s ease-in-out;
@@ -237,7 +241,7 @@ ul.nav-main li .nav-children li.nav-active > a {
   margin-top: -35px;
 }
 #switcher-list .row a:hover {
-  color: #03c9a9;
+  color: #FFF;
   text-decoration: none;
 }
 
@@ -284,6 +288,7 @@ ul.nav-main li .nav-children li.nav-active > a {
 
 html.dark .table > thead > tr > th, html.dark .table > tbody > tr > th, html.dark .table > tfoot > tr > th, html.dark .table > thead > tr > td, html.dark .table > tbody > tr > td, html.dark .table > tfoot > tr > td, html.dark .table-bordered {
     color: #f5f5f5;
+    background-color: #283046;
 }
 html.dark .el-switch__label *,
  {
@@ -372,4 +377,22 @@ html.dark .el-switch__label *,
   left: 0;
   font-size: 1rem;
   font-weight: bold;
+}
+
+.sidebar-left-collapsed.header-static .header {
+    margin-left: 74px !important;
+}
+.sidebar-left-collapsed.header-fixed .header {
+    left: 74px !important;
+}
+
+
+@media only screen and (min-width: 768px){
+  html.newinvoice .inner-wrapper {
+    margin-top: 0px;
+  }
+}
+
+html.dashboard-system .content-body {
+  /*margin-top: 60px;*/
 }

@@ -1,13 +1,13 @@
 .style-switcher {
-    background: #171717;
+    background: #283046;
     width: 260px;
     position: fixed;
-    top: 110px;
+    top: 0px;
     bottom: 0;
     height: 100%;
-    z-index: 1008;
+    z-index: 1020;
     border-radius: 0;
-    right: -260px
+    right: -260px;
 }
 
 .style-switcher .style-switcher-wrap {
@@ -19,7 +19,7 @@
 }
 
 .style-switcher h4 {
-    background: #171717;
+    background: #283046;
     color: #fff;
     font-size: 15px;
     font-weight: 600;
@@ -29,7 +29,7 @@
 }
 
 .style-switcher .style-switcher-open {
-    background-color: #171717;
+    background-color: #283046;
     border-radius: 6px 0 0 6px;
     color: #fff;
     display: block;
@@ -40,7 +40,7 @@
     position: absolute;
     text-align: center;
     text-decoration: none;
-    top: 35px;
+    top: 150px;
     width: 34px
 }
 
@@ -163,9 +163,9 @@ html.boxed .style-switcher {
     top: 0!important
 }
 
-html.header-fixed .style-switcher {
+/*html.header-fixed .style-switcher {
     top: 56px!important
-}
+}*/
 
 html.sidebar-light:not(.dark) .style-switcher {
     background: #f6f6f6
@@ -191,7 +191,6 @@ html.sidebar-light:not(.dark) .style-switcher .style-switcher-open {
     height: 39px;
     width: 38px
 }
-
 html.sidebar-light:not(.dark) .style-switcher h4 {
     background: 0 0;
     color: #777
@@ -215,3 +214,9 @@ html.sidebar-light:not(.dark) .style-switcher .style-switcher-buttons {
     border-top: 1px solid #ececec
 }
 
+.style-switcher .el-switch__label:not(.is-active) {
+    color: #FFF;
+}
+html.sidebar-light:not(.dark) .style-switcher .el-switch__label:not(.is-active) {
+    color: #606266;
+}

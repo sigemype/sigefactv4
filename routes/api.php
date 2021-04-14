@@ -2,11 +2,11 @@
 
 $hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
 if ($hostname) {
-    Route::domain($hostname->fqdn)->group(function() {
+    Route::domain($hostname->fqdn)->group(function () {
 
         Route::post('login', 'Tenant\Api\MobileController@login');
 
-        Route::middleware(['auth:api', 'locked.tenant'])->group(function() {
+        Route::middleware(['auth:api', 'locked.tenant'])->group(function () {
             //MOBILE
             Route::get('document/series', 'Tenant\Api\MobileController@getSeries');
             Route::get('document/tables', 'Tenant\Api\MobileController@tables');
@@ -16,14 +16,18 @@ if ($hostname) {
             Route::get('sale-note/series', 'Tenant\Api\SaleNoteController@series');
             Route::get('sale-note/lists', 'Tenant\Api\SaleNoteController@lists');
             Route::post('item', 'Tenant\Api\MobileController@item');
+            Route::post('items/{id}/update', 'Tenant\Api\MobileController@updateItem');
             Route::post('person', 'Tenant\Api\MobileController@person');
             Route::get('document/search-items', 'Tenant\Api\MobileController@searchItems');
             Route::get('document/search-customers', 'Tenant\Api\MobileController@searchCustomers');
+            Route::post('sale-note/email', 'Tenant\Api\SaleNoteController@email');
 
             Route::get('report', 'Tenant\Api\MobileController@report');
 
             Route::post('documents', 'Tenant\Api\DocumentController@store');
             Route::get('documents/lists', 'Tenant\Api\DocumentController@lists');
+            Route::get('documents/lists/{startDate}/{endDate}', 'Tenant\Api\DocumentController@lists');
+            Route::post('documents/updatedocumentstatus', 'Tenant\Api\DocumentController@updatestatus');
             Route::post('summaries', 'Tenant\Api\SummaryController@store');
             Route::post('voided', 'Tenant\Api\VoidedController@store');
             Route::post('retentions', 'Tenant\Api\RetentionController@store');
@@ -46,17 +50,14 @@ if ($hostname) {
         Route::post('documents/status', 'Tenant\Api\ServiceController@documentStatus');
 
         Route::get('sendserver/{document_id}/{query?}', 'Tenant\DocumentController@sendServer');
-
+        Route::post('configurations/generateDispatch', 'Tenant\ConfigurationController@generateDispatch');
     });
-}else{
-    Route::domain(env('APP_URL_BASE'))->group(function() {
+} else {
+    Route::domain(env('APP_URL_BASE'))->group(function () {
 
         //reseller
         Route::post('reseller/detail', 'System\Api\ResellerController@resellerDetail');
         Route::post('reseller/lockedAdmin', 'System\Api\ResellerController@lockedAdmin');
-
-
-
 
     });
 

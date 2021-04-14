@@ -10,19 +10,22 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
-        "axios": "^0.18.1",
+        "axios": "^0.21.1",
         "bootstrap": "^4.3.1",
         "cross-env": "^5.1",
-        "jquery": "^3.4.1",
+        "jquery": "^3.6.0",
         "laravel-mix": "^3.0.0",
-        "lodash": "^4.17.15",
+        "lodash": "^4.17.21",
         "popper.js": "^1.12",
         "vue": "^2.5.7"
     },
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^20.0.0",
         "@riophae/vue-treeselect": "^0.4.0",
-        "@syncfusion/ej2-vue-navigations": "^18.3.40",
+        "@syncfusion/ej2-base": "^19.1.56",
+        "@syncfusion/ej2-navigations": "^19.1.54",
+        "@syncfusion/ej2-vue-navigations": "^19.1.54",
+        "canvas": "^2.7.0",
         "chart.js": "^2.7.3",
         "element-ui": "^2.13.0",
         "jqwidgets-scripts": "^10.1.5",
