@@ -19,6 +19,11 @@
 
     $payments = $document->payments;
 
+    $fees = $document->fee;
+
+    $cantfees = $fees->count();
+
+
     $document->load('reference_guides');
 
     $total_payment = $document->payments->sum('payment');
@@ -533,10 +538,11 @@
         {{-- </td> --}}
     </tr>
 </table>
+{{-- {{ $document }} --}}
 <img width="15%" src="data:image/png;base64, {{ $document->qr }}" style="margin-right: -10px;" />
 
 
-@if($document->payment_method_type_id)
+@if($document->payment_method_type_id === '01')
     <table class="full-width">
         <tr>
             <td>
@@ -565,6 +571,35 @@
             @endforeach
         </tr>
 
+    </table>
+@endif
+
+{{-- {!! $document !!}  --}}
+@if($fees->count())
+
+<br><br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <strong>Factura a Credito</strong>
+            </td>
+        </tr>
+        @php
+            $fee = 0;
+        @endphp
+        <tr>
+            <td>
+                <strong>CUOTAS: {{$cantfees}}</strong>
+            </td>
+        </tr>
+        <tr>
+        @foreach($fees as $row)
+            <tr>
+                {{-- <td>{{ $row->date }}</td> --}}
+                <td>{{ $row->date->format('d/m/Y') }} |  Monto: {{ number_format(($row->amount), 2) }} {{ $document->currency_type->description }} </td>
+            </tr>
+        @endforeach
+        </tr>
     </table>
 @endif
 

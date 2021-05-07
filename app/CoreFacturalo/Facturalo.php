@@ -333,7 +333,8 @@ class Facturalo
 
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
-            $document_payments     = count($this->document->payments);
+            $document_payments = count($this->document->payments);
+            $document_fees     = count($this->document->fees);
 
             $extra_by_item_additional_information = 0;
             $extra_by_item_description = 0;
@@ -360,6 +361,7 @@ class Facturalo
                     130 +
                     (($quantity_rows * 8) + $extra_by_item_description) +
                     ($document_payments * 8) +
+                    ($document_fees * 8) +
                     ($discount_global * 8) +
                     $company_name +
                     $company_address +
