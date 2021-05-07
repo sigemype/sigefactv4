@@ -402,7 +402,7 @@
                                                                 <a href="#" @click.prevent="clickAddGuide" class="text-center font-weight-bold text-info">[+ Agregar]</a>
                                                             </label>
                                                             <table style="width: 100%">
-                                                                <tr v-for="(guide,index) in form.guides">
+                                                                <tr v-for="(guide,index) in form.guides" :key="index">
                                                                     <td>
                                                                         <el-select v-model="guide.document_type_id">
                                                                             <el-option v-for="option in document_types_guide" :key="option.id" :value="option.id" :label="option.description"></el-option>
@@ -461,7 +461,7 @@
                                                                 <a href="#" @click.prevent="clickAddGuide" class="text-center font-weight-bold text-info">[+ Agregar]</a>
                                                             </label>
                                                             <table style="width: 100%">
-                                                                <tr v-for="(guide,index) in form.guides">
+                                                                <tr v-for="(guide,index) in form.guides" :key="index">
                                                                     <td>
                                                                         <el-select v-model="guide.document_type_id">
                                                                             <el-option v-for="option in document_types_guide" :key="option.id" :value="option.id" :label="option.description"></el-option>
@@ -695,7 +695,8 @@
                                                    inactive-value="02"
                                                    active-text="Contado"
                                                    active-value="01"
-                                                   @change="changePaymentCondition"></el-switch>
+                                                   @change="changePaymentCondition">
+                                        </el-switch>
                                     </div>
                                     <div class="col-12" v-if="form.payment_condition_id === '02'" style="display: flex; justify-content: center">
                                         <table v-if="form.fee.length>0">
@@ -796,7 +797,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>

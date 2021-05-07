@@ -20,8 +20,8 @@ class DocumentPaymentController extends Controller
 
     use FinanceTrait, FilePaymentTrait;
 
-    public function records($document_id)
-    {
+    public function records($document_id){
+        
         $records = DocumentPayment::where('document_id', $document_id)->get();
 
         return new DocumentPaymentCollection($records);

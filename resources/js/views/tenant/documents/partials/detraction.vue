@@ -42,7 +42,6 @@
                                     </div>
                                 </div>
                                 <div class="short-div col-md-12">
-
                                     <div class="form-group">
                                         <label class="control-label">Monto de la detracción
                                             <span class="text-danger"> *</span>

@@ -244,7 +244,7 @@
             <tbody>
               <tr v-for="(row, index) in records">
                 <td>{{ index + 1 }}</td>
-                <td>{{ row.hostname }}</td>
+                <td><a v-bind:href="'https://'+ row.hostname" style="color: #000000;">{{ row.hostname }}</a></td>
                 <td>{{ row.name }}</td>
                 <td>{{ row.number }}</td>
                 <td>{{ row.plan }}</td>
@@ -260,8 +260,7 @@
                       placement="top-start"
                       width="220"
                       trigger="hover"
-                      :content="text_limit_doc"
-                    >
+                      :content="text_limit_doc">
                       <label slot="reference" class="text-danger">
                         <strong>{{ row.count_doc }}</strong>
                       </label>

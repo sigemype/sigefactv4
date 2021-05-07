@@ -25,7 +25,6 @@
         </div>
         <div class="card mb-0">
             <div class="data-table-visible-columns">
-
                 <el-dropdown :hide-on-click="false">
                     <el-button type="primary">
                         Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
@@ -86,11 +85,6 @@
                                 <label class="d-block"   :key="index">{{row.note_type_description}}: {{row.description}}</label>
                             </template>
                         </td>
-
-                        <!-- <td>
-                            {{ row.document_type_id == '07' ?  row.number : ''}}
-                        </td> -->
-
                         <td>
                             <el-tooltip v-if="tooltip(row, false)" class="item" effect="dark" placement="bottom">
                                 <div slot="content">{{tooltip(row)}}</div>
@@ -113,9 +107,7 @@
                         </td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
                         <td class="text-right" v-if="columns.total_exportation.visible">{{ row.total_exportation }}</td>
-
                         <td class="text-right" v-if="columns.total_free.visible">{{ row.total_free }}</td>
-
                         <td class="text-right" v-if="columns.total_unaffected.visible">{{ row.total_unaffected }}</td>
                         <td class="text-right" v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}</td>
                         <td class="text-right">{{ row.total_taxed }}</td>
@@ -125,6 +117,10 @@
                         <td class="text-center">
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
                                     @click.prevent="clickPayment(row.id)">Pagos</button>
+
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickFee(row.id)"
+                                    v-if="row.btn_fee">Cuotas</button>
                         </td>
                         <td class="text-center">
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
@@ -203,6 +199,9 @@
             <document-payments :showDialog.sync="showDialogPayments"
                                :documentId="recordId"></document-payments>
 
+            <document-fees :showDialog.sync="showDialogFees"
+                               :documentId="recordId"></document-fees>
+
 
             <document-constancy-detraction :showDialog.sync="showDialogCDetraction"
                               :recordId="recordId"></document-constancy-detraction>
@@ -218,6 +217,7 @@
     import DocumentsVoided from './partials/voided.vue'
     import DocumentOptions from './partials/options.vue'
     import DocumentPayments from './partials/payments.vue'
+    import DocumentFees from './partials/fee.vue'
     import DocumentImportSecond from './partials/import_second.vue'
     import DataTable from '../../../components/DataTableDocuments.vue'
     import ItemsImport from './import.vue'
@@ -230,7 +230,7 @@
     export default {
         mixins: [deletable],
         props: ['isClient','typeUser','import_documents','import_documents_second', 'userId'],
-        components: {DocumentsVoided, ItemsImport, DocumentImportSecond, DocumentOptions, DocumentPayments, DataTable, DocumentConstancyDetraction, ReportPayment, ReportPaymentComplete },
+        components: {DocumentsVoided, ItemsImport, DocumentImportSecond, DocumentOptions, DocumentPayments, DocumentFees, DataTable, DocumentConstancyDetraction, ReportPayment, ReportPaymentComplete },
         data() {
             return {
                 showDialogReportPayment: false,
@@ -243,6 +243,7 @@
                 recordId: null,
                 showDialogOptions: false,
                 showDialogPayments: false,
+                showDialogFees: false,
                 columns: {
                     notes: {
                         title: 'Notas C/D',
@@ -367,6 +368,12 @@
                 this.recordId = recordId;
                 this.showDialogPayments = true;
             },
+
+            clickFee(recordId) {
+                this.recordId = recordId;
+                this.showDialogFees = true;
+            },
+
             clickChangeToRegisteredStatus(document_id) {
                 this.$http.get(`/${this.resource}/change_to_registered_status/${document_id}`)
                     .then(response => {

@@ -88,6 +88,7 @@ table {
 
 .border-box {
     border: thin solid #333;
+    /* border-radius: 90% !important; */
 }
 .border-top {
     border-top: thin solid #333;
@@ -160,6 +161,9 @@ table, tr, td, th {
 
 p {
     font-size: 12px !important;
+}
+.cuenta {
+  font-size: 10px !important;
 }
 
 .desc {
