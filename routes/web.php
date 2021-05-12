@@ -206,7 +206,7 @@ if ($hostname) {
 			Route::post('documents', 'Tenant\DocumentController@store');
 			Route::post('documents/{id}/update', 'Tenant\DocumentController@update');
 			Route::get('documents/send/{document}', 'Tenant\DocumentController@send');
-			// Route::get('documents/consult_cdr/{document}', 'Tenant\DocumentController@consultCdr');
+			Route::get('documents/consult_cdr/{document}', 'Tenant\DocumentController@consultCdr');
 			Route::post('documents/email', 'Tenant\DocumentController@email');
 			Route::get('documents/note/{document}', 'Tenant\NoteController@create');
 			Route::get('documents/note/record/{document}', 'Tenant\NoteController@record');
@@ -227,8 +227,6 @@ if ($hostname) {
 			Route::get('document_fee/records/{document_id}', 'Tenant\DocumentFeeController@records');
 			Route::get('document_fee/document/{document_id}', 'Tenant\DocumentFeeController@document');
 			Route::get('document_fee/tables', 'Tenant\DocumentPaymentController@tables');
-
-
 
 			Route::get('documents/send_server/{document}/{query?}', 'Tenant\DocumentController@sendServer');
 			Route::get('documents/check_server/{document}', 'Tenant\DocumentController@checkServer');

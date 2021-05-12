@@ -797,7 +797,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
                         <el-button class="submit" type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && this.dateValid">{{ btnText }}</el-button>
@@ -1781,7 +1780,15 @@
             },
             async changeDetractionType(){
                 if(this.form.detraction){
-                    this.form.detraction.amount = (this.form.currency_type_id == 'PEN') ? _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage)/100),2) : _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage)/100),2)
+                    if(this.form.operation_type_id === '1004'){
+                        if(this.form.detraction.reference_value_service >= this.form.total){
+                            this.form.detraction.amount = (this.form.currency_type_id == 'PEN') ? _.round(parseFloat(this.form.detraction.reference_value_service) * (parseFloat(this.form.detraction.percentage)/100),2) : _.round((parseFloat(this.form.detraction.reference_value_service) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage)/100),2)
+                        }else{
+                             this.form.detraction.amount = (this.form.currency_type_id == 'PEN') ? _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage)/100),2) : _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage)/100),2)
+                        }
+                    }else{
+                        this.form.detraction.amount = (this.form.currency_type_id == 'PEN') ? _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage)/100),2) : _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage)/100),2)
+                    }
                 }
             },
             validateDetraction(){
@@ -2005,8 +2012,11 @@
             setTotalDefaultPayment(){
 
                 if(this.form.payments.length > 0){
-
-                    this.form.payments[0].payment = this.form.total
+                    if (['1001', '1004'].includes(this.form.operation_type_id)) {
+                        this.form.payments[0].payment = this.form.total - this.form.detraction.amount
+                    } else {
+                        this.form.payments[0].payment = this.form.total
+                    }
                 }
             },
             changeTypeDiscount(){
@@ -2264,18 +2274,36 @@
                 this.form.fee.splice(index, 1);
                 this.calculateFee();
             },
-            calculateFee() {
-                let fee_count = this.form.fee.length;
-                let total = this.form.total;
-                let accumulated = 0;
-                let amount = _.round(total / fee_count, 2);
-                _.forEach(this.form.fee, row => {
-                    accumulated += amount;
-                    if (total - accumulated < 0) {
-                        amount = _.round(total - accumulated + amount, 2);
-                    }
-                    row.amount = amount;
-                })
+            calculateFee(){
+
+                if (['1001', '1004'].includes(this.form.operation_type_id)) {
+
+                    let fee_count = this.form.fee.length;
+                    let total = this.form.total - this.form.detraction.amount;
+                    let accumulated = 0;
+                    let amount = _.round(total / fee_count, 2);
+                    _.forEach(this.form.fee, row => {
+                        accumulated += amount;
+                        if (total - accumulated < 0) {
+                            amount = _.round(total - accumulated + amount, 2);
+                        }
+                        row.amount = amount;
+                    })
+
+                } else {
+
+                    let fee_count = this.form.fee.length;
+                    let total = this.form.total;
+                    let accumulated = 0;
+                    let amount = _.round(total / fee_count, 2);
+                    _.forEach(this.form.fee, row => {
+                        accumulated += amount;
+                        if (total - accumulated < 0) {
+                            amount = _.round(total - accumulated + amount, 2);
+                        }
+                        row.amount = amount;
+                    })
+                }
             }
         }
     }

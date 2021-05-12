@@ -574,7 +574,6 @@
     </table>
 @endif
 
-{{-- {!! $document !!}  --}}
 @if($fees->count())
 
 <br><br>
@@ -595,30 +594,12 @@
         <tr>
         @foreach($fees as $row)
             <tr>
-                {{-- <td>{{ $row->date }}</td> --}}
                 <td>{{ $row->date->format('d/m/Y') }} |  Monto: {{ number_format(($row->amount), 2) }} {{ $document->currency_type->description }} </td>
             </tr>
         @endforeach
         </tr>
     </table>
 @endif
-
-{{-- <br>
-<table class="full-width">
-    <tr>
-        <td>
-            <strong>Vendedor:</strong>
-        </td>
-    </tr>
-    <tr>
-        @if ($document->seller)
-            <td>{{ $document->seller->name }}</td>
-        @else
-            <td>{{ $document->user->name }}</td>
-        @endif
-    </tr>
-</table> --}}
-
 
 @if ($document->terms_condition)
     <br>
