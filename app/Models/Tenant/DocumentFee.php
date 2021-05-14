@@ -12,8 +12,10 @@ class DocumentFee extends ModelTenant
     protected $fillable = [
         'document_id',
         'date',
+        'cat_payment_method_type_id',
         'currency_type_id',
         'amount',
+        'reference'
     ];
 
     protected $casts = [

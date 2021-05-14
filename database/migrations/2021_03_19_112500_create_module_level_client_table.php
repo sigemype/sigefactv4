@@ -30,8 +30,7 @@ class CreateModuleLevelClientTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
+    public function down(){
         Schema::dropIfExists('module_level_client');
     }
 }

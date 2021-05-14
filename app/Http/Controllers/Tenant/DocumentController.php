@@ -186,7 +186,7 @@ class DocumentController extends Controller
                 'description' => ucfirst(mb_strtolower($row->description)),
             ];
         });
-        // $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
+        $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         // $detraction_types = DetractionType::whereActive()->get();
 
 //        return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
@@ -204,7 +204,7 @@ class DocumentController extends Controller
                         'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
                         'discount_types', 'charge_types', 'company', 'document_type_03_filter',
                         'document_types_guide', 'user', 'sellers','payment_method_types','enabled_discount_global',
-                        'business_turns','is_client','select_first_document_type_03', 'payment_destinations', 'payment_conditions');
+                        'business_turns','is_client','select_first_document_type_03', 'payment_destinations', 'payment_conditions', 'cat_payment_method_types');
 
     }
 

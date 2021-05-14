@@ -672,7 +672,6 @@
 
                             <!-- <div class="col-md-4">
                                 <p class="text-right" v-if="form.total > 0">
-
                                      DESCUENTO <el-input v-model="form_payment.payment" class="d-inline"></el-input>
                                 </p>
                                 <p class="text-right" v-if="form.total_exportation > 0">OP.EXPORTACIÓN: {{ currency_type.symbol }} {{ form.total_exportation }}</p>
@@ -684,31 +683,36 @@
                                 <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
                             </div>  -->
 
-
                         </div>
-                        <div class="row">
+
+                        <div class="row" v-if="form.total > 0">
                             <div class="col">
                                 <div class="row">
                                     <div class="col-12 mt-2 mb-4 text-center">
-                                        <el-switch v-model="form.payment_condition_id"
-                                                   inactive-text="Crédito"
-                                                   inactive-value="02"
-                                                   active-text="Contado"
-                                                   active-value="01"
-                                                   @change="changePaymentCondition">
-                                        </el-switch>
+                                        <label class="control-label">CONDICIÓN DE PAGO:</label>
+                                        <el-select v-model="form.payment_condition_id" @change="changePaymentCondition" popper-class="el-select-document_type" dusk="document_type_id" style="max-width: 200px;">
+                                            <el-option value="02" label="Crédito"></el-option>
+                                            <el-option value="01" label="Contado"></el-option>
+                                        </el-select>
                                     </div>
                                     <div class="col-12" v-if="form.payment_condition_id === '02'" style="display: flex; justify-content: center">
                                         <table v-if="form.fee.length>0">
                                             <thead>
                                             <tr>
+                                                <th class="text-left" style="width: 100px">Método de Pago</th>
                                                 <th class="text-left" style="width: 100px">Fecha</th>
                                                 <th class="text-left" style="width: 100px">Monto</th>
+                                                <th class="text-left" style="width: 100px">Referencia</th>
                                                 <th style="width: 30px"></th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr v-for="(row, index) in form.fee" :key="index">
+                                                <td>
+                                                    <el-select v-model="row.cat_payment_method_type_id" filterable ref="select_payment">
+                                                        <el-option v-for="option in cat_payment_method_types" :key="option.id" :value="option.id" :label="`${option.description}`"></el-option>
+                                                    </el-select>
+                                                </td>
                                                 <td>
                                                     <el-date-picker v-model="row.date" type="date"
                                                                     value-format="yyyy-MM-dd"
@@ -717,6 +721,9 @@
                                                 </td>
                                                 <td>
                                                     <el-input v-model="row.amount"></el-input>
+                                                </td>
+                                                <td>
+                                                    <el-input v-model="row.reference"></el-input>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button"
@@ -796,6 +803,7 @@
                                 </div>
                             </div>
                         </div>
+                        {{ form }}
                     </div>
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
@@ -918,6 +926,7 @@
                 operation_types: [],
                 establishments: [],
                 payment_method_types: [],
+                cat_payment_method_types: [],
                 establishment: null,
                 all_series: [],
                 series: [],
@@ -933,7 +942,6 @@
                 user: null,
                 is_receivable:false,
                 is_contingency: false,
-                cat_payment_method_types: [],
                 select_first_document_type_03:false,
                 detraction_types: [],
                 all_detraction_types: [],
@@ -975,7 +983,7 @@
                     this.form.seller_id = (this.sellers.length > 0)?this.sellers[0].id:null;
                     // this.prepayment_documents = response.data.prepayment_documents;
                     this.is_client = response.data.is_client;
-                    // this.cat_payment_method_types = response.data.cat_payment_method_types;
+                    this.cat_payment_method_types = response.data.cat_payment_method_types;
                     // this.all_detraction_types = response.data.detraction_types;
                     this.payment_destinations = response.data.payment_destinations
                     this.payment_conditions = response.data.payment_conditions;
@@ -2184,6 +2192,10 @@
                     this.loading_submit = false;
                 });
             },
+
+
+
+
             saveCashDocument(){
                 this.$http.post(`/cash/cash_document`, this.form_cash_document)
                     .then(response => {
@@ -2264,12 +2276,15 @@
             clickAddFee() {
                 this.form.fee.push({
                     id: null,
+                    cat_payment_method_type_id: '001',
                     date: moment().format('YYYY-MM-DD'),
                     currency_type_id: this.form.currency_type_id,
                     amount: 0,
+                    reference: null
                 });
                 this.calculateFee();
             },
+            
             clickRemoveFee(index) {
                 this.form.fee.splice(index, 1);
                 this.calculateFee();
