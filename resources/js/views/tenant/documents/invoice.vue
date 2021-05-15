@@ -803,7 +803,6 @@
                                 </div>
                             </div>
                         </div>
-                        {{ form }}
                     </div>
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
