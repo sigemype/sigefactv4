@@ -6,13 +6,39 @@
     <link href="{{ $path_style }}" rel="stylesheet" />
 </head>
 <body>
-
     
+    <table class="full-width border-box my-2">
+        <tr>
+            <td class="text-upp p-2">SON:
+                @foreach(array_reverse( (array) $document->legends) as $row)
+                    @if ($row->code == "1000")
+                        {{ $row->value }} {{ $document->currency_type->description }}
+                    @else
+                        {{$row->code}}: {{ $row->value }}
+                    @endif
+                @endforeach
+            </td>
+        </tr>
+    </table>
+
+    <table class="full-width border-box my-2">
+        <tr>
+            <td class="text-upp p-2">OBSERVACIONES:
+                @if($document->additional_information)
+                    @foreach($document->additional_information as $information)
+                        @if ($information)
+                            {{ $information }}
+                        @endif
+                    @endforeach
+                @endif
+            </td>
+        </tr>
+    </table>
 
 <table class="full-width">
     <tr>
         <td class="text-center desc font-bold">
-            Para consultar el comprobante ingresar a {!! url('/buscar') !!}
+            {{-- Para consultar el comprobante ingresar a {!! url('/buscar') !!} --}}
             @if(in_array($document->document_type->id,['01','03']))
                 @if ($accounts != "[]")
                     <table class="full-width desc">
@@ -62,8 +88,11 @@
 </table>
 
 <table class="full-width">
-    <tr>
+    {{-- <tr>
         <td class="text-center desc font-bold">"Gracias por su preferencia"</td>
+    </tr> --}}
+    <tr>
+        <td class="text-center desc">Representación Impresa de {{ isset($document->document_type) ? $document->document_type->description : 'Comprobante Electrónico'  }} {{ isset($document->hash) ? 'Código Hash: '.$document->hash : '' }} <br>Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>
 </table>
 </body>

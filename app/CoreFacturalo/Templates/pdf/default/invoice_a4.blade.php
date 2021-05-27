@@ -59,7 +59,7 @@
             @endif
             <td width="50%" class="pl-3">
                 <div class="text-left">
-                    <h4 class="">{{ $company->name }}</h4>
+                    <h4 class="font-bold">{{ $company->name }}</h4>
                     {{-- <h5>{{ 'RUC '.$company->number }}</h5> --}}
                     <h6 style="text-transform: uppercase;">
                         {{ ($establishment->address !== '-')? $establishment->address : '' }} <br>
@@ -96,7 +96,7 @@
 
 
 {{-- incio tabla cliente y datos de facturacion --}}
-    <table class="full-width border-box mt-5">
+    <table class="full-width border-box mt-3">
         <tr>
             <td width="70%">
                 <h6><strong>CLIENTE: </strong>{{ $customer->name }}</h6>
@@ -121,7 +121,6 @@
         </tr>
     </table>
 {{-- fin tabla cliente y datos de facturacion --}}
-
 
 {{-- incio tabla items --}}
     <table class="full-width mt-10 mb-10">
@@ -307,7 +306,7 @@
             <td width="65%" style="text-align: top; vertical-align: top;">
                 @foreach(array_reverse( (array) $document->legends) as $row)
                     @if ($row->code == "1000")
-                        <p style="text-transform: uppercase;">Son: <span class="font-bold">{{ $row->value }} {{ $document->currency_type->description }}</span></p>
+                        {{-- <p style="text-transform: uppercase;">Son: <span class="font-bold">{{ $row->value }} {{ $document->currency_type->description }}</span></p> --}}
                         @if (count((array) $document->legends)>1)
                         <br>
                             <p><span class="font-bold">Leyendas</span></p>

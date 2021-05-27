@@ -26,7 +26,6 @@
             $balance = ($document->total - $total_payment) - $document->payments->sum('change');
         }
 
-
     }
 
     $accounts = \App\Models\Tenant\BankAccount::all();
