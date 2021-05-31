@@ -9,7 +9,7 @@
                 </el-alert>
             </div>
         </div>
-        <!-- <el-tabs v-model="activeName"  >
+        <el-tabs v-model="activeName"  >
             <el-tab-pane label="Imprimir Ticket" name="first">
                 <embed id="nemo" :src="form.print_ticket" type="application/pdf" width="100%" height="450px"/>                                    
             </el-tab-pane> 
@@ -19,8 +19,8 @@
             <el-tab-pane label="Imprimir A5" name="third">                                    
                 <embed :src="form.print_a5" type="application/pdf" width="100%" height="450px"/>
             </el-tab-pane>                       
-        </el-tabs> -->
-        <div class="row">
+        </el-tabs>
+        <!-- <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold" v-if="!locked_emission.success">
                 <el-alert :title="locked_emission.message" type="warning" show-icon>  </el-alert>
             </div>
@@ -52,8 +52,8 @@
             <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold mt-3" v-if="form.image_detraction">
                 <a :href="`${this.form.image_detraction}`" download class="text-center font-weight-bold text-dark">Descargar constancia de pago - detracción</a>
             </div>
-        </div>
-        <div class="row mt-4">
+        </div> -->
+        <!-- <div class="row mt-4">
             <div class="col-lg-6 col-md-6 col-sm-12 text-center">
                 <button type="button" class="btn btn-lg waves-effect waves-light btn-outline-secondary" @click="clickDownload('a4')">
                     <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar A4
@@ -64,7 +64,7 @@
                     <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar Ticket
                 </button>
             </div>
-        </div>
+        </div> -->
         <div class="row mt-3">
             <div class="col-md-12">
                 <el-input v-model="form.customer_email">
