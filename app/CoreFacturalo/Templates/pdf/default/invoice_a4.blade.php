@@ -19,7 +19,7 @@
 
     $payments = $document->payments;
 
-    $fees = $document->fee;
+    $fees = $document->fees;
 
     $cantfees = $fees->count();
 

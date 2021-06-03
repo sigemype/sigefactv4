@@ -1013,7 +1013,7 @@ class Facturalo
     private function saveFee($document, $fee)
     {
         foreach ($fee as $row) {
-            $document->fee()->create($row);
+            $document->fees()->create($row);
         }
     }
 }

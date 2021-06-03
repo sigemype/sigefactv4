@@ -11,7 +11,7 @@ use Modules\Order\Models\OrderNote;
 
 class Document extends ModelTenant
 {
-    protected $with = ['user', 'soap_type', 'state_type', 'document_type', 'currency_type', 'group', 'items', 'invoice', 'note', 'payments'];
+    protected $with = ['user', 'soap_type', 'state_type', 'document_type', 'currency_type', 'group', 'items', 'invoice', 'note', 'payments', 'fees'];
 
     protected $fillable = [
         'user_id',
@@ -295,7 +295,7 @@ class Document extends ModelTenant
         return $this->hasMany(DocumentPayment::class);
     }
 
-    public function fee()
+    public function fees()
     {
         return $this->hasMany(DocumentFee::class);
     }

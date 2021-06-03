@@ -58,6 +58,7 @@ use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
 use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
 use App\Models\Tenant\Dispatch;
+use App\Models\Tenant\SaleNote;
 
 class DocumentController extends Controller
 {
@@ -183,7 +184,7 @@ class DocumentController extends Controller
                 'id' => $row->id,
                 'active' => (bool) $row->active,
                 'short' => $row->short,
-                'description' => ucfirst(mb_strtolower($row->description)),
+                'description' => ucfirst(mb_strtolower(str_replace('REMITENTE ELECTRÓNICA','REMITENTE',$row->description))),
             ];
         });
         $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
@@ -414,6 +415,7 @@ class DocumentController extends Controller
         $response = $fact->getResponse();
 
         $this->associateDispatchesToDocument($request, $document->id);
+        $this->associateSaleNoteToDocument($request, $document->id);
 
         return [
             'success' => true,
@@ -423,6 +425,25 @@ class DocumentController extends Controller
 
             ],
         ];
+    }
+
+    private function associateSaleNoteToDocument(Request $request, int $documentId)
+    {
+        if ($request->sale_note_id) {
+            SaleNote::where('id', $request->sale_note_id)
+                ->update(['document_id' => $documentId]);
+        }
+        $notes = $request->sale_notes_relateds;
+        if ($notes) {
+            foreach ($notes as $note) {
+                $noteArray = explode('-', $note);
+                if (count($noteArray) === 2) {
+                    SaleNote::where('series', $noteArray[0])
+                        ->where('number', $noteArray[1])
+                        ->update(['document_id' => $documentId]);
+                }
+            }
+        }
     }
 
     private function associateDispatchesToDocument(Request $request, int $documentId)
@@ -791,28 +812,33 @@ class DocumentController extends Controller
         $customer_id = $request->customer_id;
         $item_id = $request->item_id;
         $category_id = $request->category_id;
+        $purchase_order = $request->purchase_order;
 
 
-        if($d_start && $d_end){
-
-            $records = Document::where('document_type_id', 'like', '%' . $document_type_id . '%')
-                            ->where('series', 'like', '%' . $series . '%')
-                            ->where('number', 'like', '%' . $number . '%')
-                            ->where('state_type_id', 'like', '%' . $state_type_id . '%')
-                            ->whereBetween('date_of_issue', [$d_start , $d_end])
-                            ->whereTypeUser()
-                            ->latest();
-
-        }else{
-
-            $records = Document::where('date_of_issue', 'like', '%' . $date_of_issue . '%')
-                            ->where('document_type_id', 'like', '%' . $document_type_id . '%')
-                            ->where('state_type_id', 'like', '%' . $state_type_id . '%')
-                            ->where('series', 'like', '%' . $series . '%')
-                            ->where('number', 'like', '%' . $number . '%')
-                            ->whereTypeUser()
-                            ->latest();
+        $records = Document::query();
+		if ($d_start && $d_end) {
+			$records = $records->whereBetween('date_of_issue', [$d_start, $d_end]);
+		}
+        if ($date_of_issue) {
+            $records = Document::where('date_of_issue', 'like', '%' . $date_of_issue . '%');
         }
+        if ($document_type_id) {
+            $records = $records->where('document_type_id', 'like', '%' . $document_type_id . '%');
+        }
+        if ($series) {
+            $records = $records->where('series', 'like', '%' . $series . '%');
+        }
+        if ($number) {
+            $records = $records->where('number', $number);
+        }
+        if ($state_type_id) {
+            $records = $records->where('state_type_id', 'like', '%' . $state_type_id . '%');
+        }
+        if ($purchase_order) {
+            $records = $records->where('purchase_order', $purchase_order);
+        }
+        $records = $records->whereTypeUser()
+            ->latest();
 
         if($pending_payment){
             $records = $records->where('total_canceled', false);
