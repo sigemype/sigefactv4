@@ -365,6 +365,7 @@
                         <button style="min-width: 180px" class="btn btn-default" @click.prevent="close()">Cancelar</button>
                         <el-button style="min-width: 180px" class="submit btn btn-primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && this.dateValid">{{ btnText }}</el-button>
                     </div>
+                    {{ form }}
                 </div>
                 <div class="card card-transparent col-xl-3 col-md-3 col-12 pl-md-2 mt-0">
                     <div class="card-body d-flex align-items-start no-gutters">
@@ -944,7 +945,7 @@
                         date_of_due: data.invoice.date_of_due,
                     },
                     payment_condition_id: data.payment_condition_id,
-                    fee: []
+                    fee: data.fees
                 }
 
                 if (! data.guides) {

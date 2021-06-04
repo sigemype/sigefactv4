@@ -918,27 +918,19 @@ class Facturalo
     }
 
     private function savePayments($document, $payments){
-
         $total = $document->total;
         $balance = $total - collect($payments)->sum('payment');
-
         $search_cash = ($balance < 0) ? collect($payments)->firstWhere('payment_method_type_id', '01') : null;
-
         $this->apply_change = false;
 
         if($balance < 0 && $search_cash){
-
             $payments = collect($payments)->map(function($row) use($balance){
-
                 $change = null;
                 $payment = $row['payment'];
-
                 if($row['payment_method_type_id'] == '01' && !$this->apply_change){
-
                     $change = abs($balance);
                     $payment = $row['payment'] - abs($balance);
                     $this->apply_change = true;
-
                 }
 
                 return [
@@ -952,12 +944,10 @@ class Facturalo
                     "change" => $change,
                     "payment" => $payment
                 ];
-
             });
         }
 
         foreach ($payments as $row) {
-
             if($balance < 0 && !$this->apply_change){
                 $row['change'] = abs($balance);
                 $row['payment'] = $row['payment'] - abs($balance);
@@ -970,13 +960,10 @@ class Facturalo
             if(isset($row['payment_destination_id'])){
                 $this->createGlobalPayment($record, $row);
             }
-
         }
     }
 
-    public function update($inputs,$id)
-    {
-
+    public function update($inputs,$id){
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
         $this->type = @$inputs['type'];
         switch ($this->type) {
@@ -987,6 +974,9 @@ class Facturalo
 
                 $document->payments()->delete();
                 $this->savePayments($document, $inputs['payments']);
+
+                $document->fees()->delete();
+                $this->saveFee($document, $inputs['fee']);
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
                 foreach ($document->items as $it) {
