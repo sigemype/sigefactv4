@@ -943,7 +943,7 @@
                         operation_type_id: data.invoice.operation_type_id,
                         date_of_due: data.invoice.date_of_due,
                     },
-                    payment_condition_id: '01',
+                    payment_condition_id: data.payment_condition_id,
                     fee: []
                 }
 
@@ -955,7 +955,9 @@
 
                 this.changeDateOfIssue();
                 this.filterCustomers();
-                this.changeDestinationSale();
+                if(data.payment_condition_id == '01'){
+                    this.changeDestinationSale();
+                }
                 this.calculateTotal();
             },
             onPrepareAdditionalInformation(data) {
