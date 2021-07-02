@@ -259,9 +259,7 @@ class QuotationController extends Controller
         ];
     }
 
-    public function update(QuotationRequest $request)
-    {
-
+    public function update(QuotationRequest $request){
          DB::connection('tenant')->transaction(function () use ($request) {
            // $data = $this->mergeData($request);
            // return $request['id'];
@@ -291,24 +289,18 @@ class QuotationController extends Controller
                 'id' => $this->quotation->id,
             ],
         ];
-
     }
 
     private function getTermsCondition(){
-
         $configuration = Configuration::select('terms_condition')->first();
-
         if($configuration){
             return $configuration->terms_condition;
         }
-
         return null;
-
     }
 
 
-    public function duplicate(Request $request)
-    {
+    public function duplicate(Request $request){
        // return $request->id;
        $obj = Quotation::find($request->id);
        $this->quotation = $obj->replicate();
@@ -316,8 +308,7 @@ class QuotationController extends Controller
        $this->quotation->state_type_id = '01' ;
        $this->quotation->save();
 
-       foreach($obj->items as $row)
-       {
+       foreach($obj->items as $row){
          $new = $row->replicate();
          $new->quotation_id = $this->quotation->id;
          $new->save();
@@ -334,8 +325,7 @@ class QuotationController extends Controller
 
     }
 
-    public function anular($id)
-    {
+    public function anular($id){
         $obj =  Quotation::find($id);
         $obj->state_type_id = 11;
         $obj->save();
@@ -345,11 +335,8 @@ class QuotationController extends Controller
         ];
     }
 
-    public function mergeData($inputs)
-    {
-
+    public function mergeData($inputs){
         $this->company = Company::active();
-
         $values = [
             'user_id' => auth()->id(),
             'external_id' => Str::uuid()->toString(),
@@ -367,19 +354,15 @@ class QuotationController extends Controller
 
 
     private function setFilename(){
-
         $name = [$this->quotation->prefix,$this->quotation->id,date('Ymd')];
         $this->quotation->filename = join('-', $name);
         $this->quotation->save();
-
     }
 
 
-    public function table($table)
-    {
+    public function table($table){
         switch ($table) {
             case 'customers':
-
                 $customers = Person::whereType('customers')->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function($row) {
                     return [
                         'id' => $row->id,
@@ -397,7 +380,6 @@ class QuotationController extends Controller
                 break;
 
             case 'items':
-
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
                 $items = Item::orderBy('description')->whereIsActive()
@@ -456,10 +438,7 @@ class QuotationController extends Controller
 
 
 
-    public function searchItems(Request $request)
-    {
-
-
+    public function searchItems(Request $request){
         $items = Item::orderBy('description')
                         ->where('description','like', "%{$request->input}%")
                         ->orWhere('internal_id','like', "%{$request->input}%")
@@ -516,16 +495,12 @@ class QuotationController extends Controller
 
     }
 
-
-    public function searchItemById($id)
-    {
+    public function searchItemById($id){
         $items = Item::where('id', $id)
                         ->whereIsActive()
                         ->get()
                         ->transform(function($row) {
-
                             $full_description = $this->getFullDescription($row);
-
                                 return [
                                     'id' => $row->id,
                                     'full_description' => $full_description,
@@ -564,13 +539,9 @@ class QuotationController extends Controller
                         });
 
         return compact('items');
-
     }
 
-
-    public function searchCustomerById($id)
-    {
-
+    public function searchCustomerById($id){
         $customers = Person::whereType('customers')
                     ->where('id',$id)
                     ->get()->transform(function($row) {
@@ -583,7 +554,6 @@ class QuotationController extends Controller
                             'identity_document_type_code' => $row->identity_document_type->code
                         ];
                     });
-
         return compact('customers');
     }
 

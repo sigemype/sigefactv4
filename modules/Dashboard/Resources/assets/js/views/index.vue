@@ -787,16 +787,16 @@ export default {
       });
     },
     loadDataAditional() {
-      this.showLoadersLoadDataAditional();
+        this.showLoadersLoadDataAditional();
 
-      this.$http
-        .post(`/${this.resource}/data_aditional`, this.form)
-        .then((response) => {
-          this.purchase = response.data.data.purchase;
-          this.items_by_sales = response.data.data.items_by_sales;
-          this.top_customers = response.data.data.top_customers;
-          this.hideLoadersLoadDataAditional();
-        });
+        this.$http
+            .post(`/${this.resource}/data_aditional`, this.form)
+            .then((response) => {
+                this.purchase = response.data.data.purchase;
+                this.items_by_sales = response.data.data.items_by_sales;
+                this.top_customers = response.data.data.top_customers;
+                this.hideLoadersLoadDataAditional();
+            });
     },
     loadDataUtilities() {
       this.loaders.utility = true;

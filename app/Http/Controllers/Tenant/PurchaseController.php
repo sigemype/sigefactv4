@@ -251,7 +251,7 @@ class PurchaseController extends Controller
 
     }
 
-    public function toPrint($external_id, $format) {
+    public function toPrint($external_id, $format){
         $purchase = Purchase::where('external_id', $external_id)->first();
 
         if (!$purchase) throw new Exception("El código {$external_id} es inválido, no se encontro el pedido relacionado");
@@ -264,15 +264,12 @@ class PurchaseController extends Controller
         return response()->file($temp);
     }
 
-    private function reloadPDF($purchase, $format, $filename) {
+    private function reloadPDF($purchase, $format, $filename){
         $this->createPdf($purchase, $format, $filename);
     }
 
-    public function update(PurchaseRequest $request)
-    {
-
-        $purchase = DB::connection('tenant')->transaction(function () use ($request) {
-
+    public function update(PurchaseRequest $request){
+        $purchase = DB::connection('tenant')->transaction(function () use ($request){
             $doc = Purchase::firstOrNew(['id' => $request['id']]);
             $doc->fill($request->all());
             $doc->supplier = PersonInput::set($request['supplier_id']);
@@ -281,10 +278,8 @@ class PurchaseController extends Controller
             $doc->save();
 
             foreach ($doc->items as $it) {
-
                 $p_i = PurchaseItem::findOrFail($it->id);
                 $p_i->delete();
-
             }
 
             foreach ($request['items'] as $row)
@@ -295,9 +290,7 @@ class PurchaseController extends Controller
                 $p_item->save();
 
                 if(array_key_exists('lots', $row)){
-
                     foreach ($row['lots'] as $lot){
-
                         $p_item->lots()->create([
                             'date' => $lot['date'],
                             'series' => $lot['series'],
@@ -305,36 +298,28 @@ class PurchaseController extends Controller
                             'warehouse_id' => $row['warehouse_id'],
                             'has_sale' => false
                         ]);
-
                     }
                 }
 
-                if(array_key_exists('item', $row))
-                {
-                    if( isset($row['item']['lots_enabled']) && $row['item']['lots_enabled'] == true)
-                    {
-
+                if(array_key_exists('item', $row)){
+                    if( isset($row['item']['lots_enabled']) && $row['item']['lots_enabled'] == true){
                         ItemLotsGroup::create([
                             'code'  => $row['lot_code'],
                             'quantity'  => $row['quantity'],
                             'date_of_due'  => $row['date_of_due'],
                             'item_id' => $row['item_id']
                         ]);
-
                     }
                 }
             }
 
             $this->deleteAllPayments($doc->purchase_payments);
 
-            foreach ($request['payments'] as $payment) {
-
+            foreach ($request['payments'] as $payment){
                 $record_payment = $doc->purchase_payments()->create($payment);
-
                 if(isset($payment['payment_destination_id'])){
                     $this->createGlobalPayment($record_payment, $payment);
                 }
-
                 if(isset($payment['payment_filename'])){
                     $record_payment->payment_file()->create([
                         'filename' => $payment['payment_filename']
@@ -346,7 +331,6 @@ class PurchaseController extends Controller
                 $this->setFilename($doc);
             }
             $this->createPdf($doc, "a4", $doc->filename);
-
             return $doc;
         });
 
@@ -367,55 +351,41 @@ class PurchaseController extends Controller
             $it->delete();
         }
     }*/
-
-    public static function verifyHasSaleItems($items)
-    {
+    public static function verifyHasSaleItems($items){
         $validated = true;
         $message = '';
         foreach ($items as $element) {
-
             $lot_has_sale = collect($element->lots)->firstWhere('has_sale', 1);
-            if($lot_has_sale)
-            {
+            if($lot_has_sale){
                 $validated = false;
                 $message = 'No se puede anular esta compra, series en productos no disponibles';
                 break;
             }
 
-            if($element->item->lots_enabled && $element->lot_code )
-            {
+            if($element->item->lots_enabled && $element->lot_code){
                 $lot_group = ItemLotsGroup::where('code', $element->lot_code)->first();
-
-                if(!$lot_group)
-                {
+                if(!$lot_group){
                     $message = "Lote {$element->lot_code} no encontrado.";
                     $validated = false;
                     break;
                 }
-
-                if( (int)$lot_group->quantity != (int)$element->quantity)
-                {
+                if( (int)$lot_group->quantity != (int)$element->quantity){
                     $message = "Los productos del lote {$element->lot_code} han sido vendidos!";
                     $validated = false;
                     break;
                 }
             }
         }
-
         return [
             'success' => $validated,
             'message' => $message
         ];
-
-
     }
 
-    public function anular($id)
-    {
+    public function anular($id){
         $obj =  Purchase::find($id);
         $validated = self::verifyHasSaleItems($obj->items);
-        if(!$validated['success'])
-        {
+        if(!$validated['success']){
             return [
                 'success' => false,
                 'message' => $validated['message']
@@ -423,15 +393,14 @@ class PurchaseController extends Controller
         }
 
         DB::connection('tenant')->transaction(function () use($obj){
-
-            foreach ($obj->items as $it) {
+            foreach ($obj->items as $it){
                 $it->lots()->delete();
             }
 
             $obj->state_type_id = 11;
             $obj->save();
 
-            foreach ($obj->items as $item) {
+            foreach ($obj->items as $item){
                 $item->purchase->inventory_kardex()->create([
                     'date_of_issue' => date('Y-m-d'),
                     'item_id' => $item->item_id,
@@ -444,15 +413,13 @@ class PurchaseController extends Controller
             }
 
         });
-
         return [
             'success' => true,
             'message' => 'Compra anulada con éxito'
         ];
     }
 
-    public static function convert($inputs)
-    {
+    public static function convert($inputs){
         $company = Company::active();
         $values = [
             'user_id' => auth()->id(),
@@ -468,11 +435,9 @@ class PurchaseController extends Controller
         return $inputs->all();
     }
 
-    public function table($table)
-    {
+    public function table($table){
         switch ($table) {
             case 'suppliers':
-
                 $suppliers = Person::whereType('suppliers')->orderBy('name')->get()->transform(function($row) {
                     return [
                         'id' => $row->id,
@@ -489,7 +454,6 @@ class PurchaseController extends Controller
                 break;
 
             case 'items':
-
                 $items = Item::whereNotIsSet()->whereIsActive()->orderBy('description')->take(20)->get(); //whereWarehouse()
                 return collect($items)->transform(function($row) {
                     $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
@@ -534,21 +498,16 @@ class PurchaseController extends Controller
                     ];
                 });
 //                return $items;
-
                 break;
             default:
-
                 return [];
-
                 break;
         }
     }
 
 
     
-    public function searchItems(Request $request)
-    {
-
+    public function searchItems(Request $request){
         $all_items = Item::where('description','like', "%{$request->input}%")
                         ->orWhere('internal_id','like', "%{$request->input}%")
                         ->whereNotIsSet()
@@ -557,9 +516,7 @@ class PurchaseController extends Controller
                         ->get();
 
         $items = collect($all_items)->transform(function($row){
-
             $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
-
             return [
                 'id' => $row->id,
                 'item_code'  => $row->item_code,
@@ -594,13 +551,9 @@ class PurchaseController extends Controller
         });
 
         return compact('items');
-
     }
 
-    
-    public function searchItemById($id)
-    {
-
+    public function searchItemById($id){
         $search_item = Item::where('id', $id)
                         ->whereNotIsSet()
                         ->whereIsActive()
@@ -609,9 +562,7 @@ class PurchaseController extends Controller
                         ->get();
 
         $items = collect($search_item)->transform(function($row){
-
             $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
-
             return [
                 'id' => $row->id,
                 'item_code'  => $row->item_code,
@@ -644,22 +595,15 @@ class PurchaseController extends Controller
                 'series_enabled' => (bool) $row->series_enabled,
             ];
         });
-
         return compact('items');
     }
 
-
-    public function delete($id)
-    {
-
+    public function delete($id){
         try {
-
             DB::connection('tenant')->transaction(function () use ($id) {
-
                 $row = Purchase::findOrFail($id);
                 $this->deleteAllPayments($row->purchase_payments);
                 $row->delete();
-
             });
 
             return [
@@ -668,7 +612,6 @@ class PurchaseController extends Controller
             ];
 
         } catch (\Exception $e) {
-
             return [
                 'success' => false,
                 'message' => $e->getMessage()
@@ -676,17 +619,14 @@ class PurchaseController extends Controller
         }
     }
 
-
-
-    public function xml2array ( $xmlObject, $out = array () )
-    {
+    public function xml2array ( $xmlObject, $out = array ()){
         foreach ((array) $xmlObject as $index => $node) {
             $out[$index] = ( is_object ( $node ) ) ?  $this->xml2array($node) : $node;
         }
         return $out;
     }
 
-    function XMLtoArray($xml) {
+    function XMLtoArray($xml){
         $previous_value = libxml_use_internal_errors(true);
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = false;
@@ -736,14 +676,11 @@ class PurchaseController extends Controller
         return $result;
     }
 
-    public function import(PurchaseImportRequest $request)
-    {
-        try
-        {
+    public function import(PurchaseImportRequest $request){
+        try{
             $model = $request->all();
             $supplier =  Person::whereType('suppliers')->where('number', $model['supplier_ruc'])->first();
-            if(!$supplier)
-            {
+            if(!$supplier){
                 return [
                     'success' => false,
                     'data' => 'Supplier not exist.'
@@ -764,8 +701,7 @@ class PurchaseController extends Controller
 
             $purchase = DB::connection('tenant')->transaction(function () use ($data) {
                 $doc = Purchase::create($data);
-                foreach ($data['items'] as $row)
-                {
+                foreach ($data['items'] as $row){
                     $doc->items()->create($row);
                 }
 

@@ -4,8 +4,8 @@ namespace App\Models\Tenant;
 
 use App\Models\Tenant\Catalogs\CurrencyType;
 
-class DocumentFee extends ModelTenant
-{
+class DocumentFee extends ModelTenant{
+
     public $timestamps = false;
     protected $table = 'document_fee';
 
@@ -23,13 +23,11 @@ class DocumentFee extends ModelTenant
         'amount' => 'float',
     ];
 
-    public function document()
-    {
+    public function document(){
         return $this->belongsTo(Document::class, 'document_id');
     }
 
-    public function currency_type()
-    {
+    public function currency_type(){
         return $this->belongsTo(CurrencyType::class, 'currency_type_id');
     }
 }

@@ -224,7 +224,7 @@
                 }
                 if(this.form.period === 'between_months') {
                     this.form.month_start = moment().startOf('year').format('YYYY-MM'); //'2019-01';
-                    this.form.month_end = moment().endOf('year').format('YYYY-MM');;
+                    this.form.month_end = moment().endOf('year').format('YYYY-MM');d
                 }
                 if(this.form.period === 'date') {
                     this.form.date_start = moment().format('YYYY-MM-DD');

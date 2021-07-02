@@ -357,8 +357,7 @@
                     },
                 }
             },
-            async opened() {
-
+            async opened(){
                 if(this.external && this.input_person) {
                     if(this.form.number.length === 8 || this.form.number.length === 11){
                         if(this.api_service_token != false){
@@ -368,9 +367,8 @@
                         }
                     }
                 }
-
             },
-            create() {
+            create(){
                 // console.log(this.input_person)
                 if(this.external) {
                     if(this.document_type_id === '01') {
@@ -406,7 +404,7 @@
                         })
                 }
             },
-            clickAddAddress() {
+            clickAddAddress(){
                /* this.form.more_address.push({
                     location_id: [],
                     address: null,
@@ -481,7 +479,7 @@
                     success: true
                 }
             },
-            async submit() {
+            async submit(){
 
                 let val_digits = await this.validateDigits()
                 if(!val_digits.success){
@@ -529,15 +527,15 @@
                 }
 
             },
-            close() {
+            close(){
                 this.$eventHub.$emit('initInputPerson')
                 this.$emit('update:showDialog', false)
                 this.initForm()
             },
-            searchCustomer() {
+            searchCustomer(){
                 this.searchServiceNumberByType()
             },
-            searchNumber(data) {
+            searchNumber(data){
                 this.form.name = (this.form.identity_document_type_id === '1')?data.nombre_completo:data.nombre_o_razon_social;
                 this.form.trade_name = (this.form.identity_document_type_id === '6')?data.nombre_o_razon_social:'';
                 this.form.location_id = data.ubigeo;
@@ -552,8 +550,7 @@
                 this.filterDistricts()
 //                this.form.addresses[0].telephone = data.telefono;
            },
-           clickRemoveAddress(index)
-           {
+           clickRemoveAddress(index){
                 this.form.addresses.splice(index, 1);
            }
         }

@@ -94,324 +94,260 @@ class Document extends ModelTenant
         'date_of_issue' => 'date',
     ];
 
-    public function getEstablishmentAttribute($value)
-    {
+    public function getEstablishmentAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setEstablishmentAttribute($value)
-    {
+    public function setEstablishmentAttribute($value){
         $this->attributes['establishment'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getCustomerAttribute($value)
-    {
+    public function getCustomerAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setCustomerAttribute($value)
-    {
+    public function setCustomerAttribute($value){
         $this->attributes['customer'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getChargesAttribute($value)
-    {
+    public function getChargesAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setChargesAttribute($value)
-    {
+    public function setChargesAttribute($value){
         $this->attributes['charges'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getDiscountsAttribute($value)
-    {
+    public function getDiscountsAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setDiscountsAttribute($value)
-    {
+    public function setDiscountsAttribute($value){
         $this->attributes['discounts'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getPrepaymentsAttribute($value)
-    {
+    public function getPrepaymentsAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setPrepaymentsAttribute($value)
-    {
+    public function setPrepaymentsAttribute($value){
         $this->attributes['prepayments'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getGuidesAttribute($value)
-    {
+    public function getGuidesAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setGuidesAttribute($value)
-    {
+    public function setGuidesAttribute($value){
         $this->attributes['guides'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getRelatedAttribute($value)
-    {
+    public function getRelatedAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setRelatedAttribute($value)
-    {
+    public function setRelatedAttribute($value){
         $this->attributes['related'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getPerceptionAttribute($value)
-    {
+    public function getPerceptionAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setPerceptionAttribute($value)
-    {
+    public function setPerceptionAttribute($value){
         $this->attributes['perception'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getDetractionAttribute($value)
-    {
+    public function getDetractionAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setDetractionAttribute($value)
-    {
+    public function setDetractionAttribute($value){
         $this->attributes['detraction'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getLegendsAttribute($value)
-    {
+    public function getLegendsAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setLegendsAttribute($value)
-    {
+    public function setLegendsAttribute($value){
         $this->attributes['legends'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getDataJsonAttribute($value)
-    {
+    public function getDataJsonAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setDataJsonAttribute($value)
-    {
+    public function setDataJsonAttribute($value){
         $this->attributes['data_json'] = (is_null($value))?null:json_encode($value);
     }
 
-
-    public function getSoapShippingResponseAttribute($value)
-    {
+    public function getSoapShippingResponseAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setSoapShippingResponseAttribute($value)
-    {
+    public function setSoapShippingResponseAttribute($value){
         $this->attributes['soap_shipping_response'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getResponseRegularizeShippingAttribute($value)
-    {
+    public function getResponseRegularizeShippingAttribute($value){
         return (is_null($value))?null:(object) json_decode($value);
     }
 
-    public function setResponseRegularizeShippingAttribute($value)
-    {
+    public function setResponseRegularizeShippingAttribute($value){
         $this->attributes['response_regularize_shipping'] = (is_null($value))?null:json_encode($value);
     }
 
-    public function getAdditionalInformationAttribute($value)
-    {
+    public function getAdditionalInformationAttribute($value){
         $arr = explode('|', $value);
         return $arr;
     }
 
-    public function user()
-    {
+    public function user(){
         return $this->belongsTo(User::class);
     }
 
-    public function soap_type()
-    {
+    public function soap_type(){
         return $this->belongsTo(SoapType::class);
     }
 
-    public function state_type()
-    {
+    public function state_type(){
         return $this->belongsTo(StateType::class);
     }
 
-    public function person() {
+    public function person(){
         return $this->belongsTo(Person::class, 'customer_id');
     }
 
-    public function group()
-    {
+    public function group(){
         return $this->belongsTo(Group::class);
     }
 
-    public function document_type()
-    {
+    public function document_type(){
         return $this->belongsTo(DocumentType::class, 'document_type_id');
     }
 
-    public function currency_type()
-    {
+    public function currency_type(){
         return $this->belongsTo(CurrencyType::class, 'currency_type_id');
     }
 
-    public function getCompanyAttribute()
-    {
+    public function getCompanyAttribute(){
         return Company::first();
     }
 
-    public function invoice()
-    {
+    public function invoice(){
         return $this->hasOne(Invoice::class);
     }
 
-    public function note()
-    {
+    public function note(){
         return $this->hasOne(Note::class);
     }
 
-    public function items()
-    {
+    public function items(){
         return $this->hasMany(DocumentItem::class);
     }
 
-    public function kardex()
-    {
+    public function kardex(){
         return $this->hasMany(Kardex::class);
     }
 
-    public function payments()
-    {
+    public function payments(){
         return $this->hasMany(DocumentPayment::class);
     }
 
-    public function fees()
-    {
+    public function fees(){
         return $this->hasMany(DocumentFee::class);
     }
 
-    public function inventory_kardex()
-    {
+    public function inventory_kardex(){
         return $this->morphMany(InventoryKardex::class, 'inventory_kardexable');
     }
 
-    public function quotation()
-    {
+    public function quotation(){
         return $this->belongsTo(Quotation::class);
     }
 
-    public function sale_note()
-    {
+    public function sale_note(){
         return $this->belongsTo(SaleNote::class, 'sale_note_id');
     }
 
-    public function hotel()
-    {
+    public function hotel(){
         return $this->hasOne(DocumentHotel::class);
     }
 
-    public function transport()
-    {
+    public function transport(){
         return $this->hasOne(DocumentTransport::class);
     }
 
-    public function getNumberFullAttribute()
-    {
+    public function getNumberFullAttribute(){
         return $this->series.'-'.$this->number;
     }
 
-    public function getNumberToLetterAttribute()
-    {
+    public function getNumberToLetterAttribute(){
         $legends = $this->legends;
         $legend = collect($legends)->where('code', '1000')->first();
         return $legend->value;
     }
 
-    public function getDownloadExternalXmlAttribute()
-    {
+    public function getDownloadExternalXmlAttribute(){
         return route('tenant.download.external_id', ['model' => 'document', 'type' => 'xml', 'external_id' => $this->external_id]);
     }
 
-    public function getDownloadExternalPdfAttribute()
-    {
+    public function getDownloadExternalPdfAttribute(){
         return route('tenant.download.external_id', ['model' => 'document', 'type' => 'pdf', 'external_id' => $this->external_id]);
     }
 
-    public function getDownloadExternalCdrAttribute()
-    {
+    public function getDownloadExternalCdrAttribute(){
         return route('tenant.download.external_id', ['model' => 'document', 'type' => 'cdr', 'external_id' => $this->external_id]);
     }
 
-
-    public function scopeWhereTypeUser($query)
-    {
+    public function scopeWhereTypeUser($query){
         $user = auth()->user();
         return ($user->type == 'admin') ? null : $query->where('user_id', $user->id);
         // return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
     }
 
-    public function scopeWhereNotSent($query)
-    {
+    public function scopeWhereNotSent($query){
         return  $query->whereIn('state_type_id', ['01','03'])->where('date_of_issue','<=',date('Y-m-d'));
     }
 
-    public function affected_documents()
-    {
+    public function affected_documents(){
         return $this->hasMany(Note::class, 'affected_document_id');
     }
 
-    public function scopeWhereHasPrepayment($query)
-    {
+    public function scopeWhereHasPrepayment($query){
         return $query->where([['has_prepayment', true],['was_deducted_prepayment', false],['state_type_id','05']]);
     }
 
-    public function reference_guides()
-    {
+    public function reference_guides(){
         return $this->hasMany(Dispatch::class, 'reference_document_id', 'id');
     }
 
-    public function summary_document()
-    {
+    public function summary_document(){
         return $this->hasOne(SummaryDocument::class);
     }
 
-    public function scopeWhereAffectationTypePrepayment($query, $type)
-    {
+    public function scopeWhereAffectationTypePrepayment($query, $type){
         return $query->where('affectation_type_prepayment', $type);
     }
 
-    public function scopeWhereStateTypeAccepted($query)
-    {
+    public function scopeWhereStateTypeAccepted($query){
         return $query->whereIn('state_type_id', ['01','03','05','07','13']);
     }
 
-    public function payment_method_type()
-    {
+    public function payment_method_type(){
         return $this->belongsTo(PaymentMethodType::class);
     }
 
-    public function scopeWhereRegularizeShipping($query)
-    {
+    public function scopeWhereRegularizeShipping($query){
         return  $query->where('state_type_id', '01')->where('regularize_shipping', true);
     }
 
-    public function order_note()
-    {
+    public function order_note(){
         return $this->belongsTo(OrderNote::class);
     }
 
-    public function seller()
-    {
+    public function seller(){
         return $this->belongsTo(User::class);
     }
 }

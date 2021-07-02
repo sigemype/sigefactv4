@@ -60,49 +60,39 @@ use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
 use App\Models\Tenant\Dispatch;
 use App\Models\Tenant\SaleNote;
 
-class DocumentController extends Controller
-{
+class DocumentController extends Controller{
+
     use StorageDocument, OfflineTrait, FinanceTrait;
     private $max_count_payment = 0;
 
-    public function __construct()
-    {
-
+    public function __construct(){
         $this->middleware('input.request:document,web', ['only' => ['store']]);
         $this->middleware('input.request:documentUpdate,web', ['only' => ['update']]);
     }
 
-    public function index()
-    {
+    public function index(){
         $is_client = $this->getIsClient();
         $import_documents = config('tenant.import_documents');
         $import_documents_second = config('tenant.import_documents_second_format');
-
         return view('tenant.documents.index', compact('is_client','import_documents','import_documents_second'));
     }
 
-    public function columns()
-    {
+    public function columns(){
         return [
             'number' => 'Número',
             'date_of_issue' => 'Fecha de emisión'
         ];
     }
 
-    public function records(Request $request)
-    {
-
+    public function records(Request $request){
         $records = $this->getRecords($request);
-
         return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
     }
 
-    public function searchCustomers(Request $request)
-    {
-
+    public function searchCustomers(Request $request)   {
         //tru de boletas en env esta en true filtra a los con dni   , false a todos
         $identity_document_type_id = $this->getIdentityDocumentTypeId($request->document_type_id, $request->operation_type_id);
-//        $operation_type_id_id = $this->getIdentityDocumentTypeId($request->operation_type_id);
+        //$operation_type_id_id = $this->getIdentityDocumentTypeId($request->operation_type_id);
 
         $customers = Person::where('number','like', "%{$request->input}%")
                             ->orWhere('name','like', "%{$request->input}%")
@@ -121,33 +111,25 @@ class DocumentController extends Controller
                                     'address' =>  $row->address
                                 ];
                             });
-
         return compact('customers');
     }
 
-
-    public function create()
-    {
+    public function create(){
         if(auth()->user()->type == 'integrator')
             return redirect('/documents');
-
         $configuration = Configuration::first();
         $is_contingency = 0;
         return view('tenant.documents.form', compact('is_contingency', 'configuration'));
     }
 
-    public function create_tensu()
-    {
+    public function create_tensu(){
         if(auth()->user()->type == 'integrator')
             return redirect('/documents');
-
         $is_contingency = 0;
         return view('tenant.documents.form_tensu', compact('is_contingency'));
     }
 
-
-    public function tables()
-    {
+    public function tables(){
         $customers = $this->table('customers');
         // $prepayment_documents = $this->table('prepayment_documents');
         $establishments = Establishment::where('id', auth()->user()->establishment_id)->get();// Establishment::all();
@@ -189,28 +171,23 @@ class DocumentController extends Controller
         });
         $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         // $detraction_types = DetractionType::whereActive()->get();
-
-//        return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
-//                       'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
-//                       'discount_types', 'charge_types', 'company', 'document_type_03_filter',
-//                       'document_types_guide');
-
+        //return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
+        //'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
+        //'discount_types', 'charge_types', 'company', 'document_type_03_filter',
+        //'document_types_guide');
         // return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
         //                'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
         //                'discount_types', 'charge_types', 'company', 'document_type_03_filter');
 
         $payment_destinations = $this->getPaymentDestinations();
-
         return compact( 'customers','establishments', 'series', 'document_types_invoice', 'document_types_note',
                         'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
                         'discount_types', 'charge_types', 'company', 'document_type_03_filter',
                         'document_types_guide', 'user', 'sellers','payment_method_types','enabled_discount_global',
                         'business_turns','is_client','select_first_document_type_03', 'payment_destinations', 'payment_conditions', 'cat_payment_method_types');
-
     }
 
-    public function item_tables()
-    {
+    public function item_tables(){
         $items = $this->table('items');
         $categories = [];//Category::cascade();
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
@@ -226,9 +203,8 @@ class DocumentController extends Controller
                        'operation_types', 'discount_types', 'charge_types', 'attribute_types','is_client');
     }
 
-    public function table($table)
-    {
-        if ($table === 'customers') {
+    public function table($table){
+        if ($table === 'customers'){
             $customers = Person::with('addresses')->whereType('customers')->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function($row) {
                 return [
                     'id' => $row->id,
@@ -244,13 +220,10 @@ class DocumentController extends Controller
             });
             return $customers;
         }
-
         if ($table === 'prepayment_documents') {
             $prepayment_documents = Document::whereHasPrepayment()->get()->transform(function($row) {
-
                 $total = round($row->pending_amount_prepayment, 2);
                 $amount = ($row->affectation_type_prepayment == '10') ? round($total/1.18, 2) : $total;
-
                 return [
                     'id' => $row->id,
                     'description' => $row->series.'-'.$row->number,
@@ -261,30 +234,22 @@ class DocumentController extends Controller
                     // 'total' => $row->total,
                     'amount' => $amount,
                     'total' => $total,
-
                 ];
             });
             return $prepayment_documents;
         }
-
         if ($table === 'payment_method_types') {
-
             $payment_method_types = PaymentMethodType::whereNotIn('id', ['05', '08', '09'])->get();
             $end_payment_method_types = PaymentMethodType::whereIn('id', ['05', '08', '09'])->get(); //by requirement
-
             return $payment_method_types->merge($end_payment_method_types);
         }
-
         if ($table === 'items') {
-
             $establishment_id = auth()->user()->establishment_id;
             $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
-
             // $items_u = Item::whereWarehouse()->whereIsActive()->whereNotIsSet()->orderBy('description')->take(20)->get();
             $items_u = Item::whereWarehouse()->whereIsActive()->orderBy('description')->take(20)->get();
             $items_s = Item::where('unit_type_id','ZZ')->whereIsActive()->orderBy('description')->take(10)->get();
             $items = $items_u->merge($items_s);
-
             return collect($items)->transform(function($row) use($warehouse){
                 $detail = $this->getFullDescription($row, $warehouse);
                 return [
@@ -355,19 +320,15 @@ class DocumentController extends Controller
 
                 ];
             });
-//            return $items;
+            //return $items;
         }
-
         return [];
     }
 
     public function getFullDescription($row, $warehouse){
-
         $desc = ($row->internal_id)?$row->internal_id.' - '.$row->description : $row->description;
         $category = ($row->category) ? "{$row->category->name}" : "";
         $brand = ($row->brand) ? "{$row->brand->name}" : "";
-
-
 
         if($row->unit_type_id != 'ZZ')
         {
@@ -377,9 +338,7 @@ class DocumentController extends Controller
         else{
             $stock = '';
         }
-
         $desc = "{$desc} - {$brand}";
-
         return [
             'full_description' => $desc,
             'brand' => $brand,
@@ -388,17 +347,13 @@ class DocumentController extends Controller
         ];
     }
 
-
-    public function record($id)
-    {
+    public function record($id){
         $record = new DocumentResource(Document::findOrFail($id));
-
         return $record;
     }
 
-    public function store(DocumentRequest $request)
-    {
-        $fact = DB::connection('tenant')->transaction(function () use ($request) {
+    public function store(DocumentRequest $request){
+        $fact = DB::connection('tenant')->transaction(function () use ($request){
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
             $facturalo->createXmlUnsigned();
@@ -407,29 +362,23 @@ class DocumentController extends Controller
             $facturalo->updateQr();
             $facturalo->createPdf();
             $facturalo->senderXmlSignedBill();
-
             return $facturalo;
         });
-
         $document = $fact->getDocument();
         $response = $fact->getResponse();
-
         $this->associateDispatchesToDocument($request, $document->id);
         $this->associateSaleNoteToDocument($request, $document->id);
-
         return [
             'success' => true,
             'data' => [
                 'id' => $document->id,
                 'response' =>$response
-
             ],
         ];
     }
 
-    private function associateSaleNoteToDocument(Request $request, int $documentId)
-    {
-        if ($request->sale_note_id) {
+    private function associateSaleNoteToDocument(Request $request, int $documentId){
+        if ($request->sale_note_id){
             SaleNote::where('id', $request->sale_note_id)
                 ->update(['document_id' => $documentId]);
         }
@@ -446,8 +395,7 @@ class DocumentController extends Controller
         }
     }
 
-    private function associateDispatchesToDocument(Request $request, int $documentId)
-    {
+    private function associateDispatchesToDocument(Request $request, int $documentId){
         $dispatches_relateds = $request->dispatches_relateds;
         if ($dispatches_relateds) {
             foreach ($dispatches_relateds as $dispatch) {
@@ -472,23 +420,35 @@ class DocumentController extends Controller
         }
     }
 
-    public function edit($documentId)
-    {
+    public function edit($id){
         if(auth()->user()->type == 'integrator') {
             return redirect('/documents');
         }
         $configuration = Configuration::first();
         $is_contingency = 0;
+        $documentId = $id;
         $isUpdate = true;
         return view('tenant.documents.form', compact('is_contingency', 'configuration', 'documentId', 'isUpdate'));
     }
 
-    public function update(DocumentUpdateRequest $request, $id)
-    {
+    public function update(Request $request, $id){
         $fact = DB::connection('tenant')->transaction(function () use ($request, $id) {
             $facturalo = new Facturalo();
-            $facturalo->update($request->all(), $id);
 
+            $document = Document::firstOrNew(['id' => $request['id']]);
+            $document->fill($request->all());
+            // $document->payment_condition_id = $request->input($payment_condition_id);
+            // $document->payment_condition_id = $request['payment_condition_id'];
+            // if($request['payment_condition_id'] = '02'){
+            //     $document->fees()->delete();
+            //     foreach ($request['fee'] as $row) {
+            //         $document->fees()->create($row);
+            //     }
+            // }
+            
+            $document->save();
+
+            $facturalo->update($request->all(), $id);
             $facturalo->createXmlUnsigned();
             $facturalo->signXmlUnsigned();
             $facturalo->updateHash();
@@ -498,9 +458,11 @@ class DocumentController extends Controller
             return $facturalo;
         });
 
+        // $document->fill($inputs);
+        // $document->update();
+        
         $document = $fact->getDocument();
         $response = $fact->getResponse();
-
         return [
             'success' => true,
             'data'    => [
@@ -510,8 +472,7 @@ class DocumentController extends Controller
         ];
     }
 
-    public function show($documentId)
-    {
+    public function show($documentId){
         $document = Document::findOrFail($documentId);
         return response()->json([
             'data' => $document,
@@ -519,8 +480,7 @@ class DocumentController extends Controller
         ], 200);
     }
 
-    public function reStore($document_id)
-    {
+    public function reStore($document_id){
         $fact = DB::connection('tenant')->transaction(function () use ($document_id) {
             $document = Document::find($document_id);
 
@@ -542,24 +502,21 @@ class DocumentController extends Controller
             $facturalo->updateSoap('02', $type);
             $facturalo->updateState('01');
             $facturalo->createPdf($document, $type, 'ticket');
-//            $facturalo->senderXmlSignedBill();
+            //$facturalo->senderXmlSignedBill();
         });
 
-//        $document = $fact->getDocument();
-//        $response = $fact->getResponse();
-
+        //$document = $fact->getDocument();
+        //$response = $fact->getResponse();
         return [
             'success' => true,
             'message' => 'El documento se volvio a generar.',
         ];
     }
 
-    public function email(DocumentEmailRequest $request)
-    {
+    public function email(DocumentEmailRequest $request){
         $company = Company::active();
         $document = Document::find($request->input('id'));
         $customer_email = $request->input('customer_email');
-
         Mail::to($customer_email)->send(new DocumentEmail($company, $document));
 
         return [
@@ -567,9 +524,8 @@ class DocumentController extends Controller
         ];
     }
 
-    public function send($document_id) {
+    public function send($document_id){
         $document = Document::find($document_id);
-
         $fact = DB::connection('tenant')->transaction(function () use ($document) {
             $facturalo = new Facturalo();
             $facturalo->setDocument($document);
@@ -586,10 +542,8 @@ class DocumentController extends Controller
         ];
     }
 
-    public function consultCdr($document_id)
-    {
+    public function consultCdr($document_id){
         $document = Document::find($document_id);
-
         $fact = DB::connection('tenant')->transaction(function () use ($document) {
             $facturalo = new Facturalo();
             $facturalo->setDocument($document);
@@ -604,7 +558,7 @@ class DocumentController extends Controller
         ];
     }
 
-    public function sendServer($document_id, $query = false) {
+    public function sendServer($document_id, $query = false){
         $document = Document::find($document_id);
         // $bearer = config('tenant.token_server');
         // $api_url = config('tenant.url_server');
@@ -643,38 +597,30 @@ class DocumentController extends Controller
         return $response;
     }
 
-    public function checkServer($document_id) {
+    public function checkServer($document_id){
         $document = Document::find($document_id);
         $bearer = $this->getTokenServer();
         $api_url = $this->getUrlServer();
-
         $client = new Client(['base_uri' => $api_url, 'verify' => false]);
-
         $res = $client->get('/api/document_check_server/'.$document->external_id, [
             'headers' => [
                 'Authorization' => 'Bearer '.$bearer,
                 'Accept' => 'application/json',
             ],
         ]);
-
         $response = json_decode($res->getBody()->getContents(), true);
-
         if ($response['success']) {
             $state_type_id = $response['state_type_id'];
             $document->state_type_id = $state_type_id;
             $document->save();
-
             if ($state_type_id === '05') {
                 $this->uploadStorage($document->filename, base64_decode($response['file_cdr']), 'cdr');
             }
         }
-
         return $response;
     }
 
-    public function searchCustomerById($id)
-    {
-
+    public function searchCustomerById($id){
         $customers = Person::with('addresses')->whereType('customers')
                     ->where('id',$id)
                     ->get()->transform(function($row) {
@@ -694,11 +640,8 @@ class DocumentController extends Controller
     }
 
     public function getIdentityDocumentTypeId($document_type_id, $operation_type_id){
-
         // if($operation_type_id === '0101' || $operation_type_id === '1001') {
-
         if(in_array($operation_type_id, ['0101', '1001', '1004'])) {
-
             if($document_type_id == '01'){
                 $identity_document_type_id = [6];
             }else{
@@ -711,17 +654,14 @@ class DocumentController extends Controller
         } else {
             $identity_document_type_id = [1,4,6,7,0];
         }
-
         return $identity_document_type_id;
     }
 
-    public function changeToRegisteredStatus($document_id)
-    {
+    public function changeToRegisteredStatus($document_id){
         $document = Document::find($document_id);
         if($document->state_type_id === '01') {
             $document->state_type_id = '05';
             $document->save();
-
             return [
                 'success' => true,
                 'message' => 'El estado del documento fue actualizado.',
@@ -729,8 +669,7 @@ class DocumentController extends Controller
         }
     }
 
-    public function import(Request $request)
-    {
+    public function import(Request $request){
         if ($request->hasFile('file')) {
             try {
                 $import = new DocumentsImport();
@@ -754,8 +693,7 @@ class DocumentController extends Controller
         ];
     }
 
-    public function importTwoFormat(Request $request)
-    {
+    public function importTwoFormat(Request $request){
         if ($request->hasFile('file')) {
             try {
                 $import = new DocumentsImportTwoFormat();
@@ -780,7 +718,6 @@ class DocumentController extends Controller
     }
 
     public function messageLockedEmission(){
-
         $configuration = Configuration::first();
         // $quantity_documents = Document::count();
         $quantity_documents = $configuration->quantity_documents;
@@ -791,7 +728,6 @@ class DocumentController extends Controller
                 'message' => 'Alcanzó el límite permitido para la emisión de comprobantes',
             ];
 
-
         return [
             'success' => true,
             'message' => '',
@@ -799,8 +735,6 @@ class DocumentController extends Controller
     }
 
     public function getRecords($request){
-
-
         $d_end = $request->d_end;
         $d_start = $request->d_start;
         $date_of_issue = $request->date_of_issue;
@@ -866,9 +800,7 @@ class DocumentController extends Controller
         return $records;
     }
 
-    public function data_table()
-    {
-
+    public function data_table(){
         $customers = $this->table('customers');
         $items = $this->getItems();
         $categories = Category::orderBy('name')->get();
@@ -878,12 +810,9 @@ class DocumentController extends Controller
         $establishments = Establishment::where('id', auth()->user()->establishment_id)->get();// Establishment::all();
 
         return compact( 'customers', 'document_types','series','establishments', 'state_types', 'items', 'categories');
-
     }
-
-
+    
     public function getItems(){
-
         $items = Item::orderBy('description')->take(20)->get()->transform(function($row) {
             return [
                 'id' => $row->id,
@@ -892,12 +821,9 @@ class DocumentController extends Controller
         });
 
         return $items;
-
     }
 
-
-    public function getDataTableItem(Request $request) {
-
+    public function getDataTableItem(Request $request){
         $items = Item::where('description','like', "%{$request->input}%")
                         ->orWhere('internal_id','like', "%{$request->input}%")
                         ->orderBy('description')
@@ -907,34 +833,24 @@ class DocumentController extends Controller
                                 'description' => ($row->internal_id) ? "{$row->internal_id} - {$row->description}" :$row->description,
                             ];
                         });
-
         return $items;
-
     }
 
-
-    private function updateMaxCountPayments($value)
-    {
-        if($value > $this->max_count_payment)
-        {
+    private function updateMaxCountPayments($value){
+        if($value > $this->max_count_payment){
             $this->max_count_payment = $value;
         }
        // $this->max_count_payment = 20 ;//( $value > $this->max_count_payment) ? $value : $this->$max_count_payment;
     }
 
-    private function transformReportPayment($resource)
-    {
-
+    private function transformReportPayment($resource){
         $records = $resource->transform(function($row) {
-
             $total_paid = collect($row->payments)->sum('payment');
             $total = $row->total;
             $total_difference = round($total - $total_paid, 2);
 
             $this->updateMaxCountPayments($row->payments->count());
-
             return (object)[
-
                 'id' => $row->id,
                 'ruc' => $row->customer->number,
                 // 'date' =>  $row->date_of_issue->format('Y-m-d'),
@@ -964,14 +880,11 @@ class DocumentController extends Controller
                 'reference4' =>  ( isset($row->payments[3]) ) ?  $row->payments[3]->reference : '', */
             ];
         });
-
         return $records;
     }
 
-    public function report_payments(Request $request)
-    {
+    public function report_payments(Request $request){
         // $month_format = Carbon::parse($month)->format('m');
-
         if($request->anulled == 'true') {
            $records = Document::whereBetween('date_of_issue', [$request->date_start, $request->date_end])->get();
         } else {
@@ -987,12 +900,9 @@ class DocumentController extends Controller
 
     }
 
-    public function destroyDocument($document_id)
-    {
+    public function destroyDocument($document_id){
         try {
-
             DB::connection('tenant')->transaction(function () use ($document_id) {
-
                 $record = Document::findOrFail($document_id);
                 $this->deleteAllPayments($record->payments);
                 $record->delete();
@@ -1005,27 +915,19 @@ class DocumentController extends Controller
             ];
 
         } catch (Exception $e) {
-
             return ($e->getCode() == '23000') ? ['success' => false,'message' => 'El Documento esta siendo usada por otros registros, no puede eliminar'] : ['success' => false,'message' => 'Error inesperado, no se pudo eliminar el Documento'];
-
         }
-
-
     }
 
-    public function storeCategories(CategoryRequest $request)
-    {
+    public function storeCategories(CategoryRequest $request){
         $id = $request->input('id');
         $category = Category::firstOrNew(['id' => $id]);
         $category->fill($request->all());
         $category->save();
-
-
         return [
             'success' => true,
             'message' => ($id)?'Categoría editada con éxito':'Categoría registrada con éxito',
             'data' => $category
-
         ];
     }
 
@@ -1035,7 +937,6 @@ class DocumentController extends Controller
         $brand->fill($request->all());
         $brand->save();
 
-
         return [
             'success' => true,
             'message' => ($id)?'Marca editada con éxito':'Marca registrada con éxito',
@@ -1043,9 +944,7 @@ class DocumentController extends Controller
         ];
     }
 
-    public function searchExternalId(Request $request)
-    {
+    public function searchExternalId(Request $request){
         return response()->json(Document::where('external_id', $request->external_id)->first());
     }
-
 }

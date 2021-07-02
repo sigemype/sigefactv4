@@ -365,7 +365,6 @@
                         <button style="min-width: 180px" class="btn btn-default" @click.prevent="close()">Cancelar</button>
                         <el-button style="min-width: 180px" class="submit btn btn-primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && this.dateValid">{{ btnText }}</el-button>
                     </div>
-                    {{ form }}
                 </div>
                 <div class="card card-transparent col-xl-3 col-md-3 col-12 pl-md-2 mt-0">
                     <div class="card-body d-flex align-items-start no-gutters">
@@ -760,7 +759,6 @@
                     this.seller_class = (this.user == 'admin')?'col-lg-4 pb-2':'col-lg-6 pb-2';
 
                     this.selectDocumentType()
-
                     this.changeEstablishment()
                     this.changeDateOfIssue()
                     this.changeDocumentType()
@@ -777,7 +775,7 @@
             if (this.documentId) {
                 this.btnText = 'Actualizar';
                 this.loading_submit = true;
-                await this.$http.get(`/documents/${this.documentId}/show`).then(response => {
+                await this.$http.get(`/documents/show/${this.documentId}`).then(response => {
                     this.onSetFormData(response.data.data);
                 }).finally(() => this.loading_submit = false);
             }
@@ -947,13 +945,11 @@
                     payment_condition_id: data.payment_condition_id,
                     fee: data.fees
                 }
-
                 if (! data.guides) {
                     this.clickAddInitGuides();
                 }
 
                 this.establishment = data.establishment;
-
                 this.changeDateOfIssue();
                 this.filterCustomers();
                 if(data.payment_condition_id == '01'){
@@ -1356,7 +1352,6 @@
             clickAddDocumentTransport(){
                 this.showDialogFormTransport = true
             },
-
             addDocumentHotel(hotel) {
                 this.form.hotel = hotel
             },
@@ -1533,9 +1528,6 @@
                 await this.filterCustomers();
                 await this.setDataDetraction();
             },
-            // async filterDetractionTypes(){
-            //     this.detraction_types =  await _.filter(this.all_detraction_types, {'operation_type_id':this.form.operation_type_id})
-            // },
             async setDataDetraction(){
 
                 if(this.form.operation_type_id === '1001'){
@@ -1698,7 +1690,7 @@
                     this.recordItem = null
                 }
                 else{
-                      this.form.items.push(JSON.parse(JSON.stringify(row)));
+                    this.form.items.push(JSON.parse(JSON.stringify(row)));
                 }
 
                 this.calculateTotal();
@@ -1901,7 +1893,7 @@
 
             },
             async submit() {
-                if (this.form.show_terms_condition) {
+                if (this.form.show_terms_condition){
                     this.form.terms_condition = this.configuration.terms_condition_sale;
                 }
                 if(this.form.has_prepayment || this.prepayment_deduction){
@@ -1909,49 +1901,38 @@
                     if(!error_prepayment.success)
                         return this.$message.error(error_prepayment.message);
                 }
-
-
                 if(this.is_receivable){
                     this.form.payments = []
                 }else{
                     let validate = await this.validate_payments()
-                    if(validate.acum_total > parseFloat(this.form.total) || validate.error_by_item > 0) {
+                    if(validate.acum_total > parseFloat(this.form.total) || validate.error_by_item > 0){
                         return this.$message.error('Los montos ingresados superan al monto a pagar o son incorrectos');
                     }
-
                     let validate_payment_destination = await this.validatePaymentDestination()
-
-                    if(validate_payment_destination.error_by_item > 0) {
+                    if(validate_payment_destination.error_by_item > 0){
                         return this.$message.error('El destino del pago es obligatorio');
                     }
-
                 }
-
                 await this.deleteInitGuides()
                 await this.asignPlateNumberToItems()
-
                 let val_detraction = await this.validateDetraction()
                 if(!val_detraction.success)
                     return this.$message.error(val_detraction.message);
-
                 if(!this.enabled_payments){
                     this.form.payments = []
                 }
-
                 this.loading_submit = true
                 let path = `/${this.resource}`;
-                if (this.isUpdate) {
+                if (this.isUpdate){
                     path = `/${this.resource}/${this.form.id}/update`;
                 }
                 this.$http.post(path, this.form).then(response => {
-                    if (response.data.success) {
+                    if (response.data.success){
                         this.$eventHub.$emit('reloadDataItems', null)
                         this.resetForm();
                         this.documentNewId = response.data.data.id;
                         this.showDialogOptions = true;
-
                         this.form_cash_document.document_id = response.data.data.id;
-
                         // this.savePaymentMethod();
                         this.saveCashDocument();
                     }
@@ -1959,7 +1940,7 @@
                         this.$message.error(response.data.message);
                     }
                 }).catch(error => {
-                    if (error.response.status === 422) {
+                    if (error.response.status === 422){
                         this.errors = error.response.data;
                     }
                     else {
@@ -1969,10 +1950,6 @@
                     this.loading_submit = false;
                 });
             },
-
-
-
-
             saveCashDocument(){
                 this.$http.post(`/cash/cash_document`, this.form_cash_document)
                     .then(response => {
@@ -2008,7 +1985,6 @@
                 }
 
             },
-
             close() {
                 location.href = (this.is_contingency) ? `/contingencies` : `/${this.resource}`
             },
@@ -2061,7 +2037,6 @@
                 });
                 this.calculateFee();
             },
-
             clickRemoveFee(index) {
                 this.form.fee.splice(index, 1);
                 this.calculateFee();

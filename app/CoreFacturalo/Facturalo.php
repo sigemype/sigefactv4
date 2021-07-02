@@ -64,8 +64,7 @@ class Facturalo
     protected $response;
     protected $apply_change;
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->configuration = Configuration::first();
         $this->company = Company::active();
         $this->isDemo = ($this->company->soap_type_id === '01')?true:false;
@@ -75,31 +74,25 @@ class Facturalo
         $this->setDataSoapType();
     }
 
-    public function setDocument($document)
-    {
+    public function setDocument($document){
         $this->document = $document;
     }
 
-    public function getDocument()
-    {
+    public function getDocument(){
         return $this->document;
     }
 
-    public function setType($type)
-    {
+    public function setType($type){
         $this->type = $type;
     }
 
-    public function getResponse()
-    {
+    public function getResponse(){
         return $this->response;
     }
 
-    public function save($inputs)
-    {
+    public function save($inputs){
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
         $this->type = $inputs['type'];
-
         switch ($this->type) {
             case 'debit':
             case 'credit':
@@ -161,52 +154,42 @@ class Facturalo
         }
     }
 
-    public function sendEmail()
-    {
+    public function sendEmail(){
         $send_email = ($this->actions['send_email'] === true) ? true : false;
-
         if($send_email){
-
             $company = $this->company;
             $document = $this->document;
             $email = ($this->document->customer) ? $this->document->customer->email : $this->document->supplier->email;
-
             Mail::to($email)->send(new DocumentEmail($company, $document));
-
         }
     }
 
-    public function createXmlUnsigned()
-    {
+    public function createXmlUnsigned(){
         $template = new Template();
         $this->xmlUnsigned = XmlFormat::format($template->xml($this->type, $this->company, $this->document));
         $this->uploadFile($this->xmlUnsigned, 'unsigned');
     }
 
-    public function signXmlUnsigned()
-    {
+    public function signXmlUnsigned(){
         $this->setPathCertificate();
         $this->signer->setCertificateFromFile($this->pathCertificate);
         $this->xmlSigned = $this->signer->signXml($this->xmlUnsigned);
         $this->uploadFile($this->xmlSigned, 'signed');
     }
 
-    public function updateHash()
-    {
+    public function updateHash(){
         $this->document->update([
             'hash' => $this->getHash(),
         ]);
     }
 
-    public function updateQr()
-    {
+    public function updateQr(){
         $this->document->update([
             'qr' => $this->getQr(),
         ]);
     }
 
-    public function updateState($state_type_id)
-    {
+    public function updateState($state_type_id){
 
         $this->document->update([
             'state_type_id' => $state_type_id,
@@ -215,8 +198,7 @@ class Facturalo
 
     }
 
-    public function updateSoap($soap_type_id, $type)
-    {
+    public function updateSoap($soap_type_id, $type){
         $this->document->update([
             'soap_type_id' => $soap_type_id
         ]);
@@ -227,8 +209,7 @@ class Facturalo
         // }
     }
 
-    public function updateStateDocuments($state_type_id)
-    {
+    public function updateStateDocuments($state_type_id){
         foreach ($this->document->documents as $doc)
         {
             $doc->document->update([
@@ -237,14 +218,12 @@ class Facturalo
         }
     }
 
-    private function getHash()
-    {
+    private function getHash(){
         $helper = new XmlHash();
         return $helper->getHashSign($this->xmlSigned);
     }
 
-    private function getQr()
-    {
+    private function getQr(){
         $customer = $this->document->customer;
         $text = join('|', [
             $this->company->number,
@@ -264,11 +243,10 @@ class Facturalo
         return $qr;
     }
 
-    public function createPdf($document = null, $type = null, $format = null) {
+    public function createPdf($document = null, $type = null, $format = null){
         ini_set("pcre.backtrack_limit", "5000000");
         $template = new Template();
         $pdf = new Mpdf();
-
         $format_pdf = $this->actions['format_pdf'] ?? null;
 
         $this->document = ($document != null) ? $document : $this->document;
@@ -285,13 +263,13 @@ class Facturalo
         $pdf_margin_bottom = 15;
         $pdf_margin_left = 15;
 
-        if (in_array($base_pdf_template, ['full_height', 'default3_new'])) {
+        if (in_array($base_pdf_template, ['full_height', 'default3_new'])){
             $pdf_margin_top = 5;
             $pdf_margin_right = 5;
             $pdf_margin_bottom = 5;
             $pdf_margin_left = 5;
         }
-        if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
+        if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])){
             $pdf_margin_top = 15;
             $pdf_margin_right = 5;
             $pdf_margin_bottom = 15;
@@ -300,11 +278,7 @@ class Facturalo
 
         $html = $template->pdf($base_pdf_template, $this->type, $this->company, $this->document, $format_pdf);
 
-        if (($format_pdf === 'ticket') OR
-            ($format_pdf === 'ticket_58') OR
-            ($format_pdf === 'ticket_50'))
-        {
-
+        if (($format_pdf === 'ticket') OR ($format_pdf === 'ticket_58') OR ($format_pdf === 'ticket_50')){
             $width = ($format_pdf === 'ticket_58') ? 56 : 78 ;
             if(config('tenant.enabled_template_ticket_80')) $width = 76;
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
@@ -351,9 +325,7 @@ class Facturalo
                 }
             }
             $legends = $this->document->legends != '' ? '10' : '0';
-
             $quotation_id = ($this->document->quotation_id) ? 15:0;
-
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => [
@@ -391,7 +363,6 @@ class Facturalo
                 'margin_left' => 1
             ]);
         }else if($format_pdf === 'a5'){
-
             $company_name      = (strlen($this->company->name) / 20) * 10;
             $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
@@ -418,8 +389,6 @@ class Facturalo
                 }
             }
             $legends = $this->document->legends != '' ? '10' : '0';
-
-
             $height = ($quantity_rows * 8) +
                     ($discount_global * 3) +
                     $company_name +
@@ -435,7 +404,6 @@ class Facturalo
                     $total_exonerated +
                     $total_taxed;
             $diferencia = 148 - (float)$height;
-
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => [
@@ -447,10 +415,7 @@ class Facturalo
                 'margin_bottom' => 0,
                 'margin_left' => 5
             ]);
-
-
         } else {
-
             if ($base_pdf_template === 'brand') {
                 $pdf_margin_top = 93.7;
                 $pdf_margin_bottom = 74;
@@ -490,7 +455,6 @@ class Facturalo
                     'margin_bottom' => $pdf_margin_bottom,
                     'margin_left' => $pdf_margin_left,
                 ]);
-
             } else {
                 $pdf = new Mpdf([
                     'margin_top' => $pdf_margin_top,
@@ -508,25 +472,22 @@ class Facturalo
 
         $stylesheet = file_get_contents($path_css);
 
-        if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
+        if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')){
             // dd($base_pdf_template);// = config(['tenant.pdf_template'=> $configuration]);
             if(config('tenant.pdf_template_footer')) {
-
                 $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
                 $html_footer_legend = "";
                 // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
                 if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
                     $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
                 }
-
                 $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
-
             }
-//            $html_footer = $template->pdfFooter();
-//            $pdf->SetHTMLFooter($html_footer);
+            //$html_footer = $template->pdfFooter();
+             //$pdf->SetHTMLFooter($html_footer);
         }
 
-        if ($base_pdf_template === 'brand') {
+        if ($base_pdf_template === 'brand'){
 
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
             $pdf->SetHTMLHeader($html_header);
@@ -536,7 +497,6 @@ class Facturalo
                 $pdf->SetHTMLFooter("");
             }
         }
-
         if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
 
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
@@ -545,31 +505,25 @@ class Facturalo
             $html_footer_blank = $template->pdfFooterBlank($base_pdf_template, $this->document);
             $pdf->SetHTMLFooter($html_footer_blank);
         }
-
         $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
-
         $this->uploadFile($pdf->output('', 'S'), 'pdf');
     }
 
-    public function loadXmlSigned()
-    {
+    public function loadXmlSigned(){
         $this->xmlSigned = $this->getStorage($this->document->filename, 'signed');
-//        dd($this->xmlSigned);
+        //dd($this->xmlSigned);
     }
 
-    private function senderXmlSigned()
-    {
+    private function senderXmlSigned(){
         $this->setDataSoapType();
         $sender = in_array($this->type, ['summary', 'voided'])?new SummarySender():new BillSender();
         $sender->setClient($this->wsClient);
         $sender->setCodeProvider(new XmlErrorCodeProvider());
-
         return $sender->send($this->document->filename, $this->xmlSigned);
     }
 
-    public function senderXmlSignedBill()
-    {
+    public function senderXmlSignedBill(){
         if(!$this->actions['send_xml_signed']) {
             $this->response = [
                 'sent' => false,
@@ -577,28 +531,22 @@ class Facturalo
             return;
         }
         $this->onlySenderXmlSignedBill();
-
     }
 
-    public function onlySenderXmlSignedBill()
-    {
+    public function onlySenderXmlSignedBill(){
         $res = $this->senderXmlSigned();
         if($res->isSuccess()) {
             $cdrResponse = $res->getCdrResponse();
             $this->uploadFile($res->getCdrZip(), 'cdr');
-
             $code = $cdrResponse->getCode();
             $description = $cdrResponse->getDescription();
-
             $this->response = [
                 'sent' => true,
                 'code' => $cdrResponse->getCode(),
                 'description' => $cdrResponse->getDescription(),
                 'notes' => $cdrResponse->getNotes()
             ];
-
             $this->validationCodeResponse($code, $description);
-
         } else {
             $code = $res->getError()->getCode();
             $message = $res->getError()->getMessage();
@@ -607,25 +555,20 @@ class Facturalo
                 'code' => $code,
                 'description' => $message
             ];
-
             $this->validationCodeResponse($code, $message);
-
         }
     }
 
-    public function validationCodeResponse($code, $message)
-    {
+    public function validationCodeResponse($code, $message){
         //Errors
         if($code === 'ERROR_CDR') {
             return;
         }
         if($code === 'HTTP') {
-//            $message = 'La SUNAT no responde a su solicitud, vuelva a intentarlo.';
-
+            //$message = 'La SUNAT no responde a su solicitud, vuelva a intentarlo.';
             if(in_array($this->type, ['retention', 'dispatch'])){
                 throw new Exception("Code: {$code}; Description: {$message}");
             }
-
             $this->updateRegularizeShipping($code, $message);
             return;
         }
@@ -635,18 +578,15 @@ class Facturalo
         }
         if((int)$code < 2000) {
             //Excepciones
-
             if(in_array($this->type, ['retention', 'dispatch'])){
                 throw new Exception("Code: {$code}; Description: {$message}");
             }
-
             $this->updateRegularizeShipping($code, $message);
             return;
 
         } elseif ((int)$code < 4000) {
             //Rechazo
             $this->updateState(self::REJECTED);
-
         } else {
             $this->updateState(self::OBSERVED);
             //Observaciones
@@ -654,10 +594,7 @@ class Facturalo
         return;
     }
 
-
-    public function updateRegularizeShipping($code, $description)
-    {
-
+    public function updateRegularizeShipping($code, $description){
         $this->document->update([
             'state_type_id' => self::REGISTERED,
             'regularize_shipping' => true,
@@ -666,12 +603,9 @@ class Facturalo
                 'description' => $description
             ]
         ]);
-
     }
 
-
-    public function senderXmlSignedSummary()
-    {
+    public function senderXmlSignedSummary(){
         $res = $this->senderXmlSigned();
         if($res->isSuccess()) {
             $ticket = $res->getTicket();
@@ -694,25 +628,22 @@ class Facturalo
         }
     }
 
-    private function updateTicket($ticket)
-    {
+    private function updateTicket($ticket){
         $this->document->update([
             'ticket' => $ticket
         ]);
     }
 
-    public function statusSummary($ticket)
-    {
+    public function statusSummary($ticket){
         $extService = new ExtService();
         $extService->setClient($this->wsClient);
         $extService->setCodeProvider(new XmlErrorCodeProvider());
         $res = $extService->getStatus($ticket);
-        if(!$res->isSuccess()) {
+        if(!$res->isSuccess()){
             throw new Exception("Code: {$res->getError()->getCode()}; Description: {$res->getError()->getMessage()}");
         } else {
             $cdrResponse = $res->getCdrResponse();
             $this->uploadFile($res->getCdrZip(), 'cdr');
-
             $this->response = [
                 'sent' => true,
                 'code' => $cdrResponse->getCode(),
@@ -721,57 +652,41 @@ class Facturalo
                 'is_accepted' => $cdrResponse->isAccepted(),
                 'status_code' => $extService->getCustomStatusCode(),
             ];
-
             $this->validationStatusCodeResponse($extService->getCustomStatusCode());
             // $this->updateState(self::ACCEPTED);
 
-            if($this->type === 'summary') {
-
+            if($this->type === 'summary'){
                 if($extService->getCustomStatusCode() === 0){
-
                     if($this->document->summary_status_type_id === '1') {
                         $this->updateStateDocuments(self::ACCEPTED);
                     } else {
                         $this->updateStateDocuments(self::VOIDED);
                     }
-
                 }else if($extService->getCustomStatusCode() === 99){
-
                     $this->updateStateDocuments(self::REGISTERED);
-
                 }
-
             } else {
                 $this->updateStateDocuments(self::VOIDED);
             }
-
         }
     }
 
-    public function validationStatusCodeResponse($status_code)
-    {
-
+    public function validationStatusCodeResponse($status_code){
         switch ($status_code) {
             case 0:
                 $this->updateState(self::ACCEPTED);
                 break;
-
             case 99:
                 $this->updateState(self::REJECTED);
                 break;
-
         }
-
     }
 
-    public function consultCdr()
-    {
+    public function consultCdr(){
         $consultCdrService = new ConsultCdrService();
         $consultCdrService->setClient($this->wsClient);
         $consultCdrService->setCodeProvider(new XmlErrorCodeProvider());
-        $res = $consultCdrService->getStatusCdr($this->company->number, $this->document->document_type_id,
-                                                $this->document->series, $this->document->number);
-
+        $res = $consultCdrService->getStatusCdr($this->company->number, $this->document->document_type_id, $this->document->series, $this->document->number);
         if(!$res->isSuccess()) {
             throw new Exception("Code: {$res->getError()->getCode()}; Description: {$res->getError()->getMessage()}");
         } else {
@@ -787,20 +702,17 @@ class Facturalo
         }
     }
 
-    public function uploadFile($file_content, $file_type)
-    {
+    public function uploadFile($file_content, $file_type){
         $this->uploadStorage($this->document->filename, $file_content, $file_type);
     }
 
-    private function setDataSoapType()
-    {
+    private function setDataSoapType(){
         $this->setSoapCredentials();
         $this->wsClient->setCredentials($this->soapUsername, $this->soapPassword);
         $this->wsClient->setService($this->endpoint);
     }
 
-    private function setPathCertificate()
-    {
+    private function setPathCertificate(){
         if($this->isOse) {
             $this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
                 'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
@@ -816,46 +728,36 @@ class Facturalo
                     'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
             }
         }
-
-//        if($this->isDemo) {
-//            $this->pathCertificate = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.
-//                'WS'.DIRECTORY_SEPARATOR.
-//                'Signed'.DIRECTORY_SEPARATOR.
-//                'Resources'.DIRECTORY_SEPARATOR.
-//                'certificate.pem');
-//        } else {
-//            $this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
-//                'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
-//        }
+        //if($this->isDemo) {
+            //$this->pathCertificate = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.
+            //'WS'.DIRECTORY_SEPARATOR.
+            //'Signed'.DIRECTORY_SEPARATOR.
+            //'Resources'.DIRECTORY_SEPARATOR.
+            //'certificate.pem');
+        //} else {
+            //$this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
+            //'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
+        //}
     }
 
-    private function setSoapCredentials()
-    {
-
-        if($this->isOse) {
-
+    private function setSoapCredentials(){
+        if($this->isOse){
             $this->soapUsername = $this->company->soap_username;
             $this->soapPassword = $this->company->soap_password;
-
         }else{
-
-            if($this->isDemo) {
+            if($this->isDemo){
                 $this->soapUsername = $this->company->number.'MODDATOS';
                 $this->soapPassword = 'moddatos';
             } else {
                 $this->soapUsername = $this->company->soap_username;
                 $this->soapPassword = $this->company->soap_password;
             }
-
         }
-
-
-//        $this->soapUsername = ($this->isDemo)?$this->company->number.'MODDATOS':$this->company->soap_username;
-//        $this->soapPassword = ($this->isDemo)?'moddatos':$this->company->soap_password;
-
+        //$this->soapUsername = ($this->isDemo)?$this->company->number.'MODDATOS':$this->company->soap_username;
+        //$this->soapPassword = ($this->isDemo)?'moddatos':$this->company->soap_password;
         if($this->isOse) {
             $this->endpoint = $this->company->soap_url;
-//            dd($this->soapPassword);
+            //dd($this->soapPassword);
         } else {
             switch ($this->type) {
                 case 'perception':
@@ -871,7 +773,6 @@ class Facturalo
                     break;
             }
         }
-
     }
 
     private function updatePrepaymentDocuments($inputs){
@@ -963,47 +864,44 @@ class Facturalo
         }
     }
 
-    public function update($inputs,$id){
+    public function update($inputs, $id){
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
-        $this->type = @$inputs['type'];
+        $this->type = $inputs['type'];
         switch ($this->type) {
             case 'invoice':
                 $document = Document::find($id);
                 $document->fill($inputs);
                 $document->save();
-
-                $document->payments()->delete();
-                $this->savePayments($document, $inputs['payments']);
-
-                $document->fees()->delete();
-                $this->saveFee($document, $inputs['fee']);
+                // if($inputs['payment_condition_id'] = '01'){
+                    $document->payments()->delete();
+                    $this->savePayments($document, $inputs['payments']);
+                // } else {
+                //     $document->fees()->delete();
+                //     $this->saveFee($document, $inputs['fee']);
+                // }
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
                 foreach ($document->items as $it) {
                     $this->restoreStockInWarehpuse($it->item_id, $warehouse->id, $it->quantity);
                 }
-
                 $document->items()->delete();
                 foreach ($inputs['items'] as $row) {
                     $document->items()->create($row);
                 }
-
                 $this->updatePrepaymentDocuments($inputs);
-
                 if($inputs['hotel']){
                     $document->hotel()->update($inputs['hotel']);
                 }
-
                 $document->invoice()->update($inputs['invoice']);
                 $this->document = Document::find($document->id);
-                break;
+            break;
         }
     }
 
-    private function saveFee($document, $fee)
-    {
+    private function saveFee($document, $fee){
         foreach ($fee as $row) {
             $document->fees()->create($row);
         }
     }
 }
+

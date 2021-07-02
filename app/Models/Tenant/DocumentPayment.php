@@ -5,8 +5,7 @@ namespace App\Models\Tenant;
 use Modules\Finance\Models\GlobalPayment;
 use Modules\Finance\Models\PaymentFile;
 
-class DocumentPayment extends ModelTenant
-{
+class DocumentPayment extends ModelTenant{
     protected $with = ['payment_method_type', 'card_brand'];
     public $timestamps = false;
 
@@ -25,34 +24,27 @@ class DocumentPayment extends ModelTenant
         'date_of_payment' => 'date',
     ];
 
-    public function payment_method_type()
-    {
+    public function payment_method_type(){
         return $this->belongsTo(PaymentMethodType::class);
     }
 
-    public function card_brand()
-    {
+    public function card_brand(){
         return $this->belongsTo(CardBrand::class);
     }
 
-    public function document()
-    {
+    public function document(){
         return $this->belongsTo(Document::class, 'document_id');
     }
-
     
-    public function global_payment()
-    {
+    public function global_payment(){
         return $this->morphOne(GlobalPayment::class, 'payment');
     }
 
-    public function associated_record_payment()
-    {
+    public function associated_record_payment(){
         return $this->belongsTo(Document::class, 'document_id');
     }
 
-    public function payment_file()
-    {
+    public function payment_file(){
         return $this->morphOne(PaymentFile::class, 'payment');
     }
 

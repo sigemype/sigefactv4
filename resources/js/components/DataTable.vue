@@ -11,8 +11,7 @@
                             <el-select
                                 v-model="search.column"
                                 placeholder="Select"
-                                @change="changeClearInput"
-                            >
+                                @change="changeClearInput">
                                 <el-option
                                     v-for="(label, key) in columns"
                                     :key="key"
@@ -28,9 +27,7 @@
                                 search.column == 'date_of_issue' ||
                                     search.column == 'date_of_due' ||
                                     search.column == 'date_of_payment' ||
-                                    search.column == 'delivery_date'
-                            "
-                        >
+                                    search.column == 'delivery_date'">
                             <el-date-picker
                                 v-model="search.value"
                                 type="date"

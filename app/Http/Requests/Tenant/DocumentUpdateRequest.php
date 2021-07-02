@@ -4,15 +4,13 @@ namespace App\Http\Requests\Tenant;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DocumentUpdateRequest extends FormRequest
-{
-    public function authorize()
-    {
+class DocumentUpdateRequest extends FormRequest{
+
+    public function authorize(){
         return true;
     }
 
-    public function rules()
-    {
+    public function rules(){
         return [
             'id' => 'required|numeric',
             'customer_id' => [
