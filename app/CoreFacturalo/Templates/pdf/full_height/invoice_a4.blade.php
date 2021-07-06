@@ -173,19 +173,20 @@
         <td class="desc"></td>
     </tr>
 </table>
-<div style="border: 1px solid #000;height: 48%;padding-left: -1px;width:95.1%;position: absolute;display: table;">
+
+<div style="border: 1px solid #000;height: 47%;padding-left: -1px;width:95.1%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:11.4%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: 47.1%;padding-left: -1px;width:11.4%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:49.5%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: 47.1%;padding-left: -1px;width:49.5%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:57.2%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: 47.1%;padding-left: -1px;width:57.2%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:64.8%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: 47.1%;padding-left: -1px;width:64.8%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:76.3%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: 47.1%;padding-left: -1px;width:76.3%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:83.7%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: 47.1%;padding-left: -1px;width:83.7%;position: absolute;display: table;">
 </div>
 
 

@@ -37,6 +37,20 @@
 </head>
 <body>
 @if($document != null)
+    @if(!is_null($document_base))
+        <table class="full-width border-box my-2">
+            <tr>
+                <th class="border-box text-center py-1 desc">DOC. RELACIONADO</th>
+                <th class="border-box text-center py-1 desc">TIPO DE NOTA</th>
+                <th class="border-box text-center py-1 desc">DESCRIPCIÓN</th>
+            </tr>
+            <tr>
+                <td class="border-box text-center py-1 desc">{{ $affected_document_number }}</td>
+                <td class="border-box text-center py-1 desc">{{ ($document_base->note_type === 'credit')?$document_base->note_credit_type->description:$document_base->note_debit_type->description}}</td>
+                <td class="border-box text-center py-1 desc">{{ $document_base->note_description }}</td>
+            </tr>
+        </table>
+    @endif
     <table class="full-width border-box my-2">
         <tr>
             <td class="text-upp p-2">SON:
