@@ -208,6 +208,8 @@
                 <td class="p-1 text-center align-top desc">{{ $row->item->internal_id }}</div></td>
                 <td class="p-1 text-left align-top desc text-upp">
                     @if($row->name_product_pdf)
+                        {!!$row->item->description!!} <br> 
+
                         {!!$row->name_product_pdf!!}
                     @else
                         {!!$row->item->description!!}
