@@ -19,7 +19,8 @@ class ConfigurationEcommerce extends ModelTenant
         'link_facebook',
         'tag_shipping',
         'tag_dollar',
-        'tag_support'
+        'tag_support',
+        'phone_whatsapp'
     ];
 
 }

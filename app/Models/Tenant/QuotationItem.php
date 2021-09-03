@@ -108,4 +108,44 @@ class QuotationItem extends ModelTenant
     {
         return $this->belongsTo(Item::class, 'item_id');
     }
+
+    /**
+     * @return Item|Item[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed|null
+     */
+    public function getModelItem(){ return Item::find($this->item_id);}
+
+    /**
+     * Devuelve una estructura en conjunto para datos extra al momento de generar un pdf
+     *
+     * @return array
+     */
+    public function getPrintExtraData()
+    {
+                $item = $this->item;
+        $extra = (property_exists($item, 'extra')) ? $item->extra : null;
+        $extra_string = ($extra != null && property_exists($extra, 'string')) ? $extra->string : null;
+        $colors = ($extra_string != null && property_exists($extra_string, 'colors')) ? $extra_string->colors : null;
+        $CatItemUnitsPerPackage = ($extra_string != null && property_exists($extra_string, 'CatItemUnitsPerPackage')) ? $extra_string->CatItemUnitsPerPackage : null;
+        $CatItemMoldProperty = ($extra_string != null && property_exists($extra_string, 'CatItemMoldProperty')) ? $extra_string->CatItemMoldProperty : null;
+        $CatItemProductFamily = ($extra_string != null && property_exists($extra_string, 'CatItemProductFamily')) ? $extra_string->CatItemProductFamily : null;
+        $CatItemMoldCavity = ($extra_string != null && property_exists($extra_string, 'CatItemMoldCavity')) ? $extra_string->CatItemMoldCavity : null;
+        $CatItemPackageMeasurement = ($extra_string != null && property_exists($extra_string, 'CatItemPackageMeasurement')) ? $extra_string->CatItemPackageMeasurement : null;
+        $CatItemStatus = ($extra_string != null && property_exists($extra_string, 'CatItemStatus')) ? $extra_string->CatItemStatus : null;
+        $CatItemUnitBusiness = ($extra_string != null && property_exists($extra_string, 'CatItemUnitBusiness')) ? $extra_string->CatItemUnitBusiness : null;
+        $data = [
+            'colors' => (!empty($colors)) ? $colors : null,
+            'CatItemUnitsPerPackage' => (!empty($CatItemUnitsPerPackage)) ? $CatItemUnitsPerPackage : null,
+            'CatItemMoldProperty' => (!empty($CatItemMoldProperty)) ? $CatItemMoldProperty : null,
+            'CatItemProductFamily' => (!empty($CatItemProductFamily)) ? $CatItemProductFamily : null,
+            'CatItemMoldCavity' => (!empty($CatItemMoldCavity)) ? $CatItemMoldCavity : null,
+            'CatItemPackageMeasurement' => (!empty($CatItemPackageMeasurement)) ? $CatItemPackageMeasurement : null,
+            'CatItemStatus' => (!empty($CatItemStatus)) ? $CatItemStatus : null,
+            'CatItemUnitBusiness' => (!empty($CatItemUnitBusiness)) ? $CatItemUnitBusiness : null,
+        ];
+        // Se añaden campos extra desde el item
+        $itemModel = $this->getModelItem();
+        $itemModel->getExtraDataToPrint($data);
+        return $data;
+    }
+
 }

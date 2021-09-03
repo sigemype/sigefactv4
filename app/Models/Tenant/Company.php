@@ -4,6 +4,12 @@ namespace App\Models\Tenant;
 
 use App\Models\Tenant\Catalogs\IdentityDocumentType;
 
+/**
+ * Class Company
+ *
+ * @package App\Models\Tenant
+ * @mixin  ModelTenant
+ */
 class Company extends ModelTenant
 {
     protected $with = ['identity_document_type'];
@@ -23,8 +29,28 @@ class Company extends ModelTenant
         'logo',
         'detraction_account',
         'operation_amazonia',
-        'img_firm'
+        'img_firm',
+        'cod_digemid',
+        'integrated_query_client_id',
+        'integrated_query_client_secret',
     ];
+
+    /**
+     * @return mixed
+     */
+    public function getCodDigemid() {
+        return $this->cod_digemid;
+    }
+
+    /**
+     * @param mixed $cod_digemid
+     *
+     * @return Company
+     */
+    public function setCodDigemid($cod_digemid) {
+        $this->cod_digemid = $cod_digemid;
+        return $this;
+    }
 
     public function identity_document_type()
     {

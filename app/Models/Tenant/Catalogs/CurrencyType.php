@@ -18,7 +18,7 @@ class CurrencyType extends ModelCatalog
     //         $builder->where('active', 1);
     //     });
     // }
-    
+
     protected $table = "cat_currency_types";
     public $incrementing = false;
     public $timestamps = false;
@@ -29,4 +29,8 @@ class CurrencyType extends ModelCatalog
         'symbol',
         'description',
     ];
+
+    public function scopeActives($query){
+        return $query->where('active',1);
+}
 }
