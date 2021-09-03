@@ -8,7 +8,7 @@
         .border-custom {
             border-color: rgba(0,136,204, .5) !important;
         }
-        @media only screen and (min-width: 768px) { 
+        @media only screen and (min-width: 768px) {
         	.inner-wrapper {
 			    padding-top: 60px !important;
 			}
@@ -21,7 +21,9 @@
 
 @section('content')
 
-    <tenant-documents-invoice></tenant-documents-invoice>
+    <tenant-documents-invoice
+        :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
+    ></tenant-documents-invoice>
 
 @endsection
 
@@ -32,7 +34,7 @@
 		count = count + 1;
 		if (count == 1) {
 			$("#card-section").removeClass("card-collapsed");
-		}		
+		}
 	});
 </script>
 @endpush

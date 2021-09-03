@@ -77,6 +77,9 @@
                     <li>
                         <a href="{{url('list-units')}}">Listado de unidades</a>
                     </li>
+                    <li>
+                        <a href="{{url('list-transfer-reason-types')}}">Tipos de motivos de transferencias</a>
+                    </li>
                     @endif
                 </ul>
             </div>
@@ -128,7 +131,7 @@
     <div class="col-6 col-md-4 mb-4">
         <div class="card card-dashboard card-reports">
             <div class="card-body">
-                <h6 class="card-title">Azanzado</h6>
+                <h6 class="card-title">Avanzado</h6>
                 <ul class="card-report-links">
                     @if(auth()->user()->type != 'integrator' && $vc_company->soap_type_id != '03')
                     <li>
@@ -151,6 +154,11 @@
                         <a href="{{route('tenant.inventories.configuration.index')}}">Inventarios</a>
                     </li>
                     @endif
+                        @if(auth()->user()->type === 'admin')
+                            <li>
+                                <a href="{{route('tenant.sale_notes.configuration')}}">Nota de ventas</a>
+                            </li>
+                        @endif
                 </ul>
             </div>
         </div>

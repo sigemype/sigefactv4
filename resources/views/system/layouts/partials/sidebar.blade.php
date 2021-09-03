@@ -76,6 +76,15 @@
                     </li>
                 </ul>
             </nav>
+            <nav id="menu" class="nav-main" role="navigation">
+                <ul class="nav nav-main">
+                    <li class="{{ ($path[0] === 'information')?'nav-active':'' }}">
+                        <a class="nav-link" href="{{route('system.information')}}">
+                            <i class="fas fa-info"></i><span>Información</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
 
 

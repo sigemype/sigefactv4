@@ -13,9 +13,6 @@ $cash_documents = $cash->cash_documents;
 
 
 foreach ($cash_documents as $cash_document) {
-
-    //$final_balance += ($cash_document->document) ? $cash_document->document->total : $cash_document->sale_note->total;
-
     if($cash_document->sale_note){
 
         if($cash_document->sale_note->currency_type_id == 'PEN'){
@@ -56,7 +53,6 @@ foreach ($cash_documents as $cash_document) {
 
     }
     else if($cash_document->document){
-
         if($cash_document->document->currency_type_id == 'PEN'){
 
             if(in_array($cash_document->document->state_type_id, ['01','03','05','07','13'])){
@@ -76,20 +72,21 @@ foreach ($cash_documents as $cash_document) {
             }
 
         }
-
-        if(in_array($cash_document->document->state_type_id, ['01','03','05','07','13'])){
-
-            if( count($cash_document->document->payments) > 0)
-            {
+        $payment_condition_id = $cash_document->document->payment_condition_id;
+        if (in_array($cash_document->document->state_type_id, ['01','03','05','07','13']) && $payment_condition_id === '01') {
+            if( count($cash_document->document->payments) > 0) {
                 $pays = $cash_document->document->payments;
 
                 foreach ($methods_payment as $record) {
-                    // dd($pays, $record);
-
                     $record->sum = ($record->sum + $pays->where('payment_method_type_id', $record->id)->whereIn('document.state_type_id', ['01','03','05','07','13'])->sum('payment'));
-
                 }
 
+            }
+        } else {
+            foreach ($methods_payment as $record) {
+                if ($record->id === '09') {
+                    $record->sum += $cash_document->document->total;
+                }
             }
         }
 
@@ -272,7 +269,7 @@ $cash_final_balance = $final_balance + $cash->beginning_balance;
 
                     </table> <br>
 
-                    <table class="">
+                    <table>
                         <thead>
                             <tr>
                                 <th>#</th>

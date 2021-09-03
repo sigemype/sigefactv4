@@ -20,7 +20,13 @@
 @endpush
 
 @section('content')
-    <tenant-documents-invoice :is_contingency="{{ json_encode($is_contingency) }}" :type-user="{{json_encode(Auth::user()->type)}}" :configuration="{{ $configuration }}" :document-id="{{ $documentId ?? 0 }}" :is-update="{{ json_encode($isUpdate ?? false) }}"></tenant-documents-invoice>
+    <tenant-documents-invoice
+        :is_contingency="{{ json_encode($is_contingency) }}"
+        :type-user="{{json_encode(Auth::user()->type)}}"
+        :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
+        :document-id="{{ $documentId ?? 0 }}"
+        :is-update="{{ json_encode($isUpdate ?? false) }}"
+        :id-user="{{json_encode(Auth::user()->id)}}"></tenant-documents-invoice>
 @endsection
 
 @push('scripts')

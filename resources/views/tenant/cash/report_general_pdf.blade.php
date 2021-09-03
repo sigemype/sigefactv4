@@ -114,6 +114,8 @@ $cash_final_balance = 0;
                                         if($value->expense_payment->expense->state_type_id == '05'){
                                             $all_documents[] = $value;
                                         }
+                                    }else if($value->purchase){
+                                        $all_documents[] = $value;
                                     }
                                 }
                             @endphp
@@ -175,6 +177,21 @@ $cash_final_balance = 0;
                                             $total = -$value->expense_payment->payment;
                                             $currency_type_id = $value->expense_payment->expense->currency_type_id;
 
+                                        }
+                                        else if($value->purchase){
+
+                                            $type_transaction =  'Compra';
+                                            $document_type_description =  $value->purchase->document_type->description;
+                                            $number = $value->purchase->number_full;
+                                            $date_of_issue = $value->purchase->date_of_issue->format('Y-m-d');
+                                            $customer_name = $value->purchase->supplier->name;
+                                            $customer_number = $value->purchase->supplier->number;
+                                            $total = -$value->purchase->total;
+                                            $currency_type_id = $value->purchase->currency_type_id;
+
+                                            if(!in_array($value->purchase->state_type_id, ['01','03','05','07','13'])){
+                                                $total = 0;
+                                            }
                                         }
 
                                     @endphp

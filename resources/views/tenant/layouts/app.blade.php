@@ -15,18 +15,20 @@
         || $visual->sidebar_theme == 'green'
         || $visual->sidebar_theme == 'warning'
         || $visual->sidebar_theme == 'ligth-blue') ? 'sidebar-light' : '' }}
-        {{$vc_compact_sidebar->compact_sidebar == true ? 'sidebar-left-collapsed' : ''}}
+        {{$vc_compact_sidebar->compact_sidebar == true || $path[0] === 'documents' && $path[1] === 'create' ? 'sidebar-left-collapsed' : ''}}
         {{-- header-{{$visual->navbar ?? 'fixed'}} --}}
         {{-- {{$visual->header == 'dark' ? 'header-dark' : ''}} --}}
         {{-- {{$visual->sidebars == 'dark' ? '' : 'sidebar-light'}} --}}
         {{$visual->bg == 'dark' ? 'dark' : ''}}
         {{ ($path[0] === 'documents' && $path[1] === 'create'
+        || $path[0] === 'documents' && $path[1] === 'note'
         || $path[0] === 'quotations' && $path[1] === 'create'
         || $path[0] === 'sale-opportunities' && $path[1] === 'create'
         || $path[0] === 'order-notes' && $path[1] === 'create'
         || $path[0] === 'sale-notes' && $path[1] === 'create'
         || $path[0] === 'purchase-quotations' && $path[1] === 'create'
         || $path[0] === 'purchase-orders' && $path[1] === 'create'
+        || $path[0] === 'dispatches' && $path[1] === 'create'
         || $path[0] === 'purchases' && $path[1] === 'create') ? 'newinvoice' : ''}}
         ">
 <head>

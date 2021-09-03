@@ -83,7 +83,8 @@
         <span class="separator"></span>
         <ul class="notifications">
             <li>
-                <a href="{{route('tenant.documents.regularize_shipping')}}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Comprobantes pendientes de envío">
+                <a href="{{route('tenant.documents.not_sent')}}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Comprobantes enviados/por enviar">
+                {{-- <a href="{{route('tenant.documents.not_sent')}}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Comprobantes pendientes de envío"> --}}
                     <i class="far fa-bell text-secondary"></i>
                     <span class="badge badge-pill badge-danger badge-up cart-item-count">{{ $vc_document }}</span>
                 </a>
@@ -118,7 +119,17 @@
             </a>
             <div class="dropdown-menu">
                 <ul class="list-unstyled mb-0">
-                    {{-- <li class="divider"></li> --}}
+                    @if(in_array('cuenta', $vc_modules))
+                        @if(in_array('account_users_list', $vc_module_levels))
+                        <li>
+                            <a role="menuitem" href="{{route('tenant.payment.index')}}">
+                                <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+                                <span>Mis Pagos</span>
+                            </a>
+                        </li>
+                        @endif
+                    @endif
+                    <li class="divider"></li>
                     <li>
                         {{--<a role="menuitem" href="#"><i class="fas fa-user"></i> Perfil</a>--}}
                         <a role="menuitem" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

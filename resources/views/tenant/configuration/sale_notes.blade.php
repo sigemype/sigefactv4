@@ -1,9 +1,12 @@
 @extends('tenant.layouts.app')
 
 @section('content')
-    <tenant-quotations-form
+
+    <tenant-configurations-sale-notes
+        :url="'{{$migrationConfiguration['url']}}'"
+        :api-key="'{{$migrationConfiguration['api_key']}}'"
         :type-user="{{json_encode(Auth::user()->type)}}"
-        :sale-opportunity-id="{{json_encode($saleOpportunityId)}}"
         :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
-    ></tenant-quotations-form>
+    ></tenant-configurations-sale-notes>
+
 @endsection
