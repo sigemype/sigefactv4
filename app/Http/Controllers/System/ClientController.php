@@ -16,6 +16,7 @@ use App\Models\System\Module;
 use App\Models\System\Plan;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\System\Configuration;
@@ -57,6 +58,15 @@ class ClientController extends Controller
         $plans = Plan::all();
         $types = [['type' => 'admin', 'description'=>'Administrador'], ['type' => 'integrator', 'description'=>'Listar Documentos']];
         $modules = Module::with('levels')
+            ->where('sort', '<', 14)
+            ->orderBy('sort')
+            ->get()
+            ->each(function ($module) {
+                return $this->prepareModules($module);
+            });
+
+        $apps = Module::with('levels')
+            ->where('sort', '>', 13)
             ->orderBy('sort')
             ->get()
             ->each(function ($module) {
@@ -69,20 +79,27 @@ class ClientController extends Controller
         $soap_username =  $config->soap_username;
         $soap_password =  $config->soap_password;
 
-        return compact('url_base','plans','types', 'modules', 'certificate_admin', 'soap_username', 'soap_password');
+        return compact('url_base','plans','types', 'modules', 'apps', 'certificate_admin', 'soap_username', 'soap_password');
     }
+
 
     public function records()
     {
 
         $records = Client::latest()->get();
+
         foreach ($records as &$row) {
+
             $tenancy = app(Environment::class);
             $tenancy->tenant($row->hostname->website);
             // $row->count_doc = DB::connection('tenant')->table('documents')->count();
             $row->count_doc = DB::connection('tenant')->table('configurations')->first()->quantity_documents;
             $row->soap_type = DB::connection('tenant')->table('companies')->first()->soap_type_id;
             $row->count_user = DB::connection('tenant')->table('users')->count();
+
+            $quantity_pending_documents = $this->getQuantityPendingDocuments();
+            $row->document_regularize_shipping = $quantity_pending_documents['document_regularize_shipping'];
+            $row->document_not_sent = $quantity_pending_documents['document_not_sent'];
 
             if($row->start_billing_cycle)
             {
@@ -110,13 +127,28 @@ class ClientController extends Controller
         return new ClientCollection($records);
     }
 
+    
+    private function getQuantityPendingDocuments(){
+        
+        return [
+            'document_regularize_shipping' => DB::connection('tenant')->table('documents')->where('state_type_id', '01')->where('regularize_shipping', true)->count(),
+            'document_not_sent' => DB::connection('tenant')->table('documents')->whereIn('state_type_id', ['01','03'])->where('date_of_issue','<=',date('Y-m-d'))->count(),
+        ];
+        
+    }
+
+
     public function record($id)
     {
         $client = Client::findOrFail($id);
         $tenancy = app(Environment::class);
         $tenancy->tenant($client->hostname->website);
 
-        $client->modules = DB::connection('tenant')->table('module_user')->where('user_id', 1)->get()->pluck('module_id')->toArray();
+        $modules = DB::connection('tenant')->table('modules')->where('order_menu', '<', 14)->select('id');
+        $apps = DB::connection('tenant')->table('modules')->where('order_menu', '>', 13)->select('id');
+
+        $client->modules = DB::connection('tenant')->table('module_user')->where('user_id', 1)->whereIn('module_id', $modules)->get()->pluck('module_id')->toArray();
+        $client->apps = DB::connection('tenant')->table('module_user')->where('user_id', 1)->whereIn('module_id', $apps)->get()->pluck('module_id')->toArray();
         $client->levels = DB::connection('tenant')->table('module_level_user')->where('user_id', 1)->get()->pluck('module_level_id')->toArray();
 
         $config =  DB::connection('tenant')->table('configurations')->first();
@@ -182,6 +214,11 @@ class ClientController extends Controller
 
     public function update(Request $request)
     {
+        $smtp_host = ($request->has('smtp_host'))?$request->smtp_host:null;
+        $smtp_password = ($request->has('smtp_password'))?$request->smtp_password:null;
+        $smtp_port = ($request->has('smtp_port'))?$request->smtp_port:null;
+        $smtp_user = ($request->has('smtp_user'))?$request->smtp_user:null;
+        $smtp_encryption = ($request->has('smtp_encryption'))?$request->smtp_encryption:null;
         try
         {
 
@@ -212,6 +249,16 @@ class ClientController extends Controller
 
 
             $client = Client::findOrFail($request->id);
+
+            $client
+                ->setSmtpHost($smtp_host)
+                ->setSmtpPort($smtp_port)
+                ->setSmtpUser($smtp_user)
+            //    ->setSmtpPassword($smtp_password)
+                ->setSmtpEncryption($smtp_encryption);
+            if(!empty($smtp_password)){
+                $client->setSmtpPassword($smtp_password);
+            }
             $client->plan_id = $request->plan_id;
             $client->save();
 
@@ -219,12 +266,19 @@ class ClientController extends Controller
 
             $tenancy = app(Environment::class);
             $tenancy->tenant($client->hostname->website);
+            $clientData = [
+                'plan' => json_encode($plan),
+                'config_system_env' => $request->config_system_env,
+                'limit_documents' =>  $plan->limit_documents,
+                'smtp_host'=>$client->smtp_host,
+                'smtp_port'=>$client->smtp_port,
+                'smtp_user'=>$client->smtp_user,
+                'smtp_password'=>$client->smtp_password,
+                'smtp_encryption'=>$client->smtp_encryption,
+            ];
+            if(empty($client->smtp_password)) unset($clientData['smtp_password']);
             DB::connection('tenant')->table('configurations')->where('id', 1)
-                ->update([
-                            'plan' => json_encode($plan),
-                            'config_system_env' => $request->config_system_env,
-                            'limit_documents' =>  $plan->limit_documents
-                        ]);
+                ->update($clientData);
 
             DB::connection('tenant')->table('companies')->where('id', 1)->update([
                 'soap_type_id' => $request->soap_type_id,

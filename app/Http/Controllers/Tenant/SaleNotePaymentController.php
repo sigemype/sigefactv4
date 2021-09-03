@@ -41,6 +41,7 @@ class SaleNotePaymentController extends Controller
 
     public function document($sale_note_id)
     {
+        /** @var SaleNote $sale_note */
         $sale_note = SaleNote::find($sale_note_id);
 
         $total_paid = round(collect($sale_note->payments)->sum('payment'), 2);
@@ -54,7 +55,9 @@ class SaleNotePaymentController extends Controller
         }
 
         return [
-            'number_full' => $sale_note->identifier,
+            'identifier' => $sale_note->identifier,
+            'full_number' => $sale_note->getNumberFullAttribute(),
+            'number_full' => $sale_note->getNumberFullAttribute(),
             'total_paid' => $total_paid,
             'total' => $total,
             'total_difference' => $total_difference,

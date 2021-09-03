@@ -21,14 +21,14 @@ class SummaryQueryCommand extends Command
      * @var string
      */
     protected $signature = 'summary:query';
-    
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Automatic query of summaries';
-    
+
     /**
      * Create a new command instance.
      *
@@ -37,7 +37,7 @@ class SummaryQueryCommand extends Command
     public function __construct() {
         parent::__construct();
     }
-    
+
     /**
      * Execute the console command.
      *
@@ -45,16 +45,16 @@ class SummaryQueryCommand extends Command
      */
     public function handle() {
         $this->info('The command was started');
-        
+
         Auth::login(User::firstOrFail());
-        
+
         if (Configuration::firstOrFail()->cron) {
             $hostname = Website::query()
                 ->where('uuid', app(\Hyn\Tenancy\Environment::class)->tenant()->uuid)
                 ->first()
                 ->hostnames
                 ->first();
-            
+
             $summaries = Summary::query()
                 ->where([
                     'soap_type_id' => Company::firstOrFail()->active()->soap_type_id,
@@ -62,7 +62,7 @@ class SummaryQueryCommand extends Command
                     'state_type_id' => '03',
                 ])
                 ->get();
-            
+
             foreach ($summaries as $summary) {
 
                 // if(file_exists(base_path(config('tenant.name_certificate_cron')))){
@@ -82,7 +82,7 @@ class SummaryQueryCommand extends Command
                 ];
 
                 $clientGuzzleHttp = new ClientGuzzleHttp($constructor_params);
-                
+
                 $response = $clientGuzzleHttp->post('/api/summaries/status', [
                     'http_errors' => false,
                     'headers' => [
@@ -94,16 +94,16 @@ class SummaryQueryCommand extends Command
                         'ticket' => $summary->ticket
                     ]
                 ]);
-                
+
                 $res = json_decode($response->getBody()->getContents(), true);
-                
+
                 if (!$res['success']) $this->info("{$summary->external_id} - {$summary->ticket} - {$res['message']}");
             }
         }
         else {
             $this->info('The crontab is disabled');
         }
-        
+
         $this->info('The command is finished');
     }
 }

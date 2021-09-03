@@ -29,7 +29,8 @@ class PersonController extends Controller
         return view('tenant.persons.index', compact('type','api_service_token'));
     }
 
-    public function columns(){
+    public function columns()
+    {
         return [
             'name' => 'Nombre',
             'number' => 'Número',
@@ -37,7 +38,8 @@ class PersonController extends Controller
         ];
     }
 
-    public function records($type, Request $request){
+    public function records($type, Request $request)
+    {
       //  return 'sd';
         $records = Person::where($request->column, 'like', "%{$request->value}%")
                             ->where('type', $type)
@@ -46,11 +48,13 @@ class PersonController extends Controller
         return new PersonCollection($records->paginate(config('tenant.items_per_page')));
     }
 
-    public function create(){
+    public function create()
+    {
         return view('tenant.customers.form');
     }
 
-    public function tables(){
+    public function tables()
+    {
         $countries = Country::whereActive()->orderByDescription()->get();
         $departments = Department::whereActive()->orderByDescription()->get();
         $provinces = Province::whereActive()->orderByDescription()->get();
@@ -64,12 +68,15 @@ class PersonController extends Controller
         return compact('countries', 'departments', 'provinces', 'districts', 'identity_document_types', 'locations','person_types','api_service_token');
     }
 
-    public function record($id){
+    public function record($id)
+    {
         $record = new PersonResource(Person::findOrFail($id));
+
         return $record;
     }
 
-    public function store(PersonRequest $request){
+    public function store(PersonRequest $request)
+    {
         if($request->state){
             if($request->state != "ACTIVO"){
                 return [
@@ -98,8 +105,10 @@ class PersonController extends Controller
         ];
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         try {
+
             $person = Person::findOrFail($id);
             $person_type = ($person->type == 'customers') ? 'Cliente':'Proveedor';
             $person->delete();
@@ -110,12 +119,15 @@ class PersonController extends Controller
             ];
 
         } catch (Exception $e) {
+
             return ($e->getCode() == '23000') ? ['success' => false,'message' => "El {$person_type} esta siendo usado por otros registros, no puede eliminar"] : ['success' => false,'message' => "Error inesperado, no se pudo eliminar el {$person_type}"];
 
         }
+
     }
 
-    public function import(Request $request){
+    public function import(Request $request)
+    {
         if ($request->hasFile('file')) {
             try {
                 $import = new PersonsImport();
@@ -139,7 +151,8 @@ class PersonController extends Controller
         ];
     }
 
-    public function getLocationCascade(){
+    public function getLocationCascade()
+    {
         $locations = [];
         $departments = Department::where('active', true)->get();
         foreach ($departments as $department)
@@ -167,23 +180,29 @@ class PersonController extends Controller
                 'children' => $children_provinces
             ];
         }
+
         return $locations;
     }
 
 
-    public function enabled($type, $id){
+    public function enabled($type, $id)
+    {
+
         $person = Person::findOrFail($id);
         $person->enabled = $type;
         $person->save();
+
         $type_message = ($type) ? 'habilitado':'inhabilitado';
+
         return [
             'success' => true,
             'message' => "Cliente {$type_message} con éxito"
         ];
+
     }
 
-    public function export($type, Request $request){
-        // dd($request->all(), $type);
+    public function export($type, Request $request)
+    {
         $d_start = null;
         $d_end = null;
         $period = $request->period;
@@ -199,11 +218,6 @@ class PersonController extends Controller
                 break;
         }
 
-        // $date = $request->month_start.'-01';
-        // $d_start = Carbon::parse($date);
-        // $d_end = Carbon::parse($date)->addMonth()->subDay();
-        // dd($d_start.' - '.$d_end);
-
         $records = ($period == 'all') ? Person::where('type', $type)->get() : Person::where('type', $type)->whereBetween('created_at', [$d_start, $d_end])->get();
 
         $filename = ($type == 'customers') ? 'Reporte_Clientes_':'Reporte_Proveedores_';
@@ -215,4 +229,27 @@ class PersonController extends Controller
 
     }
 
+    public function clientsForGenerateCPE()
+    {
+        $typeFile = request('type');
+        $filter = request('name');
+        $persons = Person::without(['identity_document_type', 'country', 'department', 'province', 'district'])
+            ->select('id', 'name', 'identity_document_type_id', 'number')
+            ->where('type', 'customers')
+            ->orderBy('name');
+        if ($filter && $typeFile) {
+            if ($typeFile === 'document') {
+                $persons = $persons->where('number', 'like', "{$filter}%");
+            }
+            if ($typeFile === 'name') {
+                $persons = $persons->where('name', 'like', "%{$filter}%");
+            }
+        }
+        $persons = $persons->take(10)
+            ->get();
+        return response()->json([
+            'success' => true,
+            'data' => $persons,
+        ], 200);
+    }
 }

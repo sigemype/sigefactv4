@@ -29,8 +29,7 @@ class DispatchInput
         $establishment = EstablishmentInput::set($inputs['establishment_id']);
         $customer = PersonInput::set($inputs['customer_id']);
         $inputs['type'] = 'dispatch';
-
-        return [
+        $data =  [
             'type' => $inputs['type'],
             'user_id' => auth()->id(),
             'external_id' => Str::uuid()->toString(),
@@ -74,6 +73,10 @@ class DispatchInput
             'reference_sale_note_id' => Functions::valueKeyInArray($inputs, 'reference_sale_note_id'),
             'secondary_license_plates' => self::secondary_license_plates($inputs),
         ];
+        if(isset($inputs['data_affected_document'])){
+            $data['data_affected_document'] =$inputs['data_affected_document'];
+        }
+        return $data;
     }
 
     private static function origin($inputs)

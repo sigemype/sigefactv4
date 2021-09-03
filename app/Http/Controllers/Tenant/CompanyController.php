@@ -8,6 +8,12 @@ use App\Http\Requests\Tenant\CompanyRequest;
 use App\Http\Resources\Tenant\CompanyResource;
 use Illuminate\Http\Request;
 
+/**
+ * Class CompanyController
+ *
+ * @package App\Http\Controllers\Tenant
+ * @mixin  Controller
+ */
 class CompanyController extends Controller
 {
     public function create()

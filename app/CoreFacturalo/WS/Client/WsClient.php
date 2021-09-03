@@ -4,7 +4,8 @@ namespace App\CoreFacturalo\WS\Client;
 
 use SoapClient;
 
-class WsClient{
+class WsClient
+{
     private $client;
 
     /**
@@ -13,8 +14,9 @@ class WsClient{
      * @param string $wsdl       Url of WSDL
      * @param array  $parameters Soap's parameters
      */
-    public function __construct($wsdl = '', $parameters = []){
-        if (empty($wsdl)){
+    public function __construct($wsdl = '', $parameters = [])
+    {
+        if (empty($wsdl)) {
             $wsdl = __DIR__.DIRECTORY_SEPARATOR.'Resources'.
                             DIRECTORY_SEPARATOR.'wsdl'.
                             DIRECTORY_SEPARATOR.'billService.wsdl';
@@ -25,10 +27,12 @@ class WsClient{
         }
 
 
-        if(config('tenant.soap_stream_context_ssl')){
+        if(config('tenant.soap_stream_context_ssl'))
+        {
             $parameters['stream_context'] = stream_context_create([
                                                 'ssl' => [
                                                     'verify_peer' => false,
+                                                    'verify_peer_name' => false,
                                                 ],
                                             ]);
         }
@@ -40,7 +44,8 @@ class WsClient{
      * @param $user
      * @param $password
      */
-    public function setCredentials($user, $password){
+    public function setCredentials($user, $password)
+    {
         $this->client->__setSoapHeaders(new WsSecurityHeader($user, $password));
     }
 
@@ -49,7 +54,8 @@ class WsClient{
      *
      * @param string $url
      */
-    public function setService($url){
+    public function setService($url)
+    {
         $this->client->__setLocation($url);
     }
 
@@ -59,7 +65,8 @@ class WsClient{
      *
      * @return mixed
      */
-    public function call($function, $arguments){
+    public function call($function, $arguments)
+    {
         return $this->client->__soapCall($function, $arguments);
     }
 }

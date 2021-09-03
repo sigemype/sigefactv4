@@ -9,7 +9,12 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class ItemExportWp implements  FromView, ShouldAutoSize
+/**
+ * Class ItemExportWp
+ *
+ * @package App\Exports
+ */
+class ItemExportWp implements FromView, ShouldAutoSize
 {
     use Exportable;
 
@@ -19,9 +24,28 @@ class ItemExportWp implements  FromView, ShouldAutoSize
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public function getExtraData()
+    : array {
+        return $this->extra_data;
+    }
+
+    /**
+     * @param array $extra_data
+     *
+     * @return ItemExport
+     */
+    public function setExtraData(array $extra_data)
+    : ItemExportWp {
+        $this->extra_data = $extra_data;
+        return $this;
+    }
     public function view(): View {
         return view('tenant.items.exports.items-wp', [
             'records'=> $this->records,
+            'extra_data'=> $this->extra_data,
         ]);
     }
 

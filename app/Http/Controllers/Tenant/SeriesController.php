@@ -14,16 +14,20 @@ class SeriesController extends Controller
         return view('tenant.series.form');
     }
 
-    public function records($establishmentId)
+    public function records($establishmentId, $document_type = null)
     {
-        $records = Series::where('establishment_id', $establishmentId)->get();
+        $records = Series::FilterEstablishment($establishmentId);
+        if(!empty($document_type)){
+            $records->FilterDocumentType($document_type);
+        }
+        $records = $records->get();
 
         return new SeriesCollection($records);
     }
 
     public function tables()
     {
-        $document_types = DocumentType::whereActive()->whereIn('id', ['01', '03', '07', '08', '09', '20','40', '80'])->get();
+        $document_types = DocumentType::OnlyAvaibleDocuments()->get();
 
         return compact('document_types');
     }

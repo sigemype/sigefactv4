@@ -42,7 +42,7 @@ class ConsultVoidedDocumentsCommand extends Command
      */
     public function handle()
     {
-        Log::info("Consulta ssss");
+        $this->info('The command was started');
         $records = Voided::where('state_type_id', '03')->get();
 
         $fact = DB::connection('tenant')->transaction(function () use($records) {
@@ -56,7 +56,7 @@ class ConsultVoidedDocumentsCommand extends Command
             }
         });
 
-        Log::info("Consulta de documentos anulados, realizado con éxito");
+        $this->info("Consulta de documentos anulados, realizado con éxito");
 
     }
 }

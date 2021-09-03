@@ -81,7 +81,21 @@ class SummaryController extends Controller
     }
     
     public function status($summary_id) {
-        return $this->query($summary_id);
+
+        try {
+
+            return $this->query($summary_id);
+
+        } catch (Exception $e) {
+
+            // codigo personalizado cuando se lanza excepcion por problemas de sunat
+            if($e->getCode() === 511){
+                $this->updateUnknownErrorStatus($summary_id, $e);
+            }
+
+            return $this->getCustomErrorMessage($e->getMessage(), $e);
+        }
+
     }
 
     public function destroy($voided_id)
@@ -107,5 +121,49 @@ class SummaryController extends Controller
 
         return $record;
     }
+
+    
+    public function regularize($summary_id) {
+
+        return DB::connection('tenant')->transaction(function() use($summary_id) {
+
+            $summary = Summary::findOrFail($summary_id);
+
+            foreach ($summary->documents as $doc)
+            {
+                $doc->document->update([
+                    'state_type_id' => '05'
+                ]);
+            }
+
+            $summary->update([
+                'state_type_id' => '05',
+                'manually_regularized' => true,
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Los comprobantes fueron regularizados'
+            ];
+
+        });
+
+    }
+
+
+    public function cancelRegularize($summary_id) {
+
+        Summary::findOrFail($summary_id)->update([
+            'unknown_error_status_response' => false,
+            'error_manually_regularized' => null
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'La operación fue cancelada'
+        ];
+
+    }
+    
 
 }

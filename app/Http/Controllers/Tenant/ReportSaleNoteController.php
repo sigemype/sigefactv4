@@ -18,53 +18,47 @@ use App\Http\Resources\Tenant\QuotationCollection;
 class ReportSaleNoteController extends Controller
 {
     use ReportTrait;
-    
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        /*$documentTypes = DocumentType::query()
-            ->where('active', 1)
-            ->get();
 
-        $establishments = Establishment::all();*/
-        
-        return view('tenant.reports.sale_notes.index') ; //, compact('documentTypes','establishments'));
+        return view('tenant.reports.sale_notes.index');
     }
-    
+
     /**
      * Search
      * @param  Request $request
      * @return \Illuminate\Http\Response
      */
     public function search(Request $request) {
-       // return 'asd';
         $d = null;
         $a = null;
-    
-        
+
+
         if ($request->has('d') && $request->has('a')) {
 
-           
+
             $d = $request->d;
             $a = $request->a;
-            
+
             $reports = SaleNote::whereBetween('date_of_issue', [$d, $a])->latest();
         }
         else {
-            
+
             $reports = SaleNote::latest();
         }
 
         $reports = $reports->paginate(config('tenant.items_per_page'));
 
-     
+
 
         return view('tenant.reports.sale_notes.index', compact('reports', 'a', 'd'));
     }
-    
+
     /**
      * PDF
      * @param  Request $request
@@ -75,13 +69,13 @@ class ReportSaleNoteController extends Controller
        // $establishment = Establishment::first();
        // $td = $request->td;
        // $establishment_id = $this->getEstablishmentId($request->establishment);
-        
+
         if ($request->has('d') && $request->has('a') && ($request->d != null && $request->a != null)) {
             $d = $request->d;
             $a = $request->a;
 
             $reports = SaleNote::whereBetween('date_of_issue', [$d, $a])->latest()->get();
-            
+
            /* if (is_null($td)) {
                 $reports = Purchase::with([ 'state_type', 'supplier'])
                     ->whereBetween('date_of_issue', [$d, p[pppppp-$a])
@@ -118,10 +112,10 @@ class ReportSaleNoteController extends Controller
 
         $pdf = PDF::loadView('tenant.reports.sale_notes.report_pdf', compact("reports", "company"));
         $filename = 'Reporte_Cotizacion'.date('YmdHis');
-        
+
         return $pdf->download($filename.'.pdf');
     }
-    
+
     /**
      * Excel
      * @param  Request $request
@@ -132,13 +126,13 @@ class ReportSaleNoteController extends Controller
        // $establishment = Establishment::first();
       //  $td= $request->td;
       //  $establishment_id = $this->getEstablishmentId($request->establishment);
-       
+
         if ($request->has('d') && $request->has('a') && ($request->d != null && $request->a != null)) {
             $d = $request->d;
             $a = $request->a;
 
               $records = SaleNote::whereBetween('date_of_issue', [$d, $a])->latest()->get();
-            
+
             /*if (is_null($td)) {
                 $records = Purchase::with([ 'state_type', 'supplier'])
                     ->whereBetween('date_of_issue', [$d, $a])
@@ -171,7 +165,7 @@ class ReportSaleNoteController extends Controller
        /*if(!is_null($establishment_id)){
             $records = $records->where('establishment_id', $establishment_id);
         }*/
-        
+
         return (new SaleNoteExport)
                 ->records($records)
                 ->company($company)

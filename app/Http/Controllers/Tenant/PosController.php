@@ -79,7 +79,7 @@ class PosController extends Controller
                                     'id' => $row->id,
                                     'item_id' => $row->id,
                                     'full_description' => $full_description,
-                                    'description' => $row->description,
+                                    'description' => ($row->brand->name) ? $row->description.' - '.$row->brand->name : $row->description,
                                     'currency_type_id' => $row->currency_type_id,
                                     'internal_id' => $row->internal_id,
                                     'currency_type_symbol' => $row->currency_type->symbol,
@@ -131,8 +131,17 @@ class PosController extends Controller
         $items = $this->table('items');
 
         $categories = Category::all();
-
-        return compact('items', 'customers','affectation_igv_types','establishment','user','currency_types', 'categories');
+        $payment_method_types= PaymentMethodType::getPaymentMethodTypes();
+        return compact(
+            'items',
+            'customers',
+            'affectation_igv_types',
+            'establishment',
+            'user',
+            'currency_types',
+            'payment_method_types',
+            'categories'
+        );
 
     }
 
@@ -178,7 +187,7 @@ class PosController extends Controller
                                     'id' => $row->id,
                                     'item_id' => $row->id,
                                     'full_description' => $full_description,
-                                    'description' => $row->description,
+                                    'description' => ($row->brand->name) ? $row->description.' - '.$row->brand->name : $row->description,
                                     'currency_type_id' => $row->currency_type_id,
                                     'internal_id' => $row->internal_id,
                                     'currency_type_symbol' => $row->currency_type->symbol,
@@ -249,21 +258,24 @@ class PosController extends Controller
         $item = Item::findOrFail($item_id);
 
         if($item->is_set){
-
+            $quantity = 1 * $quantity;
             $sets = $item->sets;
 
             foreach ($sets as $set) {
-
                 $individual_item = $set->individual_item;
-                $item_warehouse = ItemWarehouse::where([['item_id',$individual_item->id], ['warehouse_id',$warehouse->id]])->first();
-
+                $individual_quantity = $set->quantity * 1;
+                $total_item_quantity = $individual_quantity * $quantity;
+                $item_warehouse = ItemWarehouse::where([
+                        ['item_id', $individual_item->id],
+                        ['warehouse_id', $warehouse->id]]
+                )->first();
                 if(!$item_warehouse)
                     return [
                         'success' => false,
                         'message' => "El producto seleccionado no está disponible en su almacén!"
                     ];
 
-                $stock = $item_warehouse->stock - $quantity;
+                $stock = $item_warehouse->stock - $total_item_quantity;
 
 
                 if($item_warehouse->item->unit_type_id !== 'ZZ'){
@@ -312,31 +324,85 @@ class PosController extends Controller
 
     }
 
+    /**
+     * Lista inicial de items en POS
+     *
+     * @param Request $request
+     *
+     * @return PosCollection
+     */
     public function item(Request $request)
     {
-        if($request->cat) {
-            return new PosCollection(Item::whereWarehouse()->whereIsActive()->where('series_enabled', 0)->where([['unit_type_id', '!=', 'ZZ'], ['category_id', $request->cat]])->orderBy('description')->paginate(50));
-        } else {
-            return new PosCollection(Item::whereWarehouse()->whereIsActive()->where('series_enabled', 0)->where('unit_type_id', '!=', 'ZZ')->orderBy('description')->paginate(50));
+        $items = Item::whereWarehouse()
+            ->whereIsActive()
+            ->where('series_enabled', 0)
+            ->orderBy('description')
+            ->where('unit_type_id', '!=', 'ZZ');
+        self::FilterItem($items, $request);
+
+        return new PosCollection($items->paginate(50));
+
+    }
+
+    /**
+     * Unificacion de los filtros de busqueda de items en POS
+     * Se evalua categoria como $request->cat
+     * se evalua description, internal_id del item como $request->input_item
+     * se evalua name de brand y category como $request->input_item
+     *
+     * @param Item    $item
+     * @param Request $request
+     */
+    public static function FilterItem(&$item, Request $request)
+    {
+        $whereItem = [];
+        $whereExtra = [];
+
+        if ($request->cat && !empty($request->cat)) {
+            $whereItem[] = ['category_id', $request->cat];
         }
 
+        if ($request->input_item && !empty($request->input_item)) {
+            $whereItem[] = ['description', 'like', '%'.$request->input_item.'%'];
+            $whereItem[] = ['barcode', '=', $request->input_item];
+            $whereItem[] = ['internal_id', 'like', '%'.$request->input_item.'%'];
+            $whereExtra[] = ['name', 'like', '%'.$request->input_item.'%'];
+        }
+
+        foreach ($whereItem as $index => $wItem) {
+            if($index < 1) {
+                $item->Where([$wItem]);
+            }else{
+                $item->orWhere([$wItem]);
+            }
+        }
+
+        if (!empty($whereExtra)) {
+            $item
+                ->orWhereHas('brand', function ($query) use ($whereExtra) {
+                $query->where($whereExtra);
+            })
+                ->orWhereHas('category', function ($query) use ($whereExtra) {
+                $query->where($whereExtra);
+            });
+        }
     }
 
+    /**
+     * Se busca items al escribir en input_item desde POS
+     *
+     * @param Request $request
+     *
+     * @return PosCollection
+     */
     public function search_items_cat(Request $request)
     {
-        return new PosCollection(Item::where('description','like', "%{$request->input_item}%")->where('series_enabled', 0)
-                            ->orWhere('internal_id','like', "%{$request->input_item}%")
-                            //->orwhere('category_id', $request->cat)
-                            ->orWhereHas('category', function($query) use($request) {
-                                $query->where('name', 'like', '%' . $request->input_item . '%');
-                            })
-                            ->orWhereHas('brand', function($query) use($request) {
-                                $query->where('name', 'like', '%' . $request->input_item . '%');
-                            })
-                            ->whereWarehouse()
-                            ->whereIsActive()
-                            ->paginate(config(50)));
+        $item = Item::whereWarehouse()
+            ->whereIsActive()
+            ->where('series_enabled', 0);
+
+        self::FilterItem($item, $request);
+        return new PosCollection($item->paginate(50));
 
     }
-
 }

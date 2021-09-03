@@ -34,7 +34,7 @@ class Functions
             }
 
         }
-        
+
         return $number;
 
         // if ($number === '#') {
@@ -85,13 +85,15 @@ class Functions
         return join('-', [$prefix, Carbon::parse($date_of_issue)->format('Ymd'), $numeration]);
     }
 
+    /**
+     * @param      $inputs
+     * @param      $key
+     * @param null $default
+     *
+     * @return mixed|null
+     */
     public static function valueKeyInArray($inputs, $key, $default = null)
     {
-        if(array_key_exists($key, $inputs)) {
-            if(!is_null($inputs[$key])) {
-                return $inputs[$key];
-            }
-        }
-        return $default;
+        return (isset($inputs[$key]) && null !== $inputs[$key]) ? $inputs[$key] : $default;
     }
 }

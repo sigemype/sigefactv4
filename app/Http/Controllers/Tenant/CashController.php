@@ -26,8 +26,14 @@ use Modules\Finance\Traits\FinanceTrait;
 use Illuminate\Support\Facades\DB;
 use App\Models\Tenant\SaleNoteItem;
 use App\Exports\CashProductExport;
+use App\Models\Tenant\PurchaseItem;
 
-
+/**
+ * Class CashController
+ *
+ * @package App\Http\Controllers\Tenant
+ * @mixin  Controller
+ */
 class CashController extends Controller
 {
 
@@ -42,7 +48,6 @@ class CashController extends Controller
     {
         return [
             'income' => 'Ingresos',
-            // 'expense' => 'Egresos',
         ];
     }
 
@@ -194,6 +199,11 @@ class CashController extends Controller
                 // $final_balance -= $cash_document->expense_payment->payment;
 
             }
+            else if($cash_document->purchase){
+                if(in_array($cash_document->purchase->state_type_id, ['01','03','05','07','13'])){
+                    $final_balance -= ($cash_document->purchase->currency_type_id == 'PEN') ? $cash_document->purchase->total : ($cash_document->purchase->total * $cash_document->purchase->exchange_rate_sale);
+                }
+            }
 
             // else if($cash_document->purchase){
             //     $final_balance -= $cash_document->purchase->total;
@@ -216,11 +226,19 @@ class CashController extends Controller
 
     }
 
-
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return array
+     */
     public function cash_document(Request $request) {
 
-        $cash = Cash::where([['user_id',auth()->user()->id],['state',true]])->first();
-        $cash->cash_documents()->create($request->all());
+        $cash = Cash::where([
+                                ['user_id', auth()->user()->id],
+                                ['state', true],
+                            ])->first();
+
+        $cash->cash_documents()->updateOrCreate($request->all());
 
         return [
             'success' => true,
@@ -271,8 +289,8 @@ class CashController extends Controller
 
     public function report($cash) {
 
-        $cash = Cash::findOrFail($cash);
-        $company = Company::first();
+        $cash = Cash::query()->findOrFail($cash);
+        $company = Company::query()->first();
 
         $methods_payment = collect(PaymentMethodType::all())->transform(function($row){
             return (object)[
@@ -295,6 +313,7 @@ class CashController extends Controller
     {
         $cashes = Cash::select('id')->whereDate('date_opening', date('Y-m-d'))->pluck('id');
         $cash_documents =  CashDocument::whereIn('cash_id', $cashes)->get();
+        // dd($cash_documents);
 
         $company = Company::first();
         set_time_limit(0);
@@ -352,6 +371,8 @@ class CashController extends Controller
         });
 
         $documents = $documents->merge($this->getSaleNotesReportProducts($cash));
+        
+        $documents = $documents->merge($this->getPurchasesReportProducts($cash));
 
         return compact("cash", "company", "documents");
 
@@ -368,6 +389,23 @@ class CashController extends Controller
             return [
                 'id' => $row->id,
                 'number_full' => $row->sale_note->number_full,
+                'description' => $row->item->description,
+                'quantity' => $row->quantity,
+            ];
+        });
+
+    }
+
+
+    public function getPurchasesReportProducts($cash){
+
+        $cd_purchases =  CashDocument::select('purchase_id')->where('cash_id', $cash->id)->get();
+        $purchase_items = PurchaseItem::with('purchase')->whereIn('purchase_id', $cd_purchases)->get();
+
+        return collect($purchase_items)->transform(function($row){
+            return [
+                'id' => $row->id,
+                'number_full' => $row->purchase->number_full,
                 'description' => $row->item->description,
                 'quantity' => $row->quantity,
             ];

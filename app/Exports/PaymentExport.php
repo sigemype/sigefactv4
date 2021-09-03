@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class PaymentExport implements FromView, ShouldAutoSize
+class PaymentExport implements  FromView, ShouldAutoSize
 {
     use Exportable;
 

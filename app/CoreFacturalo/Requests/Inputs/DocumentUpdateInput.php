@@ -106,6 +106,7 @@ class DocumentUpdateInput
 			'note'                      => $note,
 			'hotel'                     => self::hotel($inputs),
 			'additional_information'    => Functions::valueKeyInArray($inputs, 'additional_information'),
+            'plate_number' 				=> Functions::valueKeyInArray($inputs, 'plate_number'),
 			'legends'                   => LegendInput::set($inputs),
 			'actions'                   => ActionInput::set($inputs),
 			'data_json'                 => $data_json,
@@ -125,6 +126,8 @@ class DocumentUpdateInput
 			'show_weight'               => $inputs['show_weight'] ?? false,
 			'weight'                    => $inputs['weight'] ?? 0.00,
 			'filename'                  => Functions::valueKeyInArray($inputs, 'filename'),
+            'payment_condition_id'		=> key_exists('payment_condition_id', $inputs) ? $inputs['payment_condition_id'] : '01',
+            'fee' 						=> Functions::valueKeyInArray($inputs, 'fee', []),
 		];
 	}
 
@@ -149,6 +152,8 @@ class DocumentUpdateInput
 						'lots'                     => self::lots($row),
 						'IdLoteSelected'           => (isset($row['IdLoteSelected']) ? $row['IdLoteSelected'] : null),
 						'model'                    => $item->model,
+                        'date_of_due' => (!empty($item->date_of_due)) ? $item->date_of_due->format('Y-m-d') : null,
+                        'has_igv' => $row['item']['has_igv'] ?? true,
 					],
 					'quantity'                => $row['quantity'],
 					'unit_value'              => $row['unit_value'],
@@ -215,7 +220,7 @@ class DocumentUpdateInput
 					$attributes[] = [
 						'attribute_type_id'   => $attribute_type_id,
 						'description'         => $description,
-						'title'               => $row['title'],
+						'title'               => $row['title'] ?? null,
 						'value'               => $value,
 						'start_date'          => $start_date,
 						'end_date'            => $end_date,

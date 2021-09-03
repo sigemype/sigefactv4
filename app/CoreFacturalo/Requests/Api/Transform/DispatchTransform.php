@@ -11,7 +11,7 @@ class DispatchTransform
 {
     public static function transform($inputs)
     {
-        return  [
+        $data = [
             'series' => Functions::valueKeyInArray($inputs, 'serie_documento'),
             'number' => Functions::valueKeyInArray($inputs, 'numero_documento'),
             'date_of_issue' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
@@ -40,6 +40,22 @@ class DispatchTransform
             'actions' => ActionTransform::transform($inputs),
 
         ];
+         self::AffectedDocument($data, $inputs);
+        return  $data;
+    }
+
+    private static function AffectedDocument(&$data,$inputs) {
+        if (isset($inputs['documento_afectado']) && isset($inputs['documento_afectado']['external_id'])) {
+            $data['affected_document_external_id'] = Functions::valueKeyInArray($inputs['documento_afectado'],
+                                                                                           'external_id');
+        }elseif(isset($inputs['documento_afectado'])){
+            $data['data_affected_document']['number'] = Functions::valueKeyInArray($inputs['documento_afectado'],
+                                                                                               'numero_documento');
+            $data['data_affected_document']['series'] = Functions::valueKeyInArray($inputs['documento_afectado'],
+                                                                                               'serie_documento');
+            $data['data_affected_document']['document_type_id'] = Functions::valueKeyInArray($inputs['documento_afectado'],
+                                                                                                         'codigo_tipo_documento');
+        }
     }
 
     private static function origin($inputs)

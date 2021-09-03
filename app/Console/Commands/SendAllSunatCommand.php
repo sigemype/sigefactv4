@@ -13,21 +13,21 @@ use App\Models\Tenant\{
 class SendAllSunatCommand extends Command
 {
     use CommandTrait;
-    
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
     protected $signature = 'online:send-all';
-    
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Process all pending documents to be sent to the Sunat';
-    
+
     /**
      * Create a new command instance.
      *
@@ -36,7 +36,7 @@ class SendAllSunatCommand extends Command
     public function __construct() {
         parent::__construct();
     }
-    
+
     /**
      * Execute the console command.
      *
@@ -46,10 +46,10 @@ class SendAllSunatCommand extends Command
         if (Configuration::firstOrFail()->cron) {
             if ($this->isOffline()) {
                 $this->info('Offline service is enabled');
-                
+
                 return;
             }
-            
+
             $documents = Document::query()
                 ->where('group_id', '01')
                 ->where('send_server', 0)
@@ -57,11 +57,11 @@ class SendAllSunatCommand extends Command
                 // ->orWhere('sunat_shipping_status', '!=', '')
                 ->where('success_sunat_shipping_status', false)
                 ->get();
-            
+
             foreach ($documents as $document) {
                 try {
                     $response = DocumentController::send($document->id);
-                    
+
                     $document->sunat_shipping_status = json_encode($response);
                     $document->success_sunat_shipping_status = true;
                     $document->save();
@@ -75,7 +75,7 @@ class SendAllSunatCommand extends Command
                         'message' => $e->getMessage(),
                         'payload' => $e
                     ]);
-                    
+
                     $document->save();
                 }
             }
@@ -83,7 +83,7 @@ class SendAllSunatCommand extends Command
         else {
             $this->info('The crontab is disabled');
         }
-        
+
         $this->info('The command is finished');
     }
 }

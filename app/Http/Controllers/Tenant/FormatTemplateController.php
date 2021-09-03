@@ -8,10 +8,10 @@ use App\Http\Resources\Tenant\FormatTemplateCollection;
 
 class FormatTemplateController extends Controller
 {
-	public function records() {
+    public function records() {
 
-		$formats = FormatTemplate::all();
+        $formats = FormatTemplate::all();
 
         return new FormatTemplateCollection($formats);
-	}
+    }
 }

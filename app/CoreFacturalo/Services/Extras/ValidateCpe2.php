@@ -155,6 +155,7 @@ class ValidateCpe2
         file_put_contents($temp, $response->getBody()->getContents());
         $ocr = new TesseractOCR($temp);
         if($this->isWindows()) {
+            //ajustar ruta de tratarse de una distinta en sistemas operativos Windows
             $ocr->executable("C:\\Program Files\\Tesseract-OCR\\tesseract.exe");
         }
         $text =  $ocr->run();

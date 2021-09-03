@@ -44,7 +44,7 @@ class VoidedController extends Controller
                         ->where($request->column, 'like', "%{$request->value}%")
                         ->where('summary_status_type_id', '3');
 
-        return new VoidedCollection($voided->union($summaries)->paginate(config('tenant.items_per_page')));
+        return new VoidedCollection($voided->union($summaries)->orderBy('date_of_issue', 'DESC')->paginate(config('tenant.items_per_page')));
     }
 
     public function store(Request $request)

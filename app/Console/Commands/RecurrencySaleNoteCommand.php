@@ -11,6 +11,12 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
+/**
+ * Class RecurrencySaleNoteCommand
+ *
+ * @package App\Console\Commands
+ * @mixin Command
+ */
 class RecurrencySaleNoteCommand extends Command
 {
     /**
@@ -42,13 +48,19 @@ class RecurrencySaleNoteCommand extends Command
      * @return mixed
      */
     public function handle()
-    { 
-
+    {
+        $this->info('The command was started');
         DB::connection('tenant')->transaction(function () {
 
             $today = Carbon::now()->format('Y-m-d');
 
-            $sale_notes = SaleNote::where([['apply_concurrency', false], ['automatic_date_of_issue','<=', $today], ['enabled_concurrency', true]])->sharedLock()->get();
+            $sale_notes = SaleNote::where([
+                            ['apply_concurrency', false],
+                            ['automatic_date_of_issue','<=', $today],
+                            ['enabled_concurrency', true]
+                        ])
+                        ->sharedLock()
+                        ->get();
 
             foreach ($sale_notes as $sale_note) {
                 // Log::info("init create");
@@ -57,24 +69,23 @@ class RecurrencySaleNoteCommand extends Command
 
                 // if($record['success']){
 
-                //     $this->info("La nota de venta: {$record['record']->identifier} fue generada de forma automática"); 
+                //     $this->info("La nota de venta: {$record['record']->identifier} fue generada de forma automática");
                 //     Log::info("La nota de venta: {$record['record']->identifier} fue generada de forma automática");
 
                 // }else{
-                //     $this->info("La nota de venta no fué generada de forma automática"); 
+                //     $this->info("La nota de venta no fué generada de forma automática");
                 // }
                 $this->createSaleNote($sale_note);
 
             }
         });
-
+        $this->info("The command is finished");
 
     }
 
-    
-    public function createSaleNote($sale_note)
-    {   
 
+    public function createSaleNote($sale_note)
+    {
         $record = DB::connection('tenant')->transaction(function () use ($sale_note) {
 
             // dd($sale_note->establishment);
@@ -84,17 +95,17 @@ class RecurrencySaleNoteCommand extends Command
             $init_quantity_period = $sale_note->quantity_period;
             $today = new Carbon();
             $init_d_of_issue = new Carbon($sale_note->date_of_issue);
-            
+
             if($init_type_period && $init_quantity_period > 0){
 
                 $difference_m_y = ($init_type_period == 'month') ? $today->diffInMonths($init_d_of_issue): $today->diffInYears($init_d_of_issue);
                 $quantity_notes_replicate = intval($difference_m_y / $init_quantity_period);
                 // dd($quantity_notes_replicate);
 
-                for ($i=1; $i <= $quantity_notes_replicate ; $i++) { 
+                for ($i=1; $i <= $quantity_notes_replicate ; $i++) {
 
                     $sale_note = ($i === 1) ? $sale_note : $replicate_sale_note;
-                            
+
                     $sale_note->apply_concurrency = true;
                     $sale_note->update();
 
@@ -106,7 +117,7 @@ class RecurrencySaleNoteCommand extends Command
                     $replicate_sale_note->apply_concurrency = false;
                     $replicate_sale_note->total_canceled = false;
                     $replicate_sale_note->changed = false;
-                    
+
                     $type_period = $replicate_sale_note->type_period;
                     $quantity_period = $replicate_sale_note->quantity_period;
                     $d_of_issue = new Carbon($replicate_sale_note->date_of_issue);
@@ -115,19 +126,20 @@ class RecurrencySaleNoteCommand extends Command
                     if($type_period && $quantity_period > 0){
 
                         $add_period_date = ($type_period == 'month') ? $d_of_issue->addMonths($quantity_period): $d_of_issue->addYears($quantity_period);
-                        $automatic_date_of_issue = $add_period_date->format('Y-m-d'); 
+                        $automatic_date_of_issue = $add_period_date->format('Y-m-d');
 
                     }
-                    
+
                     $replicate_sale_note->automatic_date_of_issue = $automatic_date_of_issue;
+                    $replicate_sale_note->number = SaleNote::getLastNumberByModel($sale_note);
 
                     $replicate_sale_note->save();
 
                     // dd($sale_note->items);
-                    
+
                     foreach($sale_note->items as $row){
                         // dd($row);
-                        
+
                         // $new->sale_note_id = $replicate_sale_note->id;
                         // $new->save();
                         $replicate_sale_note->items()->create(
@@ -159,29 +171,32 @@ class RecurrencySaleNoteCommand extends Command
                                 'discounts' => $row->discounts,
                             ]
                         );
-            
-                    }
-            
-                    $name = [$replicate_sale_note->prefix,$replicate_sale_note->id,date('Ymd')];
-                    $replicate_sale_note->filename = join('-', $name);
-                    $replicate_sale_note->update(); 
 
-                    $this->info("La nota de venta: {$replicate_sale_note->identifier} fue generada de forma automática"); 
-                    Log::info("La nota de venta: {$replicate_sale_note->identifier} fue generada de forma automática");
+                    }
+
+                    // $name = [$replicate_sale_note->prefix,$replicate_sale_note->id,date('Ymd')];
+
+                    $name = [$replicate_sale_note->series, $replicate_sale_note->number, date('Ymd')];
+                    $replicate_sale_note->filename = join('-', $name);
+
+                    $replicate_sale_note->update();
+
+                    $this->info("La nota de venta: {$replicate_sale_note->number_full} fue generada de forma automática");
+                    Log::info("La nota de venta: {$replicate_sale_note->number_full} fue generada de forma automática");
                     // return $replicate_sale_note;
 
                 }
- 
+
 
             }
 
         });
-    
+
         // return [
         //     'success' => true,
         //     'record' => $record
         // ];
- 
+
 
     }
 }

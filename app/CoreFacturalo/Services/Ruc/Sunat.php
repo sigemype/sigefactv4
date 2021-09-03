@@ -12,7 +12,7 @@ use App\CoreFacturalo\Services\Models\Company;
  */
 class Sunat
 {
-    const URL_CONSULT = 'http://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/jcrS03Alias';
+    const URL_CONSULT = 'http://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias';
     const URL_RANDOM = 'http://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/captcha?accion=random';
 
     /**
@@ -51,7 +51,7 @@ class Sunat
         }
         $random = $this->getRandom();
         $url = self::URL_CONSULT."?accion=consPorRuc&nroRuc=$ruc&numRnd=$random&tipdoc=1";
-        // dd($url);
+
         $dic = $this->getValuesFromUrl($url);
 
         if ($dic === false) {

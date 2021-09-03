@@ -1,68 +1,71 @@
 <?php
 namespace App\Http\Controllers\Tenant;
 
-use App\Models\Tenant\PaymentCondition;
-use Exception;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Nexmo\Account\Price;
-use App\Models\Tenant\Item;
-use App\Models\Tenant\User;
-use App\Traits\OfflineTrait;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Excel;
-use App\Models\Tenant\Person;
-use App\Models\Tenant\Series;
-use App\Exports\PaymentExport;
-use App\Models\Tenant\Company;
-use Modules\Item\Models\Brand;
-use App\Models\Tenant\Document;
 use App\CoreFacturalo\Facturalo;
-use App\Imports\DocumentsImport;
-use App\Models\Tenant\StateType;
-use App\Models\Tenant\Warehouse;
-use Modules\Item\Models\Category;
-use App\Mail\Tenant\DocumentEmail;
-use Illuminate\Support\Facades\DB;
-use App\CoreFacturalo\WS\Zip\ZipFly;
+use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\Configuration;
-use App\Models\Tenant\Establishment;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Cache;
-use App\Models\Tenant\PaymentMethodType;
-use Modules\Finance\Traits\FinanceTrait;
+use App\Http\Requests\Tenant\DocumentEmailRequest;
+use App\Http\Requests\Tenant\DocumentRequest;
+use App\Http\Requests\Tenant\DocumentUpdateRequest;
+use App\Http\Resources\Tenant\DocumentCollection;
+use App\Http\Resources\Tenant\DocumentResource;
+use App\Imports\DocumentsImport;
 use App\Imports\DocumentsImportTwoFormat;
-use App\Models\Tenant\Catalogs\PriceType;
+use App\Mail\Tenant\DocumentEmail;
+use App\Models\Tenant\Catalogs\AffectationIgvType;
+use App\Models\Tenant\Catalogs\AttributeType;
+use App\Models\Tenant\Catalogs\CatColorsItem;
+use App\Models\Tenant\Catalogs\CatItemMoldCavity;
+use App\Models\Tenant\Catalogs\CatItemMoldProperty;
+use App\Models\Tenant\Catalogs\CatItemPackageMeasurement;
+use App\Models\Tenant\Catalogs\CatItemProductFamily;
+use App\Models\Tenant\Catalogs\CatItemStatus;
+use App\Models\Tenant\Catalogs\CatItemUnitBusiness;
+use App\Models\Tenant\Catalogs\CatItemUnitsPerPackage;
+use App\Models\Tenant\Catalogs\ChargeDiscountType;
 use App\Models\Tenant\Catalogs\CurrencyType;
 use App\Models\Tenant\Catalogs\DocumentType;
-use Modules\Item\Http\Requests\BrandRequest;
-use App\Http\Requests\Tenant\DocumentRequest;
-use App\Models\Tenant\Catalogs\AttributeType;
+use App\Models\Tenant\Catalogs\NoteCreditType;
 use App\Models\Tenant\Catalogs\NoteDebitType;
 use App\Models\Tenant\Catalogs\OperationType;
+use App\Models\Tenant\Catalogs\PriceType;
 use App\Models\Tenant\Catalogs\SystemIscType;
-use Modules\BusinessTurn\Models\BusinessTurn;
-use App\Models\Tenant\Catalogs\DetractionType;
-use App\Models\Tenant\Catalogs\NoteCreditType;
-use App\Http\Resources\Tenant\DocumentResource;
-use Modules\Item\Http\Requests\CategoryRequest;
-use App\Http\Resources\Tenant\DocumentCollection;
-use App\Http\Requests\Tenant\DocumentEmailRequest;
-use App\Models\Tenant\Catalogs\AffectationIgvType;
-use App\Models\Tenant\Catalogs\ChargeDiscountType;
-use App\Http\Requests\Tenant\DocumentUpdateRequest;
-use App\Http\Requests\Tenant\DocumentVoidedRequest;
-use App\CoreFacturalo\Helpers\Storage\StorageDocument;
-use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
-use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
+use App\Models\Tenant\Company;
+use App\Models\Tenant\Configuration;
 use App\Models\Tenant\Dispatch;
+use App\Models\Tenant\Document;
+use App\Models\Tenant\Establishment;
+use App\Models\Tenant\Item;
+use App\Models\Tenant\PaymentCondition;
+use App\Models\Tenant\PaymentMethodType;
+use App\Models\Tenant\Person;
 use App\Models\Tenant\SaleNote;
+use App\Models\Tenant\Series;
+use App\Models\Tenant\StateType;
+use App\Models\Tenant\User;
+use App\Traits\OfflineTrait;
+use Carbon\Carbon;
+use Config;
+use Exception;
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Excel;
+use Modules\BusinessTurn\Models\BusinessTurn;
+use Modules\Finance\Traits\FinanceTrait;
+use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
+use Modules\Item\Http\Requests\BrandRequest;
+use Modules\Item\Http\Requests\CategoryRequest;
+use Modules\Item\Models\Brand;
+use Modules\Item\Models\Category;
 
 class DocumentController extends Controller{
-
-    use StorageDocument, OfflineTrait, FinanceTrait;
+    use FinanceTrait;
+    use OfflineTrait;
+    use StorageDocument;
     private $max_count_payment = 0;
 
     public function __construct(){
@@ -74,7 +77,8 @@ class DocumentController extends Controller{
         $is_client = $this->getIsClient();
         $import_documents = config('tenant.import_documents');
         $import_documents_second = config('tenant.import_documents_second_format');
-        return view('tenant.documents.index', compact('is_client','import_documents','import_documents_second'));
+        $configuration = Configuration::getPublicConfig();
+        return view('tenant.documents.index', compact('is_client','import_documents','import_documents_second','configuration'));
     }
 
     public function columns(){
@@ -89,10 +93,10 @@ class DocumentController extends Controller{
         return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
     }
 
-    public function searchCustomers(Request $request)   {
+    public function searchCustomers(Request $request){
         //tru de boletas en env esta en true filtra a los con dni   , false a todos
         $identity_document_type_id = $this->getIdentityDocumentTypeId($request->document_type_id, $request->operation_type_id);
-        //$operation_type_id_id = $this->getIdentityDocumentTypeId($request->operation_type_id);
+//        $operation_type_id_id = $this->getIdentityDocumentTypeId($request->operation_type_id);
 
         $customers = Person::where('number','like', "%{$request->input}%")
                             ->orWhere('name','like', "%{$request->input}%")
@@ -100,7 +104,10 @@ class DocumentController extends Controller{
                             ->whereIn('identity_document_type_id',$identity_document_type_id)
                             ->whereIsEnabled()
                             ->get()->transform(function($row) {
-                                return [
+                /** @var  Person $row */
+                return $row->getCollectionData();
+                /* Movido al modelo */
+                return [
                                     'id' => $row->id,
                                     'description' => $row->number.' - '.$row->name,
                                     'name' => $row->name,
@@ -153,7 +160,7 @@ class DocumentController extends Controller{
         $company = Company::active();
         $document_type_03_filter = config('tenant.document_type_03_filter');
         $user = auth()->user()->type;
-        $sellers = User::whereIn('type', ['seller'])->orWhere('id', auth()->user()->id)->get();
+        $sellers = User::where('establishment_id', auth()->user()->establishment_id)->whereIn('type', ['seller', 'admin'])->orWhere('id', auth()->user()->id)->get();
         $payment_method_types = $this->table('payment_method_types');
         $business_turns = BusinessTurn::where('active', true)->get();
         $enabled_discount_global = config('tenant.enabled_discount_global');
@@ -169,7 +176,7 @@ class DocumentController extends Controller{
                 'description' => ucfirst(mb_strtolower(str_replace('REMITENTE ELECTRÓNICA','REMITENTE',$row->description))),
             ];
         });
-        $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
+        // $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         // $detraction_types = DetractionType::whereActive()->get();
         //return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
         //'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
@@ -180,16 +187,44 @@ class DocumentController extends Controller{
         //                'discount_types', 'charge_types', 'company', 'document_type_03_filter');
 
         $payment_destinations = $this->getPaymentDestinations();
-        return compact( 'customers','establishments', 'series', 'document_types_invoice', 'document_types_note',
-                        'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
-                        'discount_types', 'charge_types', 'company', 'document_type_03_filter',
-                        'document_types_guide', 'user', 'sellers','payment_method_types','enabled_discount_global',
-                        'business_turns','is_client','select_first_document_type_03', 'payment_destinations', 'payment_conditions', 'cat_payment_method_types');
+        $document_id =  auth()->user()->document_id;
+        $series_id =  auth()->user()->series_id;
+        $affectation_igv_types = AffectationIgvType::whereActive()->get();
+
+        return compact(
+            'document_id',
+            'series_id',
+            'customers',
+            'establishments',
+            'series',
+            'document_types_invoice',
+            'document_types_note',
+            'note_credit_types',
+            'note_debit_types',
+            'currency_types',
+            'operation_types',
+            'discount_types',
+            'charge_types',
+            'company',
+            'document_type_03_filter',
+            'document_types_guide',
+            'user',
+            'sellers',
+            'payment_method_types',
+            'enabled_discount_global',
+            'business_turns',
+            'is_client',
+            'select_first_document_type_03',
+            'payment_destinations',
+            'payment_conditions',
+            'affectation_igv_types'
+        );
+
     }
 
     public function item_tables(){
         $items = $this->table('items');
-        $categories = [];//Category::cascade();
+        $categories = [];
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $system_isc_types = SystemIscType::whereActive()->get();
         $price_types = PriceType::whereActive()->get();
@@ -199,25 +234,77 @@ class DocumentController extends Controller{
         $attribute_types = AttributeType::whereActive()->orderByDescription()->get();
         $is_client = $this->getIsClient();
 
-        return compact('items', 'categories', 'affectation_igv_types', 'system_isc_types', 'price_types',
-                       'operation_types', 'discount_types', 'charge_types', 'attribute_types','is_client');
+        $configuration= Configuration::first();
+
+        /** Informacion adicional */
+        $colors = collect([]);
+        $CatItemStatus=$colors;
+        $CatItemUnitBusiness = $colors;
+        $CatItemMoldCavity = $colors;
+        $CatItemPackageMeasurement =$colors;
+        $CatItemUnitsPerPackage = $colors;
+        $CatItemMoldProperty = $colors;
+        $CatItemProductFamily= $colors;
+        if($configuration->isShowExtraInfoToItem()){
+
+            $colors = CatColorsItem::all();
+            $CatItemStatus= CatItemStatus::all();
+            $CatItemUnitBusiness = CatItemUnitBusiness::all();
+            $CatItemMoldCavity = CatItemMoldCavity::all();
+            $CatItemPackageMeasurement = CatItemPackageMeasurement::all();
+            $CatItemUnitsPerPackage = CatItemUnitsPerPackage::all();
+            $CatItemMoldProperty = CatItemMoldProperty::all();
+            $CatItemProductFamily= CatItemProductFamily::all();
+        }
+
+
+        /** Informacion adicional */
+
+        return compact(
+            'items',
+            'categories',
+            'affectation_igv_types',
+            'system_isc_types',
+            'price_types',
+            'operation_types',
+            'discount_types',
+            'charge_types',
+            'attribute_types',
+            'is_client',
+            'colors',
+            'CatItemMoldCavity',
+            'CatItemMoldProperty',
+            'CatItemUnitBusiness',
+            'CatItemStatus',
+            'CatItemPackageMeasurement',
+            'CatItemProductFamily',
+            'CatItemUnitsPerPackage');
     }
 
     public function table($table){
-        if ($table === 'customers'){
-            $customers = Person::with('addresses')->whereType('customers')->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function($row) {
-                return [
-                    'id' => $row->id,
-                    'description' => $row->number.' - '.$row->name,
-                    'name' => $row->name,
-                    'number' => $row->number,
-                    'identity_document_type_id' => $row->identity_document_type_id,
-                    'identity_document_type_code' => $row->identity_document_type->code,
-                    'addresses' => $row->addresses,
-                    'address' =>  $row->address,
-                    'internal_code' => $row->internal_code
-                ];
-            });
+        if ($table === 'customers') {
+            $customers = Person::with('addresses')
+                               ->whereType('customers')
+                               ->whereIsEnabled()
+                               ->orderBy('name')
+                               ->take(20)
+                               ->get()->transform(function ($row) {
+                    /** @var Person $row */
+                    return $row->getCollectionData();
+                    /** Se ha movido la salida, al modelo */
+                    return [
+                        'id'                          => $row->id,
+                        'description'                 => $row->number.' - '.$row->name,
+                        'name'                        => $row->name,
+                        'number'                      => $row->number,
+                        'identity_document_type_id'   => $row->identity_document_type_id,
+                        'identity_document_type_code' => $row->identity_document_type->code,
+                        'addresses'                   => $row->addresses,
+                        'address'                     => $row->address,
+                        'internal_code'               => $row->internal_code,
+                    ];
+
+                });
             return $customers;
         }
         if ($table === 'prepayment_documents') {
@@ -239,31 +326,48 @@ class DocumentController extends Controller{
             return $prepayment_documents;
         }
         if ($table === 'payment_method_types') {
+            return PaymentMethodType::getPaymentMethodTypes();
+            /*
             $payment_method_types = PaymentMethodType::whereNotIn('id', ['05', '08', '09'])->get();
             $end_payment_method_types = PaymentMethodType::whereIn('id', ['05', '08', '09'])->get(); //by requirement
             return $payment_method_types->merge($end_payment_method_types);
+            */
         }
         if ($table === 'items') {
             $establishment_id = auth()->user()->establishment_id;
             $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
             // $items_u = Item::whereWarehouse()->whereIsActive()->whereNotIsSet()->orderBy('description')->take(20)->get();
-            $items_u = Item::whereWarehouse()->whereIsActive()->orderBy('description')->take(20)->get();
-            $items_s = Item::where('unit_type_id','ZZ')->whereIsActive()->orderBy('description')->take(10)->get();
+            $items_u = Item::with('warehousePrices')
+                ->whereIsActive()
+                ->orderBy('description');
+            $items_s = Item::with('warehousePrices')
+                ->where('items.unit_type_id', 'ZZ')
+                ->whereIsActive()
+                ->orderBy('description');
+            $items_u = $items_u
+                ->take(20)
+                ->get();
+            $items_s = $items_s
+                ->take(10)
+                ->get();
             $items = $items_u->merge($items_s);
             return collect($items)->transform(function($row) use($warehouse){
+                /** @var Item $row */
+                return $row->getDataToItemModal($warehouse);
                 $detail = $this->getFullDescription($row, $warehouse);
                 return [
                     'id' => $row->id,
                     'full_description' => $detail['full_description'],
                     'model' => $row->model,
                     'brand' => $detail['brand'],
+                    'warehouse_description' => $detail['warehouse_description'],
                     'category' => $detail['category'],
                     'stock' => $detail['stock'],
                     'internal_id' => $row->internal_id,
                     'description' => $row->description,
                     'currency_type_id' => $row->currency_type_id,
                     'currency_type_symbol' => $row->currency_type->symbol,
-                    'sale_unit_price' => number_format($row->sale_unit_price, 4, ".",""),
+                    'sale_unit_price' => Item::getSaleUnitPriceByWarehouse($row, $warehouse->id),
                     'purchase_unit_price' => $row->purchase_unit_price,
                     'unit_type_id' => $row->unit_type_id,
                     'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -304,23 +408,11 @@ class DocumentController extends Controller{
                         ];
                     }),
                     'lots' => [],
-                    // 'lots' => $row->item_lots->where('has_sale', false)->where('warehouse_id', $warehouse->id)->transform(function($row) {
-                    //     return [
-                    //         'id' => $row->id,
-                    //         'series' => $row->series,
-                    //         'date' => $row->date,
-                    //         'item_id' => $row->item_id,
-                    //         'warehouse_id' => $row->warehouse_id,
-                    //         'has_sale' => (bool)$row->has_sale,
-                    //         'lot_code' => ($row->item_loteable_type) ? (isset($row->item_loteable->lot_code) ? $row->item_loteable->lot_code:null):null
-                    //     ];
-                    // })->values(),
                     'lots_enabled' => (bool) $row->lots_enabled,
                     'series_enabled' => (bool) $row->series_enabled,
 
                 ];
             });
-            //return $items;
         }
         return [];
     }
@@ -332,7 +424,14 @@ class DocumentController extends Controller{
 
         if($row->unit_type_id != 'ZZ')
         {
-            $warehouse_stock = ($row->warehouses && $warehouse) ? number_format($row->warehouses->where('warehouse_id', $warehouse->id)->first()->stock,2) : 0;
+            if(isset($row['stock'])){
+                $warehouse_stock = number_format($row['stock'],2);
+            } else {
+                $warehouse_stock = ($row->warehouses && $warehouse) ?
+                    number_format($row->warehouses->where('warehouse_id', $warehouse->id)->first()->stock,2) :
+                    0;
+            }
+
             $stock = ($row->warehouses && $warehouse) ? "{$warehouse_stock}" : "";
         }
         else{
@@ -344,6 +443,7 @@ class DocumentController extends Controller{
             'brand' => $brand,
             'category' => $category,
             'stock' => $stock,
+            'warehouse_description' => $warehouse->description,
         ];
     }
 
@@ -353,32 +453,46 @@ class DocumentController extends Controller{
     }
 
     public function store(DocumentRequest $request){
-        $fact = DB::connection('tenant')->transaction(function () use ($request){
+        $res = $this->storeWithData($request->all());
+        $document_id = $res['data']['id'];
+        $this->associateDispatchesToDocument($request, $document_id);
+        $this->associateSaleNoteToDocument($request, $document_id);
+
+        return $res;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     * @throws \Throwable
+     */
+    public function storeWithData($data){
+        $fact = DB::connection('tenant')->transaction(function () use ($data) {
             $facturalo = new Facturalo();
-            $facturalo->save($request->all());
+            $facturalo->save($data);
             $facturalo->createXmlUnsigned();
             $facturalo->signXmlUnsigned();
             $facturalo->updateHash();
             $facturalo->updateQr();
             $facturalo->createPdf();
             $facturalo->senderXmlSignedBill();
+
             return $facturalo;
         });
         $document = $fact->getDocument();
         $response = $fact->getResponse();
-        $this->associateDispatchesToDocument($request, $document->id);
-        $this->associateSaleNoteToDocument($request, $document->id);
         return [
-            'success' => true,
-            'data' => [
-                'id' => $document->id,
-                'response' =>$response
-            ],
+          'success' => true,
+          'data' => [
+              'id' => $document->id,
+              'response' =>$response
+          ]
         ];
     }
 
     private function associateSaleNoteToDocument(Request $request, int $documentId){
-        if ($request->sale_note_id){
+        if ($request->sale_note_id) {
             SaleNote::where('id', $request->sale_note_id)
                 ->update(['document_id' => $documentId]);
         }
@@ -387,9 +501,14 @@ class DocumentController extends Controller{
             foreach ($notes as $note) {
                 $noteArray = explode('-', $note);
                 if (count($noteArray) === 2) {
-                    SaleNote::where('series', $noteArray[0])
-                        ->where('number', $noteArray[1])
-                        ->update(['document_id' => $documentId]);
+                    $sale_note = SaleNote::where([
+                                                     'series'=> $noteArray[0],
+                                                     'number'=> $noteArray[1],
+                                                 ])->first();
+                    if(!empty($sale_note)) {
+                        $sale_note->document_id = $documentId;
+                        $sale_note->push();
+                    }
                 }
             }
         }
@@ -420,34 +539,26 @@ class DocumentController extends Controller{
         }
     }
 
-    public function edit($id){
+    public function edit($documentId){
         if(auth()->user()->type == 'integrator') {
             return redirect('/documents');
         }
         $configuration = Configuration::first();
         $is_contingency = 0;
-        $documentId = $id;
         $isUpdate = true;
         return view('tenant.documents.form', compact('is_contingency', 'configuration', 'documentId', 'isUpdate'));
     }
 
-    public function update(Request $request, $id){
+    /**
+     * @param \App\Http\Requests\Tenant\DocumentUpdateRequest $request
+     * @param                                                 $id
+     *
+     * @return array
+     * @throws \Throwable
+     */
+    public function update(DocumentUpdateRequest $request, $id){
         $fact = DB::connection('tenant')->transaction(function () use ($request, $id) {
             $facturalo = new Facturalo();
-
-            $document = Document::firstOrNew(['id' => $request['id']]);
-            $document->fill($request->all());
-            // $document->payment_condition_id = $request->input($payment_condition_id);
-            // $document->payment_condition_id = $request['payment_condition_id'];
-            // if($request['payment_condition_id'] = '02'){
-            //     $document->fees()->delete();
-            //     foreach ($request['fee'] as $row) {
-            //         $document->fees()->create($row);
-            //     }
-            // }
-            
-            $document->save();
-
             $facturalo->update($request->all(), $id);
             $facturalo->createXmlUnsigned();
             $facturalo->signXmlUnsigned();
@@ -458,9 +569,6 @@ class DocumentController extends Controller{
             return $facturalo;
         });
 
-        // $document->fill($inputs);
-        // $document->update();
-        
         $document = $fact->getDocument();
         $response = $fact->getResponse();
         return [
@@ -502,11 +610,11 @@ class DocumentController extends Controller{
             $facturalo->updateSoap('02', $type);
             $facturalo->updateState('01');
             $facturalo->createPdf($document, $type, 'ticket');
-            //$facturalo->senderXmlSignedBill();
+//            $facturalo->senderXmlSignedBill();
         });
 
-        //$document = $fact->getDocument();
-        //$response = $fact->getResponse();
+//        $document = $fact->getDocument();
+//        $response = $fact->getResponse();
         return [
             'success' => true,
             'message' => 'El documento se volvio a generar.',
@@ -517,6 +625,7 @@ class DocumentController extends Controller{
         $company = Company::active();
         $document = Document::find($request->input('id'));
         $customer_email = $request->input('customer_email');
+        Configuration::setConfigSmtpMail();
         Mail::to($customer_email)->send(new DocumentEmail($company, $document));
 
         return [
@@ -624,6 +733,9 @@ class DocumentController extends Controller{
         $customers = Person::with('addresses')->whereType('customers')
                     ->where('id',$id)
                     ->get()->transform(function($row) {
+                        /** @var  Person $row */
+                        return $row->getCollectionData();
+                        /* Movido al modelo */
                         return [
                             'id' => $row->id,
                             'description' => $row->number.' - '.$row->name,
@@ -747,56 +859,57 @@ class DocumentController extends Controller{
         $item_id = $request->item_id;
         $category_id = $request->category_id;
         $purchase_order = $request->purchase_order;
-
+        $guides = $request->guides;
 
         $records = Document::query();
 		if ($d_start && $d_end) {
-			$records = $records->whereBetween('date_of_issue', [$d_start, $d_end]);
+			 $records->whereBetween('date_of_issue', [$d_start, $d_end]);
 		}
         if ($date_of_issue) {
             $records = Document::where('date_of_issue', 'like', '%' . $date_of_issue . '%');
         }
+        /** @var Builder $records */
         if ($document_type_id) {
-            $records = $records->where('document_type_id', 'like', '%' . $document_type_id . '%');
+            $records->where('document_type_id', 'like', '%' . $document_type_id . '%');
         }
         if ($series) {
-            $records = $records->where('series', 'like', '%' . $series . '%');
+            $records->where('series', 'like', '%' . $series . '%');
         }
         if ($number) {
-            $records = $records->where('number', $number);
+            $records->where('number', $number);
         }
         if ($state_type_id) {
-            $records = $records->where('state_type_id', 'like', '%' . $state_type_id . '%');
+            $records->where('state_type_id', 'like', '%' . $state_type_id . '%');
         }
         if ($purchase_order) {
-            $records = $records->where('purchase_order', $purchase_order);
+            $records->where('purchase_order', $purchase_order);
         }
-        $records = $records->whereTypeUser()
-            ->latest();
+        $records->whereTypeUser()->latest();
 
-        if($pending_payment){
-            $records = $records->where('total_canceled', false);
-        }
-
-        if($customer_id){
-            $records = $records->where('customer_id', $customer_id);
+        if ($pending_payment) {
+            $records->where('total_canceled', false);
         }
 
-        if($item_id){
-            $records = $records->whereHas('items', function($query) use($item_id){
-                                    $query->where('item_id', $item_id);
-                                });
+        if ($customer_id) {
+            $records->where('customer_id', $customer_id);
         }
 
-        if($category_id){
-
-            $records = $records->whereHas('items', function($query) use($category_id){
-                                    $query->whereHas('relation_item', function($q) use($category_id){
-                                        $q->where('category_id', $category_id);
-                                    });
-                                });
+        if ($item_id) {
+            $records->whereHas('items', function ($query) use ($item_id) {
+                $query->where('item_id', $item_id);
+            });
         }
 
+        if ($category_id) {
+            $records->whereHas('items', function ($query) use ($category_id) {
+                $query->whereHas('relation_item', function ($q) use ($category_id) {
+                    $q->where('category_id', $category_id);
+                });
+            });
+        }
+        if (!empty($guides)) {
+            $records->where('guides', 'like', DB::raw("%\"number\":\"%") . $guides . DB::raw("%\"%"));
+        }
         return $records;
     }
 
@@ -811,7 +924,7 @@ class DocumentController extends Controller{
 
         return compact( 'customers', 'document_types','series','establishments', 'state_types', 'items', 'categories');
     }
-    
+
     public function getItems(){
         $items = Item::orderBy('description')->take(20)->get()->transform(function($row) {
             return [

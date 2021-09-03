@@ -22,14 +22,14 @@ class SummarySendCommand extends Command
      * @var string
      */
     protected $signature = 'summary:send';
-    
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Automatic send of summaries';
-    
+
     /**
      * Create a new command instance.
      *
@@ -38,7 +38,7 @@ class SummarySendCommand extends Command
     public function __construct() {
         parent::__construct();
     }
-    
+
     /**
      * Execute the console command.
      *
@@ -46,16 +46,16 @@ class SummarySendCommand extends Command
      */
     public function handle() {
         $this->info('The command was started');
-        
+
         Auth::login(User::firstOrFail());
-        
+
         if (Configuration::firstOrFail()->cron) {
             $hostname = Website::query()
                 ->where('uuid', app(\Hyn\Tenancy\Environment::class)->tenant()->uuid)
                 ->first()
                 ->hostnames
                 ->first();
-            
+
             $documents = Document::query()
                 ->select('date_of_issue')
                 ->where([
@@ -65,7 +65,7 @@ class SummarySendCommand extends Command
                 ])
                 ->groupBy('date_of_issue')
                 ->get();
-            
+
             foreach ($documents as $document) {
 
                 // if(file_exists(base_path(config('tenant.name_certificate_cron')))){
@@ -85,7 +85,7 @@ class SummarySendCommand extends Command
                 ];
 
                 $clientGuzzleHttp = new ClientGuzzleHttp($constructor_params);
-                
+
                 $response = $clientGuzzleHttp->post('/api/summaries', [
                     'http_errors' => false,
                     'headers' => [
@@ -97,16 +97,16 @@ class SummarySendCommand extends Command
                         'codigo_tipo_proceso' => 1
                     ]
                 ]);
-                
+
                 $res = json_decode($response->getBody()->getContents(), true);
-                
+
                 if (!$res['success']) $this->info("{$document->date_of_issue} - {$res['message']}");
             }
         }
         else {
             $this->info('The crontab is disabled');
         }
-        
+
         $this->info('The command is finished');
     }
 }
