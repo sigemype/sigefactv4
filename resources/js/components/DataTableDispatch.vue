@@ -17,15 +17,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mt-2" v-if="see_more">
+                <div class="row mt-2" v-if="see_more"> 
+
                     <div class="col-lg-4 col-md-4 ">
                         <div class="form-group">
-                            <label class="control-label">Tipo comprobante</label>
-                            <el-select v-model="search.document_type_id" @change="changeDocumentType" popper-class="el-select-document_type" filterable clearable>
-                                <el-option v-for="option in document_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                            <label class="control-label">Clientes</label>
+
+                            <el-select v-model="search.customer_id" filterable remote  popper-class="el-select-customers"  clearable
+                                placeholder="Nombre o número de documento"
+                                :remote-method="searchRemoteCustomers"
+                                :loading="loading_search">
+                                <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
                             </el-select>
                         </div>
-                    </div>
+                    </div> 
+
                     <div class="col-lg-2 col-md-2">
                         <div class="form-group"  >
                             <label class="control-label">Serie</label>
@@ -71,75 +77,6 @@
                                 @change="changeEndDate"
                                  >
                             </el-date-picker>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-4 ">
-                        <div class="form-group">
-                            <label class="control-label">Clientes</label>
-
-                            <el-select v-model="search.customer_id" filterable remote  popper-class="el-select-customers"  clearable
-                                placeholder="Nombre o número de documento"
-                                :remote-method="searchRemoteCustomers"
-                                :loading="loading_search">
-                                <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                            </el-select>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 " v-if="resource == 'documents'">
-                        <div class="form-group">
-                            <label class="control-label">Productos</label>
-                            <el-select v-model="search.item_id" filterable remote  popper-class="el-select-customers"  clearable
-                                placeholder="Nombre o código interno"
-                                :remote-method="searchRemoteItems"
-                                :loading="loading_search_item">
-                                <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                            </el-select>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-12 pb-2" v-if="resource == 'documents'">
-                        <div class="form-group"  >
-                            <label class="control-label">Categoría</label>
-                            <el-select v-model="search.category_id" filterable clearable>
-                                <el-option v-for="option in categories" :key="option.id" :value="option.id" :label="option.name"></el-option>
-                            </el-select>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-12 pb-2">
-                        <label class="control-label">Fecha de emisión</label>
-                        <el-date-picker
-                            v-model="search.date_of_issue"
-                            type="date"
-                            style="width: 100%;"
-                            placeholder="Buscar"
-                            value-format="yyyy-MM-dd"
-                            @change="changeDateOfIssue"    >
-                        </el-date-picker>
-                    </div>
-
-                    <div class="col-lg-2 col-md-2 col-sm-12 pb-2">
-                        <div class="form-group"  >
-                            <label class="control-label">Estado</label>
-                            <el-select v-model="search.state_type_id" filterable clearable>
-                                <el-option v-for="option in state_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                            </el-select>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-12 pb-2">
-                        <div class="form-group"  >
-                            <label class="control-label">Orden de compra</label>
-                            <el-input v-model="search.purchase_order" clearable></el-input>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-12 pb-2">
-                        <div class="form-group"  >
-                            <label class="control-label">Numero de Guía</label>
-                            <el-input v-model="search.guides" clearable></el-input>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-2 col-sm-12 mt-4">
-                        <div class="form-group"  >
-                            <el-checkbox v-model="search.pending_payment" >PEND. DE PAGO</el-checkbox>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-md-4 col-sm-12" style="margin-top:29px">
@@ -208,17 +145,9 @@
                 items: [],
                 all_items: [],
                 loading_search:false,
-                loading_search_item:false,
-                document_types: [],
-                categories: [],
-                state_types: [],
                 pagination: {},
                 search: {},
-                all_series: [],
-                establishment: null,
-                establishments: [],
                 series: [],
-                activePanel:0,
                 see_more:false,
                 pickerOptionsDates: {
                     disabledDate: (time) => {
@@ -240,48 +169,14 @@
 
             await this.$http.get(`/${this.resource}/data_table`).then((response) => {
                 this.all_customers = response.data.customers
-                this.all_items = response.data.items
-                this.categories = response.data.categories
-                this.state_types = response.data.state_types
-                this.document_types = response.data.document_types
-                this.all_series = response.data.series
-                this.establishments = response.data.establishments
-
+                this.series = response.data.series
             });
 
             await this.getRecords()
             await this.filterCustomers()
-            await this.filterItems()
-
-            await this.cargalo()
+            await this.loadScroll()
         },
         methods: {
-
-            searchRemoteItems(input) {
-
-                if (input.length > 0) {
-
-                    this.loading_search = true
-                    let parameters = `input=${input}`
-
-                    this.$http.get(`/documents/data-table/items?${parameters}`)
-                            .then(response => {
-                                // console.log(response.data)
-                                this.items = response.data
-                                this.loading_search = false
-
-                                if(this.items.length == 0){
-                                    this.filterItems()
-                                }
-                            })
-                } else {
-                    this.filterItems()
-                }
-
-            },
-            filterItems() {
-                this.items = this.all_items
-            },
             searchRemoteCustomers(input) {
 
                 if (input.length > 0) {
@@ -313,25 +208,15 @@
 
                 this.search = {
                     date_of_issue: null,
-                    document_type_id:null,
                     customer_id:null,
-                    item_id:null,
-                    category_id:null,
-                    state_type_id:null,
                     series:null,
                     number:null,
                     d_start:null,
                     d_end:null,
-                    pending_payment:false,
                 }
             },
             changeDocumentType(){
                 this.filterSeries();
-            },
-            filterSeries() {
-                this.search.series = null
-                this.series = _.filter(this.all_series, {'document_type_id': this.search.document_type_id});
-                this.search.series = (this.series.length > 0)?this.series[0].number:null
             },
             customIndex(index) {
                 return (this.pagination.per_page * (this.pagination.current_page - 1)) + index + 1
@@ -379,7 +264,7 @@
             cleanInputs(){
                 this.initForm()
             },
-            cargalo(){
+            loadScroll(){
                 $("#scroll1 div").width($(".table").width());
                 $("#scroll1").on("scroll", function(){
                     $("#scroll2").scrollLeft($(this).scrollLeft());

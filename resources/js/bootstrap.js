@@ -25,6 +25,15 @@ if (token) {
 
 Vue.prototype.$http = axios;
 
+
+
+Vue.prototype.$setStorage =   function(name,obj){
+    localStorage.setItem(name, JSON.stringify(obj));
+};
+Vue.prototype.$getStorage = function(name){
+    return JSON.parse(localStorage.getItem(name));
+};
+
 require('./vendor/perfect-scrollbar.jquery.min')
 require('./vendor/sidebarmenu')
 require('./vendor/waves')

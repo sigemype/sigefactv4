@@ -8,7 +8,7 @@
                         <p class="">
                             Versión:{{version}}
                         </p>
-                        <button type="button" class="btn btn-primary" @click.prevent="start()" :loading="loading_submit">Iniciar proceso</button>
+                        <el-button type="button" class="btn btn-primary" @click.prevent="start()" :loading="loading_submit">Iniciar proceso</el-button>
                     </div>
                     <div v-if="content.status == true && content.step == 'updating'" id="response-content">
 

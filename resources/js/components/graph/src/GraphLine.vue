@@ -23,6 +23,9 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    legend: {
+                        display: false,
+                    }
                 }
             }
         },
@@ -40,11 +43,9 @@
             createChart() {
                 if (this.chart) {
                     this.chart.destroy();
-                    // console.log('destroy');
-
                 }
                 this.chart = new Chart(this.$refs.canvas.getContext('2d'), {
-                    type: 'line',
+                    type: 'bar',
                     data: {
                         labels: this.allData.labels,
                         datasets: this.allData.datasets,

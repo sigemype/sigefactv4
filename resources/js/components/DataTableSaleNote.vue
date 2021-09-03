@@ -6,12 +6,10 @@
                 <br>
                 <br>
                 <div class="row" v-if="applyFilter">
-                    <div class="col-lg-4 col-md-4 col-sm-12 pb-2">
+                    <div class="col-12 pb-3">Filtrar por:</div>
+                    <div class="col-lg-2 col-md-4 col-sm-12 pb-2">
                         <div class="d-flex">
-                            <div style="width:100px">
-                                Filtrar por:
-                            </div>
-                            <el-select v-model="search.column"  placeholder="Select" @change="changeClearInput">
+                            <el-select v-model="search.column"  placeholder="Select">
                                 <el-option v-for="(label, key) in columns" :key="key" :value="key" :label="label"></el-option>
                             </el-select>
                         </div>
@@ -23,33 +21,34 @@
                                 type="date"
                                 style="width: 100%;"
                                 placeholder="Buscar"
-                                value-format="yyyy-MM-dd"
-                                @change="getRequestData">
+                                value-format="yyyy-MM-dd">
                             </el-date-picker>
                         </template>
                         <template v-else>
-                            <el-input placeholder="Buscar"
+                            <el-input placeholder="Nombre del cliente"
                                 v-model="search.value"
-                                style="width: 100%;"
-                                prefix-icon="el-icon-search"
-                                @input="getRequestData">
+                                style="width: 100%;">
                             </el-input>
                         </template>
                     </div>
-                    <div class="col-lg-2 col-md-2">
-                        <div class="form-group"  >
-                            <el-select @change="getRequestData" placeholder="Serie" v-model="search.series" filterable clearable>
-                                <el-option v-for="option in series" :key="option.number" :value="option.number" :label="option.number"></el-option>
-                            </el-select>
-                        </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <el-select placeholder="Serie" v-model="search.series" filterable clearable>
+                            <el-option v-for="option in series" :key="option.number" :value="option.number" :label="option.number"></el-option>
+                        </el-select>
                     </div>
-                    <div class="col-lg-3 col-md-3">
-                        <div class="form-group"  >
-                            <el-select @change="getRequestData" placeholder="Estado de pago" v-model="search.total_canceled" clearable>
-                                <el-option :value="1" label="Pagado"></el-option>
-                                <el-option  :value="0" label="Pendiente"></el-option>
-                            </el-select>
-                        </div>
+                    <div class="col-lg-2 col-md-3 form-group">
+                        <el-select placeholder="Estado de pago" v-model="search.total_canceled" clearable>
+                            <el-option :value="1" label="Pagado"></el-option>
+                            <el-option  :value="0" label="Pendiente"></el-option>
+                        </el-select>
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <el-input v-model="search.purchase_order" placeholder="Orden de compra" clearable></el-input>
+                    </div>
+                    <div class="col-lg-1 col-md-2 form-group">
+                        <el-button class="w-100" type="primary" @click="getRequestData">
+                            <i class="fa fa-search"></i>
+                        </el-button>
                     </div>
                 </div>
 

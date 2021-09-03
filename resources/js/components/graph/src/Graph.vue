@@ -27,8 +27,9 @@
                 options: {
                     maintainAspectRatio: false,
                     lineTension: 0,
-                    circumference: Math.PI,
-                    rotation: -Math.PI
+                    legend: {
+                        display: false,
+                    }
                 },
             }
         },
@@ -46,7 +47,6 @@
             createChart() {
                 if (this.chart) {
                     this.chart.destroy();
-                    // console.log('destroy');
                 }
                 this.chart = new Chart(this.$refs.canvas.getContext('2d'), {
                     type: this.type,
