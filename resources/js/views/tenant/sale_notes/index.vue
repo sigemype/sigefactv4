@@ -7,6 +7,8 @@
             </ol>
             <div class="right-wrapper pull-right">
                 <a href="#" @click.prevent="clickCreate()" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a href="#" @click.prevent="onOpenModalGenerateCPE" class="btn btn-custom btn-sm  mt-2 mr-2">Generar comprobante desde múltiples Notas</a>
+                <a href="#" v-if="config.send_data_to_other_server === true"@click.prevent="onOpenModalMigrateNv" class="btn btn-custom btn-sm  mt-2 mr-2">Migrar Datos</a>
             </div>
         </div>
         <div class="card mb-0">
@@ -31,6 +33,7 @@
                         <th>Nota de Venta</th>
                         <th>Estado</th>
                         <th class="text-center">Moneda</th>
+                        <th class="text-right" v-if="columns.due_date.visible">F. Vencimiento</th>
                         <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
                         <th class="text-right" v-if="columns.total_free.visible">T.Gratuito</th>
                         <th class="text-right" v-if="columns.total_unaffected.visible">T.Inafecta</th>
@@ -44,6 +47,7 @@
 
                         <th class="text-center">Comprobantes</th>
                         <th class="text-center">Estado pago</th>
+                        <th class="text-center">Orden de compra</th>
 
                         <th class="text-center">Pagos</th>
                         <th class="text-center">Descarga</th>
@@ -73,6 +77,7 @@
                         <td>{{ row.state_type_description }}</td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
 
+                        <td class="text-right"  v-if="columns.due_date.visible" >{{ row.due_date }}</td>
                         <td class="text-right"  v-if="columns.total_exportation.visible" >{{ row.total_exportation }}</td>
                         <td class="text-right" v-if="columns.total_free.visible">{{ row.total_free }}</td>
                         <td class="text-right" v-if="columns.total_unaffected.visible">{{ row.total_unaffected }}</td>
@@ -88,9 +93,6 @@
                         <td class="text-center" v-if="columns.total_pending_paid.visible">
                             {{row.total_pending_paid}}
                         </td>
-
-
-
                         <td>
                             <template v-for="(document,i) in row.documents">
                                 <label :key="i" v-text="document.number_full" class="d-block"></label>
@@ -100,17 +102,14 @@
                             <span class="badge text-white" :class="{'bg-success': (row.total_canceled), 'bg-warning': (!row.total_canceled)}">{{row.total_canceled ? 'Pagado':'Pendiente'}}</span>
                         </td>
 
-                        <td class="text-center">
-                            <!-- <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickPayment(row.id)"  v-if="row.btn_payments">Pagos</button> -->
+                        <td>{{ row.purchase_order }}</td>
 
+                        <td class="text-center">
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-primary"
                                     @click.prevent="clickPayment(row.id)" ><i class="fas fa-money-bill-alt"></i></button>
                         </td>
 
                         <td class="text-right">
-                            <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickDownload(row.external_id)">PDF</button> -->
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickDownload(row.external_id)"><i class="fas fa-file-pdf"></i></button>
                         </td>
@@ -136,13 +135,8 @@
                         </td>
 
                         <td class="text-right">
-
-                            <!-- <button v-if="row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger"  @click.prevent="clickVoided(row.id)">Anular</button> -->
                             <button data-toggle="tooltip" data-placement="top" title="Anular" v-if="row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger"
                              @click.prevent="clickVoided(row.id)"><i class="fas fa-trash"></i></button>
-
-                            <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickCreate(row.id)" v-if="row.btn_generate && row.state_type_id != '11'">Editar</button> -->
 
                             <button data-toggle="tooltip"
                                     data-placement="top"
@@ -164,8 +158,6 @@
                                 <i class="fas fa-file-excel"></i>
                             </button>
 
-                            <!-- <button  v-if="row.state_type_id != '11'"  type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickOptions(row.id)">Opciones</button> -->
                             <el-tooltip class="item" effect="dark" content="Generar guía desde CPE" placement="top-start">
                                 <template v-for="(document,i) in row.documents" >
                                     <a :href="`/dispatches/create/${document.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
@@ -177,11 +169,23 @@
                                 <a :href="`/dispatches/generate/${row.id}`" class="btn waves-effect waves-light btn-xs btn-primary m-1__2"><i class="fas fa-file-alt"></i></a>
                             </el-tooltip>
 
-                            <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickGenerate(row.id)" v-if="!row.changed && row.state_type_id != '11' ">Generar comprobante</button> -->
-
                             <button  data-toggle="tooltip" data-placement="top" title="Imprimir" v-if="row.state_type_id != '11'"  type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickOptions(row.id)"><i class="fas fa-print"></i></button>
+                            <button @click="duplicate(row.id)"
+                                    title="Duplica la nota de venta"
+                                    type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Enviar a otro servidor"
+                                v-if="row.state_type_id != '11' && row.send_other_server=== true"
+                                type="button"
+                                class="btn waves-effect waves-light btn-xs btn-inverse"
+                                @click.prevent="sendToServer(row.id)"><i class="fas fa-wifi"></i>
+                            </button>
                         </td>
 
 
@@ -195,38 +199,66 @@
 
         <sale-notes-options :showDialog.sync="showDialogOptions"
                           :recordId="saleNotesNewId"
-                          :showClose="true"></sale-notes-options>
+                          :showClose="true"
+                          :configuration="config"></sale-notes-options>
 
-        <sale-note-generate :showDialog.sync="showDialogGenerate"
+        <sale-note-generate :show.sync="showDialogGenerate"
                            :recordId="recordId"
                            :showGenerate="true"
                            :showClose="false"></sale-note-generate>
-
+        <ModalGenerateCPE :show.sync="showModalGenerateCPE"></ModalGenerateCPE>
+        <UploadToOtherServer
+            :configuration="config"
+            :showMigrate.sync="showMigrateNv"
+        ></UploadToOtherServer>
     </div>
 </template>
 
 <script>
-
     import DataTable from '../../../components/DataTableSaleNote.vue'
+    import UploadToOtherServer from './partials/upload_other_server_group.vue'
     import SaleNotePayments from './partials/payments.vue'
     import SaleNotesOptions from './partials/options.vue'
     import SaleNoteGenerate from './partials/option_documents'
     import {deletable} from '../../../mixins/deletable'
+    import ModalGenerateCPE from './ModalGenerateCPE'
+    import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
     export default {
-        props: ['soapCompany','typeUser'],
+        props: [
+            'soapCompany',
+            'typeUser',
+            'configuration'
+        ],
         mixins: [deletable],
-        components: {DataTable, SaleNotePayments, SaleNotesOptions, SaleNoteGenerate},
+        components: {
+            DataTable,
+            SaleNotePayments,
+            SaleNotesOptions,
+            SaleNoteGenerate,
+            ModalGenerateCPE,
+            UploadToOtherServer
+        },
+        computed:{
+            ...mapState([
+                'config',
+            ]),
+        },
         data() {
             return {
+                showModalGenerateCPE: false,
+                showMigrateNv: false,
                 resource: 'sale-notes',
                 showDialogPayments: false,
                 showDialogOptions: false,
                 showDialogGenerate: false,
                 saleNotesNewId: null,
                 recordId: null,
-                showDialogOptions: false,
                 columns: {
+                    due_date: {
+                        title: 'Fecha de Vencimiento',
+                        visible: false
+                    },
                     total_free: {
                         title: 'T.Gratuito',
                         visible: false
@@ -280,6 +312,8 @@
             }
         },
         created() {
+            this.loadConfiguration()
+            this.$store.commit('setConfiguration', this.configuration)
         },
         filters:{
             period(name)
@@ -302,12 +336,58 @@
             }
         },
         methods: {
+            ...mapActions([
+                'loadConfiguration',
+            ]),
+            duplicate(id){
+                this.$http.post(`${this.resource}/duplicate`, {id})
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$message.success('Se guardaron los cambios correctamente.')
+                            this.$eventHub.$emit('reloadData')
+                        } else {
+                            this.$message.error('No se guardaron los cambios')
+                        }
+                    })
+                    .catch(error => {
+
+                    })
+                this.$eventHub.$emit('reloadData')
+            },
+            onOpenModalGenerateCPE() {
+                this.showModalGenerateCPE = true;
+            },
+            onOpenModalMigrateNv() {
+                this.showMigrateNv = true;
+            },
             clickDownload(external_id) {
                 window.open(`/sale-notes/downloadExternal/${external_id}`, '_blank');
             },
             clickOptions(recordId) {
                 this.saleNotesNewId = recordId
                 this.showDialogOptions = true
+            },
+            sendToServer(recordId) {
+                this.$http.post('/sale-notes/UpToOther',{'sale_note_id':recordId}).then(response => {
+                    if (response.data.success) {
+                        this.$message.success(response.data.message);
+                        this.$eventHub.$emit('reloadData')
+                    }
+                    else {
+                        this.$message.error(response.data.message);
+                    }
+                }).catch(error => {
+                    if(
+                        error.response!== undefined &&
+                        error.response.status !== undefined &&
+                        error.response.status.errors !== undefined &&
+                        error.response.status === 422 ) {
+                        this.errors = error.response.data.errors;
+                    } else {
+                         console.log(error);
+                    }
+                }).then(() => {
+                });
             },
             clickGenerate(recordId) {
                 this.recordId = recordId
@@ -322,8 +402,6 @@
             },
 
             changeConcurrency(row) {
-
-                // console.log(row)
                 this.$http.post(`/${this.resource}/enabled-concurrency`, row).then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message);

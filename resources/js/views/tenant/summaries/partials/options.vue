@@ -1,24 +1,40 @@
 <template>
     <el-dialog :title="titleDialog" :visible="showDialog" @open="create" width="30%" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" append-to-body>
             
-        <div class="row mb-4" v-if="form.response_message">
-            <div class="col-md-12">
-                <el-alert
-                    :title="form.response_message"
-                    :type="form.response_type"
-                    show-icon>
-                </el-alert>
+        <template v-if="form.manually_regularized">
+            
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <el-alert
+                        title="El resúmen fue regularizado de forma manual"
+                        type="warning"
+                        :description="`Error consulta ticket: ${form.error_manually_regularized.message}`"
+                        show-icon>
+                    </el-alert>
+                </div>
             </div>
-        </div>
+        </template>
+        <template v-else>
+            <div class="row mb-4" v-if="form.response_message">
+                <div class="col-md-12">
+                    <el-alert
+                        :title="form.response_message"
+                        :type="form.response_type"
+                        show-icon>
+                    </el-alert>
+                </div>
+            </div>
 
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold mt-3">
-                <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickDownload()">
-                    <i class="fa fa-file-download"></i>
-                </button>
-                <p>Descargar CDR</p>
-            </div>  
-        </div>   
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold mt-3">
+                    <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickDownload()">
+                        <i class="fa fa-file-download"></i>
+                    </button>
+                    <p>Descargar CDR</p>
+                </div>  
+            </div>   
+        </template>
+
         <span slot="footer" class="dialog-footer">
             <el-button @click="clickClose">Cerrar</el-button>
         </span>
@@ -53,6 +69,9 @@
                     download_cdr: null,
                     response_message:null,
                     response_type:null,
+                    unknown_error_status_response : false,
+                    manually_regularized : false,
+                    error_manually_regularized : {},
                 }
             },
             async create() {

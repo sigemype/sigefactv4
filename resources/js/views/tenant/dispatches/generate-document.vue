@@ -567,7 +567,8 @@ export default {
       this.assignDocument();
       this.onCalculateTotals();
 
-      let validate_payment_destination = await this.validatePaymentDestination();
+      let validate_payment_destination =
+        await this.validatePaymentDestination();
 
       if (validate_payment_destination.error_by_item > 0) {
         return this.$message.error("El destino del pago es obligatorio");
@@ -598,7 +599,7 @@ export default {
             this.saveCashDocument();
 
             this.$eventHub.$emit("reloadData");
-            this.onUpdateDispatchWithDocumentId(response.data.data.id);
+            // this.onUpdateDispatchWithDocumentId(response.data.data.id);
             this.resetDocument();
             this.document.customer_id = this.form.dispatch.customer_id;
             this.changeCustomer();
@@ -618,11 +619,13 @@ export default {
         });
     },
     onUpdateDispatchWithDocumentId(documentId) {
-        this.loading_submit = true;
-        const payload = {
-            document_id: documentId
-        }
-        this.$http.post(`dispatches/record/${this.recordId}/set-document-id`, payload).finally(() => this.loading_submit = true)
+      this.loading_submit = true;
+      const payload = {
+        document_id: documentId,
+      };
+      this.$http
+        .post(`dispatches/record/${this.recordId}/set-document-id`, payload)
+        .finally(() => (this.loading_submit = true));
     },
     saveCashDocument() {
       this.$http
@@ -633,7 +636,7 @@ export default {
           }
         })
         .catch((error) => {
-          this.axiosError(error)
+          this.axiosError(error);
         });
     },
     onGetItems(item) {

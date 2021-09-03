@@ -92,7 +92,7 @@
         },
         methods: {
             clickDownload() {
-                window.open(this.form.download_external_pdf, '_blank');
+                window.open(`/print/dispatch/${this.form.external_id}`, '_blank');
             },
             clickSendWhatsapp() {
                 

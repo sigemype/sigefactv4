@@ -42,7 +42,10 @@
     import queryString from 'query-string'
 
     export default {
-        props: ['showDialog'],
+        props: [
+            'showDialog',
+            'pharmacy',
+        ],
         data() {
             return {
                 loading_submit: false,
@@ -56,9 +59,13 @@
                         return this.form.month_start > time
                     }
                 },
+                fromPharmacy: false,
             }
         },
         created() {
+            if(this.pharmacy !== undefined && this.pharmacy === true){
+                this.fromPharmacy = true;
+            }
             this.initForm()
         },
         methods: {
@@ -79,22 +86,22 @@
                     this.form.month_end = this.form.month_start
                 }
             },
-            changePeriod() { 
+            changePeriod() {
 
                 if(this.form.period === 'between_months') {
                     this.form.month_start = moment().startOf('year').format('YYYY-MM'); //'2019-01';
                     this.form.month_end = moment().endOf('year').format('YYYY-MM');;
                 }
-                
+
             },
             submit() {
                 this.loading_submit = true
 
                 let query = queryString.stringify({
+                    isPharmacy:this.fromPharmacy,
                     ...this.form
                 });
                 window.open(`/${this.resource}/export/?${query}`, '_blank');
-
                 this.loading_submit = false
                 this.$emit('update:showDialog', false)
                 this.initForm()

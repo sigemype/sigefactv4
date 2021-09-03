@@ -3,6 +3,8 @@
 
 ## Manuales de Instalación
 
+[Google Cloud - Ubuntu 18.04](https://www.youtube.com/watch?v=DChb3DQDxlw "Clic")
+<br>
 [Windows - Linux](https://drive.google.com/file/d/1GowS3z9dbrN6htRcWybJG-X68PZbfdO2/view?usp=sharing "Clic")
 <br>
 [Docker - Linux](https://drive.google.com/file/d/1WrDb-zBLUJtRtgz9NhlP3dvWoXU1KCRt/view?usp=sharing "Clic")
@@ -18,7 +20,7 @@
 
 Linux - Ubuntu 18 - Docker - SSL opcional<br>
 [Guia](https://drive.google.com/file/d/1c0D3nU3E2TfDKG2GDUWzmqbeOjYOxfkg/view?usp=sharing "clic") <br>
-[Script](https://drive.google.com/file/d/14ff72Jy2qq8l1rqiWEGG48NW4xe1un-Y/view?usp=sharing "clic" )
+[Script](https://drive.google.com/file/d/1Gm4O1vC51cIAt_Z4VpgSY5BJPJl_9NSV/view?usp=sharing "clic" )
 
 ### Manuales de actualización
 
@@ -37,7 +39,8 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 
 ### Manuales de Usuario
 
-[YouTube Tutorial](https://www.youtube.com/watch?v=a-tH1iYFuYM "Clic")<br>
+[YouTube Tutorial 1 ](https://youtu.be/a-tH1iYFuYM "Clic")[- YouTube Tutorial 2](https://youtu.be/8oAD2NJdNl8 "Clic")<br>
+[YouTube Dar de alta en Sunat](https://www.youtube.com/watch?v=tic_c2SVKdM&t "Clic")<br>
 [Manual de usuario](https://drive.google.com/file/d/1MRYuJczgGjVsrKMGDjnWlELmVeQ8NZt6/view?usp=sharing "Clic")<br>
 [Manual de Tareas Programadas](https://drive.google.com/file/d/1Z35qKjdoY5lMyXhtcUu6D3fjRAw0Je3U/view?usp=sharing "Clic")<br>
 [Manual de Cambio de Entorno](https://drive.google.com/file/d/1gmWB3LXZ2XP57tJWQSuhEjXlHcTPA03V/view?usp=sharing "Clic")<br>
@@ -45,9 +48,9 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 
 ## API
 
-[Documentación](https://drive.google.com/file/d/13o7umOH0UyokqGZUBhRS1KXgkhut3XCo/view?usp=sharing "Clic")<br>
-
-[Colección para Postman](https://drive.google.com/file/d/1HL9D96vdFRTLINxulLyoQ0znt-L34NKK/view?usp=sharing "Clic")
+[Descargar colección para Postman](https://drive.google.com/file/d/1eTAJseghS4NW-lc2UnZnxZhfG-eMycCl/view?usp=sharing "Clic")<br>
+[Documentación - json con respuestas](https://drive.google.com/file/d/14G4RcT9yTz83WdrBTO0dmGPjwWGMDdCe/view?usp=sharing "Clic")<br>
+[Documentación - Ejemplos para Lenguajes](https://documenter.getpostman.com/view/1431398/TzJx8bqc#f910e6f8-6a3f-41cf-8a5f-ec1e1f842637 "Clic")<br>
 
 ## Manuales adicionales
 
@@ -62,6 +65,7 @@ Documentación del archivo .ENV: [Guía](https://drive.google.com/file/d/1FeCQmD
 Incrementar recursos - servidor: [Guía](https://drive.google.com/file/d/1Wj6eGv0QN11MgvQ-Y4QUyqcRfaN4seUW/view?usp=sharing "Clic")<br>
 Incrementar recursos - aplicación: [Guía](https://drive.google.com/file/d/1eX4BkjzOIuEobhZIJScOJI2ee5d6S7U0/view?usp=sharing "Clic")<br>
 Configuracion de correo electrónico emisor: [Guía](https://drive.google.com/file/d/1a41ZgkPoiXIyJK-lcAkXFalJRWlATOPZ/view?usp=sharing "Clic")<br>
+Configuracion de correo emisor por cliente: [Guía](https://drive.google.com/file/d/1BIHh3tQB5tJg9p536vj3913fKdNOiplT/view?usp=sharing "Clic")<br>
 Manual - Cambio de dominio: [Guía](https://drive.google.com/file/d/1xIz3RkexgL0VlwfVBTrXzvCSGV85pFFi/view?usp=sharing "Clic")<br>
 Linux - Eliminar temporales: [Guía](https://drive.google.com/file/d/1ND9lLcpyfYCEin451qJ0M1pCKxmpbX4N/view?usp=sharing "Clic")<br>
 Linux - Eliminar archivos por extensión: [Guía](https://drive.google.com/file/d/1mfL9cyJ591TD2gjaAd-6hO8PbT69JyFT/view?usp=sharing "Clic")<br>
@@ -85,12 +89,17 @@ Migración servidor: [Guía](https://drive.google.com/file/d/12MdHQCErv5TL1R569v
 Manual de configuración offline: [Guía](https://drive.google.com/file/d/1MZlOrW0IVANSfzDpG6cxqA_EUsVRIfc4/view?usp=sharing "Clic")<br>
 Habilitar puertos en Google Cloud: [Manual](https://drive.google.com/file/d/1fGuW4iSlXjUhn00p4K1vqxEy4rMRupjg/view?usp=sharing "clic")<br>
 
+### Funcionalidades
+ICBPER en POS: [Guía](https://drive.google.com/file/d/1P_2tIUPIwNCOXeo2R0A_ego-zEBP6O-H/view?usp=sharing "Clic")<br>
+
 ### Laragon
 Acceso red local - laragon: [Guía](https://drive.google.com/file/d/1gRU4DuksFjLjVZYpuPkRaLv4iZ49SDgg/view?usp=sharing "Clic")<br>
-YouTube Tutorial Instalación Local: [Guía](https://youtu.be/8jASU58TdKg "Clic")<br>
+YouTube Tutorial Instalación Local: [YouTube](https://youtu.be/NFfRO9uBhbE "Clic")<br>
 
 ### Errores comunes
 Procedimiento para solucionar error 1033 SUNAT: [Guía](https://drive.google.com/file/d/1_h1CHvB9J2EKY-kFaXV-LVPGm9Oy7FF-/view?usp=sharing "Clic")<br>
+YouTube Tutorial para solucionar error 1033 SUNAT: [YouTube](https://www.youtube.com/watch?v=CyKYM8iG3QY "Clic")
+<br>
 
 ### No clasificados
 Recreación de documentos: [Guía](https://drive.google.com/file/d/1fD2-XN4eavBEbEXGJuxEbjbqR_mMGp0K/view?usp=sharing "Clic")<br>
@@ -103,14 +112,16 @@ Validador documentos: [Guía](https://drive.google.com/file/d/1Q8SblYp-fd1x30emq
 soporte@facturaperu.com.pe<br>
 WhatsApp: 977860500<b>
 
+## Api Perú
+
+[apiperu.pro](http://apiperu.pro "Clic")<br>
+soporte@apiperu.pro<br>
+Cuenta Pro gratis contactar al WhatsApp: 936051451<b>
+
 
 ### Panel de cliente
 
-[URL](https://demo.e.org.pe "Clic")
+URL: [https://demo.e.facturaperu.com.pe](https://demo.e.facturaperu.com.pe "Clic")
 <br>
-Usuario: demo@e.org.pe<br>
+Usuario: demo@facturaperu.com.pe<br>
 Contraseña: 123456
-
-### Software para grabar pantalla
-Contraseña: camtasia: [Descargar](https://drive.google.com/file/d/1lJ4N3whm9AMRmRl0oW-5ptf0uCx26Eek/view?usp=sharing "Clic")<br>
-

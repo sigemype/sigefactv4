@@ -15,7 +15,10 @@
                         <el-tab-pane label="Imprimir A5" name="second">
                             <embed :src="form.print_a5" type="application/pdf" width="100%" height="400px"/>
                         </el-tab-pane>
-                        <el-tab-pane label="Imprimir Ticket" name="third">
+                        <el-tab-pane label="Imprimir Ticket 58MM" name="third" v-if="Ticket58">
+                            <embed :src="form.print_ticket_58" type="application/pdf" width="100%" height="400px"/>
+                        </el-tab-pane>
+                        <el-tab-pane label="Imprimir Ticket" name="fourth">
                             <embed :src="form.print_ticket" type="application/pdf" width="100%" height="400px"/>
                         </el-tab-pane>
                     </el-tabs>
@@ -31,6 +34,11 @@
                         <i class="far fa-file-pdf"></i>
                         <br>
                         <span>PDF A5</span>
+                    </a>
+                    <a :href="`https://docs.google.com/viewer?url=${form.print_ticket_58}?format=pdf`" class="btn mx-3 btn-primary btn-lg" target="_BLANK">
+                        <i class="far fa-file-pdf"></i>
+                        <br>
+                        <span>PDF TICKET 58MM</span>
                     </a>
                     <a :href="`https://docs.google.com/viewer?url=${form.print_ticket}?format=pdf`" class="btn mx-3 btn-primary btn-lg" target="_BLANK">
                         <i class="far fa-file-pdf"></i>
@@ -62,7 +70,7 @@
 
 <script>
 export default {
-    props: ['showDialog', 'recordId', 'showClose'],
+    props: ['showDialog', 'recordId', 'showClose','configuration'],
     data() {
         return {
             serviceUrl:"https://ej2services.syncfusion.com/production/web-services/api/pdfviewer",
@@ -85,6 +93,17 @@ export default {
     created() {
         this.initForm()
     },
+    computed: {
+      Ticket58: function(){
+          if(
+              this.configuration !== undefined &&
+              this.configuration.ticket_58 !== undefined &&
+              this.configuration.ticket_58){
+              return this.configuration.ticket_58;
+          }
+          return false;
+        }
+    },
     methods: {
         initForm() {
             this.errors = {}
@@ -94,6 +113,7 @@ export default {
                 identifier: null,
                 date_of_issue:null,
                 print_ticket: null,
+                print_ticket_58: null,
                 print_a4: null,
                 print_a5: null,
                 series:null,

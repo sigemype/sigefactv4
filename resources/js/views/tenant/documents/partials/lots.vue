@@ -29,7 +29,7 @@
 
                 <div class="col-md-12" v-loading="loading">
 
-                    <div class="table-responsive mt-3"> 
+                    <div class="table-responsive mt-3">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -71,11 +71,11 @@
                                     :page-size="pagination.per_page">
                             </el-pagination>
                         </div>
-                    </div> 
-                </div> 
+                    </div>
+                </div>
 
 
- 
+
             </div>
         </div>
 
@@ -111,17 +111,17 @@
                 },
             }
         },
-        async mounted () { 
+        async mounted () {
             // await this.getRecords()
         },
         async created() {
 
             this.$eventHub.$on('reloadLotsDataTable', () => {
-                this.getRecords()                
-            }) 
+                this.getRecords()
+            })
 
-        }, 
-        methods: { 
+        },
+        methods: {
             changeSearchSeriesBarcode(){
                 this.cleanInput()
             },
@@ -131,7 +131,7 @@
             async searchSeriesBarcode() {
 
                 await this.getRecords(true)
-                await this.checkedSerie() 
+                await this.checkedSerie()
 
             },
             async checkedSerie(){
@@ -139,7 +139,6 @@
                 if (this.search_series_by_barcode) {
 
                     if (this.records.length == 1) {
-                        
                         let lot = await _.find(this.lots, {id: this.records[0].id})
 
                         if(!lot){
@@ -173,7 +172,7 @@
             },
             getRecords(init_current_page = false) {
 
-                if(init_current_page){ 
+                if(init_current_page){
                     this.pagination.current_page = 1
                 }
 
@@ -201,7 +200,6 @@
             verifyLot(row){
 
                 let lot = _.find(this.lots, {id:row.id})
-                
                 return lot ? true : false
 
             },
@@ -238,7 +236,7 @@
             close() {
                 this.$emit('update:showDialog', false)
                 this.$emit('addRowSelectLot', this.lots);
-            }, 
+            },
         }
     }
 </script>

@@ -137,7 +137,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr v-for="(row, index) in form.items">
+                                    <tr v-for="(row, index) in form.items" :key="index">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ row.item.description }}<br/><small>{{ row.affectation_igv_type.description }}</small></td>
                                         <td class="text-center">{{ row.item.unit_type_id }}</td>
@@ -162,6 +162,7 @@
                             <p class="text-right" v-if="form.total_exonerated > 0">OP.EXONERADAS: {{ currency_type.symbol }} {{ form.total_exonerated }}</p>
                             <p class="text-right" v-if="form.total_taxed > 0">OP.GRAVADA: {{ currency_type.symbol }} {{ form.total_taxed }}</p>
                             <p class="text-right" v-if="form.total_igv > 0">IGV: {{ currency_type.symbol }} {{ form.total_igv }}</p>
+                            <p class="text-right" v-if="form.total_charge > 0">OTROS CARGOS: {{ currency_type.symbol }} {{ form.total_charge }}</p>
                             <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
                         </div>
                     </div>
@@ -180,7 +181,7 @@
                             :noteCreditOrDebitTypeId="form.note_credit_or_debit_type_id"
                             :operation-type-id="form.operation_type_id"
                             :currency-type-id-active="form.currency_type_id"
-                            :user="user"
+                            :typeUser="user"
                             :exchange-rate-sale="form.exchange_rate_sale"
                             :configuration="configuration"
                             :editNameProduct="configuration.edit_name_product"
@@ -228,10 +229,10 @@
                 affected_documents: [],
             }
         },
-        async created() {
+        created() {
             this.document = this.document_affected
-            await this.initForm()
-            await this.$http.get(`/${this.resource}/tables`)
+            this.initForm()
+             this.$http.get(`/${this.resource}/tables`)
                 .then(response => {
                     this.document_types = response.data.document_types_note
                     this.currency_types = response.data.currency_types
@@ -250,8 +251,8 @@
                     this.changeDateOfIssue()
                 })
 
-            await this.getCustomer()
-            await this.getHasDocuments()
+             this.getCustomer()
+             this.getHasDocuments()
         },
         mounted() {
 
@@ -296,7 +297,9 @@
                     },
                     operation_type_id: null,
                     hotel: {},
+                    charges: this.document.charges ? Object.values(this.document.charges) : null,
                 }
+
 
                 await this.form.items.forEach((item)=>{
                     item.input_unit_price_value = item.unit_price
@@ -340,14 +343,14 @@
                     })
             },
             getHasDocuments(){
-                
+
                 this.$http.get(`/${this.resource}/note/has-documents/${this.form.affected_document_id}`)
                     .then(response => {
 
                         if(response.data.success){
 
                             this.affected_documents = response.data.data
-                            
+
                             let message = `<strong>El CPE ${ this.document.series }-${ this.document.number } ya tiene notas generadas</strong><br/>`
 
                             this.affected_documents.forEach(document => {

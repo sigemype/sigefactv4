@@ -23,7 +23,10 @@
     import queryString from 'query-string'
 
     export default {
-        props: ['showDialog'],
+        props: [
+            'showDialog',
+            'pharmacy',
+        ],
         data() {
             return {
                 loading_submit: false,
@@ -37,9 +40,13 @@
                         return this.form.month_start > time
                     }
                 },
+                fromPharmacy: false,
             }
         },
         created() {
+            if(this.pharmacy !== undefined && this.pharmacy === true){
+                this.fromPharmacy = true;
+            }
             this.initForm()
         },
         methods: {
@@ -57,6 +64,7 @@
                 this.loading_submit = true
 
                 let query = queryString.stringify({
+                    isPharmacy:this.fromPharmacy,
                     ...this.form
                 });
                 window.open(`/${this.resource}/export/wp/?${query}`, '_blank');

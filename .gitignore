@@ -1,11 +1,13 @@
 /node_modules
 /public/hot
 /public/downloads
+public/cookie.txt
 /public/storage
 /public/padron_extract/*
 /public/padron_rar/*
 /storage/*.key
 /storage/backups/*
+/storage/framework/laravel-excel/*
 /vendor
 /.idea
 /.vscode
@@ -26,3 +28,5 @@ docker-compose.yml
 composer.lock
 /ssh
 /.project
+app/CoreFacturalo/Templates/pdf/personalizada*
+public/templates/pdf/personalizada*

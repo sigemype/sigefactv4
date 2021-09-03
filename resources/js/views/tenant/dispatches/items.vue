@@ -8,7 +8,12 @@
                             Producto
                             <a href="#" @click.prevent="showDialogNewItem = true">[+ Nuevo]</a>
                         </label>
-                        <el-select v-model="form.item" filterable @change="onChangeItem">
+                        <el-select v-model="form.item"
+                                    filterable
+                                    @change="onChangeItem"
+                                    remote
+                                    :remote-method="searchRemoteItems"
+                                    :loading="loading_search">
                             <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.full_description"></el-option>
                         </el-select>
                         <small class="form-control-feedback" v-if="errors.items" v-text="errors.items[0]"></small>
@@ -56,12 +61,14 @@
             return {
                 titleDialog: 'Agregar Producto',
                 showDialogNewItem: false,
+                all_items: [],
                 resource: 'dispatches',
                 errors: {},
                 items: [],
                 form: {},
                 showDialogLots: false,
                 item: null,
+                loading_search:false,
             }
         },
         methods: {
@@ -78,6 +85,7 @@
             create() {
                 this.$http.post(`/${this.resource}/tables`).then(response => {
                     this.items = response.data.items;
+                    this.all_items = this.itemss
                 });
 
                 this.form = {};
@@ -111,7 +119,31 @@
                 if (this.form.quantity == null) this.$set(this.errors, 'quantity', ['Digite la cantidad']);
 
                 this.form.IdLoteSelected = null;
-            }
+            },
+            filterItems() {
+                this.items = this.all_items
+            },
+            async searchRemoteItems(input) {
+                if (input.length > 2) {
+                    this.loading_search = true
+                    const params = {
+                        'input': input,
+                        'search_by_barcode': this.search_item_by_barcode ? 1 : 0
+                    }
+                    await this.$http.get(`/documents/search-items/`, { params })
+                            .then(response => {
+                                this.items = response.data.items
+                                this.loading_search = false
+                                // this.enabledSearchItemsBarcode()
+                                if(this.items.length == 0){
+                                    this.filterItems()
+                                }
+                            })
+                } else {
+                    await this.filterItems()
+                }
+
+            },
         }
     }
 </script>

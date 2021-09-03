@@ -1,7 +1,14 @@
 <template>
-    <el-dialog :title="titleDialog" width="40%"  :visible="showDialog"  @open="create"  :close-on-click-modal="false" :close-on-press-escape="false" append-to-body :show-close="false">
+    <el-dialog :title="titleDialog"
+               width="40%"
+               :visible="showDialog"
+               @open="create"
+               :close-on-click-modal="false"
+               :close-on-press-escape="false"
+               append-to-body
+               :show-close="false">
 
-        <div class="form-body">
+        <div class="form-body" v-if="lots">
             <div class="row" >
                 <div class="col-lg-12 col-md-12">
                     <table width="100%">

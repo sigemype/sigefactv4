@@ -53,9 +53,20 @@
                                     @click.prevent="clickTicket(row.id)"
                                     dusk="consult-ticket"
                                     v-if="row.btn_ticket">Consultar</button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"
-                                    @click.prevent="clickDelete(row.id)"
-                                    v-if="row.btn_ticket">Eliminar</button>
+                                    
+                            <template v-if="row.unknown_error_status_response">
+                                <!-- <el-tooltip class="item" effect="dark" content="Regularizar comprobantes" placement="top-start"> -->
+                                    <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"
+                                            @click.prevent="clickValidateSummary(row)"
+                                            v-if="row.btn_ticket">Regularizar</button>
+                                <!-- </el-tooltip> -->
+                            </template>
+                            <!-- <template v-else> -->
+                                <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"
+                                        @click.prevent="clickDelete(row.id)"
+                                        v-if="row.btn_ticket">Eliminar</button>
+                            <!-- </template> -->
+                        
                         </td>
                     </tr>
                 </data-table>
@@ -66,6 +77,9 @@
 
             <summary-options :showDialog.sync="showDialogOptions"
                               :recordId="recordId"></summary-options>
+
+            <summary-regularize :showDialog.sync="showDialogRegularize"
+                              :summary="summary"></summary-regularize>
         </div>
     </div>
 
@@ -74,20 +88,23 @@
 <script>
 
     import SummaryOptions from './partials/options.vue'
+    import SummaryRegularize from './partials/regularize.vue'
     import SummaryForm from './form.vue'
     import DataTable from '../../../components/DataTable.vue'
     import {deletable} from '../../../mixins/deletable'
 
     export default {
         mixins: [deletable],
-        components: {DataTable, SummaryForm, SummaryOptions},
+        components: {DataTable, SummaryForm, SummaryOptions, SummaryRegularize},
         data () {
             return {
                 resource: 'summaries',
                 showDialog: false,
                 showDialogOptions: false,
+                showDialogRegularize: false,
                 recordId: null,
                 records: [],
+                summary: null
             }
         },
         created() {
@@ -122,6 +139,12 @@
             },
             clickDownload(download) {
                 window.open(download, '_blank');
+            },
+            clickValidateSummary(row){
+                
+                this.summary = row
+                this.showDialogRegularize = true
+
             },
         }
     }

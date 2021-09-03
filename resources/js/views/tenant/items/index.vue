@@ -87,14 +87,15 @@
                             >
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        class="btn btn-custom btn-sm mt-2 mr-2"
-                        @click.prevent="clickCreate()"
-                    >
-                        <i class="fa fa-plus-circle"></i> Nuevo
-                    </button>
                 </template>
+                <button
+                    type="button"
+                    class="btn btn-custom btn-sm mt-2 mr-2"
+                    @click.prevent="clickCreate()"
+                    v-if="can_add_new_product"
+                >
+                    <i class="fa fa-plus-circle"></i> Nuevo
+                </button>
             </div>
         </div>
         <div class="card mb-0">
@@ -107,8 +108,11 @@
                         Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item v-for="(column, index) in columns" :key="index">
-                            <el-checkbox v-model="column.visible">{{ column.title }}</el-checkbox>
+                        <el-dropdown-item v-for="(column, index) in columnsComputed" :key="index">
+                            <el-checkbox
+                                v-if="column.title !== undefined && column.visible !== undefined"
+                                v-model="column.visible"
+                            >{{ column.title }}</el-checkbox>
                         </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -121,7 +125,14 @@
                         <th>Unidad</th>
                         <th>Nombre</th>
                         <th v-if="columns.description.visible">Descripción</th>
+                        <th v-if="columns.model.visible">Modelo</th>
+                        <th v-if="columns.brand.visible">Marca</th>
                         <th v-if="columns.item_code.visible">Cód. SUNAT</th>
+                        <th v-if="(columns.sanitary!== undefined && columns.sanitary.visible===true )">R.S.</th>
+                        <th v-if="(columns.cod_digemid!== undefined && columns.cod_digemid.visible===true )">DIGEMID</th>
+                        <template v-if="typeUser == 'admin'">
+                            <th class="text-center">Historial</th>
+                        </template>
                         <th class="text-left">Stock</th>
                         <th class="text-right">P.Unitario (Venta)</th>
                         <th v-if="typeUser != 'seller' && columns.purchase_unit_price.visible" class="text-right">
@@ -141,8 +152,25 @@
                         <td>{{ row.internal_id }}</td>
                         <td>{{ row.unit_type_id }}</td>
                         <td>{{ row.description }}</td>
+                        <td v-if="columns.model.visible">{{ row.model }}</td>
+                        <td v-if="columns.brand.visible">{{ row.brand }}</td>
                         <td v-if="columns.description.visible">{{ row.name }}</td>
                         <td v-if="columns.item_code.visible">{{ row.item_code }}</td>
+                        <td v-if="(columns.sanitary!== undefined && columns.sanitary.visible===true )">{{ row.sanitary }}</td>
+                        <td v-if="(columns.cod_digemid!== undefined && columns.cod_digemid.visible===true )">{{ row.cod_digemid }}</td>
+
+                        <template v-if="typeUser == 'admin'">
+                            <td class="text-center">
+                                <button
+                                    type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-primary"
+                                    @click.prevent="clickHistory(row.id)"
+                                >
+                                    <i class="fa fa-history"></i>
+                                </button>
+                            </td>
+                        </template>
+
                         <td>
                             <div v-if="config.product_only_location == true">
                                 {{ row.stock }}
@@ -275,10 +303,17 @@
             <items-import-list-price
                 :showDialog.sync="showImportListPriceDialog"
             ></items-import-list-price>
+
+            <items-history
+                :showDialog.sync="showDialogHistory"
+                :recordId="recordId"
+            >
+            </items-history>
         </div>
     </div>
 </template>
 <script>
+
 import ItemsForm from "./form.vue";
 import WarehousesDetail from "./partials/warehouses.vue";
 import ItemsImport from "./import.vue";
@@ -288,9 +323,14 @@ import ItemsExportWp from "./partials/export_wp.vue";
 import ItemsExportBarcode from "./partials/export_barcode.vue";
 import DataTable from "../../../components/DataTable.vue";
 import { deletable } from "../../../mixins/deletable";
+import ItemsHistory from "@viewsModuleItem/items/history.vue";
+import {mapActions, mapState} from "vuex";
 
 export default {
-    props: ["typeUser", "type"],
+    props: [
+        "configuration",
+        "typeUser",
+        "type"],
     mixins: [deletable],
     components: {
         ItemsForm,
@@ -301,9 +341,11 @@ export default {
         DataTable,
         WarehousesDetail,
         ItemsImportListPrice,
+        ItemsHistory,
     },
     data() {
         return {
+            can_add_new_product: false,
             showDialog: false,
             showImportDialog: false,
             showExportDialog: false,
@@ -314,7 +356,6 @@ export default {
             resource: "items",
             recordId: null,
             warehousesDetail: [],
-            config: {},
             columns: {
                 description: {
                     title: 'Descripción',
@@ -332,14 +373,37 @@ export default {
                     title: 'Tiene Igv (Compra)',
                     visible: false
                 },
-
+                model: {
+                    title: 'Modelo',
+                    visible: false
+                },
+                brand: {
+                    title: 'Marca',
+                    visible: false
+                },
+                sanitary: {
+                    title: 'N° Sanitario',
+                    visible: false
+                },
+                cod_digemid: {
+                    title: 'DIGEMID',
+                    visible: false
+                },
             },
             item_unit_types: [],
             titleTopBar: '',
-            title: ''
+            title: '',
+            showDialogHistory: false,
         };
     },
     created() {
+        this.$store.commit('setConfiguration', this.configuration);
+        this.loadConfiguration()
+
+        if(this.config.is_pharmacy !== true){
+            delete this.columns.sanitary;
+            delete this.columns.cod_digemid;
+         }
         if (this.type === 'ZZ') {
             this.titleTopBar = 'Servicios';
             this.title = 'Listado de servicios';
@@ -348,10 +412,39 @@ export default {
             this.title = 'Listado de productos';
         }
         this.$http.get(`/configurations/record`).then((response) => {
-            this.config = response.data.data;
+            this.$store.commit('setConfiguration',response.data.data);
+            //this.config = response.data.data;
         });
+        this.canCreateProduct();
+    },
+    computed:{
+        ...mapState([
+            'config',
+        ]),
+        columnsComputed:function(){
+            return this.columns;
+        }
     },
     methods: {
+
+        ...mapActions([
+            'loadConfiguration',
+        ]),
+        clickHistory(recordId){
+            this.recordId = recordId
+            this.showDialogHistory = true
+        },
+        canCreateProduct()
+        {
+            if (this.typeUser === 'admin') {
+                this.can_add_new_product = true
+            } else if (this.typeUser === 'seller') {
+                if (this.config !== undefined && this.config.seller_can_create_product !== undefined) {
+                    this.can_add_new_product = this.config.seller_can_create_product;
+                }
+            }
+            return this.can_add_new_product;
+        },
         duplicate(id) {
             this.$http
                 .post(`${this.resource}/duplicate`, { id })

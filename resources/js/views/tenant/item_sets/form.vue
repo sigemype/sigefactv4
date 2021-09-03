@@ -27,7 +27,7 @@
                         </div>
                     </div>
 
-                    
+
                      <!-- <div class="col-md-9">
                         <div class="form-group" :class="{'has-danger': errors.name}">
                             <label class="control-label">Nombre  <span class="text-danger">*</span></label>
@@ -35,16 +35,20 @@
                             <small class="form-control-feedback" v-if="errors.name" v-text="errors.name[0]"></small>
                         </div>
                     </div> -->
-                     <div class="col-md-9">
+                     <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.name}">
                             <label class="control-label">Descripción</label>
                             <el-input v-model="form.name" dusk="name"></el-input>
                             <small class="form-control-feedback" v-if="errors.name" v-text="errors.name[0]"></small>
                         </div>
                     </div>
-
-
-                    
+                    <div class="col-md-3">
+                        <div class="form-group" :class="{'has-danger': errors.model}">
+                            <label class="control-label">Modelo</label>
+                            <el-input v-model="form.model" dusk="model"></el-input>
+                            <small class="form-control-feedback" v-if="errors.model" v-text="errors.model[0]"></small>
+                        </div>
+                    </div>
                     <div class="col-md-3">
                         <div class="form-group" :class="{'has-danger': errors.unit_type_id}">
                             <label class="control-label">Unidad</label>
@@ -55,7 +59,7 @@
                         </div>
                     </div>
 
-                    
+
                     <!-- <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.individual_items}">
                             <label class="control-label">Elegir productos</label>
@@ -82,7 +86,7 @@
                             <small class="form-control-feedback" v-if="errors.sale_unit_price" v-text="errors.sale_unit_price[0]"></small>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-3">
                         <div class="form-group" :class="{'has-danger': errors.web_platform_id}">
                             <label class="control-label">Plataforma</label>
@@ -106,20 +110,39 @@
                                         <th class="font-weight-bold">Descripción</th>
                                         <th class="text-center font-weight-bold">Precio Unitario</th>
                                         <th class="text-right font-weight-bold">Cantidad</th>
+                                        <th class="text-right font-weight-bold">Total</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(row, index) in form.individual_items" :key="index">
-                                        <td>{{index + 1}}</td>
-                                        <td>{{row.full_description}}</td>
-                                        <td class="text-center">{{row.sale_unit_price}}</td>
-                                        <td class="text-right">{{row.quantity}}</td>
-                                        <td class="text-right">
-                                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemoveItem(index)">x</button>
-                                        </td>
-                                    </tr>
+                                <tr v-for="(row, index) in form.individual_items" :key="index">
+                                    <td>{{index + 1}}</td>
+                                    <td>{{row.full_description}}</td>
+                                    <td class="text-center">{{row.sale_unit_price}}</td>
+                                    <td class="text-right">
+                                        <el-input-number
+                                            v-model="row.quantity"
+                                            @change="calculateTotal"
+                                            :min="0"/>
+                                    </td>
+                                    <td class="text-center">{{row.sale_unit_price * row.quantity | toDecimals }}</td>
+                                    <td class="text-right">
+                                        <button class="btn waves-effect waves-light btn-xs btn-danger" type="button"
+                                                @click.prevent="clickRemoveItem(index)">x
+                                        </button>
+                                    </td>
+                                </tr>
                                 </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th class="font-weight-bold"></th>
+                                    <th class="text-center font-weight-bold"></th>
+                                    <th class="text-right font-weight-bold">Total</th>
+                                    <th class="text-center font-weight-bold">{{ total | toDecimals}}</th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -137,7 +160,7 @@
                             <small class="form-control-feedback" v-if="errors.stock_min" v-text="errors.stock_min[0]"></small>
                         </div>
                     </div> -->
-                    
+
 
                     <!-- <div class="col-md-3 center-el-checkbox" >
                         <div class="form-group"  >
@@ -165,14 +188,14 @@
                             <small class="form-control-feedback" v-if="errors.warehouse_id" v-text="errors.warehouse_id[0]"></small>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-3 " >
                         <div class="form-group" :class="{'has-danger': errors.date_of_due}">
                             <label class="control-label">Fec. Vencimiento</label>
                             <el-date-picker v-model="form.date_of_due" type="date" value-format="yyyy-MM-dd" :clearable="true"></el-date-picker>
                             <small class="form-control-feedback" v-if="errors.date_of_due" v-text="errors.date_of_due[0]"></small>
                         </div>
-                    </div> 
+                    </div>
                     <div class="col-md-12">
                         <h5 class="separator-title ">
                             Listado de precios
@@ -180,7 +203,7 @@
                                 <i class="fa fa-info-circle"></i>
                             </el-tooltip>
                              <a href="#" class="control-label font-weight-bold text-info" @click="clickAddRow"> [ + Nuevo]</a>
-                        </h5> 
+                        </h5>
                     </div>
                     <div class="col-md-12" v-if="form.item_unit_types.length > 0">
                     <div class="table-responsive">
@@ -236,7 +259,7 @@
                                             <el-input v-model="row.quantity_unit"></el-input>
                                         </div>
                                     </td>
-                                    <td> 
+                                    <td>
                                         <div class="form-group" >
                                             <el-input v-model="row.price1"></el-input>
                                         </div>
@@ -260,7 +283,7 @@
                                             </el-radio-group>
                                         </div>
                                     </td>
-                                    <td class="series-table-actions text-right"> 
+                                    <td class="series-table-actions text-right">
                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
                                             <i class="fa fa-trash"></i>
                                         </button>
@@ -269,7 +292,7 @@
                             </tr>
                             </tbody>
                         </table>
-                        
+
                     </div> -->
                 <!-- </div>    -->
 
@@ -277,7 +300,7 @@
                     <div class="col-md-12">
                         <h5 class="separator-title">Campos adicionales</h5>
                     </div>
-                    <div class="row col-md-12"> 
+                    <div class="row col-md-12">
                         <div class="col-md-3">
                             <div class="form-group" >
                                 <label class="control-label">Imágen <span class="text-danger"></span></label>
@@ -290,15 +313,15 @@
                                     <img v-if="form.image_url" :src="form.image_url" class="avatar">
                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                 </el-upload>
-                            </div> 
+                            </div>
                         </div>
- 
-                        <div class="col-md-9"> 
+
+                        <div class="col-md-9">
                             <div class="row">
 
-                                <div class="short-div col-md-8"> 
+                                <div class="short-div col-md-8">
                                     <div class="form-group" :class="{'has-danger': errors.purchase_affectation_igv_type_id}">
-                                        
+
                                         <label class="control-label">Tipo de afectación (Venta)</label>
                                         <el-select v-model="form.sale_affectation_igv_type_id" @change="changeAffectationIgvType">
                                             <el-option v-for="option in affectation_igv_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
@@ -306,7 +329,7 @@
                                         <small class="form-control-feedback" v-if="errors.sale_affectation_igv_type_id" v-text="errors.sale_affectation_igv_type_id[0]"></small>
                                     </div>
                                 </div>
-                                
+
                                 <div class="short-div col-md-4">
                                     <div class="form-group" :class="{'has-danger': errors.item_code}">
                                         <label class="control-label">Código Sunat
@@ -317,9 +340,9 @@
                                         <el-input v-model="form.item_code" dusk="item_code"></el-input>
                                         <small class="form-control-feedback" v-if="errors.item_code" v-text="errors.item_code[0]"></small>
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="short-div col-md-4">
-                                    
+
                                     <div class="form-group" :class="{'has-danger': errors.internal_id}">
                                         <label class="control-label">Código Interno
                                             <el-tooltip class="item" effect="dark" content="Código interno de la empresa para el control de sus productos" placement="top-start">
@@ -329,28 +352,28 @@
                                         <el-input v-model="form.internal_id" dusk="internal_id"></el-input>
                                         <small class="form-control-feedback" v-if="errors.internal_id" v-text="errors.internal_id[0]"></small>
                                     </div>
-                                </div> 
+                                </div>
 
                             </div>
-                        </div> 
-                    </div> 
+                        </div>
+                    </div>
 
-                    <item-set-form-item  
-                                    :showDialog.sync="showDialogAddItem"
-                                    @add="addRow"></item-set-form-item>
- 
+                    <item-set-form-item
+                        :showDialog.sync="showDialogAddItem"
+                        @add="addRow"></item-set-form-item>
+
                 </div>
             </div>
             <div class="form-actions text-right pt-2">
                 <el-button @click.prevent="close()">Cancelar</el-button>
                 <el-button type="primary" native-type="submit" :loading="loading_submit">Guardar</el-button>
             </div>
-        </form> 
+        </form>
     </el-dialog>
 </template>
 
 <script>
-    import ItemSetFormItem from './partials/item.vue'
+import ItemSetFormItem from './partials/item.vue'
 
     export default {
         props: ['showDialog', 'recordId', 'external'],
@@ -367,7 +390,8 @@
                 enabled_percentage_of_profit:false,
                 titleDialog: null,
                 resource: 'item-sets',
-                errors: {},                
+                total: 0,
+                errors: {},
                 headers: headers_token,
                 form: {},
                 unit_types: [],
@@ -393,6 +417,7 @@
         },
         created() {
             this.initForm()
+            this.total = 0;
             this.$http.get(`/${this.resource}/tables`)
                 .then(response => {
                     this.unit_types = response.data.unit_types
@@ -415,6 +440,13 @@
 
         },
         methods: {
+            calculateTotal(){
+                this.total = 0;
+                this.form.individual_items.forEach(row => {
+                    this.total += row.sale_unit_price * row.quantity;
+                });
+
+            },
             clickRemoveItem(index) {
                 this.form.individual_items.splice(index, 1)
                 this.changeIndividualItems()
@@ -433,7 +465,7 @@
                 this.changeIndividualItems()
             },
             changeIndividualItems(){
-
+                this.calculateTotal();
                 // let acum_sale_unit_price = 0
 
                 // this.form.individual_items.forEach(row => {
@@ -496,7 +528,7 @@
                 } else {
                     this.$message.error(response.message)
                 }
-            },  
+            },
             changeAffectationIgvType(){
 
                 let affectation_igv_type_exonerated = [20,21,30,31,32,33,34,35,36,37]
@@ -517,11 +549,13 @@
             },
             create() {
                 this.titleDialog = (this.recordId)? 'Editar producto compuesto':'Nuevo producto compuesto'
+                this.total = 0;
                 if (this.recordId) {
                     this.$http.get(`/${this.resource}/record/${this.recordId}`)
                         .then(response => {
-                            this.form = response.data.data 
+                            this.form = response.data.data
                             this.changeAffectationIgvType()
+                            this.calculateTotal();
                         })
                 }
             },
@@ -530,11 +564,12 @@
                     this.$http.get(`/${this.resource}/record/${this.recordId}`)
                         .then(response => {
                             this.form = response.data.data
-                            this.changeAffectationIgvType()
+                            this.changeAffectationIgvType();
+
                         })
                 }
             },
-            
+
             changeHaveAccount(){
                 if(!this.have_account) this.form.account_id = null
             },
@@ -545,9 +580,9 @@
 
                 this.$http.delete(`/${this.resource}/item-unit-type/${id}`)
                         .then(res => {
-                            if(res.data.success) { 
+                            if(res.data.success) {
                                 this.loadRecord()
-                                this.$message.success('Se eliminó correctamente el registro')                                 
+                                this.$message.success('Se eliminó correctamente el registro')
                             }
                         })
                         .catch(error => {
@@ -557,12 +592,12 @@
                                 console.log(error.response.data.message)
                             }
                         })
-                
+
             },
             changeHasPerception(){
                 if(!this.form.has_perception){
-                    this.form.percentage_perception = null 
-                } 
+                    this.form.percentage_perception = null
+                }
 
             },
             clickAddRow() {
@@ -606,7 +641,7 @@
                 if(this.enabled_percentage_of_profit) this.form.sale_unit_price = (this.form.purchase_unit_price * (100 + parseFloat(this.form.percentage_of_profit))) / 100
             },
             submit() {
-                
+
                 if(this.form.individual_items.length < 2)
                     return this.$message.error('Al menos debe elegir 2 productos')
 
@@ -653,4 +688,6 @@
             }
         }
     }
+// Se puede usar datos de la siguiente direccion.
+// resources/js/views/tenant/items/form.vue
 </script>

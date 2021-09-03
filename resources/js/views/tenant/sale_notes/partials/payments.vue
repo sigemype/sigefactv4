@@ -3,7 +3,7 @@
         <div class="form-body">
             <div class="row">
                 <div class="col-md-12" v-if="records.length > 0">
-                    <div class="table-responsive">
+                    <div class="table-responsive table-sm">
                         <table class="table">
                             <thead>
                             <tr>
@@ -32,7 +32,7 @@
                                     </td>
                                     <td class="text-right">{{ row.payment }}</td>
                                     <td class="series-table-actions text-right">
-                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
+                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)"><i class="fas fa-trash"></i></button>
                                         <!--<el-button type="danger" icon="el-icon-delete" plain @click.prevent="clickDelete(row.id)"></el-button>-->
                                     </td>
                                 </template>
@@ -84,7 +84,7 @@
                                                     :on-success="onSuccess"
                                                     :limit="1"
                                                     >
-                                                <el-button slot="trigger" type="primary">Seleccione un archivo</el-button>
+                                                <el-button slot="trigger" type="primary"><i class="fas fa-file-upload"></i></el-button>
                                             </el-upload>
                                         </div>
                                     </td>
@@ -133,6 +133,18 @@
     </el-dialog>
 
 </template>
+
+<style>
+.el-upload-list__item-name [class^="el-icon"] {
+    display: none;
+}
+.el-upload-list__item-name {
+    margin-right: 25px;
+}
+.el-upload-list__item {
+    font-size: 10px;
+}
+</style>
 
 <script>
 

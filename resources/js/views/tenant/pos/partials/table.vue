@@ -14,22 +14,22 @@
             <el-table-column type="index" width="50"> </el-table-column>
             <el-table-column property="description" label="Nombre" width="180">
             </el-table-column>
-            <el-table-column property="internal_id" label="Código" width="130">
+            <el-table-column property="internal_id" label="Código" width="120">
             </el-table-column>
-            <el-table-column property="brand" label="Marca" width="130">
+            <el-table-column property="brand" label="Marca" width="120">
                 <!-- <template slot-scope="{ row }">
                     {{ row }}
                 </template> -->
             </el-table-column>
             <!-- <el-table-column property="currency_type_id" label="Moneda" width="80">
                 </el-table-column> -->
-            <el-table-column label="Precio" width="130">
+            <el-table-column label="Precio" width="100">
                 <template slot-scope="{ row }">
                     {{ row.currency_type_symbol }} {{ row.sale_unit_price }}
                 </template>
             </el-table-column>
 
-            <el-table-column label="Pack" width="150">
+            <el-table-column label="Pack" width="120">
                 <template slot-scope="{ row }">
                     <br />
                     <small> {{ row.sets.join("-") }} </small>
@@ -66,6 +66,97 @@
                     </div>
                 </template>
             </el-table-column>
+
+            <el-table-column label="Lista precios" width="120">
+                <template slot-scope="{ row }"> 
+                    <template v-if="row.unit_type.length > 0">
+                        <el-popover
+                            placement="top"
+                            title="Precios"
+                            width="280"
+                            trigger="click"
+                        >
+                            <el-table
+                                v-if="row.unit_type"
+                                :data="row.unit_type"
+                            >
+                                <el-table-column
+                                    width="90"
+                                    label="Precio"
+                                >
+                                    <template
+                                        slot-scope="{
+                                            row
+                                        }"
+                                    >
+                                        <span
+                                            v-if="row.price_default ==1 "
+                                        >
+                                            {{
+                                                row.price1
+                                            }}
+                                        </span>
+                                        <span
+                                            v-else-if="row.price_default ==2"
+                                        >
+                                            {{
+                                                row.price2
+                                            }}
+                                        </span>
+                                        <span
+                                            v-else-if="row.price_default ==3"
+                                        >
+                                            {{
+                                                row.price3
+                                            }}
+                                        </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                    width="80"
+                                    label="Unidad"
+                                    property="unit_type_id"
+                                ></el-table-column>
+                                <el-table-column
+                                    width="80"
+                                    label=""
+                                >
+                                    <template
+                                        slot-scope="{
+                                            row
+                                        }"
+                                    >
+                                        <button
+                                            @click="
+                                                setPriceItem(
+                                                    row
+                                                )
+                                            "
+                                            type="button"
+                                            class="btn btn-custom btn-xs"
+                                        >
+                                            <i
+                                                class="fas fa-check"
+                                            ></i>
+                                        </button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <button
+                                slot="reference"
+                                type="button"
+                                style="width:100%" 
+                                class="btn btn-xs btn-primary-pos"
+                            >
+                                <i
+                                    class="fa fa-money-bill-alt"
+                                ></i>
+                            </button>
+                        </el-popover> 
+                    </template>
+                </template>
+            </el-table-column>
+
 
             <el-table-column label="Historial ventas">
                 <template slot-scope="{ row }">
@@ -118,6 +209,40 @@ export default {
         });
     },
     methods: {
+        setPriceItem(price) {
+
+            let value = 0;
+            switch (price.price_default) {
+                case 1:
+                    value = price.price1;
+                    break;
+                case 2:
+                    value = price.price2;
+                    break;
+                case 3:
+                    value = price.price3;
+                    break;
+            }
+
+            if (this.records.length == 1) {
+
+                this.records[0].sale_unit_price = value;
+                this.records[0].unit_type_id = price.unit_type_id;
+                this.records[0].presentation = price;
+
+            } else {
+
+                if (this.currentRow) {
+
+                    this.currentRow.sale_unit_price = value;
+                    this.currentRow.unit_type_id = price.unit_type_id;
+                    this.currentRow.presentation = price;
+                }
+            }
+            
+            this.$message.success("Precio seleccionado");
+            
+        },
         handle13() {
             if (this.visibleTagsCustomer) {
                 return false;

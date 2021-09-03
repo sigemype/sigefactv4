@@ -1,5 +1,6 @@
 <template>
-    <el-dialog :title="titleDialog" :visible="showDialog" @open="create" width="60%" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" append-to-body>
+    <el-dialog :title="titleDialog" :visible="showDialog" @open="create" width="30%" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" append-to-body>
+        <div v-loading="loading">
         <div class="row mb-4" v-if="form.response_message">
             <div class="col-md-12">
                 <el-alert
@@ -9,62 +10,57 @@
                 </el-alert>
             </div>
         </div>
-        <el-tabs v-model="activeName"  >
-            <el-tab-pane label="Imprimir Ticket" name="first">
-                <embed id="nemo" :src="form.print_ticket" type="application/pdf" width="100%" height="450px"/>                                    
-            </el-tab-pane> 
-            <el-tab-pane label="Imprimir A4" name="second">                                    
-                <embed :src="form.print_a4" type="application/pdf" width="100%" height="450px"/>
-            </el-tab-pane>  
-            <el-tab-pane label="Imprimir A5" name="third">                                    
-                <embed :src="form.print_a5" type="application/pdf" width="100%" height="450px"/>
-            </el-tab-pane>                       
-        </el-tabs>
-        <!-- <div class="row">
+        <div class="row">
+
             <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold" v-if="!locked_emission.success">
-                <el-alert :title="locked_emission.message" type="warning" show-icon>  </el-alert>
+                <el-alert    :title="locked_emission.message"    type="warning"    show-icon>  </el-alert>
             </div>
-            <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
+        </div>
+        <div class="row">
+
+            <div class="col text-center font-weight-bold mt-3">
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('a4')">
                     <i class="fa fa-file-alt"></i>
                 </button>
                 <p>Imprimir A4</p>
             </div>
-             <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
+             <div class="col text-center font-weight-bold mt-3">
 
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('ticket')">
                     <i class="fa fa-receipt"></i>
                 </button>
                  <p>Imprimir Ticket 80MM</p>
             </div>
-             <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
+
+             <div class="col text-center font-weight-bold mt-3">
+
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('ticket_50')">
                     <i class="fa fa-receipt"></i>
                 </button>
                 <p>Imprimir Ticket 50MM</p>
             </div>
-            <div class="col-lg-3 col-md-3 col-sm-12 text-center font-weight-bold mt-3">
+
+            <div class="col text-center font-weight-bold mt-3" v-if="Ticket58">
+
+                <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('ticket_58')">
+                    <i class="fa fa-receipt"></i>
+                </button>
+                <p>Imprimir Ticket 58MM</p>
+            </div>
+
+            <div class="col text-center font-weight-bold mt-3">
+
                 <button type="button" class="btn btn-lg btn-info waves-effect waves-light" @click="clickPrint('a5')">
                     <i class="fa fa-receipt"></i>
                 </button>
                 <p>Imprimir A5</p>
             </div>
+        </div>
+        <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 text-center font-weight-bold mt-3" v-if="form.image_detraction">
                 <a :href="`${this.form.image_detraction}`" download class="text-center font-weight-bold text-dark">Descargar constancia de pago - detracción</a>
             </div>
-        </div> -->
-        <!-- <div class="row mt-4">
-            <div class="col-lg-6 col-md-6 col-sm-12 text-center">
-                <button type="button" class="btn btn-lg waves-effect waves-light btn-outline-secondary" @click="clickDownload('a4')">
-                    <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar A4
-                </button>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 text-center">
-                <button type="button" class="btn btn-lg waves-effect waves-light btn-outline-secondary" @click="clickDownload('ticket')">
-                    <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar Ticket
-                </button>
-            </div>
-        </div> -->
+        </div>
         <div class="row mt-3">
             <div class="col-md-12">
                 <el-input v-model="form.customer_email">
@@ -77,8 +73,8 @@
             <div class="col-md-12">
                 <el-input v-model="form.customer_telephone">
                     <template slot="prepend">+51</template>
-                        <el-button slot="append" @click="clickSendWhatsapp">Enviar
-                            <el-tooltip class="item" effect="dark"  content="Es necesario tener aperturado Whatsapp web" placement="top-start">
+                        <el-button slot="append" @click="clickSendWhatsapp" >Enviar
+                            <el-tooltip class="item" effect="dark"  content="Se recomienta tener abierta la sesión de Whatsapp web" placement="top-start">
                                 <i class="fab fa-whatsapp" ></i>
                             </el-tooltip>
                         </el-button>
@@ -91,6 +87,7 @@
                 <button type="button" class="btn waves-effect waves-light btn-outline-primary"
                         @click.prevent="clickConsultCdr(form.id)">Consultar CDR</button>
             </div>
+        </div>
         </div>
         <span slot="footer" class="dialog-footer">
             <template v-if="showClose">
@@ -105,8 +102,10 @@
 </template>
 
 <script>
+    import {mapState,mapActions} from "vuex/dist/vuex.mjs";
+
     export default {
-        props: ['showDialog', 'recordId', 'showClose','isContingency','generatDispatch','dispatchId', 'isUpdate'],
+        props: ['showDialog', 'recordId', 'showClose','isContingency','generatDispatch','dispatchId', 'isUpdate','configuration'],
         data() {
             return {
                 titleDialog: null,
@@ -116,17 +115,43 @@
                 form: {},
                 company: {},
                 locked_emission:{},
-                activeName: 'second'
+                // config:{}
             }
         },
-        async created() {
+        created() {
+            this.loadConfiguration(this.$store)
+            this.$store.commit('setConfiguration',this.configuration)
+
+        },
+        mounted(){
             this.initForm()
         },
+        computed: {
+            ...mapState([
+                'config',
+            ]),
+            Ticket58: function(){
+                if(this.config === undefined) return false;
+                if(this.config == null) return false;
+                if(this.config.ticket_58 === undefined) return false;
+                if(this.config.ticket_58 == null) return false;
+                if(
+                    this.config.ticket_58 !== undefined &&
+                    this.config.ticket_58 !== null){
+                    return this.config.ticket_58;
+                }
+
+                return false;
+            }
+        },
         methods: {
+            ...mapActions(['loadConfiguration']),
             clickSendWhatsapp() {
+
                 if(!this.form.customer_telephone){
                     return this.$message.error('El número es obligatorio')
                 }
+
                 window.open(`https://wa.me/51${this.form.customer_telephone}?text=${this.form.message_text}`, '_blank');
 
             },
@@ -153,49 +178,32 @@
                     soap_type_id: null,
                 }
             },
-
-             someMethod(response){
-
-                // const external_id = this.form.external_id
-
-                // let format = 'a4'
-
-                switch(this.activeName){
-                    case 'first':
-                       format = 'ticket'
-                        break;
-                    case 'second':
-                       format = 'a4'
-                        break;
-                    case 'third':
-                        format= 'a5'
-                        break;
-                }
-
-            },
-
             async create() {
+
                 await this.getCompany()
                 await this.getRecord()
+
+                this.loading = true;
                 await this.$http.get(`/${this.resource}/locked_emission`).then(response => {
                     this.locked_emission = response.data
-                    // console.log(response)
-                });
+                }).finally(() => this.loading = false);
             },
             async getCompany(){
+                this.loading = true;
                 await this.$http.get(`/companies/record`)
                     .then(response => {
                         if (response.data !== '') {
                             this.company = response.data.data
                         }
-                    })
+                    }).finally(() => this.loading = false);
             },
             async getRecord(){
+                this.loading = true;
                 await this.$http.get(`/${this.resource}/record/${this.recordId}`).then(response => {
                     this.form = response.data.data;
                     this.titleDialog = 'Comprobante: '+this.form.number;
                     if(this.generatDispatch) window.open(`/dispatches/create/${this.form.id}/i/${this.dispatchId}`)
-                });
+                }).finally(() => this.loading = false);
             },
             clickPrint(format){
                 window.open(`/print/document/${this.form.external_id}/${format}`, '_blank');

@@ -42,6 +42,7 @@
                                     </div>
                                 </div>
                                 <div class="short-div col-md-12">
+
                                     <div class="form-group">
                                         <label class="control-label">Monto de la detracción
                                             <span class="text-danger"> *</span>
@@ -140,7 +141,7 @@
 
 <script>
     export default {
-        props: ['showDialog', 'detraction','total', 'currencyTypeIdActive', 'operationTypeId', 'exchangeRateSale', 'reference_value_service'],
+        props: ['showDialog', 'detraction','total', 'currencyTypeIdActive', 'operationTypeId', 'exchangeRateSale'],
         data() {
             return {
                 headers: headers_token,

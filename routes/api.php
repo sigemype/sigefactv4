@@ -9,6 +9,7 @@ if ($hostname) {
         Route::middleware(['auth:api', 'locked.tenant'])->group(function () {
             //MOBILE
             Route::get('document/series', 'Tenant\Api\MobileController@getSeries');
+            Route::get('document/paymentmethod', 'Tenant\Api\MobileController@getPaymentmethod');
             Route::get('document/tables', 'Tenant\Api\MobileController@tables');
             Route::get('document/customers', 'Tenant\Api\MobileController@customers');
             Route::post('document/email', 'Tenant\Api\MobileController@document_email');
@@ -17,10 +18,12 @@ if ($hostname) {
             Route::get('sale-note/lists', 'Tenant\Api\SaleNoteController@lists');
             Route::post('item', 'Tenant\Api\MobileController@item');
             Route::post('items/{id}/update', 'Tenant\Api\MobileController@updateItem');
+            Route::post('item/upload', 'Tenant\Api\MobileController@upload');
             Route::post('person', 'Tenant\Api\MobileController@person');
             Route::get('document/search-items', 'Tenant\Api\MobileController@searchItems');
             Route::get('document/search-customers', 'Tenant\Api\MobileController@searchCustomers');
             Route::post('sale-note/email', 'Tenant\Api\SaleNoteController@email');
+            Route::post('sale-note/{id}/generate-cpe', 'Tenant\Api\SaleNoteController@generateCPE');
 
             Route::get('report', 'Tenant\Api\MobileController@report');
 
@@ -38,6 +41,7 @@ if ($hostname) {
             Route::get('services/ruc/{number}', 'Tenant\Api\ServiceController@ruc');
             Route::get('services/dni/{number}', 'Tenant\Api\ServiceController@dni');
             Route::post('services/consult_cdr_status', 'Tenant\Api\ServiceController@consultCdrStatus');
+            Route::post('services/validate_cpe', 'Tenant\Api\ServiceController@validateCpe');
             Route::post('perceptions', 'Tenant\Api\PerceptionController@store');
 
             Route::post('documents_server', 'Tenant\Api\DocumentController@storeServer');
@@ -45,8 +49,7 @@ if ($hostname) {
         });
         Route::get('documents/search/customers', 'Tenant\DocumentController@searchCustomers');
 
-        Route::post('services/validate_cpe', 'Tenant\Api\ServiceController@validateCpe');
-        Route::post('services/consult_status', 'Tenant\Api\ServiceController@consultStatus');
+        // Route::post('services/consult_status', 'Tenant\Api\ServiceController@consultStatus');
         Route::post('documents/status', 'Tenant\Api\ServiceController@documentStatus');
 
         Route::get('sendserver/{document_id}/{query?}', 'Tenant\DocumentController@sendServer');

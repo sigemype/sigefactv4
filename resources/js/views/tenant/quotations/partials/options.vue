@@ -1,20 +1,20 @@
 <template>
     <div>
         <el-dialog
-            :title="titleDialog"
-            :visible="showDialog"
-            @open="create"
-            width="30%"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
             :show-close="false"
+            :title="titleDialog"
+            :visible="showDialog"
+            width="50%"
+            @open="create"
         >
-            <div class="row" v-show="!showGenerate">
+            <div v-show="!showGenerate" class="row">
                 <div class="col-lg-4 col-md-4 col-sm-4 text-center font-weight-bold">
                     <p>Imprimir A4</p>
                     <button
-                        type="button"
                         class="btn btn-lg btn-info waves-effect waves-light"
+                        type="button"
                         @click="clickToPrint('a4')"
                     >
                         <i class="fa fa-file-alt"></i>
@@ -23,8 +23,8 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 text-center font-weight-bold">
                     <p>Imprimir A5</p>
                     <button
-                        type="button"
                         class="btn btn-lg btn-info waves-effect waves-light"
+                        type="button"
                         @click="clickToPrint('a5')"
                     >
                         <i class="fa fa-file-alt"></i>
@@ -33,273 +33,384 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 text-center font-weight-bold">
                     <p>Imprimir Ticket</p>
                     <button
-                        type="button"
                         class="btn btn-lg btn-info waves-effect waves-light"
+                        type="button"
                         @click="clickToPrint('ticket')"
                     >
                         <i class="fa fa-receipt"></i>
                     </button>
                 </div>
             </div>
-            <br />
-            <div class="row" v-show="!showGenerate">
+            <br/>
+            <div v-show="!showGenerate" class="row">
                 <div class="col-md-12">
                     <el-input v-model="customer_email">
                         <el-button
                             slot="append"
+                            :loading="loading"
                             icon="el-icon-message"
                             @click="clickSendEmail"
-                            :loading="loading"
-                        >Enviar</el-button>
+                        >Enviar
+                        </el-button>
                     </el-input>
                     <!--<small class="form-control-feedback" v-if="errors.customer_email" v-text="errors.customer_email[0]"></small> -->
                 </div>
             </div>
-            <br />
-            <div class="row" v-if="typeUser == 'admin'">
-                <div class="col-md-9" v-show="!showGenerate">
+            <br/>
+            <div v-if="typeUser == 'admin'" class="row">
+                <div v-show="!showGenerate" class="col-md-9">
                     <div class="form-group">
                         <el-checkbox v-model="generate">Generar comprobante electrónico</el-checkbox>
                     </div>
                 </div>
             </div>
-            <div class="row" v-if="generate">
+            <div v-if="generate" class="row">
                 <div class="col-lg-12 pb-2">
                     <div class="form-group">
-                        <label class="control-label font-weight-bold text-info">
-                            Cliente
-                            <!-- <a href="#" @click.prevent="showDialogNewPerson = true">[+ Nuevo]</a> -->
-                        </label>
+                        <label class="control-label font-weight-bold text-info">Cliente</label>
                         <el-select
                             v-model="document.customer_id"
-                            filterable
-                            remote
-                            class="border-left rounded-left border-info"
-                            popper-class="el-select-customers"
-                            dusk="customer_id"
-                            placeholder="Escriba el nombre o número de documento del cliente"
-                            :remote-method="searchRemoteCustomers"
-                            @change="changeCustomer"
                             :loading="loading_search"
+                            :remote-method="searchRemoteCustomers"
+                            class="border-left rounded-left border-info"
+                            dusk="customer_id"
+                            filterable
+                            placeholder="Escriba el nombre o número de documento del cliente"
+                            popper-class="el-select-customers"
+                            remote
+                            @change="changeCustomer"
                         >
                             <el-option
                                 v-for="option in customers"
                                 :key="option.id"
-                                :value="option.id"
                                 :label="option.description"
+                                :value="option.id"
                             ></el-option>
                         </el-select>
                         <small
-                            class="form-control-feedback"
                             v-if="errors.customer_id"
+                            class="form-control-feedback"
                             v-text="errors.customer_id[0]"
                         ></small>
                     </div>
                 </div>
 
                 <div class="col-lg-8">
-                    <div class="form-group" :class="{'has-danger': errors.document_type_id}">
+                    <div :class="{'has-danger': errors.document_type_id}" class="form-group">
                         <label class="control-label">Tipo comprobante</label>
                         <el-select
                             v-model="document.document_type_id"
-                            @change="changeDocumentType"
-                            popper-class="el-select-document_type"
-                            dusk="document_type_id"
                             class="border-left rounded-left border-info"
+                            dusk="document_type_id"
+                            popper-class="el-select-document_type"
+                            @change="changeDocumentType"
                         >
                             <el-option
                                 v-for="option in document_types"
                                 :key="option.id"
-                                :value="option.id"
                                 :label="option.description"
+                                :value="option.id"
                             ></el-option>
-                            <el-option key="nv" value="nv" label="NOTA DE VENTA"></el-option>
+                            <el-option key="nv" label="NOTA DE VENTA" value="nv"></el-option>
                         </el-select>
                         <small
-                            class="form-control-feedback"
                             v-if="errors.document_type_id"
+                            class="form-control-feedback"
                             v-text="errors.document_type_id[0]"
                         ></small>
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="form-group" :class="{'has-danger': errors.series_id}">
+                    <div :class="{'has-danger': errors.series_id}" class="form-group">
                         <label class="control-label">Serie</label>
                         <el-select v-model="document.series_id">
                             <el-option
                                 v-for="option in series"
                                 :key="option.id"
-                                :value="option.id"
                                 :label="option.number"
+                                :value="option.id"
                             ></el-option>
                         </el-select>
                         <small
-                            class="form-control-feedback"
                             v-if="errors.series_id"
+                            class="form-control-feedback"
                             v-text="errors.series_id[0]"
                         ></small>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="form-group" :class="{'has-danger': errors.date_of_issue}">
+                <div class="col-lg-4">
+                    <div :class="{'has-danger': errors.payment_condition_id}" class="form-group">
+                        <label class="control-label">Condición de pago</label>
+                        <el-select v-model="document.payment_condition_id" dusk="document_type_id"
+                                   popper-class="el-select-document_type" style="max-width: 200px;"
+                                   @change="changePaymentCondition">
+                            <el-option label="Crédito" value="02"></el-option>
+                            <el-option label="Contado" value="01"></el-option>
+                        </el-select>
+                        <small
+                            v-if="errors.date_of_due"
+                            class="form-control-feedback"
+                            v-text="errors.date_of_due[0]"
+                        ></small>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div :class="{'has-danger': errors.date_of_issue}" class="form-group">
                         <label class="control-label">Fecha de emisión</label>
                         <el-date-picker
-                            readonly
                             v-model="document.date_of_issue"
+                            :clearable="false"
+                            readonly
                             type="date"
                             value-format="yyyy-MM-dd"
-                            :clearable="false"
                             @change="changeDateOfIssue"
                         ></el-date-picker>
                         <small
-                            class="form-control-feedback"
                             v-if="errors.date_of_issue"
+                            class="form-control-feedback"
                             v-text="errors.date_of_issue[0]"
                         ></small>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="form-group" :class="{'has-danger': errors.date_of_issue}">
-                        <!--<label class="control-label">Fecha de emisión</label>-->
+                <div class="col-lg-4">
+                    <div :class="{'has-danger': errors.date_of_issue}" class="form-group">
                         <label class="control-label">Fecha de vencimiento</label>
                         <el-date-picker
                             v-model="document.date_of_due"
+                            :clearable="false"
                             type="date"
                             value-format="yyyy-MM-dd"
-                            :clearable="false"
                         ></el-date-picker>
                         <small
-                            class="form-control-feedback"
                             v-if="errors.date_of_due"
+                            class="form-control-feedback"
                             v-text="errors.date_of_due[0]"
                         ></small>
                     </div>
                 </div>
-                <br />
-                <div class="col-lg-4">
-                    <div class="form-group" v-show="document.document_type_id == '03'">
+
+                <br/>
+                <div class="col-lg-4" v-if="document.document_type_id == '03'">
+                    <div v-show="document.document_type_id == '03'" class="form-group">
                         <el-checkbox
                             v-model="document.is_receivable"
                             class="font-weight-bold"
-                        >¿Es venta por cobrar?</el-checkbox>
+                        >¿Es venta por cobrar?
+                        </el-checkbox>
                     </div>
                 </div>
-                <br />
-                <div class="col-lg-12" v-show="is_document_type_invoice">
-                    <table>
+                <br/>
+                <div class="col-lg-4 col-md-4">
+                    <div class="form-group" :class="{'has-danger': errors.purchase_order}">
+                        <label class="control-label">Orden de Compra</label>
+                        <el-input v-model="document.purchase_order">
+                        </el-input>
+                        <small
+                            class="form-control-feedback"
+                            v-if="errors.purchase_order"
+                            v-text="errors.purchase_order[0]"
+                        ></small>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                <div class="form-group" :class="{'has-danger': errors.additional_information}">
+                        <label class="control-label">Observaciones</label>
+                        <el-input v-model="document.additional_information">
+                        </el-input>
+                        <small
+                            class="form-control-feedback"
+                            v-if="errors.additional_information"
+                            v-text="errors.additional_information[0]"
+                        ></small>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+
+                    <div :class="{'has-danger': errors.seller_id}" class="form-group">
+                        <label class="control-label">Vendedor</label>
+                        <el-select v-model="document.seller_id" clearable>
+                            <el-option v-for="option in sellers" :key="option.id" :label="option.name"
+                                       :value="option.id">{{ option.name }}
+                            </el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div v-show="is_document_type_invoice && document.payment_condition_id === '02'" class="col-lg-12">
+                    <table v-if="document.fee.length>0" width="100%">
                         <thead>
-                            <tr width="100%">
-                                <th v-if="document.payments.length>0">M.Pago</th>
-                                <th v-if="document.payments.length>0">Destino</th>
-                                <th v-if="document.payments.length>0">Referencia</th>
-                                <th v-if="document.payments.length>0">Monto</th>
-                                <th width="5%">
-                                    <a
-                                        style="font-size:18px"
-                                        href="#"
-                                        @click.prevent="clickAddPayment"
-                                        class="text-center font-weight-bold text-center text-info"
-                                    >[+]</a>
-                                </th>
-                            </tr>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                            <th style="width: 30px">
+                                <a
+                                    class="text-center font-weight-bold text-center text-info"
+                                    href="#"
+                                    style="font-size:18px"
+                                    @click.prevent="clickAddFee"
+                                >[+]</a>
+                            </th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(row, index) in document.payments" :key="index">
-                                <td>
-                                    <div class="form-group mb-2 mr-2">
-                                        <el-select v-model="row.payment_method_type_id">
-                                            <el-option
-                                                v-for="option in payment_method_types"
-                                                :key="option.id"
-                                                :value="option.id"
-                                                :label="option.description"
-                                            ></el-option>
-                                        </el-select>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group mb-2 mr-2">
-                                        <el-select
-                                            v-model="row.payment_destination_id"
-                                            filterable
-                                            :disabled="row.payment_destination_disabled"
-                                        >
-                                            <el-option
-                                                v-for="option in payment_destinations"
-                                                :key="option.id"
-                                                :value="option.id"
-                                                :label="option.description"
-                                            ></el-option>
-                                        </el-select>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group mb-2 mr-2">
-                                        <el-input v-model="row.reference"></el-input>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group mb-2 mr-2">
-                                        <el-input v-model="row.payment"></el-input>
-                                    </div>
-                                </td>
-                                <td class="series-table-actions text-center">
-                                    <button
-                                        type="button"
-                                        class="btn waves-effect waves-light btn-xs btn-danger"
-                                        @click.prevent="clickCancel(index)"
+                        <tr v-for="(row, index) in document.fee" :key="index">
+                            <td v-if="document.fee.length>0">
+                                <div class="form-group mb-2 mr-2">
+                                    <el-date-picker v-model="row.date" :clearable="false"
+                                                    format="dd/MM/yyyy"
+                                                    type="date"
+                                                    value-format="yyyy-MM-dd"></el-date-picker>
+                                </div>
+                            </td>
+                            <td v-if="document.fee.length>0">
+                                <div class="form-group mb-2 mr-2">
+                                    <el-input v-model="row.amount"></el-input>
+                                </div>
+                            </td>
+                            <td class="series-table-actions text-center">
+                                <button
+                                    class="btn waves-effect waves-light btn-xs btn-danger"
+                                    type="button"
+                                    @click.prevent="clickRemoveFee(index)"
+                                >
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-show="is_document_type_invoice && document.payment_condition_id != '02'" class="col-lg-12">
+                    <table>
+                        <thead>
+                        <tr width="100%">
+                            <th v-if="document.payments.length>0">F.Pago</th>
+                            <th v-if="document.payments.length>0">M.Pago</th>
+                            <th v-if="document.payments.length>0">Destino</th>
+                            <th v-if="document.payments.length>0">Referencia</th>
+                            <th v-if="document.payments.length>0">Monto</th>
+                            <th width="5%">
+                                <a
+                                    class="text-center font-weight-bold text-center text-info"
+                                    href="#"
+                                    style="font-size:18px"
+                                    @click.prevent="clickAddPayment"
+                                >[+]</a>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(row, index) in document.payments" :key="index">
+                            <td>
+                                <el-date-picker
+                                    v-model="row.date_of_payment"
+                                    :clearable="false"
+                                    type="date"
+                                    value-format="yyyy-MM-dd"
+                                ></el-date-picker>
+                            </td>
+                            <td>
+                                <div class="form-group mb-2 mr-2">
+                                    <el-select v-model="row.payment_method_type_id">
+                                        <el-option
+                                            v-for="option in payment_method_types"
+                                            :key="option.id"
+                                            :label="option.description"
+                                            :value="option.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group mb-2 mr-2">
+                                    <el-select
+                                        v-model="row.payment_destination_id"
+                                        :disabled="row.payment_destination_disabled"
+                                        filterable
                                     >
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                                <br />
-                            </tr>
+                                        <el-option
+                                            v-for="option in payment_destinations"
+                                            :key="option.id"
+                                            :label="option.description"
+                                            :value="option.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group mb-2 mr-2">
+                                    <el-input v-model="row.reference"></el-input>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group mb-2 mr-2">
+                                    <el-input v-model="row.payment"></el-input>
+                                </div>
+                            </td>
+                            <td class="series-table-actions text-center">
+                                <button
+                                    class="btn waves-effect waves-light btn-xs btn-danger"
+                                    type="button"
+                                    @click.prevent="clickCancel(index)"
+                                >
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                            <br/>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <series-form v-if="generate && form.quotation" :items="form.quotation.items"></series-form>
+            <div  v-show="document.total > 0" class="col-lg-12">
+                <div class="form-group pull-right">
+                    <label class="control-label"> Total </label> <br>
+                    <label class="control-label">{{ document.currency_type_id }} {{ this.document.tota }}</label>
+                </div>
 
+                <br>
+            </div>
             <span slot="footer" class="dialog-footer">
                 <template v-if="showClose">
                     <el-button @click="clickClose">Cerrar</el-button>
                     <el-button
+                        v-if="generate"
+                        :loading="loading_submit"
                         class="submit"
                         type="primary"
                         @click="submit"
-                        :loading="loading_submit"
-                        v-if="generate"
                     >Generar</el-button>
                 </template>
                 <template v-else>
                     <el-button
-                        class="submit"
-                        type="primary"
-                        plain
-                        @click="submit"
-                        :loading="loading_submit"
                         v-if="generate"
+                        :loading="loading_submit"
+                        class="submit"
+                        plain
+                        type="primary"
+                        @click="submit"
                     >Generar comprobante</el-button>
-                    <el-button @click="clickFinalize" v-else>Ir al listado</el-button>
+                    <el-button v-else @click="clickFinalize">Ir al listado</el-button>
                     <el-button type="primary" @click="clickNewQuotation">Nueva cotización</el-button>
                 </template>
             </span>
         </el-dialog>
 
         <document-options
-            :showDialog.sync="showDialogDocumentOptions"
-            :recordId="documentNewId"
             :isContingency="false"
+            :recordId="documentNewId"
             :showClose="true"
+            :showDialog.sync="showDialogDocumentOptions"
         ></document-options>
 
         <sale-note-options
-            :showDialog.sync="showDialogSaleNoteOptions"
             :recordId="documentNewId"
             :showClose="true"
+            :showDialog.sync="showDialogSaleNoteOptions"
         ></sale-note-options>
     </div>
 </template>
@@ -308,9 +419,10 @@
 import DocumentOptions from "../../documents/partials/options.vue";
 import SaleNoteOptions from "../../sale_notes/partials/options.vue";
 import SeriesForm from "./series_form.vue";
+import moment from "moment";
 
 export default {
-    components: { DocumentOptions, SaleNoteOptions, SeriesForm },
+    components: {DocumentOptions, SaleNoteOptions, SeriesForm},
 
     props: [
         "showDialog",
@@ -320,6 +432,8 @@ export default {
         "type",
         "typeUser",
     ],
+    computed:{
+    },
     data() {
         return {
             customer_email: "",
@@ -344,6 +458,7 @@ export default {
             payment_destinations: [],
             loading_search: false,
             payment_method_types: [],
+            sellers: [],
         };
     },
     created() {
@@ -352,10 +467,62 @@ export default {
         this.clickAddPayment();
     },
     methods: {
+        changePaymentCondition() {
+            this.document.fee = [];
+            this.document.payments = [];
+            if (this.document.payment_condition_id === '01') {
+                this.document.payments = this.form.quotation.payments;
+                if (this.document.payments === undefined || this.document.payments.length < 1) {
+                    this.clickAddPayment();
+                }
+            }
+            if (this.document.payment_condition_id === '02') {
+                this.document.fee = this.form.quotation.fee;
+                if (this.document.fee === undefined || this.document.fee.length < 1) {
+                    this.clickAddFee();
+                }
+            }
+        },
+        clickRemoveFee(index) {
+            this.document.fee.splice(index, 1);
+            this.calculateFee();
+        },
+        clickAddFee() {
+            if (this.document.fee === undefined) this.document.fee = [];
+            this.document.fee.push({
+                id: null,
+                date: moment().format('YYYY-MM-DD'),
+                currency_type_id: this.document.currency_type_id,
+                amount: 0,
+            });
+            this.calculateFee();
+        },
+        calculateFee() {
+            let fee_count = this.document.fee.length;
+            let total = this.document.total;
+            let accumulated = 0;
+            let amount = _.round(total / fee_count, 2);
+            _.forEach(this.document.fee, row => {
+                accumulated += amount;
+                if (total - accumulated < 0) {
+                    amount = _.round(total - accumulated + amount, 2);
+                }
+                row.amount = amount;
+            })
+        },
         clickCancel(index) {
             this.document.payments.splice(index, 1);
         },
         clickAddPayment() {
+           if (this.document.payments === undefined) this.document.payments = [];
+            let total = 0
+            if(
+                this.form !== null &&
+                this.form.quotation !== null &&
+                this.form.quotation.total !== null
+            ){
+                total =this.form.quotation.total
+            }
             this.document.payments.push({
                 id: null,
                 document_id: null,
@@ -363,8 +530,9 @@ export default {
                 payment_method_type_id: "01",
                 payment_destination_id: null,
                 reference: null,
-                payment: 0,
+                payment: parseFloat(total),
             });
+
         },
         initForm() {
             this.generate = this.showGenerate ? true : false;
@@ -422,6 +590,8 @@ export default {
                 total_exportation: 0,
                 total_free: 0,
                 total_taxed: 0,
+                payment_condition_id: '01',
+                fee: [],
                 total_unaffected: 0,
                 total_exonerated: 0,
                 total_igv: 0,
@@ -461,21 +631,21 @@ export default {
                     : null;
             this.changeDocumentType();
         },
-        validatePaymentDestination(){
+        validatePaymentDestination() {
 
             let error_by_item = 0
 
-            this.document.payments.forEach((item)=>{
-                if(item.payment_destination_id == null) error_by_item++;
+            this.document.payments.forEach((item) => {
+                if (item.payment_destination_id == null) error_by_item++;
             })
 
-            return  {
-                error_by_item : error_by_item,
+            return {
+                error_by_item: error_by_item,
             }
 
         },
         async submit() {
-            
+
             let validate_items = await this.validateQuantityandSeries();
             if (!validate_items.success)
                 return this.$message.error(validate_items.message);
@@ -484,7 +654,7 @@ export default {
 
             let validate_payment_destination = await this.validatePaymentDestination()
 
-            if(validate_payment_destination.error_by_item > 0) {
+            if (validate_payment_destination.error_by_item > 0) {
                 return this.$message.error('El destino del pago es obligatorio');
             }
 
@@ -516,6 +686,7 @@ export default {
                             this.showDialogDocumentOptions = true;
                         }
 
+                        this.getRecord()
                         this.$eventHub.$emit("reloadData");
                         this.resetDocument();
                         this.document.customer_id = this.form.quotation.customer_id;
@@ -543,7 +714,9 @@ export default {
             this.document.time_of_issue = moment().format("HH:mm:ss");
             // this.document.customer_id = q.customer_id
             this.document.currency_type_id = q.currency_type_id;
-            this.document.purchase_order = null;
+            if(q.purchase_order !== undefined && q.purchase_order != null) {
+                this.document.purchase_order = q.purchase_order;
+            }
             this.document.exchange_rate_sale = q.exchange_rate_sale;
             this.document.total_prepayment = q.total_prepayment;
             this.document.total_charge = q.total_charge;
@@ -569,11 +742,19 @@ export default {
             this.document.attributes = [];
             // this.document.payments = q.payments;
             this.document.guides = q.guides;
-            this.document.additional_information = null;
+            if(q.additional_information !== undefined && q.additional_information  != null) {
+                this.document.additional_information = q.additional_information;
+            }
+            if(q.seller_id !== undefined && q.seller_id  != null) {
+                this.document.seller_id = q.seller_id;
+            }
             this.document.actions = {
                 format_pdf: "a4",
             };
             this.document.quotation_id = this.form.id;
+            _.forEach(this.document.items, row => {
+                row.name_product_pdf = row.item.name_product_pdf;
+            })
         },
         async create() {
             await this.$http
@@ -586,23 +767,35 @@ export default {
                         response.data.payment_destinations;
                     this.payment_method_types =
                         response.data.payment_method_types;
+                    this.sellers = response.data.sellers
                     // this.document.document_type_id = (this.all_document_types.length > 0)?this.all_document_types[0].id:null
                     // this.changeDocumentType()
                 });
 
+            await this.getRecord()
+        },
+        async getRecord(){
+
             await this.$http
-                .get(`/${this.resource}/record2/${this.recordId}`)
-                .then((response) => {
-                    this.form = response.data.data;
-                    this.document.payments =
-                        response.data.data.quotation.payments;
-                    // console.log(this.form)
-                    // this.validateIdentityDocumentType()
-                    this.getCustomer();
-                    let type = this.type == "edit" ? "editada" : "registrada";
-                    this.titleDialog =
-                        `Cotización ${type}: ` + this.form.identifier;
-                });
+                        .get(`/${this.resource}/record2/${this.recordId}`)
+                        .then((response) => {
+                            this.form = response.data.data;
+                            this.document.payments =
+                                response.data.data.quotation.payments;
+                            this.document.total = this.form.quotation.total;
+                            this.document.currency_type_id = this.form.quotation.currency_type_id;
+                            this.document.payment_condition_id = this.form.quotation.payment_condition_id;
+                            if (this.document.payment_condition_id === undefined || this.document.payments.length > 0) {
+                                this.document.payment_condition_id = "01";
+                            }
+
+                            // console.log(this.form)
+                            // this.validateIdentityDocumentType()
+                            this.getCustomer();
+                            let type = this.type == "edit" ? "editada" : "registrada";
+                            this.titleDialog =
+                                `Cotización ${type}: ` + this.form.identifier;
+                        })
         },
         changeDocumentType() {
             // this.filterSeries()
@@ -712,7 +905,7 @@ export default {
                         "Las cantidades y series seleccionadas deben ser iguales.",
                 };
 
-            return { success: true };
+            return {success: true};
         },
     },
 };

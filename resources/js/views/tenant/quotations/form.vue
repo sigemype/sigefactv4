@@ -124,7 +124,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="form-group col-6 col-md-2">
-                                        <label for="seller">Vendedor</label>
+                                        <label>Vendedor</label>
                                         <el-select v-model="form.seller_id" clearable>
                                             <el-option v-for="sel in sellers" :key="sel.id" :value="sel.id" :label="sel.name">{{ sel.name }}</el-option>
                                         </el-select>
@@ -312,7 +312,10 @@
         <quotation-form-item :showDialog.sync="showDialogAddItem"
                            :currency-type-id-active="form.currency_type_id"
                            :exchange-rate-sale="form.exchange_rate_sale"
-                           :recordItem="recordItem"
+                             :typeUser="typeUser"
+                             :recordItem="recordItem"
+                             :configuration="config"
+
                            @add="addRow"></quotation-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
@@ -340,9 +343,14 @@
     import {functions, exchangeRate} from '../../../mixins/functions'
     import {calculateRowItem} from '../../../helpers/functions'
     import Logo from '../companies/logo.vue'
+    import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
     export default {
-        props:['typeUser', 'saleOpportunityId'],
+        props:[
+            'typeUser',
+            'saleOpportunityId',
+            'configuration',
+        ],
         components: {QuotationFormItem, PersonForm, QuotationOptions, Logo, TermsCondition},
         mixins: [functions, exchangeRate],
         data() {
@@ -371,12 +379,14 @@
                 payment_destinations:  [],
                 activePanel: 0,
                 customer_addresses:  [],
-                configuration: {},
+                // configuration: {},
                 loading_search:false,
                 recordItem: null
             }
         },
         async created() {
+            this.loadConfiguration()
+            this.$store.commit('setConfiguration', this.configuration)
             await this.initForm()
             await this.$http.get(`/${this.resource}/tables`)
                 .then(response => {
@@ -391,7 +401,7 @@
                     this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
                     this.payment_method_types = data.payment_method_types
                     this.payment_destinations = data.payment_destinations
-                    this.configuration = data.configuration
+                    // this.configuration = data.configuration
                     this.sellers = data.sellers;
 
                     this.changeEstablishment()
@@ -407,7 +417,15 @@
 
             await this.createQuotationFromSO()
         },
+        computed: {
+            ...mapState([
+                'config',
+            ]),
+        },
         methods: {
+            ...mapActions([
+                'loadConfiguration',
+            ]),
             clickAddItem() {
                 this.recordItem = null;
                 this.showDialogAddItem = true;
@@ -535,14 +553,14 @@
                 // return unit_price.toFixed(6)
             },
             async changePaymentMethodType(flag_submit = true){
-                let payment_method_type = await _.find(this.payment_method_types, {'id':this.form.payment_method_type_id})
-                if(payment_method_type){
+                // let payment_method_type = await _.find(this.payment_method_types, {'id':this.form.payment_method_type_id})
+                // if(payment_method_type){
 
-                    if(payment_method_type.number_days){
-                        this.form.date_of_issue =  moment().add(payment_method_type.number_days,'days').format('YYYY-MM-DD');
-                        this.changeDateOfIssue()
-                    }
-                }
+                //     if(payment_method_type.number_days){
+                //         this.form.date_of_issue =  moment().add(payment_method_type.number_days,'days').format('YYYY-MM-DD');
+                //         this.changeDateOfIssue()
+                //     }
+                // }
             },
             searchRemoteCustomers(input) {
 

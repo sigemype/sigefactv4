@@ -69,13 +69,104 @@
                                 </div>
                             </div>
 
+                            <div class="col-lg-2">
+                                <div class="form-group" :class="{'has-danger': errors.date_of_issue}">
+                                    <label class="control-label">Fec. Emisión</label>
+                                    <el-date-picker v-model="form.date_of_issue" type="date" value-format="yyyy-MM-dd" :clearable="false" @change="changeDateOfIssue"></el-date-picker>
+                                    <small class="form-control-feedback" v-if="errors.date_of_issue" v-text="errors.date_of_issue[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group" :class="{'has-danger': errors.due_date}">
+                                    <label class="control-label">Fec. Vencimiento</label>
+                                    <el-date-picker
+                                        v-model="form.due_date"
+                                        type="date"
+                                        value-format="yyyy-MM-dd"
+                                        :clearable="true"
+                                        :picker-options="pickerOptions"
+                                    ></el-date-picker>
+                                    <small class="form-control-feedback" v-if="errors.due_date" v-text="errors.due_date[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group" :class="{'has-danger': errors.exchange_rate_sale}">
+                                    <label class="control-label">Tipo de cambio
+                                        <el-tooltip class="item" effect="dark" content="Tipo de cambio del día, extraído de SUNAT" placement="top-end">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <el-input v-model="form.exchange_rate_sale"></el-input>
+                                    <small class="form-control-feedback" v-if="errors.exchange_rate_sale" v-text="errors.exchange_rate_sale[0]"></small>
+                                </div>
+                            </div>
 
+                            <div class="col-lg-2 col-md-2">
+                                <div class="form-group" >
+                                    <label class="control-label">
+                                        Tipo periodo
+                                        <el-tooltip
+                                            class="item"
+                                            effect="dark"
+                                            content="Creación recurrente de N. Venta de forma automática, por periodo."
+                                            placement="top-start">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <el-select v-model="form.type_period" clearable>
+                                        <el-option
+                                            v-for="option in type_periods"
+                                            :key="option.id"
+                                            :value="option.id"
+                                            :label="option.description"></el-option>
+                                    </el-select>
+                                    <small class="form-control-feedback" v-if="errors.type_period" v-text="errors.type_period[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-2" >
+                                <div class="form-group">
+                                    <label class="control-label">Cant. Periodos</label>
+                                    <el-input-number
+                                        v-model="form.quantity_period"
+                                        :min="0"></el-input-number>
+                                    <small class="form-control-feedback"
+                                           v-show="sms_periodo.length > 1 "
+                                           v-text="sms_periodo"></small>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-2" >
+                                <div class="form-group">
+                                    <label class="control-label">Placa</label>
+                                    <el-input v-model="form.license_plate" :maxlength="200"></el-input>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-2 form-group">
+                                    <label class="control-label">Orden de compra</label>
+                                    <el-input v-model="form.purchase_order" :maxlength="50"></el-input>
+                            </div>
 
-                            <div class="col-lg-8">
-
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Observación
+                                    </label>
+                                    <el-input  type="textarea"  v-model="form.observation"></el-input>
+                                    <small class="form-control-feedback" v-if="errors.observation" v-text="errors.observation[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                    <div class="form-group">
+                                        <label>Vendedor</label>
+                                        <el-select v-model="form.seller_id" clearable>
+                                            <el-option v-for="sel in sellers" :key="sel.id" :value="sel.id" :label="sel.name">{{ sel.name }}</el-option>
+                                        </el-select>
+                                </div>
+                            </div>
+                            <!-- Pagos -->
+                            <div class="col-12 pt-3">
                                 <table>
                                     <thead>
                                         <tr width="100%">
+                                            <th>F. Pago</th>
                                             <th v-if="form.payments.length>0">Método de pago</th>
                                             <template v-if="enabled_payments">
                                                 <th v-if="form.payments.length>0">Destino
@@ -91,6 +182,16 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(row, index) in form.payments" :key="index">
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-date-picker
+                                                        v-model="row.date_of_payment"
+                                                        type="date"
+                                                        :clearable="false"
+                                                        value-format="yyyy-MM-dd"
+                                                    ></el-date-picker>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <div class="form-group mb-2 mr-2">
                                                     <el-select v-model="row.payment_method_type_id" @change="changePaymentMethodType(index)">
@@ -126,67 +227,10 @@
                                         </tr>
                                     </tbody>
                                 </table>
-
                             </div>
-
-                            <div class="col-lg-2">
-                                <div class="form-group" :class="{'has-danger': errors.date_of_issue}">
-                                    <!--<label class="control-label">Fecha de emisión</label>-->
-                                    <label class="control-label">Fec. Emisión</label>
-                                    <el-date-picker v-model="form.date_of_issue" type="date" value-format="yyyy-MM-dd" :clearable="false" @change="changeDateOfIssue"></el-date-picker>
-                                    <small class="form-control-feedback" v-if="errors.date_of_issue" v-text="errors.date_of_issue[0]"></small>
-                                </div>
-                            </div>
-                            <div class="col-lg-2">
-                                <div class="form-group" :class="{'has-danger': errors.exchange_rate_sale}">
-                                    <label class="control-label">Tipo de cambio
-                                        <el-tooltip class="item" effect="dark" content="Tipo de cambio del día, extraído de SUNAT" placement="top-end">
-                                            <i class="fa fa-info-circle"></i>
-                                        </el-tooltip>
-                                    </label>
-                                    <el-input v-model="form.exchange_rate_sale"></el-input>
-                                    <small class="form-control-feedback" v-if="errors.exchange_rate_sale" v-text="errors.exchange_rate_sale[0]"></small>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-2 col-md-2">
-                                <div class="form-group" >
-                                    <label class="control-label">
-                                        Tipo periodo
-
-                                        <el-tooltip class="item" effect="dark" content="Creación recurrente de N. Venta de forma automática, por periodo." placement="top-start">
-                                            <i class="fa fa-info-circle"></i>
-                                        </el-tooltip>
-                                    </label>
-                                    <el-select v-model="form.type_period" clearable>
-                                        <el-option v-for="option in type_periods" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                    </el-select>
-                                    <small class="form-control-feedback" v-if="errors.type_period" v-text="errors.type_period[0]"></small>
-                                </div>
-                            </div>
-                            <div class="col-lg-2 col-md-2" >
-                                <div class="form-group">
-                                    <label class="control-label">Cant. Periodos</label>
-                                    <el-input-number v-model="form.quantity_period" :min="0"></el-input-number>
-
-                                </div>
-                            </div>
-                            <div class="col-lg-2 col-md-2" >
-                                <div class="form-group">
-                                    <label class="control-label">Placa</label>
-                                    <el-input v-model="form.license_plate" :maxlength="200"></el-input>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label">Observación
-                                    </label>
-                                    <el-input  type="textarea"  v-model="form.observation"></el-input>
-                                    <small class="form-control-feedback" v-if="errors.observation" v-text="errors.observation[0]"></small>
-                                </div>
-                            </div>
+                            <!-- Fin Pagos -->
                         </div>
+
 
 
 
@@ -223,8 +267,11 @@
                                                 <td class="text-right">{{ currency_type.symbol }} {{ row.total }}</td>
                                                 <td class="text-right">
 
-                                                    <template v-if="row.id">
+                                                    <!-- <template v-if="row.id">
                                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDeleteSNItem(row.id, index)">x</button>
+                                                    </template> -->
+                                                    <template v-if="row.record_id">
+                                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDeleteSNItem(row.record_id, index)">x</button>
                                                     </template>
                                                     <template v-else>
                                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemoveItem(index)">x</button>
@@ -282,7 +329,8 @@
 
         <sale-notes-options :showDialog.sync="showDialogOptions"
                           :recordId="saleNotesNewId"
-                          :showClose="false"></sale-notes-options>
+                          :showClose="false"
+                          :configuration="config"></sale-notes-options>
 
     </div>
 </template>
@@ -294,13 +342,48 @@
     import {functions, exchangeRate} from '../../../mixins/functions'
     import {calculateRowItem} from '../../../helpers/functions'
     import Logo from '../companies/logo.vue'
+    import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
     export default {
-        props: ['id', 'typeUser'],
+        props: [
+            'id',
+            'typeUser',
+            'configuration',
+        ],
         components: {SaleNotesFormItem, PersonForm, SaleNotesOptions, Logo},
         mixins: [functions, exchangeRate],
+        computed:{
+            ...mapState([
+                'config',
+            ]),
+            sms_periodo : function(){
+                let text = '';
+                let type = this.form.type_period;
+                let time = this.form.quantity_period;
+                if(time > 0 && ( type === 'year' || type === 'month' )){
+                    text = "Se duplicará cada " + time;
+                    if (type === 'year') {
+                        text = time > 1 ? text + ' años' : text + ' año';
+                    }else if (type === 'month'){
+                        text = time > 1 ? text + ' meces' : text + ' mes';
+                    }else{
+                        text = '';
+                    }
+                    return text;
+                }
+                return text;
+            }
+
+        },
         data() {
             return {
+                pickerOptions :{
+                    disabledDate: date => {
+                        let now = new Date();
+                        return date.getTime() < (now.getTime());
+                    },
+                },
+                sellers: [],
                 resource: 'sale-notes',
                 showDialogAddItem: false,
                 showDialogNewPerson: false,
@@ -329,11 +412,12 @@
                 is_contingency: false,
                 enabled_payments: true,
                 payment_destinations:  [],
-                configuration: {},
 
             }
         },
         async created() {
+            this.loadConfiguration()
+            this.$store.commit('setConfiguration', this.configuration)
             await this.initForm()
             await this.$http.get(`/${this.resource}/tables`)
                 .then(response => {
@@ -344,12 +428,15 @@
                     this.charges_types = response.data.charges_types
                     this.payment_method_types = response.data.payment_method_types
                     this.company = response.data.company
-                    this.form.currency_type_id = (this.currency_types.length > 0)?this.currency_types[0].id:null
+                    if(this.config.currency_type_id === undefined) {
+                        this.form.currency_type_id = (this.currency_types.length > 0) ? this.currency_types[0].id : null
+                    }
                     this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
                     this.type_periods = [{id:'month',description:'Mensual'}, {id:'year',description:'Anual'}]
                     this.all_series = response.data.series
                     this.payment_destinations = response.data.payment_destinations
-                    this.configuration = response.data.configuration
+                    // this.configuration = response.data.configuration
+                    this.sellers = response.data.sellers;
                     this.changeEstablishment()
                     this.changeDateOfIssue()
                     this.changeCurrencyType()
@@ -361,8 +448,12 @@
                 this.reloadDataCustomers(customer_id)
             })
             this.isUpdate()
+            this.changeCurrencyType()
         },
         methods: {
+            ...mapActions([
+                'loadConfiguration',
+            ]),
             changePaymentMethodType(index){
 
                 let payment_method_type = _.find(this.payment_method_types, {'id':this.form.payments[index].payment_method_type_id})
@@ -386,7 +477,7 @@
             },
             selectDestinationSale() {
 
-                if(this.configuration.destination_sale && this.payment_destinations.length > 0) {
+                if(this.config.destination_sale && this.payment_destinations.length > 0) {
                     let cash = _.find(this.payment_destinations, {id : 'cash'})
                     this.form.payments[0].payment_destination_id = (cash) ? cash.id : this.payment_destinations[0].id
                 }
@@ -394,7 +485,7 @@
             },
             getPaymentDestinationId() {
 
-                if(this.configuration.destination_sale && this.payment_destinations.length > 0) {
+                if(this.config.destination_sale && this.payment_destinations.length > 0) {
 
                     let cash = _.find(this.payment_destinations, {id : 'cash'})
 
@@ -475,6 +566,7 @@
                             this.form = response.data.data;
     //                        this.filterProvinces();
     //                        this.filterDistricts();
+                            this.changeCurrencyType()
                         })
                 }
 
@@ -520,10 +612,11 @@
                     series_id: null,
                     prefix:'NV',
                     establishment_id: null,
+                    due_date: null,
                     date_of_issue: moment().format('YYYY-MM-DD'),
                     time_of_issue: moment().format('HH:mm:ss'),
                     customer_id: null,
-                    currency_type_id: null,
+                    currency_type_id:  this.config.currency_type_id,
                     purchase_order: null,
                     exchange_rate_sale: 0,
                     total_prepayment: 0,
@@ -571,7 +664,10 @@
             resetForm() {
                 this.activePanel = 0
                 this.initForm()
-                this.form.currency_type_id = (this.currency_types.length > 0)?this.currency_types[0].id:null
+                //this.form.currency_type_id = (this.currency_types.length > 0)?this.currency_types[0].id:null
+                if(this.config.currency_type_id === undefined) {
+                    this.form.currency_type_id = (this.currency_types.length > 0) ? this.currency_types[0].id : null
+                }
                 this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
                 this.changeEstablishment()
                 this.changeDateOfIssue()
@@ -635,19 +731,36 @@
                     if (row.affectation_igv_type_id === '10') {
                         total_taxed += parseFloat(row.total_value)
                     }
-                    if (row.affectation_igv_type_id === '20') {
+                    if (row.affectation_igv_type_id === '20'  // 20,Exonerado - Operación Onerosa
+                        || row.affectation_igv_type_id === '21' // 21,Exonerado – Transferencia Gratuita
+                    ) {
                         total_exonerated += parseFloat(row.total_value)
                     }
-                    if (row.affectation_igv_type_id === '30') {
+                    if (
+                        row.affectation_igv_type_id === '30'  // 30,Inafecto - Operación Onerosa
+                        || row.affectation_igv_type_id === '31'  // 31,Inafecto – Retiro por Bonificación
+                        || row.affectation_igv_type_id === '32'  // 32,Inafecto – Retiro
+                        || row.affectation_igv_type_id === '33'  // 33,Inafecto – Retiro por Muestras Médicas
+                        || row.affectation_igv_type_id === '34'  // 34,Inafecto - Retiro por Convenio Colectivo
+                        || row.affectation_igv_type_id === '35'  // 35,Inafecto – Retiro por premio
+                        || row.affectation_igv_type_id === '36' // 36,Inafecto - Retiro por publicidad
+                        || row.affectation_igv_type_id === '37'  // 37,Inafecto - Transferencia gratuita
+                    ) {
                         total_unaffected += parseFloat(row.total_value)
                     }
                     if (row.affectation_igv_type_id === '40') {
                         total_exportation += parseFloat(row.total_value)
                     }
-                    if (['10', '20', '30', '40'].indexOf(row.affectation_igv_type_id) < 0) {
+                    if (['10',
+                        '20', '21',
+                        '30', '31', '32', '33', '34', '35', '36',
+                        '40'].indexOf(row.affectation_igv_type_id) < 0) {
                         total_free += parseFloat(row.total_value)
                     }
-                    if (['10', '20', '30', '40'].indexOf(row.affectation_igv_type_id) > -1) {
+                    if (['10',
+                        '20', '21',
+                        '30', '31', '32', '33', '34', '35', '36',
+                        '40'].indexOf(row.affectation_igv_type_id) > -1) {
                         total_igv += parseFloat(row.total_igv)
                         total += parseFloat(row.total)
                     }
@@ -735,7 +848,8 @@
                 }
 
                 this.loading_submit = true
-                this.$http.post(`/${this.resource}`, this.form).then(response => {
+                this.$http.post(`/${this.resource}`, this.form)
+                    .then(response => {
                     if (response.data.success) {
 
                         this.form_payment.sale_note_id = response.data.data.id;
@@ -760,7 +874,8 @@
                         this.$message.error(error.response.data.message);
                     }
                 }).then(() => {
-                    this.loading_submit = false;
+                        this.form.currency_type_id =  this.config.currency_type_id;
+                        this.loading_submit = false;
                 });
             },
             validate_payments(){

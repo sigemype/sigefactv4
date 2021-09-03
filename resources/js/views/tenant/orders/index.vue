@@ -42,7 +42,12 @@
               <template>
                 <el-popover placement="right" width="540" trigger="click">
                   <el-table style="width: 100%" :data="row.items">
-                    <el-table-column width="150" property="name" label="Nombre"></el-table-column>
+                      <!--
+                      En la edicion del item, el nombre es descripcion, por ello, aqui tambien debe ser descripcion
+  <el-table-column width="150" property="name" label="Nombre"></el-table-column>
+  @todo homologar campos en editar/crear item.
+  -->
+                    <el-table-column width="150" property="description" label="Nombre"></el-table-column>
                     <el-table-column width="90" property="cantidad" label="Cant."></el-table-column>
                     <el-table-column width="90" label="Precio">
                       <template slot-scope="scope">

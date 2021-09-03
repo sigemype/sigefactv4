@@ -33,7 +33,10 @@
     import queryString from 'query-string'
 
     export default {
-        props: ['showDialog'],
+        props: [
+            'showDialog',
+            'pharmacy',
+        ],
         data() {
             return {
                 loading_submit: false,
@@ -43,10 +46,14 @@
                 form: {
                     range: [1, 100]
                 },
-                max_item: 1
+                max_item: 1,
+                fromPharmacy: false,
             }
         },
         created() {
+            if(this.pharmacy !== undefined && this.pharmacy === true){
+                this.fromPharmacy = true;
+            }
             this.initForm()
         },
         methods: {
@@ -62,6 +69,7 @@
                 this.loading_submit = true
 
                 let query = queryString.stringify({
+                    isPharmacy:this.fromPharmacy,
                     ...this.form.range
                 });
                 window.open(`/${this.resource}/export/barcode/?${query}`, '_blank');

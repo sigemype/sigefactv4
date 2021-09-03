@@ -1,29 +1,7 @@
 <template>
-    <div class="card">
-        <div class="card-header bg-info">
-            <h3 class="my-0">Otras Operaciones</h3>
-        </div>
-        <div class="card-body">
-            <form autocomplete="off" @submit.prevent="deleteDocuments">
-                <div class="form-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <el-button type="primary" native-type="submit" :loading="loading_submit">Eliminar documentos de prueba</el-button>
-                        </div>
-                    </div>
-                </div>
-            </form> <br/>
-            <!--<form autocomplete="off" @submit.prevent="consultVoided">
-                <div class="form-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <el-button type="primary" native-type="submit" :loading="loading_submit_voided">Consultar documentos anulados</el-button>
-                        </div>
-                    </div>
-                </div>
-            </form> -->
-        </div>
-    </div>
+    <form autocomplete="off" @submit.prevent="deleteDocuments">
+        <el-button type="primary" native-type="submit" :loading="loading_submit">Eliminar documentos de prueba</el-button>
+    </form>
 </template>
 
 <script>

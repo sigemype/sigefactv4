@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid p-0">
-        <div class="row page-header pr-0" style="height:auto">
+        <div class="row page-header pr-0 no-gutters" style="height:auto">
             <Keypress
                 key-event="keyup"
                 :key-code="112"
@@ -34,7 +34,7 @@
                         <button
                             type="button"
                             @click="back()"
-                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-1"
+                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fa fa-border-all"></i>
                         </button>
@@ -51,7 +51,7 @@
                             type="button"
                             :disabled="place == 'cat2'"
                             @click="setView('cat2')"
-                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-1"
+                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fa fa-bars"></i>
                         </button>
@@ -68,7 +68,7 @@
                             type="button"
                             :disabled="place == 'cat3'"
                             @click="setView('cat3')"
-                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-1"
+                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fas fa-list-ul"></i>
                         </button>
@@ -85,7 +85,7 @@
                             type="button"
                             :disabled="place == 'cat'"
                             @click="back()"
-                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-1"
+                            class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fa fa-undo"></i>
                         </button>
@@ -94,10 +94,10 @@
             </div>
             <div class="col-md-4">
                 <div class="right-wrapper">
-                    <h2 class="text-sm pr-5">
+                    <h2 class="text-sm pr-5" style="font-size: 14px;">
                         T/C {{ form.exchange_rate_sale }}
                     </h2>
-                    <h2 class="text-sm  pull-right">{{ user.name }}</h2>
+                    <h2 class="text-sm  pull-right" style="font-size: 14px;">{{ user.name }}</h2>
                 </div>
             </div>
         </div>
@@ -107,7 +107,7 @@
             class="row col-lg-12 m-0 p-0"
             v-loading="loading"
         >
-            <div class="col-lg-8 col-md-6 px-4 pt-3 hyo">
+            <div class="col-lg-8 col-md-6 px-4 hyo">
                 <template v-if="!search_item_by_barcode">
                     <el-input
                         v-show="
@@ -121,7 +121,7 @@
                         @input="searchItems"
                         @keyup.native="keyupTabCustomer"
                         @keyup.enter.native="keyupEnterAddItem"
-                        class="m-bottom"
+                        class="m-bottom mt-3"
                         ref="ref_search_items"
                     >
                         <el-button
@@ -145,7 +145,7 @@
                         @change="searchItemsBarcode"
                         @keyup.native="keyupTabCustomer"
                         ref="ref_search_items"
-                        class="m-bottom"
+                        class="m-bottom mt-3"
                     >
                         <el-button
                             slot="append"
@@ -170,13 +170,13 @@
                 </div>
                 <br/>
 
-                <div v-if="place == 'cat'" class="row">
+                <div v-if="place == 'cat'" class="row no-gutters">
                     <template v-for="(item, index) in categories">
-                        <div class="col-md-2" :key="index">
-                            <div @click="filterCategorie(item.id)" class="card">
+                        <div class="col" :key="index">
+                            <div @click="filterCategorie(item.id)" class="card p-0 m-0 mb-1 mr-1 text-center">
                                 <div
                                     :style="{ backgroundColor: item.color }"
-                                    class="card-body pointer"
+                                    class="card-body pointer rounded-0"
                                     style="font-weight: bold;color: white;font-size: 18px;"
                                 >
                                     {{ item.name }}
@@ -196,7 +196,7 @@
                                 >
                                     <p
                                         class="font-weight-semibold mb-0"
-                                        v-if="item.description.length > 50"
+                                        v-if="DescriptionLength(item) > 50"
                                         data-toggle="tooltip"
                                         data-placement="top"
                                         :title="item.description"
@@ -205,7 +205,7 @@
                                     </p>
                                     <p
                                         class="font-weight-semibold mb-0"
-                                        v-if="item.description.length <= 50"
+                                        v-if="DescriptionLength(item) <= 50"
                                     >
                                         {{ item.description }}
                                     </p>
@@ -233,9 +233,7 @@
                     </el-popover> -->
                                     </p>
                                 </div>
-                                <div
-                                    class="card-footer pointer text-center bg-primary"
-                                >
+                                <div class="card-footer pointer text-center bg-primary">
                                     <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2" @click="clickHistorySales(item.item_id)"><i class="fa fa-list"></i></button>
                   <button type="button" class="btn waves-effect waves-light btn-xs btn-success m-1__2" @click="clickHistoryPurchases(item.item_id)"><i class="fas fa-cart-plus"></i></button> -->
                                     <template v-if="!item.edit_unit_price">
@@ -243,16 +241,11 @@
                                             class="font-weight-semibold text-right text-white"
                                         >
                                             <button
-                                                v-if="configuration.options_pos"
+                                                v-if="configuration.options_pos && edit_unit_price"
                                                 type="button"
                                                 class="btn btn-xs btn-primary-pos"
-                                                @click="
-                                                    clickOpenInputEditUP(index)
-                                                "
-                                            >
-                                                <span style="font-size:16px;"
-                                                >&#9998;</span
-                                                >
+                                                @click="clickOpenInputEditUP(index)">
+                                                <span style="font-size:16px;">&#9998;</span>
                                             </button>
                                             ({{ item.unit_type_id }})
                                             {{ item.currency_type_symbol }}
@@ -644,13 +637,18 @@
                                         <td style="width: 80px; vertical-align: top">
 <!--                                            <p class="font-weight-semibold m-0 text-center">-->
                                                 <!-- {{currency_type.symbol}} {{item.total}} -->
+                                            <template v-if="edit_unit_price">
                                                 <el-input
                                                     v-model="item.total"
                                                     @input="calculateQuantity(index)"
                                                     @blur="blurCalculateQuantity(index)"
                                                     :readonly="!item.item.calculate_quantity">
-<!--                                                     <template slot="prepend">{{ currency_type.symbol }}</template>-->
+                                                    <!--                                                     <template slot="prepend">{{ currency_type.symbol }}</template>-->
                                                 </el-input>
+                                            </template>
+                                            <template v-else>
+                                                {{ item.total }}
+                                            </template>
 <!--                                            </p>-->
                                         </td>
                                         <td class="text-right" style="width: 36px; padding-left: 0; padding-right: 0; vertical-align: top">
@@ -849,6 +847,12 @@
             :item_unit_types="[]"
         >
         </warehouses-detail>
+        
+        <item-unit-types
+            :showDialog.sync="showDialogItemUnitTypes"
+            :itemUnitTypes="itemUnitTypes"
+        >
+        </item-unit-types>
     </div>
 </template>
 <style>
@@ -929,6 +933,7 @@ import PersonForm from "../persons/form.vue";
 import WarehousesDetail from "../items/partials/warehouses.vue";
 import queryString from "query-string";
 import TableItems from "./partials/table.vue";
+import ItemUnitTypes from "./partials/item_unit_types.vue";
 
 export default {
     props: ["configuration", "soapCompany", "businessTurns", "typeUser"],
@@ -939,6 +944,7 @@ export default {
         HistoryPurchasesForm,
         PersonForm,
         WarehousesDetail,
+        ItemUnitTypes,
         Keypress,
         TableItems
     },
@@ -947,6 +953,7 @@ export default {
     data() {
         return {
             place: "cat",
+            showDialogItemUnitTypes: false,
             history_item_id: null,
             search_item_by_barcode: false,
             warehousesDetail: [],
@@ -979,7 +986,8 @@ export default {
             colors: ["#1cb973", "#bf7ae6", "#fc6304", "#9b4db4", "#77c1f3"],
             pagination: {},
             category_selected: "",
-            focusClienteSelect: false
+            focusClienteSelect: false,
+            itemUnitTypes: []
         };
     },
     async created() {
@@ -1029,6 +1037,15 @@ export default {
                 width: `${clase}`,
                 padding: "5px"
             };
+        },
+        edit_unit_price() {
+            if(this.typeUser === 'admin') {
+                return true
+            }
+            if(this.typeUser === 'seller') {
+                return this.configuration.allow_edit_unit_price_to_seller;
+            }
+            return false;
         }
     },
     methods: {
@@ -1060,9 +1077,21 @@ export default {
             }
 
             if (this.items.length == 1) {
-                this.clickAddItem(this.items[0], 0);
-                this.filterItems();
-                this.cleanInput();
+
+                if(this.items[0].unit_type.length > 0 && this.configuration.select_available_price_list){
+
+                    // console.log(this.configuration.select_available_price_list)
+                    this.itemUnitTypes = this.items[0].unit_type
+                    this.showDialogItemUnitTypes = true
+                
+                }else{
+
+                    this.clickAddItem(this.items[0], 0);
+                    this.filterItems();
+                    this.cleanInput();
+                }
+
+
             } else {
                 this.$message.warning(
                     "No puede añadir directamente el producto al listado, hay más de uno ubicado en la búsqueda"
@@ -1105,6 +1134,7 @@ export default {
                     } else {
                         this.pagination.total = 0;
                     }
+                    this.fixItems();
                 });
         },
         getQueryParameters() {
@@ -1112,6 +1142,8 @@ export default {
                 page: this.pagination.current_page
                     ? this.pagination.current_page
                     : 1,
+                input_item: this.input_item,
+                cat: this.category_selected,
                 limit: this.limit
             });
         },
@@ -1372,6 +1404,21 @@ export default {
                 this.getTables();
                 this.setFormPosLocalStorage();
             });
+
+            await this.$eventHub.$on("enterSelectItemUnitType", (unit_type) => {
+                this.selectItemUnitType(unit_type)
+            });
+
+
+        },
+        selectItemUnitType(unit_type){
+
+            this.setPriceItem(unit_type, 0)
+            this.clickAddItem(this.items[0], 0)
+            this.filterItems()
+            this.cleanInput()
+            this.initFocus()
+
         },
         initForm() {
             this.form = {
@@ -1491,7 +1538,7 @@ export default {
                 unit_type_id: item.unit_type_id
             });
 
-            console.log(exist_item)
+            // console.log(exist_item)
 
             let pos = this.form.items.indexOf(exist_item);
             let response = null;
@@ -1792,7 +1839,7 @@ export default {
                             this.pagination.per_page = parseInt(
                                 response.data.meta.per_page
                             );
-
+                            this.fixItems();
                             this.loading = false;
                         } else {
                             this.loading = false;
@@ -1816,7 +1863,6 @@ export default {
                     .then(response => {
                         console.log("buah");
                         this.items = response.data.items;
-                        console.log(this.items);
                         this.enabledSearchItemsBarcode();
                         this.loading = false;
                         if (this.items.length == 0) {
@@ -1826,6 +1872,23 @@ export default {
             } else {
                 await this.filterItems();
             }
+        },
+        fixItems(){
+            this.items = this.all_items.map(i => {
+                /** Si description es vacio y hay nombre */
+                if(i.name !== undefined) {
+                    if ( i.description === undefined || i.description == null ) {
+                        i.description = i.name;
+                    }
+                }
+                /** Si description es vacio aun */
+                if(i.description == null){
+                    i.description = i.internal_id;
+                }
+
+                return i;
+            });
+            this.all_items =this.items;
         },
         enabledSearchItemsBarcode() {
             if (this.search_item_by_barcode) {
@@ -1849,9 +1912,14 @@ export default {
                 this.items = this.all_items;
             } else {
                 this.items = this.all_items.map(i => {
-                    if (i.brand) {
-                        i.description = `${i.description} - ${i.brand}`;
-                    }
+                    // console.log(i.description);
+                    // if (i.brand) {
+                    //     var desc = `${i.description} - ${i.brand}`;
+                    //     if(i.description != desc){
+                    //         i.description = `${i.description} - ${i.brand}`;
+                    //     }
+                    // }
+                    // console.log(i.description);
                     return i;
                 });
             }
@@ -1868,6 +1936,7 @@ export default {
         reloadDataItems(item_id) {
             this.$http.get(`/${this.resource}/table/items`).then(response => {
                 this.all_items = response.data;
+                this.fixItems();
                 this.filterItems();
             });
         },
@@ -1927,6 +1996,11 @@ export default {
             console.log(items);
             console.log(_.reverse(items));
             return _.reverse(items);
+        },
+        DescriptionLength(item){
+            if(item.description === undefined) return 0;
+            if(item.description == null) return 0;
+            return item.description.length;
         }
     }
 };

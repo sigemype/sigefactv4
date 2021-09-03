@@ -3,7 +3,7 @@
         <div class="page-header pr-0">
             <h2><a href="/dashboard"><i class="fas fa-tachometer-alt"></i></a></h2>
             <ol class="breadcrumbs">
-                <li class="active"><span>Cotizaciones {{soapCompany}}</span></li>
+                <li class="active"><span>Cotizaciones</span></li>
             </ol>
             <div class="right-wrapper pull-right">
                 <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
@@ -34,6 +34,7 @@
                         <th>Cotización</th>
                         <th>Comprobantes</th>
                         <th>Notas de venta</th>
+                        <th v-if="columns.order_note.visible">Pedido</th>
                         <th>Oportunidad Venta</th>
                         <th v-if="columns.referential_information.visible">Inf.Referencial</th>
                         <th v-if="columns.contract.visible">Contrato</th>
@@ -79,6 +80,12 @@
                                 <label :key="i" v-text="sale_note.number_full" class="d-block"></label>
                             </template>
                         </td>
+                    <td v-if="columns.order_note.visible">
+                        <!-- Pedidos -->
+                        <template v-if="row.order_note !== undefined && row.order_note.full_number !== undefined">
+                            <label  class="d-block">{{row.order_note.full_number}}  </label>
+                        </template>
+                    </td>
                         <td>
                             <!-- {{ row.sale_opportunity_number_full }} -->
 
@@ -169,7 +176,14 @@
                             <template v-else>
                                 <button  type="button" @click="clickPrintContract(row.external_id_contract)"  class="btn waves-effect waves-light btn-xs btn-primary m-1__2">Ver contrato</button>
                             </template>
-
+                            <!-- pedidos -->
+                            <button
+                                v-if="canMakeOrderNote(row)"
+                                @click="makeOrder(row.id)"
+                                type="button"
+                                class="btn waves-effect waves-light btn-xs btn-tumblr">
+                                Generar Pedido
+                            </button>
 
                         </td>
 
@@ -205,11 +219,28 @@
     import DataTable from '../../../components/DataTableQuotation.vue'
     import {deletable} from '../../../mixins/deletable'
     import QuotationPayments from './partials/payments.vue'
+    import {mapActions, mapState} from "vuex";
 
     export default {
-        props:['typeUser', 'soapCompany'],
-        mixins: [deletable],
-        components: {DataTable,QuotationOptions, QuotationOptionsPdf, QuotationPayments},
+        props:[
+            'typeUser',
+            'soapCompany'
+        ],
+        mixins: [
+            deletable
+        ],
+        components: {
+            DataTable,
+            QuotationOptions,
+            QuotationOptionsPdf,
+            QuotationPayments
+        },
+        computed: {
+            ...mapState([
+                'config',
+            ]),
+
+        },
         data() {
             return {
                 resource: 'quotations',
@@ -246,6 +277,10 @@
                     referential_information: {
                         title: 'Inf.Referencial',
                         visible: false,
+                    },
+                    order_note: {
+                        title: 'Pedidos',
+                        visible: false,
                     }
                 }
             }
@@ -253,7 +288,25 @@
         async created() {
             await this.filter()
         },
+        mounted() {
+            this.loadConfiguration()
+        },
         methods: {
+            ...mapActions([
+                'loadConfiguration',
+            ]),
+            canMakeOrderNote(row){
+                let sal = true;
+                if(row.order_note.full_number ) {
+                    // Si ya tiene Pedidos, no se genera uno nuevo
+                    sal = false
+                }
+                if(this.typeUser !== 'admin') {
+                    // solo administradores pueden hacer pedidos desde cotizacion
+                    sal = false;
+                }
+                return sal;
+            },
             clickPrintContract(external_id){
                 window.open(`/contracts/print/${external_id}/a4`, '_blank');
             } ,
@@ -292,6 +345,12 @@
                 this.anular(`/${this.resource}/anular/${id}`).then(() =>
                     this.$eventHub.$emit('reloadData')
                 )
+            },
+            makeOrder(quotation){
+                let tos = parseInt(quotation);
+                localStorage.setItem('Quotation', tos)
+                localStorage.setItem('FromQuotation', true)
+                window.location.href = "/order-notes/create";
             },
             duplicate(id)
             {

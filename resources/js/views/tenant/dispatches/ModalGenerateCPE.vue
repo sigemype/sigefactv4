@@ -53,6 +53,7 @@
         >
           {{ errors.dispatches_id[0] }}
         </div>
+        <div style="overflow-y: auto;">
         <table class="table table-hover table-stripe">
           <thead>
             <tr>
@@ -78,6 +79,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         <div class="text-center">
           <el-button
             v-if="form.selecteds.length > 0"
@@ -173,11 +175,7 @@ export default {
         .finally(() => (this.loading = false));
     },
     onFindClients(query) {
-    //   if (query) {
-        this.filter.name = query;
-    //   } else {
-    //     this.filter.name = null;
-    //   }
+      this.filter.name = query;
       this.onFetchClients();
     },
     onFetchClients() {
@@ -186,7 +184,7 @@ export default {
       this.form.selecteds = [];
       const params = this.filter;
       this.$http
-        .get("/dispatches/tables/customers", { params })
+        .get("/customers/list", { params })
         .then((response) => {
           this.clients = response.data.data;
         })
