@@ -19,6 +19,10 @@
                             <th>Entrada</th>
                             <th>Salida</th>
                             <th v-if="item_id">Saldo</th>
+                            <!--
+                            <th >Almacen </th>
+                            <th >Precio de almacen</th>
+                        -->
 
                         <tr>
                         <tr slot-scope="{ index, row }">
@@ -34,6 +38,10 @@
                             <td>{{row.input}}</td>
                             <td>{{row.output}}</td>
                             <td v-if="item_id">{{row.balance}}</td>
+                        <!--
+                            <td v-if="row.warehouse">{{row.warehouse}}</td>
+                            <td v-if="row.item_warehouse_price">{{row.item_warehouse_price}}</td>
+                            -->
                         </tr>
 
                     </data-table>

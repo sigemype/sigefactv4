@@ -5,8 +5,9 @@
             <ol class="breadcrumbs">
                 <li class="active"><span>Gastos diversos</span></li>
             </ol>
-            <div class="right-wrapper pull-right">
-                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
+            <div class="right-wrapper pull-right pt-2">
+                <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel"></i> Exportar Excel </el-button>
+                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm "><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
         <div class="card mb-0">
@@ -86,6 +87,7 @@
     import DocumentPayments from './partials/payments.vue'
     import ExpenseVoided from './partials/voided.vue'
     import ExpensePayments from '@viewsModuleExpense/expense_payments/payments.vue'
+    import queryString from 'query-string'
 
     export default {
         components: {DataTable, DocumentPayments, ExpenseVoided, ExpensePayments},
@@ -114,7 +116,13 @@
                 this.showDialogVoided = true;
             },
             clickDownload(download) {
-                window.open(download, '_blank');
+                let data = this.$root.$refs.DataTable.getSearch();
+                let query = queryString.stringify({
+                    'column': data.column,
+                    'value': data.value
+                });
+
+                window.open(`/${this.resource}/report/excel/?${query}`, '_blank');
             },
             clickOptions(recordId = null) {
                 this.recordId = recordId

@@ -35,12 +35,21 @@
                         <div class="col-sm-6 col-md-5">
                             <ul class="links">
                                 <li><a href="{{ route("tenant.ecommerce.index") }}">Inicio</a></li>
-                                <li><a href="#">Más vendidos</a></li>
-                                <li><a href="#">Populares</a></li>
+                                <li><a href="{{ route('tenant_detail_cart') }}">Ver Carrito</a></li>
+                                @guest
+                                <li><a href="{{route('tenant_ecommerce_login')}}" class="login-link">Login</a></li>
+                                @else
+                                <li><a role="menuitem" href="{{ route('logout') }}" class="login-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    Salir
+                                </a></li>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                                @endguest
                             </ul>
                         </div>
                         <div class="col-sm-6 col-md-5">
-                            <ul class="links">
+                            {{-- <ul class="links">
                                 <li><a href="{{ route('tenant_detail_cart') }}">Ver Carrito</a></li>
                                 <li><a href="#">Ver Perfil</a></li>
                                 @guest
@@ -53,7 +62,7 @@
                                     @csrf
                                 </form>
                                 @endguest
-                            </ul>
+                            </ul> --}}
                         </div>
                     </div>
                 </div>

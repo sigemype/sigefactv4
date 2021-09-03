@@ -1,21 +1,19 @@
 <?php
 
-namespace Modules\Finance\Traits; 
+namespace Modules\Finance\Traits;
 
 use Carbon\Carbon;
-use App\Models\Tenant\{
-    DocumentPayment,
-    SaleNotePayment,
-};
+use App\Models\Tenant\DocumentPayment;
+use App\Models\Tenant\SaleNotePayment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait FilePaymentTrait
-{ 
+{
 
     public function saveFiles($record, $request, $type)
     {
-        
+
         $temp_path = $request->temp_path;
 
         if($temp_path) {
@@ -35,7 +33,7 @@ trait FilePaymentTrait
 
         }
 
-    } 
+    }
 
- 
+
 }

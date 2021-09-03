@@ -5,16 +5,22 @@ namespace Modules\LevelAccess\Http\ViewComposers;
 use Illuminate\Support\Facades\DB;
 use Modules\LevelAccess\Models\ModuleLevel;
 
+/**
+ * Class ModuleLevelViewComposer
+ *
+ * @package Modules\LevelAccess\Http\ViewComposers
+ */
 class ModuleLevelViewComposer
 {
+    /**
+     * @param $view
+     */
     public function compose($view)
     {
+        /** @var \App\Models\Tenant\User $user */
         $user = auth()->user();
-        $myLevels = DB::connection('tenant')
-            ->table('module_level_user')
-            ->select('module_level_id')
-            ->where('user_id', $user->id)
-            ->get()
+        $myLevels = $user
+            ->getCurrentModuleLevelByTenant()
             ->pluck('module_level_id')
             ->toArray();
 

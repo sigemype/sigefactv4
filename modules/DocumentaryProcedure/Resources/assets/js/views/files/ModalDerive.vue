@@ -11,7 +11,7 @@
       <div class="form-body">
         <div class="row">
           <div class="form-group col-6">
-            <label>Oficina</label>
+            <label>Tramite</label>
             <el-select v-model="form.documentary_office_id">
               <el-option
                 v-for="item in offices"
@@ -97,7 +97,7 @@ export default {
         });
     },
     onOpened() {
-      this.title = `Derivar expediente: ${this.file.subject}`;
+      this.title = `Derivar tramite: ${this.file.invoice}`;
     },
     onClose() {
       this.$emit("update:visible", false);

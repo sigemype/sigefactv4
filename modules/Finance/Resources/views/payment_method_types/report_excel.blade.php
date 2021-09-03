@@ -43,49 +43,89 @@
         <br>
         @if(!empty($records))
             <div class="">
-                <div class=" "> 
+                <div class=" ">
                     <table class="">
                         <thead>
-                            <tr>
-                                <th class="">#</th>
-                                <th class="">Método de pago / Total pagos</th>
-                                <th class="">CPE</th>
-                                <th class="">NV</th>
-                                <th class="">COT</th>
-                                <th class="">Contrato</th>
-                                <th class="">S. Técnico</th>
-                                <th class="">Ingresos</th>
-                                <th class="">Compras</th>
-                                <th class="">Gastos</th>
-                            </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Descripción</th>
+                            <th class="text-center">CPE</th>
+                            <th class="text-center">N. Venta</th>
+                            <th class="text-center">Cotización</th>
+                            <th class="text-center">Contrato</th>
+                            <th class="text-center">S. Técnico</th>
+                            <th class="text-center">Ingresos</th>
+                            <th class="text-center">Compras</th>
+                            <th class="text-center">Gastos</th>
+                            <th class="text-center">Saldo</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            @foreach($records['records'] as $key => $value)
-                                <tr>
-                                    <td class="celda">{{$loop->iteration}}</td>
-                                    <td class="celda">{{$value['description']}}</td>
-                                    <td class="celda">{{$value['document_payment']}}</td>
-                                    <td class="celda">{{$value['sale_note_payment']}}</td>
-                                    <td class="celda">{{$value['quotation_payment']}}</td>
-                                    <td class="celda">{{$value['contract_payment']}}</td>
-                                    <td class="celda">{{$value['technical_service_payment']}}</td>
-                                    <td class="celda">{{$value['income_payment']}}</td>
-                                    <td class="celda"> {{$value['purchase_payment']}}</td>
-                                    <td class="celda">{{$value['expense_payment']}}</td>
-                                </tr>
-                            @endforeach
-                            <tr> 
-                                <td class="celda" colspan="2">Totales</td>
-                                <td class="celda">{{$records['totals']['t_documents']}}</td>
-                                <td class="celda">{{$records['totals']['t_sale_notes']}}</td>
-                                <td class="celda">{{$records['totals']['t_quotations']}}</td>
-                                <td class="celda">{{$records['totals']['t_contracts']}}</td>
-                                <td class="celda">{{$records['totals']['t_technical_services']}}</td>
-                                <td class="celda">{{$records['totals']['t_income']}}</td>
-                                <td class="celda"> {{$records['totals']['t_purchases']}}</td>
-                                <td class="celda">{{$records['totals']['t_expenses']}}</td>
-                            </tr> 
+                        @foreach($records['records'] as $key => $value)
+                            <?php
+
+                            $iteracion = $loop->iteration;
+                            $description = $value['description'];
+                            $document_payment = $value['document_payment'];
+                            $sale_note_payment = $value['sale_note_payment'];
+                            $quotation_payment = $value['quotation_payment'];
+                            $contract_payment = $value['contract_payment'];
+                            $purchase_payment = $value['purchase_payment'];
+                            $expense_payment = $value['expense_payment'];
+                            $technical_service_payment = $value['technical_service_payment'];
+                            $income_payment = $value['income_payment'];
+                            $balance = $value['balance'];
+                            ?>
+                            <tr>
+                                <td class="celda">
+                                    {{$iteracion}}
+                                </td>
+                                <td class="celda">
+                                    {{$description}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$document_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$sale_note_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$quotation_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$contract_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$technical_service_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$income_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$purchase_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$expense_payment}}
+                                </td>
+                                <td class="celda">S/ {{$balance}}
+                                </td>
+                            </tr>
+                        @endforeach
                         </tbody>
+                        <tfoot>
+                        <tr>
+                            <td class="text-center celda" colspan="2">Totales</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_documents'] }}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_sale_notes']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_quotations']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_contracts']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_technical_services']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_income']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_purchases']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_expenses']}}</td>
+                            <td class="text-center celda">S/ {{ $records['totals']['t_balance']}}</td>
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

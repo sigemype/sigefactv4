@@ -23,6 +23,7 @@ use Modules\Item\Models\ItemLot;
 use Modules\Inventory\Http\Resources\ReportKardexLotsGroupCollection;
 use Modules\Inventory\Http\Resources\ReportKardexItemLotCollection;
 use Modules\Inventory\Models\Devolution;
+use App\Models\Tenant\Dispatch;
 
 
 class ReportKardexController extends Controller
@@ -39,22 +40,25 @@ class ReportKardexController extends Controller
         "App\Models\Tenant\SaleNote",
         "Modules\Inventory\Models\Inventory",
         "Modules\Order\Models\OrderNote",
-        Devolution::class
+        Devolution::class,
+        Dispatch::class
     ];
 
-    public function index() {
+    public function index()
+    {
 
 
         return view('inventory::reports.kardex.index');
     }
 
 
-    public function filter() {
+    public function filter()
+    {
 
         $items = Item::query()->whereNotIsSet()
-            ->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ']])
+            ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])
             ->latest()
-            ->get()->transform(function($row) {
+            ->get()->transform(function ($row) {
                 $full_description = $this->getFullDescription($row);
                 return [
                     'id' => $row->id,
@@ -77,8 +81,8 @@ class ReportKardexController extends Controller
 
     public function records_lots()
     {
-        $records = ItemWarehouse::with(['item'])->whereHas('item',function($q){
-            $q->where([['item_type_id', '01'], ['unit_type_id', '!=','ZZ'], ['lot_code', '!=', null]]);
+        $records = ItemWarehouse::with(['item'])->whereHas('item', function ($q) {
+            $q->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ'], ['lot_code', '!=', null]]);
             $q->whereNotIsSet();
         });
 
@@ -87,8 +91,12 @@ class ReportKardexController extends Controller
     }
 
 
-
-    public function getRecords($request){
+    /**
+     * @param $request
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder|InventoryKardex
+     */
+    public function getRecords($request)
+    {
 
         $item_id = $request['item_id'];
         $date_start = $request['date_start'];
@@ -101,27 +109,27 @@ class ReportKardexController extends Controller
     }
 
 
+    /**
+     * @param $item_id
+     * @param $date_start
+     * @param $date_end
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder|InventoryKardex
+     */
     private function data($item_id, $date_start, $date_end)
     {
 
         $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
-        if($date_start && $date_end){
-
-            $data = InventoryKardex::with(['inventory_kardexable'])
-                        ->where([['warehouse_id', $warehouse->id]])
-                        ->whereBetween('date_of_issue', [$date_start, $date_end])
-                        ->orderBy('item_id')->orderBy('id');
-
-        }else{
-
-            $data = InventoryKardex::with(['inventory_kardexable'])
-                        ->where([['warehouse_id', $warehouse->id]])
-                        ->orderBy('item_id')->orderBy('id');
+        $data = InventoryKardex::with(['inventory_kardexable'])
+            ->where('warehouse_id', $warehouse->id);
+        if ($date_start) {
+            $data->where('date_of_issue', '>=', $date_start);
         }
-
-        if($item_id){
-            $data = $data->where('item_id', $item_id);
+        if ($date_end) {
+            $data->where('date_of_issue', '<=', $date_end);
+        }
+        if ($item_id) {
+            $data->where('item_id', $item_id);
         }
 
 
@@ -139,15 +147,18 @@ class ReportKardexController extends Controller
         //                 ->orderBy('id');
         // }
 
+        $data
+            ->orderBy('item_id')
+            ->orderBy('id');
         return $data;
 
     }
 
 
+    public function getFullDescription($row)
+    {
 
-    public function getFullDescription($row){
-
-        $desc = ($row->internal_id)?$row->internal_id.' - '.$row->description : $row->description;
+        $desc = ($row->internal_id) ? $row->internal_id . ' - ' . $row->description : $row->description;
         $category = ($row->category) ? " - {$row->category->name}" : "";
         $brand = ($row->brand) ? " - {$row->brand->name}" : "";
 
@@ -160,10 +171,11 @@ class ReportKardexController extends Controller
 
     /**
      * PDF
-     * @param  Request $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function pdf(Request $request) {
+    public function pdf(Request $request)
+    {
         $balance = 0;
         $company = Company::first();
         $establishment = Establishment::first();
@@ -174,40 +186,41 @@ class ReportKardexController extends Controller
 
         $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
-        if($d && $a){
+        if ($d && $a) {
 
             $reports = InventoryKardex::with(['inventory_kardexable'])
-                                        ->where([['warehouse_id', $warehouse->id]])
-                                        ->whereBetween('date_of_issue', [$d, $a])
-                                        ->orderBy('item_id')->orderBy('id')
-                                        ->get();
+                ->where([['warehouse_id', $warehouse->id]])
+                ->whereBetween('date_of_issue', [$d, $a])
+                ->orderBy('item_id')->orderBy('id')
+                ->get();
 
-        }else{
+        } else {
 
             $reports = InventoryKardex::with(['inventory_kardexable'])
-                                        ->where([['warehouse_id', $warehouse->id]])
-                                        ->orderBy('item_id')->orderBy('id')
-                                        ->get();
+                ->where([['warehouse_id', $warehouse->id]])
+                ->orderBy('item_id')->orderBy('id')
+                ->get();
         }
 
-        if($item_id){
+        if ($item_id) {
             $reports = $reports->where('item_id', $item_id);
         }
 
         $models = $this->models;
         $userWarehouse = auth()->user()->establishment_id;
-        $pdf = PDF::loadView('inventory::reports.kardex.report_pdf', compact("reports", "company", "establishment", "balance","models", 'a', 'd',"item_id", 'userWarehouse', 'item'));
-        $filename = 'Reporte_Kardex'.date('YmdHis');
+        $pdf = PDF::loadView('inventory::reports.kardex.report_pdf', compact("reports", "company", "establishment", "balance", "models", 'a', 'd', "item_id", 'userWarehouse', 'item'));
+        $filename = 'Reporte_Kardex' . date('YmdHis');
 
-        return $pdf->download($filename.'.pdf');
+        return $pdf->download($filename . '.pdf');
     }
 
     /**
      * Excel
-     * @param  Request $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request) {
+    public function excel(Request $request)
+    {
 
         $balance = 0;
         $company = Company::first();
@@ -219,40 +232,42 @@ class ReportKardexController extends Controller
 
         $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
-        if($d && $a){
+        if ($d && $a) {
 
             $records = InventoryKardex::with(['inventory_kardexable'])
-                                        ->where([['warehouse_id', $warehouse->id]])
-                                        ->whereBetween('date_of_issue', [$d, $a])
-                                        ->orderBy('item_id')->orderBy('id')
-                                        ->get();
+                ->where([['warehouse_id', $warehouse->id]])
+                ->whereBetween('date_of_issue', [$d, $a])
+                ->orderBy('item_id')->orderBy('id')
+                ->get();
 
-        }else{
+        } else {
 
             $records = InventoryKardex::with(['inventory_kardexable'])
-                                        ->where([['warehouse_id', $warehouse->id]])
-                                        ->orderBy('item_id')->orderBy('id')
-                                        ->get();
+                ->where([['warehouse_id', $warehouse->id]])
+                ->orderBy('item_id')->orderBy('id')
+                ->get();
         }
 
-        if($item_id){
+        if ($item_id) {
             $records = $records->where('item_id', $item_id);
         }
 
         $models = $this->models;
-
-        return (new KardexExport)
+        $kardexExport = new KardexExport();
+        $kardexExport
             ->balance($balance)
             ->item_id($item_id)
             ->records($records)
             ->models($models)
             ->company($company)
             ->establishment($establishment)
-            ->item($item)
-            ->download('ReporteKar'.Carbon::now().'.xlsx');
+            ->item($item);
+
+        return $kardexExport->download('ReporteKar' . Carbon::now() . '.xlsx');
     }
 
-    public function getRecords2($request){
+    public function getRecords2($request)
+    {
 
         $item_id = $request['item_id'];
         $date_start = $request['date_start'];
@@ -268,19 +283,19 @@ class ReportKardexController extends Controller
     private function data2($item_id, $date_start, $date_end)
     {
 
-       // $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
+        // $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
-        if($date_start && $date_end){
+        if ($date_start && $date_end) {
 
             $data = ItemLotsGroup::whereBetween('date_of_due', [$date_start, $date_end])
-                        ->orderBy('item_id')->orderBy('id');
+                ->orderBy('item_id')->orderBy('id');
 
-        }else{
+        } else {
 
             $data = ItemLotsGroup::orderBy('item_id')->orderBy('id');
         }
 
-        if($item_id){
+        if ($item_id) {
             $data = $data->where('item_id', $item_id);
         }
 
@@ -299,7 +314,8 @@ class ReportKardexController extends Controller
     }
 
 
-    public function getRecords3($request){
+    public function getRecords3($request)
+    {
 
         $item_id = $request['item_id'];
         $date_start = $request['date_start'];
@@ -315,19 +331,19 @@ class ReportKardexController extends Controller
     private function data3($item_id, $date_start, $date_end)
     {
 
-       // $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
+        // $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
 
-        if($date_start && $date_end){
+        if ($date_start && $date_end) {
 
             $data = ItemLot::whereBetween('date', [$date_start, $date_end])
-                        ->orderBy('item_id')->orderBy('id');
+                ->orderBy('item_id')->orderBy('id');
 
-        }else{
+        } else {
 
             $data = ItemLot::orderBy('item_id')->orderBy('id');
         }
 
-        if($item_id){
+        if ($item_id) {
             $data = $data->where('item_id', $item_id);
         }
 

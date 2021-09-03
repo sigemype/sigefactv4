@@ -14,6 +14,18 @@ if($current_hostname) {
 
             });
 
+            /**
+            * documents/pay-constancy/upload
+            * documents/pay-constancy/save
+            * documents/detraction/tables
+            * documents/data-table/customers
+            * documents/prepayments/{type}
+            * documents/search-items
+            * documents/search/item/{item}
+            * documents/consult_cdr/{document}
+            * documents/item-lots
+            * documents/regularize-lots/{document_item_id}
+             */
             Route::prefix('documents')->group(function() {
                 Route::post('pay-constancy/upload', 'DocumentController@upload');
                 Route::post('pay-constancy/save', 'DocumentController@savePayConstancy');

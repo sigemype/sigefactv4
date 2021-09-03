@@ -2,6 +2,18 @@
     <div class="card mb-0 pt-2 pt-md-0">
         <div class="card-header bg-info">
             <h3 class="my-0">Cuentas por cobrar</h3>
+            <div class="data-table-visible-columns" style="top: 10px;">
+                <el-dropdown :hide-on-click="false">
+                    <el-button type="primary">
+                        Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item v-for="(column, index) in columns" :key="index">
+                            <el-checkbox v-model="column.visible">{{ column.title }}</el-checkbox>
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+            </div>
         </div>
         <div class="card mb-0">
             <div class="card-body">
@@ -99,6 +111,28 @@
                                             :value="item.id"
                                         ></el-option>
                                     </el-select>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Plataforma</label>
+                                        <el-select v-model="form.web_platform_id"
+                                                   clearable
+                                                   @change="changeWebPlatform"
+                                        >
+                                            <el-option v-for="option in web_platforms" :key="option.id"
+                                                       :value="option.id" :label="option.name"></el-option>
+                                        </el-select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <label>Orden de compra</label>
+                                        <el-input
+                                            @change="changePurchaseOrder"
+                                            v-model="form.purchase_order" clearable></el-input>
+                                    </div>
                                 </div>
 
                                 <div class="col-md-2">
@@ -210,6 +244,8 @@
                                             <th>Días de retraso</th>
                                             <th>Penalidad</th>
                                             <th>Guías</th>
+                                            <th class="text-center" v-if="columns.web_platforms.visible">Plataforma</th>
+                                            <th v-if="columns.purchase_order.visible">Orden de compra</th>
 
                                             <th>Ver Cartera</th>
                                             <th>Moneda</th>
@@ -278,6 +314,12 @@
                                                         </template>
                                                     </td>
 
+                                                    <td  v-if="columns.web_platforms.visible">
+                                                        <template v-for="(platform,i) in row.web_platforms" v-if="row.web_platforms !== undefined">
+                                                            <label class="d-block"  :key="i">{{platform.name}}</label>
+                                                        </template>
+                                                    </td>
+                                                    <td v-if="columns.purchase_order.visible">{{ row.purchase_order }}</td>
                                                     <td>
                                                         <el-popover placement="right" width="300" trigger="click">
                                                             <p>
@@ -371,6 +413,7 @@
                 recordId: null,
                 records:[],
                 establishments: [],
+                web_platforms: [],
                 pickerOptionsDates: {
                     disabledDate: (time) => {
                         time = moment(time).format('YYYY-MM-DD')
@@ -389,6 +432,16 @@
                 payment_method_types:[],
                 pagination: {},
                 loading: false,
+                columns: {
+                    purchase_order: {
+                        title: 'Orden de compra',
+                        visible: false
+                    },
+                    web_platforms: {
+                        title: 'Plataformas web',
+                        visible: false
+                    },
+                }
             }
         },
         async created() {
@@ -524,6 +577,7 @@
                     this.form.establishment_id = this.establishments.length > 0 ? this.establishments[0].id : null;
                     this.users = response.data.users
                     this.payment_method_types = response.data.payment_method_types
+                    this.web_platforms = response.data.web_platforms
                 });
             },
             customIndex(index) {
@@ -608,11 +662,16 @@
             },
             changeUser()
             {
-                //if (this.form.customer_id) {
-
                 this.loadUnpaid()
 
-
+            },
+            changePurchaseOrder(){
+                if(this.form.purchase_order !== undefined && this.form.purchase_order.length > 3){
+                    this.loadUnpaid()
+                }
+            },
+            changeWebPlatform(){
+                this.loadUnpaid()
             },
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {

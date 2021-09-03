@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="application/pdf; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Consolidado de items</title>
-        <style> 
+        <style>
         </style>
     </head>
     <body>
@@ -28,8 +28,8 @@
                         <p><strong>Establecimiento: </strong>{{$establishment->address}} - {{$establishment->department->description}} - {{$establishment->district->description}}</p>
                     </td>
                     @inject('reportService', 'Modules\Report\Services\ReportService')
-                    
-                    @if($params['sellers'])
+
+                    @if(isset($params['sellers']))
                         @php
                             $sellers = json_decode($params['sellers']);
                         @endphp
@@ -41,20 +41,20 @@
                             @endforeach
                             </p>
                         </td>
-                        @endif 
+                        @endif
                     @endif
-                    @if($params['person_id'])
+                    @if(isset($params['person_id']))
                     <td>
                         <p><strong>Cliente: </strong>{{$reportService->getPersonName($params['person_id'])}}</p>
                     </td>
-                    @endif 
+                    @endif
                 </tr>
             </table>
         </div>
         @if(!empty($records))
             <div class="">
                 <div class=" ">
-                    @php 
+                    @php
 
                     @endphp
                     <table class="">
@@ -74,9 +74,9 @@
                                     <td class="celda">{{$value['item_internal_id']}}</td>
                                     <td class="celda-item">{{$value['item_description']}}</td>
                                     <td class="celda">{{$value['item_unit_type_id']}}</td>
-                                    <td class="celda">{{$value['quantity']}}</td> 
-                                </tr> 
-                            @endforeach 
+                                    <td class="celda">{{$value['quantity']}}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

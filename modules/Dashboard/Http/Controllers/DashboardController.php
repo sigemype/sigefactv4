@@ -18,6 +18,12 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Illuminate\Support\Arr;
 
+/**
+ * Class DashboardController
+ *
+ * @package Modules\Dashboard\Http\Controllers
+ * @mixin Controller
+ */
 class DashboardController extends Controller
 {
     public function index()

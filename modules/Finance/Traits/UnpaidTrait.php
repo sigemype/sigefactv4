@@ -1,21 +1,24 @@
 <?php
 
-namespace Modules\Finance\Traits; 
+namespace Modules\Finance\Traits;
 
+use App\Models\Tenant\Document;
 use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Dispatch;
 use App\Models\Tenant\DocumentPayment;
+use App\Models\Tenant\SaleNote;
 use App\Models\Tenant\SaleNotePayment;
 use App\Models\Tenant\Invoice;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 trait UnpaidTrait
-{ 
+{
 
     public function transformRecords($records) {
 
         return $records->transform(function($row, $key) {
+
 
             $total_to_pay = (float)$row->total - (float)$row->total_payment;
             $delay_payment = null;
@@ -62,7 +65,18 @@ trait UnpaidTrait
             else{
                 $date_payment_last = SaleNotePayment::where('sale_note_id', $row->id)->orderBy('date_of_payment', 'desc')->first();
             }
-
+            $purchase_order = null;
+            if ($row->type == 'document') {
+                $document = Document::find($row->id);
+                $web_platforms = $document->getPlatformThroughItems();
+                $purchase_order = $document->purchase_order;
+            } elseif ($row->type == 'sale_note') {
+                $document = SaleNote::find($row->id);
+                $web_platforms = $document->getPlatformThroughItems();
+                $purchase_order = $document->purchase_order;
+            } else {
+                $web_platforms = new \Illuminate\Database\Eloquent\Collection();
+            }
             return [
                 'id' => $row->id,
                 'date_of_issue' => $row->date_of_issue,
@@ -82,10 +96,12 @@ trait UnpaidTrait
                 "username" => $row->username,
                 "total_subtraction" => $row->total_subtraction,
                 "total_payment" => $row->total_payment,
+                "purchase_order" => $purchase_order,
+                "web_platforms" => $web_platforms ,
             ];
-    
+
         });
 
     }
- 
+
 }

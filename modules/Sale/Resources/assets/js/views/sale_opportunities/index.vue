@@ -103,10 +103,10 @@
                         </td>
 
                         <td class="text-right">
-                            <a v-if="row.btn_generate_oc && typeUser == 'admin'"   :href="`/purchase-orders/sale-opportunity/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-warning">
+                            <a v-if="row.btn_generate_oc && canGenerarte"   :href="`/purchase-orders/sale-opportunity/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-warning">
                                 Generar O. Compra
                             </a>
-                            <a v-if="row.btn_generate && typeUser == 'admin'"   :href="`/quotations/create/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-primary">
+                            <a v-if="row.btn_generate && canGenerarte"   :href="`/quotations/create/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-primary">
                                 Generar cotizacion
                             </a>
 
@@ -141,9 +141,17 @@
     import {deletable} from '@mixins/deletable'
 
     export default {
-        props:['typeUser'],
+        props:['typeUser','canGenerate'],
         mixins: [deletable],
         components: {DataTable,SaleOpportunitiesOptions},
+        computed:{
+          canGenerarte: function(){
+               if(this.typeUser == 'admin' || this.canGenerate == true){
+                   return true;
+               }
+               return false;
+          }
+        },
         data() {
             return {
                 resource: 'sale-opportunities',

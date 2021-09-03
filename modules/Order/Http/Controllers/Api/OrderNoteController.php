@@ -2,6 +2,7 @@
 
 namespace Modules\Order\Http\Controllers\Api;
 
+use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use Modules\Order\Http\Requests\OrderNoteRequest;
 use Illuminate\Http\Response;
@@ -24,6 +25,7 @@ class OrderNoteController extends Controller
         $client = Person::find($order_note->customer_id);
         $customer_email = $request->input('email');
 
+        Configuration::setConfigSmtpMail();
         Mail::to($customer_email)->send(new OrderNoteEmail($client, $order_note));
         return [
             'success' => true,

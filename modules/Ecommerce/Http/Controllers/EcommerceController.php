@@ -2,6 +2,7 @@
 
 namespace Modules\Ecommerce\Http\Controllers;
 
+use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Item;
@@ -20,6 +21,7 @@ use App\Mail\Tenant\CulqiEmail;
 use App\Http\Controllers\Tenant\Api\ServiceController;
 use Illuminate\Support\Facades\Validator;
 use Modules\Inventory\Models\InventoryConfiguration;
+use App\Http\Resources\Tenant\OrderCollection;
 
 class EcommerceController extends Controller
 {
@@ -102,7 +104,18 @@ class EcommerceController extends Controller
     public function detailCart()
     {
         $configuration = ConfigurationEcommerce::first();
-        return view('ecommerce::cart.detail', compact('configuration'));
+
+        $history_records = [];
+        if (auth()->user()) {
+            $email_user = auth()->user()->email;
+            $history_records = Order::where('customer', 'LIKE', '%'.$email_user.'%')
+                    ->get()
+                    ->transform(function($row) {
+                        /** @var  Order $row */
+                        return $row->getCollectionData();
+                    })->toArray();
+        }
+        return view('ecommerce::cart.detail', compact(['configuration','history_records']));
     }
 
     public function pay()
@@ -262,6 +275,7 @@ class EcommerceController extends Controller
     public function paymentCashEmail($customer_email, $document)
     {
         try {
+            Configuration::setConfigSmtpMail();
             Mail::to($customer_email)->send(new CulqiEmail($document));
         }catch(\Exception $e)
         {

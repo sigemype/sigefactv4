@@ -28,15 +28,19 @@ class TechnicalServicePayment extends ModelTenant
     {
         return $this->belongsTo(PaymentMethodType::class);
     }
-    
+
     public function global_payment()
     {
         return $this->morphOne(GlobalPayment::class, 'payment');
     }
- 
+
     public function associated_record_payment()
     {
         return $this->belongsTo(TechnicalService::class, 'technical_service_id');
     }
-    
+
+    public function technical_service()
+    {
+        return $this->belongsTo(TechnicalService::class);
+    }
 }

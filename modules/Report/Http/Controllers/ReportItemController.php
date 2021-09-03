@@ -4,6 +4,7 @@ namespace Modules\Report\Http\Controllers;
 
 use App\Models\Tenant\Catalogs\DocumentType;
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\PurchaseItem;
 use Barryvdh\DomPDF\Facade as PDF;
 use Modules\Report\Exports\ItemExport;
 use Illuminate\Http\Request;
@@ -48,15 +49,19 @@ class ReportItemController extends Controller
     public function getRecordsItems($request, $model){
 
         // dd($request['period']);
-        $document_type_id = $request['document_type_id'];
-        $establishment_id = $request['establishment_id'];
-        $period = $request['period'];
-        $date_start = $request['date_start'];
-        $date_end = $request['date_end'];
-        $month_start = $request['month_start'];
-        $month_end = $request['month_end'];
-        $item_id = $request['item_id'];
-        $web_platform_id = $request['web_platform_id'];
+        $document_type_id = isset($request['document_type_id'])?$request['document_type_id']:null;
+        $establishment_id = isset($request['establishment_id'])?$request['establishment_id']:null;
+        $period = isset($request['period'])?$request['period']:null;
+        $date_start = isset($request['date_start'])?$request['date_start']:null;
+        $date_end = isset($request['date_end'])?$request['date_end']:null;
+        $month_start = isset($request['month_start'])?$request['month_start']:null;
+        $month_end = isset($request['month_end'])?$request['month_end']:null;
+        $item_id =isset( $request['item_id'])?$request['item_id']:null;
+        $web_platform_id = isset($request['web_platform_id'])?$request['web_platform_id']:null;
+        $type = isset($request['type'])?$request['type']:null;
+        if($type == 'purchase'){
+            $model = PurchaseItem::class;
+        }
 
         $d_start = null;
         $d_end = null;
@@ -82,33 +87,64 @@ class ReportItemController extends Controller
                 break;
         }
 
-        $records = $this->dataItems($document_type_id, $establishment_id, $d_start, $d_end, $item_id, $model, $web_platform_id);
+        $records = $this->dataItems($document_type_id, $establishment_id, $d_start, $d_end, $item_id, $model, $web_platform_id,$type);
 
         return $records;
 
     }
 
 
-    private function dataItems($document_type_id, $establishment_id, $date_start, $date_end, $item_id, $model, $web_platform_id)
+    /**
+     * @param      $document_type_id
+     * @param      $establishment_id
+     * @param      $date_start
+     * @param      $date_end
+     * @param      $item_id
+     * @param      $model
+     * @param      $web_platform_id
+     * @param null $type
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function dataItems(
+        $document_type_id,
+        $establishment_id,
+        $date_start,
+        $date_end,
+        $item_id,
+        $model,
+        $web_platform_id,
+        $type = null)
     {
+        $data = $model::where('item_id', $item_id);
 
-        $data = $model::where('item_id', $item_id)
-                        ->whereHas('document', function($query) use($date_start, $date_end){
-                            $query
-                            ->whereBetween('date_of_issue', [$date_start, $date_end])
-                            ->whereIn('document_type_id', ['01','03'])
-                            ->whereIn('state_type_id', ['01','03','05','07','13'])
-                            ->latest()
-                            ->whereTypeUser();
-                        });
+        if($model !== PurchaseItem::class){
 
+            $data ->whereHas('document', function($query) use($date_start, $date_end){
+                              $query
+                                  ->whereBetween('date_of_issue', [$date_start, $date_end])
+                                  ->whereIn('document_type_id', ['01','03'])
+                                  ->whereIn('state_type_id', ['01','03','05','07','13'])
+                                  ->latest()
+                                  ->whereTypeUser();
+                          });
+            if($web_platform_id){
 
-        if($web_platform_id){
+                $data = $data->whereHas('relation_item', function($q) use($web_platform_id){
+                    $q->where('web_platform_id', $web_platform_id);
+                });
 
-            $data = $data->whereHas('relation_item', function($q) use($web_platform_id){
-                            $q->where('web_platform_id', $web_platform_id);
-                        });
-                        
+            }
+        }else{
+            $data->whereHas('purchase',function($query) use($date_start, $date_end){
+                /** @var \Illuminate\Database\Eloquent\Builder $query */
+                $query
+                    ->whereBetween('date_of_due', [$date_start, $date_end])
+                    //->whereIn('document_type_id', ['01','03'])
+                    ->WhereStateTypeAccepted()
+                    ->latest()
+                    ->whereTypeUser();
+            });
         }
 
         return $data;
@@ -121,14 +157,25 @@ class ReportItemController extends Controller
 
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
+        if($request->has('type') && $request->type === 'purchase') {
+            $model = PurchaseItem::class;
+        }else{
+            $model = DocumentItem::class;
+        }
+        $records = $this->getRecordsItems($request->all(), $model)->get();
+        $itemExport =new ItemExport();
+        $fileName = 'Reporte_Ventas_por_Producto_'.Carbon::now().'.xlsx';
+        if($request->has('type') && $request->type === 'purchase'){
+            $itemExport->setType($request->type);
+            $fileName = 'Reporte_Compras_por_Producto_'.Carbon::now().'.xlsx';
 
-        $records = $this->getRecordsItems($request->all(), DocumentItem::class)->get();
+        }
 
-        return (new ItemExport)
+        return $itemExport
                 ->records($records)
                 ->company($company)
                 ->establishment($establishment)
-                ->download('Reporte_Ventas_por_Producto_'.Carbon::now().'.xlsx');
+                ->download($fileName);
 
     }
 }

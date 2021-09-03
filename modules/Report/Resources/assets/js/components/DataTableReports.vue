@@ -95,8 +95,27 @@
                             </div>
                         </div>
 
+                        <div class="col-lg-3 col-md-3" v-if="resource == 'reports/sales' || resource === 'reports/sale-notes'">
+                        <label>Orden de compra</label>
+                            <el-input v-model="form.purchase_order" clearable></el-input>
+                        </div>
+                    <div class="col-lg-3 col-md-3">
+                        <div class="form-group"  >
+                            <label class="control-label">Numero de Guía</label>
+                            <el-input v-model="form.guides" clearable></el-input>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3">
+                        <div class="form-group">
+                            <label class="control-label">Plataforma</label>
+                            <el-select v-model="form.web_platform_id" clearable>
+                                <el-option v-for="option in web_platforms" :key="option.id" :value="option.id" :label="option.name"></el-option>
+                            </el-select>
+                        </div>
+                    </div>
+
                         <div class="col-lg-3 col-md-3 mt-4" v-if="resource == 'reports/sales'">
-                            <div class="form-group"> 
+                            <div class="form-group">
                                 <el-checkbox v-model="form.include_categories" >¿Incluir categorías?</el-checkbox><br>
                             </div>
                         </div>
@@ -215,6 +234,7 @@
                 totals: {},
                 establishment: null,
                 establishments: [],
+                web_platforms: [],
                 state_types: [],
                 form: {},
                 pickerOptionsDates: {
@@ -250,6 +270,7 @@
                     this.document_types = response.data.document_types;
                     this.sellers = response.data.sellers
                     this.state_types = response.data.state_types
+                    this.web_platforms = response.data.web_platforms
                     // this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null;
                 });
 
@@ -395,7 +416,8 @@
                     month_end: moment().format('YYYY-MM'),
                     seller_id:null,
                     state_type_id:null,
-                    include_categories: false
+                    include_categories: false,
+                    guides: null
                 }
 
             },

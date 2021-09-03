@@ -2,6 +2,7 @@
 
 namespace Modules\Report\Http\Resources;
 
+use App\Models\Tenant\Purchase;
 use App\Models\Tenant\PurchaseItem;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -10,78 +11,117 @@ class GeneralItemCollection extends ResourceCollection
 
     public function toArray($request)
     {
-
         return $this->collection->transform(function ($row, $key) {
-
+            /** @var \App\Models\Tenant\DocumentItem|\App\Models\Tenant\PurchaseItem|mixed|\App\Models\Tenant\SaleNoteItem|mixed $row */
             $resource = self::getDocument($row);
-
-            $total_item_purchase = self::getPurchaseUnitPrice($row);
+            $purchase_item = null;
+            $total_item_purchase = self::getPurchaseUnitPrice($row,$resource,$purchase_item);
+            if ($row->item->presentation) {
+                $total_item_purchase = $total_item_purchase * $row->item->presentation->quantity_unit;
+            }
             $utility_item = $row->total - $total_item_purchase;
-
+            $item = $row->getModelItem();
+            $model = $item->model;
+            $platform = $item->getWebPlatformModel();
+            if($platform !== null){
+                $platform = $platform->name;
+            }
             return [
                 'id' => $row->id,
                 'unit_type_id' => $row->item->unit_type_id,
                 'internal_id' => $row->relation_item->internal_id,
                 'description' => $row->item->description,
                 'currency_type_id' => $resource['currency_type_id'],
-
                 'lot_has_sale' => self::getLotsHasSale($row),
-
                 'date_of_issue' => $resource['date_of_issue'],
                 'customer_name' => $resource['customer_name'],
+                'purchase_order' => $resource['purchase_order'],
                 'customer_number' => $resource['customer_number'],
-
+                'brand' => $row->relation_item->brand->name,
                 'series' => $resource['series'],
                 'alone_number' => $resource['alone_number'],
                 'quantity' => number_format($row->quantity, 2),
-
                 'unit_value' => number_format($row->unit_value, 2),
-
                 'total' => number_format($row->total, 2),
-
+                'total_number' => $row->total,
                 'total_item_purchase' => number_format($total_item_purchase, 2),
+                'is_set' => (bool) $row->relation_item->is_set,
                 'utility_item' => number_format($utility_item, 2),
-
+                'factor' => $row->item->presentation ? number_format($row->item->presentation->quantity_unit, 2) : 0,
                 'document_type_description' => $resource['document_type_description'],
                 'document_type_id' => $resource['document_type_id'],
                 'web_platform_name' => optional($row->relation_item->web_platform)->name,
+                'model' => $model,
+                'platform' => $platform,
+                // 'resource'=>$resource,
+                 'purchase_item'=>$purchase_item,
             ];
         });
     }
 
-    public static function getPurchaseUnitPrice($record)
+    public static function getPurchaseUnitPrice($record, $resource = null,&$purchase_item = null)
     {
-
-        $purchase_unit_price = 0;
-
-        if ($record->relation_item->is_set) {
-
-            foreach ($record->relation_item->sets as $item_set) {
-                $purchase_unit_price += (self::getIndividualPurchaseUnitPrice($item_set) * $item_set->quantity) * $record->quantity;
-            }
-
-        } else {
-
-            $purchase_unit_price = self::getIndividualPurchaseUnitPrice($record) * $record->quantity;
-
+        if($resource === null){
+            $resource = self::getDocument($record);
         }
+        $purchase_unit_price = self::getIndividualPurchaseUnitPrice($record,$resource,$purchase_item) * $record->quantity;
+        if ($record->relation_item->is_set) {
+            $purchase_unit_price = 0;
+            foreach ($record->relation_item->sets as $item_set) {
+                $purchase_unit_price += (self::getIndividualPurchaseUnitPrice($item_set,$resource,$purchase_item) * $item_set->quantity) * $record->quantity;
+            }
+        } /*elseif() {
+        }*/
 
         return $purchase_unit_price;
     }
 
-    public static function getIndividualPurchaseUnitPrice($record)
+    public static function getIndividualPurchaseUnitPrice($record, $resource, &$purchase_item = null)
     {
-
         $purchase_unit_price = 0;
+        $currency_type_id = $resource['currency_type_id'];
+        // Se busca la compra del producto en el dia o antes de su venta,
+        // para sacar la ganancia correctamente
 
-        $purchase_item = PurchaseItem::select('unit_price')->where('item_id', $record->item_id)->latest('id')->first();
-        $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : 0;
-        // TODO: revisar esta linea: Eliminando esta linea porque el precio de compra no puede ser igual al precio de venta, en conculusión esta condición nunca será 0, para los productos que no tienen una compra luego de registrarse
+        // La tabla purchase items parece eliminar due of date
+        $purchase_item = PurchaseItem::where('item_id', $record->item_id)
+            ->latest('id')->get()->pluck('purchase_id');
+        // para ello se busca las compras
+        $purchase = Purchase::wherein('id',$purchase_item)
+            ->where('date_of_issue', '<=', $resource['date_of_issue'])
+        ->latest('id')->first();
+
+        if ($purchase) {
+            $purchase_item = PurchaseItem::where([
+                'purchase_id'=> $purchase->id,
+                'item_id'=> $record->item_id
+            ])
+                ->latest('id')
+                ->first();
+
+            $purchase_unit_price = $purchase_item->unit_price;
+            $purchase = Purchase::find($purchase_item->purchase_id);
+            $exchange_rate_sale = $purchase->exchange_rate_sale * 1;
+            // Si la venta es en soles, y la compra del producto es en dolares, se hace la transformcaion
+            if ($currency_type_id === 'PEN') {
+                if ($purchase->currency_type_id !== $currency_type_id) {
+                    $purchase_unit_price = $purchase_unit_price * $exchange_rate_sale;
+                }
+            } else {
+                // Si la venta es en dolares, y la compra del producto es en soles, se hace la transformcaion
+                if ($purchase->currency_type_id !== $currency_type_id && $exchange_rate_sale !== 0) {
+                    $purchase_unit_price = $purchase_unit_price / $exchange_rate_sale;
+                }
+            }
+        }
+        // TODO: revisar esta linea: Eliminando esta linea porque el precio de compra no puede ser igual al precio de venta,
+        // en conculusión esta condición nunca será 0, para los productos que no tienen una compra luego de registrarse
         // $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $record->unit_price;
 
         if ($purchase_unit_price == 0 && $record->relation_item->purchase_unit_price > 0) {
             $purchase_unit_price = $record->relation_item->purchase_unit_price;
         }
+
 
         // if ($record->relation_item->purchase_unit_price > 0) {
         //     $purchase_unit_price = $record->relation_item->purchase_unit_price;
@@ -95,6 +135,11 @@ class GeneralItemCollection extends ResourceCollection
     public static function getLotsHasSale($row)
     {
         if (isset($row->item->lots)) {
+            $class = get_class($row);
+            if($class == 'App\Models\Tenant\PurchaseItem'){
+                // para compras
+                return collect($row->item->lots);
+            }
             return collect($row->item->lots)->where('has_sale', 1);
         } else {
             return [];
@@ -109,37 +154,45 @@ class GeneralItemCollection extends ResourceCollection
         $data['total'] = number_format($row->total,2);
         $data['unit_type_id'] = $row->item->unit_type_id;
         $data['description'] = $row->item->description;*/
+        $data['purchase_order'] = null;
 
         if ($row->document) {
-
-            $data['date_of_issue'] = $row->document->date_of_issue->format('Y-m-d');
-            $data['customer_name'] = $row->document->customer->name;
-            $data['customer_number'] = $row->document->customer->number;
-            $data['series'] = $row->document->series;
-            $data['alone_number'] = $row->document->number;
-            $data['document_type_description'] = $row->document->document_type->description;
-            $data['document_type_id'] = $row->document->document_type->id;
-            $data['currency_type_id'] = $row->document->currency_type_id;
+            /** @var \App\Models\Tenant\Document $document */
+            $document = $row->document;
+            $data['date_of_issue'] = $document->date_of_issue->format('Y-m-d');
+            $data['customer_name'] = $document->customer->name;
+            $data['customer_number'] = $document->customer->number;
+            $data['series'] = $document->series;
+            $data['alone_number'] = $document->number;
+            $data['document_type_description'] = $document->document_type->description;
+            $data['document_type_id'] = $document->document_type->id;
+            $data['currency_type_id'] = $document->currency_type_id;
+            $data['purchase_order'] = $document->purchase_order;
 
         } else if ($row->purchase) {
-            $data['date_of_issue'] = $row->purchase->date_of_issue->format('Y-m-d');
-            $data['customer_name'] = $row->purchase->supplier->name;
-            $data['customer_number'] = $row->purchase->supplier->number;
-            $data['series'] = $row->purchase->series;
-            $data['alone_number'] = $row->purchase->number;
-            $data['document_type_description'] = $row->purchase->document_type->description;
-            $data['document_type_id'] = $row->purchase->document_type->id;
-            $data['currency_type_id'] = $row->purchase->currency_type_id;
+            /** @var \App\Models\Tenant\Purchase $document */
+            $document = $row->purchase;
+            $data['date_of_issue'] = $document->date_of_issue->format('Y-m-d');
+            $data['customer_name'] = $document->supplier->name;
+            $data['customer_number'] = $document->supplier->number;
+            $data['series'] = $document->series;
+            $data['alone_number'] = $document->number;
+            $data['document_type_description'] = $document->document_type->description;
+            $data['document_type_id'] = $document->document_type->id;
+            $data['currency_type_id'] = $document->currency_type_id;
 
         } else if ($row->sale_note) {
-            $data['date_of_issue'] = $row->sale_note->date_of_issue->format('Y-m-d');
-            $data['customer_name'] = $row->sale_note->customer->name;
-            $data['customer_number'] = $row->sale_note->customer->number;
-            $data['series'] = $row->sale_note->series;
-            $data['alone_number'] = $row->sale_note->number;
+            /** @var \App\Models\Tenant\SaleNote $document */
+            $document = $row->sale_note;
+            $data['date_of_issue'] = $document->date_of_issue->format('Y-m-d');
+            $data['customer_name'] = $document->customer->name;
+            $data['customer_number'] = $document->customer->number;
+            $data['series'] = $document->series;
+            $data['alone_number'] = $document->number;
             $data['document_type_description'] = 'NOTA DE VENTA';
             $data['document_type_id'] = 80;
-            $data['currency_type_id'] = $row->sale_note->currency_type_id;
+            $data['currency_type_id'] = $document->currency_type_id;
+            $data['purchase_order'] = $document->purchase_order;
         }
 
         return $data;

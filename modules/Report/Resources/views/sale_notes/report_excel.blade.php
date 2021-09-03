@@ -33,7 +33,7 @@
                         <p><strong>Ruc: </strong></p>
                     </td>
                     <td align="center">{{$company->number}}</td>
-                  
+
                     @inject('reportService', 'Modules\Report\Services\ReportService')
                     @if($filters['seller_id'])
                     <td>
@@ -50,7 +50,7 @@
         @if(!empty($records))
             <div class="">
                 <div class=" ">
-                
+
                     @php
                         $acum_total_taxed=0;
                         $acum_total_igv=0;
@@ -66,12 +66,16 @@
                             <tr>
                                 <th>#</th>
                                 <th class="text-center">Fecha Emisión</th>
+                                <th class="text-center">Hora Emisión</th>
                                 <th class="">Usuario/Vendedor</th>
                                 <th>Cliente</th>
                                 <th>Nota de Venta</th>
+                                <th class="text-center">Estado pago</th>
                                 <th>Estado</th>
                                 <th class="text-center">Moneda</th>
-                                <th class="text-center">Comprobantes</th> 
+                                <th class="text-center">Plataforma</th>
+                                <th class="text-center">Orden de compra</th>
+                                <th class="text-center">Comprobantes</th>
                                 <th>Cotización</th>
                                 <th>Caso</th>
                                 <th class="text-right" >T.Exportación</th>
@@ -87,22 +91,31 @@
                             <tr>
                                 <td>{{$loop->iteration}}</td>
                                 <td>{{$value->date_of_issue->format('Y-m-d')}}</td>
+                                <td class="celda">{{$value->time_of_issue}}</td>
                                 <td class="celda">{{$value->user->name}}</td>
                                 <td>{{$value->customer->name}}</td>
                                 <td>{{$value->number_full}}</td>
+                                <td>
+                                    {{$value->total_canceled ? 'Pagado':'Pendiente'}}
+                                </td>
                                 <td>{{$value->state_type->description}}</td>
                                 <td>{{$value->currency_type_id}}</td>
+                                <td class="celda">
+                                    @foreach ($value->getPlatformThroughItems() as $platform)
+                                        <label class="d-block">{{$platform->name}}</label>
+                                    @endforeach
+                                </td>
+                                <td>{{$value->purchase_order}}</td>
                                 <td>
                                     @foreach ($value->documents as $doc)
                                          <label class="d-block">{{$doc->number_full}}</label>
                                     @endforeach
                                 </td>
-                                
                                 <td class="celda">{{ ($value->quotation) ? $value->quotation->number_full : '' }}</td>
                                 <td class="celda">{{ isset($value->quotation->sale_opportunity) ? $value->quotation->sale_opportunity->number_full : '' }}</td>
 
                                 @if($value->state_type_id == '11')
-                                    
+
                                     <td class="celda">0</td>
                                     <td class="celda">0</td>
                                     <td class="celda">0</td>
@@ -119,11 +132,11 @@
                                     <td class="celda">{{ $value->total_igv}}</td>
                                     <td class="celda">{{ $value->total}}</td>
 
-                                @endif 
+                                @endif
                             </tr>
-                            
+
                             @php
-                                
+
                                 if($value->currency_type_id == 'PEN'){
 
                                     if($value->state_type_id == '11'){
@@ -136,7 +149,7 @@
 
                                         $acum_total += $value->total;
                                         $acum_total_taxed += $value->total_taxed;
-                                        $acum_total_igv += $value->total_igv; 
+                                        $acum_total_igv += $value->total_igv;
 
                                     }
 
@@ -161,14 +174,14 @@
 
                             @endforeach
                             <tr>
-                                <td class="celda" colspan="12"></td>
+                                <td class="celda" colspan="16"></td>
                                 <td class="celda" >Totales PEN</td>
                                 <td class="celda">{{$acum_total_taxed}}</td>
                                 <td class="celda">{{$acum_total_igv}}</td>
                                 <td class="celda">{{$acum_total}}</td>
                             </tr>
                             <tr>
-                                <td class="celda" colspan="12"></td>
+                                <td class="celda" colspan="16"></td>
                                 <td class="celda" >Totales USD</td>
                                 <td class="celda">{{$acum_total_taxed_usd}}</td>
                                 <td class="celda">{{$acum_total_igv_usd}}</td>

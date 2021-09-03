@@ -32,6 +32,13 @@ if($hostname) {
 
             Route::post('items/import/item-price-lists', 'ItemController@importItemPriceLists');
 
+            //history
+            Route::get('items/data-history/{item}', 'ItemController@getDataHistory');
+            Route::get('items/available-series/records', 'ItemController@availableSeriesRecords');
+            Route::get('items/history-sales/records', 'ItemController@itemHistorySales');
+            Route::get('items/history-purchases/records', 'ItemController@itemHistoryPurchases');
+            //history
+
             Route::prefix('item-lots')->group(function () {
                 
                 Route::get('', 'ItemLotController@index')->name('tenant.item-lots.index');

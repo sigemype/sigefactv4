@@ -54,6 +54,7 @@ class DocumentNotSentCollection extends ResourceCollection
                 'customer_name' => $row->customer->name,
                 'customer_number' => $row->customer->number, 
                 'total' => $row->total,
+                'group_id' => $row->group_id,
                 'state_type_id' => $row->state_type_id,
                 'state_type_description' => $row->state_type->description,
                 'document_type_description' => $row->document_type->description,

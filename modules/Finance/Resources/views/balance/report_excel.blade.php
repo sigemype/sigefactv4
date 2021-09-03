@@ -43,12 +43,13 @@
         <br>
         @if(!empty($records))
             <div class="">
-                <div class=" "> 
+                <div class=" ">
                     <table class="">
                         <thead>
                             <tr>
                                 <th class="">#</th>
                                 <th class="">Nombre de la cuenta / Total pagos</th>
+                                <th class="">Saldo inicial</th>
                                 <th class="">CPE</th>
                                 <th class="">NV</th>
                                 <th class="">COT</th>
@@ -61,24 +62,76 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($records as $key => $value)
-                                <tr>
-                                    <td class="celda">{{$loop->iteration}}</td>
-                                    <td class="celda">{{$value['description']}}</td>
-                                    <td class="celda">S/ {{$value['document_payment']}}</td>
-                                    <td class="celda">S/ {{$value['sale_note_payment']}}</td>
-                                    <td class="celda">S/ {{$value['quotation_payment']}}</td>
-                                    <td class="celda">S/ {{$value['contract_payment']}}</td>
-                                    <td class="celda">S/ {{$value['technical_service_payment']}}</td>
-                                    <td class="celda">S/ {{$value['income_payment']}}</td>
-                                    <td class="celda">S/  {{$value['purchase_payment']}}</td>
-                                    <td class="celda">S/ {{$value['expense_payment']}}</td>
-                                    <td class="celda">S/ {{$value['balance']}}</td> 
-                                </tr>
+                        @foreach($data['records'] as $key => $value)
+                            <?php
 
-                                 
-                            @endforeach 
+                            $iteracion = $loop->iteration;
+                            $description = $value['description'];
+                            $initial_balance = $value['initial_balance'] ?? 0;
+                            $document_payment = $value['document_payment'];
+                            $sale_note_payment = $value['sale_note_payment'];
+                            $quotation_payment = $value['quotation_payment'];
+                            $contract_payment = $value['contract_payment'];
+                            $purchase_payment = $value['purchase_payment'];
+                            $expense_payment = $value['expense_payment'];
+                            $technical_service_payment = $value['technical_service_payment'];
+                            $income_payment = $value['income_payment'];
+                            $balance = $value['balance'];
+                            ?>
+                            <tr>
+                                <td class="celda">
+                                    {{$iteracion}}
+                                </td>
+                                <td class="celda">
+                                    {{$description}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$initial_balance}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$document_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$sale_note_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$quotation_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$contract_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$technical_service_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$income_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$purchase_payment}}
+                                </td>
+                                <td class="celda">
+                                    S/ {{$expense_payment}}
+                                </td>
+                                <td class="celda">S/ {{$balance}}
+                                </td>
+                            </tr>
+                        @endforeach
                         </tbody>
+                        <tfoot>
+                        <tr>
+                            <td class="text-center celda" colspan="2">Totales</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_initial_balance'] }}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_documents'] }}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_sale_notes']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_quotations']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_contracts']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_technical_services']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_income']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_purchases']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_expenses']}}</td>
+                            <td class="text-center celda">S/ {{ $data['totals']['t_balance']}}</td>
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

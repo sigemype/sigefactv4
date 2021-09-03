@@ -42,20 +42,50 @@ class CategoryController extends Controller
         return $record;
     }
 
+    /**
+     * Crea o edita una nueva categoría.
+     * El nombre de categoría debe ser único, por lo tanto se valida cuando el nombre existe.
+     *
+     * @param CategoryRequest $request
+     *
+     * @return array
+     */
     public function store(CategoryRequest $request)
     {
-        $id = $request->input('id');
-        $category = Category::firstOrNew(['id' => $id]);
-        $category->fill($request->all());
-        $category->save();
-
-
-        return [
-            'success' => true,
-            'message' => ($id)?'Categoría editada con éxito':'Categoría registrada con éxito',
+        $id = (int)$request->input('id');
+        $name = $request->input('name');
+        $error = null;
+        $category = null;
+        if(!empty($name)){
+            $category = Category::where('name', $name);
+            if(empty($id)) {
+                $category= $category->first();
+                if (!empty($category)) {
+                    $error = 'El nombre de categoría ya existe';
+                }
+            }else{
+                $category = $category->where('id','!=',$id)->first();
+                if (!empty($category)) {
+                    $error = 'El nombre de categoría ya existe para otro registro';
+                }
+            }
+        }
+        $data = [
+            'success' => false,
+            'message' => $error,
             'data' => $category
-
         ];
+        if(empty($error)){
+            $category = Category::firstOrNew(['id' => $id]);
+            $category->fill($request->all());
+            $category->save();
+            $data = [
+                'success' => true,
+                'message' => ($id)?'Categoría editada con éxito':'Categoría registrada con éxito',
+                'data' => $category
+            ];
+        }
+        return $data;
 
     }
 

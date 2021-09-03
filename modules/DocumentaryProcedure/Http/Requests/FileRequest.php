@@ -4,6 +4,12 @@ namespace Modules\DocumentaryProcedure\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Class FileRequest
+ *
+ * @package Modules\DocumentaryProcedure\Http\Requests
+ * @mixin  FormRequest
+ */
 class FileRequest extends FormRequest
 {
 	public function authorize()

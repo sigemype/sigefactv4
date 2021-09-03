@@ -3,14 +3,18 @@
 namespace Modules\Inventory\Helpers;
 
 
+use App\Models\Tenant\Item;
+
 class InventoryValuedKardex
 {
 
     public static function getTransformRecords($records)
     {
-        
-        return $records->transform(function($row, $key){
-            
+
+        return $records->transform(function ($row, $key) {
+            /** @var Item $row */
+            return $row->getReportValuedKardexCollection();
+            /*** Movido al modelo **/
             $values_records = self::getValuesRecords($row->document_items, $row->sale_note_items);
 
             $quantity_sale = $values_records['quantity_sale'];
@@ -41,7 +45,7 @@ class InventoryValuedKardex
                 }),
 
             ];
-            
+
         });
 
     }
@@ -86,5 +90,5 @@ class InventoryValuedKardex
     }
 
 
- 
+
 }

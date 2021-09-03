@@ -3,22 +3,14 @@
 namespace Modules\Dashboard\Helpers;
 
 use App\Models\Tenant\Document;
-use App\Models\Tenant\SaleNote;
-use App\Models\Tenant\Person;
 use App\Models\Tenant\DocumentItem;
 use App\Models\Tenant\PurchaseItem;
 use App\Models\Tenant\SaleNoteItem;
-use App\Models\Tenant\Purchase;
-use App\Models\Tenant\Item;
 use Carbon\Carbon;
-use Modules\Dashboard\Traits\TotalsTrait;
 use Modules\Expense\Models\Expense;
 
 class DashboardUtility
 {
-
-    // use TotalsTrait;
-
     public function data($request)
     {
 
@@ -70,7 +62,8 @@ class DashboardUtility
 
         if($d_start && $d_end){
 
-            $document_items = DocumentItem::whereHas('document',function($query) use($establishment_id, $d_start, $d_end){
+            $document_items = DocumentItem::without(['affectation_igv_type', 'system_isc_type', 'price_type'])
+                                            ->whereHas('document',function($query) use($establishment_id, $d_start, $d_end){
                                                 $query->where('establishment_id', $establishment_id)
                                                         ->whereIn('state_type_id', ['01','03','05','07','13'])
                                                         ->whereBetween('date_of_issue', [$d_start, $d_end])
@@ -79,7 +72,8 @@ class DashboardUtility
                                             ->get();
 
 
-            $sale_note_items = SaleNoteItem::whereHas('sale_note', function($query) use($establishment_id, $d_start, $d_end){
+            $sale_note_items = SaleNoteItem::without(['affectation_igv_type', 'system_isc_type', 'price_type'])
+                                            ->whereHas('sale_note', function($query) use($establishment_id, $d_start, $d_end){
 
                                                 $query->where([['establishment_id', $establishment_id],['changed',false]])
                                                         ->whereIn('state_type_id', ['01','03','05','07','13'])
@@ -91,15 +85,16 @@ class DashboardUtility
 
 
         }else{
-            $document_items = DocumentItem::whereHas('document', function($query) use($establishment_id){
-
+            $document_items = DocumentItem::without(['affectation_igv_type', 'system_isc_type', 'price_type'])
+                                            ->whereHas('document', function($query) use($establishment_id) {
                                                 $query->where('establishment_id', $establishment_id)
                                                         ->whereIn('state_type_id', ['01','03','05','07','13']);
                                             })
                                             ->get();
 
 
-            $sale_note_items = SaleNoteItem::whereHas('sale_note', function($query) use($establishment_id){
+            $sale_note_items = SaleNoteItem::without(['affectation_igv_type', 'system_isc_type', 'price_type'])
+                                            ->whereHas('sale_note', function($query) use($establishment_id){
 
                                                 $query->where([['establishment_id', $establishment_id],['changed',false]])
                                                         ->whereIn('state_type_id', ['01','03','05','07','13']);

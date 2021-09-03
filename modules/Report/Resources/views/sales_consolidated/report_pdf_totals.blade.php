@@ -11,19 +11,19 @@
                 font-family: sans-serif;
                 font-size: 12px;
             }
-            
+
             table {
                 width: 100%;
                 border-spacing: 0;
                 border: 1px solid black;
             }
-            
+
             .celda {
                 text-align: center;
                 padding: 5px;
                 border: 0.1px solid black;
             }
-            
+
             .celda-item {
                 text-align: left;
                 padding: 5px;
@@ -36,19 +36,19 @@
                 border-color: #0088cc;
                 border: 0.1px solid black;
             }
-            
+
             .title {
                 font-weight: bold;
                 padding: 5px;
                 font-size: 20px !important;
                 text-decoration: underline;
             }
-            
+
             p>strong {
                 margin-left: 5px;
                 font-size: 13px;
             }
-            
+
             thead {
                 font-weight: bold;
                 background: #0088cc;
@@ -76,8 +76,8 @@
                         <p><strong>Establecimiento: </strong>{{$establishment->address}} - {{$establishment->department->description}} - {{$establishment->district->description}}</p>
                     </td>
                     @inject('reportService', 'Modules\Report\Services\ReportService')
-                    
-                    @if($params['sellers'])
+
+                    @if(isset($params['sellers']))
                         @php
                             $sellers = json_decode($params['sellers']);
                         @endphp
@@ -89,20 +89,20 @@
                             @endforeach
                             </p>
                         </td>
-                        @endif 
+                        @endif
                     @endif
-                    @if($params['person_id'])
+                    @if(isset($params['person_id']))
                     <td>
                         <p><strong>Cliente: </strong>{{$reportService->getPersonName($params['person_id'])}}</p>
                     </td>
-                    @endif 
+                    @endif
                 </tr>
             </table>
         </div>
         @if(!empty($records))
             <div class="">
                 <div class=" ">
-                    @php 
+                    @php
 
                     @endphp
                     <table class="">
@@ -122,9 +122,9 @@
                                     <td class="celda">{{$value['item_internal_id']}}</td>
                                     <td class="celda-item">{{$value['item_description']}}</td>
                                     <td class="celda">{{$value['item_unit_type_id']}}</td>
-                                    <td class="celda">{{$value['quantity']}}</td> 
-                                </tr> 
-                            @endforeach 
+                                    <td class="celda">{{$value['quantity']}}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

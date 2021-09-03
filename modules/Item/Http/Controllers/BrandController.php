@@ -42,19 +42,50 @@ class BrandController extends Controller
         return $record;
     }
 
+    /**
+     * Crea o edita una nueva marca.
+     * El nombre de marca debe ser único, por lo tanto se valida cuando el nombre existe.
+     *
+     * @param BrandRequest $request
+     *
+     * @return array
+     */
     public function store(BrandRequest $request)
     {
-        $id = $request->input('id');
-        $brand = Brand::firstOrNew(['id' => $id]);
-        $brand->fill($request->all());
-        $brand->save();
-
-
-        return [
-            'success' => true,
-            'message' => ($id)?'Marca editada con éxito':'Marca registrada con éxito',
+        $id = (int)$request->input('id');
+        $name = $request->input('name');
+        $error = null;
+        $brand = null;
+        if (!empty($name)) {
+            $brand = Brand::where('name', $name);
+            if (empty($id)) {
+                $brand = $brand->first();
+                if (!empty($brand)) {
+                    $error = 'El nombre de marca ya existe';
+                }
+            } else {
+                $brand = $brand->where('id', '!=', $id)->first();
+                if (!empty($brand)) {
+                    $error = 'El nombre de marca ya existe para otro registro';
+                }
+            }
+        }
+        $data = [
+            'success' => false,
+            'message' => $error,
             'data' => $brand
         ];
+        if (empty($error)) {
+            $brand = Brand::firstOrNew(['id' => $id]);
+            $brand->fill($request->all());
+            $brand->save();
+            $data = [
+                'success' => true,
+                'message' => ($id) ? 'Marca editada con éxito' : 'Marca registrada con éxito',
+                'data' => $brand
+            ];
+        }
+        return $data;
 
     }
 

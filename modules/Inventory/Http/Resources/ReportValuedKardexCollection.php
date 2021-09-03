@@ -2,6 +2,7 @@
 
 namespace Modules\Inventory\Http\Resources;
 
+use App\Models\Tenant\Item;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Modules\Inventory\Models\InventoryTransaction;
 use Modules\Inventory\Helpers\InventoryValuedKardex;
@@ -16,9 +17,13 @@ class ReportValuedKardexCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        
+
         return $this->collection->transform(function($row, $key){
-            
+            /**
+             * @var Item $row
+             */
+            return $row->getReportValuedKardexCollection();
+            /** Movido al modelo */
             $values_records = InventoryValuedKardex::getValuesRecords($row->document_items, $row->sale_note_items);
 
             $quantity_sale = $values_records['quantity_sale'];

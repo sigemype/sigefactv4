@@ -3,6 +3,7 @@
 namespace Modules\Order\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Modules\Order\Models\OrderNote;
 
 class OrderNoteCollection extends ResourceCollection
 {
@@ -15,7 +16,9 @@ class OrderNoteCollection extends ResourceCollection
     public function toArray($request)
     {
         return $this->collection->transform(function($row, $key) {
-
+            /** @var OrderNote $row */
+            return $row->getCollectionData();
+            /* Movido al modelo */
             $btn_generate = (count($row->documents) > 0 || count($row->sale_notes) > 0)?false:true;
 
             return [

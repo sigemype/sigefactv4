@@ -2,6 +2,7 @@
 
 namespace Modules\Sale\Http\Controllers;
 
+use App\Models\Tenant\Cash;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Person;
@@ -23,7 +24,6 @@ use Modules\Sale\Models\TechnicalService;
 
 class TechnicalServiceController extends Controller
 {
-
     use StorageDocument;
 
     protected $technical_service;
@@ -34,7 +34,6 @@ class TechnicalServiceController extends Controller
         return view('sale::technical-services.index');
     }
 
-
     public function columns()
     {
         return [
@@ -44,7 +43,6 @@ class TechnicalServiceController extends Controller
         ];
     }
 
-
     public function records(Request $request)
     {
         $records = $this->getRecords($request);
@@ -52,18 +50,14 @@ class TechnicalServiceController extends Controller
         return new TechnicalServiceCollection($records->paginate(config('tenant.items_per_page')));
     }
 
-    private function getRecords($request){
-
-        if($request->column == 'customer'){
-
-            $records = TechnicalService::whereHas('person', function($query) use($request){
-                            $query->where('name', 'like', "%{$request->value}%");
-                        });
-
-        }else{
-
+    private function getRecords($request)
+    {
+        if ($request->column == 'customer') {
+            $records = TechnicalService::whereHas('person', function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->value}%");
+            });
+        } else {
             $records = TechnicalService::where($request->column, 'like', "%{$request->value}%");
-
         }
 
         return $records->whereTypeUser()->latest();
@@ -71,25 +65,25 @@ class TechnicalServiceController extends Controller
 
     public function searchCustomers(Request $request)
     {
-
-        $customers = Person::where('number','like', "%{$request->input}%")
-                            ->orWhere('name','like', "%{$request->input}%")
-                            ->whereType('customers')->orderBy('name')
-                            ->whereIsEnabled()
-                            ->get()->transform(function($row) {
-                                return [
-                                    'id' => $row->id,
-                                    'description' => $row->number.' - '.$row->name,
-                                    'name' => $row->name,
-                                    'number' => $row->number,
-                                    'identity_document_type_id' => $row->identity_document_type_id,
-                                ];
-                            });
+        $customers = Person::where('number', 'like', "%{$request->input}%")
+            ->orWhere('name', 'like', "%{$request->input}%")
+            ->whereType('customers')->orderBy('name')
+            ->whereIsEnabled()
+            ->get()->transform(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'description' => $row->number . ' - ' . $row->name,
+                    'name' => $row->name,
+                    'number' => $row->number,
+                    'identity_document_type_id' => $row->identity_document_type_id,
+                ];
+            });
 
         return compact('customers');
     }
 
-    public function tables() {
+    public function tables()
+    {
 
         $customers = $this->table('customers');
 
@@ -105,17 +99,20 @@ class TechnicalServiceController extends Controller
     }
 
 
-    public function store(TechnicalServiceRequest $request) {
-
-
+    public function store(TechnicalServiceRequest $request)
+    {
         DB::connection('tenant')->transaction(function () use ($request) {
 
             $data = $this->mergeData($request);
 
-            $this->technical_service =  TechnicalService::updateOrCreate( ['id' => $request->input('id')], $data);
+            $this->technical_service = TechnicalService::updateOrCreate(['id' => $request->input('id')], $data);
             $this->setFilename();
             $this->createPdf($this->technical_service, "a4", $this->technical_service->filename);
 
+            $cash = Cash::query()->where([['user_id',auth()->id()], ['state',true]])->first();
+            $cash->cash_documents()->create([
+                'technical_service_id' => $this->technical_service->id
+            ]);
         });
 
         return [
@@ -143,10 +140,10 @@ class TechnicalServiceController extends Controller
     }
 
 
+    private function setFilename()
+    {
 
-    private function setFilename(){
-
-        $name = ['TS',$this->technical_service->id,date('Ymd')];
+        $name = ['TS', $this->technical_service->id, date('Ymd')];
         $this->technical_service->filename = join('-', $name);
         $this->technical_service->save();
 
@@ -158,10 +155,10 @@ class TechnicalServiceController extends Controller
         switch ($table) {
             case 'customers':
 
-                $customers = Person::whereType('customers')->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function($row) {
+                $customers = Person::whereType('customers')->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function ($row) {
                     return [
                         'id' => $row->id,
-                        'description' => $row->number.' - '.$row->name,
+                        'description' => $row->number . ' - ' . $row->name,
                         'name' => $row->name,
                         'number' => $row->number,
                         'identity_document_type_id' => $row->identity_document_type_id,
@@ -182,24 +179,24 @@ class TechnicalServiceController extends Controller
     {
 
         $customers = Person::whereType('customers')
-                    ->where('id',$id)
-                    ->get()->transform(function($row) {
-                        return [
-                            'id' => $row->id,
-                            'description' => $row->number.' - '.$row->name,
-                            'name' => $row->name,
-                            'number' => $row->number,
-                            'identity_document_type_id' => $row->identity_document_type_id,
-                            'identity_document_type_code' => $row->identity_document_type->code
-                        ];
-                    });
+            ->where('id', $id)
+            ->get()->transform(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'description' => $row->number . ' - ' . $row->name,
+                    'name' => $row->name,
+                    'number' => $row->number,
+                    'identity_document_type_id' => $row->identity_document_type_id,
+                    'identity_document_type_code' => $row->identity_document_type->code
+                ];
+            });
 
         return compact('customers');
     }
 
 
-
-    public function toPrint($id, $format) {
+    public function toPrint($id, $format)
+    {
 
         $technical_service = TechnicalService::find($id);
 
@@ -214,11 +211,13 @@ class TechnicalServiceController extends Controller
     }
 
 
-    private function reloadPDF($technical_service, $format, $filename) {
+    private function reloadPDF($technical_service, $format, $filename)
+    {
         $this->createPdf($technical_service, $format, $filename);
     }
 
-    public function createPdf($technical_service = null, $format_pdf = null, $filename = null) {
+    public function createPdf($technical_service = null, $format_pdf = null, $filename = null)
+    {
 
         ini_set("pcre.backtrack_limit", "5000000");
         $template = new Template();
@@ -246,54 +245,53 @@ class TechnicalServiceController extends Controller
 
             $default = [
                 'fontDir' => array_merge($fontDirs, [
-                    app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.
-                                                DIRECTORY_SEPARATOR.'pdf'.
-                                                DIRECTORY_SEPARATOR.$base_template.
-                                                DIRECTORY_SEPARATOR.'font')
+                    app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' .
+                        DIRECTORY_SEPARATOR . 'pdf' .
+                        DIRECTORY_SEPARATOR . $base_template .
+                        DIRECTORY_SEPARATOR . 'font')
                 ]),
                 'fontdata' => $fontData + [
-                    'custom_bold' => [
-                        'R' => $pdf_font_bold.'.ttf',
-                    ],
-                    'custom_regular' => [
-                        'R' => $pdf_font_regular.'.ttf',
-                    ],
-                ]
-                ];
+                        'custom_bold' => [
+                            'R' => $pdf_font_bold . '.ttf',
+                        ],
+                        'custom_regular' => [
+                            'R' => $pdf_font_regular . '.ttf',
+                        ],
+                    ]
+            ];
 
-                if($base_template == 'citec')
-                {
-                    $default = [
-                        'mode' => 'utf-8',
-                        'margin_top' => 2,
-                        'margin_right' => 0,
-                        'margin_bottom' => 0,
-                        'margin_left' => 0,
-                        'fontDir' => array_merge($fontDirs, [
-                            app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.
-                                                        DIRECTORY_SEPARATOR.'pdf'.
-                                                        DIRECTORY_SEPARATOR.$base_template.
-                                                        DIRECTORY_SEPARATOR.'font')
-                        ]),
-                        'fontdata' => $fontData + [
+            if ($base_template == 'citec') {
+                $default = [
+                    'mode' => 'utf-8',
+                    'margin_top' => 2,
+                    'margin_right' => 0,
+                    'margin_bottom' => 0,
+                    'margin_left' => 0,
+                    'fontDir' => array_merge($fontDirs, [
+                        app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' .
+                            DIRECTORY_SEPARATOR . 'pdf' .
+                            DIRECTORY_SEPARATOR . $base_template .
+                            DIRECTORY_SEPARATOR . 'font')
+                    ]),
+                    'fontdata' => $fontData + [
                             'custom_bold' => [
-                                'R' => $pdf_font_bold.'.ttf',
+                                'R' => $pdf_font_bold . '.ttf',
                             ],
                             'custom_regular' => [
-                                'R' => $pdf_font_regular.'.ttf',
+                                'R' => $pdf_font_regular . '.ttf',
                             ],
                         ]
-                        ];
+                ];
 
-                }
+            }
 
             $pdf = new Mpdf($default);
         }
 
-        $path_css = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.
-                                             DIRECTORY_SEPARATOR.'pdf'.
-                                             DIRECTORY_SEPARATOR.$base_template.
-                                             DIRECTORY_SEPARATOR.'style.css');
+        $path_css = app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' .
+            DIRECTORY_SEPARATOR . 'pdf' .
+            DIRECTORY_SEPARATOR . $base_template .
+            DIRECTORY_SEPARATOR . 'style.css');
 
         $stylesheet = file_get_contents($path_css);
 
@@ -305,7 +303,8 @@ class TechnicalServiceController extends Controller
     }
 
 
-    public function uploadFile($filename, $file_content, $file_type) {
+    public function uploadFile($filename, $file_content, $file_type)
+    {
         $this->uploadStorage($filename, $file_content, $file_type);
     }
 
@@ -315,7 +314,7 @@ class TechnicalServiceController extends Controller
 
         $record = TechnicalService::findOrFail($id);
 
-        if($record->payments()->count() > 0){
+        if ($record->payments()->count() > 0) {
             return [
                 'success' => false,
                 'message' => 'El servicio técnico tiene pagos asociados, debe eliminarlos previamente'

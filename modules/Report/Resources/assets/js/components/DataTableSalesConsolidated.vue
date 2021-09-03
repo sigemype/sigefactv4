@@ -171,8 +171,11 @@
             </div>
         </div>
 
-        <totals-by-item-form :showDialog.sync="showDialog"
-                        :parameters="getQueryParameters()"></totals-by-item-form>
+        <totals-by-item-form
+            :showDialog.sync="showDialog"
+            :parameters="getQueryParameters()"
+            :resource="'reports/sales-consolidated'"
+        ></totals-by-item-form>
     </div>
 </template>
 <style>
@@ -204,10 +207,12 @@
                 document_types: [],
                 order_state_types: [],
                 sellers: [],
+                series: [],
                 pagination: {},
                 search: {},
                 totals: {},
                 establishment: null,
+                establishment_id: null,
                 parameters: null,
                 form: {},
                 pickerOptionsDates: {
@@ -216,7 +221,6 @@
                         return this.form.date_start > time
                     }
                 },
-                totals:0
             }
         },
         computed: {
@@ -249,9 +253,7 @@
         },
         methods: {
             clickTotalByItem(){
-
                 this.showDialog = true
-
             },
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {

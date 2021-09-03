@@ -4,9 +4,13 @@ namespace Modules\Purchase\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Modules\Purchase\Traits\PurchaseTrait;
 
 class PurchaseServiceProvider extends ServiceProvider
 {
+
+    use PurchaseTrait;
+
     /**
      * Boot the application events.
      *
@@ -14,6 +18,8 @@ class PurchaseServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        $this->createCashDocument();
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Content-Type" content="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Movimientos de ingresos y egresos</title>
+        {{-- <title>Movimientos de ingresos y egresos</title> --}}
     </head>
     <body>
         <div>
@@ -43,7 +43,7 @@
         <br>
         @if(!empty($records))
             <div class="">
-                <div class=" "> 
+                <div class=" ">
                     <table class="">
                         <thead>
                             <tr>
@@ -70,7 +70,7 @@
                             @endphp
                             @foreach($records as $key => $value)
                                 <tr>
-                                    @php 
+                                    @php
                                         $data_person = $value->data_person;
                                         $document_type = '';
                                         $items = [];
@@ -78,9 +78,9 @@
                                         if($value->payment->associated_record_payment->document_type){
 
                                             $document_type = $value->payment->associated_record_payment->document_type->description;
-                                        
+
                                         }elseif(isset($value->payment->associated_record_payment->prefix)){
-                                            
+
                                             $document_type = $value->payment->associated_record_payment->prefix;
 
                                         }
@@ -101,14 +101,14 @@
 
                                             $items = $value->payment->associated_record_payment->items->transform(function($row, $key) {
                                                 return [
-                                                    'description' => $row->description 
+                                                    'description' => $row->description
                                                 ];
                                             });
                                         }
 
                                     @endphp
                                     <td class="celda">{{$loop->iteration}}</td>
-                                    <td class="celda">{{$value->payment->date_of_payment->format('Y-m-d')}}</td> 
+                                    <td class="celda">{{$value->payment->date_of_payment->format('Y-m-d')}}</td>
                                     <td class="celda">{{$data_person->name}}</td>
                                     <td class="celda">{{$data_person->number}}</td>
                                     <td class="celda">{{ $document_type }}</td>
@@ -126,16 +126,16 @@
                                     <td class="celda">S/{{ $balance }}</td>
                                 </tr>
 
-                                 
-                            @endforeach 
-                        </tbody>            
+
+                            @endforeach
+                        </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="9" class="celda"></td>
                                 <td class="celda">S/{{$total_input}}</td>
                                 <td class="celda">S/{{$total_output}}</td>
                                 <td class="celda">S/{{$total_input - $total_output}}</td>
-                            </tr> 
+                            </tr>
                         </tfoot>
                     </table>
                 </div>

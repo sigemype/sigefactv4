@@ -2,6 +2,7 @@
 
 namespace Modules\Sale\Http\Controllers;
 
+use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Person;
@@ -49,7 +50,10 @@ class SaleOpportunityController extends Controller
 
     public function index()
     {
-        return view('sale::sale_opportunities.index');
+        $configuration = Configuration::first();
+        $SellerCanGenerateSaleOpportunities = $configuration->getSellerCanGenerateSaleOpportunities();
+
+        return view('sale::sale_opportunities.index',compact('SellerCanGenerateSaleOpportunities'));
     }
 
 
@@ -373,7 +377,7 @@ class SaleOpportunityController extends Controller
         $company = ($this->company != null) ? $this->company : Company::active();
         $filename = ($filename != null) ? $filename : $this->sale_opportunity->filename;
 
-        $base_template = config('tenant.pdf_template');
+        $base_template = Establishment::find($document->establishment_id)->template_pdf;;
 
         $html = $template->pdf($base_template, "sale_opportunity", $company, $document, $format_pdf);
 
@@ -437,6 +441,7 @@ class SaleOpportunityController extends Controller
         $sale_opportunity = SaleOpportunity::find($request->id);
         $customer_email = $request->input('customer_email');
 
+        Configuration::setConfigSmtpMail();
         Mail::to($customer_email)->send(new SaleOpportunityEmail($client, $sale_opportunity));
 
         return [

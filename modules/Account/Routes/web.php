@@ -6,6 +6,15 @@ if($hostname) {
     Route::domain($hostname->fqdn)->group(function () {
         Route::middleware(['auth', 'redirect.module', 'locked.tenant'])->group(function() {
 
+            /**
+             * account/
+             * account/download
+             * account/format
+             * account/format/download
+             * account/summary-report
+             * account/summary-report/records
+             * account/summary-report/format/download
+             */
             Route::prefix('account')->group(function () {
                 Route::get('/', 'AccountController@index')->name('tenant.account.index');
                 Route::get('download', 'AccountController@download');
@@ -28,11 +37,11 @@ if($hostname) {
 
         });
     });
-} 
+}
 else {
 
     Route::domain(env('APP_URL_BASE'))->group(function() {
- 
+
         Route::middleware('auth:admin')->group(function() {
 
             Route::prefix('accounting')->group(function () {
@@ -42,7 +51,7 @@ else {
                 Route::get('download', 'System\AccountingController@download');
 
             });
-            
+
 
         });
     });

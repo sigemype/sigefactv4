@@ -57,6 +57,35 @@
                 </tfoot>
             </table>
         </div><!-- End .cart-table-container -->
+        <div class="cart-table-container">
+            <p>Historial</p>
+            <table class="table table-cart">
+                <thead>
+                    <tr>
+                        <th class="product-col">Código de Pedido</th>
+                        <th class="price-col">Total</th>
+                        <th class="qty-col">Estado</th>
+                        <th class="qty-col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="row in history_records" class="product-row">
+                        <td class="text-left">
+                            @{{ row.order_id }}
+                        </td>
+                        <td>S/ @{{ row.total }}</td>
+                        <td>@{{ row.status_order_description }}</td>
+                        <td>
+                            <div v-if="row.status_order_id < 4">
+                                <button v-if="phone_whatsapp" class="btn btn-default btn-sm text-success" @click="clickSendWhatsapp(row.order_id)" ><i class="fab fa-whatsapp fa-2x"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div><!-- End .cart-table-container -->
     </div><!-- End .col-lg-8 -->
 
     <div class="col-lg-4">
@@ -228,7 +257,9 @@
             exchange_rate_sale: '',
             typeDocuments: '',
             typeDocumentList: [],
-            numberDocument: ''
+            numberDocument: '',
+            history_records: {!! json_encode($history_records ) !!},
+            phone_whatsapp: {!! json_encode($configuration->phone_whatsapp ) !!}
         },
         computed: {
             maxLength: function () {
@@ -355,27 +386,27 @@
 
                 let url_finally = '{{ route("tenant_ecommerce_payment_cash")}}';
                 let response = await axios.post(url_finally, await this.getFormPaymentCash(), this.getHeaderConfig()).then(response => {
-                if (response.data.success) {
-                    this.saveContactDataUser()
-                    this.clearShoppingCart()
-                    this.response_order_total = response.data.order.total
-                    swal({
-                        title: "Gracias por su pago!",
-                        text: "En breve le enviaremos un correo electronico con los detalles de su compra.",
-                        type: "success"
-                    }).then((x) => {
-                      app_cart.order_generated = order
-                        //askedDocument(response.data.order);
-                    })
-                }
-              }).catch(error => {
-                swal("Pago No realizado", 'Sucedio algo inesperado.', "error");
-                if (error.response.status === 422) {
-                  this.errors = error.response.data;
-                } else {
-                  console.log(error);
-                }
-              });
+                        if (response.data.success) {
+                            this.saveContactDataUser()
+                            this.clearShoppingCart()
+                            this.response_order_total = response.data.order.total
+                            swal({
+                                title: "Gracias por su pago!",
+                                text: "En breve le enviaremos un correo electronico con los detalles de su compra.",
+                                type: "success"
+                            }).then((x) => {
+                              app_cart.order_generated = order
+                                //askedDocument(response.data.order);
+                            })
+                        }
+                    }).catch(error => {
+                        swal("Pago No realizado", 'Sucedio algo inesperado.', "error");
+                        if (error.response.status === 422) {
+                          this.errors = error.response.data;
+                        } else {
+                          console.log(error);
+                        }
+                    });
 
             },
             redirectHome() {
@@ -656,6 +687,11 @@
                     .catch(error => {
 
                     });
+            },
+            clickSendWhatsapp(order_id) {
+
+                window.open(`https://wa.me/51${this.phone_whatsapp}?text=Se ha generado un nuevo pedido con código nro. ${order_id}`, '_blank');
+
             }
         }
     })

@@ -58,7 +58,7 @@ class ReportPurchaseController extends Controller
         $records = $this->getRecords($request->all(), Purchase::class)->get();
         $filters = $request->all();
 
-        $pdf = PDF::loadView('report::purchases.report_pdf', compact("records", "company", "establishment", "filters"));
+        $pdf = PDF::loadView('report::purchases.report_pdf', compact("records", "company", "establishment", "filters"))->setPaper('a4', 'landscape');
 
         $filename = 'Reporte_Compras_'.date('YmdHis');
 

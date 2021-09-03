@@ -36,7 +36,7 @@
               <div class="col-md-6">
                 <div class="form-group" :class="{'has-danger': errors.information_contact_phone}">
                   <label class="control-label">
-                    Telefono
+                    Teléfono
                     <span class="text-danger">*</span>
                   </label>
                   <el-input v-model="form.information_contact_phone"></el-input>
@@ -58,6 +58,19 @@
                     class="form-control-feedback"
                     v-if="errors.information_contact_address"
                     v-text="errors.information_contact_address[0]"
+                  ></small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group" :class="{'has-danger': errors.phone_whatsapp}">
+                  <label class="control-label">
+                    Whatsapp
+                  </label>
+                  <el-input v-model="form.phone_whatsapp"></el-input>
+                  <small
+                    class="form-control-feedback"
+                    v-if="errors.phone_whatsapp"
+                    v-text="errors.phone_whatsapp[0]"
                   ></small>
                 </div>
               </div>
@@ -101,7 +114,8 @@ export default {
         id: null,
         information_contact_email: "",
         information_contact_name: null,
-        information_contact_phone: null
+        information_contact_phone: null,
+        phone_whatsapp: null,
       };
     },
     submit() {

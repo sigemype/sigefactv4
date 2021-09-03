@@ -3,7 +3,7 @@
         <div class="page-header pr-0">
             <h2><a href="/dashboard"><i class="fas fa-tachometer-alt"></i></a></h2>
             <ol class="breadcrumbs">
-                <li class="active"><span>Comprobantes pendientes de envío OSE/SUNAT</span> </li>
+                <li class="active"><span>Comprobantes enviados/por enviar OSE/SUNAT</span> </li>
             </ol> 
         </div>
         <div class="card mb-0" v-loading="loading_submit"> 
@@ -16,7 +16,7 @@
                         <th class="text-center">F. Emisión</th>
                         <th>Cliente</th>
                         <th>Comprobante</th>
-                        <th class="text-center">Días para enviar</th>
+                        <th class="text-center">Días para enviar/Detalle</th>
                         <th class="text-center">Enviar</th>  
                     <tr>
                     <tr slot-scope="{ index, row }">
@@ -30,12 +30,29 @@
                             <small v-if="row.affected_document" v-text="row.affected_document"></small>                            
                         </td> 
                         <td class="text-center"> 
-                            <template v-if="row.is_expiration">
-                                <span class="badge bg-danger text-white" >{{row.expiration_days}}</span>
-                            </template> 
-                            <template v-else>
-                                {{row.expiration_days}}                                
+                            <template v-if="row.group_id === '02'">
+                                <template v-if="row.state_type_id === '03'">
+                                    <span class="badge bg-primary text-white" >Comprobante enviado por verificar</span>
+                                </template>
+                                <template v-else>
+                                    <template v-if="row.is_expiration">
+                                        <span class="badge bg-danger text-white" >{{row.expiration_days}}</span>
+                                    </template> 
+                                    <template v-else>
+                                        {{row.expiration_days}}                                
+                                    </template>
+                                </template>
+
                             </template>
+                            <template v-else>
+                                <template v-if="row.is_expiration">
+                                    <span class="badge bg-danger text-white" >{{row.expiration_days}}</span>
+                                </template> 
+                                <template v-else>
+                                    {{row.expiration_days}}                                
+                                </template>
+                            </template>
+
                         </td>
 
                         <td class="text-center">  

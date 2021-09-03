@@ -2,6 +2,8 @@
 namespace Modules\Sale\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\Cash;
+use App\Models\Tenant\CashDocument;
 use Modules\Sale\Http\Requests\TechnicalServicePaymentRequest;
 use Modules\Sale\Http\Resources\TechnicalServicePaymentCollection;
 use App\Models\Tenant\PaymentMethodType;
@@ -54,13 +56,12 @@ class TechnicalServicePaymentController extends Controller
 
         DB::connection('tenant')->transaction(function () use ($id, $request) {
 
-            $record = TechnicalServicePayment::firstOrNew(['id' => $id]);
+            $record = TechnicalServicePayment::query()->firstOrNew(['id' => $id]);
             $record->fill($request->all());
             $record->save();
             $this->createGlobalPayment($record, $request->all());
-
         });
- 
+
         return [
             'success' => true,
             'message' => ($id)?'Pago editado con éxito':'Pago registrado con éxito'
@@ -78,7 +79,7 @@ class TechnicalServicePaymentController extends Controller
             'message' => 'Pago eliminado con éxito'
         ];
     }
- 
+
 
 
 }

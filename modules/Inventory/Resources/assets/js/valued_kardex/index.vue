@@ -18,8 +18,8 @@
                     <tr slot="heading">
                         <th>#</th>
                         <th>Producto</th>
-                        <th >Categoría</th>
-                        <th >Marca</th>
+                        <th>Categoría</th>
+                        <th>Marca</th>
                         <th class="text-center">Unidad</th>
                         <th class="text-center">Unidades físicas vendidas</th>
                         <th class="text-center">Costo unitario</th>
@@ -33,23 +33,26 @@
                         <td>{{ row.item_description }}</td>
                         <td>{{ row.category_description }}</td>
                         <td>{{ row.brand_description }}</td>
-                        <td  class="text-center">{{ row.unit_type_id }}</td>
-                        <td  class="text-center">{{ row.quantity_sale }}</td>
+                        <td class="text-center">{{ row.unit_type_id }}</td>
+                        <td class="text-center">{{ row.quantity_sale }}</td>
                         <td class="text-center">{{ row.purchase_unit_price }}</td>
                         <td class="text-center">{{ row.total_sales }}</td>
                         <td class="text-center">{{ row.item_cost }}</td>
                         <td class="text-center">{{ row.valued_unit }}</td>
                         <td>
-                            
                             <el-popover
                                 placement="right"
-                                width="330"
+                                :style="{ width: 360 }"
                                 trigger="click">
                                 <el-table :data="row.warehouses">
-                                    <el-table-column width="220" property="warehouse_description" label="Almacén"></el-table-column>
-                                    <el-table-column width="90" property="stock" label="Stock"></el-table-column>
+                                    <el-table-column :style="{ width: 220 }" property="warehouse_description"
+                                                     label="Almacén"></el-table-column>
+                                    <el-table-column :style="{ width: 90 }" property="stock"
+                                                     label="Stock"></el-table-column>
+                                    <el-table-column :style="{ width: 30 }" property="sale_unit_price"
+                                                     label="Precio"></el-table-column>
                                 </el-table>
-                                <el-button slot="reference"> <i class="fa fa-eye"></i></el-button>
+                                <el-button slot="reference"><i class="fa fa-eye"></i></el-button>
                             </el-popover>
 
                         </td>
@@ -66,20 +69,19 @@
 <script>
 
 
-    import DataTable from '../../components/DataTableValuedKardex.vue'
+import DataTable from '../../components/DataTableValuedKardex.vue'
 
-    export default {
-          components: {DataTable},
-        data() {
-            return {
-                title: null,
-                resource: 'reports/valued-kardex',
-            }
-        },
-        created() {
-            this.title = 'Kardex valorizado'
-        },
-        methods: {
+export default {
+    components: {DataTable},
+    data() {
+        return {
+            title: null,
+            resource: 'reports/valued-kardex',
         }
-    }
+    },
+    created() {
+        this.title = 'Kardex valorizado'
+    },
+    methods: {}
+}
 </script>

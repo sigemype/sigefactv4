@@ -3,30 +3,29 @@
 namespace Modules\Document\Traits;
 
 use App\Models\Tenant\Item;
+use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
+
 
 trait SearchTrait
 {
 
     public function getItemsServices($request)
     {
+        $item = Item::whereIsActive()
+            ->whereTypeUser();
         if ($request->items_id) {
-            return Item::whereIn('id', $request->items_id)
-                ->whereIsActive()
-                ->whereTypeUser()
+            return $item->whereIn('id', $request->items_id)
                 ->get();
         }
         if ($request->search_by_barcode == 1) {
-            return Item::with(['item_lots'])
+            return $item->with(['item_lots'])
                 ->where('unit_type_id','ZZ')
-                ->whereTypeUser()
                 ->whereNotIsSet()
-                ->whereIsActive()
                 ->where('barcode', $request->input)
                 ->limit(1)
                 ->get();
         }
-        return Item::where('description','like', "%{$request->input}%")
-            ->whereTypeUser()
+        return $item->where('description','like', "%{$request->input}%")
             ->orWhere('internal_id','like', "%{$request->input}%")
             ->orWhereHas('category', function($query) use($request) {
                 $query->where('name', 'like', '%' . $request->input . '%');
@@ -38,28 +37,36 @@ trait SearchTrait
             ->with(['item_lots'])
             ->where('unit_type_id','ZZ')
             ->whereNotIsSet()
-            ->whereIsActive()
             ->orderBy('description')
             ->get();
     }
 
-    public function getItemsNotServices($request)
+    public function getItemsNotServices($request, $search_item_by_series = false)
     {
+        $item = Item::whereIsActive()
+                ->whereTypeUser();
+
+        if($search_item_by_series){
+            return $this->getItemsBySerie($item, $request);
+        }
+
         if ($request->items_id) {
-            return Item::whereIn('id', $request->items_id)
-                ->whereIsActive()
-                ->whereTypeUser()
+            return $item
+                ->whereIn('id', $request->items_id)
                 ->get();
         }
+
         if ($request->search_by_barcode == 1) {
-            return Item::where('barcode', $request->input)
-                ->whereIsActive()
-                ->whereTypeUser()
+            return $item
+                ->where('barcode', $request->input)
                 ->limit(1)
                 ->get();
         }
-        return Item::where('description','like', "%{$request->input}%")
-            ->whereTypeUser()
+
+
+        return $item
+            ->with('warehousePrices')
+            ->where('description','like', "%{$request->input}%")
             ->orWhere('internal_id','like', "%{$request->input}%")
             ->orWhereHas('category', function($query) use($request) {
                 $query->where('name', 'like', '%' . $request->input . '%');
@@ -69,9 +76,25 @@ trait SearchTrait
             })
             ->OrWhereJsonContains('attributes', ['value' => $request->input])
             ->whereWarehouse()
-            ->whereIsActive()
             ->orderBy('description')
             ->get();
+    }
+    
+
+    private function getItemsBySerie($item, $request)
+    {
+
+        $warehouse = ModuleWarehouse::select('id')->where('establishment_id', auth()->user()->establishment_id)->first();
+
+        $item = $item->wherehas('item_lots', function($query) use($request, $warehouse){
+                        return $query->where('has_sale', false)
+                                    ->where('warehouse_id', $warehouse->id)
+                                    ->where('series', $request->input);
+                        });
+
+
+        return $item->take(1)->get();
+
     }
 
 
@@ -125,6 +148,7 @@ trait SearchTrait
 
         return [
             'full_description' => $desc,
+            'warehouse_description' => $warehouse->description,
             'brand' => $brand,
             'category' => $category,
             'stock' => $stock,

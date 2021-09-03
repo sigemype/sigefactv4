@@ -2,6 +2,7 @@
 
 namespace Modules\Purchase\Http\Controllers;
 
+use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Person;
@@ -313,6 +314,7 @@ class PurchaseQuotationController extends Controller
             $client = Person::find($supplier->supplier_id);
             $supplier_email = $supplier->email;
 
+            Configuration::setConfigSmtpMail();
             Mail::to($supplier_email)->send(new PurchaseQuotationEmail($client, $purchase_quotation));
         }
 

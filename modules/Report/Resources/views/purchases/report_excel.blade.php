@@ -83,8 +83,9 @@
                                 <th>F. Emisión</th>
                                 <th class="">F. Vencimiento</th>
 
-                                <th>Cliente</th>
+                                <th>Proveedor</th>
                                 <th>RUC</th>
+                                <th>Cliente</th>
                                 <th class="">F. Pago</th>
                                 <th>Estado</th>
                                 <th>Moneda</th>
@@ -109,6 +110,10 @@
 
                                 <td class="celda">{{$value->supplier->name}}</td>
                                 <td class="celda">{{$value->supplier->number}}</td>
+                                <td class="celda">
+                                    {{$value->customer ? $value->customer->name : ''}}<br>
+                                    {{$value->customer ? $value->customer->identity_document_type->description : ''}} {{$value->customer ? $value->customer->number : ''}}
+                                </td>
                                 <td class="celda">
                                     {{-- {{isset($value->purchase_payments['payment_method_type']['description'])?$value->purchase_payments['payment_method_type']['description']:'-'}} --}}
                                     @foreach($value->payments as $pay)
@@ -175,14 +180,14 @@
 
                             @endforeach
                             <tr>
-                                <td class="celda" colspan="13"></td>
+                                <td class="celda" colspan="14"></td>
                                 <td class="celda" >Totales PEN</td>
                                 <td class="celda">{{$acum_total_taxed}}</td>
                                 <td class="celda">{{$acum_total_igv}}</td>
                                 <td class="celda">{{$acum_total}}</td>
                             </tr>
                             <tr>
-                                <td class="celda" colspan="13"></td>
+                                <td class="celda" colspan="14"></td>
                                 <td class="celda" >Totales USD</td>
                                 <td class="celda">{{$acum_total_taxed_usd}}</td>
                                 <td class="celda">{{$acum_total_igv_usd}}</td>

@@ -2,29 +2,27 @@
 
 namespace Modules\Finance\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
-use Modules\Finance\Models\GlobalPayment;
-use App\Models\Tenant\Cash;
-use App\Models\Tenant\BankAccount;
 use App\Models\Tenant\Company;
-use Modules\Finance\Traits\FinanceTrait; 
-use Modules\Finance\Http\Resources\GlobalPaymentCollection;
-use Modules\Finance\Exports\PaymentMethodTypeExport;
-use Barryvdh\DomPDF\Facade as PDF;
-use App\Models\Tenant\PaymentMethodType;
-use App\Models\Tenant\Establishment;
-use Carbon\Carbon;
-use Modules\Expense\Models\ExpenseMethodType;
 use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Establishment;
+use App\Models\Tenant\PaymentMethodType;
+use Barryvdh\DomPDF\Facade as PDF;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Modules\Expense\Models\ExpenseMethodType;
+use Modules\Finance\Exports\PaymentMethodTypeExport;
+use Modules\Finance\Traits\FinanceTrait;
 
 
 class PaymentMethodTypeController extends Controller
-{ 
+{
 
     use FinanceTrait;
 
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
+     */
     public function index(){
       $configuration = Configuration::first();
       return view('finance::payment_method_types.index', compact('configuration'));
@@ -40,25 +38,29 @@ class PaymentMethodTypeController extends Controller
     }
 
 
-    public function records(Request $request)
-    {
-
-        // dd($request->all());
-        $records = $this->getRecords($request->all());
-        
-        return $records;
-
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return array
+     */
+    public function records(Request $request) {
+        return $this->getRecords($request->all());
     }
 
-    public function getRecords($request){
+    /**
+     * @param array $request
+     *
+     * @return array
+     */
+    public function getRecords($request = []) {
 
-        $data_of_period = $this->getDatesOfPeriod($request); 
+        $data_of_period = $this->getDatesOfPeriod($request);
 
         $params = (object)[
             'date_start' => $data_of_period['d_start'],
-            'date_end' => $data_of_period['d_end'],
+            'date_end'   => $data_of_period['d_end'],
         ];
-        
+
         $payment_method_types = PaymentMethodType::whereFilterPayments($params)->get();
         $expense_method_types = ExpenseMethodType::whereFilterPayments($params)->get();
 
@@ -68,38 +70,44 @@ class PaymentMethodTypeController extends Controller
 
         return [
             'records' => $records_by_pmt->merge($records_by_emt),
-            'totals' => $totals
+            'totals'  => $totals,
         ];
-        
+
     }
 
-    
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function pdf(Request $request) {
 
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
         $records = $this->getRecords($request->all());
-
-        
         $pdf = PDF::loadView('finance::payment_method_types.report_pdf', compact("records", "company", "establishment"));
-
         $filename = 'Metodos_de_pago_'.date('YmdHis');
-
         return $pdf->download($filename.'.pdf');
     }
 
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function excel(Request $request) {
 
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
         $records = $this->getRecords($request->all());
 
-        return (new PaymentMethodTypeExport)
-                ->records($records)
+        $payment = new PaymentMethodTypeExport();
+        $payment->records($records)
                 ->company($company)
-                ->establishment($establishment)
-                ->download('Metodos_de_pago_'.Carbon::now().'.xlsx');
+                ->establishment($establishment);
+        return $payment->download('Metodos_de_pago_'.Carbon::now().'.xlsx');
 
     }
 

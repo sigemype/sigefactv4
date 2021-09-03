@@ -73,7 +73,7 @@
                         <div class="col-lg-4">
                             <div class="form-group" :class="{'has-danger': errors.expense_reason_id}">
                                 <label class="control-label">Motivo</label>
-                                <el-select v-model="form.expense_reason_id"  >
+                                <el-select v-model="form.expense_reason_id" filterable >
                                     <el-option v-for="option in expense_reasons" :key="option.id" :value="option.id" :label="option.description"></el-option>
                                 </el-select>
                                 <small class="form-control-feedback" v-if="errors.expense_reason_id" v-text="errors.expense_reason_id[0]"></small>

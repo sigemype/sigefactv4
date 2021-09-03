@@ -27,7 +27,15 @@ if ($hostname) {
 			Route::put('actions/{id}/update', 'DocumentaryActionController@update');
 			Route::delete('actions/{id}/delete', 'DocumentaryActionController@destroy');
 
+			Route::get('requirements', 'DocumentaryRequirementsController@index')->name('documentary.requirements');
+			Route::post('requirements', 'DocumentaryRequirementsController@index');
+			Route::post('requirements/store', 'DocumentaryRequirementsController@store');
+			Route::put('requirements/update', 'DocumentaryRequirementsController@update');
+			Route::delete('requirements/{id}/delete', 'DocumentaryRequirementsController@destroy');
+
             Route::get('files', 'DocumentaryFileController@index')->name('documentary.files');
+            Route::get('files/export/excel', 'DocumentaryFileController@excel');
+            Route::get('files/export/pdf', 'DocumentaryFileController@pdf');
             Route::post('files/store', 'DocumentaryFileController@store');
             Route::post('files/{id}/update', 'DocumentaryFileController@update');
             Route::delete('files/{id}/delete', 'DocumentaryFileController@destroy');
@@ -35,6 +43,12 @@ if ($hostname) {
             Route::get('files/create', 'DocumentaryFileController@create');
             Route::get('files/document-number', 'DocumentaryFileController@getDocumentNumber');
             Route::post('files/{id}/add-office', 'DocumentaryFileController@addOffice');
+            Route::post('files/next', 'DocumentaryFileController@nextStep');
+            Route::post('files/back', 'DocumentaryFileController@backStep');
+            Route::get('files/download/{id}', 'DocumentaryFilesArchivesController@download')
+                 ->name('documentaryprocedure.download.file');
+            route::get('file/remove/{id}', 'DocumentaryFilesArchivesController@destroy');
+            route::post('file/reload/{id?}', 'DocumentaryFileController@getData');
 		});
 	});
 }

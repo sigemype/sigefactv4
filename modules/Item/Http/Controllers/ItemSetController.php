@@ -4,7 +4,7 @@ namespace Modules\Item\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller; 
+use Illuminate\Routing\Controller;
 use Modules\Item\Imports\ItemSetIndividualImport;
 use Modules\Item\Imports\ItemSetImport;
 use Maatwebsite\Excel\Excel;
@@ -22,22 +22,21 @@ class ItemSetController extends Controller
                 $data = $import->getData();
                 return [
                     'success' => true,
-                    'message' =>  __('app.actions.upload.success'),
+                    'message' => __('app.actions.upload.success'),
                     'data' => $data
                 ];
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 return [
                     'success' => false,
-                    'message' =>  $e->getMessage()
+                    'message' => $e->getMessage()
                 ];
             }
         }
         return [
             'success' => false,
-            'message' =>  __('app.actions.upload.error'),
+            'message' => __('app.actions.upload.error'),
         ];
     }
-
 
 
     public function importItemSetsIndividual(Request $request)
@@ -49,19 +48,19 @@ class ItemSetController extends Controller
                 $data = $import->getData();
                 return [
                     'success' => true,
-                    'message' =>  __('app.actions.upload.success'),
+                    'message' => __('app.actions.upload.success'),
                     'data' => $data
                 ];
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 return [
                     'success' => false,
-                    'message' =>  $e->getMessage()
+                    'message' => $e->getMessage()
                 ];
             }
         }
         return [
             'success' => false,
-            'message' =>  __('app.actions.upload.error'),
+            'message' => __('app.actions.upload.error'),
         ];
     }
 

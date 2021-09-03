@@ -3,14 +3,14 @@
         <div class="row">
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
-                  
-                <div class="row mt-2"> 
-                    
+
+                <div class="row mt-2">
+
                         <div class="col-lg-6 col-md-6" >
-                            <div class="form-group"> 
+                            <div class="form-group">
                                 <label class="control-label">Productos
                                 </label>
-                                
+
                                 <el-select v-model="form.item_id" filterable remote  popper-class="el-select-customers"  clearable
                                     placeholder="Código interno o nombre"
                                     :remote-method="searchRemotePersons"
@@ -18,7 +18,7 @@
                                     @change="changePersons">
                                     <el-option v-for="option in items" :key="option.id" :value="option.id" :label="option.description"></el-option>
                                 </el-select>
- 
+
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -63,7 +63,7 @@
                             </div>
                         </template>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3" v-if="defaultType !== 'purchase'">
                             <div class="form-group">
                                 <label class="control-label">Plataforma</label>
                                 <el-select v-model="form.web_platform_id" clearable>
@@ -88,22 +88,23 @@
                                 </el-select>
                             </div>
                         </div> -->
-                        
-                        <div class="col-lg-7 col-md-7 col-md-7 col-sm-12" style="margin-top:29px"> 
+
+                    <div class="col-md-12">&nbsp;</div>
+                        <div class="col-lg-7 col-md-7 col-md-7 col-sm-12" style="margin-top:29px">
                             <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
-                            
-                            <template v-if="records.length>0"> 
+
+                            <template v-if="records.length>0">
 
                                 <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportal Excel</el-button>
 
                             </template>
 
-                        </div>             
-                    
+                        </div>
+
                 </div>
                 <div class="row mt-1 mb-4">
-                    
-                </div> 
+
+                </div>
             </div>
 
 
@@ -115,7 +116,7 @@
                         </thead>
                         <tbody>
                             <slot v-for="(row, index) in records" :row="row" :index="customIndex(index)"></slot>
-                        </tbody> 
+                        </tbody>
                     </table>
                     <div>
                         <el-pagination
@@ -142,9 +143,10 @@
     import moment from 'moment'
     import queryString from 'query-string'
 
-    export default { 
+    export default {
         props: {
             resource: String,
+            defaultType : String,
         },
         data () {
             return {
@@ -156,12 +158,12 @@
                 records: [],
                 headers: headers_token,
                 document_types: [],
-                pagination: {}, 
-                search: {}, 
-                totals: {}, 
+                pagination: {},
+                search: {},
+                totals: {},
                 establishment: null,
-                establishments: [],       
-                web_platforms: [],       
+                establishments: [],
+                web_platforms: [],
                 form: {},
                 pickerOptionsDates: {
                     disabledDate: (time) => {
@@ -185,8 +187,11 @@
             this.$eventHub.$on('reloadData', () => {
                 this.getRecords()
             })
+            if(this.defaultType!== undefined && this.defaultType !== null) {
+                this.form.type = this.defaultType;
+            }
         },
-        async mounted () { 
+        async mounted () {
 
             await this.$http.get(`/${this.resource}/filter`)
                 .then(response => {
@@ -200,43 +205,43 @@
             await this.filterItems()
 
         },
-        methods: { 
+        methods: {
             changePersons(){
                 // this.form.type_person = 'customers'
             },
-            searchRemotePersons(input) {  
-                
-                if (input.length > 0) { 
+            searchRemotePersons(input) {
+
+                if (input.length > 0) {
 
                     this.loading_search = true
                     let parameters = `input=${input}`
-                    
+
 
                     this.$http.get(`/reports/data-table/items/?${parameters}`)
-                            .then(response => { 
+                            .then(response => {
                                 this.items = response.data.items
                                 this.loading_search = false
-                                
+
                                 if(this.items.length == 0){
                                     this.filterItems()
                                 }
-                            })  
+                            })
                 } else {
                     this.filterItems()
                 }
 
             },
-            filterItems() { 
+            filterItems() {
                 this.items = this.all_items
-            }, 
-            clickDownload(type) {                 
+            },
+            clickDownload(type) {
                 let query = queryString.stringify({
                     ...this.form
                 });
                 window.open(`/${this.resource}/${type}/?${query}`, '_blank');
             },
             initForm(){
- 
+
                 this.form = {
                     establishment_id: null,
                     item_id: null,
@@ -249,15 +254,15 @@
                     month_end: moment().format('YYYY-MM'),
                 }
 
-            }, 
+            },
             initTotals(){
-                
+
                 this.totals = {
                     acum_total_taxed : 0,
                     acum_total_igv : 0,
-                    acum_total : 0,      
+                    acum_total : 0,
                     acum_total_exonerated : 0,
-                    acum_total_unaffected : 0,         
+                    acum_total_unaffected : 0,
                     acum_total_free : 0,
 
                     acum_total_taxed_usd : 0,
@@ -267,9 +272,9 @@
             },
             customIndex(index) {
                 return (this.pagination.per_page * (this.pagination.current_page - 1)) + index + 1
-            }, 
+            },
             async getRecordsByFilter(){
-                
+
                 if(!this.form.item_id){
                     return this.$message.error('Debe seleccionar un producto')
                 }
@@ -298,7 +303,7 @@
                     ...this.form
                 })
             },
-            
+
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {
                     this.form.date_end = this.form.date_start

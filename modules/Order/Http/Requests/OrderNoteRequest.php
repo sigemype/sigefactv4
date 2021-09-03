@@ -5,17 +5,23 @@ namespace Modules\Order\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Class OrderNoteRequest
+ *
+ * @package Modules\Order\Http\Requests
+ * @mixin FormRequest
+ */
 class OrderNoteRequest extends FormRequest
 {
-     
+
     public function authorize()
     {
-        return true; 
+        return true;
     }
- 
+
     public function rules()
-    { 
-        
+    {
+
         return [
             'customer_id' => [
                 'required',
@@ -30,7 +36,7 @@ class OrderNoteRequest extends FormRequest
             ],
             'date_of_issue' => [
                 'required',
-            ], 
+            ],
         ];
     }
 }

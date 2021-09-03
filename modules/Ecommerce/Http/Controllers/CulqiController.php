@@ -2,6 +2,7 @@
 namespace Modules\Ecommerce\Http\Controllers;
 
 
+use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Controller;
@@ -96,7 +97,8 @@ class CulqiController extends Controller
         $document->total = $request->precio_culqi;
         $document->items = json_decode($request->items, true);
 
-        Mail::to($customer_email)->send(new CulqiEmail($document));
+          Configuration::setConfigSmtpMail();
+          Mail::to($customer_email)->send(new CulqiEmail($document));
 
         return [
             'success' => true,

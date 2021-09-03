@@ -25,6 +25,7 @@ use App\Models\Tenant\User;
 use App\Models\Tenant\PaymentMethodType;
 use Modules\Finance\Http\Resources\UnpaidCollection;
 use Modules\Finance\Traits\UnpaidTrait;
+use Modules\Item\Models\WebPlatform;
 
 class UnpaidController extends Controller
 {
@@ -38,7 +39,7 @@ class UnpaidController extends Controller
 
     public function filter()
     {
-        $customers = Person::whereType('customers')->orderBy('name')->get()->transform(function($row) {
+        $customer_temp = Person::whereType('customers')->orderBy('name')->get()->transform(function($row) {
             return [
                 'id' => $row->id,
                 'description' => $row->number.' - '.$row->name,
@@ -47,6 +48,15 @@ class UnpaidController extends Controller
                 'identity_document_type_id' => $row->identity_document_type_id,
             ];
         });
+        $customer= [];
+        $customer[]=[
+            'id' => null,
+            'description' => 'Todos',
+            'name' => 'Todos',
+            'number' => '',
+            'identity_document_type_id' => '',
+        ];
+        $customers = array_merge($customer,$customer_temp->toArray());
 
         $establishments = DashboardView::getEstablishments();
 
@@ -58,8 +68,9 @@ class UnpaidController extends Controller
         }
 
         $payment_method_types = PaymentMethodType::whereIn('id', ['05', '08', '09'])->get();
+        $web_platforms = WebPlatform::all();
 
-        return compact('customers', 'establishments', 'users', 'payment_method_types');
+        return compact('customers', 'establishments', 'users', 'payment_method_types','web_platforms');
     }
 
     public function records(Request $request)
@@ -91,10 +102,11 @@ class UnpaidController extends Controller
 
         $company = Company::first();
 
-        return (new UnpaidPaymentMethodDayExport)
-                ->company($company)
-                ->records($records)
-                ->download('Reporte_C_Cobrar_F_Pago'.Carbon::now().'.xlsx');
+        $unpaidPaymentMethodDayExport = new UnpaidPaymentMethodDayExport();
+        $unpaidPaymentMethodDayExport
+            ->company($company)
+            ->records($records);
+        return $unpaidPaymentMethodDayExport->download('Reporte_C_Cobrar_F_Pago'.Carbon::now().'.xlsx');
 
     }
 

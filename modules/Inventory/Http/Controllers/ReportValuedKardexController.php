@@ -15,12 +15,13 @@ use Modules\Inventory\Helpers\InventoryValuedKardex;
 
 class ReportValuedKardexController extends Controller
 {
-    
+
     use ReportTrait;
 
-    public function filter() {
+    public function filter()
+    {
 
-        $establishments = Establishment::all()->transform(function($row) {
+        $establishments = Establishment::all()->transform(function ($row) {
             return [
                 'id' => $row->id,
                 'name' => $row->description
@@ -31,7 +32,8 @@ class ReportValuedKardexController extends Controller
     }
 
 
-    public function index() {
+    public function index()
+    {
 
         return view('inventory::reports.valued_kardex.index');
     }
@@ -43,9 +45,10 @@ class ReportValuedKardexController extends Controller
 
         return new ReportValuedKardexCollection($records->paginate(config('tenant.items_per_page')));
     }
- 
-    
-    public function getRecords($request){
+
+
+    public function getRecords($request)
+    {
 
         $data_of_period = $this->getDataOfPeriod($request);
 
@@ -62,34 +65,33 @@ class ReportValuedKardexController extends Controller
     }
 
 
+    /**
+     * @param object $params
+     * @return Item|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
+     */
     private function data($params)
     {
-
-        $data = Item::whereFilterValuedKardex($params)
-                    ->whereNotService()
-                    ->orderBy('description');
-
-        // dd($data->get()[0]->document_items);
-
-        return $data;
+        return Item::whereFilterValuedKardex($params)
+            ->whereNotService()
+            ->orderBy('description');
 
     }
 
 
-    public function excel(Request $request) {
+    public function excel(Request $request)
+    {
 
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
 
         $records = InventoryValuedKardex::getTransformRecords($this->getRecords($request->all())->get());
-        // dd($records);
-        // return $records;
+        $valuedKardexExport = new ValuedKardexExport();
+        $valuedKardexExport
+            ->records($records)
+            ->company($company)
+            ->establishment($establishment);
 
-        return (new ValuedKardexExport)
-                ->records($records)
-                ->company($company)
-                ->establishment($establishment)
-                ->download('Reporte_Kardex_Valorizado_'.Carbon::now().'.xlsx');
+        return $valuedKardexExport->download('Reporte_Kardex_Valorizado_' . Carbon::now() . '.xlsx');
 
     }
 }

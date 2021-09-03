@@ -1,6 +1,8 @@
 <?php
 
 
+use Illuminate\Support\Facades\Route;
+
 $current_hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
 
 if($current_hostname) {
@@ -27,12 +29,12 @@ if($current_hostname) {
 
                 Route::get('download/{external_id}/{format?}', 'SaleOpportunityController@download');
                 Route::get('print/{external_id}/{format?}', 'SaleOpportunityController@toPrint');
-                
+
                 Route::post('uploads', 'SaleOpportunityFileController@uploadFile');
                 Route::get('download-file/{filename}', 'SaleOpportunityFileController@download');
 
             });
- 
+
             Route::prefix('payment-method-types')->group(function () {
 
                 Route::get('/records', 'PaymentMethodTypeController@records');
@@ -49,7 +51,7 @@ if($current_hostname) {
                 Route::get('/columns', 'ContractController@columns');
                 Route::get('/records', 'ContractController@records');
                 Route::get('/create/{id?}', 'ContractController@create')->name('tenant.contracts.create')->middleware('redirect.level');
-    
+
                 Route::get('/state-type/{state_type_id}/{id}', 'ContractController@updateStateType');
                 Route::get('/filter', 'ContractController@filter');
                 Route::get('/tables', 'ContractController@tables');
@@ -72,7 +74,7 @@ if($current_hostname) {
 
         });
 
-        
+
         Route::prefix('production-orders')->group(function () {
 
             Route::get('', 'ProductionOrderController@index')->name('tenant.production_orders.index')->middleware(['redirect.level']);
@@ -97,7 +99,7 @@ if($current_hostname) {
 
         });
 
-        
+
         Route::prefix('user-commissions')->group(function () {
 
             Route::get('', 'UserCommissionController@index')->name('tenant.user_commissions.index')->middleware(['redirect.level']);
@@ -119,7 +121,7 @@ if($current_hostname) {
             Route::delete('/{quotation_payment}', 'QuotationPaymentController@destroy');
 
         });
-        
+
         Route::prefix('technical-service-payments')->group(function () {
 
             Route::get('/records/{record}', 'TechnicalServicePaymentController@records');
@@ -128,6 +130,14 @@ if($current_hostname) {
             Route::post('', 'TechnicalServicePaymentController@store');
             Route::delete('/{record_payment}', 'TechnicalServicePaymentController@destroy');
 
+        });
+
+        Route::prefix('generate-document')->group(function () {
+            Route::get('/record/{table}/{record}', 'GenerateDocumentController@record');
+            Route::get('/tables', 'GenerateDocumentController@tables');
+            Route::post('/', 'GenerateDocumentController@store');
+            Route::post('/customers', 'GenerateDocumentController@customers');
+//            Route::post('/store_item', 'GenerateDocumentController@storeItem');
         });
     });
 }

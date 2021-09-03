@@ -5,6 +5,7 @@ namespace Modules\Finance\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 use Modules\Finance\Models\GlobalPayment;
 use App\Models\Tenant\Cash;
 use App\Models\Tenant\BankAccount;
@@ -16,6 +17,12 @@ use Barryvdh\DomPDF\Facade as PDF;
 use App\Models\Tenant\Establishment;
 use Carbon\Carbon;
 
+/**
+ * Class GlobalPaymentController
+ *
+ * @package Modules\Finance\Http\Controllers
+ * @mixin Controller
+ */
 class GlobalPaymentController extends Controller
 {
 
@@ -36,8 +43,14 @@ class GlobalPaymentController extends Controller
     }
 
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Modules\Finance\Http\Resources\GlobalPaymentCollection
+     */
     public function records(Request $request)
     {
+        /** @var \Illuminate\Database\Eloquent\Builder $records */
         $records = $this->getRecords($request->all(), GlobalPayment::class);
 
         return new GlobalPaymentCollection($records->paginate(config('tenant.items_per_page')));
@@ -48,6 +61,12 @@ class GlobalPaymentController extends Controller
         $data_of_period = $this->getDatesOfPeriod($request);
         $payment_type = $request['payment_type'];
         $destination_type = $request['destination_type'];
+        $id = 0;
+        $position = strpos($destination_type, BankAccount::class.'::');
+        if ($position !== false) {
+            $id = str_replace(BankAccount::class.'::','',$destination_type);
+            $destination_type = BankAccount::class;
+        }
 
         $params = (object)[
             'date_start' => $data_of_period['d_start'],
@@ -62,6 +81,9 @@ class GlobalPaymentController extends Controller
 
         if($destination_type){
             $records = $records->whereDestinationType($destination_type);
+        }
+        if($id !== 0 && $model === GlobalPayment::class){
+            $records->where('destination_id',$id);
         }
 
         return $records->latest();

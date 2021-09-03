@@ -24,12 +24,24 @@
 </template>
 
 <script>
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+
 export default {
+    props:['configuration'],
     components: {},
     data() {
         return {
             activeName: "first"
         };
-    }
+    },
+    created() {
+        this.loadConfiguration()
+        this.$store.commit('setConfiguration', this.configuration)
+    },
+    methods:{
+        ...mapActions([
+            'loadConfiguration',
+        ]),
+    },
 };
 </script>

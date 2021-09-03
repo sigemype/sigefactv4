@@ -2,6 +2,9 @@
 
 namespace Modules\Purchase\Http\Controllers;
 
+use App\Models\Tenant\Catalogs\OperationType;
+use App\Models\Tenant\Configuration;
+use App\Traits\OfflineTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Person;
@@ -43,6 +46,7 @@ class PurchaseOrderController extends Controller
 {
 
     use StorageDocument;
+    use OfflineTrait;
 
     protected $purchase_order;
     protected $company;
@@ -117,8 +121,23 @@ class PurchaseOrderController extends Controller
         $attribute_types = AttributeType::whereActive()->orderByDescription()->get();
         $warehouses = Warehouse::all();
 
-        return compact('items', 'categories', 'affectation_igv_types', 'system_isc_types', 'price_types',
-                        'discount_types', 'charge_types', 'attribute_types','warehouses');
+        $operation_types = OperationType::whereActive()->get();
+        $is_client = $this->getIsClient();
+
+        return compact(
+        'items',
+        'categories',
+        'affectation_igv_types',
+        'system_isc_types',
+        'price_types',
+        'discount_types',
+        'charge_types',
+        'attribute_types',
+        'warehouses',
+        'attribute_types',
+        'operation_types',
+        'is_client'
+        );
     }
 
 
@@ -339,7 +358,7 @@ class PurchaseOrderController extends Controller
         $company = ($this->company != null) ? $this->company : Company::active();
         $filename = ($filename != null) ? $filename : $this->purchase_order->filename;
 
-        $base_template = config('tenant.pdf_template');
+        $base_template = Establishment::find($document->establishment_id)->template_pdf;
 
         $html = $template->pdf($base_template, "purchase_order", $company, $document, $format_pdf);
 
@@ -402,6 +421,7 @@ class PurchaseOrderController extends Controller
         $record = PurchaseOrder::find($request->input('id'));
         $customer_email = $request->input('customer_email');
 
+        Configuration::setConfigSmtpMail();
         Mail::to($customer_email)->send(new PurchaseOrderEmail($record));
 
         return [

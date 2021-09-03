@@ -2,10 +2,9 @@
 
 @section('content')
 
-    <div class="row">
-        <div class="col-xlg-6 col-lg-8 col-md-8">
-            <tenant-account-format></tenant-account-format>
-        </div>
-    </div>
+    <tenant-account-format
+        :currencies="{{json_encode($currencies)}}"
+        :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
+    ></tenant-account-format>
 
 @endsection

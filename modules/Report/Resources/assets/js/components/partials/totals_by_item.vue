@@ -6,7 +6,10 @@
                     <div class="col-md-12">
                         <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button>
                         <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportal Excel</el-button>
-                        <el-button class="submit" type="success" @click.prevent="onGenerateGuide">Generar guía</el-button>
+                        <template v-if="canGenerateGuide">
+                            <el-button class="submit" type="success" @click.prevent="onGenerateGuide">Generar guía
+                            </el-button>
+                        </template>
                     </div>
                     <div class="col-md-12 mt-2">
                         <div class="table-responsive">
@@ -47,13 +50,28 @@
 
 
     export default {
-        props: ['showDialog', 'parameters'],
+        props: [
+            'resource',
+            'showDialog',
+            'parameters'
+        ],
         data() {
             return {
                 loading: false,
                 titleDialog: 'Totales por productos',
-                resource: 'reports/sales-consolidated',
+                // resource: 'reports/sales-consolidated',
                 records: [],
+            }
+        },
+        computed:{
+            canGenerateGuide(){
+                if(
+                    this.resource === 'reports/order-notes-consolidated' ||
+                    this.resource === 'reports/guides'){
+                    return false;
+                }
+
+                return true;
             }
         },
         methods: {
@@ -79,14 +97,14 @@
                 this.getRecords()
             },
             getRecords() {
-
                 this.loading = true
-                this.$http.get(`/${this.resource}/totals-by-item?${this.parameters}`).then((response) => {
-                    this.records = response.data
-                })
-                .then(()=>{
-                    this.loading = false
-                })
+                this.$http.get(`/${this.resource}/totals-by-item?${this.parameters}`)
+                    .then((response) => {
+                        this.records = response.data
+                    })
+                    .then(() => {
+                        this.loading = false
+                    })
 
             },
         }

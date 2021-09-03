@@ -33,10 +33,11 @@ class ReportGeneralItemController extends Controller
         $items = $this->getItems('items');
         $brands = $this->getBrands();
         $web_platforms = $this->getWebPlatforms();
+        $document_types = DocumentType::whereIn('id', ['01', '03', '07', '80'])->get();
+        $categories = $this->getCategories();
+        $users = $this->getUsers();
 
-        $document_types = DocumentType::whereIn('id', ['01', '03', '80'])->get();
-
-        return compact('document_types', 'suppliers', 'customers', 'items','web_platforms', 'brands');
+        return compact('document_types', 'suppliers', 'customers', 'items','web_platforms', 'brands', 'categories', 'users');
     }
 
 
@@ -50,7 +51,6 @@ class ReportGeneralItemController extends Controller
     {
 
         $records = $this->getRecordsItems($request->all())->latest('id');
-
 
         return new GeneralItemCollection($records->paginate(config('tenant.items_per_page')));
     }
@@ -69,48 +69,82 @@ class ReportGeneralItemController extends Controller
         $type_person = $request['type_person'];
         $item_id = $request['item_id'];
         $brand_id = $request['brand_id'];
+        $category_id = $request['category_id'];
 
-        $user = $request['user'];
+        $user_id = $request['user_id'];
+        $user_type = $request['user_type'] != null ? $request['user_type'] : 'VENDEDOR';
         $web_platform_id = $request['web_platform_id'];
 
-        $records = $this->dataItems($d_start, $d_end, $document_type_id, $data_type,$user, $person_id, $type_person, $item_id, $web_platform_id, $brand_id);
+        $records = $this->dataItems($d_start, $d_end, $document_type_id, $data_type, $person_id, $type_person, $item_id, $web_platform_id, $brand_id, $category_id, $user_id, $user_type);
 
         return $records;
 
     }
 
 
-    private function dataItems($date_start, $date_end, $document_type_id, $data_type, $user, $person_id, $type_person, $item_id, $web_platform_id, $brand_id)
+    /**
+     * @param $date_start
+     * @param $date_end
+     * @param $document_type_id
+     * @param $data_type
+     * @param $person_id
+     * @param $type_person
+     * @param $item_id
+     * @param $web_platform_id
+     * @param $brand_id
+     * @param $category_id
+     * @param $user_id
+     * @param $user_type
+     *
+     * @return \App\Models\Tenant\SaleNoteItem|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
+     */
+    private function dataItems($date_start, $date_end, $document_type_id, $data_type, $person_id, $type_person, $item_id, $web_platform_id, $brand_id, $category_id, $user_id, $user_type)
     {
-        if( $document_type_id && $document_type_id == '80' )
-        {
+        /* columna state_type_id */
+        $documents_excluded = [
+            '11' // Documentos anulados
+        ];
+        if( $document_type_id && $document_type_id == '80' ) {
             $relation = 'sale_note';
 
-            $data = SaleNoteItem::whereHas('sale_note', function($query) use($date_start, $date_end){
+            $data = SaleNoteItem::whereHas('sale_note', function($query) use($date_start, $date_end, $user_id, $documents_excluded){
                 $query
                 ->whereBetween('date_of_issue', [$date_start, $date_end])
                 ->latest()
                 ->whereTypeUser();
+                if(!empty($user_id)){
+                    $query->where('user_id',$user_id);
+                }
+                $query->whereNotIn('state_type_id', $documents_excluded);
             });
-        }
-        else{
+
+        } else {
 
             $model = $data_type['model'];
             $relation = $data_type['relation'];
 
             $document_types = $document_type_id ? [$document_type_id] : ['01','03'];
 
-            $data = $model::whereHas($relation, function($query) use($date_start, $date_end, $document_types){
-                            $query
-                            ->whereBetween('date_of_issue', [$date_start, $date_end])
-                            ->whereIn('document_type_id', $document_types)
-                            ->latest()
-                            ->whereTypeUser();
-                        })
-                        ->whereHas($relation.'.user', function($query) use($user){
-                            $query->where('name', 'like', "%{$user}%");
-                        });
-
+            $data = $model::whereHas($relation, function ($query) use ($date_start, $date_end, $document_types, $model,$documents_excluded) {
+                $query
+                    ->whereBetween('date_of_issue', [$date_start, $date_end])
+                    ->whereIn('document_type_id', $document_types)
+                    ->latest()
+                    ->whereTypeUser();
+                if ($model == 'App\Models\Tenant\DocumentItem') {
+                    $query->whereNotIn('state_type_id', $documents_excluded);
+                }
+            });
+            if ($user_id && $user_type === 'CREADOR') {
+                $data = $data->whereHas($relation.'.user', function($query) use($user_id){
+                    $query->where('user_id', $user_id);
+                });
+            }
+			if ($user_id && $user_type === 'VENDEDOR') {
+				$data = $data->whereHas($relation . '.seller', function ($query) use ($user_id) {
+					$query->where('seller_id', $user_id);
+				});
+			}
         }
 
 
@@ -128,13 +162,16 @@ class ReportGeneralItemController extends Controller
             $data =  $data->where('item_id', $item_id);
         }
 
-        if($web_platform_id || $brand_id){
-            $data = $data->whereHas('relation_item', function($q) use($web_platform_id, $brand_id){
+        if($web_platform_id || $brand_id || $category_id){
+            $data = $data->whereHas('relation_item', function($q) use($web_platform_id, $brand_id, $category_id){
 				if ($web_platform_id) {
 					$q->where('web_platform_id', $web_platform_id);
                 }
 				if ($brand_id) {
 					$q->where('brand_id', $brand_id);
+				}
+                if ($category_id) {
+					$q->where('category_id', $category_id);
 				}
             });
         }
@@ -163,7 +200,8 @@ class ReportGeneralItemController extends Controller
 
 
     public function pdf(Request $request) {
-
+        ini_set('memory_limit', '4026M');
+        ini_set("pcre.backtrack_limit", "5000000");
         $records = $this->getRecordsItems($request->all())->latest('id')->get();
         $type_name = ($request->type == 'sale') ? 'Ventas_':'Compras_';
         $type = $request->type;
@@ -171,23 +209,24 @@ class ReportGeneralItemController extends Controller
 
         $pdf = PDF::loadView('report::general_items.report_pdf', compact("records", "type", "document_type_id"))->setPaper('a4', 'landscape');
 
-        $filename = 'Reporte_General_Productos_'.$type_name.Carbon::now().'.xlsx';
+        $filename = 'Reporte_General_Productos_'.$type_name.Carbon::now();
 
         return $pdf->download($filename.'.pdf');
     }
 
 
     public function excel(Request $request) {
-
+        ini_set('memory_limit', '4026M');
+        ini_set("pcre.backtrack_limit", "5000000");
         $records = $this->getRecordsItems($request->all())->latest('id')->get();
         $type = ($request->type == 'sale') ? 'Ventas_':'Compras_';
         $document_type_id = $request['document_type_id'];
-
-        return (new GeneralItemExport)
-                ->records($records)
-                ->type($request->type)
-                ->document_type_id($document_type_id)
-                ->download('Reporte_General_Productos_'.$type.Carbon::now().'.xlsx');
+        $generalItemExport= new GeneralItemExport();
+        $generalItemExport
+            ->records($records)
+            ->type($request->type)
+            ->document_type_id($document_type_id);
+        return $generalItemExport->download('Reporte_General_Productos_'.$type.Carbon::now().'.xlsx');
 
     }
 }

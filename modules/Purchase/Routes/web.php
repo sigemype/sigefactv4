@@ -8,6 +8,12 @@ if($current_hostname) {
 
             // Route::redirect('/', '/dashboard');
 
+            Route::prefix('purchases')->group(function () {
+
+                Route::post('import-series', 'PurchaseController@importSeries');
+            });
+
+
             Route::prefix('purchase-quotations')->group(function () {
 
                 Route::get('', 'PurchaseQuotationController@index')->name('tenant.purchase-quotations.index');
@@ -25,7 +31,7 @@ if($current_hostname) {
 
             Route::prefix('purchase-orders')->group(function () {
 
-                Route::get('', 'PurchaseOrderController@index')->name('tenant.purchase-orders.index');
+                Route::get('', 'PurchaseOrderController@index')->name('tenant.purchase-orders.index')->middleware('redirect.level');
                 Route::get('columns', 'PurchaseOrderController@columns');
                 Route::get('records', 'PurchaseOrderController@records');
                 Route::get('create/{id?}', 'PurchaseOrderController@create')->name('tenant.purchase-orders.create');

@@ -1,55 +1,57 @@
 <template>
-  <div class="row">
+  <div class="row text-center">
     <div class="col-6 col-md-2" v-if="company.certificate_due">
       <div class="card card-dashboard">
         <div
-          class="card-body card-green"
+          class="card-body border border-success"
           :class="{
-            'is-due-warning': isDueWarning
+            'border-danger': isDueWarning
           }"
         >
           <div class="card-title">Fec venc del <br />Certificado</div>
-          <span>{{ company.certificate_due }}</span>
+          <span class="text-success font-weight-bold" :class="{
+            'text-danger': isDueWarning
+          }">{{ company.certificate_due }}</span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-2">
       <div class="card card-dashboard">
-        <div class="card-body">
+        <div class="card-body border">
           <div class="card-title">Cantidad <br />CPE Emitidos</div>
-          <span>{{ total_cpe }}</span>
+          <span class="font-weight-bold">{{ total_cpe }}</span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-2">
-      <div class="card card-dashboard">
+      <div class="card card-dashboard border">
         <div class="card-body">
           <div class="card-title">Monto total <br />comprobantes</div>
-          <span>{{ document_total_global }}</span>
+          <span class="font-weight-bold">{{ document_total_global }}</span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-2">
       <div class="card card-dashboard">
-        <div class="card-body">
+        <div class="card-body border">
           <div class="card-title">Monto total notas <br />de ventas</div>
-          <span>{{ sale_note_total_global }}</span>
+          <span class="font-weight-bold">{{ sale_note_total_global }}</span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-2">
       <div class="card card-dashboard">
-        <div class="card-body">
+        <div class="card-body border">
           <div class="card-title">Monto total <br />general</div>
-          <span>{{ total }}</span>
+          <span class="font-weight-bold">{{ total | toDecimals }}</span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-2" v-if="utilities.totals">
       <div class="card card-dashboard">
-        <div class="card-body">
+        <div class="card-body border">
           <div class="card-title">Utitlidad <br />neta</div>
-          <span>{{ utilities.totals.utility }}</span>
+          <span class="font-weight-bold">{{ utilities.totals.utility }}</span>
         </div>
       </div>
     </div>

@@ -11,38 +11,38 @@
                 font-family: sans-serif;
                 font-size: 12px;
             }
-            
+
             table {
                 width: 100%;
                 border-spacing: 0;
                 border: 1px solid black;
             }
-            
+
             .celda {
                 text-align: center;
                 padding: 5px;
                 border: 0.1px solid black;
             }
-            
+
             th {
                 padding: 5px;
                 text-align: center;
                 border-color: #0088cc;
                 border: 0.1px solid black;
             }
-            
+
             .title {
                 font-weight: bold;
                 padding: 5px;
                 font-size: 20px !important;
                 text-decoration: underline;
             }
-            
+
             p>strong {
                 margin-left: 5px;
                 font-size: 13px;
             }
-            
+
             thead {
                 font-weight: bold;
                 background: #0088cc;
@@ -61,7 +61,7 @@
                 <tr>
                     <td>
                         <p><strong>Empresa: </strong>{{$company->name}}</p>
-                    </td> 
+                    </td>
                     <td>
                         <p><strong>Fecha: </strong>{{date('Y-m-d')}}</p>
                     </td>
@@ -83,8 +83,10 @@
                                 <th>#</th>
                                 <th class="text-center">Fecha Emisión</th>
                                 <th>Número</th>
-
                                 <th>Cliente</th>
+                                <th>Moneda</th>
+                                <th>Plataforma</th>
+                                <th>Orden de compra</th>
                                 <th>Por cobrar</th>
                                 <th>Total</th>
 
@@ -98,8 +100,16 @@
                                         <td class="celda">{{$loop->iteration}}</td>
                                         <td class="celda">{{$value['date_of_issue']}}</td>
                                         <td class="celda">{{$value['number_full']}}</td>
-
                                         <td class="celda">{{$value['customer_name']}}</td>
+                                        <td class="celda">{{$value['currency_type_id']}}</td>
+                                        <td class="celda">
+                                            @if(isset($value['web_platforms']))
+                                            @foreach($value['web_platforms'] as $platform)
+                                                <label > {{$platform->name}}</label>
+                                                @endforeach
+                                                @endif
+                                        </td>
+                                        <td class="celda">{{$value['purchase_order']}}</td>
                                         <td class="celda">{{$value['total_to_pay']}}</td>
                                         <td class="celda">{{$value['total']}}</td>
                                     </tr>

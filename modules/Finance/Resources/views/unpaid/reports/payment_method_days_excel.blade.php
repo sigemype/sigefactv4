@@ -49,6 +49,8 @@
                                 <th class="text-center">Fecha Vencimiento</th>
                                 <th>Número</th>
                                 <th>Cliente</th>
+                                <th>Plataforma</th>
+                                <th>Orden de compra</th>
                                 <th>Por Pagar</th>
                                 <th>Total</th>
                                 <th>Forma de pago</th>
@@ -64,6 +66,14 @@
                                         <td class="celda">{{$value['number_full']}}</td>
 
                                         <td class="celda">{{$value['customer_name']}}</td>
+                                        <td class="celda">
+                                            @if(isset($value['web_platforms']))
+                                                @foreach($value['web_platforms'] as $platform)
+                                                    <label > {{$platform->name}}</label>
+                                                @endforeach
+                                            @endif
+                                        </td>
+                                        <td class="celda">{{$value['purchase_order']}}</td>
                                         <td class="celda">{{$value['total_to_pay']}}</td>
                                         <td class="celda">{{$value['total']}}</td>
                                         <td class="celda">{{$value['difference_days']}} días</td>

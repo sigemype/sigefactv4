@@ -10,8 +10,7 @@
 
     @guest
     <div class="header-contact">
-        <a class="login-link" href="{{route('tenant_ecommerce_login')}}"><strong style="font-size: 16px;">LOG
-                IN</strong></a>
+        <a class="login-link" href="{{route('tenant_ecommerce_login')}}"><strong style="font-size: 16px;">LOGIN</strong></a>
     </div>
     @else
     <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"

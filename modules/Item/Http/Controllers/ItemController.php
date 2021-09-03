@@ -10,6 +10,19 @@ use Illuminate\Routing\Controller;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Modules\Item\Imports\ItemListPriceImport;
 use Maatwebsite\Excel\Excel;
+use Modules\Item\Models\ItemLot;
+use Modules\Item\Http\Resources\{
+    ItemLotCollection,
+    ItemHistorySalesCollection,
+    ItemHistoryPurchasesCollection,
+};
+use App\Models\Tenant\{
+    SaleNoteItem,
+    DocumentItem,
+    PurchaseItem
+};
+use Illuminate\Support\Facades\DB;
+
 
 class ItemController extends Controller
 {
@@ -59,6 +72,85 @@ class ItemController extends Controller
             'success' => false,
             'message' =>  __('app.actions.upload.error'),
         ];
+    }
+
+    public function getDataHistory($id)
+    {
+
+        $item = Item::findOrFail($id);
+
+        return [ 
+            'warehouses' =>  $item->warehouses->transform(function ($row) use($item){
+                return [
+                    'warehouse_id' => $row->warehouse->id,
+                    'warehouse_description' => $row->warehouse->description,
+                    'stock'                 => $row->stock,
+                    'item_id'               => $item->id,
+                    'series_enabled' => (bool)$item->series_enabled,
+                ];
+            })
+        ];
+
+    }
+
+    
+    public function availableSeriesRecords(Request $request)
+    {
+
+        $form = json_decode($request->form);
+
+        $records = ItemLot::where('has_sale', false)
+                            ->where('item_id', $form->item_id)
+                            ->where('warehouse_id', $form->warehouse_id)
+                            ->latest();
+        
+        return new ItemLotCollection($records->paginate(config('tenant.items_per_page_simple_d_table_params')));
+    
+    }
+
+
+    public function itemHistorySales(Request $request)
+    {
+
+        $form = json_decode($request->form);
+        
+        $sale_notes = SaleNoteItem::where('item_id', $form->item_id)
+                                    ->join('sale_notes', 'sale_note_items.sale_note_id', '=', 'sale_notes.id')
+                                    ->join('persons', 'sale_notes.customer_id', '=', 'persons.id')
+                                    ->select(DB::raw("sale_note_items.id as id, sale_notes.series as series, sale_notes.number as number,
+                                            sale_note_items.unit_price as price, sale_notes.date_of_issue as date_of_issue, sale_notes.total as total, 
+                                            persons.number as customer_number, persons.name as customer_name, sale_note_items.quantity as quantity,
+                                            sale_notes.created_at as created_at"));
+
+        $documents = DocumentItem::where('item_id', $form->item_id)
+                                    ->join('documents', 'document_items.document_id', '=', 'documents.id')
+                                    ->join('persons', 'documents.customer_id', '=', 'persons.id')
+                                    ->select(DB::raw("document_items.id as id, documents.series as series, documents.number as number,
+                                            document_items.unit_price as price, documents.date_of_issue as date_of_issue, documents.total as total, 
+                                            persons.number as customer_number, persons.name as customer_name, document_items.quantity as quantity,
+                                            documents.created_at as created_at"));
+
+        return new ItemHistorySalesCollection($documents->union($sale_notes)->orderBy('created_at', 'desc')->paginate(config('tenant.items_per_page_simple_d_table_params')));
+
+    }
+
+    
+    public function itemHistoryPurchases(Request $request)
+    {
+
+        $form = json_decode($request->form);
+        
+        $purchases = PurchaseItem::where('item_id', $form->item_id) 
+                                    ->join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
+                                    ->join('persons', 'purchases.supplier_id', '=', 'persons.id')
+                                    ->select(DB::raw("purchase_items.id as id, purchases.series as series, purchases.number as number,
+                                    purchases.supplier as supplier,purchase_items.unit_price as price, purchases.date_of_issue as date_of_issue, purchases.total as total, 
+                                    persons.number as supplier_number, persons.name as supplier_name, purchase_items.quantity as quantity,
+                                    purchases.created_at as created_at"));
+ 
+
+        return new ItemHistoryPurchasesCollection($purchases->orderBy('created_at', 'desc')->paginate(config('tenant.items_per_page_simple_d_table_params')));
+
     }
 
 }

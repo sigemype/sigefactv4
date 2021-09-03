@@ -17,16 +17,20 @@ class PaymentMethodTypeCollection extends ResourceCollection
 
         return $this->collection->transform(function($row, $key) {
 
+            /** @var \App\Models\Tenant\PaymentMethodType  $row */
             $show_actions = true;
 
             if(in_array($row->id, ['01', '05', '08', '09'])){
                 $show_actions = false;
             }
+            $return = $row->toArray();
+            $return['show_actions'] = $show_actions;
+            return $return;
 
             return [
                 'id' => $row->id,
-                'description' => $row->description, 
-                'show_actions' => $show_actions 
+                'description' => $row->description,
+                'show_actions' => $show_actions
             ];
         });
     }

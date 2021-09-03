@@ -34,6 +34,8 @@
                         <th>Pedido</th>
                         <th>Comprobantes</th>
                         <th v-if="columns.sale_notes.visible">Notas de venta</th>
+                        <th v-if="columns.quotation.visible">Cotizacion</th>
+                        <th v-if="columns.dispatches.visible">Guías</th>
                         <!-- <th>Estado</th> -->
                         <th class="text-center">Moneda</th>
                         <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
@@ -56,7 +58,7 @@
                         </td>
                         <td>
                             <template v-for="(document,i) in row.documents">
-                                <label :key="i" v-text="document.number_full" class="d-block"></label>
+                                <label :key="i" v-text="showAnulateDoc(document)" class="d-block"></label>
                             </template>
                         </td>
                         <td v-if="columns.sale_notes.visible">
@@ -64,6 +66,20 @@
                                 <label :key="i" v-text="sale_note.identifier" class="d-block"></label>
                             </template>
                         </td>
+
+
+                    <td v-if="columns.quotation.visible">
+                        <!-- Cotizacion -->
+                        <template v-if="row.quotation !== undefined && row.quotation.full_number !== undefined">
+                            <label  class="d-block">{{row.quotation.full_number}}  </label>
+                        </template>
+                    </td>
+                    <td v-if="columns.dispatches.visible">
+                        <!-- Pedidos -->
+                        <template v-for="(dispach,i) in row.dispatches">
+                            <label :key="i" v-text="dispach.number" class="d-block"></label>
+                        </template>
+                    </td>
                         <!-- <td>{{ row.state_type_description }}</td> -->
                         <td class="text-center">{{ row.currency_type_id }}</td>
                         <td class="text-right"  v-if="columns.total_exportation.visible" >{{ row.total_exportation }}</td>
@@ -79,11 +95,19 @@
                         </td>
 
                         <td class="text-right">
-                            <button v-if="row.state_type_id != '11' && row.btn_generate && typeUser == 'admin' &&  soapCompany != '03'"  type="button" class="btn waves-effect waves-light btn-xs btn-info"
+                            <button v-if="row.state_type_id != '11' && row.btn_generate &&
+                            seller_can_generate_cpe === true &&
+                             soapCompany != '03'"  type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickOptions(row.id)" >Generar comprobante</button>
 
-                            <a v-if="row.documents.length == 0 && row.state_type_id != '11'" :href="`/${resource}/edit/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
-                            <button v-if="row.documents.length == 0 && row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickAnulate(row.id)">Anular</button>
+                            <a v-if="cantEdited(row)"
+                               :href="`/${resource}/edit/${row.id}`"
+                               type="button"
+                               class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
+                            <button
+                                v-if="canAnulate(row)"
+                                type="button" class="btn waves-effect waves-light btn-xs btn-danger"
+                                @click.prevent="clickAnulate(row.id)">Anular</button>
                             <button @click="duplicate(row.id)"  type="button" class="btn waves-effect waves-light btn-xs btn-info">Duplicar</button>
                             <a :href="`/dispatches/create/${row.id}/on`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2">Guía</a>
 
@@ -98,11 +122,13 @@
             <quotation-options :showDialog.sync="showDialogOptions"
                               :recordId="recordId"
                               :showGenerate="true"
-                              :showClose="true"></quotation-options>
+                              :showClose="true"
+                              :configuration="configuration"></quotation-options>
 
             <quotation-options-pdf :showDialog.sync="showDialogOptionsPdf"
                               :recordId="recordId"
-                              :showClose="true"></quotation-options-pdf>
+                              :showClose="true"
+                              :configuration="configuration"></quotation-options-pdf>
         </div>
     </div>
 </template>
@@ -119,7 +145,11 @@
     import {deletable} from '@mixins/deletable'
 
     export default {
-        props:['typeUser', 'soapCompany'],
+        props:[
+            'typeUser',
+            'soapCompany',
+            'configuration'
+        ],
         mixins: [deletable],
         components: {DataTable,QuotationOptions, QuotationOptionsPdf},
         data() {
@@ -157,10 +187,67 @@
                         title: 'Notas de venta',
                         visible: true
                     },
+                    quotation: {
+                        title: 'Cotizacion',
+                        visible: false,
+                    },
+                    dispatches: {
+                        title: 'Guías de Remisión',
+                        visible: false,
+                    },
                 }
             }
         },
+        computed:{
+            seller_can_generate_cpe(){
+                if(
+                    (this.typeUser === 'admin') ||
+                    (
+                        this.configuration !== undefined &&
+                        this.configuration !== null &&
+                        this.configuration.seller_can_generate_sale_opportunities === true
+                    )
+                ){
+                    return  true;
+                }
+                return false
+            },
+        },
         methods: {
+            cantEdited(row){
+                if(row &&
+                    row.documents &&
+                    row.documents.length == 0 &&
+                    row.state_type_id != '11'
+                ) return true;
+                return false;
+            },
+            showAnulateDoc(document){
+                if(document.state_type_id == '11') return document.number_full + ' (Anulado)';
+                 return document.number_full;
+            },
+            canAnulate(row){
+                if(
+                    row &&
+                    row.documents
+                ) {
+                    if (
+                        row.documents.length == 0 &&
+                        row.state_type_id != '11'
+                    ) return true;
+                    if (
+                        row.documents.length > 0
+                    ) {
+                        let sal = false;
+                        row.documents.forEach(function(doc){
+                            sal = doc.state_type_id === '11';
+                        })
+                        return sal;
+                    }
+                }
+
+                return false;
+            },
             clickEdit(id)
             {
                 this.recordId = id

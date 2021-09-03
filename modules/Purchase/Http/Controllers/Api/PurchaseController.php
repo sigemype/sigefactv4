@@ -305,6 +305,7 @@ class PurchaseController extends Controller
         $record = Purchase::find($request->input('id'));
         $supplier_email = $request->input('email');
 
+        Configuration::setConfigSmtpMail();
         Mail::to($supplier_email)->send(new PurchaseEmail($company, $record));
 
         return [

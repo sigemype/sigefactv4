@@ -144,7 +144,7 @@ class DashboardData
                 'total' => number_format($sale_note_total,2, ".", ""),
             ],
             'graph' => [
-                'labels' => ['Total pagado', 'Total por pagar'],
+                'labels' => ['Total cobrado', 'Pendiente de cobro'],
                 'datasets' => [
                     [
                         'label' => 'Notas de venta',
@@ -161,9 +161,10 @@ class DashboardData
 
     private function sale_note_totals_global()
     {
-        $sale_notes = SaleNote::query()
+        $sale_notes = SaleNote::without(['user', 'soap_type', 'state_type', 'currency_type', 'items'])
             ->where('changed', false)
             ->whereStateTypeAccepted()
+            ->select('id', 'currency_type_id', 'total', 'exchange_rate_sale')
             ->get();
 
         //PEN
@@ -285,7 +286,7 @@ class DashboardData
                 'total' => number_format($document_total,2, ".", ""),
             ],
             'graph' => [
-                'labels' => ['Total pagado', 'Total por pagar'],
+                'labels' => ['Total cobrado', 'Pendiente de cobro'],
                 'datasets' => [
                     [
                         'label' => 'Comprobantes',
@@ -302,7 +303,9 @@ class DashboardData
 
     private function document_totals_globals()
     {
-        $documents = Document::query()->get();
+        $documents = Document::without(['user', 'soap_type', 'state_type', 'document_type', 'currency_type', 'group', 'items', 'invoice', 'note'])
+            ->select('id', 'state_type_id', 'document_type_id', 'currency_type_id', 'total', 'exchange_rate_sale')
+            ->get();
 
         //PEN
         $document_total_pen = 0;

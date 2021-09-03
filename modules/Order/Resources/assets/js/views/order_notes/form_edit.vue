@@ -190,11 +190,13 @@
             </div>
         </div>
 
-        <order-note-form-item :showDialog.sync="showDialogAddItem"
-                           :currency-type-id-active="form.currency_type_id"
-                           :typeUser="typeUser"
-                           :exchange-rate-sale="form.exchange_rate_sale"
-                           @add="addRow"></order-note-form-item>
+        <order-note-form-item
+            :configuration="configuration"
+            :currency-type-id-active="form.currency_type_id"
+            :exchange-rate-sale="form.exchange_rate_sale"
+            :showDialog.sync="showDialogAddItem"
+            :typeUser="typeUser"
+            @add="addRow"></order-note-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
                        type="customers"
@@ -228,6 +230,7 @@
             'typeUser': {
                 required: true,
             },
+            'configuration': {},
         },
         mixins: [functions, exchangeRate],
         data() {
@@ -526,6 +529,17 @@
                         total += parseFloat(row.total)
                     }
                     total_value += parseFloat(row.total_value)
+                    
+                    if (['13', '14', '15'].includes(row.affectation_igv_type_id)) {
+
+                        let unit_value = row.total_value/row.quantity
+                        let total_value_partial = unit_value * row.quantity
+                        row.total_taxes = row.total_value - total_value_partial
+                        row.total_igv = total_value_partial * (row.percentage_igv / 100)
+                        row.total_base_igv = total_value_partial
+                        total_value -= row.total_value
+                    }
+                    
                 });
 
                 this.form.total_exportation = _.round(total_exportation, 2)

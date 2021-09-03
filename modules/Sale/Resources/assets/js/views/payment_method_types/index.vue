@@ -20,6 +20,7 @@
                         <th>#</th>
                         <th>Código</th>
                         <th>Descripción</th>
+                        <th>Condición de pago</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                     </thead>
@@ -28,6 +29,7 @@
                         <td>{{ index + 1 }}</td>
                         <td>{{ row.id }}</td>
                         <td>{{ row.description }}</td>
+                        <td>{{ (row.is_credit == 1)?'Crédito':'Contado' }}</td>
                         <td class="text-right">
 
                             <template v-if="row.show_actions">

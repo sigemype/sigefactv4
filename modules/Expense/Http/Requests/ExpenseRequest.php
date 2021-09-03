@@ -26,7 +26,6 @@ class ExpenseRequest extends FormRequest
             'number' => [
                 // 'required_if:expense_type_id,"1", "2", "3"',
                 'nullable',
-                'numeric'
             ], 
             'date_of_issue' => [
                 'required',

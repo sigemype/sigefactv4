@@ -3,9 +3,7 @@
         <div class="row">
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
-                  
-                <div class="row mt-2">  
-                         
+                <div class="row mt-2">
                         <div class="col-md-6">
                             <label class="control-label">Producto</label>
                             <el-select  v-model="form.item_id"
@@ -26,21 +24,19 @@
                                             value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="true"></el-date-picker>
                         </div>
 
-                        <div class="col-md-6" style="margin-top:29px"> 
+                        <div class="col-md-6" style="margin-top:29px">
                             <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
-                            <template v-if="records.length>0"> 
+                            <template v-if="records.length>0">
 
                                 <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button>
 
                                 <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportar Excel</el-button>
 
                             </template>
-                        </div> 
-                    
+                        </div>
                 </div>
                 <div class="row mt-1 mb-4">
-                    
-                </div> 
+                </div>
             </div>
 
 
@@ -52,7 +48,7 @@
                         </thead>
                         <tbody>
                             <slot v-for="(row, index) in records" :row="row" :index="customIndex(index)"></slot>
-                        </tbody> 
+                        </tbody>
                     </table>
                     <div>
                         <el-pagination
@@ -79,7 +75,7 @@
     import moment from 'moment'
     import queryString from 'query-string'
 
-    export default { 
+    export default {
         props: {
             resource: String,
         },
@@ -90,12 +86,12 @@
                 records: [],
                 headers: headers_token,
                 document_types: [],
-                pagination: {}, 
-                search: {}, 
-                totals: {}, 
+                pagination: {},
+                search: {},
+                totals: {},
                 establishment: null,
-                items: [],       
-                form: {}, 
+                items: [],
+                form: {},
                 pickerOptionsDates: {
                     disabledDate: (time) => {
                         time = moment(time).format('YYYY-MM-DD')
@@ -112,7 +108,7 @@
                 this.getRecords()
             })
         },
-        async mounted () { 
+        async mounted () {
 
             await this.$http.get(`/${this.resource}/filter`)
                 .then(response => {
@@ -123,15 +119,15 @@
             // await this.getRecords()
 
         },
-        methods: {  
+        methods: {
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {
                     this.form.date_end = this.form.date_start
                 }
                 // this.loadAll();
             },
-            clickDownload(type) {                 
-                
+            clickDownload(type) {
+
                 if(!this.form.item_id){
                     return this.$message.error('El producto es obligatorio')
                 }
@@ -142,17 +138,17 @@
                 window.open(`/${this.resource}/${type}/?${query}`, '_blank');
             },
             initForm(){
- 
+
                 this.form = {
                     item_id:null,
                     date_start:null,
                     date_end:null,
                 }
 
-            },  
+            },
             customIndex(index) {
                 return (this.pagination.per_page * (this.pagination.current_page - 1)) + index + 1
-            }, 
+            },
             async getRecordsByFilter(){
 
                 if(!this.form.item_id){
@@ -166,6 +162,7 @@
             },
             getRecords() {
                 this.$eventHub.$emit('emitItemID', this.form.item_id)
+                this.records =  [];
 
                 return this.$http.get(`/${this.resource}/records?${this.getQueryParameters()}`).then((response) => {
                     this.records = response.data.data
@@ -183,7 +180,7 @@
                     ...this.form
                 })
             },
-             
+
         }
     }
 </script>

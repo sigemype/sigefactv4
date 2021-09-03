@@ -16,9 +16,11 @@ $col_span = 25;
     <tr>
         <td colspan="{{ $col_span }}">{{ $company['number'] }}</td>
     </tr>
+    {{--
     <tr>
-        <td colspan="{{ $col_span }}">Moneda: SOLES</td>
+        <td colspan="{{ $col_span }}">Moneda: {{$currency->description}}</td>
     </tr>
+    --}}
     <tr>
         <td colspan="{{ $col_span }}" class="text-center font-weight">FORMATO 8.1 : "REGISTRO DE COMPRAS DEL PERIODO {{ $period }}"</td>
     </tr>

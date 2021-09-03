@@ -52,7 +52,7 @@
             <thead>
               <tr>
                 <th></th>
-                <th>Oficina</th>
+                <th>Tramite</th>
                 <th>Descripción</th>
                 <th>Visible</th>
                 <th></th>
