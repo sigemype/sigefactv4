@@ -29,10 +29,10 @@ class DocumentPaymentProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->payments(); 
+        $this->payments();
     }
- 
-    
+
+
 
     private function payments()
     {
@@ -40,13 +40,13 @@ class DocumentPaymentProvider extends ServiceProvider
         DocumentPayment::created(function ($document_payment) {
             $this->transaction_payment($document_payment);
         });
- 
+        
         DocumentPayment::deleted(function ($document_payment) {
             $this->transaction_payment($document_payment);
         });
-        
+
     }
- 
+
     private function transaction_payment($document_payment){
 
         $document = $document_payment->document;
@@ -60,7 +60,7 @@ class DocumentPaymentProvider extends ServiceProvider
             $document->update();
 
         }else{
-            
+
             $document->total_canceled = false;
             $document->update();
         }

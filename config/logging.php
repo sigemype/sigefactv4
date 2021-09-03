@@ -51,6 +51,13 @@ return [
             'days' => 7,
         ],
 
+        'facturalo' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/facturalo.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
