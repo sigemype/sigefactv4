@@ -6,6 +6,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\Tenant\Configuration;
 
 
+/**
+ * Class CompanyResource
+ *
+ * @package App\Http\Resources\Tenant
+ * @mixin JsonResource
+ */
 class CompanyResource extends JsonResource
 {
     /**
@@ -36,6 +42,11 @@ class CompanyResource extends JsonResource
             'config_system_env' => (bool)$configuration->config_system_env,
             'img_firm' => $this->img_firm,
             'favicon' => $this->favicon,
+            'cod_digemid' => $this->cod_digemid,
+            'is_pharmacy' => $configuration->isPharmacy(),
+            'integrated_query_client_id' => $this->integrated_query_client_id,
+            'integrated_query_client_secret' => $this->integrated_query_client_secret,
+
         ];
     }
 }

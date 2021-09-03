@@ -40,6 +40,7 @@ class ClientResource extends JsonResource
                 'locked' => (bool) $this->locked,
                 'locked_emission' => (bool) $this->locked_emission,
                 'modules' => $this->modules,
+                'apps' => $this->apps,
                 'levels' => $this->levels,
                 //'count_doc' => $this->count_doc,
                // 'max_documents' => (int) $this->plan->limit_documents,
@@ -55,7 +56,11 @@ class ClientResource extends JsonResource
                 'soap_url' => $this->soap_url,
                 'config_system_env' => (bool)$this->config_system_env,
                 'certificate' => $this->certificate,
-                'number' => $this->number
+            'smtp_host'=>$this->smtp_host,
+            'smtp_port'=>$this->smtp_port,
+            'smtp_user'=>$this->smtp_user,
+            'smtp_password'=>null, // dont show smtp password
+            'smtp_encryption'=>$this->smtp_encryption,
 
         ];
 

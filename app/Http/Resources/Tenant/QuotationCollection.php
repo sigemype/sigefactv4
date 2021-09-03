@@ -4,6 +4,7 @@ namespace App\Http\Resources\Tenant;
 
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Quotation;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class QuotationCollection extends ResourceCollection
@@ -21,7 +22,9 @@ class QuotationCollection extends ResourceCollection
         $configuration = Configuration::query()->first();
 
         return $this->collection->transform(function($row, $key) use($user, $company, $configuration) {
-
+            /** @var Quotation $row */
+            return $row->getCollectionData($company,$configuration);
+            /** Movido al modelo */
             $btn_generate = (count($row->documents) > 0 || count($row->sale_notes) > 0)?false:true;
             $btn_generate_cnt = $row->contract ?false:true;
             $external_id_contract = $row->contract ? $row->contract->external_id : null;

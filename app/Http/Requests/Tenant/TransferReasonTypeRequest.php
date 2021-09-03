@@ -5,15 +5,8 @@ namespace App\Http\Requests\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-/**
- * Class PurchaseImportRequest
- *
- * @package App\Http\Requests\Tenant
- * @mixin FormRequest
- */
-class PurchaseImportRequest  extends FormRequest
+class TransferReasonTypeRequest extends FormRequest
 {
-
     public function authorize()
     {
         return true;
@@ -21,16 +14,16 @@ class PurchaseImportRequest  extends FormRequest
 
     public function rules()
     {
-
+        $id = $this->input('id');
         return [
-            'number' => [
+            'id' => [
                 'required',
-                'numeric'
+                Rule::unique('tenant.cat_transfer_reason_types')->ignore($id),
             ],
-            'series' => [
+            'description' => [
                 'required',
             ],
-            'date_of_issue' => [
+            'active' => [
                 'required',
             ],
         ];

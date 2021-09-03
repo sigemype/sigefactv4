@@ -18,17 +18,20 @@ class PosCollection extends ResourceCollection
         return $this->collection->transform(function ($row, $key) {
 
             $configuration = Configuration::first();
+            $sale_unit_price = $this->getSaleUnitPrice($row, $configuration);
 
             return [
                 'stock' => $row->getStockByWarehouse(),
                 'id' => $row->id,
                 'item_id' => $row->id,
                 'full_description' => ($row->internal_id) ? $row->internal_id . ' - ' . $row->description : $row->description,
-                'description' => $row->description,
+                'name' => $row->name,
+                'second_name' => $row->second_name,
+                'description' => ($row->brand->name) ? $row->description.' - '.$row->brand->name : $row->description,
                 'currency_type_id' => $row->currency_type_id,
                 'internal_id' => $row->internal_id,
                 'currency_type_symbol' => $row->currency_type->symbol,
-                'sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
+                'sale_unit_price' => $sale_unit_price,
                 'purchase_unit_price' => $row->purchase_unit_price,
                 'unit_type_id' => $row->unit_type_id,
                 'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -38,8 +41,8 @@ class PosCollection extends ResourceCollection
                 'is_set' => (bool) $row->is_set,
                 'edit_unit_price' => false,
                 'aux_quantity' => 1,
-                'edit_sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
-                'aux_sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
+                'edit_sale_unit_price' => $sale_unit_price,
+                'aux_sale_unit_price' => $sale_unit_price,
                 'image_url' => ($row->image !== 'imagen-no-disponible.jpg') ? asset('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'items' . DIRECTORY_SEPARATOR . $row->image) : asset("/logo/{$row->image}"),
                 'warehouses' => collect($row->warehouses)->transform(function ($row) {
                     return [
@@ -61,4 +64,31 @@ class PosCollection extends ResourceCollection
             ];
         });
     }
+
+    
+    private function getSaleUnitPrice($row, $configuration){
+
+        $sale_unit_price = number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", "");
+        
+        if($configuration->active_warehouse_prices){
+
+            $warehouse_price = $row->warehousePrices()->where('warehouse_id', auth()->user()->establishment->warehouse->id)->first();
+
+            if($warehouse_price){
+
+                $sale_unit_price = number_format($warehouse_price->price, $configuration->decimal_quantity, ".", "");
+
+            }else{
+
+                if($row->warehousePrices()->count() > 0){
+                    $sale_unit_price = number_format($row->warehousePrices()->first()->price, $configuration->decimal_quantity, ".", "");
+                }
+
+            }
+
+        }
+
+        return $sale_unit_price;
+    }
+    
 }

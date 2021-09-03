@@ -14,6 +14,9 @@ class PersonResource extends JsonResource
      */
     public function toArray($request)
     {
+        /** @var \App\Models\Tenant\Person $this */
+        return $this->getCollectionData(true);
+        /** Pasado al modelo  */
         return [
             'id' => $this->id,
             'type' => $this->type,

@@ -5,6 +5,12 @@ namespace App\Http\Requests\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Class ItemRequest
+ *
+ * @package App\Http\Requests\Tenant
+ * @mixin FormRequest
+ */
 class ItemRequest extends FormRequest
 {
     public function authorize()

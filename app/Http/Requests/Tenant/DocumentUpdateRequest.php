@@ -4,12 +4,23 @@ namespace App\Http\Requests\Tenant;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Class DocumentUpdateRequest
+ *
+ * @package App\Http\Requests\Tenant
+ * @mixin FormRequest
+ */
 class DocumentUpdateRequest extends FormRequest{
-
+    /**
+     * @return bool
+     */
     public function authorize(){
         return true;
     }
 
+    /**
+     * @return array
+     */
     public function rules(){
         return [
             'id' => 'required|numeric',

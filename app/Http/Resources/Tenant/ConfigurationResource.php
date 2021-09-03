@@ -4,6 +4,12 @@ namespace App\Http\Resources\Tenant;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Class ConfigurationResource
+ *
+ * @package App\Http\Resources\Tenant
+ * @mixin JsonResource
+ */
 class ConfigurationResource extends JsonResource
 {
     /**
@@ -13,6 +19,8 @@ class ConfigurationResource extends JsonResource
      * @return array
      */
     public function toArray($request) {
+        return $this->getCollectionData();
+        /** Se ha movido al modelo */
         return [
             'id' => $this->id,
             'send_auto' => (bool) $this->send_auto,
@@ -41,7 +49,15 @@ class ConfigurationResource extends JsonResource
             'header_image' => $this->header_image,
             'destination_sale' => (bool) $this->destination_sale,
             'quotation_allow_seller_generate_sale' => $this->quotation_allow_seller_generate_sale,
+            'allow_edit_unit_price_to_seller' => $this->allow_edit_unit_price_to_seller,
             'finances' => $this->finances,
-            ];
+            'ticket_58' => (bool) $this->ticket_58,
+            'seller_can_create_product' => (bool) $this->seller_can_create_product,
+            'seller_can_view_balance' => (bool) $this->seller_can_view_balance,
+            'seller_can_generate_sale_opportunities' => (bool) $this->seller_can_generate_sale_opportunities,
+            'update_document_on_dispaches' => (bool) $this->update_document_on_dispaches,
+            'is_pharmacy' => (bool) $this->is_pharmacy,
+            'active_warehouse_prices' => (bool) $this->active_warehouse_prices,
+        ];
     }
 }

@@ -47,6 +47,9 @@ class SummaryResource extends JsonResource
             'response_message' => $response_message,
             'response_type' => $response_type,
             'download_cdr' => $this->download_external_cdr,
+            'unknown_error_status_response' => $this->unknown_error_status_response,
+            'manually_regularized' => $this->manually_regularized,
+            'error_manually_regularized' => $this->error_manually_regularized,
         ];
     }
 }

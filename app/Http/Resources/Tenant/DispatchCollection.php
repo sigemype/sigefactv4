@@ -2,8 +2,15 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Models\Tenant\Dispatch;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
+/**
+ * Class DispatchCollection
+ *
+ * @package App\Http\Resources\Tenant
+ * @mixin ResourceCollection
+ */
 class DispatchCollection extends ResourceCollection
 {
 	/**
@@ -15,6 +22,9 @@ class DispatchCollection extends ResourceCollection
 	public function toArray($request)
 	{
 		return $this->collection->transform(function ($row, $key) {
+		    /** @var Dispatch $row */
+            return $row->getCollectionData();
+            /** Se ha movido la salida, al modelo */
 			$has_cdr = false;
 
 			if (in_array($row->state_type_id, ['05', '07'])) {

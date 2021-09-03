@@ -37,6 +37,8 @@ class ClientCollection extends ResourceCollection
                 'count_doc_month' => $row->count_doc_month,
                 'select_date_billing' => '',
                 'soap_type' => $row->soap_type,
+                'document_regularize_shipping' => $row->document_regularize_shipping,
+                'document_not_sent' => $row->document_not_sent,
             ];
         });
     }

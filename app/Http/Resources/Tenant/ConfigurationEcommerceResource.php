@@ -30,6 +30,7 @@ class ConfigurationEcommerceResource extends JsonResource
             'tag_shipping' => $this->tag_shipping,
             'tag_dollar' => $this->tag_dollar,
             'tag_support' => $this->tag_support,
+            'phone_whatsapp' => $this->phone_whatsapp,
 
         ];
     }

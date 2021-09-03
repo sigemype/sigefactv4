@@ -14,6 +14,7 @@ class DocumentCollection extends ResourceCollection
      */
     public function toArray($request) {
         return $this->collection->transform(function($row, $key) {
+            /** @var \App\Models\Tenant\Document $row */
             $has_xml = true;
             $has_pdf = true;
             $has_cdr = false;
@@ -87,6 +88,9 @@ class DocumentCollection extends ResourceCollection
             if($row->regularize_shipping) {
                 $message_regularize_shipping = "Por regularizar: {$row->response_regularize_shipping->code} - {$row->response_regularize_shipping->description}";
             }
+            $nvs = $row->getNvCollection();
+
+            $order_note = $row->getOrderNoteCollection();
 
             return [
 
@@ -153,11 +157,42 @@ class DocumentCollection extends ResourceCollection
                         'description' => $row->document->number_full,
                     ];
                 }) : null,
+                'sales_note' => $nvs,
+                'order_note' =>$order_note,
                 'balance' => $balance,
+                'guides' => !empty($row->guides)?(array)$row->guides:null,
                 'message_regularize_shipping' => $message_regularize_shipping,
                 'regularize_shipping' => (bool) $row->regularize_shipping,
-
+                'purchase_order' => $row->purchase_order,
+                'is_editable' => $row->is_editable,
+                'dispatches' => $this->getDispatches($row),
             ];
         });
     }
+
+
+    private function getDispatches($row){
+
+        $dispatches = [];
+
+        if(in_array($row->document_type_id, ['01', '03'])) {
+
+            $dispatches = $row->reference_guides->transform(function($row) {
+                return [
+                    'description' => $row->number_full,
+                ];
+            });
+
+            if($row->dispatch){
+                $dispatches = $dispatches->push([
+                    'description' => $row->dispatch->number_full,
+                ]);
+            }
+
+        }
+
+        return $dispatches;
+
+    }
+
 }
