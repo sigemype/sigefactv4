@@ -836,7 +836,7 @@
                     this.affectation_igv_types = response.data.affectation_igv_types
                     // this.prepayment_documents = response.data.prepayment_documents;
                     this.is_client = response.data.is_client;
-                    // this.cat_payment_method_types = response.data.cat_payment_method_types;
+                    this.cat_payment_method_types = response.data.cat_payment_method_types;
                     // this.all_detraction_types = response.data.detraction_types;
                     this.payment_destinations = response.data.payment_destinations
                     this.payment_conditions = response.data.payment_conditions;

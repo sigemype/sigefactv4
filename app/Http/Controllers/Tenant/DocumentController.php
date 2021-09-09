@@ -61,6 +61,7 @@ use Modules\Item\Http\Requests\BrandRequest;
 use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
+use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
 
 class DocumentController extends Controller{
     use FinanceTrait;
@@ -176,7 +177,7 @@ class DocumentController extends Controller{
                 'description' => ucfirst(mb_strtolower(str_replace('REMITENTE ELECTRÓNICA','REMITENTE',$row->description))),
             ];
         });
-        // $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
+        $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         // $detraction_types = DetractionType::whereActive()->get();
         //return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
         //'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
@@ -217,7 +218,8 @@ class DocumentController extends Controller{
             'select_first_document_type_03',
             'payment_destinations',
             'payment_conditions',
-            'affectation_igv_types'
+            'affectation_igv_types',
+            'cat_payment_method_types'
         );
 
     }
