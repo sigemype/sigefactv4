@@ -211,10 +211,10 @@
                         <div class="col-lg-6">
                             <div class="form-group" :class="{'has-danger': errors['delivery.address']}">
                                 <label class="control-label">Dirección<span class="text-danger"> *</span></label>
-                                <el-select placeholder="Dirección..." @change="onChangeAddress" v-model="form.delivery.address_id">
+                                <!-- <el-select placeholder="Dirección..." @change="onChangeAddress" v-model="form.delivery.address_id">
                                     <el-option v-for="(ad, i) in customerAddresses" :key="i" :label="ad.address" :value="ad.address"></el-option>
-                                </el-select>
-                                <!-- <el-input v-model="form.delivery.address" :maxlength="100" placeholder="Dirección..."></el-input> -->
+                                </el-select> -->
+                                <el-input v-model="form.delivery.address" :maxlength="100" placeholder="Dirección..."></el-input>
                                 <small class="form-control-feedback" v-if="errors['delivery.address']" v-text="errors['delivery.address'][0]"></small>
                             </div>
                         </div>
