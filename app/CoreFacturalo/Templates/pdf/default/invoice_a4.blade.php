@@ -562,6 +562,11 @@
             @endforeach
             </tr>
         </table>
+    @else
+        {{-- <br><br> --}}
+        {{-- <td> --}}
+            <strong>Factura al contado</strong>
+        {{-- </td> --}}
     @endif
 {{-- fin factura a credito --}}
 
