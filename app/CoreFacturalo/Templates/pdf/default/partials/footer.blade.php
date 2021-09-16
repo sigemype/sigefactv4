@@ -13,8 +13,8 @@
                 @foreach(array_reverse( (array) $document->legends) as $row)
                     @if ($row->code == "1000")
                         {{ $row->value }} {{ $document->currency_type->description }}
-                    @else
-                        {{$row->code}}: {{ $row->value }}
+                    {{-- @else
+                        {{$row->code}}: {{ $row->value }} --}}
                     @endif
                 @endforeach
             </td>
