@@ -543,7 +543,7 @@ class Facturalo
                     $html_footer_legend = "";
                 }
                 // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
-                // se quiere visuzalizar ahora la legenda amazona en todos los formatos
+                // se quiere visualizar ahora la legenda amazona en todos los formatos
                 $html_footer_legend = '';
                 if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
                     $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
