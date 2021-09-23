@@ -42,8 +42,7 @@ use App\CoreFacturalo\Requests\Inputs\Functions;
  *
  * @package App\CoreFacturalo
  */
-class Facturalo
-{
+class Facturalo{
     use StorageDocument, FinanceTrait, KardexTrait;
 
     const REGISTERED = '01';
@@ -72,8 +71,7 @@ class Facturalo
     protected $response;
     protected $apply_change;
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->configuration = Configuration::first();
         $this->company = Company::active();
         $this->isDemo = ($this->company->soap_type_id === '01')?true:false;
@@ -83,32 +81,27 @@ class Facturalo
         $this->setDataSoapType();
     }
 
-    public function setDocument($document)
-    {
+    public function setDocument($document){
         $this->document = $document;
     }
 
-    public function getDocument()
-    {
+    public function getDocument(){
         return $this->document;
     }
 
-    public function setType($type)
-    {
+    public function setType($type){
         $this->type = $type;
     }
 
-    public function getResponse()
-    {
+    public function getResponse(){
         return $this->response;
     }
 
-    public function save($inputs)
-    {
+    public function save($inputs){
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
         $this->type = $inputs['type'];
 
-        switch ($this->type) {
+        switch ($this->type){
             case 'debit':
             case 'credit':
                 $document = Document::create($inputs);
@@ -173,8 +166,7 @@ class Facturalo
         return $this;
     }
 
-    public function sendEmail()
-    {
+    public function sendEmail(){
         $send_email = ($this->actions['send_email'] === true) ? true : false;
 
         if($send_email){
@@ -188,16 +180,14 @@ class Facturalo
         }
     }
 
-    public function createXmlUnsigned()
-    {
+    public function createXmlUnsigned(){
         $template = new Template();
         $this->xmlUnsigned = XmlFormat::format($template->xml($this->type, $this->company, $this->document));
         $this->uploadFile($this->xmlUnsigned, 'unsigned');
         return $this;
     }
 
-    public function signXmlUnsigned()
-    {
+    public function signXmlUnsigned(){
         $this->setPathCertificate();
         $this->signer->setCertificateFromFile($this->pathCertificate);
         $this->xmlSigned = $this->signer->signXml($this->xmlUnsigned);
@@ -205,22 +195,19 @@ class Facturalo
         return $this;
     }
 
-    public function updateHash()
-    {
+    public function updateHash(){
         $this->document->update([
             'hash' => $this->getHash(),
         ]);
     }
 
-    public function updateQr()
-    {
+    public function updateQr(){
         $this->document->update([
             'qr' => $this->getQr(),
         ]);
     }
 
-    public function updateState($state_type_id)
-    {
+    public function updateState($state_type_id){
 
         $this->document->update([
             'state_type_id' => $state_type_id,
@@ -229,8 +216,7 @@ class Facturalo
 
     }
 
-    public function updateSoap($soap_type_id, $type)
-    {
+    public function updateSoap($soap_type_id, $type){
         $this->document->update([
             'soap_type_id' => $soap_type_id
         ]);
@@ -241,24 +227,20 @@ class Facturalo
         // }
     }
 
-    public function updateStateDocuments($state_type_id)
-    {
-        foreach ($this->document->documents as $doc)
-        {
+    public function updateStateDocuments($state_type_id){
+        foreach ($this->document->documents as $doc){
             $doc->document->update([
                 'state_type_id' => $state_type_id
             ]);
         }
     }
 
-    private function getHash()
-    {
+    private function getHash(){
         $helper = new XmlHash();
         return $helper->getHashSign($this->xmlSigned);
     }
 
-    private function getQr()
-    {
+    private function getQr(){
         $customer = $this->document->customer;
         $text = join('|', [
             $this->company->number,
@@ -278,7 +260,7 @@ class Facturalo
         return $qr;
     }
 
-    public function createPdf($document = null, $type = null, $format = null) {
+    public function createPdf($document = null, $type = null, $format = null){
         ini_set("pcre.backtrack_limit", "5000000");
         $template = new Template();
         $pdf = new Mpdf();
@@ -312,12 +294,9 @@ class Facturalo
 
         $html = $template->pdf($base_pdf_template, $this->type, $this->company, $this->document, $format_pdf);
 
-        if (($format_pdf === 'ticket') OR
-            ($format_pdf === 'ticket_58') OR
-            ($format_pdf === 'ticket_50'))
-        {
+        if (($format_pdf === 'ticket') OR ($format_pdf === 'ticket_58') OR ($format_pdf === 'ticket_50')){
 
-            $width = ($format_pdf === 'ticket_58') ? 56 : 78 ;
+            $width = ($format_pdf === 'ticket_58') ? 56 : 78;
             if(config('tenant.enabled_template_ticket_80')) $width = 76;
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
             if($format_pdf === 'ticket_50') $width = 45;
@@ -475,8 +454,7 @@ class Facturalo
 
 
         } else {
-
-            if ($base_pdf_template === 'brand') {
+            if ($base_pdf_template === 'brand'){
                 $pdf_margin_top = 93.7;
                 $pdf_margin_bottom = 74;
             }
@@ -536,28 +514,31 @@ class Facturalo
 
         // if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
             // dd($base_pdf_template);// = config(['tenant.pdf_template'=> $configuration]);
-            if(config('tenant.pdf_template_footer')) {
-                $html_footer = '';
-                if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
+        if(config('tenant.pdf_template_footer')){
+            $html_footer = '';
+            if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
+
+                if (in_array($this->document->document_type_id, ['01', '03'])){
                     $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
-                    $html_footer_legend = "";
-                }
-                // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
-                // se quiere visualizar ahora la legenda amazona en todos los formatos
-                $html_footer_legend = '';
-                if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
-                    $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
                 }
 
-                $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
-
+                $html_footer_legend = "";
             }
+            // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
+            // se quiere visualizar ahora la legenda amazona en todos los formatos
+            $html_footer_legend = '';
+            if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
+                $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
+            }
+
+            $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
+
+        }
 //            $html_footer = $template->pdfFooter();
 //            $pdf->SetHTMLFooter($html_footer);
         // }
 
         if ($base_pdf_template === 'brand') {
-
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
             $pdf->SetHTMLHeader($html_header);
 
@@ -568,7 +549,6 @@ class Facturalo
         }
 
         if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
-
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
             $pdf->SetHTMLHeader($html_header);
 
@@ -583,15 +563,12 @@ class Facturalo
         return $this;
     }
 
-    public function loadXmlSigned()
-    {
+    public function loadXmlSigned(){
         $this->xmlSigned = $this->getStorage($this->document->filename, 'signed');
-//        dd($this->xmlSigned);
         return $this;
     }
 
-    private function senderXmlSigned()
-    {
+    private function senderXmlSigned(){
         $this->setDataSoapType();
         $sender = in_array($this->type, ['summary', 'voided'])?new SummarySender():new BillSender();
         $sender->setClient($this->wsClient);
@@ -600,8 +577,7 @@ class Facturalo
         return $sender->send($this->document->filename, $this->xmlSigned);
     }
 
-    public function senderXmlSignedBill()
-    {
+    public function senderXmlSignedBill(){
         if(!$this->actions['send_xml_signed']) {
             $this->response = [
                 'sent' => false,
@@ -609,11 +585,9 @@ class Facturalo
             return;
         }
         $this->onlySenderXmlSignedBill();
-
     }
 
-    public function onlySenderXmlSignedBill()
-    {
+    public function onlySenderXmlSignedBill(){
         $res = $this->senderXmlSigned();
         if($res->isSuccess()) {
             $cdrResponse = $res->getCdrResponse();
@@ -645,8 +619,7 @@ class Facturalo
         }
     }
 
-    public function validationCodeResponse($code, $message)
-    {
+    public function validationCodeResponse($code, $message){
         //Errors
         if(!is_numeric($code)){
             
@@ -700,9 +673,7 @@ class Facturalo
     }
 
 
-    public function updateRegularizeShipping($code, $description)
-    {
-
+    public function updateRegularizeShipping($code, $description){
         $this->document->update([
             'state_type_id' => self::REGISTERED,
             'regularize_shipping' => true,
@@ -715,8 +686,7 @@ class Facturalo
     }
 
 
-    public function senderXmlSignedSummary()
-    {
+    public function senderXmlSignedSummary(){
         $res = $this->senderXmlSigned();
         if($res->isSuccess()) {
             $ticket = $res->getTicket();
@@ -739,15 +709,13 @@ class Facturalo
         }
     }
 
-    private function updateTicket($ticket)
-    {
+    private function updateTicket($ticket){
         $this->document->update([
             'ticket' => $ticket
         ]);
     }
 
-    public function statusSummary($ticket)
-    {
+    public function statusSummary($ticket){
         $extService = new ExtService();
         $extService->setClient($this->wsClient);
         $extService->setCodeProvider(new XmlErrorCodeProvider());
@@ -793,9 +761,7 @@ class Facturalo
         }
     }
 
-    public function validationStatusCodeResponse($status_code)
-    {
-
+    public function validationStatusCodeResponse($status_code){
         switch ($status_code) {
             case 0:
                 $this->updateState(self::ACCEPTED);
@@ -809,8 +775,7 @@ class Facturalo
 
     }
 
-    public function consultCdr()
-    {
+    public function consultCdr(){
         $consultCdrService = new ConsultCdrService();
         $consultCdrService->setClient($this->wsClient);
         $consultCdrService->setCodeProvider(new XmlErrorCodeProvider());
@@ -832,20 +797,17 @@ class Facturalo
         }
     }
 
-    public function uploadFile($file_content, $file_type)
-    {
+    public function uploadFile($file_content, $file_type){
         $this->uploadStorage($this->document->filename, $file_content, $file_type);
     }
 
-    private function setDataSoapType()
-    {
+    private function setDataSoapType(){
         $this->setSoapCredentials();
         $this->wsClient->setCredentials($this->soapUsername, $this->soapPassword);
         $this->wsClient->setService($this->endpoint);
     }
 
-    private function setPathCertificate()
-    {
+    private function setPathCertificate(){
         if($this->isOse) {
             $this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
                 'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
@@ -861,29 +823,14 @@ class Facturalo
                     'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
             }
         }
-
-//        if($this->isDemo) {
-//            $this->pathCertificate = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.
-//                'WS'.DIRECTORY_SEPARATOR.
-//                'Signed'.DIRECTORY_SEPARATOR.
-//                'Resources'.DIRECTORY_SEPARATOR.
-//                'certificate.pem');
-//        } else {
-//            $this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
-//                'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
-//        }
     }
 
-    private function setSoapCredentials()
-    {
-
+    private function setSoapCredentials(){
         if($this->isOse) {
-
             $this->soapUsername = $this->company->soap_username;
             $this->soapPassword = $this->company->soap_password;
 
         }else{
-
             if($this->isDemo) {
                 $this->soapUsername = $this->company->number.'MODDATOS';
                 $this->soapPassword = 'moddatos';
@@ -894,13 +841,8 @@ class Facturalo
 
         }
 
-
-//        $this->soapUsername = ($this->isDemo)?$this->company->number.'MODDATOS':$this->company->soap_username;
-//        $this->soapPassword = ($this->isDemo)?'moddatos':$this->company->soap_password;
-
         if($this->isOse) {
             $this->endpoint = $this->company->soap_url;
-//            dd($this->soapPassword);
         } else {
             switch ($this->type) {
                 case 'perception':
@@ -916,12 +858,9 @@ class Facturalo
                     break;
             }
         }
-
     }
 
     private function updatePrepaymentDocuments($inputs){
-        // dd($inputs);
-
         if(isset($inputs['prepayments'])) {
 
             foreach ($inputs['prepayments'] as $row) {
@@ -941,14 +880,11 @@ class Facturalo
                     if($balance <= 0){
                         $doc->was_deducted_prepayment = true;
                     }
-
                     $doc->save();
-
                 }
             }
         }
     }
-
     public function updateResponse(){
 
         // if($this->response['sent']) {
@@ -1016,12 +952,7 @@ class Facturalo
         }
     }
 
-    /**
-     * @param array $inputs
-     * @param int   $id
-     */
-    public function update($inputs,$id)
-    {
+    public function update($inputs,$id){
 
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
         $this->type = @$inputs['type'];
@@ -1079,25 +1010,11 @@ class Facturalo
         }
     }
 
-    /**
-     * @param array $actions
-     *
-     * @return $this
-     */
     public function setActions($actions = []){
         $this->actions = $actions;;
         return $this;
     }
-    /**
-     * Carga los elementos segun corresponda.
-     *
-     * @todo Falta determinar Document para credit e invoice
-     *
-     * @param      $id
-     * @param null $type
-     *
-     * @return \App\CoreFacturalo\Facturalo
-     */
+
     public function loadDocument($id, $type = null){
         $this->type = $type;
         switch ($this->type) {
@@ -1127,8 +1044,7 @@ class Facturalo
         return $this;
     }
 
-    private function saveFee($document, $fee)
-    {
+    private function saveFee($document, $fee){
         foreach ($fee as $row) {
             $document->fees()->create($row);
         }
