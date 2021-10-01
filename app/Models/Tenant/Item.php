@@ -405,8 +405,7 @@ class Item extends ModelTenant
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category()
-    {
+    public function category(){
         return $this->belongsTo(Category::class)->withDefault([
             'id' => '',
             'name' => ''
@@ -416,32 +415,28 @@ class Item extends ModelTenant
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function item_lots()
-    {
+    public function item_lots(){
         return $this->hasMany(ItemLot::class, 'item_id');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function lots()
-    {
+    public function lots(){
         return $this->morphMany(ItemLot::class, 'item_loteable');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public  function images()
-    {
+    public  function images(){
         return $this->hasMany(ItemImage::class, 'item_id');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function lots_group()
-    {
+    public function lots_group(){
         return $this->hasMany(ItemLotsGroup::class, 'item_id');
     }
 
@@ -450,8 +445,7 @@ class Item extends ModelTenant
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeWhereNotService($query)
-    {
+    public function scopeWhereNotService($query){
         return $query->where('unit_type_id','!=', 'ZZ');
     }
 
@@ -460,24 +454,21 @@ class Item extends ModelTenant
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeWhereService($query)
-    {
+    public function scopeWhereService($query){
         return $query->where('unit_type_id', 'ZZ');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public  function document_items()
-    {
+    public  function document_items(){
         return $this->hasMany(DocumentItem::class, 'item_id');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public  function sale_note_items()
-    {
+    public  function sale_note_items(){
         return $this->hasMany(SaleNoteItem::class, 'item_id');
     }
 
@@ -487,8 +478,7 @@ class Item extends ModelTenant
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeWhereFilterValuedKardex(Builder $query, $params)
-    {
+    public function scopeWhereFilterValuedKardex(Builder $query, $params){
         /*
         $query->OrWhereHas('document_items', function ($q) use ($params) {
             $q->whereHas('document', function ($q1) use ($params) {
@@ -517,42 +507,34 @@ class Item extends ModelTenant
         */
         // No selecciona corectamente los establecimeintos.
         if ($params->establishment_id) {
-
             return $query->with(['document_items' => function ($q) use ($params) {
                 $q->whereHas('document', function ($q) use ($params) {
-                    $q->whereStateTypeAccepted()
-                        ->whereTypeUser()
+                    $q->whereStateTypeAccepted()->whereTypeUser()
                         ->whereBetween('date_of_issue', [$params->date_start, $params->date_end])
                         ->where('establishment_id', $params->establishment_id);
                 });
-            },
-                'sale_note_items' => function ($q) use ($params) {
-                    $q->whereHas('sale_note', function ($q) use ($params) {
-                        $q->whereStateTypeAccepted()
-                            ->whereNotChanged()
-                            ->whereTypeUser()
-                            ->whereBetween('date_of_issue', [$params->date_start, $params->date_end])
-                            ->where('establishment_id', $params->establishment_id);
-                    });
-                }]);
-
+            },'sale_note_items' => function ($q) use ($params) {
+                $q->whereHas('sale_note', function ($q) use ($params) {
+                    $q->whereStateTypeAccepted()->whereNotChanged()->whereTypeUser()
+                        ->whereBetween('date_of_issue', [$params->date_start, $params->date_end])
+                        ->where('establishment_id', $params->establishment_id);
+                });
+            }]);
         }
 
         return $query->with(['document_items' => function ($q) use ($params) {
-            $q->whereHas('document', function ($q) use ($params) {
+            $q->whereHas('document', function ($q) use ($params){
                 $q->whereStateTypeAccepted()
                     ->whereTypeUser()
                     ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
             });
-        },
-            'sale_note_items' => function ($q) use ($params) {
-                $q->whereHas('sale_note', function ($q) use ($params) {
-                    $q->whereStateTypeAccepted()
-                        ->whereNotChanged()
-                        ->whereTypeUser()
-                        ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
-                });
-            }]);
+        },'sale_note_items' => function ($q) use ($params) {
+            $q->whereHas('sale_note', function ($q) use ($params) {
+                $q->whereStateTypeAccepted()->whereNotChanged()
+                    ->whereTypeUser()
+                    ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
+            });
+        }]);
     }
 
     /**
@@ -560,8 +542,7 @@ class Item extends ModelTenant
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeWhereIsNotActive($query)
-    {
+    public function scopeWhereIsNotActive($query){
         return $query->where('active', false);
     }
 
@@ -570,8 +551,7 @@ class Item extends ModelTenant
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeWhereHasInternalId($query)
-    {
+    public function scopeWhereHasInternalId($query){
         return $query->where('internal_id','!=', null);
     }
 

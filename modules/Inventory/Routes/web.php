@@ -178,7 +178,6 @@
                         Route::get('/excel', 'ReportValuedKardexController@excel');
                         Route::get('/filter', 'ReportValuedKardexController@filter');
                         Route::get('/records', 'ReportValuedKardexController@records');
-
                     });
                 });
 

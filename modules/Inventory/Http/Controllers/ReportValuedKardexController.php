@@ -18,50 +18,38 @@ class ReportValuedKardexController extends Controller
 
     use ReportTrait;
 
-    public function filter()
-    {
-
+    public function filter(){
         $establishments = Establishment::all()->transform(function ($row) {
             return [
                 'id' => $row->id,
                 'name' => $row->description
             ];
         });
-
         return compact('establishments');
     }
 
 
-    public function index()
-    {
-
+    public function index(){
         return view('inventory::reports.valued_kardex.index');
     }
 
-
-    public function records(Request $request)
-    {
+    public function records(Request $request){
         $records = $this->getRecords($request->all());
-
+        // $records = Item::all();
         return new ReportValuedKardexCollection($records->paginate(config('tenant.items_per_page')));
+        
+        
     }
 
-
-    public function getRecords($request)
-    {
-
+    public function getRecords($request){
         $data_of_period = $this->getDataOfPeriod($request);
-
         $params = (object)[
             'establishment_id' => $request['establishment_id'],
             'date_start' => $data_of_period['d_start'],
             'date_end' => $data_of_period['d_end'],
         ];
-
         $records = $this->data($params);
-
         return $records;
-
     }
 
 
@@ -69,12 +57,10 @@ class ReportValuedKardexController extends Controller
      * @param object $params
      * @return Item|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      */
-    private function data($params)
-    {
+    private function data($params){
         return Item::whereFilterValuedKardex($params)
             ->whereNotService()
             ->orderBy('description');
-
     }
 
 
