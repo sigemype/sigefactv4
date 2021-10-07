@@ -2,7 +2,9 @@
 
 namespace Modules\Inventory\Http\Controllers;
 
+use App\Exports\TransfersExport;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Inventory\Http\Resources\TransferCollection;
@@ -17,76 +19,107 @@ use Modules\Inventory\Http\Requests\TransferRequest;
 
 use Modules\Item\Models\ItemLot;
 
-class TransferController extends Controller
-{
+class TransferController extends Controller{
     use InventoryTrait;
 
-    public function index()
-    {
+    public function index(){
         return view('inventory::transfers.index');
     }
 
-    public function create()
-    {
+    public function create(){
        // $establishment_id = auth()->user()->establishment_id;
         //$current_warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
         return view('inventory::transfers.form');
-
     }
 
-    public function columns()
-    {
+    public function columns(){
         return [
             'created_at' => 'Fecha de emisión',
         ];
     }
 
-    public function records(Request $request)
-    {
-        if($request->column)
-        {
+    public function records(Request $request){
+        if($request->column){
             $records = InventoryTransfer::with(['warehouse','warehouse_destination', 'inventory'])->where('created_at', 'like', "%{$request->value}%")->latest();
-        }
-        else{
+        }else{
             $records = InventoryTransfer::with(['warehouse','warehouse_destination', 'inventory'])->latest();
-
         }
-        //return json_encode( $records );
-        /*$records = Inventory::with(['item', 'warehouse', 'warehouse_destination'])
-                            ->where('type', 2)
-                            ->whereHas('warehouse_destination')
-                            ->whereHas('item', function($query) use($request) {
-                                $query->where('description', 'like', '%' . $request->value . '%');
-
-                            })
-                            ->latest();*/
-
-
         return new TransferCollection($records->paginate(config('tenant.items_per_page')));
     }
 
+    public function transfers_download(Request $request){
+        $period = $request->period;
+        switch ($period) {
+            case 'day':
+                $records = InventoryTransfer::where('created_at', 'like', '%' . $request->date_start . '%')->get();
+                break;
+            
+            case 'month':
+                $m_start = Carbon::parse($request->month.'-01')->format('Y-m-d');
+                $m_end = Carbon::parse($request->month.'-01')->endOfMonth()->format('Y-m-d');
+                $records = InventoryTransfer::whereBetween('created_at',[$m_start.' 00:00:00', $m_end.' 23:00:00'])->get();
+                break;
+            
+            case 'between_days':
+                $records = InventoryTransfer::whereBetween('created_at',[$request->date_start.' 00:00:00', $request->date_end.' 23:00:00'])->get();
+                break;
+        }
 
-    public function tables()
-    {
+        $source =  $this->transformReportTransfers($records);
+        // return dd($source);
+        return (new TransfersExport)
+                ->records($source)
+                // ->cant_item($this->cant_item)
+                ->download('Reporte_Transferencias_'.Carbon::now().'.xlsx');
+    }
+
+    private function transformReportTransfers($resource){
+        $records = $resource->transform(function($row){
+            return (object)[
+                'id' => $row->id,
+                'description' => $row->description,
+                'quantity' => round($row->quantity, 1),
+                'warehouse' => $row->warehouse->description,
+                'warehouse_destination' => $row->warehouse_destination->description,
+                'created_at' => $row->created_at->format('Y-m-d'),
+                'inventory' => $row->inventory->transform(function($o) use ($row) {
+                    return [
+                        'id' => $o->item->id,
+                        'description' => $o->item->description,
+                        'quantity' => $o->quantity,
+                        'lots_enabled' => (bool)$o->item->lots_enabled,
+                        'lots' => $o->item->item_lots->where('has_sale', false)->where('warehouse_id', $row->warehouse_destination_id)->transform(function($row) {
+                            return [
+                                'id' => $row->id,
+                                'series' => $row->series,
+                                'date' => $row->date,
+                                'item_id' => $row->item_id,
+                                'warehouse_id' => $row->warehouse_id,
+                                'has_sale' => (bool)$row->has_sale,
+                                'lot_code' => ($row->item_loteable_type) ? (isset($row->item_loteable->lot_code) ? $row->item_loteable->lot_code:null):null
+                            ];
+                        }),
+                    ];
+                })
+            ];
+        });
+        return $records;
+    }
+
+    public function tables(){
         return [
             //'items' => $this->optionsItemWareHouse(),
             'warehouses' => $this->optionsWarehouse()
         ];
     }
 
-    public function record($id)
-    {
+    public function record($id){
         $record = new TransferResource(Inventory::findOrFail($id));
-
         return $record;
     }
 
-
-   /* public function store(Request $request)
-    {
-
+   /* public function store(Request $request){
         $result = DB::connection('tenant')->transaction(function () use ($request) {
-
             $id = $request->input('id');
             $item_id = $request->input('item_id');
             $warehouse_id = $request->input('warehouse_id');
@@ -166,8 +199,7 @@ class TransferController extends Controller
     }*/
 
 
-    public function destroy($id)
-    {
+    public function destroy($id){
 
         DB::connection('tenant')->transaction(function () use ($id) {
 
@@ -188,32 +220,22 @@ class TransferController extends Controller
             $record->delete();
 
         });
-
-
         return [
             'success' => true,
             'message' => 'Traslado eliminado con éxito'
         ];
 
-
-
     }
 
-    public function stock ($item_id, $warehouse_id)
-    {
-
+    public function stock ($item_id, $warehouse_id){
        $row = ItemWarehouse::where([['item_id', $item_id],['warehouse_id', $warehouse_id]])->first();
-
        return [
            'stock' => ($row) ? $row->stock : 0
        ];
-
     }
 
-    public function store(TransferRequest $request)
-    {
+    public function store(TransferRequest $request){
         $result = DB::connection('tenant')->transaction(function () use ($request) {
-
             $row = InventoryTransfer::create([
                 'description' => $request->description,
                 'warehouse_id' => $request->warehouse_id,
@@ -221,8 +243,7 @@ class TransferController extends Controller
                 'quantity' =>  count( $request->items ),
             ]);
 
-            foreach ($request->items as $it)
-            {
+            foreach ($request->items as $it){
                 $inventory = new Inventory();
                 $inventory->type = 2;
                 $inventory->description = 'Traslado';
@@ -231,44 +252,27 @@ class TransferController extends Controller
                 $inventory->warehouse_destination_id = $request->warehouse_destination_id;
                 $inventory->quantity = $it['quantity'];
                 $inventory->inventories_transfer_id = $row->id;
-
                 $inventory->save();
-
                 foreach ($it['lots'] as $lot){
-
                     if($lot['has_sale']){
                         $item_lot = ItemLot::findOrFail($lot['id']);
                         $item_lot->warehouse_id = $inventory->warehouse_destination_id;
                         $item_lot->update();
                     }
-
                 }
             }
-
             return  [
                 'success' => true,
                 'message' => 'Traslado creado con éxito'
             ];
         });
-
         return $result;
-
-
     }
 
-
-    public function items($warehouse_id)
-    {
+    public function items($warehouse_id){
         return [
             'items' => $this->optionsItemWareHousexId($warehouse_id),
         ];
     }
-
-
-
-
-
-
-
 
 }

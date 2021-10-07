@@ -156,13 +156,9 @@
                     });
                     Route::get('kardex_lots/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
                     Route::get('kardex_series/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
-
-
                     Route::get('kardex_lots/records', 'ReportKardexController@records_lots_kardex')->name('reports.kardex_lots.records');
                     Route::get('kardex_lots/pdf', 'ReportKardexLotsController@pdf');
                     Route::get('kardex_lots/excel', 'ReportKardexLotsController@excel');
-
-
                     Route::get('kardex_series/records', 'ReportKardexController@records_series_kardex')->name('reports.kardex_series.records');
                     Route::get('kardex_series/pdf', 'ReportKardexSeriesController@pdf');
                     Route::get('kardex_series/excel', 'ReportKardexSeriesController@excel');
@@ -181,22 +177,19 @@
                     });
                 });
 
-
                 Route::prefix('inventories')->group(function () {
-
                     Route::get('configuration', 'InventoryConfigurationController@index')->name('tenant.inventories.configuration.index');
                     Route::get('configuration/record', 'InventoryConfigurationController@record');
                     Route::post('configuration', 'InventoryConfigurationController@store');
+
                 });
 
                 Route::prefix('moves')->group(function () {
-
                     Route::get('/', 'MovesController@index')->name('moves.index');
                     Route::get('records', 'MovesController@records');
                     Route::get('columns', 'MovesController@columns');
 
                 });
-
 
                 Route::prefix('transfers')->group(function () {
                     Route::get('/', 'TransferController@index')->name('transfers.index');
@@ -205,21 +198,15 @@
                     Route::get('tables', 'TransferController@tables');
                     Route::get('record/{inventory}', 'TransferController@record');
                     Route::post('/', 'TransferController@store');
-
                     Route::delete('{inventory}', 'TransferController@destroy');
-
                     Route::get('create', 'TransferController@create')->name('transfer.create');
-
                     Route::get('stock/{item_id}/{warehouse_id}', 'TransferController@stock');
-
                     Route::get('items/{warehouse_id}', 'TransferController@items');
-
+                    Route::get('download', 'TransferController@transfers_download');
 
                 });
 
-
                 Route::prefix('devolutions')->group(function () {
-
                     Route::get('/', 'DevolutionController@index')->name('devolutions.index');
                     Route::get('records', 'DevolutionController@records');
                     Route::get('columns', 'DevolutionController@columns');

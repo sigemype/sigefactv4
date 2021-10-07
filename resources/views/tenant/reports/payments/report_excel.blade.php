@@ -54,13 +54,9 @@
                             <tr>
                                 <td class="celda">{{$loop->iteration}}</td>
                                 <td class="celda">{{$value->ruc}}</td>
-                                <td class="celda"> 
-                                    {{$value->date}}
-                                </td>
+                                <td class="celda">{{$value->date}}</td>
                                 <td class="celda">{{$value->invoice}}</td>
-                                <td class="celda">{{$value->comercial_name }}</td>
-
-
+                                <td class="celda">{{$value->comercial_name}}</td>
                                 <td class="celda">{{$value->business_name}}</td>
                                 <td class="celda">{{$value->zone}}</td>
                                 <td class="celda">{{$value->person_type}}</td>

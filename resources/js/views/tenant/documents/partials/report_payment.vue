@@ -70,15 +70,13 @@ export default {
             }
         };
     },
-    async created() {},
+    async created(){},
     methods: {
-        clickClose() {
+        clickClose(){
             this.$emit("update:showDialog", false);
         },
-        downloadReport()
-        {
+        downloadReport(){
             if(this.search.d_end && this.search.d_start && this.search.type){
-
                  window.open(`/${this.resource}/report/${this.search.d_start}/${this.search.d_end}/${this.search.type}`, '_blank');
             } else {
                 this.$message.error('Debe completar el formulario para generar un reporte');

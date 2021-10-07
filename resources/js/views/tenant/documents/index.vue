@@ -4,20 +4,16 @@
             <h2><a href="/dashboard"><i class="fas fa-tachometer-alt"></i></a></h2>
             <ol class="breadcrumbs">
                 <li class="active"><span>Comprobantes</span></li>
-                <li><span class="text-muted">Facturas - Notas <small>(crédito y débito)</small> - Boletas - Anulaciones</span>
-                </li>
+                <li><span class="text-muted">Facturas - Notas <small>(crédito y débito)</small> - Boletas - Anulaciones</span></li>
             </ol>
             <div class="right-wrapper pull-right" v-if="typeUser != 'integrator'">
                 <span v-if="import_documents == true">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i
-                        class="fa fa-upload"></i> Importar Formato 1</button>
+                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i class="fa fa-upload"></i> Importar Formato 1</button>
                 </span>
                 <span v-if="import_documents_second == true">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImportSecond()"><i
-                        class="fa fa-upload"></i> Importar Formato 2</button>
+                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImportSecond()"><i class="fa fa-upload"></i> Importar Formato 2</button>
                 </span>
-                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i
-                    class="fa fa-plus-circle"></i> Nuevo</a>
+                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
                 <div class="btn-group flex-wrap">
                     <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle"
                             data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i>
@@ -34,7 +30,6 @@
         </div>
         <div class="card mb-0">
             <div class="data-table-visible-columns">
-
                 <el-dropdown :hide-on-click="false">
                     <el-button type="primary">
                         Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
@@ -284,7 +279,6 @@ import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
 
-
 export default {
     mixins: [deletable],
     props: ['isClient', 'typeUser', 'import_documents', 'import_documents_second', 'userId', 'configuration'],
@@ -468,7 +462,6 @@ export default {
             this.showImportDialog = true
         },
         clickDownloadReportPagos() {
-
             this.showDialogReportPaymentComplete = true
         },
         clickImportSecond() {

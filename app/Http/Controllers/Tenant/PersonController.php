@@ -201,8 +201,7 @@ class PersonController extends Controller
 
     }
 
-    public function export($type, Request $request)
-    {
+    public function export($type, Request $request){
         $d_start = null;
         $d_end = null;
         $period = $request->period;

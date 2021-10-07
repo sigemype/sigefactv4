@@ -543,7 +543,7 @@
         <table class="full-width">
             <tr>
                 <td>
-                    <strong>Factura a Credito</strong>
+                    <strong>Forna de pago: Credito</strong>
                 </td>
             </tr>
             @php
@@ -565,7 +565,7 @@
     @else
         {{-- <br><br> --}}
         {{-- <td> --}}
-            <strong>Factura al contado</strong>
+            <strong>Forma de pago: Contado</strong>
         {{-- </td> --}}
     @endif
 {{-- fin factura a credito --}}
