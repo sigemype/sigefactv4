@@ -543,7 +543,7 @@
         <table class="full-width">
             <tr>
                 <td>
-                    <strong>Forna de pago: Credito</strong>
+                    <strong>Forma de pago: Credito</strong>
                 </td>
             </tr>
             @php
