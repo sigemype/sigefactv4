@@ -13,14 +13,14 @@
 			</ol>
 			<div class="right-wrapper pull-right">
 				<a href="#" @click.prevent="clickCreate()" class="btn btn-custom btn-sm mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
-				<div class="btn-group flex-wrap">
+				<a href="#" @click.prevent="clickDownloadReportTransfers()" class="btn btn-custom btn-sm mt-2 mr-2"><i class="fa fa-money-bill-wave-alt"></i> Generar Reporte</a>
+				<!-- <div class="btn-group flex-wrap">
                     <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i> Reporte de traslados <span class="caret"></span></button>
                     <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
                         <a class="dropdown-item text-1" href="#" @click.prevent="clickReportPayments()">Generar Reporte</a>
                         <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportTransfers()">Descargar Excel</a>
                     </div>
-                </div>
-
+                </div> -->
 			</div>
 		</div>
 		<div class="card mb-0">
