@@ -2,11 +2,9 @@
     $note = $document->note;
     $establishment = $document->establishment;
     $customer = $document->customer;
-
     $series = ($note->affected_document) ? $note->affected_document->series : $note->data_affected_document->series;
     $document_type_id = ($note->affected_document) ? $note->affected_document->document_type_id : $note->data_affected_document->document_type_id;
     $number = ($note->affected_document) ? $note->affected_document->number : $note->data_affected_document->number;
-
 @endphp
 {!! '<?xml version="1.0" encoding="utf-8" standalone="no"?>' !!}
 <CreditNote xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
@@ -19,14 +17,17 @@
             <ext:ExtensionContent/>
         </ext:UBLExtension>
     </ext:UBLExtensions>
+    
     <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
     <cbc:CustomizationID>2.0</cbc:CustomizationID>
     <cbc:ID>{{ $document->series }}-{{ $document->number }}</cbc:ID>
     <cbc:IssueDate>{{ $document->date_of_issue->format('Y-m-d') }}</cbc:IssueDate>
     <cbc:IssueTime>{{ $document->time_of_issue }}</cbc:IssueTime>
+
     @foreach($document->legends as $leg)
     <cbc:Note languageLocaleID="{{ $leg->code }}"><![CDATA[{{ $leg->value }}]]></cbc:Note>
     @endforeach
+    
     <cbc:DocumentCurrencyCode>{{ $document->currency_type_id }}</cbc:DocumentCurrencyCode>
     <cac:DiscrepancyResponse>
         <cbc:ReferenceID>{{ $series.'-'.$number }}</cbc:ReferenceID>

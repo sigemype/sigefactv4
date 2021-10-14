@@ -15,15 +15,11 @@
                 </span>
                 <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
                 <div class="btn-group flex-wrap">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle"
-                            data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i>
-                        Reporte de Pagos <span class="caret"></span></button>
-                    <div class="dropdown-menu" role="menu" x-placement="bottom-start"
-                         style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
-                        <a class="dropdown-item text-1" href="#" @click.prevent="clickReportPayments()">Generar
-                            Reporte</a>
-                        <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportPagos()">Descargar
-                            Excel</a>
+                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i> Reportes <span class="caret"></span></button>
+                    <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
+                        <a class="dropdown-item text-1" href="#" @click.prevent="clickReportPayments()">Generar Reporte Pagos</a>
+                        <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportPagos()">Descargar Excel</a> -->
+                        <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportDocuments()">Generar Reporte de Comprobantes</a>
                     </div>
                 </div>
             </div>
@@ -31,9 +27,7 @@
         <div class="card mb-0">
             <div class="data-table-visible-columns">
                 <el-dropdown :hide-on-click="false">
-                    <el-button type="primary">
-                        Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
-                    </el-button>
+                    <el-button type="primary"> Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item v-for="(column, index) in columns" :key="index">
                             <el-checkbox v-model="column.visible">{{ column.title }}</el-checkbox>
@@ -240,27 +234,14 @@
                     </tr>
                 </data-table>
             </div>
-
-            <documents-voided :showDialog.sync="showDialogVoided"
-                              :recordId="recordId"></documents-voided>
-
+            <documents-voided :showDialog.sync="showDialogVoided" :recordId="recordId"></documents-voided>
             <items-import :showDialog.sync="showImportDialog"></items-import>
-
             <document-import-second :showDialog.sync="showImportSecondDialog"></document-import-second>
-
-            <document-options :showDialog.sync="showDialogOptions"
-                              :recordId="recordId"
-                              :showClose="true"
-                              :configuration="configuration"></document-options>
-
-            <document-payments :showDialog.sync="showDialogPayments"
-                               :documentId="recordId"></document-payments>
-
-
-            <document-constancy-detraction :showDialog.sync="showDialogCDetraction"
-                                           :recordId="recordId"></document-constancy-detraction>
+            <document-options :showDialog.sync="showDialogOptions" :recordId="recordId" :showClose="true" :configuration="configuration"></document-options>
+            <document-payments :showDialog.sync="showDialogPayments" :documentId="recordId"></document-payments>
+            <document-constancy-detraction :showDialog.sync="showDialogCDetraction" :recordId="recordId"></document-constancy-detraction>
             <report-payment :showDialog.sync="showDialogReportPayment"></report-payment>
-
+            <report-documents :showDialog.sync="showDialogReportDocuments"></report-documents>
             <report-payment-complete :showDialog.sync="showDialogReportPaymentComplete"></report-payment-complete>
         </div>
     </div>
@@ -277,6 +258,7 @@ import ItemsImport from './import.vue'
 import {deletable} from '../../../mixins/deletable'
 import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
+import ReportDocuments from './partials/report_documents.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
 
 export default {
@@ -291,12 +273,14 @@ export default {
         DataTable,
         DocumentConstancyDetraction,
         ReportPayment,
-        ReportPaymentComplete
+        ReportPaymentComplete,
+        ReportDocuments
     },
     data() {
         return {
             showDialogReportPayment: false,
             showDialogReportPaymentComplete: false,
+            showDialogReportDocuments: false,
             showDialogVoided: false,
             showImportDialog: false,
             showDialogCDetraction: false,
@@ -463,6 +447,9 @@ export default {
         },
         clickDownloadReportPagos() {
             this.showDialogReportPaymentComplete = true
+        },
+        clickDownloadReportDocuments(){
+            this.showDialogReportDocuments = true
         },
         clickImportSecond() {
             this.showImportSecondDialog = true

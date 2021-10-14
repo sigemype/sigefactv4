@@ -245,6 +245,8 @@ if ($hostname) {
             Route::get('document_payments/initialize_balance', 'Tenant\DocumentPaymentController@initialize_balance');
             Route::get('document_payments/report/{start}/{end}/{report}', 'Tenant\DocumentPaymentController@report');
 
+            Route::get('documents_index/report/{start}/{end}/{report}', 'Tenant\DocumentController@report_documents');
+
             Route::get('documents/send_server/{document}/{query?}', 'Tenant\DocumentController@sendServer');
             Route::get('documents/check_server/{document}', 'Tenant\DocumentController@checkServer');
             Route::get('documents/change_to_registered_status/{document}', 'Tenant\DocumentController@changeToRegisteredStatus');

@@ -1,8 +1,6 @@
 <template>
     <div class="card mb-0">
-        <div class="card-header bg-info">
-            Nueva Nota ({{ document.series }}-{{ document.number }})
-        </div>
+        <div class="card-header bg-info">Nueva Nota ({{ document.series }}-{{ document.number }})</div>
         <div class="card-body">
             <form autocomplete="off" @submit.prevent="submit">
                 <div class="form-body">
@@ -102,11 +100,7 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group" :class="{'has-danger': errors.exchange_rate_sale}">
-                                <label class="control-label">Tipo de cambio
-                                    <el-tooltip class="item" effect="dark" content="Tipo de cambio del día, extraído de SUNAT" placement="top-end">
-                                        <i class="fa fa-info-circle"></i>
-                                    </el-tooltip>
-                                </label>
+                                <label class="control-label">Tipo de cambio <el-tooltip class="item" effect="dark" content="Tipo de cambio del día, extraído de SUNAT" placement="top-end"><i class="fa fa-info-circle"></i></el-tooltip></label>
                                 <el-input v-model="form.exchange_rate_sale"></el-input>
                                 <small class="form-control-feedback" v-if="errors.exchange_rate_sale" v-text="errors.exchange_rate_sale[0]"></small>
                             </div>
@@ -194,7 +188,6 @@
 </template>
 
 <script>
-
     import DocumentFormItem from './partials/item.vue'
     import DocumentOptions from '../documents/partials/options.vue'
     import {functions, exchangeRate} from '../../../mixins/functions'
@@ -232,30 +225,26 @@
         created() {
             this.document = this.document_affected
             this.initForm()
-             this.$http.get(`/${this.resource}/tables`)
-                .then(response => {
-                    this.document_types = response.data.document_types_note
-                    this.currency_types = response.data.currency_types
-                    this.all_series = response.data.series
-                    // this.customers = response.data.customers
-                    this.note_credit_types = response.data.note_credit_types
-                    this.note_debit_types = response.data.note_debit_types
-                    this.operation_types = response.data.operation_types
-                    this.user = response.data.user;
-
-                    this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
-                    this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
-                    this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
-
-                    this.changeDocumentType()
-                    this.changeDateOfIssue()
-                })
-
-             this.getCustomer()
-             this.getHasDocuments()
+            this.$http.get(`/${this.resource}/tables`).then(response => {
+                this.document_types = response.data.document_types_note
+                this.currency_types = response.data.currency_types
+                this.all_series = response.data.series
+                // this.customers = response.data.customers
+                this.note_credit_types = response.data.note_credit_types
+                this.note_debit_types = response.data.note_debit_types
+                this.operation_types = response.data.operation_types
+                this.user = response.data.user;
+                this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
+                this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
+                this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
+                this.changeDocumentType()
+                this.changeDateOfIssue()
+            })
+            this.getCustomer()
+            this.getHasDocuments()
         },
         mounted() {
-
+            
         },
         methods: {
             async initForm() {
@@ -299,32 +288,25 @@
                     hotel: {},
                     charges: this.document.charges ? Object.values(this.document.charges) : null,
                 }
-
-
                 await this.form.items.forEach((item)=>{
                     item.input_unit_price_value = item.unit_price
                     item.additional_information = null
                     item.IdLoteSelected = item.item.IdLoteSelected
                 })
-
             },
             clickAddItemNote(){
                 this.recordItem = null
                 this.isEditItemNote = false
                 this.showDialogAddItem = true
             },
-            ediItem(row, index)
-            {
-
+            ediItem(row, index){
                 if(this.form.document_type_id == '07' && !this.form.note_credit_or_debit_type_id){
                     return this.$message.error('Elija una opción del campo Tipo nota de crédito');
                 }
-
                 row.indexi = index
                 this.recordItem = row
                 this.isEditItemNote = true
                 this.showDialogAddItem = true
-
             },
             async resetForm() {
                 await this.getNote()
@@ -335,46 +317,35 @@
                 this.changeDateOfIssue()
             },
             getNote(){
-                this.$http.get(`/${this.resource}/note/record/${this.form.affected_document_id}`)
-                    .then(response => {
-                        // console.log(response)
-                        this.document = response.data
-                        this.getHasDocuments()
-                    })
+                this.$http.get(`/${this.resource}/note/record/${this.form.affected_document_id}`).then(response => {
+                    // console.log(response)
+                    this.document = response.data
+                    this.getHasDocuments()
+                })
             },
             getHasDocuments(){
-
-                this.$http.get(`/${this.resource}/note/has-documents/${this.form.affected_document_id}`)
-                    .then(response => {
-
-                        if(response.data.success){
-
-                            this.affected_documents = response.data.data
-
-                            let message = `<strong>El CPE ${ this.document.series }-${ this.document.number } ya tiene notas generadas</strong><br/>`
-
-                            this.affected_documents.forEach(document => {
-                                message += `${document.document_type_description}: ${document.description}<br/>`
-                            });
-
-                            this.$notify({
-                                title: "",
-                                dangerouslyUseHTMLString: true,
-                                message: message,
-                                type: "warning",
-                                duration: 6000
-                            })
-                        }
-
-                    })
-
+                this.$http.get(`/${this.resource}/note/has-documents/${this.form.affected_document_id}`).then(response => {
+                    if(response.data.success){
+                        this.affected_documents = response.data.data
+                        let message = `<strong>El CPE ${ this.document.series }-${ this.document.number } ya tiene notas generadas</strong><br/>`
+                        this.affected_documents.forEach(document => {
+                            message += `${document.document_type_description}: ${document.description}<br/>`
+                        });
+                        this.$notify({
+                            title: "",
+                            dangerouslyUseHTMLString: true,
+                            message: message,
+                            type: "warning",
+                            duration: 6000
+                        })
+                    }
+                })
             },
             changeDocumentType() {
                 this.form.note_credit_or_debit_type_id = null
                 this.form.series_id = null
                 if(this.is_contingency) {
-                    this.series = _.filter(this.all_series, {'document_type_id': this.form.document_type_id,
-                                                             'contingency': this.is_contingency});
+                    this.series = _.filter(this.all_series, {'document_type_id': this.form.document_type_id, 'contingency': this.is_contingency});
                 } else {
                     let document_type = _.find(this.document_types, {id: this.form.document_type_id})
                     let firstChar = (this.document.group_id === '01')?'F':'B'
@@ -382,8 +353,6 @@
                         return (s.document_type_id === document_type.id && s.number.substr(0, 1) === firstChar)
                     });
                 }
-
-
                 this.form.series_id = (this.series.length > 0)?this.series[0].id:null
             },
             changeDateOfIssue() {
@@ -392,19 +361,13 @@
                 })
             },
             addRow(row) {
-
                 if(this.recordItem){
-
                     this.form.items[this.recordItem.indexi] = row
                     this.recordItem = null
-
                 }
                 else{
-
                     this.form.items.push(JSON.parse(JSON.stringify(row)));
-
                 }
-
                 // this.form.items.push(row)
                 this.calculateTotal()
             },
@@ -427,7 +390,6 @@
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
-
                     if (row.affectation_igv_type_id === '10') {
                         total_taxed += parseFloat(row.total_value)
                     }
@@ -448,7 +410,6 @@
                     total += parseFloat(row.total)
                     total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
                 });
-
                 this.form.total_exportation = _.round(total_exportation, 2)
                 this.form.total_taxed = _.round(total_taxed, 2)
                 this.form.total_exonerated = _.round(total_exonerated, 2)
@@ -460,30 +421,26 @@
                 this.form.total_plastic_bag_taxes = _.round(total_plastic_bag_taxes, 2)
                 // this.form.total = _.round(total, 2)
                 this.form.total = _.round(total, 2) + this.form.total_plastic_bag_taxes
-
             },
-            submit() {
+            submit(){
                 this.loading_submit = true
-                this.$http.post(`/${this.resource}`, this.form)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.resetForm()
-                            this.documentNewId = response.data.data.id
-                            this.showDialogOptions = true
-                        } else {
-                            this.$message.error(response.data.message)
-                        }
-                    })
-                    .catch(error => {
-                        if (error.response.status === 422) {
-                            this.errors = error.response.data
-                        } else {
-                            this.$message.error(error.response.data.message)
-                        }
-                    })
-                    .then(() => {
-                        this.loading_submit = false
-                    })
+                this.$http.post(`/${this.resource}`, this.form).then(response => {
+                    if (response.data.success) {
+                        this.resetForm()
+                        this.documentNewId = response.data.data.id
+                        this.showDialogOptions = true
+                    } else {
+                        this.$message.error(response.data.message)
+                    }
+                }).catch(error => {
+                    if (error.response.status === 422){
+                        this.errors = error.response.data
+                    } else {
+                        this.$message.error(error.response.data.message)
+                    }
+                }).then(() => {
+                    this.loading_submit = false
+                })
             },
             getCustomer(){
                 this.$http.get(`/${this.resource}/search/customer/${this.document.customer_id}`).then((response) => {

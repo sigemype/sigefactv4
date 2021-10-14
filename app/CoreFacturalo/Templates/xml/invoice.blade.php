@@ -14,18 +14,15 @@
             <ext:ExtensionContent/>
         </ext:UBLExtension>
     </ext:UBLExtensions>
-
     <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
     <cbc:CustomizationID>2.0</cbc:CustomizationID>
     <cbc:ID>{{ $document->series }}-{{ $document->number }}</cbc:ID>
     <cbc:IssueDate>{{ $document->date_of_issue->format('Y-m-d') }}</cbc:IssueDate>
     <cbc:IssueTime>{{ $document->time_of_issue }}</cbc:IssueTime>
-
     @if($invoice->date_of_due)
     <cbc:DueDate>{{ $invoice->date_of_due->format('Y-m-d') }}</cbc:DueDate>
     @endif
-
-    <cbc:InvoiceTypeCode listAgencyName="PE:SUNAT" listName="SUNAT:Identificador de Tipo de Documento" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01" listID="{{ $invoice->operation_type_id }}">{{ $document->document_type_id }}</cbc:InvoiceTypeCode>
+    <cbc:InvoiceTypeCode listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01" listID="{{ $invoice->operation_type_id }}">{{ $document->document_type_id }}</cbc:InvoiceTypeCode>
     @foreach($document->legends as $leg)
     <cbc:Note languageLocaleID="{{ $leg->code }}"><![CDATA[{{ $leg->value }}]]></cbc:Note>
     @endforeach
@@ -34,7 +31,7 @@
     <cac:OrderReference>
         <cbc:ID>{{ $document->purchase_order }}</cbc:ID>
     </cac:OrderReference>
-    @endif
+    @endif|
     @if($document->guides)
     @foreach($document->guides as $guide)
     <cac:DespatchDocumentReference>
@@ -467,7 +464,6 @@
         @endif
 
         @if($row->charges)
-
         @foreach($row->charges as $charge)
         <cac:AllowanceCharge>
             <cbc:ChargeIndicator>true</cbc:ChargeIndicator>

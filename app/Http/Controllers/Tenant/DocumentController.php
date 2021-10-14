@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\DocumentEmailRequest;
@@ -62,6 +63,7 @@ use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
 use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class DocumentController extends Controller{
     use FinanceTrait;
@@ -248,7 +250,6 @@ class DocumentController extends Controller{
         $CatItemMoldProperty = $colors;
         $CatItemProductFamily= $colors;
         if($configuration->isShowExtraInfoToItem()){
-
             $colors = CatColorsItem::all();
             $CatItemStatus= CatItemStatus::all();
             $CatItemUnitBusiness = CatItemUnitBusiness::all();
@@ -258,10 +259,7 @@ class DocumentController extends Controller{
             $CatItemMoldProperty = CatItemMoldProperty::all();
             $CatItemProductFamily= CatItemProductFamily::all();
         }
-
-
         /** Informacion adicional */
-
         return compact(
             'items',
             'categories',
@@ -305,7 +303,6 @@ class DocumentController extends Controller{
                         'address'                     => $row->address,
                         'internal_code'               => $row->internal_code,
                     ];
-
                 });
             return $customers;
         }
@@ -424,8 +421,7 @@ class DocumentController extends Controller{
         $category = ($row->category) ? "{$row->category->name}" : "";
         $brand = ($row->brand) ? "{$row->brand->name}" : "";
 
-        if($row->unit_type_id != 'ZZ')
-        {
+        if($row->unit_type_id != 'ZZ'){
             if(isset($row['stock'])){
                 $warehouse_stock = number_format($row['stock'],2);
             } else {
@@ -433,7 +429,6 @@ class DocumentController extends Controller{
                     number_format($row->warehouses->where('warehouse_id', $warehouse->id)->first()->stock,2) :
                     0;
             }
-
             $stock = ($row->warehouses && $warehouse) ? "{$warehouse_stock}" : "";
         }
         else{
@@ -459,7 +454,6 @@ class DocumentController extends Controller{
         $document_id = $res['data']['id'];
         $this->associateDispatchesToDocument($request, $document_id);
         $this->associateSaleNoteToDocument($request, $document_id);
-
         return $res;
     }
 
@@ -998,6 +992,25 @@ class DocumentController extends Controller{
         return $records;
     }
 
+    public function report_documents($start, $end, $type = 'pdf'){
+        $records = Document::whereBetween('date_of_issue', [$start , $end])->get();
+        $date_now = Carbon::now();
+
+        if ($type == 'pdf') {
+            $pdf = PDF::loadView('tenant.documents.report', compact("records", "date_now"))->setPaper('a4', 'landscape');
+            $filename = "Reporte_Documentos_".Carbon::now();
+            // return $pdf->stream($filename.'.pdf');
+            return $pdf->download($filename.'.pdf');
+
+        } elseif ($type == 'excel') {
+            $filename = "Reporte_Documentos_".Carbon::now();
+            return (new DocumentIndexExport)
+                ->records($records)
+                ->download($filename.Carbon::now().'.xlsx');
+        }
+
+    }
+
     public function report_payments(Request $request){
         // $month_format = Carbon::parse($month)->format('m');
         if($request->anulled == 'true') {
@@ -1021,7 +1034,6 @@ class DocumentController extends Controller{
                 $record = Document::findOrFail($document_id);
                 $this->deleteAllPayments($record->payments);
                 $record->delete();
-
             });
 
             return [

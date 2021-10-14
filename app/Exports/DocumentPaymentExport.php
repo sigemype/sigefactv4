@@ -8,13 +8,10 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class DocumentPaymentExport implements  FromView, ShouldAutoSize
-{
+class DocumentPaymentExport implements FromView, ShouldAutoSize{
     use Exportable;
-
     public function records($records) {
         $this->records = $records;
-
         return $this;
     }
 

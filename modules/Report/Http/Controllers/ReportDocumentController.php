@@ -46,14 +46,10 @@ class ReportDocumentController extends Controller
         return view('report::documents.index',compact('configuration'));
     }
 
-    public function records(Request $request)
-    {
+    public function records(Request $request){
         $records = $this->getRecords($request->all(), Document::class);
-
         return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
     }
-
-
 
     public function pdf(Request $request) {
         set_time_limit (1800); // Maximo 30 minutos
@@ -69,9 +65,6 @@ class ReportDocumentController extends Controller
 
         return $pdf->download($filename.'.pdf');
     }
-
-
-
 
     public function excel(Request $request) {
 
@@ -101,7 +94,6 @@ class ReportDocumentController extends Controller
         return $documentExport->download('Reporte_Ventas_'.Carbon::now().'.xlsx');
 
     }
-
 
     public function getCategories($records, $is_service) {
 
