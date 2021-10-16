@@ -13,11 +13,8 @@ use Modules\Inventory\Http\Resources\ReportValuedKardexCollection;
 use Modules\Report\Traits\ReportTrait;
 use Modules\Inventory\Helpers\InventoryValuedKardex;
 
-class ReportValuedKardexController extends Controller
-{
-
+class ReportValuedKardexController extends Controller{
     use ReportTrait;
-
     public function filter(){
         $establishments = Establishment::all()->transform(function ($row) {
             return [
@@ -28,7 +25,6 @@ class ReportValuedKardexController extends Controller
         return compact('establishments');
     }
 
-
     public function index(){
         return view('inventory::reports.valued_kardex.index');
     }
@@ -37,8 +33,6 @@ class ReportValuedKardexController extends Controller
         $records = $this->getRecords($request->all());
         // $records = Item::all();
         return new ReportValuedKardexCollection($records->paginate(config('tenant.items_per_page')));
-        
-        
     }
 
     public function getRecords($request){
@@ -52,7 +46,6 @@ class ReportValuedKardexController extends Controller
         return $records;
     }
 
-
     /**
      * @param object $params
      * @return Item|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
@@ -64,12 +57,9 @@ class ReportValuedKardexController extends Controller
     }
 
 
-    public function excel(Request $request)
-    {
-
+    public function excel(Request $request){
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
-
         $records = InventoryValuedKardex::getTransformRecords($this->getRecords($request->all())->get());
         $valuedKardexExport = new ValuedKardexExport();
         $valuedKardexExport
@@ -78,6 +68,5 @@ class ReportValuedKardexController extends Controller
             ->establishment($establishment);
 
         return $valuedKardexExport->download('Reporte_Kardex_Valorizado_' . Carbon::now() . '.xlsx');
-
     }
 }

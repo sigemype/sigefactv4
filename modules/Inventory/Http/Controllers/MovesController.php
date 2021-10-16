@@ -17,44 +17,30 @@ use Modules\Inventory\Models\Warehouse;
 use Modules\Inventory\Http\Requests\InventoryRequest;
 use Modules\Item\Models\ItemLot;
 
-class MovesController extends Controller
-{
+class MovesController extends Controller{
     use InventoryTrait;
-
-    public function index()
-    {
+    public function index(){
         return view('inventory::moves.index');
     }
 
-    public function columns()
-    {
+    public function columns(){
         return [
             'description' => 'Producto',
         ];
     }
 
-    public function records(Request $request)
-    {
+    public function records(Request $request){
         $records = Inventory::with('item', 'warehouse', 'warehouse_destination')->where('description', 'Traslado');
-
-        if($request->column == 'description')
-        {
-            $records = $records
-            ->whereHas('item', function($query) use($request) {
+        if($request->column == 'description'){
+            $records = $records->whereHas('item', function($query) use($request) {
                 $query->where('name', 'like', '%' . $request->value . '%');
-
             });
-
         }
-
         return new InventoryCollection2($records->paginate(config('tenant.items_per_page')));
     }
 
-
-    public function record($id)
-    {
+    public function record($id){
         $record = new InventoryResource(ItemWarehouse::with(['item', 'warehouse'])->findOrFail($id));
-
         return $record;
     }
 

@@ -4,22 +4,17 @@ namespace Modules\Inventory\Helpers;
 
 use Carbon\Carbon;
 
-class InventoryKardexSeries
-{
+class InventoryKardexSeries{
 
-    public static function transformRecords($records)
-    {
+    public static function transformRecords($records){
         
         return $records->transform(function($row, $key){
-          
             $status = '';
-
             if($row->has_sale){
                 $status = 'VENDIDO';
             }else{
                 $status = 'DISPONIBLE';
             }
-
             if($row->has_sale && $row->state == 'Inactivo'){
                 $status = 'NO DISPONIBLE';
             }
@@ -34,10 +29,6 @@ class InventoryKardexSeries
                 'status' => $status,
                 'date' => $row->date
             ];
-            
         });
-
-    } 
-
- 
+    }
 }

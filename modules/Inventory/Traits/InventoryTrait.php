@@ -99,14 +99,9 @@ trait InventoryTrait{
     }
 
     public function optionsItemFull($search = null, $take = null){
-        $query = Item::query()
-            ->with('item_lots', 'item_lots.item_loteable', 'lots_group')
-            ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])
-            ->whereNotIsSet();
+        $query = Item::query()->with('item_lots', 'item_lots.item_loteable', 'lots_group')->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])->whereNotIsSet();
         if ($search){
-            $query->where('description', 'like', "%{$search}%")
-                ->orWhere('barcode', 'like', "%{$search}%")
-                ->orWhere('internal_id', 'like', "%{$search}%");
+            $query->where('description', 'like', "%{$search}%")->orWhere('barcode', 'like', "%{$search}%")->orWhere('internal_id', 'like', "%{$search}%");
         }
         if ($take){
             $query->take($take);
@@ -177,7 +172,6 @@ trait InventoryTrait{
         } else {
             $establishment = auth()->user()->establishment;
         }
-
         return Warehouse::firstOrCreate([
             'establishment_id' => $establishment->id
         ], [
@@ -206,13 +200,10 @@ trait InventoryTrait{
 
 
     private function updateStock($item_id, $quantity, $warehouse_id){
-
         $inventory_configuration = InventoryConfiguration::firstOrFail();
         $item_warehouse = ItemWarehouse::firstOrNew(['item_id' => $item_id, 'warehouse_id' => $warehouse_id]);
         $item_warehouse->stock = $item_warehouse->stock + $quantity;
-
         // dd($item_warehouse->item->unit_type_id);
-
         if ($quantity < 0 && $item_warehouse->item->unit_type_id !== 'ZZ'){
             if (($inventory_configuration->stock_control) && ($item_warehouse->stock < 0)) {
                 // return [
@@ -228,9 +219,7 @@ trait InventoryTrait{
     }
 
     public function checkInventory($item_id, $warehouse_id){
-        $inventory = Inventory::where('item_id', $item_id)
-            ->where('warehouse_id', $warehouse_id)
-            ->first();
+        $inventory = Inventory::where('item_id', $item_id)->where('warehouse_id', $warehouse_id)->first();
         return ($inventory) ? true : false;
     }
 
@@ -244,7 +233,6 @@ trait InventoryTrait{
 
         $warehouse = $this->findWarehouse();
         $items = Item::all();
-
         foreach ($items as $item){
             if (!$this->checkInventory($item->id, $warehouse->id)) {
                 $inventory = $this->createInitialInventory($item->id, $item->stock, $warehouse->id);
@@ -270,7 +258,6 @@ trait InventoryTrait{
             'warehouse_id' => $warehouse_id,
             'quantity' => $quantity,
         ]);
-
         $sale_note_item = $this->findSaleNoteItem($sale_note_item_id);
         $sale_note_item->inventory_kardex_id = $sale_note_kardex->id;
         $sale_note_item->update();
@@ -298,7 +285,6 @@ trait InventoryTrait{
 
         if (isset($document_item->item->lots)) {
             foreach ($document_item->item->lots as $it) {
-
                 if ($it->has_sale == true) {
                     $r = ItemLot::find($it->id);
                     $r->has_sale = false;
@@ -316,13 +302,11 @@ trait InventoryTrait{
         $lot_group_selected = collect($i_lots_group)->first(function ($row){
             return $row->checked;
         });
-
         if ($lot_group_selected){
             $lot = ItemLotsGroup::find($lot_group_selected->id);
             $lot->quantity = $lot->quantity + $item->quantity;
             $lot->save();
         }
-
         if (isset($item->item->lots)){
             foreach ($item->item->lots as $it){
                 if ($it->has_sale == true){
@@ -433,7 +417,6 @@ trait InventoryTrait{
         if(!$document_item->document->sale_note_id && !$document_item->document->order_note_id && !$document_item->document->dispatch_id){
             $this->updateStock($document_item->item_id, ($factor * ($document_item->quantity * $presentationQuantity)), $warehouse->id);
         }else{
-                        
             if($document_item->document->dispatch){
                 if(!$document_item->document->dispatch->transfer_reason_type->discount_stock){
                     $this->updateStock($document_item->item_id, ($factor * ($document_item->quantity * $presentationQuantity)), $warehouse->id);

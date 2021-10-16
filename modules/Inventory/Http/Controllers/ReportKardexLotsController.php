@@ -23,71 +23,47 @@ use Modules\Inventory\Http\Resources\ReportKardexItemLotCollection;
 use Modules\Inventory\Helpers\InventoryKardexLots;
  
 
-class ReportKardexLotsController extends Controller
-{ 
+class ReportKardexLotsController extends Controller{ 
  
     public function getRecords($request){
-
         $item_id = $request['item_id'];
         $date_start = $request['date_start'];
         $date_end = $request['date_end'];
-
         $records = $this->data($item_id, $date_start, $date_end);
-
         return $records;
-
     }
 
-
-    private function data($item_id, $date_start, $date_end)
-    {
+    private function data($item_id, $date_start, $date_end){
 
         if($date_start && $date_end){
-
-            $data = ItemLotsGroup::whereBetween('date_of_due', [$date_start, $date_end])
-                        ->orderBy('item_id')->orderBy('id');
-
+            $data = ItemLotsGroup::whereBetween('date_of_due', [$date_start, $date_end])->orderBy('item_id')->orderBy('id');
         }else{
-
             $data = ItemLotsGroup::orderBy('item_id')->orderBy('id');
         }
 
         if($item_id){
             $data = $data->where('item_id', $item_id);
         }
-
         return $data;
-
     }
 
- 
-    public function pdf(Request $request) {
-
+    public function pdf(Request $request){
         $records = InventoryKardexLots::transformRecords($this->getRecords($request->all())->get());
         $company = Company::first();
         $establishment = Establishment::first();
-
         $pdf = PDF::loadView('inventory::reports.kardex_lots.report_pdf', compact("records", "company", "establishment"));
         $filename = 'Reporte_Kardex_lotes'.date('YmdHis');
-
         return $pdf->download($filename.'.pdf');
-
     }
 
-    
     public function excel(Request $request) {
-
         $company = Company::first();
         $establishment = Establishment::first();
         $records = InventoryKardexLots::transformRecords($this->getRecords($request->all())->get());
-
         return (new KardexLotsExport)
             ->records($records)
             ->company($company)
             ->establishment($establishment)
             ->download('ReporteKardexLotes'.Carbon::now().'.xlsx');
-
     }
-
- 
 }

@@ -9,53 +9,53 @@
     </head>
     <body>
         @if(!empty($records))
-            <div class="">
-                <div class=" ">
-                    <table class="">
-                        <thead>
+            <div class=" ">
+                <table class="">
+                    <thead>
+                        <tr>
+                            <th colspan="7" align="center">
+                                <h3 align="center" class="title celda"><strong>Reporte Tranferencias</strong></h3>
+                            </th>
+                        </tr>
+                        <tr></tr>
+                        <tr>
+                            <th align="center" style="background-color:powderblue;" width="2" colspan="1" rowspan="2">#</th>
+                            <th align="center" style="background-color:powderblue;" width="15" colspan="1" rowspan="2">Fecha</th>
+                            <th align="center" style="background-color:powderblue;" width="80" colspan="1" rowspan="2">Descripción</th>
+                            <th align="center" style="background-color:powderblue;" width="30" colspan="1" rowspan="2">Almacen de origen</th>
+                            <th align="center" style="background-color:powderblue;" width="30" colspan="1" rowspan="2">Almacen de destino</th>
+                            <th align="center" style="background-color:powderblue;" colspan="3">Detalle de productos</th>
+                        </tr>
+                        <tr>
+                            <th align="center" style="background-color:cornflowerblue;">Código</th>
+                            <th align="center" style="background-color:cornflowerblue;">Descripción</th>
+                            <th align="center" style="background-color:cornflowerblue;">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($records as $key => $value)
+                        <tr>
+                            <td align="center" class="celda">{{$loop->iteration}}</td>
+                            <td align="center" class="celda">{{$value->created_at}}</td>
+                            <td class="celda">{{$value->description}}</td>
+                            <td class="celda">{{$value->warehouse}}</td>
+                            <td class="celda">{{$value->warehouse_destination}}</td>
+                        </tr>
+                            @foreach($value->inventory as $item)
                             <tr>
-                                <th colspan="7" align="center">
-                                    <h3 align="center" class="title celda"><strong>Reporte Tranferencias</strong></h3>
-                                </th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="celda" width="10">{{$item['code']}}</td>
+                                <td class="celda" width="50">{{$item['description']}}</td>
+                                <td class="celda" width="8">{{$item['quantity']}}</td>
                             </tr>
-                            <tr></tr>
-                            <tr>
-                                <th align="center" style="background-color:powderblue;" width="2" colspan="1" rowspan="2">#</th>
-                                <th align="center" style="background-color:powderblue;" width="15" colspan="1" rowspan="2">Fecha</th>
-                                <th align="center" style="background-color:powderblue;" width="80" colspan="1" rowspan="2">Descripción</th>
-                                <th align="center" style="background-color:powderblue;" width="30" colspan="1" rowspan="2">Almacen de origen</th>
-                                <th align="center" style="background-color:powderblue;" width="30" colspan="1" rowspan="2">Almacen de destino</th>
-                                <th align="center" style="background-color:powderblue;" colspan="2">Detalle de productos</th>
-                            </tr>
-                            <tr>
-                                <th align="center" style="background-color:cornflowerblue;">Cantidad</th>
-                                <th align="center" style="background-color:cornflowerblue;">Descripción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($records as $key => $value)
-                            <tr>
-                                <td align="center" class="celda">{{$loop->iteration}}</td>
-                                <td align="center" class="celda">{{$value->created_at}}</td>
-                                <td class="celda">{{$value->description}}</td>
-                                <td class="celda">{{$value->warehouse}}</td>
-                                <td class="celda">{{$value->warehouse_destination}}</td>
-                            </tr>
-                                @foreach($value->inventory as $item)
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="celda" width="8">{{$item['quantity']}}</td>
-                                    <td class="celda" width="50">{{$item['description']}}</td>
-                                </tr>
-                                @endforeach
                             @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @else
             <div>

@@ -51,17 +51,17 @@ class TransferController extends Controller{
         $period = $request->period;
         switch ($period) {
             case 'day':
-                $records = InventoryTransfer::where('created_at', 'like', '%' . $request->date_start . '%')->get();
+                $records = InventoryTransfer::where('created_at', 'like', '%' . $request->date_start . '%')->orderBy('warehouse_destination_id', 'desc')->get();
                 break;
             
             case 'month':
                 $m_start = Carbon::parse($request->month.'-01')->format('Y-m-d');
                 $m_end = Carbon::parse($request->month.'-01')->endOfMonth()->format('Y-m-d');
-                $records = InventoryTransfer::whereBetween('created_at',[$m_start.' 00:00:00', $m_end.' 23:00:00'])->get();
+                $records = InventoryTransfer::whereBetween('created_at',[$m_start.' 00:00:00', $m_end.' 23:00:00'])->orderBy('warehouse_destination_id', 'desc')->get();
                 break;
             
             case 'between_days':
-                $records = InventoryTransfer::whereBetween('created_at',[$request->date_start.' 00:00:00', $request->date_end.' 23:00:00'])->get();
+                $records = InventoryTransfer::whereBetween('created_at',[$request->date_start.' 00:00:00', $request->date_end.' 23:00:00'])->orderBy('warehouse_destination_id', 'desc')->get();
                 break;
         }
 
@@ -85,8 +85,11 @@ class TransferController extends Controller{
                 'inventory' => $row->inventory->transform(function($o) use ($row) {
                     return [
                         'id' => $o->item->id,
+                        'code' => $o->item->internal_id,
                         'description' => $o->item->description,
                         'quantity' => $o->quantity,
+                        'sale_unit_price' => $o->item->sale_unit_price,
+                        'purchase_unit_price' => $o->item->ppurchase_unit_price,
                         'lots_enabled' => (bool)$o->item->lots_enabled,
                         'lots' => $o->item->item_lots->where('has_sale', false)->where('warehouse_id', $row->warehouse_destination_id)->transform(function($row) {
                             return [
@@ -108,7 +111,6 @@ class TransferController extends Controller{
 
     public function tables(){
         return [
-            //'items' => $this->optionsItemWareHouse(),
             'warehouses' => $this->optionsWarehouse()
         ];
     }
@@ -140,98 +142,72 @@ class TransferController extends Controller{
                     'message' => 'La cantidad a trasladar no puede ser mayor al que se tiene en el almacén.'
                 ];
             }
-
             $re_it_warehouse = ItemWarehouse::where([['item_id',$item_id],['warehouse_id', $warehouse_destination_id]])->first();
-
             if(!$re_it_warehouse) {
                 return  [
                     'success' => false,
                     'message' => 'El producto no se encuentra registrado en el almacén destino.'
                 ];
             }
-
-
             $inventory = Inventory::findOrFail($id);
-
             //proccess stock
             $origin_inv_kardex = $inventory->inventory_kardex->first();
             $origin_item_warehouse = ItemWarehouse::where([['item_id',$origin_inv_kardex->item_id],['warehouse_id', $origin_inv_kardex->warehouse_id]])->first();
             $origin_item_warehouse->stock += $inventory->quantity;
             $origin_item_warehouse->stock -= $quantity;
             $origin_item_warehouse->update();
-
-
             $destination_inv_kardex = $inventory->inventory_kardex->last();
             $destination_item_warehouse = ItemWarehouse::where([['item_id',$destination_inv_kardex->item_id],['warehouse_id', $destination_inv_kardex->warehouse_id]])->first();
             $destination_item_warehouse->stock -= $inventory->quantity;
             $destination_item_warehouse->update();
-
-
             $new_item_warehouse = ItemWarehouse::where([['item_id',$item_id],['warehouse_id', $warehouse_destination_id]])->first();
             $new_item_warehouse->stock += $quantity;
             $new_item_warehouse->update();
-
             //proccess stock
-
             //proccess kardex
             $origin_inv_kardex->quantity = -$quantity;
             $origin_inv_kardex->update();
-
             $destination_inv_kardex->quantity = $quantity;
             $destination_inv_kardex->warehouse_id = $warehouse_destination_id;
             $destination_inv_kardex->update();
             //proccess kardex
-
             $inventory->warehouse_destination_id = $warehouse_destination_id;
             $inventory->quantity = $quantity;
             $inventory->detail = $detail;
-
-
             $inventory->update();
-
             return  [
                 'success' => true,
                 'message' => 'Traslado actualizado con éxito'
             ];
         });
-
         return $result;
     }*/
 
-
     public function destroy($id){
-
         DB::connection('tenant')->transaction(function () use ($id) {
-
             $record = Inventory::findOrFail($id);
-
             $origin_inv_kardex = $record->inventory_kardex->first();
             $destination_inv_kardex = $record->inventory_kardex->last();
-
             $destination_item_warehouse = ItemWarehouse::where([['item_id',$destination_inv_kardex->item_id],['warehouse_id', $destination_inv_kardex->warehouse_id]])->first();
             $destination_item_warehouse->stock -= $record->quantity;
             $destination_item_warehouse->update();
-
             $origin_item_warehouse = ItemWarehouse::where([['item_id',$origin_inv_kardex->item_id],['warehouse_id', $origin_inv_kardex->warehouse_id]])->first();
             $origin_item_warehouse->stock += $record->quantity;
             $origin_item_warehouse->update();
-
             $record->inventory_kardex()->delete();
             $record->delete();
-
         });
         return [
             'success' => true,
             'message' => 'Traslado eliminado con éxito'
         ];
-
     }
 
     public function stock ($item_id, $warehouse_id){
-       $row = ItemWarehouse::where([['item_id', $item_id],['warehouse_id', $warehouse_id]])->first();
-       return [
-           'stock' => ($row) ? $row->stock : 0
-       ];
+        $row = ItemWarehouse::where([['item_id', $item_id],['warehouse_id', $warehouse_id]])->first();
+        return [
+            'stock' => ($row) ? $row->stock : 0
+        ];
     }
 
     public function store(TransferRequest $request){
@@ -274,5 +250,4 @@ class TransferController extends Controller{
             'items' => $this->optionsItemWareHousexId($warehouse_id),
         ];
     }
-
 }

@@ -5,26 +5,20 @@ namespace Modules\Inventory\Helpers;
 
 use App\Models\Tenant\Item;
 
-class InventoryValuedKardex
-{
+class InventoryValuedKardex{
 
-    public static function getTransformRecords($records)
-    {
-
+    public static function getTransformRecords($records){
         return $records->transform(function ($row, $key) {
             /** @var Item $row */
             return $row->getReportValuedKardexCollection();
             /*** Movido al modelo **/
             $values_records = self::getValuesRecords($row->document_items, $row->sale_note_items);
-
             $quantity_sale = $values_records['quantity_sale'];
             $total_sales = $values_records['total_sales'];
-
             $item_cost = $quantity_sale * $row->purchase_unit_price;
             $valued_unit = $total_sales - $item_cost;
 
             return [
-
                 'id' => $row->id,
                 'item_description' => $row->description,
                 'category_description' => optional($row->category)->name,
@@ -43,25 +37,18 @@ class InventoryValuedKardex
                         'description' => "{$row->warehouse->description} | {$row->stock}",
                     ];
                 }),
-
             ];
-
         });
-
     }
 
-    public static function getValuesRecords($document_items, $sale_note_items)
-    {
+    public static function getValuesRecords($document_items, $sale_note_items){
 
         //quantity
         $quantity_doc_items = $document_items->sum(function($row){
             return ($row->document->document_type_id == '07') ? -$row->quantity : $row->quantity;
         });
-
         $quantity_sln_items = $sale_note_items->sum('quantity');
-
         $quantity_sale = $quantity_doc_items + $quantity_sln_items;
-
 
         //totals
         $sales_documents = $document_items->sum(function($row){
@@ -75,20 +62,14 @@ class InventoryValuedKardex
 
         $total_sales = $sales_documents + $sales_sale_notes;
 
-
         return [
             'quantity_sale' => $quantity_sale,
             'total_sales' => $total_sales,
         ];
-
     }
 
-
-    public static function calculateTotalCurrencyType($record, $amount)
-    {
+    public static function calculateTotalCurrencyType($record, $amount){
         return ($record->currency_type_id === 'USD') ? $amount * $record->exchange_rate_sale : $amount;
     }
-
-
 
 }

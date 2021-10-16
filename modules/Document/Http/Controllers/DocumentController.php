@@ -29,30 +29,20 @@ use Modules\Document\Http\Resources\ItemLotCollection;
 use App\Models\Tenant\Configuration;
 
 
-class DocumentController extends Controller
-{
+class DocumentController extends Controller{
     use OfflineTrait, SearchTrait;
 
-    public function index()
-    {
-
+    public function index(){
         $is_client = $this->getIsClient();
-
         return view('document::documents.not_sent', compact('is_client'));
     }
 
-    public function records(Request $request)
-    {
-
+    public function records(Request $request){
         $records = $this->getRecords($request);
-
         return new DocumentNotSentCollection($records->paginate(config('tenant.items_per_page')));
-
     }
 
     public function getRecords($request){
-
-
         $d_end = $request->d_end;
         $d_start = $request->d_start;
         $date_of_issue = $request->date_of_issue;
@@ -63,9 +53,7 @@ class DocumentController extends Controller
         $pending_payment = ($request->pending_payment == "true") ? true:false;
         $customer_id = $request->customer_id;
 
-
         if($d_start && $d_end){
-
             $records = Document::where('document_type_id', 'like', '%' . $document_type_id . '%')
                             ->where('series', 'like', '%' . $series . '%')
                             ->where('number', 'like', '%' . $number . '%')
@@ -74,9 +62,7 @@ class DocumentController extends Controller
                             ->whereNotSent()
                             ->whereTypeUser()
                             ->latest();
-
         }else{
-
             $records = Document::where('date_of_issue', 'like', '%' . $date_of_issue . '%')
                             ->where('document_type_id', 'like', '%' . $document_type_id . '%')
                             ->where('state_type_id', 'like', '%' . $state_type_id . '%')
@@ -94,13 +80,11 @@ class DocumentController extends Controller
         if($customer_id){
             $records = $records->where('customer_id', $customer_id);
         }
-
+        
         return $records;
-
     }
 
-    public function data_table()
-    {
+    public function data_table(){
 
         $customers = Person::whereType('customers')->orderBy('name')->take(20)->get()->transform(function($row) {
             return [
@@ -121,23 +105,18 @@ class DocumentController extends Controller
 
     }
 
-
-
-    public function upload(Request $request)
-    {
-
+    public function upload(Request $request){
         $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg');
 
         if(!$validate_upload['success']){
             return $validate_upload;
         }
 
-        if ($request->hasFile('file')) {
+        if ($request->hasFile('file')){
             $new_request = [
                 'file' => $request->file('file'),
                 'type' => $request->input('type'),
             ];
-
             return $this->upload_image($new_request);
         }
         return [
@@ -146,14 +125,11 @@ class DocumentController extends Controller
         ];
     }
 
-    function upload_image($request)
-    {
+    function upload_image($request){
         $file = $request['file'];
         $type = $request['type'];
-
         $temp = tempnam(sys_get_temp_dir(), $type);
         file_put_contents($temp, file_get_contents($file));
-
         $mime = mime_content_type($temp);
         $data = file_get_contents($temp);
 
@@ -168,22 +144,17 @@ class DocumentController extends Controller
     }
 
 
-    public function detractionTables()
-    {
+    public function detractionTables(){
 
         $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         $detraction_types = DetractionType::whereActive()->get();
-
         $locations = [];
         $departments = Department::whereActive()->get();
-        foreach ($departments as $department)
-        {
+        foreach ($departments as $department){
             $children_provinces = [];
-            foreach ($department->provinces as $province)
-            {
+            foreach ($department->provinces as $province){
                 $children_districts = [];
-                foreach ($province->districts as $district)
-                {
+                foreach ($province->districts as $district){
                     $children_districts[] = [
                         'value' => $district->id,
                         'label' => $district->description
@@ -201,16 +172,10 @@ class DocumentController extends Controller
                 'children' => $children_provinces
             ];
         }
-
         return compact( 'detraction_types', 'cat_payment_method_types', 'locations');
-
     }
 
-
-    public function dataTableCustomers(Request $request)
-    {
-
-
+    public function dataTableCustomers(Request $request){
         $customers = Person::where('number','like', "%{$request->input}%")
                             ->orWhere('name','like', "%{$request->input}%")
                             ->whereType('customers')->orderBy('name')
@@ -227,21 +192,15 @@ class DocumentController extends Controller
         return compact('customers');
     }
 
-
-
-    public function savePayConstancy(Request $request)
-    {
+    public function savePayConstancy(Request $request){
         $document = Document::findOrFail($request->id);
-
         $detraction = $document->detraction;
         $detraction->pay_constancy = $request->pay_constancy;
-
-
+        
         if($request->upload_image_pay_constancy){
             //hacer proceso de carga de imagen
             $image_pay_constancy = $request->upload_image_pay_constancy;
             $directory = 'public'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'image_detractions'.DIRECTORY_SEPARATOR;
-
             $file_name_old = $image_pay_constancy['image'];
             $file_name_old_array = explode('.', $file_name_old);
             $file_content = file_get_contents($image_pay_constancy['temp_path']);
@@ -250,7 +209,6 @@ class DocumentController extends Controller
             Storage::put($directory.$file_name, $file_content);
             $set_image_pay_constancy = $file_name;
             $detraction->image_pay_constancy = $set_image_pay_constancy;
-
         }
 
         // dd($detraction, $request->upload_image_pay_constancy['temp_path']);
@@ -264,8 +222,7 @@ class DocumentController extends Controller
     }
 
 
-    public function prepayments($type)
-    {
+    public function prepayments($type){
 
         $prepayment_documents = Document::whereHasPrepayment()->whereAffectationTypePrepayment($type)->get()->transform(function($row) {
 
@@ -282,52 +239,45 @@ class DocumentController extends Controller
                 // 'total' => $row->total,
                 'amount' => $amount,
                 'total' => $total,
-
             ];
         });
         return $prepayment_documents;
-
     }
 
 
-    public function searchItems(Request $request)
-    {
-
+    public function searchItems(Request $request){
         $establishment_id = auth()->user()->establishment_id;
         $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
         $search_item_by_series = (bool) Configuration::select('search_item_by_series')->first()->search_item_by_series;
-
         $items_not_services = $this->getItemsNotServices($request, $search_item_by_series);
         $items_services = $this->getItemsServices($request);
         $all_items = $items_not_services->merge($items_services);
-
         $items = collect($all_items)->transform(function ($row) use ($warehouse, $request, $search_item_by_series) {
             /** @var \App\Models\Tenant\Item $row */
             return $row->getDataToItemModal($warehouse, false, false, $request->input, $search_item_by_series);
             /**  Movido al modelo */
             $detail = $this->getFullDescription($row, $warehouse);
-
             return [
-                'id'                               => $row->id,
-                'full_description'                 => $detail['full_description'],
-                'brand'                            => $detail['brand'],
-                'category'                         => $detail['category'],
-                'warehouse_description'            => $detail['warehouse_description'],
-                'stock'                            => $detail['stock'],
-                'barcode'                          => $row->barcode,
-                'internal_id'                      => $row->internal_id,
-                'description'                      => $row->description,
-                'currency_type_id'                 => $row->currency_type_id,
-                'currency_type_symbol'             => $row->currency_type->symbol,
-                'sale_unit_price'                  => Item::getSaleUnitPriceByWarehouse($row, $warehouse->id),
-                'purchase_unit_price'              => $row->purchase_unit_price,
-                'unit_type_id'                     => $row->unit_type_id,
-                'sale_affectation_igv_type_id'     => $row->sale_affectation_igv_type_id,
-                'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
-                'calculate_quantity'               => (bool)$row->calculate_quantity,
-                'has_igv'                          => (bool)$row->has_igv,
-                'amount_plastic_bag_taxes'         => $row->amount_plastic_bag_taxes,
-                'item_unit_types'                  => collect($row->item_unit_types)->transform(function ($row) {
+                'id'                              => $row->id,
+                'full_description'                => $detail['full_description'],
+                'brand'                           => $detail['brand'],
+                'category'                        => $detail['category'],
+                'warehouse_description'           => $detail['warehouse_description'],
+                'stock'                           => $detail['stock'],
+                'barcode'                         => $row->barcode,
+                'internal_id'                     => $row->internal_id,
+                'description'                     => $row->description,
+                'currency_type_id'                => $row->currency_type_id,
+                'currency_type_symbol'            => $row->currency_type->symbol,
+                'sale_unit_price'                 => Item::getSaleUnitPriceByWarehouse($row, $warehouse->id),
+                'purchase_unit_price'             => $row->purchase_unit_price,
+                'unit_type_id'                    => $row->unit_type_id,
+                'sale_affectation_igv_type_id'    => $row->sale_affectation_igv_type_id,
+                'purchase_affectation_igv_type_id'=> $row->purchase_affectation_igv_type_id,
+                'calculate_quantity'              => (bool)$row->calculate_quantity,
+                'has_igv'                         => (bool)$row->has_igv,
+                'amount_plastic_bag_taxes'        => $row->amount_plastic_bag_taxes,
+                'item_unit_types'                 => collect($row->item_unit_types)->transform(function ($row) {
                     return [
                         'id'            => $row->id,
                         'description'   => "{$row->description}",
@@ -340,7 +290,7 @@ class DocumentController extends Controller
                         'price_default' => $row->price_default,
                     ];
                 }),
-                'warehouses'                       => collect($row->warehouses)->transform(function ($row) use ($warehouse) {
+                'warehouses' => collect($row->warehouses)->transform(function ($row) use ($warehouse) {
                     return [
                         'warehouse_description' => $row->getWarehouseDescription(),
                         'stock'                 => (!empty($row->stock)) ? $row->stock : 0,
@@ -348,17 +298,17 @@ class DocumentController extends Controller
                         'checked'               => ($row->warehouse_id == $warehouse->id) ? true : false,
                     ];
                 }),
-                'attributes'                       => $row->attributes ? $row->attributes : [],
-                'lots_group'                       => collect($row->lots_group)->transform(function ($row) {
+                'attributes' => $row->attributes ? $row->attributes : [],
+                'lots_group' => collect($row->lots_group)->transform(function ($row) {
                     return [
                         'id'          => $row->id,
                         'code'        => $row->code,
                         'quantity'    => $row->quantity,
                         'date_of_due' => $row->date_of_due,
-                            'checked'  => false
+                        'checked'     => false
                     ];
                 }),
-                'lots'                             => [],
+                'lots' => [],
                 // 'lots' => $row->item_lots->where('has_sale', false)->where('warehouse_id', $warehouse->id)->transform(function($row) {
                 //     return [
                 //         'id' => $row->id,
@@ -376,9 +326,7 @@ class DocumentController extends Controller
                 'model'                            => $row->model,
             ];
         });
-
         return compact('items');
-
     }
 
 
@@ -387,62 +335,42 @@ class DocumentController extends Controller
      *
      * @return \Modules\Document\Http\Resources\ItemLotCollection
      */
-    public function searchLots(Request $request)
-    {
-
-
+    public function searchLots(Request $request){
         $records = ItemLot::where('series', 'like', "%{$request->input}%");
         if ($request->document_item_id) {
             //proccess credit note
             $document_item = DocumentItem::findOrFail($request->document_item_id);
             /** @var array $lots */
             $lots = $document_item->item->lots;
-            $records
-                ->whereIn('id', collect($lots)->pluck('id')->toArray())
-                ->where('has_sale', true)
-                ->latest();
-
+            $records->whereIn('id', collect($lots)->pluck('id')->toArray())->where('has_sale', true)->latest();
         } else {
-            $warehouse = ModuleWarehouse::select('id')
-                                        ->where('establishment_id', auth()->user()->establishment_id)
-                                        ->first();
+            $warehouse = ModuleWarehouse::select('id')->where('establishment_id', auth()->user()->establishment_id)->first();
             $records
                 ->where('item_id', $request->item_id)
                 ->where('has_sale', false)
                 ->where('warehouse_id', $warehouse->id)
                 ->latest();
         }
-
         return new ItemLotCollection($records->paginate(config('tenant.items_per_page')));
     }
 
 
-    public function regularizeLots(Request $request)
-    {
-
+    public function regularizeLots(Request $request){
         $document_item = DocumentItem::findOrFail($request->document_item_id);
-
         return ItemLot::where('series','like', "%{$request->input}%")
                                         ->whereIn('id', collect($document_item->item->lots)->pluck('id')->toArray())
                                         ->where('has_sale', true)
                                         ->get();
-
-
     }
 
 
-    public function searchItemById($id)
-    {
-
+    public function searchItemById($id){
         $establishment_id = auth()->user()->establishment_id;
         $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
-
         $search_item = $this->getItemsNotServicesById($id);
-
         if(count($search_item) == 0){
             $search_item = $this->getItemsServicesById($id);
         }
-
         $items = collect($search_item)->transform(function($row) use($warehouse){
             /** @var Item $row */
             return $row->getDataToItemModal(
@@ -523,18 +451,12 @@ class DocumentController extends Controller
 
             ];
         });
-
         return compact('items');
     }
 
-
-    public function consultCdr($document_id)
-    {
-
+    public function consultCdr($document_id){
         $document = Document::find($document_id);
-
         return (new ConsultCdr)->search($document);
-
     }
 
 }

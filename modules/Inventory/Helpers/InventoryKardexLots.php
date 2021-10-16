@@ -4,18 +4,12 @@ namespace Modules\Inventory\Helpers;
 
 use Carbon\Carbon;
 
-class InventoryKardexLots
-{
+class InventoryKardexLots{
 
-    public static function transformRecords($records)
-    {
-        
+    public static function transformRecords($records){
         return $records->transform(function($row, $key){
-          
             $diff = '';
-
-            if($row->date_of_due)
-            {
+            if($row->date_of_due){
                 $now = Carbon::now();
                 $due =   Carbon::parse($row->date_of_due);
                 $diff = $now->diffInDays($due);
@@ -31,10 +25,6 @@ class InventoryKardexLots
                 'code_item' => $row->item->internal_id,
                 'diff_days' => $diff,
             ];
-            
         });
-
-    } 
-
- 
+    }
 }

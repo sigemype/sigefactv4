@@ -5,15 +5,12 @@ namespace Modules\Document\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class SeriesConfigurationsRequest extends FormRequest
-{
-    public function authorize()
-    {
+class SeriesConfigurationsRequest extends FormRequest{
+    public function authorize(){
         return true;
     }
 
-    public function rules()
-    {
+    public function rules(){
         $id = $this->input('id');
         return [
             'series_id' => [

@@ -373,7 +373,6 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-
                                             </table>
                                         </td>
                                     </tr>
@@ -524,9 +523,7 @@
                                                                     <el-input v-model="guide.number"></el-input>
                                                                 </td>
                                                                 <td align="right">
-                                                                    <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemoveGuide(index)">
-                                                                        <i class="fa fa-trash"></i>
-                                                                    </button>
+                                                                    <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemoveGuide(index)"><i class="fa fa-trash"></i></button>
                                                                 </td>
                                                             </tr>
                                                             <tr>

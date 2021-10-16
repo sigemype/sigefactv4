@@ -7,8 +7,7 @@ use Carbon\Carbon;
 use App\Models\Tenant\StateType;
 
 
-class ValidateDocumentsCollection extends ResourceCollection
-{
+class ValidateDocumentsCollection extends ResourceCollection{
     /**
      * Transform the resource collection into an array.
      *
@@ -16,29 +15,20 @@ class ValidateDocumentsCollection extends ResourceCollection
      * @return mixed
      */
     public function toArray($request) {
-
         $state_types = StateType::get();
-        
         return $this->collection->transform(function($row, $key) use($state_types){
-            
             if(is_null($row->sunat_state_type_id)){
-
                 $sunat_state_type_description = 'Error en la busqueda: '.$row->message;
-
             }else{
-                
                 $state_type = $state_types->first(function($state) use($row){
                     return $state->id === $row->sunat_state_type_id;
                 });
-
                 $sunat_state_type_description = null;
-
                 if($state_type){
                     $sunat_state_type_description = $state_type->description;
                 }else{
                     $sunat_state_type_description = 'No existe';
                 }
-
             }
 
             return [

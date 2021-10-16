@@ -9,37 +9,28 @@ use Modules\Inventory\Http\Resources\WarehouseResource;
 use Modules\Inventory\Http\Requests\WarehouseRequest;
 use Modules\Inventory\Models\Warehouse;
 
-class WarehouseController extends Controller
-{
-    public function index()
-    {
+class WarehouseController extends Controller{
+    public function index(){
         return view('inventory::warehouses.index');
     }
 
-    public function columns()
-    {
+    public function columns(){
         return [
             'description' => 'Descripción'
         ];
     }
 
-    public function records(Request $request)
-    {
-        $records = Warehouse::where($request->column, 'like', "%{$request->value}%")
-                            ->orderBy('description');
-
+    public function records(Request $request){
+        $records = Warehouse::where($request->column, 'like', "%{$request->value}%")->orderBy('description');
         return new WarehouseCollection($records->paginate(config('tenant.items_per_page')));
     }
 
-    public function record($id)
-    {
+    public function record($id){
         $record = new WarehouseResource(Warehouse::findOrFail($id));
-
         return $record;
     }
 
-    public function store(WarehouseRequest $request)
-    {
+    public function store(WarehouseRequest $request){
         $id = $request->input('id');
         if(!$id) {
             $establishment_id = auth()->user()->establishment_id;
@@ -51,14 +42,12 @@ class WarehouseController extends Controller
                 ];
             }
         }
-
         $record = Warehouse::firstOrNew(['id' => $id]);
         $record->fill($request->all());
         if(!$id) {
             $record->establishment_id = auth()->user()->establishment_id;
         }
         $record->save();
-
         return [
             'success' => true,
             'message' => ($id)?'Almacén editado con éxito':'Almacén registrado con éxito',
