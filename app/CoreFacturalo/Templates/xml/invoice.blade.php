@@ -31,7 +31,7 @@
     <cac:OrderReference>
         <cbc:ID>{{ $document->purchase_order }}</cbc:ID>
     </cac:OrderReference>
-    @endif|
+    @endif
     @if($document->guides)
     @foreach($document->guides as $guide)
     <cac:DespatchDocumentReference>
