@@ -8,22 +8,12 @@
                     </div>
                     <div class="col-md-12 mt-4">
                         <div class="form-group text-center" :class="{'has-danger': errors.file}">
-                            <el-upload
-                                    ref="upload"
-                                    :headers="headers"
-                                    action="/documents/import_second_format"
-                                    :show-file-list="true"
-                                    :auto-upload="false"
-                                    :multiple="false"
-                                    :on-error="errorUpload"
-                                    :limit="1"
-                                    :on-success="successUpload">
+                            <el-upload ref="upload" :headers="headers" action="/documents/import_second_format" :show-file-list="true" :auto-upload="false" :multiple="false" :on-error="errorUpload" :limit="1" :on-success="successUpload">
                                 <el-button slot="trigger" type="primary">Seleccione un archivo (xlsx)</el-button>
                             </el-upload>
                             <small class="form-control-feedback" v-if="errors.file" v-text="errors.file[0]"></small>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="form-actions text-right mt-4">
@@ -35,7 +25,6 @@
 </template>
 
 <script>
-
     export default {
         props: ['showDialog'],
         data() {

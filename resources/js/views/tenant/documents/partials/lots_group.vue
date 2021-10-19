@@ -1,25 +1,10 @@
 <template>
-    <el-dialog
-        :title="titleDialog"
-        width="40%"
-        :visible="showDialog"
-        @open="create"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        append-to-body
-        :show-close="false"
-    >
+    <el-dialog :title="titleDialog" width="40%" :visible="showDialog" @open="create" :close-on-click-modal="false" :close-on-press-escape="false" append-to-body :show-close="false">
         <div class="form-body">
             <div class="row">
                 <div class="col-lg-5 col-md-5 col-sm-12 pb-2">
-                    <el-input placeholder="Buscar código ..."
-                        v-model="search"
-                        style="width: 100%;"
-                        prefix-icon="el-icon-search"
-                        @input="filter">
-                    </el-input>
+                    <el-input placeholder="Buscar código ..." v-model="search" style="width: 100%;" prefix-icon="el-icon-search" @input="filter"></el-input>
                 </div>
-
                 <div class="col-lg-12 col-md-12">
                     <table class="table">
                         <thead>
@@ -31,18 +16,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr
-                                v-for="(row, index) in lots_group_"
-                                :key="index"
-                                v-show="row.quantity > 0"
-                            >
-                                <th align="center">
-                                    <el-checkbox
-                                        :disabled="row.quantity  < 0"
-                                        v-model="row.checked"
-                                        @change="changeSelect(index, row.id, row.quantity)"
-                                    ></el-checkbox>
-                                </th>
+                            <tr v-for="(row, index) in lots_group_" :key="index" v-show="row.quantity > 0">
+                                <th align="center"><el-checkbox :disabled="row.quantity  < 0" v-model="row.checked" @change="changeSelect(index, row.id, row.quantity)"></el-checkbox></th>
                                 <th>{{ row.code }}</th>
                                 <th class>{{ row.quantity }}</th>
                                 <th class>{{ row.date_of_due }}</th>
@@ -52,7 +27,6 @@
                 </div>
             </div>
         </div>
-
         <div class="form-actions text-right pt-2">
             <el-button @click.prevent="close()">Cerrar</el-button>
             <el-button type="primary" @click="submit">Guardar</el-button>
@@ -85,32 +59,24 @@ export default {
     },
     methods: {
         filter(){
-
-            if(this.search)
-            {
+            if(this.search){
                 this.lots_group_ = _.filter(this.lots_group, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
-            }
-            else{
+            } else{
                 this.lots_group_ = this.lots_group
             }
         },
         changeSelect(index, id, quantity_lot) {
-
             if (this.quantity > quantity_lot) {
                 this.$message.error('La cantidad a vender es superior al stock');
                 this.lots_group_[index].checked = false;
             } else {
-
                 this.lots_group.forEach((row) => {
                     row.checked = false;
                 });
-
                 this.lots_group_.forEach((row) => {
                     row.checked = false;
                 });
-
                 this.lots_group_[index].checked = true;
-
                 this.idSelected = id;
             }
 

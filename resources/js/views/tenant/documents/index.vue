@@ -86,8 +86,7 @@
                         </td>
                         <td v-if="columns.notes.visible">
                             <template v-for="(row,index) in row.notes">
-                                <label class="d-block" :key="index">{{ row.note_type_description }}:
-                                    {{ row.description }}</label>
+                                <label class="d-block" :key="index">{{ row.note_type_description }}: {{ row.description }}</label>
                             </template>
                         </td>
                         <td v-if="columns.dispatch.visible">
@@ -105,40 +104,27 @@
                                 {{ row.order_note.identifier }}
                             </template>
                         </td>
-
                         <td>
                             <el-tooltip v-if="tooltip(row, false)" class="item" effect="dark" placement="bottom">
                                 <div slot="content">{{ tooltip(row) }}</div>
-                                <span class="badge bg-secondary text-white"
-                                      :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
+                                <span class="badge bg-secondary text-white" :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
                                     {{ row.state_type_description }}
                                 </span>
                             </el-tooltip>
-                            <span v-else class="badge bg-secondary text-white"
-                                  :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
+                            <span v-else class="badge bg-secondary text-white" :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
                                 {{ row.state_type_description }}
                             </span>
                             <template v-if="row.regularize_shipping && row.state_type_id === '01'">
-                                <el-tooltip class="item" effect="dark" :content="row.message_regularize_shipping"
-                                            placement="top-start">
+                                <el-tooltip class="item" effect="dark" :content="row.message_regularize_shipping" placement="top-start">
                                     <i class="fas fa-exclamation-triangle fa-lg" style="color: #d2322d !important"></i>
                                 </el-tooltip>
                             </template>
                         </td>
-                        <td v-if="columns.user_name.visible">
-                            {{ row.user_name }}
-                            <br/><small v-text="row.user_email"></small>
-                        </td>
+                        <td v-if="columns.user_name.visible">{{ row.user_name }}<br/><small v-text="row.user_email"></small></td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
-                        <td class="text-center" v-if="columns.guides.visible">
-                        <span v-for="(item, i) in row.guides" :key="i">
-                            {{ item.number }} <br>
-                        </span>
-                        </td>
+                        <td class="text-center" v-if="columns.guides.visible"><span v-for="(item, i) in row.guides" :key="i">{{ item.number }} <br></span></td>
                         <td class="text-right" v-if="columns.total_exportation.visible">{{ row.total_exportation }}</td>
-
                         <td class="text-right" v-if="columns.total_free.visible">{{ row.total_free }}</td>
-
                         <td class="text-right" v-if="columns.total_unaffected.visible">{{ row.total_unaffected }}</td>
                         <td class="text-right" v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}</td>
                         <td class="text-right">{{ row.total_taxed }}</td>
@@ -147,27 +133,12 @@
                         <td class="text-right">{{ row.balance }}</td>
                         <td>{{ row.purchase_order }}</td>
                         <td class="text-center">
-                            <button type="button" style="min-width: 41px"
-                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickPayment(row.id)">Pagos
-                            </button>
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickPayment(row.id)">Pagos </button>
                         </td>
                         <td class="text-center">
-                            <button type="button" style="min-width: 41px"
-                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickDownload(row.download_xml)"
-                                    v-if="row.has_xml">XML
-                            </button>
-                            <button type="button" style="min-width: 41px"
-                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickDownload(row.download_pdf)"
-                                    v-if="row.has_pdf">PDF
-                            </button>
-                            <button type="button" style="min-width: 41px"
-                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickDownload(row.download_cdr)"
-                                    v-if="row.has_cdr">CDR
-                            </button>
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_xml)" v-if="row.has_xml">XML</button>
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_pdf)" v-if="row.has_pdf">PDF </button>
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_cdr)" v-if="row.has_cdr">CDR </button>
                         </td>
                         <!--<td class="text-center">-->
                         <!--<button type="button" class="btn waves-effect waves-light btn-xs btn-danger"-->
@@ -182,54 +153,18 @@
                         <!--</td>-->
 
                         <td class="text-right" v-if="typeUser != 'integrator'">
-                            <a :href="`/documents/${row.id}/edit`"
-                               class="btn btn-success waves-effect waves-light btn-xs m-1__2"
-                               v-if="row.state_type_id === '01' && userId == row.user_id && row.is_editable">Editar</a>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
-                                    @click.prevent="clickDeleteDocument(row.id)"
-                                    v-if="row.btn_delete_doc_type_03">Eliminar
-                            </button>
-
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickChangeToRegisteredStatus(row.id)"
-                                    v-if="row.btn_change_to_registered_status">Cambiar a estado registrado
-                            </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickReStore(row.id)"
-                                    v-if="row.btn_recreate_document">Volver a recrear
-                            </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
-                                    @click.prevent="clickVoided(row.id)"
-                                    v-if="row.btn_voided">Anular
-                            </button>
-                            <a :href="`/${resource}/note/${row.id}`"
-                               class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
-                               v-if="row.btn_note">Nota</a>
-                            <a :href="`/dispatches/create/${row.id}`"
-                               class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
-                               v-if="row.btn_note">Guía</a>
-
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickResend(row.id)"
-                                    v-if="row.btn_resend && !isClient">Enviar a Sunat
-                            </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickSendOnline(row.id)"
-                                    v-if="isClient && !row.send_server">Enviar Servidor
-                            </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickCheckOnline(row.id)"
-                                    v-if="isClient && row.send_server && (row.state_type_id === '01' || row.state_type_id === '03')">
-                                Consultar Servidor
-                            </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                                    @click.prevent="clickOptions(row.id)">Opciones
-                            </button>
-
-                            <button type="button" v-if="row.btn_constancy_detraction"
-                                    class="btn waves-effect waves-light btn-xs btn-success m-1__2"
-                                    @click.prevent="clickCDetraction(row.id)">C. Detracción
-                            </button>
+                            <a :href="`/documents/${row.id}/edit`" class="btn btn-success waves-effect waves-light btn-xs m-1__2" v-if="row.state_type_id === '01' && userId == row.user_id && row.is_editable">Editar</a>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2" @click.prevent="clickDeleteDocument(row.id)" v-if="row.btn_delete_doc_type_03">Eliminar </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickChangeToRegisteredStatus(row.id)" v-if="row.btn_change_to_registered_status">Cambiar a estado registrado </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickReStore(row.id)" v-if="row.btn_recreate_document">Volver a recrear </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2" @click.prevent="clickVoided(row.id)" v-if="row.btn_voided">Anular </button>
+                            <a :href="`/${resource}/note/${row.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2" v-if="row.btn_note">Nota</a>
+                            <a :href="`/dispatches/create/${row.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2" v-if="row.btn_note">Guía</a>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickResend(row.id)" v-if="row.btn_resend && !isClient">Enviar a Sunat </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickSendOnline(row.id)" v-if="isClient && !row.send_server">Enviar Servidor </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickCheckOnline(row.id)" v-if="isClient && row.send_server && (row.state_type_id === '01' || row.state_type_id === '03')">Consultar Servidor </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickOptions(row.id)">Opciones </button>
+                            <button type="button" v-if="row.btn_constancy_detraction" class="btn waves-effect waves-light btn-xs btn-success m-1__2" @click.prevent="clickCDetraction(row.id)">C. Detracción </button>
                         </td>
                     </tr>
                 </data-table>
@@ -348,16 +283,14 @@ export default {
             window.open(download, '_blank');
         },
         clickResend(document_id) {
-            this.$http.get(`/${this.resource}/send/${document_id}`)
-                .then(response => {
+            this.$http.get(`/${this.resource}/send/${document_id}`).then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         this.$eventHub.$emit('reloadData')
                     } else {
                         this.$message.error(response.data.message)
                     }
-                })
-                .catch(error => {
+                }).catch(error => {
                     this.$message.error(error.response.data.message)
                 })
         },
@@ -376,16 +309,14 @@ export default {
             });
         },
         clickCheckOnline(document_id) {
-            this.$http.get(`/${this.resource}/check_server/${document_id}`)
-                .then(response => {
+            this.$http.get(`/${this.resource}/check_server/${document_id}`).then(response => {
                     if (response.data.success) {
                         this.$message.success('Consulta satisfactoria.')
                         this.$eventHub.$emit('reloadData')
                     } else {
                         this.$message.error(response.data.message)
                     }
-                })
-                .catch(error => {
+                }).catch(error => {
                     this.$message.error(error.response.data.message)
                 })
         },
@@ -398,30 +329,24 @@ export default {
             this.showDialogOptions = true
         },
         clickReStore(document_id) {
-            this.$http.get(`/${this.resource}/re_store/${document_id}`)
-                .then(response => {
+            this.$http.get(`/${this.resource}/re_store/${document_id}`).then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         this.$eventHub.$emit('reloadData')
                     } else {
                         this.$message.error(response.data.message)
                     }
-                })
-                .catch(error => {
+                }).catch(error => {
                     this.$message.error(error.response.data.message)
                 })
         },
         tooltip(row, message = true) {
             if (message) {
                 if (row.shipping_status) return row.shipping_status.message;
-
                 if (row.sunat_shipping_status) return row.sunat_shipping_status.message;
-
                 if (row.query_status) return row.query_status.message;
             }
-
             if ((row.shipping_status) || (row.sunat_shipping_status) || (row.query_status)) return true;
-
             return false;
         },
         clickPayment(recordId) {
@@ -429,8 +354,7 @@ export default {
             this.showDialogPayments = true;
         },
         clickChangeToRegisteredStatus(document_id) {
-            this.$http.get(`/${this.resource}/change_to_registered_status/${document_id}`)
-                .then(response => {
+            this.$http.get(`/${this.resource}/change_to_registered_status/${document_id}`).then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         this.$eventHub.$emit('reloadData')

@@ -20,35 +20,17 @@
                 <div class="col-lg-4 col-md-4 pb-4">
                     <div class="form-group">
                         <label class="control-label">Fecha inicio </label>
-
-                        <el-date-picker
-                            v-model="form.date_start"
-                            type="date"
-                            style="width: 100%;"
-                            placeholder="Buscar"
-                            value-format="yyyy-MM-dd"
-                            :clearable="false"
-                        >
+                        <el-date-picker v-model="form.date_start" type="date" style="width: 100%;" placeholder="Buscar" value-format="yyyy-MM-dd" :clearable="false">
                         </el-date-picker>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-4 pb-4">
                     <div class="form-group">
                         <label class="control-label">Fecha término</label>
-
-                        <el-date-picker
-                            v-model="form.date_end"
-                            type="date"
-                            style="width: 100%;"
-                            placeholder="Buscar"
-                            value-format="yyyy-MM-dd"
-                            :picker-options="pickerOptionsDates"
-                            :clearable="false"
-                        >
+                        <el-date-picker v-model="form.date_end" type="date" style="width: 100%;" placeholder="Buscar" value-format="yyyy-MM-dd" :picker-options="pickerOptionsDates" :clearable="false">
                         </el-date-picker>
                     </div>
                 </div>
-                
                 <div class="col-lg-4 mt-3">
                     <div class="form-group">
                         <el-checkbox  v-model="form.anulled">Cargar anulados</el-checkbox><br>
@@ -66,7 +48,6 @@
 <script>
     import moment from 'moment'
     import queryString from 'query-string'
-
     export default {
         props: ["showDialog", "documentId"],
         data() {
@@ -92,20 +73,17 @@
                 }
             },
             initForm(){
-
                 this.form = {
                     date_start: moment().format('YYYY-MM-DD'),
                     date_end: moment().format('YYYY-MM-DD'),
                     anulled: false,
                 }
-
             },
-            closeDialog() {
+            closeDialog(){
                 this.initForm()
                 this.$emit("update:showDialog", false);
             },
-            downloadReportComplete(type)
-            {
+            downloadReportComplete(type){
                 window.open(`/${this.resource}/payments-complete?${this.getQueryParameters()}`, '_blank');
                 
                 // if(this.search.month){
@@ -117,11 +95,9 @@
                 // }
             },
             getQueryParameters() { 
-
                 return queryString.stringify({
                     ...this.form
                 })
-
             },
         }
     };

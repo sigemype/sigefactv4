@@ -8,31 +8,30 @@
 <body>
     @if (in_array($document,['document_type']))
     @if($document->document_type)
-    <table class="full-width border-box my-2">
-        <tr>
-            <td class="text-upp p-2">SON:
-                @foreach(array_reverse( (array) $document->legends) as $row)
-                    @if ($row->code == "1000")
-                        {{ $row->value }} {{ $document->currency_type->description }}
-                    @endif
-                @endforeach
-            </td>
-        </tr>
-    </table>
-
-    <table class="full-width border-box my-2">
-        <tr>
-            <td class="text-upp p-2">OBSERVACIONES:
-                @if($document->additional_information)
-                    @foreach($document->additional_information as $information)
-                        @if ($information)
-                            {{ $information }}
+        <table class="full-width border-box my-2">
+            <tr>
+                <td class="text-upp p-2">SON:
+                    @foreach(array_reverse( (array) $document->legends) as $row)
+                        @if ($row->code == "1000")
+                            {{ $row->value }} {{ $document->currency_type->description }}
                         @endif
                     @endforeach
-                @endif
-            </td>
-        </tr>
-    </table>
+                </td>
+            </tr>
+        </table>
+        <table class="full-width border-box my-2">
+            <tr>
+                <td class="text-upp p-2">OBSERVACIONES:
+                    @if($document->additional_information)
+                        @foreach($document->additional_information as $information)
+                            @if ($information)
+                                {{ $information }}
+                            @endif
+                        @endforeach
+                    @endif
+                </td>
+            </tr>
+        </table>
     @endif
     @endif
 

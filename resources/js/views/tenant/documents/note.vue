@@ -302,7 +302,6 @@
                 </div>
             </form>
         </div>
-
         <document-form-item :showDialog.sync="showDialogAddItem"
                             :recordItem="recordItem"
                             :isEditItemNote="isEditItemNote"

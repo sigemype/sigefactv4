@@ -94,8 +94,7 @@ class ConfigurationController extends Controller
         return $request->base_pdf_template;
     }
 
-    public function show($template)
-    {
+    public function show($template){
         return response()->file(storage_path('app' . DIRECTORY_SEPARATOR . 'preprintedpdf' . DIRECTORY_SEPARATOR . $template . '.pdf'));
     }
 

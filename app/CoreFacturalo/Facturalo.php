@@ -518,7 +518,7 @@ class Facturalo{
             $html_footer = '';
             if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
 
-                if (in_array($this->document->document_type_id, ['01', '03'])){
+                if (in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
                     $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
                 }
 
@@ -527,7 +527,7 @@ class Facturalo{
             // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
             // se quiere visualizar ahora la legenda amazona en todos los formatos
             $html_footer_legend = '';
-            if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
+            if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
                 $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
             }
 

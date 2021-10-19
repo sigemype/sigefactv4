@@ -5,29 +5,14 @@
                 <div class="col-lg-4 col-md-4 pb-4">
                     <div class="form-group">
                         <label class="control-label">Fecha inicio </label>
-
-                        <el-date-picker
-                            v-model="search.d_start"
-                            type="date"
-                            style="width: 100%;"
-                            placeholder="Buscar"
-                            value-format="yyyy-MM-dd"
-                        >
+                        <el-date-picker v-model="search.d_start" type="date" style="width: 100%;" placeholder="Buscar" value-format="yyyy-MM-dd">
                         </el-date-picker>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-4 pb-4">
                     <div class="form-group">
                         <label class="control-label">Fecha término</label>
-
-                        <el-date-picker
-                            v-model="search.d_end"
-                            type="date"
-                            style="width: 100%;"
-                            placeholder="Buscar"
-                            value-format="yyyy-MM-dd"
-                            :picker-options="pickerOptionsDates"
-                        >
+                        <el-date-picker v-model="search.d_end" type="date" style="width: 100%;" placeholder="Buscar" value-format="yyyy-MM-dd" :picker-options="pickerOptionsDates">
                         </el-date-picker>
                     </div>
                 </div>
@@ -41,8 +26,8 @@
                     </div>
                 </div>
                  <div class="col-lg-2 col-md-2 pb-4">
-                    <div class="form-group"  style="padding: 2.5%;"> <br>
-
+                    <div class="form-group"  style="padding: 2.5%;"> 
+                        <br>
                     </div>
                 </div>
             </div>

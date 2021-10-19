@@ -3,27 +3,23 @@
         <div class="form-body">
             <div class="row">
                 <div class="col-md-12" v-if="records.length > 0">
-                    <!--<div class="right-wrapper pull-right">
-                        <button type="button" @click.prevent="clickDownloadReport()" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fas fa-money-bill-wave-alt"></i> Reporte</button>
-                    </div>-->
-
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Fecha</th>
-                                <th>Monto</th>
-                            </tr>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="(row, index) in records" :key="index">
-                                <template>
-                                    <td>Cuota - {{ index+1 }}</td>
-                                    <td>{{ row.date }}</td>
-                                    <td>{{ row.amount }}</td>
-                                </template>
-                            </tr>
+                                <tr v-for="(row, index) in records" :key="index">
+                                    <template>
+                                        <td>Cuota - {{ index+1 }}</td>
+                                        <td>{{ row.date }}</td>
+                                        <td>{{ row.amount }}</td>
+                                    </template>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -31,13 +27,10 @@
             </div>
         </div>
     </el-dialog>
-
 </template>
 
 <script>
-
     import {deletable} from '../../../../mixins/deletable'
-
     export default {
         props: ['showDialog', 'documentId'],
         mixins: [deletable],
@@ -57,8 +50,7 @@
         },
         async created() {
             await this.initForm();
-            await this.$http.get(`/${this.resource}/tables`)
-                .then(response => {
+            await this.$http.get(`/${this.resource}/tables`).then(response => {
                     this.payment_method_types = response.data.payment_method_types;
                     this.payment_destinations = response.data.payment_destinations
                     //this.initDocumentTypes()
@@ -109,18 +101,14 @@
             },
             async getData() {
                 this.initForm();
-                await this.$http.get(`/${this.resource}/document/${this.documentId}`)
-                    .then(response => {
+                await this.$http.get(`/${this.resource}/document/${this.documentId}`).then(response => {
                         this.document = response.data;
                         this.title = 'Cuotas del comprobante: '+this.document.number_full;
                     });
-                await this.$http.get(`/${this.resource}/records/${this.documentId}`)
-                    .then(response => {
+                await this.$http.get(`/${this.resource}/records/${this.documentId}`).then(response => {
                         this.records = response.data.data
                     });
-
                 this.$eventHub.$emit('reloadDataUnpaid')
-
             },
             // clickAddRow() {
             //     this.records.push({

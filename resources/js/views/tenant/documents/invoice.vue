@@ -105,17 +105,8 @@
                     <div class="card-body border-top no-gutters">
                         <div class="row">
                             <div class="form-group col-sm-6 mb-0" :class="{'has-danger': errors.customer_id}">
-                                <label class="control-label font-weight-bold text-info">
-                                    Cliente
-                                    <a href="#" @click.prevent="showDialogNewPerson = true">[+ Nuevo]</a>
-                                </label>
-                                <el-select v-model="form.customer_id" filterable remote class="border-left rounded-left border-info" popper-class="el-select-customers"
-                                    dusk="customer_id"
-                                    placeholder="Escriba el nombre o número de documento del cliente"
-                                    :remote-method="searchRemoteCustomers"
-                                    @keyup.enter.native="keyupCustomer"
-                                    :loading="loading_search"
-                                    @change="changeCustomer">
+                                <label class="control-label font-weight-bold text-info"> Cliente<a href="#" @click.prevent="showDialogNewPerson = true">[+ Nuevo]</a></label>
+                                <el-select v-model="form.customer_id" filterable remote class="border-left rounded-left border-info" popper-class="el-select-customers" dusk="customer_id" placeholder="Escriba el nombre o número de documento del cliente" :remote-method="searchRemoteCustomers" @keyup.enter.native="keyupCustomer" :loading="loading_search" @change="changeCustomer">
                                     <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
                                 </el-select>
                                 <small class="form-control-feedback" v-if="errors.customer_id" v-text="errors.customer_id[0]"></small>

@@ -6,29 +6,16 @@
 
                 <div class="col-md-6 col-lg-6 col-xl-6 ">
                     <template v-if="search_series_by_barcode">
-                        <el-input placeholder="Buscar serie ..."
-                            v-model="search.input"
-                            style="width: 100%;"
-                            prefix-icon="el-icon-search"
-                            @change="searchSeriesBarcode">
-                        </el-input>
+                        <el-input placeholder="Buscar serie ..." v-model="search.input" style="width: 100%;" prefix-icon="el-icon-search" @change="searchSeriesBarcode"></el-input>
                     </template>
                     <template v-else>
-                        <el-input placeholder="Buscar serie ..."
-                            v-model="search.input"
-                            style="width: 100%;"
-                            prefix-icon="el-icon-search"
-                            @input="getRecords(true)">
-                        </el-input>
+                        <el-input placeholder="Buscar serie ..." v-model="search.input" style="width: 100%;" prefix-icon="el-icon-search" @input="getRecords(true)"></el-input>
                     </template>
                 </div>
-
                 <div class="col-md-6 col-lg-6 col-xl-6 ">
                     <el-switch v-model="search_series_by_barcode" active-text="Buscar por código de barras" @change="changeSearchSeriesBarcode"></el-switch>
                 </div>
-
                 <div class="col-md-12" v-loading="loading">
-
                     <div class="table-responsive mt-3">
                         <table class="table">
                             <thead>
@@ -43,7 +30,6 @@
                             <tbody>
                                 <!-- <slot v-for="(row, index) in records" :row="row" :index="customIndex(index)"></slot> -->
                                 <tr v-for="(row, index) in records" :key="index">
-
                                     <td class="text-center">
                                         {{customIndex(index)}}
                                     </td>
@@ -63,19 +49,10 @@
                             </tbody>
                         </table>
                         <div>
-                            <el-pagination
-                                    @current-change="getRecords()"
-                                    layout="total, prev, pager, next"
-                                    :total="pagination.total"
-                                    :current-page.sync="pagination.current_page"
-                                    :page-size="pagination.per_page">
-                            </el-pagination>
+                            <el-pagination @current-change="getRecords()" layout="total, prev, pager, next" :total="pagination.total" :current-page.sync="pagination.current_page" :page-size="pagination.per_page"></el-pagination>
                         </div>
                     </div>
                 </div>
-
-
-
             </div>
         </div>
 
@@ -87,7 +64,6 @@
 </template>
 
 <script>
-
     import moment from 'moment'
     import queryString from 'query-string'
 
@@ -115,11 +91,9 @@
             // await this.getRecords()
         },
         async created() {
-
             this.$eventHub.$on('reloadLotsDataTable', () => {
                 this.getRecords()
             })
-
         },
         methods: {
             changeSearchSeriesBarcode(){
@@ -129,36 +103,27 @@
                 this.search.input = null
             },
             async searchSeriesBarcode() {
-
                 await this.getRecords(true)
                 await this.checkedSerie()
-
             },
             async checkedSerie(){
-
                 if (this.search_series_by_barcode) {
-
                     if (this.records.length == 1) {
                         let lot = await _.find(this.lots, {id: this.records[0].id})
-
                         if(!lot){
                             this.records[0].has_sale = true
                             this.addLot(this.records[0])
                         }
-
                     }
                     this.cleanInput();
                 }
-
             },
             changeHasSale(row, index){
-
                 if(row.has_sale){
                     this.addLot(row)
                 }else{
                     this.deleteLot(row)
                 }
-
                 // console.log(row, index)
             },
             addLot(row){
@@ -171,37 +136,27 @@
                 return (this.pagination.per_page * (this.pagination.current_page - 1)) + index + 1
             },
             getRecords(init_current_page = false) {
-
                 if(init_current_page){
                     this.pagination.current_page = 1
                 }
-
                 this.loading = true
                 this.search.item_id = this.itemId
-
                 return this.$http.get(`/${this.resource}/item-lots?${this.getQueryParameters()}`).then((response) => {
                                     this.records = response.data.data
                                     this.pagination = response.data.meta
                                     this.pagination.per_page = parseInt(response.data.meta.per_page)
                                     this.checkedLot()
-                                })
-                                .catch(error => {
-                                })
-                                .then(() => {
+                                }).catch(error => {
+                                }).then(() => {
                                     this.loading = false
                                 })
-
             },
             checkedLot(){
-
                 _.forEach(this.records, row => _.set(row, 'has_sale', this.verifyLot(row)))
-
             },
             verifyLot(row){
-
                 let lot = _.find(this.lots, {id:row.id})
                 return lot ? true : false
-
             },
             getQueryParameters() {
                 return queryString.stringify({
@@ -215,13 +170,11 @@
                 await this.getRecords()
             },
             initForm(){
-
                 this.search = {
                     input: null,
                     item_id: null,
                     document_item_id: this.documentItemId,
                 }
-
             },
             async submit(){
 
