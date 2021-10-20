@@ -40,19 +40,33 @@
             </tr>
         </table>
     @endif
+    
+    @foreach(array_reverse( (array) $document->legends) as $row)
+    @if ($row->code == "1000")
     <table class="full-width border-box my-2">
         <tr>
-            <td class="text-upp p-2">SON:
-                @foreach(array_reverse( (array) $document->legends) as $row)
-                    @if ($row->code == "1000")
-                        {{ $row->value }} {{ $document->currency_type->description }}
-                    @else
-                        {{$row->code}}: {{ $row->value }}
-                    @endif
-                @endforeach
-            </td>
+            <td class="text-upp p-2">SON: {{ $row->value }} {{ $document->currency_type->description }}</td>
         </tr>
     </table>
+    @else
+    <table class="full-width border-box my-2">
+        <tr>
+            <td class="text-upp p-2">{{$row->code}}: {{ $row->value }}</td>
+        </tr>
+    </table>
+    @endif
+
+    {{-- <table class="full-width border-box my-2">
+        <tr>
+            <td class="text-upp p-2">SON:
+                @if ($row->code == "1000")
+                    {{ $row->value }} {{ $document->currency_type->description }}
+                @endif
+            </td>
+        </tr>
+    </table> --}}
+    @endforeach
+
     <table class="full-width border-box my-2">
         <tr>
             <td class="text-upp p-2">OBSERVACIONES:
