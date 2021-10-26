@@ -74,6 +74,10 @@
                         $acum_total_taxed_usd=0;
                         $acum_total_igv_usd=0;
                         $acum_total_usd=0;
+
+                        $acum_total_taxed_eur=0;
+                        $acum_total_igv_eur=0;
+                        $acum_total_eur=0;
                     @endphp
                     <table class="" style="font-size:10px;">
                         <thead>
@@ -200,6 +204,20 @@
                                             $acum_total_taxed_usd += $value->total_taxed;
                                             $acum_total_igv_usd += $value->total_igv;
                                         }
+                                    }else if($value->currency_type_id == 'EUR'){
+                                        if(($signal == '07' && $state !== '11')){
+                                            $acum_total_eur += -$value->total;
+                                            $acum_total_taxed_eur += -$value->total_taxed;
+                                            $acum_total_igv_eur += -$value->total_igv;
+                                        }elseif($signal != '07' && $state == '11'){
+                                            $acum_total_eur += 0;
+                                            $acum_total_taxed_eur += 0;
+                                            $acum_total_igv_eur += 0;
+                                        }else{
+                                            $acum_total_eur += $value->total;
+                                            $acum_total_taxed_eur += $value->total_taxed;
+                                            $acum_total_igv_eur += $value->total_igv;
+                                        }
                                     }
                                 @endphp
                             @endforeach
@@ -216,6 +234,13 @@
                                 <td class="celda">{{$acum_total_taxed_usd}}</td>
                                 <td class="celda">{{$acum_total_igv_usd}}</td>
                                 <td class="celda">{{$acum_total_usd}}</td>
+                            </tr>
+                            <tr>
+                                <td class="celda" colspan="11"></td>
+                                <td class="celda" >Totales EUR</td>
+                                <td class="celda">{{$acum_total_taxed_eur}}</td>
+                                <td class="celda">{{$acum_total_igv_eur}}</td>
+                                <td class="celda">{{$acum_total_eur}}</td>
                             </tr>
                         </tbody>
                     </table>
