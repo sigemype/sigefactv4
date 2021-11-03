@@ -5,40 +5,32 @@
                 <div class="row" v-if="applyFilter">
                     <div class="col-lg-4 col-md-4 col-sm-12 pb-2">
                         <div class="d-flex">
-                            <div style="width:100px">
-                                Filtrar por:
-                            </div>
+                            <div style="width:100px">Filtrar por: </div>
                             <el-select
                                 v-model="search.column"
                                 placeholder="Select"
-                                @change="changeClearInput"
-                            >
+                                @change="changeClearInput">
                                 <el-option
                                     v-for="(label, key) in columns"
                                     :key="key"
                                     :value="key"
-                                    :label="label"
-                                ></el-option>
+                                    :label="label"></el-option>
                             </el-select>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-12 pb-2">
                         <template
-                            v-if="
-                                search.column === 'date_of_issue' ||
+                            v-if="search.column === 'date_of_issue' ||
                                     search.column === 'date_of_due' ||
                                     search.column === 'date_of_payment' ||
-                                    search.column === 'delivery_date'
-                            "
-                        >
+                                    search.column === 'delivery_date'">
                             <el-date-picker
                                 v-model="search.value"
                                 type="date"
                                 style="width: 100%;"
                                 placeholder="Buscar"
                                 value-format="yyyy-MM-dd"
-                                @change="getRecords"
-                            >
+                                @change="getRecords">
                             </el-date-picker>
                         </template>
                         <template v-else>
@@ -47,8 +39,7 @@
                                 v-model="search.value"
                                 style="width: 100%;"
                                 prefix-icon="el-icon-search"
-                                @input="getRecords"
-                            >
+                                @input="getRecords">
                             </el-input>
                         </template>
                     </div>
@@ -75,8 +66,7 @@
                             layout="total, prev, pager, next"
                             :total="pagination.total"
                             :current-page.sync="pagination.current_page"
-                            :page-size="pagination.per_page"
-                        >
+                            :page-size="pagination.per_page">
                         </el-pagination>
                     </div>
                 </div>
@@ -93,7 +83,7 @@ export default {
         productType: {
             type: String,
             required: false,
-            default: ''
+            default: ""
         },
         resource: String,
         applyFilter: {
@@ -101,7 +91,7 @@ export default {
             default: true,
             required: false
         },
-        pharmacy: Boolean,
+        pharmacy: Boolean
     },
     data() {
         return {
@@ -113,11 +103,11 @@ export default {
             records: [],
             pagination: {},
             loading_submit: false,
-            fromPharmacy: false,
+            fromPharmacy: false
         };
     },
     created() {
-        if(this.pharmacy !== undefined && this.pharmacy === true){
+        if (this.pharmacy !== undefined && this.pharmacy === true) {
             this.fromPharmacy = true;
         }
         this.$eventHub.$on("reloadData", () => {
@@ -160,13 +150,13 @@ export default {
                 });
         },
         getQueryParameters() {
-            if (this.productType == 'ZZ') {
-                this.search.type = 'ZZ';
+            if (this.productType == "ZZ") {
+                this.search.type = "ZZ";
             }
             return queryString.stringify({
                 page: this.pagination.current_page,
                 limit: this.limit,
-                isPharmacy:this.fromPharmacy,
+                isPharmacy: this.fromPharmacy,
                 ...this.search
             });
         },

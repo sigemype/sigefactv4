@@ -38,9 +38,6 @@
     <table class="full-width">
         <tr>
             <td class="text-center desc font-bold">
-                {{-- Para consultar el comprobante ingresar a {!! url('/buscar') !!} --}}
-                {{-- @if($document->document_type) --}}
-                    {{-- @if(in_array($document->document_type->id,['01','03'])) --}}
                         @if ($accounts != "[]")
                             <table class="full-width desc">
                                 <thead>
@@ -96,9 +93,6 @@
     </table>
 
     <table class="full-width">
-        {{-- <tr>
-            <td class="text-center desc font-bold">"Gracias por su preferencia"</td>
-        </tr> --}}
         <tr>
             <td class="text-center desc">Representación Impresa de {{ isset($document->document_type) ? $document->document_type->description : 'Comprobante Electrónico'  }} {{ isset($document->hash) ? 'Código Hash: '.$document->hash : '' }} <br>Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
         </tr>

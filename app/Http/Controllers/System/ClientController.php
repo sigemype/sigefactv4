@@ -51,8 +51,7 @@ class ClientController extends Controller
         return $module;
     }
 
-    public function tables()
-    {
+    public function tables(){
 
         $url_base = '.'.config('tenant.app_url_base');
         $plans = Plan::all();
@@ -83,8 +82,7 @@ class ClientController extends Controller
     }
 
 
-    public function records()
-    {
+    public function records(){
 
         $records = Client::latest()->get();
 
@@ -101,27 +99,19 @@ class ClientController extends Controller
             $row->document_regularize_shipping = $quantity_pending_documents['document_regularize_shipping'];
             $row->document_not_sent = $quantity_pending_documents['document_not_sent'];
 
-            if($row->start_billing_cycle)
-            {
+            if($row->start_billing_cycle){
                 $day_start_billing = date_format($row->start_billing_cycle, 'j');
                 $day_now = (int)date('j');
 
-
-                if( $day_now <= $day_start_billing  )
-                {
+                if($day_now <= $day_start_billing){
                     $init = Carbon::parse( date('Y').'-'.((int)date('n') -1).'-'.$day_start_billing );
                     $end = Carbon::parse(date('Y-m-d'));
-
                     $row->count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [ $init, $end  ])->count();
-                }
-                else{
-
+                }else{
                     $init = Carbon::parse( date('Y').'-'.((int)date('n') ).'-'.$day_start_billing );
                     $end = Carbon::parse(date('Y-m-d'));
                     $row->count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [ $init, $end  ])->count();
-
                 }
-
             }
         }
         return new ClientCollection($records);
@@ -138,8 +128,7 @@ class ClientController extends Controller
     }
 
 
-    public function record($id)
-    {
+    public function record($id){
         $client = Client::findOrFail($id);
         $tenancy = app(Environment::class);
         $tenancy->tenant($client->hostname->website);
@@ -171,15 +160,13 @@ class ClientController extends Controller
         return $record;
     }
 
-    public function charts()
-    {
+    public function charts(){
         $records = Client::all();
         $count_documents = [];
         foreach ($records as $row) {
             $tenancy = app(Environment::class);
             $tenancy->tenant($row->hostname->website);
-            for($i = 1; $i <= 12; $i++)
-            {
+            for($i = 1; $i <= 12; $i++){
                 $date_initial = Carbon::parse(date('Y').'-'.$i.'-1');
                 $year_before = Carbon::now()->subYear()->format('Y');
                 $date_final = Carbon::parse(date('Y').'-'.$i.'-'.cal_days_in_month(CAL_GREGORIAN, $i, $year_before));
@@ -199,8 +186,7 @@ class ClientController extends Controller
         $groups_by_month = collect($count_documents)->groupBy('month');
         $labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'];
         $documents_by_month = [];
-        foreach($groups_by_month as $month => $group)
-        {
+        foreach($groups_by_month as $month => $group){
             $documents_by_month[] = $group->sum('count');
         }
 
@@ -212,8 +198,7 @@ class ClientController extends Controller
         return compact('line', 'total_documents');
     }
 
-    public function update(Request $request)
-    {
+    public function update(Request $request){
         $smtp_host = ($request->has('smtp_host'))?$request->smtp_host:null;
         $smtp_password = ($request->has('smtp_password'))?$request->smtp_password:null;
         $smtp_port = ($request->has('smtp_port'))?$request->smtp_port:null;

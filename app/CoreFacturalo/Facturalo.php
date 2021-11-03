@@ -357,11 +357,21 @@ class Facturalo{
                 $height_legend = 10;
             }
 
+            if (count($this->document->items) <= 3) {
+                $height = 30;
+            }elseif (count($this->document->items) <= 6){
+                $height = 20;
+            }elseif (count($this->document->items) < 10){
+                $height = 1;
+            }else{
+                $height = -130;
+            }
+
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    130 +
+                    $height  +
                     (($quantity_rows * 8) + $extra_by_item_description) +
                     ($document_payments * 8) +
                     ($discount_global * 8) +
