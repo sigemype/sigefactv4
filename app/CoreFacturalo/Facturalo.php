@@ -364,7 +364,7 @@ class Facturalo{
             }elseif (count($this->document->items) < 10){
                 $height = 1;
             }else{
-                $height = -130;
+                $height = -100;
             }
 
             $pdf = new Mpdf([
