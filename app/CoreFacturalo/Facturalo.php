@@ -303,8 +303,8 @@ class Facturalo{
 
             $company_name      = (strlen($this->company->name) / 20) * 10;
             $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
-            $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
-            $customer_name     = strlen($this->document->customer->name) > '25' ? '10' : '0';
+            $company_number    = $this->document->establishment->telephone != '' ? '15' : '0';
+            $customer_name     = strlen($this->document->customer->name) > '25' ? '15' : '0';
             $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
             $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
             $p_order           = $this->document->purchase_order != '' ? '10' : '0';
@@ -322,8 +322,11 @@ class Facturalo{
             $detraction       = $this->document->detraction != '' ? '50' : '0';
             $detraction       += ($this->document->detraction && $this->document->invoice->operation_type_id == '1004') ? 45 : 0;
 
+            $company_logo = $this->company->logo != '' ? '30' : '0';
+
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
-            $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
+            $quantity_rows     = count($this->document->items);
+            // + $was_deducted_prepayment;
             $document_payments     = count($this->document->payments);
             $document_transport     = ($this->document->transport) ? 30 : 0;
 
@@ -354,32 +357,31 @@ class Facturalo{
             } elseif($this->configuration->legend_footer AND $format_pdf === 'ticket_50') {
                 $height_legend = 50;
             } else {
-                $height_legend = 10;
+                $height_legend = 30;
             }
 
-            if (count($this->document->items) <= 3) {
-                $height = 30;
-            }elseif (count($this->document->items) <= 6){
-                $height = 20;
-            }elseif (count($this->document->items) < 10){
-                $height = 1;
+            if (count($this->document->items) <= 2) {
+                $factor = 6;
             }else{
-                $height = -100;
+                $factor = 2;
             }
 
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    $height  +
-                    (($quantity_rows * 8) + $extra_by_item_description) +
-                    ($document_payments * 8) +
-                    ($discount_global * 8) +
+                    // $height  +
+                    30+
+                    $company_logo +
                     $company_name +
                     $company_address +
                     $company_number +
                     $customer_name +
                     $customer_address +
+                    $customer_department_id +
+                    (($quantity_rows * $factor) + $extra_by_item_description) +
+                    ($document_payments * $factor) +
+                    ($discount_global * $factor) +
                     $p_order +
                     $legends +
                     $total_exportation +
