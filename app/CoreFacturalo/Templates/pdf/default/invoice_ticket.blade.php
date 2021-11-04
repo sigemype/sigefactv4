@@ -673,7 +673,6 @@
             <tr>
                 <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
             </tr>
-
                 @if ($customer->department_id == 16)
                     <tr>
                         <td class="text-center desc pt-5">
@@ -707,7 +706,7 @@
                     @endforeach
                 @endif
                 
-                {{-- Vendedot --}}
+                {{-- Vendedor --}}
                 <tr>
                     <td class="desc">
                         <strong>Vendedor:</strong>

@@ -78,7 +78,7 @@
                     {{-- @endif --}}
                 {{-- @endif --}}
             </td>
-            @if (in_array($document,['document_type']))
+            {{-- @if (in_array($document,['document_type'])) --}}
             @if($document->document_type)
                 @if(in_array($document->document_type->id,['01','03']))
                     <td class="text-center">
@@ -88,7 +88,7 @@
                     </td>
                 @endif
             @endif
-            @endif
+            {{-- @endif --}}
         </tr>
     </table>
 
