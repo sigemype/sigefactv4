@@ -1,6 +1,8 @@
 <?php
 
-$current_hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
+    use Illuminate\Support\Facades\Route;
+
+    $current_hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
 
 if($current_hostname) {
     Route::domain($current_hostname->fqdn)->group(function () {
@@ -27,8 +29,32 @@ if($current_hostname) {
                 Route::get('item/tables', 'PurchaseQuotationController@item_tables');
                 Route::get('download/{external_id}/{format?}', 'PurchaseQuotationController@download');
                 Route::get('print/{external_id}/{format?}', 'PurchaseQuotationController@toPrint');
+                Route::get('search-items', 'PurchaseQuotationController@searchItems');
+                Route::get('search/item/{item}', 'PurchaseQuotationController@searchItemById');
+
             });
 
+            /**
+            purchase-orders/
+            purchase-orders/columns
+            purchase-orders/records
+            purchase-orders/create/{id?}
+            purchase-orders/generate/{id}
+            purchase-orders/tables
+            purchase-orders/table/{table}
+            purchase-orders/
+            purchase-orders/record/{expense}
+            purchase-orders/item/tables
+            purchase-orders/download/{external_id}/{format?}
+            purchase-orders/print/{external_id}/{format?}
+            purchase-orders/upload
+            purchase-orders/anular/{id}
+            purchase-orders/download-attached/{external_id}
+            purchase-orders/sale-opportunity/{id}
+            purchase-orders/email
+            purchase-orders/search/item/{item}
+            purchase-orders/search-items
+             */
             Route::prefix('purchase-orders')->group(function () {
 
                 Route::get('', 'PurchaseOrderController@index')->name('tenant.purchase-orders.index')->middleware('redirect.level');
@@ -49,6 +75,8 @@ if($current_hostname) {
                 Route::get('download-attached/{external_id}', 'PurchaseOrderController@downloadAttached');
                 Route::get('sale-opportunity/{id}', 'PurchaseOrderController@generateFromSaleOpportunity');
                 Route::post('email', 'PurchaseOrderController@email');
+                Route::get('search-items', 'PurchaseOrderController@searchItems');
+                Route::get('search/item/{item}', 'PurchaseOrderController@searchItemById');
 
             });
 

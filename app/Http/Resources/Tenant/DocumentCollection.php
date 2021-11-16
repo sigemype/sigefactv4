@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Models\Tenant\EmailSendLog;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class DocumentCollection extends ResourceCollection
@@ -19,12 +20,12 @@ class DocumentCollection extends ResourceCollection
             $has_pdf = true;
             $has_cdr = false;
             $btn_note = false;
+            $btn_guide = true; // Boton para generar guia
             $btn_resend = false;
             $btn_voided = false;
             $btn_consult_cdr = false;
             $btn_delete_doc_type_03 = false;
             $btn_constancy_detraction = false;
-            $btn_fee = false;
 
             $affected_document = null;
 
@@ -64,13 +65,14 @@ class DocumentCollection extends ResourceCollection
                 }
 
             }
+            $btn_guide = $btn_note;
+            if($btn_guide === false && ($row->state_type_id === '01')){
+                // #750
+                $btn_guide = true;
+            }
 
             if (in_array($row->document_type_id, ['01', '03'])) {
                 $btn_constancy_detraction = ($row->detraction) ? true:false;
-            }
-
-            if ($row->payment_condition_id ==='02'){
-                $btn_fee = true;
             }
 
             $btn_recreate_document = config('tenant.recreate_document');
@@ -91,6 +93,23 @@ class DocumentCollection extends ResourceCollection
             $nvs = $row->getNvCollection();
 
             $order_note = $row->getOrderNoteCollection();
+            // Regresa si se hn enviado correos
+            $email_send_it = false;
+            $email_send_it_array = [];
+            $send_it = EmailSendLog::Document()->FindRelationId($row->id)->get();
+            if(count($send_it)> 0){
+                /** @var EmailSendLog $log*/
+                foreach($send_it as $log){
+                    $email_send_it_array[] = [
+                        'email'=>$log->email,
+                        'send_it'=>$log->sendit,
+                        'send_date'=>$log->created_at->format('Y-m-d H:i'),
+                    ];
+                    if($email_send_it == false){
+                        $email_send_it = $log->sendit;
+                    }
+                }
+            }
 
             return [
 
@@ -124,6 +143,7 @@ class DocumentCollection extends ResourceCollection
                 'download_cdr' => $row->download_external_cdr,
                 'btn_voided' => $btn_voided,
                 'btn_note' => $btn_note,
+                'btn_guide' => $btn_guide,
 //                'btn_ticket' => $btn_ticket,
                 'btn_resend' => $btn_resend,
                 'btn_consult_cdr' => $btn_consult_cdr,
@@ -131,7 +151,6 @@ class DocumentCollection extends ResourceCollection
                 'btn_recreate_document' => $btn_recreate_document,
                 'btn_change_to_registered_status' => $btn_change_to_registered_status,
                 'btn_delete_doc_type_03' => $btn_delete_doc_type_03,
-                'btn_fee' => $btn_fee,
                 'send_server' => (bool) $row->send_server,
 //                'voided' => $voided,
                 'affected_document' => $affected_document,
@@ -147,6 +166,8 @@ class DocumentCollection extends ResourceCollection
                 'user_name' => ($row->user) ? $row->user->name : '',
                 'user_email' => ($row->user) ? $row->user->email : '',
                 'user_id' => $row->user_id,
+                'email_send_it' => $email_send_it,
+                'email_send_it_array' => $email_send_it_array,
                 'external_id' => $row->external_id,
 
                 'notes' => (in_array($row->document_type_id, ['01', '03'])) ? $row->affected_documents->transform(function($row) {

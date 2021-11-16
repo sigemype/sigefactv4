@@ -37,6 +37,7 @@ class ModelTenant extends Model
             'CatItemPackageMeasurement' => null,
             'CatItemStatus' => null,
             'CatItemUnitBusiness' => null,
+            'CatItemSize' => null,
             'image'=>null,
             'image_medium'=>null,
             'image_small'=>null,

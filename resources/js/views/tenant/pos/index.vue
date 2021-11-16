@@ -393,7 +393,7 @@
                                                 <el-popover
                                                     placement="top"
                                                     title="Precios"
-                                                    width="240"
+                                                    width="370"
                                                     trigger="click"
                                                 >
                                                     <el-table
@@ -446,6 +446,12 @@
                                                             label="Unidad"
                                                             property="unit_type_id"
                                                         ></el-table-column>
+                                                        <el-table-column
+                                                            width="120"
+                                                            label="Descripción"
+                                                            property="description"
+                                                        ></el-table-column>
+
                                                         <el-table-column
                                                             width="80"
                                                             label=""
@@ -1450,6 +1456,7 @@ export default {
                 total_taxes: 0,
                 total_value: 0,
                 total: 0,
+                subtotal: 0,
                 operation_type_id: "0101",
                 date_of_due: moment().format("YYYY-MM-DD"),
                 items: [],
@@ -1499,6 +1506,12 @@ export default {
             };
         },
         async clickPayment() {
+
+            if(!this.form.subtotal){
+                //fix para agregar subtotal si no existe prop en json almacenado en local storage
+                this.form.subtotal = this.form.total 
+            }
+
             let flag = 0;
             this.form.items.forEach(row => {
                 if (row.aux_quantity < 0 || row.total < 0 || isNaN(row.total)) {
@@ -1765,6 +1778,7 @@ export default {
             this.form.total_plastic_bag_taxes = _.round(total_plastic_bag_taxes, 2)
             // this.form.total = _.round(total, 2);
             this.form.total = _.round(total + this.form.total_plastic_bag_taxes, 2)
+            this.form.subtotal = this.form.total
 
         },
         changeDateOfIssue() {
@@ -1832,8 +1846,11 @@ export default {
                 await this.$http
                     .get(`/${this.resource}/search_items_cat?${parameters}`)
                     .then(response => {
+
+                        this.all_items = response.data.data;
+
                         if (response.data.data.length > 0) {
-                            this.all_items = response.data.data;
+                            // this.all_items = response.data.data;
                             this.filterItems();
                             this.pagination = response.data.meta;
                             this.pagination.per_page = parseInt(

@@ -40,15 +40,18 @@
             <i class="fa fa-receipt"></i>
           </button>
         </div>
-        <div class="col text-center font-weight-bold" v-if="configuration.ticket_58">
-            <p>Imprimir Ticket 58MM</p>
-            <button type="button"
-              class="btn btn-lg btn-info waves-effect waves-light"
-              @click="clickToPrint('ticket_58')"
-            >
-              <i class="fa fa-receipt"></i>
-            </button>
-        </div>
+        <template v-if="configuration">
+          <div class="col text-center font-weight-bold" v-if="configuration.ticket_58">
+              <p>Imprimir Ticket 58MM</p>
+              <button type="button"
+                class="btn btn-lg btn-info waves-effect waves-light"
+                @click="clickToPrint('ticket_58')"
+              >
+                <i class="fa fa-receipt"></i>
+              </button>
+          </div>
+        </template>
+
       </div>
       <br />
       <div class="row" v-show="!showGenerate">
@@ -430,6 +433,7 @@ export default {
         total_taxed: 0,
         total_unaffected: 0,
         total_exonerated: 0,
+        total_igv_free: 0,
         total_igv: 0,
         total_base_isc: 0,
         total_isc: 0,
@@ -564,6 +568,7 @@ export default {
       this.document.total_unaffected = q.total_unaffected;
       this.document.total_exonerated = q.total_exonerated;
       this.document.total_igv = q.total_igv;
+      this.document.total_igv_free = q.total_igv_free;
       this.document.total_base_isc = q.total_base_isc;
       this.document.total_isc = q.total_isc;
       this.document.total_base_other_taxes = q.total_base_other_taxes;

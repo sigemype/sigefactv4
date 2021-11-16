@@ -11,15 +11,13 @@ use Illuminate\Support\Facades\File;
 use GrahamCampbell\Markdown\Facades\Markdown;
 use Artisan;
 
-class UpdateController extends Controller
-{
-    public function index()
-    {
+class UpdateController extends Controller{
+
+    public function index(){
         return view('system.update.index');
     }
 
-    public function version()
-    {
+    public function version(){
         $id = new Process('git describe --tags');
         $id->run();
         $res_id = $id->getOutput();
@@ -29,8 +27,7 @@ class UpdateController extends Controller
         return json_encode($res_id);
     }
 
-    public function branch()
-    {
+    public function branch(){
         $process = new Process('git rev-parse --abbrev-ref HEAD');
         $process->run();
         if (!$process->isSuccessful()) {
@@ -40,8 +37,7 @@ class UpdateController extends Controller
         return json_encode($output);
     }
 
-    public function pull($branch)
-    {
+    public function pull($branch){
         $chown = new Process('chown -R ssh/');
         $chown->run();
 
@@ -61,27 +57,23 @@ class UpdateController extends Controller
         return json_encode($output);
     }
 
-    public function artisanMigrate()
-    {
+    public function artisanMigrate(){
         $output = Artisan::call('migrate');
         return json_encode($output);
     }
 
-    public function artisanTenancyMigrate()
-    {
+    public function artisanTenancyMigrate(){
         $output = Artisan::call('tenancy:migrate');
         return json_encode($output);
     }
 
-    public function artisanClear()
-    {
+    public function artisanClear(){
         $configcache = Artisan::call('config:cache');
         $cacheclear = Artisan::call('cache:clear');
         return json_encode($configcache);
     }
 
-    public function composerInstall()
-    {
+    public function composerInstall(){
         $process = new Process(system('composer install -d '. base_path()));
         $process->run();
         $output = $process->getOutput();
@@ -92,8 +84,7 @@ class UpdateController extends Controller
         return json_encode($output);
     }
 
-    public function keygen()
-    {
+    public function keygen(){
         //genero ssh
         // $process = new Process(['chmod +x ../script-ssh.sh','sh ../script-ssh.sh']);
         // $process->run();
@@ -129,8 +120,7 @@ class UpdateController extends Controller
         // return json_encode($output);
     }
 
-    public function changelog() {
-
+    public function changelog(){
         $file = File::get(base_path('CHANGELOG.md'));
         return Markdown::convertToHtml($file);
     }

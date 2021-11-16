@@ -29,12 +29,14 @@ class InventoryVoidedServiceProvider extends ServiceProvider
         Document::updated(function ($document) {
             if($document['document_type_id'] == '01' || $document['document_type_id'] == '03'){
                 if(in_array($document['state_type_id'], [ '09', '11' ], true)){
-                    $warehouse = $this->findWarehouse($document['establishment_id']);
+                    // $warehouse = $this->findWarehouse($document['establishment_id']);
 
                     foreach ($document['items'] as $detail) {
                         // dd($detail['item']->presentation);
                         
                         if(!$detail->item->is_set){
+
+                            $warehouse = ($detail->warehouse_id) ? $this->findWarehouse($this->findWarehouseById($detail->warehouse_id)->establishment_id) : $this->findWarehouse($document['establishment_id']);
 
                             $presentationQuantity = (!empty($detail['item']->presentation)) ? $detail['item']->presentation->quantity_unit : 1;
 
@@ -49,6 +51,7 @@ class InventoryVoidedServiceProvider extends ServiceProvider
                                 if($detail->document->dispatch){
 
                                     if(!$detail->document->dispatch->transfer_reason_type->discount_stock){
+                                        // $warehouse = $this->findWarehouse($document['establishment_id']);
                                         $this->updateStock($detail['item_id'], $detail['quantity'] * $presentationQuantity, $warehouse->id);
                                     }
                                 }

@@ -5,6 +5,10 @@ namespace App\Http\Requests\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ *
+ * @mixin FormRequest
+ */
 class DispatchRequest extends FormRequest
 {
     public function authorize()
@@ -29,7 +33,7 @@ class DispatchRequest extends FormRequest
             'delivery.address'=> [
                 'required',
                 'max:100',
-               
+
             ],
             'dispatcher.identity_document_type_id'=> [
                 'required',
@@ -40,17 +44,23 @@ class DispatchRequest extends FormRequest
             'dispatcher.name'=> [
                 'required',
             ],
+            // 'driver.identity_document_type_id'=> [
+            //     'required',
+            // ],
+            // 'driver.number'=> [
+            //     'required',
+            // ],
+            // 'license_plate'=> [
+            //     'required',
+            // ],
+            'license_plate'=> [
+                'required_if:transport_mode_type_id, "02"',
+            ],
             'driver.identity_document_type_id'=> [
-                'required',
+                'required_if:transport_mode_type_id, "02"',
             ],
             'driver.number'=> [
-                'required',
-            ],
-            'license_plate'=> [
-                'required',
-            ],
-            'license_plate'=> [
-                'required',
+                'required_if:transport_mode_type_id, "02"',
             ],
 
             'customer_id'=> [
@@ -67,22 +77,27 @@ class DispatchRequest extends FormRequest
                 'max:100',
             ],
 
-            
-           
+
+
         ];
     }
 
     public function messages()
     {
         return [
-        'transfer_reason_description.required' => 'El campo Descripción de motivo de traslado es obligatorio.',
-        'observations.required' => 'El campo Observaciones es obligatorio.',
-        'dispatcher.identity_document_type_id.required' => 'El campo Tipo Doc. Identidad es obligatorio.',
-        'dispatcher.number.required' => 'El campo Número es obligatorio.',
-        'dispatcher.name.required' => 'El campo Nombre y/o razón social es obligatorio.',
-        'driver.identity_document_type_id.required' => 'El campo Tipo Doc. Identidad es obligatorio.',
-        'driver.number.required' => 'El campo Número es obligatorio.',
-        'license_plate.required' => 'El campo Número de placa del vehiculo es obligatorio.',
+            
+            'transfer_reason_description.required' => 'El campo Descripción de motivo de traslado es obligatorio.',
+            'observations.required' => 'El campo Observaciones es obligatorio.',
+            'dispatcher.identity_document_type_id.required' => 'El campo Tipo Doc. Identidad es obligatorio.',
+            'dispatcher.number.required' => 'El campo Número es obligatorio.',
+            'dispatcher.name.required' => 'El campo Nombre y/o razón social es obligatorio.',
+            'driver.identity_document_type_id.required' => 'El campo Tipo Doc. Identidad es obligatorio.',
+            'driver.number.required' => 'El campo Número es obligatorio.',
+            'license_plate.required' => 'El campo Número de placa del vehiculo es obligatorio.',
+
+            'driver.number.required_if' => 'El campo Número es obligatorio cuando modo de traslado es '.$this->transport_mode_type_id.'.',
+            'driver.identity_document_type_id.required_if' => 'El campo Tipo Doc. Identidad es obligatorio cuando modo de traslado es '.$this->transport_mode_type_id.'.',
+
         ];
     }
 }

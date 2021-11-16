@@ -204,6 +204,28 @@
         @endif
 
     @endif
+    
+    @if ($document->retention)
+        <br>    
+        <tr>
+            <td colspan="2">
+                <p class="desc"><strong>Información de la retención</strong></p>
+            </td>
+        </tr>
+        <tr>
+            <td><p class="desc">Base imponible: </p></td>
+            <td><p class="desc">{{ $document->currency_type->symbol}} {{ $document->retention->base }} </p></td>
+        </tr>
+        <tr>
+            <td><p class="desc">Porcentaje:</p></td>
+            <td><p class="desc">{{ $document->retention->percentage * 100 }}%</p></td>
+        </tr>
+        <tr>
+            <td><p class="desc">Monto:</p></td>
+            <td><p class="desc">{{ $document->currency_type->symbol}} {{ $document->retention->amount }}</p></td>
+        </tr>
+    @endif
+
 
     @if ($document->prepayments)
         @foreach($document->prepayments as $p)
@@ -432,6 +454,14 @@
                <td class="text-right font-bold desc">{{ number_format(abs($balance),2, ".", "") }}</td>
            </tr>
         @endif
+        
+        @if(($document->retention || $document->detraction) && $document->total_pending_payment > 0)
+            <tr>
+                <td colspan="4" class="text-right font-bold desc">M. PENDIENTE: {{ $document->currency_type->symbol }}</td>
+                <td class="text-right font-bold desc">{{ number_format($document->total_pending_payment, 2) }}</td>
+            </tr>
+        @endif
+
     </tbody>
 </table>
 <table class="full-width">
@@ -504,6 +534,46 @@
         </tr>
     @endif
 
+    
+    {{-- Condicion de pago  Crédito / Contado --}}
+    @if($document->payment_condition_id)
+    <tr>
+        <td class="desc pt-5">
+            <strong>CONDICIÓN DE PAGO: {{ $document->payment_condition->name }} </strong>
+        </td>
+    </tr>
+    @endif
+
+    @if($document->payment_method_type_id)
+        <tr>
+            <td class="desc pt-5">
+                <strong>MÉTODO DE PAGO: </strong>{{ $document->payment_method_type->description }}
+            </td>
+        </tr>
+    @endif
+
+    @if ($document->payment_condition_id === '01')
+
+        @if($payments->count())
+            <tr>
+                <td class="desc pt-5">
+                    <strong>PAGOS:</strong>
+                </td>
+            </tr>
+            @foreach($payments as $row)
+                <tr>
+                    <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                </tr>
+            @endforeach
+        @endif
+    @else
+        @foreach($document->fee as $key => $quote)
+            <tr>
+                <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
+            </tr>
+        @endforeach
+    @endif
+
     @if($document->payment_method_type_id)
         <tr>
             <td class="desc pt-5">
@@ -511,7 +581,7 @@
             </td>
         </tr> 
     @endif
-    @if($payments->count())
+    {{-- @if($payments->count())
         <tr>
             <td class="desc pt-5">
                 <strong>PAGOS:</strong>
@@ -522,7 +592,7 @@
                 <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
             </tr>
         @endforeach
-    @endif
+    @endif --}}
 
     <tr>
         <td class="desc pt-2">

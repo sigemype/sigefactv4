@@ -5,7 +5,9 @@ use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
 use App\Models\System\Configuration;
-
+use Illuminate\Support\Facades\DB;
+use App\Models\System\Client;
+use Hyn\Tenancy\Environment;
 
 
 class ConfigurationController extends Controller
@@ -51,6 +53,12 @@ class ConfigurationController extends Controller
         if($request->token_apiruc)
         {
             $configuration->token_apiruc = $request->token_apiruc;
+        }
+
+        if($request->apk_url)
+        {
+            $configuration->apk_url = $request->apk_url;
+            $this->updateApkUrl($request->apk_url);
         }
 
         $configuration->save();
@@ -167,5 +175,33 @@ class ConfigurationController extends Controller
                 $val *= 1024;
         }
         return $val;
+    }
+
+    public function apkurl()
+    {
+
+        $configuration = Configuration::first();
+
+        return [
+            'apk_url' => $configuration->apk_url
+        ];
+    }
+
+    public function updateApkUrl ($apk_url)
+    {
+        DB::connection('system')->transaction(function () use ($apk_url) {
+
+            $records = Client::get();
+
+            foreach ($records as $row) {
+
+                $tenancy = app(Environment::class);
+                $tenancy->tenant($row->hostname->website);
+
+                DB::connection('tenant')->table('configurations')->where('id', 1)->update(['apk_url' => $apk_url]);
+
+            }
+
+        });
     }
 }

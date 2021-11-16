@@ -34,7 +34,7 @@
                     {{ ($establishment->province_id !== '-')? ', '.$establishment->province->description : '' }}
                     {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
                 </h6>
-                
+
                 @isset($establishment->trade_address)
                     <h6>{{ ($establishment->trade_address !== '-')? 'D. Comercial: '.$establishment->trade_address : '' }}</h6>
                 @endisset
@@ -87,7 +87,7 @@
     <tr>
         <td class="align-top">Dir. Envío:</td>
         <td colspan="3">
-            {{ $document->shipping_address }} 
+            {{ $document->shipping_address }}
         </td>
     </tr>
     @endif
@@ -95,7 +95,7 @@
     <tr>
         <td class="align-top">Teléfono:</td>
         <td colspan="3">
-            {{ $customer->telephone }} 
+            {{ $customer->telephone }}
         </td>
     </tr>
     @endif
@@ -103,14 +103,14 @@
     <tr>
         <td class="align-top">T. Pago:</td>
         <td colspan="3">
-            {{ $document->payment_method_type->description }} 
+            {{ $document->payment_method_type->description }}
         </td>
     </tr>
     @endif
     <tr>
         <td class="align-top">Vendedor:</td>
         <td colspan="3">
-            {{ $document->user->name }} 
+            {{ $document->user->name }}
         </td>
     </tr>
 </table>
@@ -122,7 +122,7 @@
             <td width="85%">{{ $document->description }}</td>
         </tr>
     @endif
-</table>  
+</table>
 
 @if ($document->guides)
 <br/>
@@ -165,7 +165,7 @@
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
             <td class="text-left">
-                {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                @if($row->item->name_product_pdf ?? false) {!!$row->item->name_product_pdf ?? ''!!} @else {!!$row->item->description!!} @endif @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)
                         <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
@@ -176,7 +176,7 @@
                         <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
                     @endforeach
                 @endif
-                
+
                 @if($row->item->is_set == 1)
                  <br>
                 @inject('itemSet', 'App\Services\ItemSetService')
@@ -252,18 +252,18 @@
 </table>
 <table class="full-width">
     <tr>
-        <td width="65%" style="text-align: top; vertical-align: top;"> 
+        <td width="65%" style="text-align: top; vertical-align: top;">
             <br>
             @foreach($accounts as $account)
                 <p>
-                <span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}} 
-                <span class="font-bold">N°:</span> {{$account->number}} 
+                <span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}}
+                <span class="font-bold">N°:</span> {{$account->number}}
                 @if($account->cci)
                 - <span class="font-bold">CCI:</span> {{$account->cci}}
                 @endif
                 </p>
             @endforeach
-        </td> 
+        </td>
     </tr>
     <tr>
         {{-- <td width="65%">

@@ -8,10 +8,10 @@ use App\Models\System\Client;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-class HomeController extends Controller
-{
-    public function index()
-    {
+class HomeController extends Controller{
+
+    public function index(){
+        
         $clients = Client::get();
         $delete_permission = config('tenant.admin_delete_client');
 

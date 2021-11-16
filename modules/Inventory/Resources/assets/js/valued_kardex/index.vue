@@ -27,6 +27,7 @@
                         <th class="text-center">Costo de producto</th>
                         <th class="text-center">Unidad valorizada</th>
                         <th>Stock</th>
+                        <th class="text-center">Exportar</th>
                     <tr>
                     <tr slot-scope="{ index, row }">
                         <td>{{ index }}</td>
@@ -56,6 +57,19 @@
                             </el-popover>
 
                         </td>
+                        <td class="text-center">
+
+                            <el-tooltip class="item"
+                                        content="Exportar Formato SUNAT 13.1"
+                                        effect="dark"
+                                        placement="top">
+
+                                <el-button type="success" @click.prevent="clickDownloadFormatSunat(row.id)" size="small"><i
+                                    class="fa fa-file-excel"></i> 
+                                </el-button>
+                            </el-tooltip>
+                        </td>
+
                     </tr>
                 </data-table>
 
@@ -82,6 +96,10 @@ export default {
     created() {
         this.title = 'Kardex valorizado'
     },
-    methods: {}
+    methods: {
+        clickDownloadFormatSunat(item_id) {        
+            this.$eventHub.$emit('exportFormatSunat', item_id)
+        },
+    }
 }
 </script>

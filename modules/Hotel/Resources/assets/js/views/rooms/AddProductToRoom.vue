@@ -272,20 +272,22 @@ export default {
         unit_value: product.unit_value,
         warehouse_id: product.warehouse_id,
         input_unit_price_value: product.input_unit_price_value,
-        item: {
-          description: product.item.description,
-          item_type_id: product.item.item_type_id,
-          internal_id: product.item.internal_id,
-          item_code: product.item.item_code,
-          item_code_gs1: product.item.item_code_gs1,
-          unit_type_id: product.item.unit_type_id,
-          presentation: product.item.presentation,
-          amount_plastic_bag_taxes: product.item.amount_plastic_bag_taxes,
-          is_set: product.item.is_set,
-          lots: product.item.lots,
-          IdLoteSelected: product.item.IdLoteSelected,
-        },
+        // item: {
+        //   description: product.item.description,
+        //   item_type_id: product.item.item_type_id,
+        //   internal_id: product.item.internal_id,
+        //   item_code: product.item.item_code,
+        //   item_code_gs1: product.item.item_code_gs1,
+        //   unit_type_id: product.item.unit_type_id,
+        //   presentation: product.item.presentation,
+        //   amount_plastic_bag_taxes: product.item.amount_plastic_bag_taxes,
+        //   is_set: product.item.is_set,
+        //   lots: product.item.lots,
+        //   IdLoteSelected: product.item.IdLoteSelected,
+        // },
+        item : this.getNewItem(product)
       };
+
       const repeteads = this.form.products.filter(
         (p) => p.item_id === newProduct.item_id
       );
@@ -300,6 +302,25 @@ export default {
         this.form.products.push(newProduct);
       }
       this.onCalculateTotals();
+    },
+    getNewItem(product){
+
+      let new_item = product.item
+
+      // new_item.description = product.item.description
+      // new_item.internal_id = product.item.internal_id
+      // new_item.unit_type_id = product.item.unit_type_id
+      // new_item.is_set = product.item.is_set
+      // new_item.lots = product.item.lots
+      // new_item.amount_plastic_bag_taxes = product.item.amount_plastic_bag_taxes
+      new_item.item_type_id = product.item.item_type_id
+      new_item.item_code = product.item.item_code
+      new_item.item_code_gs1 = product.item.item_code_gs1
+      new_item.presentation = product.item.presentation
+      new_item.IdLoteSelected = product.item.IdLoteSelected
+
+      return new_item
+
     },
     onGotoBack() {
       window.location.href = "/hotels/reception";

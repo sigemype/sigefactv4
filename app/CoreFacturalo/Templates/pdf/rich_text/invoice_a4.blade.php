@@ -309,7 +309,6 @@
                 @endif
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-            
             <td class="text-justify align-top">
                 @if($row->name_product_pdf)
                     {!!$row->item->description!!} <br> <br>

@@ -60,26 +60,31 @@
                         <td v-if="columns.website.visible === true" class="text-left">{{ row.website }}</td>
                         <td v-if="columns.credit_days.visible === true" class="text-center">{{ row.credit_days }}</td>
                         <td class="text-right">
-
-                            <template v-if="row.enabled">
-                                <button class="btn waves-effect waves-light btn-xs btn-info" type="button"
-                                        @click.prevent="clickCreate(row.id)">Editar
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                            </template>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 
-                            <template v-if="typeUser === 'admin'">
-                                <button class="btn waves-effect waves-light btn-xs btn-danger" type="button"
-                                        @click.prevent="clickDelete(row.id)">Eliminar
-                                </button>
-
-                                <button v-if="row.enabled" class="btn waves-effect waves-light btn-xs btn-danger"
-                                        type="button" @click.prevent="clickDisable(row.id)">Inhabilitar
-                                </button>
-                                <button v-else class="btn waves-effect waves-light btn-xs btn-primary"
-                                        type="button" @click.prevent="clickEnable(row.id)">Habilitar
-                                </button>
-
-                            </template>
+                                    <div v-if="row.enabled">
+                                        <button class="dropdown-item"
+                                                @click.prevent="clickCreate(row.id)">Editar
+                                        </button>
+                                    </div>
+                                    <button class="dropdown-item"
+                                            v-if="typeUser === 'admin'"
+                                            @click.prevent="clickDelete(row.id)">Eliminar
+                                    </button>
+                                    <div v-if="typeUser === 'admin'">
+                                        <button v-if="row.enabled" class="dropdown-item"
+                                                @click.prevent="clickDisable(row.id)">Inhabilitar
+                                        </button>
+                                        <button v-else class="dropdown-item"
+                                                @click.prevent="clickEnable(row.id)">Habilitar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </data-table>

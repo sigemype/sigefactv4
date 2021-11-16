@@ -47,7 +47,8 @@
                                                dusk="customer_id"
                                                placeholder="Escriba el nombre o número de documento del cliente"
                                                :remote-method="searchRemoteCustomers"
-                                               :loading="loading_search">
+                                               :loading="loading_search"
+                                               @change="changeCustomer">
 
                                         <el-option v-for="option in customers" :key="option.id" :value="option.id"
                                                    :label="option.description"></el-option>
@@ -166,7 +167,7 @@
                                         <tbody v-if="form.items.length > 0">
                                         <tr v-for="(row, index) in form.items" :key="index">
                                             <td>{{ index + 1 }}</td>
-                                            <td>{{ row.item.description }}
+                                            <td>{{ setDescriptionOfItem (row.item) }}
                                                 {{ row.item.presentation.hasOwnProperty('description') ? row.item.presentation.description : '' }}<br/><small>{{ row.affectation_igv_type.description }}</small>
                                             </td>
                                             <td class="text-center">{{ row.item.unit_type_id }}</td>
@@ -264,7 +265,7 @@ import OrderNoteFormItem from './partials/item.vue'
 import PersonForm from '@views/persons/form.vue'
 import OrderNoteOptions from './partials/options.vue'
 import {functions, exchangeRate} from '@mixins/functions'
-import {calculateRowItem} from '@helpers/functions'
+import {calculateRowItem,showNamePdfOfDescription} from '@helpers/functions'
 import Logo from '@views/companies/logo.vue'
 import {mapActions, mapState} from "vuex";
 
@@ -366,6 +367,18 @@ export default {
             'loadCompany',
             'loadEstablishment',
         ]),
+        changeCustomer(){
+            this.setAddressByCustomer()
+        },
+        setAddressByCustomer(){
+            
+            let customer = _.find(this.customers, {id : this.form.customer_id})
+
+            if(customer){
+                this.form.shipping_address = customer.address
+            }
+
+        },
         getFormatUnitPriceRow(unit_price) {
             return _.round(unit_price, 6)
             // return unit_price.toFixed(6)
@@ -425,6 +438,7 @@ export default {
                 total_taxed: 0,
                 total_unaffected: 0,
                 total_exonerated: 0,
+                total_igv_free: 0,
                 total_igv: 0,
                 total_base_isc: 0,
                 total_isc: 0,
@@ -494,6 +508,7 @@ export default {
             this.calculateTotal()
         },
         calculateTotal() {
+
             let total_discount = 0
             let total_charge = 0
             let total_exportation = 0
@@ -504,6 +519,8 @@ export default {
             let total_igv = 0
             let total_value = 0
             let total = 0
+            let total_igv_free = 0
+
             this.form.items.forEach((row) => {
                 total_discount += parseFloat(row.total_discount)
                 total_charge += parseFloat(row.total_charge)
@@ -528,19 +545,22 @@ export default {
                     total += parseFloat(row.total)
                 }
                 total_value += parseFloat(row.total_value)
-                
-                if (['13', '14', '15'].includes(row.affectation_igv_type_id)) {
 
-                    let unit_value = row.total_value/row.quantity
+                if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
+
+                    let unit_value = row.total_value / row.quantity
                     let total_value_partial = unit_value * row.quantity
                     row.total_taxes = row.total_value - total_value_partial
                     row.total_igv = total_value_partial * (row.percentage_igv / 100)
                     row.total_base_igv = total_value_partial
                     total_value -= row.total_value
+                    total_igv_free += row.total_igv
+
                 }
 
             });
 
+            this.form.total_igv_free = _.round(total_igv_free, 2)
             this.form.total_exportation = _.round(total_exportation, 2)
             this.form.total_taxed = _.round(total_taxed, 2)
             this.form.total_exonerated = _.round(total_exonerated, 2)
@@ -586,8 +606,12 @@ export default {
             this.$http.get(`/${this.resource}/search/customer/${customer_id}`).then((response) => {
                 this.customers = response.data.customers
                 this.form.customer_id = customer_id
+                this.setAddressByCustomer()
             })
         },
+        setDescriptionOfItem(item){
+            return showNamePdfOfDescription(item,this.config.show_pdf_name)
+        }
     },
     computed: {
         ...mapState([

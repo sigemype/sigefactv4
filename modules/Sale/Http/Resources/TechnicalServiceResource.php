@@ -15,6 +15,8 @@ class TechnicalServiceResource extends JsonResource
     public function toArray($request)
     {
 
+        return $this->getCollectionData();
+        /** Movido al modelo modules/Sale/Models/TechnicalService.php */
         return [
             'id' => $this->id,
             'customer_id' => $this->customer_id,

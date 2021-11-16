@@ -209,7 +209,24 @@
                        Route::get('/records', 'ReportGeneralItemController@records');
                    });
 
-                    Route::get('order-notes-general', 'ReportOrderNoteGeneralController@index')
+                   /**
+                    *reports/extra-general-items/
+                    *reports/extra-general-items/items
+                    *reports/extra-general-items/items/excel
+                    *reports/extra-general-items/items/filter
+                    *reports/extra-general-items/items/records
+                    */
+                   Route::prefix('extra-general-items')->group(function () {
+                       Route::get('items', 'ReportItemExtraController@index')->name('tenant.reports.extra.items.index');
+                       Route::get('items/excel', 'ReportItemExtraController@excel')->name('tenant.reports.extra.items.excel');
+                       Route::get('items/filter', 'ReportItemExtraController@filter')->name('tenant.reports.extra.items.filter');
+                       Route::get('records', 'ReportItemExtraController@records')->name('tenant.reports.extra.items.records');
+                       Route::get('items/records', 'ReportItemExtraController@records')->name('tenant.reports.extra.items.records');
+                       Route::post('items/records', 'ReportItemExtraController@records')->name('tenant.reports.extra.items.records');
+                       // /reports/extra-general-items/records
+                   });
+
+                   Route::get('order-notes-general', 'ReportOrderNoteGeneralController@index')
                          ->name('tenant.reports.order_notes_general.index');
                     Route::get('order-notes-general/pdf', 'ReportOrderNoteGeneralController@pdf');
                     Route::get('order-notes-general/filter', 'ReportOrderNoteGeneralController@filter');
@@ -253,7 +270,13 @@
 
                     });
 
-                    Route::prefix('massive-downloads')->group(function () {
+                   /**
+                    * reports/massive-downloads/
+                    * reports/massive-downloads/filter
+                    * reports/massive-downloads/pdf
+                    * reports/massive-downloads/records
+                    */
+                   Route::prefix('massive-downloads')->group(function () {
 
                         Route::get('', 'ReportMassiveDownloadController@index')
                              ->name('tenant.reports.massive-downloads.index');

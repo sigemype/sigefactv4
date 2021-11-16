@@ -31,5 +31,6 @@ return [
     'select_first_document_type_03' => env('SELECT_FIRST_DOCUMENT_TYPE_03', false),
     'admin_delete_client' => env('ADMIN_DELETE_CLIENT', false),
     'soap_stream_context_ssl' => env('SOAP_STREAM_CONTEXT_SSL', false),
-
+    'apiperudev_validator_cpe' => env('APIPERUDEV_VALIDATOR_CPE', true),
+    'validator_cpe' => env('VALIDATOR_CPE', false)
 ];

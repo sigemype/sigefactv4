@@ -24,6 +24,10 @@ class Warehouse extends ModelTenant
     ];
 
     /**
+     * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
+     * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
+     * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function inventory_kardex()

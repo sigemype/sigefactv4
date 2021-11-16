@@ -15,25 +15,28 @@ use Modules\Finance\Traits\FinanceTrait;
 use Modules\Finance\Traits\FilePaymentTrait;
 use Carbon\Carbon;
 
-class DocumentPaymentController extends Controller{
+class DocumentPaymentController extends Controller
+{
 
     use FinanceTrait, FilePaymentTrait;
 
-    public function records($document_id){
-        
+    public function records($document_id)
+    {
         $records = DocumentPayment::where('document_id', $document_id)->get();
 
         return new DocumentPaymentCollection($records);
     }
 
-    public function tables(){
+    public function tables()
+    {
         return [
             'payment_method_types' => PaymentMethodType::all(),
             'payment_destinations' => $this->getPaymentDestinations()
         ];
     }
 
-    public function document($document_id){
+    public function document($document_id)
+    {
         $document = Document::find($document_id);
 
         $total_paid = collect($document->payments)->sum('payment');
@@ -49,7 +52,8 @@ class DocumentPaymentController extends Controller{
 
     }
 
-    public function store(DocumentPaymentRequest $request){
+    public function store(DocumentPaymentRequest $request)
+    {
         // dd($request->all());
 
         $id = $request->input('id');
@@ -115,7 +119,8 @@ class DocumentPaymentController extends Controller{
         ];
     }
 
-    public function report($start, $end, $type = 'pdf'){
+    public function  report($start, $end, $type = 'pdf')
+    {
         $documents = DocumentPayment::whereBetween('date_of_payment', [$start , $end])->get();
 
         $records = collect($documents)->transform(function($row){

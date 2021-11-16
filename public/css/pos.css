@@ -92,3 +92,9 @@ html.sidebar-light:not(.dark) .page-header h2 {
 	border-color: #0069d9;
 	color: #FFF;
 }
+
+@media (max-width: 1024px) {
+  .page-header {
+      margin: 60px 0px 5px 0px;
+  }
+}

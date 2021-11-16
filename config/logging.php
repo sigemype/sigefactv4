@@ -57,6 +57,12 @@ return [
             'level' => 'debug',
             'days' => 7,
         ],
+        'emails' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/emails.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
 
         'slack' => [
             'driver' => 'slack',

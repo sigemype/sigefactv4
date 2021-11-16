@@ -134,6 +134,12 @@
             $d_start = null;
             $d_end = null;
 
+            /** @todo: Eliminar periodo, fechas y cambiar por
+
+            $date_start = $request['date_start'];
+            $date_end = $request['date_end'];
+            \App\CoreFacturalo\Helpers\Functions\FunctionsHelper\FunctionsHelper::setDateInPeriod($request, $date_start, $date_end);
+             */
             switch ($period) {
                 case 'month':
                     $d_start = Carbon::parse($month_start.'-01')->format('Y-m-d');
@@ -168,6 +174,21 @@
             if ($item_id != 0) {
                 $dispatch->where('dispatch_items.item_id', $item_id);
             }
+
+
+            if (isset($request['min']) && isset($request['max'])) {
+                $min = (int)$request['min'];
+                $max = (int)$request['max'];
+                if($max < $min){
+                    $min = (int)$request['max'];
+                    $max = (int)$request['min'];
+                }
+                if($min !== 0 && $max !== 0) {
+                    $dispatch->whereBetween('dispatches.number', [$min, $max]);
+                }
+            }
+
+
             /** @var \Illuminate\Support\Collection $ids */
             $ids = $dispatch->select('dispatch_items.id as id')->get()->pluck('id')->unique();
 

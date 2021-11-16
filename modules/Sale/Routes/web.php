@@ -9,6 +9,25 @@ if($current_hostname) {
     Route::domain($current_hostname->fqdn)->group(function () {
         Route::middleware(['auth', 'locked.tenant'])->group(function () {
 
+            /**
+             sale-opportunities
+             sale-opportunities/columns
+             sale-opportunities/records
+             sale-opportunities/record/{id}
+             sale-opportunities/create/{id}
+             sale-opportunities/earch/customers
+             sale-opportunities/earch/customers/{id}
+             sale-opportunities/tables
+             sale-opportunities/table/{table}
+             sale-opportunities/item/tables
+             sale-opportunities/email
+             sale-opportunities/download/{external_id}/{format?}
+             sale-opportunities/print/{external_id}/{format?}
+             sale-opportunities/search-items
+             sale-opportunities/search/item/{item}
+             sale-opportunities/uploads
+             sale-opportunities/download-file/{filename}
+             */
             Route::prefix('sale-opportunities')->group(function() {
 
                 Route::get('', 'SaleOpportunityController@index')->name('tenant.sale_opportunities.index')->middleware(['redirect.level']);
@@ -32,6 +51,8 @@ if($current_hostname) {
 
                 Route::post('uploads', 'SaleOpportunityFileController@uploadFile');
                 Route::get('download-file/{filename}', 'SaleOpportunityFileController@download');
+                Route::get('search-items', 'SaleOpportunityFileController@searchItems');
+                Route::get('search/item/{item}', 'SaleOpportunityFileController@searchItemById');
 
             });
 
@@ -44,6 +65,30 @@ if($current_hostname) {
 
             });
 
+            /**
+            contracts/
+            contracts/columns
+            contracts/records
+            contracts/create/{id?}
+            contracts/state-type/{state_type_id}/{id}
+            contracts/filter
+            contracts/tables
+            contracts/table/{table}
+            contracts/record/{contract}
+            contracts/voided/{id}
+            contracts/item/tables
+            contracts/option/tables
+            contracts/search/customers
+            contracts/search/customer/{id}
+            contracts/download/{external_id}/{format?}
+            contracts/print/{external_id}/{format?}
+            contracts/email
+            contracts/search/item/{item}
+            contracts/search-items
+            contracts/record2/{contract}
+            contracts/changed/{contract}
+            contracts/generate-quotation/{quotation}
+             */
 
             Route::prefix('contracts')->group(function () {
 
@@ -51,6 +96,8 @@ if($current_hostname) {
                 Route::get('/columns', 'ContractController@columns');
                 Route::get('/records', 'ContractController@records');
                 Route::get('/create/{id?}', 'ContractController@create')->name('tenant.contracts.create')->middleware('redirect.level');
+                Route::get('search-items', 'ContractController@searchItems');
+                Route::get('search/item/{item}', 'ContractController@searchItemById');
 
                 Route::get('/state-type/{state_type_id}/{id}', 'ContractController@updateStateType');
                 Route::get('/filter', 'ContractController@filter');
@@ -83,6 +130,18 @@ if($current_hostname) {
 
         });
 
+        /**
+         * technical-services/
+         * technical-services/columns
+         * technical-services/records
+         * technical-services/tables
+         * technical-services/record/{contract}
+         * technical-services/search/customers
+         * technical-services/search/customer/{id}
+         * technical-services/download/{id}/{format?}
+         * technical-services/print/{id}/{format?}
+         * technical-services/{id
+        */
         Route::prefix('technical-services')->group(function () {
 
             Route::get('', 'TechnicalServiceController@index')->name('tenant.technical_services.index')->middleware(['redirect.level']);
@@ -122,6 +181,13 @@ if($current_hostname) {
 
         });
 
+        /**
+         * technical-service-payments/
+         * technical-service-payments/records/{record}
+         * technical-service-payments/document/{record}
+         * technical-service-payments/tables
+         * technical-service-payments/{record_payment}
+         */
         Route::prefix('technical-service-payments')->group(function () {
 
             Route::get('/records/{record}', 'TechnicalServicePaymentController@records');
@@ -131,6 +197,13 @@ if($current_hostname) {
             Route::delete('/{record_payment}', 'TechnicalServicePaymentController@destroy');
 
         });
+
+        /**
+         * generate-document/
+         * generate-document/record/{table}/{record}
+         * generate-document/table
+         * generate-document/customers
+         */
 
         Route::prefix('generate-document')->group(function () {
             Route::get('/record/{table}/{record}', 'GenerateDocumentController@record');

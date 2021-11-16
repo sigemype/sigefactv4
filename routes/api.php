@@ -46,6 +46,10 @@ if ($hostname) {
 
             Route::post('documents_server', 'Tenant\Api\DocumentController@storeServer');
             Route::get('document_check_server/{external_id}', 'Tenant\Api\DocumentController@documentCheckServer');
+
+            //liquidacion de compra
+            Route::post('purchase-settlements', 'Tenant\Api\PurchaseSettlementController@store');
+
         });
         Route::get('documents/search/customers', 'Tenant\DocumentController@searchCustomers');
 

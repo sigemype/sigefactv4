@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Tenant\ItemSet;
+use App\CoreFacturalo\Helpers\Template\TemplateHelper;
 
 $purchseOrder = $document->purchase_order;
 $stablihsment = $stablihsment ?? [
@@ -65,6 +66,8 @@ if (!isset($qty)) {
 // Se debe pasar al modelo
 $qty = $qty ?? $value->quantity;
 $isSaleNote = ($document_type_id != '80' && $type == 'sale') ? true : false;
+
+$payments = TemplateHelper::getDetailedPayment($document);
 ?>
 <tr>
     <td class="celda">{{ $document->date_of_issue->format('Y-m-d') }}</td>
@@ -118,8 +121,25 @@ $isSaleNote = ($document_type_id != '80' && $type == 'sale') ? true : false;
             {{$relation_item->internal_id}}
         @endif
     </td>
+    {{--TODO renombrar correctamente isSaleNote, deberia hacer referencia a nv, no a otros tipos de docs --}}
+    @if($type == 'sale')
+    <td class="celda">
+        {{-- {{ $document->additional_information ? implode(' | ', $document->additional_information) : '' }}  --}}
+        {{ $document->reference_data }}
+    </td>
+    @endif
     <td class="celda">{{ $pack_prefix }}{{ $item->description }}</td>
     <td class="celda">{{ $qty }}</td>
+    <td>
+        @foreach ($payments as $payment)
+            @foreach ($payment as $pay)
+                {{ $pay['description'] }}
+                @if ($loop->count > 1 && !$loop->last)
+                    <br>
+                @endif
+            @endforeach
+        @endforeach
+    </td>
     <td class="celda">{{ $series }}</td>
     <td class="celda">{{ $model }}</td>
     <td class="celda">{{(!empty($purchase_unit_price)?$pack_price_prefix:'')}}{{ $purchase_unit_price }}</td>

@@ -7,6 +7,9 @@
     use App\Models\Tenant\Catalogs\CatItemMoldCavity;
     use Carbon\Carbon;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
+    use Illuminate\Database\Eloquent\Builder;
+    use Illuminate\Database\Eloquent\Collection;
+    use Illuminate\Database\Eloquent\Relations\HasOne;
 
     /**
      * Class ItemMoldCavity
@@ -17,6 +20,8 @@
      * @property bool|true   $active
      * @property Carbon|null $created_at
      * @property Carbon|null $updated_at
+     * @property Collection|ItemMovementRelExtra[] $item_movement_rel_extras
+     * @method static Builder|ItemMoldCavity ByItem()
      * @package App\Models
      */
     class ItemMoldCavity extends ModelTenant
@@ -146,5 +151,30 @@
             return $this;
         }
 
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\HasMany
+         */
+        public function item_movement_rel_extra()
+        {
+            return $this->hasMany(ItemMovementRelExtra::class);
+        }
+
+
+        /**
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param int $item_id
+         *
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+         /**
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param int $item_id
+         *
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public function scopeByItem($query,$item_id){
+            return $query->where('item_id',$item_id);
+        }
 
     }

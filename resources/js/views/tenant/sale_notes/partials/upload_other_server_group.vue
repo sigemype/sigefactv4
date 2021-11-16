@@ -14,6 +14,7 @@
                 <el-select
                     v-model="filter.type"
                     @click="onFetchClients"
+                    @change="onFetchClients"
                     :disabled="loading"
                 >
                     <el-option
@@ -82,7 +83,7 @@
                         ></el-switch>
                     </td>
                     <td>
-                        <span>{{ dis.series }}</span>-<span>{{ dis.number | pad(0, 3) }}</span>
+                        <span>{{ dis.number_full }}</span>
                     </td>
                     <td>{{ dis.date_of_issue | toDate }}</td>
                 </tr>

@@ -43,4 +43,8 @@ class TechnicalServicePayment extends ModelTenant
     {
         return $this->belongsTo(TechnicalService::class);
     }
+
+    public function getTotal(){
+        return $this->payment;
+    }
 }

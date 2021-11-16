@@ -7,9 +7,11 @@ use App\Models\Tenant\Catalogs\PriceType;
 use App\Models\Tenant\Catalogs\SystemIscType;
 use App\Models\Tenant\ModelTenant;
 use App\Models\Tenant\Item;
+use App\Traits\AttributePerItems;
 
 class ContractItem extends ModelTenant
 {
+    use AttributePerItems;
     protected $with = ['affectation_igv_type', 'system_isc_type', 'price_type'];
     public $timestamps = false;
 
@@ -102,7 +104,7 @@ class ContractItem extends ModelTenant
     {
         return $this->belongsTo(PriceType::class, 'price_type_id');
     }
-    
+
     public function relation_item()
     {
         return $this->belongsTo(Item::class, 'item_id');

@@ -2,6 +2,7 @@
 
 namespace App\CoreFacturalo;
 
+use App\Http\Controllers\Tenant\EmailController;
 use Exception;
 use Mpdf\Mpdf;
 use Mpdf\HTMLParserMode;
@@ -36,6 +37,7 @@ use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\CoreFacturalo\WS\Validator\XmlErrorCodeProvider;
 use Modules\Inventory\Models\Warehouse;
 use App\CoreFacturalo\Requests\Inputs\Functions;
+use App\Models\Tenant\PurchaseSettlement;
 
 /**
  * Class Facturalo
@@ -109,6 +111,7 @@ class Facturalo{
                     $document->items()->create($row);
                 }
                 $document->note()->create($inputs['note']);
+                if($this->type === 'credit') $this->saveFee($document, $inputs['fee']);
                 $this->document = Document::find($document->id);
                 break;
             case 'invoice':
@@ -155,6 +158,13 @@ class Facturalo{
                 }
                 $this->document = Perception::find($document->id);
                 break;
+            case 'purchase_settlement':
+                $document = PurchaseSettlement::create($inputs);
+                foreach ($inputs['items'] as $row) {
+                    $document->items()->create($row);
+                }
+                $this->document = PurchaseSettlement::find($document->id);
+                break;
             default:
                 $document = Dispatch::create($inputs);
                 foreach ($inputs['items'] as $row) {
@@ -174,8 +184,24 @@ class Facturalo{
             $company = $this->company;
             $document = $this->document;
             $email = ($this->document->customer) ? $this->document->customer->email : $this->document->supplier->email;
+            $mailable =new DocumentEmail($company, $document);
+            $id =  $document->id;
+            $model = __FILE__.";;".__LINE__;
+            $sendIt = EmailController::SendMail($email, $mailable, $id, $model);
+            /*
             Configuration::setConfigSmtpMail();
-            Mail::to($email)->send(new DocumentEmail($company, $document));
+            $array_email = explode(',', $email);
+            if (count($array_email) > 1) {
+                foreach ($array_email as $email_to) {
+                    $email_to = trim($email_to);
+                if(!empty($email_to)) {
+                        Mail::to($email_to)->send(new DocumentEmail($company, $document));
+                    }
+                }
+            } else {
+                Mail::to($email)->send(new DocumentEmail($company, $document));
+            }
+            */
 
         }
     }
@@ -325,10 +351,11 @@ class Facturalo{
             $company_logo = $this->company->logo != '' ? '30' : '0';
 
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
-            $quantity_rows     = count($this->document->items);
-            // + $was_deducted_prepayment;
-            $document_payments     = count($this->document->payments);
+            $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
+            // $document_payments     = count($this->document->payments);
+            $document_payments      = $document->payments()->count() * 2;
             $document_transport     = ($this->document->transport) ? 30 : 0;
+            $document_retention     = ($this->document->retention) ? 10 : 0;
 
             $extra_by_item_additional_information = 0;
             $extra_by_item_description = 0;
@@ -399,7 +426,8 @@ class Facturalo{
                     $quotation_id+
                     $extra_by_item_additional_information+
                     $height_legend+
-                    $document_transport
+                    $document_transport+
+                    $document_retention
                 ],
                 'margin_top' => 0,
                 'margin_right' => 1,
@@ -537,17 +565,19 @@ class Facturalo{
                 $html_footer_legend = "";
             }
             // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
-            // se quiere visualizar ahora la legenda amazona en todos los formatos
+            // se quiere visuzalizar ahora la legenda amazona en todos los formatos
             $html_footer_legend = '';
             if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
                 $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
             }
 
-            $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
+            if (!in_array($base_pdf_template, ['default'])) {
+                $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
+            }
 
         }
-//            $html_footer = $template->pdfFooter();
-//            $pdf->SetHTMLFooter($html_footer);
+        //$html_footer = $template->pdfFooter();
+        //$pdf->SetHTMLFooter($html_footer);
         // }
 
         if ($base_pdf_template === 'brand') {
@@ -577,6 +607,7 @@ class Facturalo{
 
     public function loadXmlSigned(){
         $this->xmlSigned = $this->getStorage($this->document->filename, 'signed');
+//        dd($this->xmlSigned);
         return $this;
     }
 
@@ -634,8 +665,8 @@ class Facturalo{
     public function validationCodeResponse($code, $message){
         //Errors
         if(!is_numeric($code)){
-            
-            if(in_array($this->type, ['retention', 'dispatch', 'perception'])){
+
+            if(in_array($this->type, ['retention', 'dispatch', 'perception', 'purchase_settlement'])){
                 throw new Exception("Code: {$code}; Description: {$message}");
             }
 
@@ -665,7 +696,7 @@ class Facturalo{
         if((int)$code < 2000) {
             //Excepciones
 
-            if(in_array($this->type, ['retention', 'dispatch', 'perception'])){
+            if(in_array($this->type, ['retention', 'dispatch', 'perception', 'purchase_settlement'])){
             // if(in_array($this->type, ['retention', 'dispatch'])){
                 throw new Exception("Code: {$code}; Description: {$message}");
             }
@@ -835,6 +866,17 @@ class Facturalo{
                     'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
             }
         }
+
+//        if($this->isDemo) {
+//            $this->pathCertificate = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.
+//                'WS'.DIRECTORY_SEPARATOR.
+//                'Signed'.DIRECTORY_SEPARATOR.
+//                'Resources'.DIRECTORY_SEPARATOR.
+//                'certificate.pem');
+//        } else {
+//            $this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
+//                'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
+//        }
     }
 
     private function setSoapCredentials(){
@@ -853,8 +895,13 @@ class Facturalo{
 
         }
 
+
+//        $this->soapUsername = ($this->isDemo)?$this->company->number.'MODDATOS':$this->company->soap_username;
+//        $this->soapPassword = ($this->isDemo)?'moddatos':$this->company->soap_password;
+
         if($this->isOse) {
             $this->endpoint = $this->company->soap_url;
+//            dd($this->soapPassword);
         } else {
             switch ($this->type) {
                 case 'perception':
@@ -873,6 +920,7 @@ class Facturalo{
     }
 
     private function updatePrepaymentDocuments($inputs){
+        // dd($inputs);
         if(isset($inputs['prepayments'])) {
 
             foreach ($inputs['prepayments'] as $row) {
@@ -892,11 +940,14 @@ class Facturalo{
                     if($balance <= 0){
                         $doc->was_deducted_prepayment = true;
                     }
+
                     $doc->save();
+
                 }
             }
         }
     }
+
     public function updateResponse(){
 
         // if($this->response['sent']) {
@@ -964,6 +1015,10 @@ class Facturalo{
         }
     }
 
+    /**
+     * @param array $inputs
+     * @param int   $id
+     */
     public function update($inputs,$id){
 
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
@@ -1022,11 +1077,25 @@ class Facturalo{
         }
     }
 
+    /**
+     * @param array $actions
+     *
+     * @return $this
+     */
     public function setActions($actions = []){
         $this->actions = $actions;;
         return $this;
     }
-
+    /**
+     * Carga los elementos segun corresponda.
+     *
+     * @todo Falta determinar Document para credit e invoice
+     *
+     * @param      $id
+     * @param null $type
+     *
+     * @return \App\CoreFacturalo\Facturalo
+     */
     public function loadDocument($id, $type = null){
         $this->type = $type;
         switch ($this->type) {

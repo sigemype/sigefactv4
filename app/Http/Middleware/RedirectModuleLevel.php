@@ -2,47 +2,61 @@
 
     namespace App\Http\Middleware;
 
+    use App\Models\Tenant\User;
     use Closure;
+    use Illuminate\Database\Eloquent\Collection;
+    use Illuminate\Http\RedirectResponse;
+    use Illuminate\Http\Request;
+    use Modules\LevelAccess\Models\ModuleLevel;
 
     /**
      * Class RedirectModuleLevel
+     * Debe aplicarse el middleware ->middleware('redirect.level'); a la ruta
+     * Controla los niveles de acceso desde el modulo de administracion.
      *
      * @package App\Http\Middleware
      */
-    class RedirectModuleLevel {
+    class RedirectModuleLevel
+    {
         /**
          * Handle an incoming request.
          *
-         * @param \Illuminate\Http\Request $request
-         * @param \Closure                 $next
+         * @param Request $request
+         * @param Closure $next
          *
          * @return mixed
          */
-        public function handle($request, Closure $next) {
+        public function handle($request, Closure $next)
+        {
 
-            $level = $request->user()->getLevel();
+            /** @var User $user */
+            $user = $request->user();
+            $level = $user->getLevel();
             $path = explode('/', $request->path());
-            $levels = $request->user()->getLevels();
-            // dd($levels);
+            $levels = $user->getLevels();
 
             if (!$request->ajax()) {
 
-                if (count($levels)) {
+                if (count($levels) != 0) {
                     // dd("w");
 
-                    if (count($levels) < 72) {
-                        // dd($levels);
+                    /** Se comenta el limite para poder aceptar todos los filtros cuando se añadan,
+                     * tambien el superior es diferente a 0 para que evalue cuando existan niveles de module_levels
+                     */
+                    //if (count($levels) < 72) {
+                    // dd($levels);
 
-                        $group = $this->getGroup($path, $level);
-                        // dd($group);
+                    $group = $this->getGroup($path, $level);
+                    // dd($group);
 
-                        if ($group) {
-                            if ($this->getLevelByGroup($levels, $group) === 0) {
-                                return $this->redirectRoute($level);
-                            }
-
+                    if ($group) {
+                        if ($this->getLevelByGroup($levels, $group) === 0) {
+                            $this->fixPermissions($level, $path);
+                            return $this->redirectRoute($level);
                         }
+
                     }
+                    // }
 
                 }
             }
@@ -57,11 +71,14 @@
          *
          * @return string|null
          */
-        private function getGroup($path, $module) {
+        private function getGroup($path, $module)
+        {
 
             ///* Module Documents */
             // dd($path[1]);
             $group = null;
+            $firstLevel = $path[0] ?? null;
+            $secondLevel = $path[1] ?? null;
 
             if (isset($path[1])) {
 
@@ -101,8 +118,24 @@
                         }
                     }
                 }
+                /** Configuracion avanzada */
+                if (
+                    ($firstLevel == "company_accounts" && $secondLevel == 'create') ||
+                    ($firstLevel == "inventories" && $secondLevel == 'configuration') ||
+                    ($firstLevel == "configurations" && $secondLevel == 'sale-notes')
+                ) {
+                    $group = "configuration_advance";
+                }
+                /** Giro de negocio */
+                if (
+                    ($firstLevel == "companies" && $secondLevel == 'create')
+
+                ) {
+                    $group = "configuration_company";
+                }
 
             } else {
+                /** Documentos */
                 if ($path[0] == "documents") {
                     $group = "list_document";
                 } elseif ($path[0] == "contingencies") {
@@ -129,25 +162,43 @@
                     $group = "technical-service";
                 } elseif ($path[0] == "purchase-orders") {
                     $group = "purchases_orders";
-                }elseif ($path[0] == "digemid") {
+                } elseif ($path[0] == "digemid") {
                     $group = "digemid";
                 } else {
                     $group = null;
                 }
+                /** Configuracion Avanzada */
+                if (
+                    $firstLevel == "tasks" ||
+                    $firstLevel == "offline-configurations" ||
+                    $firstLevel == "series-configurations"
+                ) {
+                    $group = "configuration_advance";
+                } /** Giro de negocio */
+                elseif (
+                    $firstLevel == "bussiness_turns" ||
+                    $firstLevel == "advanced"
+                ) {
+                    $group = "configuration_company";
+                } /** Giro de negocio */
+                elseif ($firstLevel == "login-page") {
+                    $group = "configuration_visual";
+                }
             }
-
             return $group;
         }
 
         /**
-         * @param $levels
-         * @param $group
+         * @param Collection $levels
+         * @param string     $group
          *
-         * @return mixed
+         * @return int
          */
-        private function getLevelByGroup($levels, $group) {
-
+        private function getLevelByGroup($levels, $group)
+        {
+            /** @var Collection $levels_x_group */
             $levels_x_group = $levels->filter(function ($module, $key) use ($group) {
+                /** @var ModuleLevel $module */
                 return $module->value === $group;
             });
 
@@ -155,11 +206,73 @@
         }
 
         /**
+         * Bajo ciertas circunstancias, $group se genera como new_document, este ajuste evalua el valor para nuevos
+         * componentes.
+         * configuration_advance
+         * configuration_company
+         * configuration_visual
+         *
+         * @param string $group
+         * @param array  $path
+         */
+        private function fixPermissions(&$group, $path = [])
+        {
+
+            $firstLevel = $path[0] ?? null;
+            $secondLevel = $path[1] ?? null;
+            /** Configuracion avanzada */
+            if (
+                ($firstLevel == "company_accounts" && $secondLevel == 'create') ||
+                ($firstLevel == "inventories" && $secondLevel == 'configuration') ||
+                ($firstLevel == "configurations" && $secondLevel == 'sale-notes')
+            ) {
+                $group = "configuration_advance";
+            } /** Giro de negocio */
+            elseif (
+                ($firstLevel == "companies" && $secondLevel == 'create')
+
+            ) {
+                $group = "configuration_company";
+            } /** Configuracion Avanzada */
+            elseif (
+                $firstLevel == "tasks" ||
+                $firstLevel == "offline-configurations" ||
+                $firstLevel == "series-configurations"
+            ) {
+                $group = "configuration_advance";
+            } /** Giro de negocio */
+            elseif (
+                $firstLevel == "bussiness_turns" ||
+                $firstLevel == "advanced"
+            ) {
+                $group = "configuration_company";
+            } /** Giro de negocio */
+            elseif ($firstLevel == "login-page") {
+                $group = "configuration_visual";
+            } /** Suscripciones */
+            elseif ($firstLevel == "suscription") {
+                if ($secondLevel == 'client') {
+                    $group = "suscription_app_client";
+                } elseif ($secondLevel == 'service') {
+                    $group = "suscription_app_service";
+                } elseif ($secondLevel == 'payments') {
+                    $group = "suscription_app_payments";
+                } elseif ($secondLevel == 'plans') {
+                    $group = "suscription_app_plans";
+                }
+
+
+            }
+
+        }
+
+        /**
          * @param $level
          *
-         * @return \Illuminate\Http\RedirectResponse
+         * @return RedirectResponse
          */
-        private function redirectRoute($level) {
+        private function redirectRoute($level)
+        {
 
             switch ($level) {
 
@@ -207,6 +320,19 @@
                     return redirect()->route('tenant.purchase-orders.index');
                 case 'digemid':
                     return redirect()->route('tenant.digemid.index');
+                case 'configuration_visual':
+                case 'configuration_advance':
+                case 'configuration_company':
+                    //'configuration_visual' 'configuration_advance' 'configuration_company' redirecciona a configuracion
+                    return redirect()->route('tenant.general_configuration.index');
+                case  "suscription_app_client":
+                    return redirect()->route('tenant.suscription.client.index');
+                case  "suscription_app_service":
+                    return redirect()->route('tenant.suscription.service.index');
+                case  "suscription_app_payments":
+                    return redirect()->route('tenant.suscription.payments.index');
+                case  "suscription_app_plans":
+                    return redirect()->route('tenant.suscription.plans.index');
                 default;
                     return redirect()->route('tenant.dashboard.index');
 

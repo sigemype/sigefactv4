@@ -7,6 +7,56 @@ use Hyn\Tenancy\Traits\UsesSystemConnection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 
+/**
+ * App\Models\System\Client
+ *
+ * @property int $id
+ * @property int|null $hostname_id
+ * @property string $number
+ * @property string $name
+ * @property string $email
+ * @property string $token
+ * @property bool $locked
+ * @property bool $locked_users
+ * @property bool $locked_tenant
+ * @property bool $locked_emission
+ * @property int $plan_id
+ * @property \Illuminate\Support\Carbon|null $start_billing_cycle
+ * @property string|null $smtp_encryption Tipo de cifrado de correo
+ * @property string|null $smtp_password contraseña de usuario para el envio de correo
+ * @property string|null $smtp_user Nombre de usuario para el envio de correo
+ * @property int $smtp_port Puerto de correo del cliente
+ * @property string|null $smtp_host Host de correo del cliente
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Hostname|null $hostname
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\System\ClientPayment[] $payments
+ * @property int|null $payments_count
+ * @property \App\Models\System\Plan $plan
+ * @method static \Illuminate\Database\Eloquent\Builder|Client newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereHostnameId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereLocked($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereLockedEmission($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereLockedTenant($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereLockedUsers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereSmtpEncryption($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereSmtpHost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereSmtpPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereSmtpPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereSmtpUser($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereStartBillingCycle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Client whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Client extends Model
 {
     use UsesSystemConnection;

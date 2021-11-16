@@ -19,13 +19,17 @@ use Modules\Inventory\Http\Requests\InventoryRequest;
 use Modules\Inventory\Http\Resources\InventoryResource;
 use Modules\Inventory\Http\Resources\InventoryCollection;
 
-class InventoryController extends Controller{
+class InventoryController extends Controller
+{
 	use InventoryTrait;
-	public function index(){
+
+	public function index()
+	{
 		return view('inventory::inventory.index');
 	}
 
-	public function columns(){
+	public function columns()
+	{
 		return [
 			'description' => 'Producto',
 			'internal_id' => 'Código interno',
@@ -33,8 +37,10 @@ class InventoryController extends Controller{
 		];
 	}
 
-	public function records(Request $request){
+	public function records(Request $request)
+	{
 		$column = $request->input('column');
+
 		if ($column == 'warehouse') {
 			$records = ItemWarehouse::with(['item', 'warehouse'])
 							->whereHas('item', function ($query) use ($request) {
@@ -53,17 +59,20 @@ class InventoryController extends Controller{
 								$query->where($request->column, 'like', '%' . $request->value . '%');
 							})->orderBy('item_id');
 		}
+
 		return new InventoryCollection($records->paginate(config('tenant.items_per_page')));
 	}
 
-	public function tables(){
+	public function tables()
+	{
 		return [
 			'items'      => $this->optionsItem(),
 			'warehouses' => $this->optionsWarehouse()
 		];
 	}
 
-	public function record($id){
+	public function record($id)
+	{
 		if (is_numeric($id)) {
 			$record = new InventoryResource(ItemWarehouse::with(['item', 'warehouse'])->findOrFail($id));
 		} else {
@@ -76,10 +85,12 @@ class InventoryController extends Controller{
 
 			$record = InventoryResource::collection($data);
 		}
+
 		return $record;
 	}
 
-	public function tables_transaction($type){
+	public function tables_transaction($type)
+	{
 		return [
 			//            'items' => $this->optionsItemFull(),
 			'warehouses'             => $this->optionsWarehouse(),
@@ -87,22 +98,27 @@ class InventoryController extends Controller{
 		];
 	}
 
-	public function searchItems(Request $request){
+	public function searchItems(Request $request)
+	{
 		$search = $request->input('search');
+
 		return [
 			'items' => $this->optionsItemFull($search, 20),
 		];
 	}
 
-	public function ExtraDataList(){
+	public function ExtraDataList()
+    {
         return view('inventory::extra_info.index');
-    }
+   }
 
-    public function store(Request $request){
+    public function store(Request $request)
+	{
 		$result = DB::connection('tenant')->transaction(function () use ($request) {
 			$item_id = $request->input('item_id');
 			$warehouse_id = $request->input('warehouse_id');
 			$quantity = $request->input('quantity');
+
 			$item_warehouse = ItemWarehouse::firstOrNew(['item_id' => $item_id,
 				'warehouse_id'                                        => $warehouse_id]);
 			if ($item_warehouse->id) {
@@ -111,8 +127,10 @@ class InventoryController extends Controller{
 					'message' => 'El producto ya se encuentra registrado en el almacén indicado.'
 				];
 			}
+
 			// $item_warehouse->stock = $quantity;
 			// $item_warehouse->save();
+
 			$inventory = new Inventory();
 			$inventory->type = 1;
 			$inventory->description = 'Stock inicial';
@@ -120,15 +138,18 @@ class InventoryController extends Controller{
 			$inventory->warehouse_id = $warehouse_id;
 			$inventory->quantity = $quantity;
 			$inventory->save();
+
 			return  [
 				'success' => true,
 				'message' => 'Producto registrado en almacén'
 			];
 		});
+
 		return $result;
 	}
 
-	public function store_transaction(InventoryRequest $request){
+	public function store_transaction(InventoryRequest $request)
+	{
 		$result = DB::connection('tenant')->transaction(function () use ($request) {
 			// dd($request->all());
 			$type = $request->input('type');
@@ -139,11 +160,11 @@ class InventoryController extends Controller{
 			$lot_code = $request->input('lot_code');
 			$lots = ($request->has('lots')) ? $request->input('lots') : [];
 
-			$item_warehouse = ItemWarehouse::firstOrNew([
-				'item_id' => $item_id,
-				'warehouse_id'=> $warehouse_id
-			]);
+			$item_warehouse = ItemWarehouse::firstOrNew(['item_id' => $item_id,
+				'warehouse_id'                                        => $warehouse_id]);
+
 			$inventory_transaction = InventoryTransaction::findOrFail($inventory_transaction_id);
+
 			if ($type == 'output' && ($quantity > $item_warehouse->stock)) {
 				return  [
 					'success' => false,
@@ -201,12 +222,14 @@ class InventoryController extends Controller{
 						$item_lot->save();
 					}
 				}
+
 				if (isset($request->IdLoteSelected)) {
 					$lot = ItemLotsGroup::find($request->IdLoteSelected);
 					$lot->quantity = ($lot->quantity - $quantity);
 					$lot->save();
 				}
 			}
+
 			return  [
 				'success' => true,
 				'message' => ($type == 'input') ? 'Ingreso registrado correctamente' : 'Salida registrada correctamente'
@@ -216,7 +239,8 @@ class InventoryController extends Controller{
 		return $result;
 	}
 
-	public function moveMultiples(Request $request){
+	public function moveMultiples(Request $request)
+	{
         $request->validate([
             'items' => 'required|array'
         ]);
@@ -234,6 +258,7 @@ class InventoryController extends Controller{
 				if ($quantity_move <= 0) {
 					throw new Exception("La cantidad del producto {$item['item_description']} a trasladar debe ser mayor a 0", 500);
 				}
+
 				if ($warehouse_id === $warehouse_new_id) {
 					throw new Exception("El almacén destino del producto {$item['item_description']} no puede ser igual al de origen", 500);
 				}
@@ -249,15 +274,18 @@ class InventoryController extends Controller{
 				$inventory->warehouse_destination_id = $warehouse_new_id;
 				$inventory->quantity = $quantity_move;
 				$inventory->detail = $detail;
+
 				$inventory->save();
 			}
 			DB::connection('tenant')->commit();
+
 			return response()->json([
 				'success' => true,
 				'message' => 'Productos trasladados con éxito'
 			], 200);
 		} catch (\Throwable $th) {
             DB::connection('tenant')->rollBack();
+
 			return response()->json([
 				'success' => false,
 				'message' => $th->getMessage(),
@@ -265,7 +293,8 @@ class InventoryController extends Controller{
 		}
 	}
 
-	public function move(Request $request){
+	public function move(Request $request)
+	{
 		$result = DB::connection('tenant')->transaction(function () use ($request) {
 			$id = $request->input('id');
 			$item_id = $request->input('item_id');
@@ -275,12 +304,14 @@ class InventoryController extends Controller{
 			$quantity_move = $request->input('quantity_move');
 			$lots = ($request->has('lots')) ? $request->input('lots') : [];
 			$detail = $request->input('detail');
+
 			if ($quantity_move <= 0) {
 				return  [
 					'success' => false,
 					'message' => 'La cantidad a trasladar debe ser mayor a 0'
 				];
 			}
+
 			if ($warehouse_id === $warehouse_new_id) {
 				return  [
 					'success' => false,
@@ -293,6 +324,7 @@ class InventoryController extends Controller{
 					'message' => 'La cantidad a trasladar no puede ser mayor al que se tiene en el almacén.'
 				];
 			}
+
 			$inventory = new Inventory();
 			$inventory->type = 2;
 			$inventory->description = 'Traslado';
@@ -301,7 +333,9 @@ class InventoryController extends Controller{
 			$inventory->warehouse_destination_id = $warehouse_new_id;
 			$inventory->quantity = $quantity_move;
 			$inventory->detail = $detail;
+
 			$inventory->save();
+
 			foreach ($lots as $lot) {
 				if ($lot['has_sale']) {
 					$item_lot = ItemLot::findOrFail($lot['id']);
@@ -309,15 +343,18 @@ class InventoryController extends Controller{
 					$item_lot->update();
 				}
 			}
+
 			return  [
 				'success' => true,
 				'message' => 'Producto trasladado con éxito'
 			];
 		});
+
 		return $result;
 	}
 
-	public function remove(Request $request){
+	public function remove(Request $request)
+	{
 		$result = DB::connection('tenant')->transaction(function () use ($request) {
 			// dd($request->all());
 			$item_id = $request->input('item_id');
@@ -325,22 +362,28 @@ class InventoryController extends Controller{
 			$quantity = $request->input('quantity');
 			$quantity_remove = $request->input('quantity_remove');
 			$lots = ($request->has('lots')) ? $request->input('lots') : [];
+
 			//Transaction
-			$item_warehouse = ItemWarehouse::where('item_id', $item_id)->where('warehouse_id', $warehouse_id)->first();
+			$item_warehouse = ItemWarehouse::where('item_id', $item_id)
+										   ->where('warehouse_id', $warehouse_id)
+										   ->first();
 			if (!$item_warehouse) {
 				return [
 					'success' => false,
 					'message' => 'El producto no se encuentra en el almacén indicado'
 				];
 			}
+
 			if ($quantity < $quantity_remove) {
 				return  [
 					'success' => false,
 					'message' => 'La cantidad a retirar no puede ser mayor al que se tiene en el almacén.'
 				];
 			}
+
 			// $item_warehouse->stock = $quantity - $quantity_remove;
 			// $item_warehouse->save();
+
 			$inventory = new Inventory();
 			$inventory->type = 3;
 			$inventory->description = 'Retirar';
@@ -348,33 +391,40 @@ class InventoryController extends Controller{
 			$inventory->warehouse_id = $warehouse_id;
 			$inventory->quantity = $quantity_remove;
 			$inventory->save();
+
 			foreach ($lots as $lot) {
 				if ($lot['has_sale']) {
 					$item_lot = ItemLot::findOrFail($lot['id']);
 					$item_lot->delete();
 				}
 			}
+
 			return  [
 				'success' => true,
 				'message' => 'Producto trasladado con éxito'
 			];
 		});
+
 		return $result;
 	}
 
-	public function initialize(){
+	public function initialize()
+	{
 		$this->initializeInventory();
 	}
 
-	public function regularize_stock(){
+	public function regularize_stock()
+	{
 		DB::connection('tenant')->transaction(function () {
 			$item_warehouses = ItemWarehouse::get();
+
 			foreach ($item_warehouses as $it_warehouse) {
 				$inv_kardex = InventoryKardex::where([['item_id', $it_warehouse->item_id], ['warehouse_id', $it_warehouse->warehouse_id]])->sum('quantity');
 				$it_warehouse->stock = $inv_kardex;
 				$it_warehouse->save();
 			}
 		});
+
 		return [
 			'success' => true,
 			'message' => 'Stock regularizado'

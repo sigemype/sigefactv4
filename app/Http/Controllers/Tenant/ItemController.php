@@ -5,6 +5,7 @@ use App\Exports\DigemidItemExport;
 use App\Exports\ItemExport;
 use App\Exports\ItemExportWp;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\PdfUnionController;
 use App\Http\Requests\Tenant\ItemRequest;
 use App\Http\Resources\Tenant\ItemCollection;
 use App\Http\Resources\Tenant\ItemResource;
@@ -24,6 +25,7 @@ use App\Models\Tenant\Catalogs\CurrencyType;
 use App\Models\Tenant\Catalogs\SystemIscType;
 use App\Models\Tenant\Catalogs\Tag;
 use App\Models\Tenant\Catalogs\UnitType;
+use App\Models\Tenant\CatItemSize;
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Configuration;
 use App\Models\Tenant\Establishment;
@@ -50,6 +52,7 @@ use Modules\Item\Models\ItemLot;
 use Modules\Item\Models\ItemLotsGroup;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
+use setasign\Fpdi\Fpdi;
 
 
 class ItemController extends Controller
@@ -87,6 +90,7 @@ class ItemController extends Controller
 
     public function records(Request $request)
     {
+
         $records = $this->getRecords($request);
 
         return new ItemCollection($records->paginate(config('tenant.items_per_page')));
@@ -164,9 +168,11 @@ class ItemController extends Controller
         $CatItemUnitsPerPackage = $colors;
         $CatItemMoldProperty = $colors;
         $CatItemProductFamily= $colors;
+        $CatItemSize= $colors;
         if($configuration->isShowExtraInfoToItem()){
             $colors = CatColorsItem::all();
             $CatItemStatus= CatItemStatus::all();
+            $CatItemSize= CatItemSize::all();
             $CatItemUnitBusiness = CatItemUnitBusiness::all();
             $CatItemMoldCavity = CatItemMoldCavity::all();
             $CatItemPackageMeasurement = CatItemPackageMeasurement::all();
@@ -175,11 +181,14 @@ class ItemController extends Controller
             $CatItemProductFamily= CatItemProductFamily::all();
         }
         /** Informacion adicional */
+        $configuration = $configuration->getCollectionData();
+        /*
         $configuration = Configuration::select(
             'affectation_igv_type_id',
             'is_pharmacy',
             'show_extra_info_to_item'
         )->firstOrFail();
+        */
         return compact(
             'unit_types',
             'currency_types',
@@ -193,6 +202,7 @@ class ItemController extends Controller
             'brands',
             'configuration',
             'colors',
+            'CatItemSize',
             'CatItemMoldCavity',
             'CatItemMoldProperty',
             'CatItemUnitBusiness',
@@ -322,6 +332,9 @@ class ItemController extends Controller
             }
             if($request->has('CatItemProductFamily')){
                 $item->setItemProductFamily($request->CatItemProductFamily);
+            }
+            if($request->has('CatItemSize')){
+                $item->setItemSize($request->CatItemSize);
             }
             // Extra data
         }
@@ -907,14 +920,8 @@ class ItemController extends Controller
 
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     *
-     * @throws \Mpdf\MpdfException
-     * @throws \Throwable
-     */
-    public function exportBarCode(Request $request)
-    {
+    public function exportBarCode(Request $request){
+
         ini_set("pcre.backtrack_limit", "50000000");
 
         $start = $request[0];
@@ -934,24 +941,86 @@ class ItemController extends Controller
         $extra_data = $extradata;
         $records = $records->get();
         $pdf = new Mpdf([
-                'mode' => 'utf-8',
-                'format' => [
-                    104.1,
-                    101.6
-                    ],
-                'margin_top' => 2,
-                'margin_right' => 2,
-                'margin_bottom' => 0,
-                'margin_left' => 2
-            ]);
+            'mode' => 'utf-8',
+            'format' => [
+                104.1,
+                101.6
+            ],
+            'margin_top' => 2,
+            'margin_right' => 2,
+            'margin_bottom' => 0,
+            'margin_left' => 2
+        ]);
         $html = view('tenant.items.exports.items-barcode', compact('records','extra_data'))->render();
 
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         $pdf->output('etiquetas_'.now()->format('Y_m_d').'.pdf', 'I');
-
     }
 
+    /**
+     * Genera los codigos de barra por archivo para los items que tengan internal_id o barcode
+     * Se prioriza barcode, sino se genera internal_id
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @throws \Mpdf\MpdfException
+     * @throws \Throwable
+     */
+    public function exportBarCodeFull(Request $request)
+    {
+        ini_set("pcre.backtrack_limit", "50000000");
+
+        $start = $request[0];
+        $end = $request[1];
+
+        $records = Item::whereBetween('id', [$start, $end])
+            ->where(function($q){
+                $q->orwhere('barcode','!=','');
+                $q->orwhere('internal_id','!=','');
+            })
+            // ->wherenotnull('barcode')
+        ;
+        $extradata = [];
+        $establishment = \Auth::user()->establishment;
+        $isPharmacy = false;
+        if($request->has('isPharmacy') ){
+            $isPharmacy = ($request->isPharmacy==='true')?true:false;
+        }
+        if($isPharmacy == true){
+            $extradata[]='sanitary';
+            $extradata[]='cod_digemid';
+            $records->Pharmacy();
+        }
+        $extra_data = $extradata;
+        $records = $records->get();
+        $height = 23;
+
+        $width = 48;
+        $pdfj = new Fpdi();
+        /** @var Item $item */
+        foreach($records as $item){
+            $pdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => [
+                    $width,
+                    $height
+                ],
+                'margin_top' => 2,
+                'margin_right' => 2,
+                'margin_bottom' => 0,
+                'margin_left' => 2
+            ]);
+            $html = view('tenant.items.exports.items-barcode-full', compact('item','extra_data','establishment'))->render();
+            $pdf->AddPage();
+            $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+            PdfUnionController::addFpi($pdfj, $pdf);
+        }
+
+        return PdfUnionController::ResponseAsFile($pdfj,'bar_code_full');
+
+    }
     /**
      * Exporta items al formato de DIGEMID
      *

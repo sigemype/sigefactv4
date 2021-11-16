@@ -595,12 +595,14 @@ export default {
                 total_unaffected: 0,
                 total_exonerated: 0,
                 total_igv: 0,
+                total_igv_free: 0,
                 total_base_isc: 0,
                 total_isc: 0,
                 total_base_other_taxes: 0,
                 total_other_taxes: 0,
                 total_taxes: 0,
                 total_value: 0,
+                subtotal: 0,
                 total: 0,
                 operation_type_id: null,
                 date_of_due: moment().format("YYYY-MM-DD"),
@@ -727,12 +729,14 @@ export default {
             this.document.total_unaffected = q.total_unaffected;
             this.document.total_exonerated = q.total_exonerated;
             this.document.total_igv = q.total_igv;
+            this.document.total_igv_free = q.total_igv_free;
             this.document.total_base_isc = q.total_base_isc;
             this.document.total_isc = q.total_isc;
             this.document.total_base_other_taxes = q.total_base_other_taxes;
             this.document.total_other_taxes = q.total_other_taxes;
             this.document.total_taxes = q.total_taxes;
             this.document.total_value = q.total_value;
+            this.document.subtotal = q.subtotal;
             this.document.total = q.total;
             this.document.operation_type_id = "0101";
             // this.document.date_of_due = q.date_of_issue

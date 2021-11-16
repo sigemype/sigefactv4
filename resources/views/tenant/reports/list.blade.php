@@ -1,6 +1,9 @@
 @extends('tenant.layouts.app')
 
 @section('content')
+    @php
+        $show_extra_info_to_item  = (bool) $configuration->show_extra_info_to_item
+    @endphp
     <div class="page-header pr-0">
         <h2>
             <a href="/dashboard">
@@ -105,6 +108,20 @@
                         <li>
                             <a href="{{route('tenant.reports.items.index')}}">Producto - busqueda individual</a>
                         </li>
+                            @if($show_extra_info_to_item == true)
+                                <li>
+                                    <a href="{{route('tenant.reports.extra.items.index')}}">
+                                        Producto - busqueda individual - Por atributos
+                                        <el-tooltip
+                                            class="item"
+                                            content="Reporte con los campos opcionales del item"
+                                            effect="dark"
+                                            placement="top-start">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </a>
+                                </li>
+                            @endif
                         <li>
                             <a href="{{route('tenant.reports.general_items.index')}}">Productos</a>
                         </li>

@@ -516,16 +516,12 @@
         </tr>
     @endif
     @php
-        if($document->payment_condition_id === '01') {
-            $paymentCondition = \App\Models\Tenant\PaymentMethodType::where('id', '10')->first();
-        }else{
-            $paymentCondition = \App\Models\Tenant\PaymentMethodType::where('id', '09')->first();
-        }
+        $paymentCondition = \App\CoreFacturalo\Helpers\Template\TemplateHelper::getDocumentPaymentCondition($document);
     @endphp
     {{-- Condicion de pago  Crédito / Contado --}}
     <tr>
         <td class="desc pt-5">
-            <strong>CONDICIÓN DE PAGO: {{ $paymentCondition->description }} </strong>
+            <strong>CONDICIÓN DE PAGO: {{ $paymentCondition  }} </strong>
         </td>
     </tr>
 

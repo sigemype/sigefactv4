@@ -197,13 +197,17 @@ function getLocationData($value)
                                     <td class="celda">{{$value->series}}-{{$value->number}}</td>
                                     <td class="celda">{{$value->date_of_issue->format('Y-m-d')}}</td>
                                     <td class="celda">{{isset($value->invoice)?$value->invoice->date_of_due->format('Y-m-d'):''}}</td>
+
                                         @if(in_array($value->document_type_id,["07","08"]) && $value->note)
+
                                             @php
                                                 $serie = ($value->note->affected_document) ? $value->note->affected_document->series : $value->note->data_affected_document->series;
                                                 $number =  ($value->note->affected_document) ? $value->note->affected_document->number : $value->note->data_affected_document->number;
                                                 $serie_affec = $serie.' - '.$number;
 
                                             @endphp
+
+
                                         @endif
 
                                     <td class="celda">{{  $serie_affec }} </td>
@@ -236,6 +240,8 @@ function getLocationData($value)
                                     @endphp
 
 
+
+
                                     <!-- <td class="celda">{{$signal == '07' ? "-" : ""  }}{{$value->total_exonerated}}</td>
                                     <td class="celda">{{$signal == '07' ? "-" : ""  }}{{$value->total_unaffected}}</td>
                                     <td class="celda">{{$signal == '07' ? "-" : ""  }}{{$value->total_free}}</td> -->
@@ -254,6 +260,8 @@ function getLocationData($value)
 
                                     @endif
 
+
+
                                     @php
                                         $value->total_taxed = (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_taxed;
                                         $value->total_igv = (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_igv;
@@ -261,8 +269,11 @@ function getLocationData($value)
                                     @endphp
                                 </tr>
                                 @php
+
+
                                     $serie_affec =  '';
                                 @endphp
+
 
                                 <!-- <tr>
                                     <td colspan="7" class="celda"></td>

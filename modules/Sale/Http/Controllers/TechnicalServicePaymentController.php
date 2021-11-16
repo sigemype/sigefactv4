@@ -38,7 +38,7 @@ class TechnicalServicePaymentController extends Controller
         $record = TechnicalService::find($technical_service_id);
 
         $total_paid = round(collect($record->payments)->sum('payment'), 2);
-        $total = $record->cost;
+        $total = $record->cost + $record->total;
         $total_difference = round($total - $total_paid, 2);
 
         return [

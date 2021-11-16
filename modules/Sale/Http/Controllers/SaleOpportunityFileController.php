@@ -2,6 +2,9 @@
 
 namespace Modules\Sale\Http\Controllers;
 
+use App\Http\Controllers\SearchItemController;
+use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Item;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
@@ -16,12 +19,12 @@ class SaleOpportunityFileController extends Controller
     {
 
         foreach ($files as $row) {
-                
+
             $file = isset($row['response']['data']) ? $row['response']['data'] : null;
 
             if($file){
 
-                $temp_path = $file['temp_path']; 
+                $temp_path = $file['temp_path'];
 
                 $file_name_old = $file['filename'];
                 $file_name_old_array = explode('.', $file_name_old);
@@ -30,31 +33,31 @@ class SaleOpportunityFileController extends Controller
                 $file_name = Str::slug($file_name_old_array[0]).'-'.$sale_opportunity->id.'.'.$extension;
 
                 Storage::disk('tenant')->put('sale_opportunity_files'.DIRECTORY_SEPARATOR.$file_name, $file_content);
-    
+
             }else{
 
                 $file_name = $row['filename'];
 
             }
 
-            
+
             $sale_opportunity->files()->create([
                 'filename' => $file_name
             ]);
 
         }
 
-    } 
- 
+    }
+
     public function uploadFile(Request $request)
     {
 
         $validate_upload = UploadFileHelper::validateUploadFile($request, 'file');
-        
+
         if(!$validate_upload['success']){
             return $validate_upload;
         }
-        
+
         if ($request->hasFile('file')) {
             $new_request = [
                 'file' => $request->file('file'),
@@ -91,8 +94,30 @@ class SaleOpportunityFileController extends Controller
 
     }
 
-    public function download($filename) { 
+    public function download($filename) {
         return Storage::disk('tenant')->download('sale_opportunity_files'.DIRECTORY_SEPARATOR.$filename);
     }
 
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function searchItemById($id)
+    {
+        $items =  SearchItemController::searchByIdToModal($id);
+        return compact('items');
+
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return array
+     */
+    public function searchItems(Request $request)
+    {
+        $items = SearchItemController::getNotServiceItemToModal($request);
+        return compact('items');
+    }
 }

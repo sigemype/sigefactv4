@@ -2,6 +2,7 @@
     <div
         v-if="
     canShowExtraData && (
+        hasCatItemSize ||
         hasColors ||
         hasCatItemUnitsPerPackage ||
         hasCatItemMoldProperty ||
@@ -10,7 +11,7 @@
         hasCatItemPackageMeasurement ||
         hasCatItemMoldCavity ||
         hasCatItemProductFamily)
-    ">
+    " class="col-md-12 mt-2">
         <el-collapse v-model="activePanel">
             <el-collapse-item name="1">
                 <template slot="title">
@@ -25,6 +26,32 @@
 
                 </template>
                 <div class="col-12 row">
+
+                    <div v-if="hasCatItemSize"
+                         class="col-md-4"
+                    >
+                        <div
+                            :class="{'has-danger': errors.CatItemSize}"
+                            class="form-group">
+                            <label class="control-label">
+                                Tamaño
+
+                            </label>
+                            <el-select v-model="form.item.extra.CatItemSize"
+                                       :clearable="clearable"
+                                       :multiple="multiple"
+                                       :placeholder="textplaceholder"
+                            >
+                                <el-option v-for="option in extra_CatItemSize"
+                                           :key="option.id"
+                                           :label="option.name"
+                                           :value="option.id"></el-option>
+                            </el-select>
+                            <small v-if="errors.CatItemSize"
+                                   class="form-control-feedback"
+                                   v-text="errors.CatItemSize[0]"></small>
+                        </div>
+                    </div>
 
                     <!-- Colores -->
                     <div v-if="hasColors"
@@ -280,6 +307,7 @@ export default {
             'extra_CatItemStatus',
             'extra_CatItemPackageMeasurement',
             'extra_CatItemMoldCavity',
+            'extra_CatItemSize',
             'extra_CatItemProductFamily',
             'config',
         ]),
@@ -312,6 +340,9 @@ export default {
         },
         hasCatItemProductFamily: function () {
             return this.extra_CatItemProductFamily.length > 0 && this.form.item.extra !== undefined && this.form.item.extra.CatItemProductFamily !== undefined;
+        },
+        hasCatItemSize: function () {
+            return this.extra_CatItemSize.length > 0 && this.form.item.extra !== undefined && this.form.item.extra.CatItemSize !== undefined;
         },
     },
     data() {

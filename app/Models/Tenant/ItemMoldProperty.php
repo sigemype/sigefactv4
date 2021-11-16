@@ -7,6 +7,7 @@
     use App\Models\Tenant\Catalogs\CatItemMoldProperty;
     use Carbon\Carbon;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
+    use Illuminate\Database\Eloquent\Collection;
 
     /**
      * Class ItemMoldProperty
@@ -17,6 +18,8 @@
      * @property bool|true   $active
      * @property Carbon|null $created_at
      * @property Carbon|null $updated_at
+     * @property Collection|ItemMovementRelExtra[] $item_movement_rel_extras
+     * @method static \Illuminate\Database\Eloquent\Builder|ItemMoldProperty ByItem()
      * @package App\Models
      */
     class ItemMoldProperty extends ModelTenant
@@ -142,5 +145,21 @@
             $this->cat_item_mold_properties_id = $cat_item_mold_properties->id;
             return $this;
         }
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\HasMany
+         */
+        public function item_movement_rel_extra()
+        {
+            return $this->hasMany(ItemMovementRelExtra::class);
+        }
 
+         /**
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param int $item_id
+         *
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public function scopeByItem($query,$item_id){
+            return $query->where('item_id',$item_id);
+        }
     }

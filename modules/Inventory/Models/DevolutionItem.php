@@ -4,6 +4,16 @@ namespace Modules\Inventory\Models;
 
 use App\Models\Tenant\ModelTenant;
 
+/**
+ * Modules\Inventory\Models\DevolutionItem
+ *
+ * @property \Modules\Inventory\Models\Devolution $devolution
+ * @property mixed $item
+ * @method static \Illuminate\Database\Eloquent\Builder|DevolutionItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DevolutionItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DevolutionItem query()
+ * @mixin \Eloquent
+ */
 class DevolutionItem extends ModelTenant
 {
 
@@ -13,7 +23,7 @@ class DevolutionItem extends ModelTenant
         'devolution_id',
         'item_id',
         'item',
-        'quantity', 
+        'quantity',
     ];
 
     public function getItemAttribute($value)
@@ -29,6 +39,6 @@ class DevolutionItem extends ModelTenant
     public function devolution()
     {
         return $this->belongsTo(Devolution::class);
-    } 
+    }
 
 }

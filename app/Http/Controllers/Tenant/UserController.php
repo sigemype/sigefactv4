@@ -11,6 +11,7 @@ use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Module;
 use App\Models\Tenant\Series;
 use App\Models\Tenant\User;
+use App\Models\Tenant\Configuration;
 
 class UserController extends Controller
 {
@@ -72,7 +73,9 @@ class UserController extends Controller
             ['type' => 'seller', 'description' => 'Vendedor'],
         ];
 
-        return compact('modules', 'establishments', 'types', 'documents', 'series');
+        $config_permission_to_edit_cpe = Configuration::select('permission_to_edit_cpe')->first()->permission_to_edit_cpe;
+
+        return compact('modules', 'establishments', 'types', 'documents', 'series', 'config_permission_to_edit_cpe');
     }
 
     public function regenerateToken(User $user){
@@ -119,6 +122,9 @@ class UserController extends Controller
         $user->setDocumentId($request->input('document_id'))
              ->setSeriesId($request->input('series_id'));
         $user->establishment_id = $request->input('establishment_id');
+
+        if($user->id != 1) $user->permission_edit_cpe = $request->input('permission_edit_cpe');
+        
         $user->save();
 
         if ($user->id != 1) {

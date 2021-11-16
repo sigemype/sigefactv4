@@ -75,7 +75,7 @@ export default {
         return {};
     },
     created() {
-        console.error(this.all_config)
+        // console.error(this.all_config)
     },
     methods: {
     }

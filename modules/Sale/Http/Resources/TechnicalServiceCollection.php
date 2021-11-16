@@ -15,10 +15,11 @@ class TechnicalServiceCollection extends ResourceCollection
     public function toArray($request)
     {
         return $this->collection->transform(function($row, $key) {
-        
 
+
+            return $row->getCollectionData();
             return [
-                'id' => $row->id, 
+                'id' => $row->id,
                 'soap_type_id' => $row->soap_type_id,
                 'cellphone' => $row->cellphone,
                 'serial_number' => $row->serial_number,
@@ -32,5 +33,5 @@ class TechnicalServiceCollection extends ResourceCollection
             ];
         });
     }
-    
+
 }

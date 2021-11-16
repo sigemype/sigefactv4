@@ -3,6 +3,7 @@
         <Keypress key-event="keyup" :key-code="40" @success="handle40" />
         <Keypress key-event="keyup" :key-code="38" @success="handle38" />
         <Keypress key-event="keyup" :key-code="13" @success="handle13" />
+        <Keypress key-event="keyup" :key-code="113" @success="openTableListPrices113" />
 
         <el-table
             ref="singleTable"
@@ -176,14 +177,20 @@
                     </template>
                 </el-table-column> -->
         </el-table>
+        <item-unit-types-table
+            :showDialog.sync="showDialogItemUnitTypes"
+            :itemUnitTypes="itemUnitTypes"
+        >
+        </item-unit-types-table>
     </div>
 </template>
 
 <script>
 import Keypress from "vue-keypress";
+import ItemUnitTypesTable from "./item_unit_types_table.vue";
 
 export default {
-    components: { Keypress },
+    components: { Keypress, ItemUnitTypesTable },
     props: {
         typeUser: String,
         records: {
@@ -199,7 +206,9 @@ export default {
     data() {
         return {
             currentIndex: 0,
+            showDialogItemUnitTypes: false,
             currentRow: null,
+            itemUnitTypes: [],
             config: {}
         };
     },
@@ -207,8 +216,18 @@ export default {
         this.$http.get(`/configurations/record`).then(response => {
             this.config = response.data.data;
         });
+
+        this.events()
+
     },
     methods: {
+        events(){
+            
+            this.$eventHub.$on("selectedItemUnitTypeTable", (unit_type) => {
+                this.setPriceItem(unit_type)
+            })
+
+        },
         setPriceItem(price) {
 
             let value = 0;
@@ -242,6 +261,38 @@ export default {
             
             this.$message.success("Precio seleccionado");
             
+        },
+        openTableListPrices113(){
+            
+            if(this.config.select_available_price_list){
+
+                if (this.records.length == 1) {
+                    // console.log(this.records[0].description)
+
+                    if(this.records[0].unit_type.length > 0){
+
+                        this.itemUnitTypes = this.records[0].unit_type
+                        this.showDialogItemUnitTypes = true
+                    
+                    }
+
+
+                } else {
+
+                    if (this.currentRow) {
+
+                        if(this.currentRow.unit_type.length > 0){
+
+                            this.itemUnitTypes = this.currentRow.unit_type
+                            this.showDialogItemUnitTypes = true
+                            // console.log(this.currentRow.description)
+
+                        }
+
+                    }
+                }
+            }
+
         },
         handle13() {
             if (this.visibleTagsCustomer) {

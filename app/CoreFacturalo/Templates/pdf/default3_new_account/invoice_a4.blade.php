@@ -1,5 +1,5 @@
 @php
-    $establishment = $document->establishment;
+    use App\CoreFacturalo\Helpers\Template\TemplateHelper;$establishment = $document->establishment;
     $customer = $document->customer;
     $invoice = $document->invoice;
     $document_base = ($document->note) ? $document->note : null;
@@ -29,6 +29,7 @@
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 3);
     $total_weight = 0;
+
 
 @endphp
 <html>
@@ -219,17 +220,22 @@
                 </tr>
 
                 <tr>
-                    @if($document->guides)
-                        <td class="font-sm" width="100px">
-                            <strong>Guía de Remisión</strong>
-                        </td>
-                        <td class="font-sm" width="8px">:</td>
-                        <td class="font-sm" colspan="4">
-                            @foreach ($document->guides as $item)
-                                {{ $item->document_type_description }}:  {{ $item->number }}<br>
-                            @endforeach
-                        </td>
-                    @endif
+                        @php
+                            $guias = \App\CoreFacturalo\Helpers\Template\TemplateHelper::getGuides($document);
+                        @endphp
+                        @if(!empty($guias))
+                            <td class="font-sm" width="100px">
+                                <strong>Guía de Remisión</strong>
+                            </td>
+                            <td class="font-sm" width="8px">:</td>
+                            <td class="font-sm" colspan="4">
+                                @foreach ($guias as $guides)
+                                    @foreach($guides as $index => $item)
+                                     {{ $item }}<br>
+                                    @endforeach
+                                @endforeach
+                            </td>
+                        @endif
                 </tr>
 
 

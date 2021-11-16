@@ -73,7 +73,7 @@
         <td>Teléfono:</td>
         <td>{{ $customer->telephone }}</td>
         <td>Vendedor:</td>
-        <td> {{ $document->user->name }}</td>
+        <td> @if($document->seller_id != 0)){{$document->seller->name }} @else {{ $document->user->name }} @endif</td>
     </tr>
     @if ($document->plate_number !== null)
     <tr>
@@ -102,6 +102,12 @@
         <tr>
             <td class="align-top">D. Referencia:</td>
             <td colspan="3">{{ $document->reference_data }}</td>
+        </tr>
+    @endif
+    @if ($document->purchase_order)
+        <tr>
+            <td class="align-top">Orden de compra:</td>
+            <td colspan="3">{{ $document->purchase_order }}</td>
         </tr>
     @endif
 </table>
@@ -149,7 +155,12 @@
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
             <td class="text-left">
-                {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                @if($row->name_product_pdf)
+                    {!!$row->name_product_pdf!!}
+                @else
+                    {!!$row->item->description!!}
+                @endif
+                @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)

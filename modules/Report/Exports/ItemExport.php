@@ -10,7 +10,28 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 
 class ItemExport implements  FromView, ShouldAutoSize
 {
+
     use Exportable;
+    protected $withExtraData;
+    /**
+     * @return bool
+     */
+    public function isWithExtraData(): bool
+    {
+        return (bool)$this->withExtraData;
+    }
+
+    /**
+     * @param bool $withExtraData
+     *
+     * @return ItemExport
+     */
+    public function setWithExtraData(bool $withExtraData = false): ItemExport
+    {
+        $this->withExtraData = (bool) $withExtraData;
+        return $this;
+    }
+
 
     public function records($records) {
         $this->records = $records;
@@ -51,7 +72,11 @@ class ItemExport implements  FromView, ShouldAutoSize
 
 
     public function view(): View {
-        return view('report::items.report_excel', [
+        $view = "report_excel";
+        if($this->isWithExtraData()){
+            $view = "report_excel_extra_data";
+        }
+        return view('report::items.'.$view, [
             'records'=> $this->records,
             'company' => $this->company,
             'type' => $this->getType(),

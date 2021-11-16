@@ -36,7 +36,8 @@
                                         dusk="customer_id"
                                         placeholder="Escriba el nombre o número de documento del cliente"
                                         :remote-method="searchRemoteCustomers"
-                                        :loading="loading_search">
+                                        :loading="loading_search"
+                                        @change="changeCustomer">
 
                                         <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
 
@@ -67,14 +68,36 @@
                                     <small class="form-control-feedback" v-if="errors.delivery_date" v-text="errors.delivery_date[0]"></small>
                                 </div>
                             </div>
+                            
                             <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="control-label">Dirección de envío
+                                    </label>
+                                    <el-input v-model="form.shipping_address"></el-input>
+                                    <small class="form-control-feedback" v-if="errors.shipping_address"
+                                           v-text="errors.shipping_address[0]"></small>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-lg-6">
                                 <div class="form-group" :class="{'has-danger': errors.exchange_rate_sale}">
                                     <label class="control-label">Descripcion
                                     </label>
                                     <el-input  type="textarea"  :rows="3" v-model="form.description"></el-input>
                                     <small class="form-control-feedback" v-if="errors.description" v-text="errors.description[0]"></small>
                                 </div>
+                            </div> -->
+                            
+                            <div class="col-lg-6">
+                                <div class="form-group" :class="{'has-danger': errors.observation}">
+                                    <label class="control-label">Observación
+                                    </label>
+                                    <el-input type="textarea" :rows="3" v-model="form.observation"></el-input>
+                                    <small class="form-control-feedback" v-if="errors.observation"
+                                           v-text="errors.observation[0]"></small>
+                                </div>
                             </div>
+
                             <div class="col-lg-2">
                                 <div class="form-group" :class="{'has-danger': errors.payment_method_type_id}">
                                     <label class="control-label">
@@ -287,7 +310,18 @@
 
         },
         methods: {
+            changeCustomer(){
+                this.setAddressByCustomer()
+            },
+            setAddressByCustomer(){
+                
+                let customer = _.find(this.customers, {id : this.form.customer_id})
 
+                if(customer){
+                    this.form.shipping_address = customer.address
+                }
+
+            },
             async clickDeleteONItem(id, index){
 
                 this.$confirm('¿Desea eliminar el item?', 'Eliminar', {
@@ -369,23 +403,25 @@
             initRecord()
             {
                 this.$http.get(`/${this.resource}/record/${this.resourceId}` )
-                .then(response => {
+                    .then(response => {
 
-                    let dato = response.data.data.order_note
-                  //  console.log(dato)
-                    this.form.id = dato.id
-                    this.form.customer_id = dato.customer_id
-                    this.form.currency_type_id = dato.currency_type_id
-                    this.form.payment_method_type_id = dato.payment_method_type_id
-                    this.form.date_of_due = dato.date_of_due
-                    this.form.date_of_issue = dato.date_of_issue
-                    this.form.delivery_date = dato.delivery_date
-                    this.form.exchange_rate_sale = dato.exchange_rate_sale
-                    this.form.description = dato.description
-                    this.form.items = dato.items
-                    this.calculateTotal()
-                    //console.log(response.data)
-                })
+                        let data = response.data.data.order_note
+                        this.form.id = data.id
+                        this.form.customer_id = data.customer_id
+                        this.form.currency_type_id = data.currency_type_id
+                        this.form.payment_method_type_id = data.payment_method_type_id
+                        this.form.date_of_due = data.date_of_due
+                        this.form.date_of_issue = data.date_of_issue
+                        this.form.delivery_date = data.delivery_date
+                        this.form.exchange_rate_sale = data.exchange_rate_sale
+                        this.form.description = data.description
+                        this.form.shipping_address = data.shipping_address
+                        this.form.items = data.items
+                        this.form.observation = data.observation
+                        this.calculateTotal()
+                        this.reloadDataCustomers(this.form.customer_id)
+
+                    })
 
             },
 
@@ -427,6 +463,7 @@
                     total_taxed: 0,
                     total_unaffected: 0,
                     total_exonerated: 0,
+                    total_igv_free: 0,
                     total_igv: 0,
                     total_base_isc: 0,
                     total_isc: 0,
@@ -444,7 +481,9 @@
                     discounts: [],
                     attributes: [],
                     guides: [],
+                    shipping_address: null,
                     additional_information:null,
+                    observation: null,
                     actions: {
                         format_pdf:'a4',
                     }
@@ -495,6 +534,7 @@
                 this.calculateTotal()
             },
             calculateTotal() {
+                
                 let total_discount = 0
                 let total_charge = 0
                 let total_exportation = 0
@@ -505,6 +545,8 @@
                 let total_igv = 0
                 let total_value = 0
                 let total = 0
+                let total_igv_free = 0
+
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
@@ -530,18 +572,21 @@
                     }
                     total_value += parseFloat(row.total_value)
                     
-                    if (['13', '14', '15'].includes(row.affectation_igv_type_id)) {
+                    if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
 
-                        let unit_value = row.total_value/row.quantity
+                        let unit_value = row.total_value / row.quantity
                         let total_value_partial = unit_value * row.quantity
                         row.total_taxes = row.total_value - total_value_partial
                         row.total_igv = total_value_partial * (row.percentage_igv / 100)
                         row.total_base_igv = total_value_partial
                         total_value -= row.total_value
+                        total_igv_free += row.total_igv
+
                     }
                     
                 });
 
+                this.form.total_igv_free = _.round(total_igv_free, 2)
                 this.form.total_exportation = _.round(total_exportation, 2)
                 this.form.total_taxed = _.round(total_taxed, 2)
                 this.form.total_exonerated = _.round(total_exonerated, 2)
@@ -590,6 +635,7 @@
                 this.$http.get(`/${this.resource}/search/customer/${customer_id}`).then((response) => {
                     this.customers = response.data.customers
                     this.form.customer_id = customer_id
+                    this.setAddressByCustomer()
                 })
             },
         }

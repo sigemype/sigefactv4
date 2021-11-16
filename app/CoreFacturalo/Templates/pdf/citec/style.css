@@ -43,6 +43,9 @@ table {
 .align-top {
     vertical-align: top !important;
 }
+.align-bottom {
+    vertical-align: bottom !important;
+}
 
 .full-width {
     width: 100%;
@@ -88,7 +91,7 @@ table {
 
 .border-box {
     border: thin solid #5DA8EB;
-    
+
 
 }
 .border-top {

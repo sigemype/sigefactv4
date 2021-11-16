@@ -7,8 +7,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 
-class LoginController extends Controller
-{
+class LoginController extends Controller{
     /*
     |--------------------------------------------------------------------------
     | Login Controller
@@ -34,8 +33,7 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('guest')->except('logout');
     }
 
@@ -44,8 +42,7 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function showLoginForm()
-    {
+    public function showLoginForm(){
         return view('system.auth.login');
     }
 
@@ -54,8 +51,7 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Contracts\Auth\StatefulGuard
      */
-    protected function guard()
-    {
+    protected function guard(){
         return Auth::guard('admin');
     }
 }

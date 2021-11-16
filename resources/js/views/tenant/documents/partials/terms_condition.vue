@@ -3,7 +3,9 @@
     title="Términos y condiciones - Ventas"
     :visible="showDialog"
     @close="close"
-    append-to-body    top="7vh" >
+    append-to-body
+    top="7vh"
+  >
     <form autocomplete="off" @submit.prevent="submit">
       <div class="form-body">
         <div class="row">

@@ -160,14 +160,23 @@
         <div class="cart-summary">
             <h3>Tipo de comprobante</h3>
 
-            <div class="form-group" :class="{'text-danger': errors.identity_document_type_id}">
+            <div class="form-group" :class="{'text-danger': errors.codigo_tipo_documento}">
                 <label>Comprobante:</label>
-                <select v-model="formIdentity.identity_document_type_id" class="form-control" @change="optionDocument">
+                {{-- <select v-model="formIdentity.identity_document_type_id" class="form-control" @change="optionDocument">
                     <option value="" disabled>Tipo de comprobante</option>
                     <option value="1">Boleta</option>
                     <option value="6">Factura</option>
+                    <option value="80">Nota de venta</option>
+                </select> --}}
+                
+                <select v-model="form_document.codigo_tipo_documento" class="form-control" @change="optionDocument">
+                    <option value="" disabled>Tipo de comprobante</option>
+                    <option value="01">Factura</option>
+                    <option value="03">Boleta</option>
+                    <option value="80">Nota de venta</option>
                 </select>
-                <small class="form-control-feedback" v-if="errors.identity_document_type_id">El campo Comprobante es obligatorio.</small>
+
+                <small class="form-control-feedback" v-if="errors.codigo_tipo_documento">El campo Comprobante es obligatorio.</small>
             </div>
             <div class="form-group" :class="{'text-danger': errors.codigo_tipo_documento_identidad}">
                 <label>Tipo de documento:</label>
@@ -259,16 +268,20 @@
             typeDocumentList: [],
             numberDocument: '',
             history_records: {!! json_encode($history_records ) !!},
-            phone_whatsapp: {!! json_encode($configuration->phone_whatsapp ) !!}
+            phone_whatsapp: {!! json_encode($configuration->phone_whatsapp ) !!},
+            all_identity_document_types : [{id: '6', name: 'RUC'}, {id: '0', name: 'DOC'},{id: '4', name: 'CE'},{id: '1', name: 'DNI'}]
         },
         computed: {
             maxLength: function () {
-                if (this.formIdentity.identity_document_type_id === '6') {
+
+                if (this.typeDocuments === '6') {
                     return 11
                 }
-                if (this.formIdentity.identity_document_type_id === '1') {
+                if (this.typeDocuments === '1') {
                     return 8
                 }
+
+                return 15
             }
         },
         async mounted() {
@@ -319,37 +332,66 @@
 
         },
         methods: {
-          async changeExchangeRate(exchange_rate_date){
-            var response = await axios.get(`/exchange_rate/ecommence/${exchange_rate_date}`)
-            this.exchange_rate_sale = parseFloat(response.data.sale)
-          },
-          optionDocument() {
-              this.typeDocumentList = []
-              this.typeDocuments = ''
-              let voucher = [{id: '6', name: 'RUC'}]
-              let ticket = [{id: '0', name: 'DOC'},{id: '4', name: 'CE'},{id: '1', name: 'DNI'}]
-              if(this.formIdentity.identity_document_type_id === '6') {
-                this.typeDocumentList = voucher
-              }else if (this.formIdentity.identity_document_type_id === '1' && this.payment_cash.amount >= 700) {
-                this.typeDocumentList = [{id: '1', name: 'DNI'}]
-                this.typeDocuments = ''
-              } else {
-                this.typeDocumentList = ticket
-              }
-          },
-            refreshSetDatosCliente()
+            async changeExchangeRate(exchange_rate_date){
+                var response = await axios.get(`/exchange_rate/ecommence/${exchange_rate_date}`)
+                this.exchange_rate_sale = parseFloat(response.data.sale)
+            },
+            optionDocument() {
+                this.typeDocumentList = []
+                this.typeDocuments = null
+                // let voucher = [{id: '6', name: 'RUC'}]
+                // let ticket = [{id: '0', name: 'DOC'},{id: '4', name: 'CE'},{id: '1', name: 'DNI'}]
+
+                //   if(this.formIdentity.identity_document_type_id === '6') {
+                //     this.typeDocumentList = voucher
+                //   }else if (this.formIdentity.identity_document_type_id === '1' && this.payment_cash.amount >= 700) {
+                //     this.typeDocumentList = [{id: '1', name: 'DNI'}]
+                //     this.typeDocuments = ''
+                //   } 
+                //   else {
+                //     this.typeDocumentList = ticket
+                //   }
+
+                if(this.form_document.codigo_tipo_documento == '01')
+                {
+                    this.typeDocumentList = this.getIdentityDocumentTypes(['6'])
+                }
+                else if (this.form_document.codigo_tipo_documento == '03' && this.payment_cash.amount >= 700) 
+                {
+                    this.typeDocumentList = this.getIdentityDocumentTypes(['1'])
+                }
+                else if (this.form_document.codigo_tipo_documento == '80') 
+                {
+                    this.typeDocumentList = (this.payment_cash.amount >= 700) ? this.getIdentityDocumentTypes(['6', '1']) : this.getIdentityDocumentTypes()
+                } 
+                else {
+                    this.typeDocumentList = this.getIdentityDocumentTypes(['0', '1', '4'])
+                }
+
+            },
+            getIdentityDocumentTypes(identity_document_types_id = null){
+
+                if(!identity_document_types_id) return this.all_identity_document_types
+
+                return this.all_identity_document_types.filter((item) => {
+                    return identity_document_types_id.includes(item.id)
+                })
+
+            },
+            refreshSetDataCustomer()
             {
 
-              this.form_document.datos_del_cliente_o_receptor.direccion = this.form_contact.address
-              this.form_document.datos_del_cliente_o_receptor.telefono = this.form_contact.telephone
-              this.form_document.datos_del_cliente_o_receptor.codigo_tipo_documento_identidad = this.typeDocuments
-              this.form_document.datos_del_cliente_o_receptor.numero_documento = this.numberDocument
-              this.form_document.datos_del_cliente_o_receptor.identity_document_type_id = this.formIdentity.identity_document_type_id
-
+                this.form_document.datos_del_cliente_o_receptor.direccion = this.form_contact.address
+                this.form_document.datos_del_cliente_o_receptor.telefono = this.form_contact.telephone
+                this.form_document.datos_del_cliente_o_receptor.codigo_tipo_documento_identidad = this.typeDocuments
+                this.form_document.datos_del_cliente_o_receptor.numero_documento = this.numberDocument
+                // this.form_document.datos_del_cliente_o_receptor.identity_document_type_id = this.formIdentity.identity_document_type_id
+                this.form_document.datos_del_cliente_o_receptor.identity_document_type_id = this.typeDocuments
+                
             },
             async getFormPaymentCash() {
                 
-                this.refreshSetDatosCliente()
+                this.refreshSetDataCustomer()
 
                 let precio = Math.round(Number(this.summary.total) * 100).toFixed(2);
                 let precio_culqi = Number(this.summary.total)
@@ -362,18 +404,32 @@
                     purchase: await this.getDocument()
                 }
             },
-            async paymentCash() {
-              // verifica si tiene productos seleccionado
-              let product = JSON.parse(localStorage.getItem('products_cart'));
+            showSwalMessage(title, text, type){
 
-              if (product.length < 1){
                 swal({
-                    title: "No se han encontrado productos",
-                    text: "Por favor seleccione algún producto de la tienda.",
-                    type: "error"
+                    title: title,
+                    text: text,
+                    type: type
                 })
-                return
-              }
+
+            },
+            async paymentCash() {
+
+                if(!this.form_document.codigo_tipo_documento) {
+                    return this.showSwalMessage('Ocurrió un error!', 'El campo tipo de comprobante es obligatorio', 'error')
+                }
+
+                // verifica si tiene productos seleccionado
+                let product = JSON.parse(localStorage.getItem('products_cart'));
+
+                if (product.length < 1){
+                    swal({
+                        title: "No se han encontrado productos",
+                        text: "Por favor seleccione algún producto de la tienda.",
+                        type: "error"
+                    })
+                    return
+                }
 
                 swal({
                     title: "Estamos generando el Pago.",
@@ -426,14 +482,27 @@
                 this.form_document.items = await this.getItemsDocument()
                 this.form_document.totales = await this.getTotales()
 
-                if (this.formIdentity.identity_document_type_id === '6') {
+                // if (this.formIdentity.identity_document_type_id === '6') {
+                //     this.form_document.serie_documento = 'F001'
+                //     this.form_document.codigo_tipo_documento = '01'
+                // }
+                // if (this.formIdentity.identity_document_type_id === '1') {
+                //     this.form_document.serie_documento = 'B001'
+                //     this.form_document.codigo_tipo_documento = '03'
+                // }
+                
+                if (this.form_document.codigo_tipo_documento == '01')
+                {
                     this.form_document.serie_documento = 'F001'
-                    this.form_document.codigo_tipo_documento = '01'
-                }
-                if (this.formIdentity.identity_document_type_id === '1') {
+                }else if (this.form_document.codigo_tipo_documento == '03') 
+                {
                     this.form_document.serie_documento = 'B001'
-                    this.form_document.codigo_tipo_documento = '03'
+                }else
+                {
+                    this.form_document.serie_documento = null
                 }
+
+
                 return this.form_document
             },
             async getTotales() {
@@ -462,6 +531,7 @@
                     let total_val = 0
                     let total = 0
                     let percentage_igv = 18
+                    let nombre_producto_pdf = item.promotion_id ? item.description : null
 
                     if (item.sale_affectation_igv_type_id === '10') {
 
@@ -492,7 +562,9 @@
                             "total_igv": total_igv,
                             "total_impuestos": total_igv,
                             "total_valor_item": total_val,
-                            "total_item": total
+                            "total_item": total,
+                            "actualizar_descripcion": false,
+                            "nombre_producto_pdf": nombre_producto_pdf
                         }
 
                     }
@@ -526,7 +598,9 @@
                             "total_igv": 0,
                             "total_impuestos": 0,
                             "total_valor_item": total_val,
-                            "total_item": total
+                            "total_item": total,
+                            "actualizar_descripcion": false,
+                            "nombre_producto_pdf": nombre_producto_pdf
                         }
 
                     }
@@ -552,7 +626,7 @@
                     "fecha_de_emision": moment().format('YYYY-MM-DD'),
                     "hora_de_emision": moment().format('HH:mm:ss'),
                     "codigo_tipo_operacion": "0101",
-                    "codigo_tipo_documento": "01",
+                    "codigo_tipo_documento": "03",
                     "codigo_tipo_moneda": "PEN",
                     "fecha_de_vencimiento": moment().format('YYYY-MM-DD'),
                     "datos_del_cliente_o_receptor": {
@@ -570,14 +644,14 @@
                 }
 
 
-                this.formIdentity = {
-                    identity_document_type_id: ''
-                }
+                // this.formIdentity = {
+                //     identity_document_type_id: ''
+                // }
 
                 this.form_contact.address =  this.user.address
                 this.form_contact.telephone =  this.user.telephone
 
-
+                this.optionDocument()
             },
             deleteItem(id, index) {
                 //remove en fronted
@@ -655,7 +729,8 @@
 
                 $("#total_amount").data('total', this.summary.total);
 
-                this.formIdentity.identity_document_type_id = ''
+                // this.formIdentity.identity_document_type_id = ''
+                this.form_document.codigo_tipo_documento = null
                 this.optionDocument()
 
                 this.payment_cash.amount = this.summary.total;

@@ -338,7 +338,7 @@
                     {{join( "-", $itemSet->getItemsSet($row->item_id) )}}
                 @endif
             </td>
-            <td class="text-right align-top">{{ $row->relation_item->date_of_due }}</td>
+            <td class="text-right align-top">@if($row->relation_item->date_of_due){{ $row->relation_item->date_of_due->format('Y-m-d')  }} @endif</td>
             <td class="text-right align-top">
                 {{ $row->item->IdLoteSelected ?? null ? $row->relation_item->lots_group->firstWhere('id',  $row->item->IdLoteSelected)->code : '' }}
             </td>

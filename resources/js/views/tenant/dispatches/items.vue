@@ -85,7 +85,7 @@
             create() {
                 this.$http.post(`/${this.resource}/tables`).then(response => {
                     this.items = response.data.items;
-                    this.all_items = this.itemss
+                    this.all_items = this.items
                 });
 
                 this.form = {};
@@ -102,6 +102,8 @@
                 }
 
                 if ((this.form.item != null) && (this.form.quantity != null)) {
+                    this.form.quantity = Math.abs(this.form.quantity)
+                    if(isNaN(this.form.quantity))this.form.quantity = 0;
                     const item = this.items.find((item) => item.id == this.form.item)
                     item.IdLoteSelected = this.form.IdLoteSelected;
                     this.$emit('addItem', {
@@ -130,7 +132,7 @@
                         'input': input,
                         'search_by_barcode': this.search_item_by_barcode ? 1 : 0
                     }
-                    await this.$http.get(`/documents/search-items/`, { params })
+                    await this.$http.get(`/documents/search-items`, { params })
                             .then(response => {
                                 this.items = response.data.items
                                 this.loading_search = false

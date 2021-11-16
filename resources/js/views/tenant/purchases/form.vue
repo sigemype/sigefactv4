@@ -166,6 +166,21 @@
                             </div>
                         </div>
 
+                        <div class="col-md-8 mt-2 mb-2" v-if="config.enabled_global_igv_to_purchase === true">
+                            <div class="form-group">
+                                <el-checkbox v-model="localHasGlobalIgv"
+                                             :disabled="(this.form.items.length != 0 && this.config.enabled_global_igv_to_purchase === true)"
+                                             @change="changeHasGlobalIgv">¿La compra tiene igv?
+                                    <el-tooltip class="item"
+                                                content="Al estar la configuracion activa, sobreescribe el igv del item. Si no esta checado, el producto no tendra igv."
+                                                effect="dark"
+                                                placement="top-end">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </el-checkbox>
+                            </div>
+                        </div>
+
                         <div v-if="form.has_client"
                              class="col-lg-6 col-md-6">
                             <div class="form-group">
@@ -477,6 +492,7 @@ export default {
         ...mapState([
             'config',
             'establishment',
+            'hasGlobalIgv',
         ]),
     },
     data() {
@@ -484,6 +500,7 @@ export default {
             input_person: {},
             resource: 'purchases',
             showDialogAddItem: false,
+            localHasGlobalIgv: false,
             showDialogNewPerson: false,
             showDialogOptions: false,
             loading_submit: false,
@@ -559,14 +576,24 @@ export default {
     },
     created() {
         this.loadConfiguration()
+        this.loadHasGlobalIgv()
         this.loadEstablishment()
-
+        this.localHasGlobalIgv = this.hasGlobalIgv;
     },
     methods: {
         ...mapActions([
             'loadConfiguration',
             'loadEstablishment',
+            'loadHasGlobalIgv',
         ]),
+        changeHasGlobalIgv() {
+            if(this.form.items.length < 1 && this.config.enabled_global_igv_to_purchase === true) {
+                this.$store.commit('sethasGlobalIgv', !this.hasGlobalIgv);
+             this.loadHasGlobalIgv()
+            }
+            this.localHasGlobalIgv = this.hasGlobalIgv;
+
+        },
         changeHasPayment() {
 
             if (!this.form.has_payment) {

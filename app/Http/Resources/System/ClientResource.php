@@ -1,49 +1,50 @@
 <?php
 
-namespace App\Http\Resources\System;
+    namespace App\Http\Resources\System;
 
-use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\System\Module;
+    use Illuminate\Http\Request;
+    use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClientResource extends JsonResource
-{
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request
-     * @return array
-     */
-    public function toArray($request)
+    class ClientResource extends JsonResource
     {
+        /**
+         * Transform the resource into an array.
+         *
+         * @param Request
+         *
+         * @return array
+         */
+        public function toArray($request)
+        {
 
-        // $all_modules = Module::orderBy('description')->get();
-        // $modules_in_user = $this->modules->pluck('module_id')->toArray();
-        // dd($all_modules,$modules_in_user);
-        // $modules = [];
-        // foreach ($all_modules as $module)
-        // {
-        //     $modules[] = [
-        //         'id' => $module->id,
-        //         'description' => $module->description,
-        //         'checked' => (bool) in_array($module->id, $modules_in_user)
-        //     ];
-        // }
+            // $all_modules = Module::orderBy('description')->get();
+            // $modules_in_user = $this->modules->pluck('module_id')->toArray();
+            // dd($all_modules,$modules_in_user);
+            // $modules = [];
+            // foreach ($all_modules as $module)
+            // {
+            //     $modules[] = [
+            //         'id' => $module->id,
+            //         'description' => $module->description,
+            //         'checked' => (bool) in_array($module->id, $modules_in_user)
+            //     ];
+            // }
 
-        return [
-            'id' => $this->id,
+            return [
+                'id' => $this->id,
                 'hostname' => $this->hostname->fqdn,
                 'name' => $this->name,
                 'email' => $this->email,
                 'token' => $this->token,
                 'number' => $this->number,
                 'plan_id' => $this->plan_id,
-                'locked' => (bool) $this->locked,
-                'locked_emission' => (bool) $this->locked_emission,
+                'locked' => (bool)$this->locked,
+                'locked_emission' => (bool)$this->locked_emission,
                 'modules' => $this->modules,
                 'apps' => $this->apps,
                 'levels' => $this->levels,
                 //'count_doc' => $this->count_doc,
-               // 'max_documents' => (int) $this->plan->limit_documents,
+                // 'max_documents' => (int) $this->plan->limit_documents,
                 //'count_user' => $this->count_user,
                 //'max_users' => (int) $this->plan->limit_users,
                 'created_at' => $this->created_at->format('Y-m-d H:i:s'),
@@ -56,13 +57,13 @@ class ClientResource extends JsonResource
                 'soap_url' => $this->soap_url,
                 'config_system_env' => (bool)$this->config_system_env,
                 'certificate' => $this->certificate,
-            'smtp_host'=>$this->smtp_host,
-            'smtp_port'=>$this->smtp_port,
-            'smtp_user'=>$this->smtp_user,
-            'smtp_password'=>null, // dont show smtp password
-            'smtp_encryption'=>$this->smtp_encryption,
+                'smtp_host' => $this->smtp_host,
+                'smtp_port' => $this->smtp_port,
+                'smtp_user' => $this->smtp_user,
+                'smtp_password' => null, // dont show smtp password
+                'smtp_encryption' => $this->smtp_encryption,
 
-        ];
+            ];
 
+        }
     }
-}

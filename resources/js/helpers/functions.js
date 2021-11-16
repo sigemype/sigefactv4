@@ -122,6 +122,9 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
     // })
     if (row.discounts.length > 0) {
         row.discounts.forEach((discount, index) => {
+
+            let affectation_igv_type_exonerated = ['20', '21', '30', '31', '32', '33', '34', '35', '36', '37']
+
             if (discount.is_amount) {
                 if (discount.discount_type.base) {
 
@@ -140,36 +143,51 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
                 } else {
 
                     let aux_total_line = row.unit_price * row.quantity
-                    let affectation_igv_type_exonerated = ['20', '21', '30', '31', '32', '33', '34', '35', '36', '37']
 
-                    if (!affectation_igv_type_exonerated.includes(row.affectation_igv_type_id)) {
-                        total_value_partial = (aux_total_line - discount.percentage) / (1 + percentage_igv / 100)
-                    } else {
-                        total_value_partial = aux_total_line - discount.percentage
-                    }
+                    // if (!affectation_igv_type_exonerated.includes(row.affectation_igv_type_id)) {
+                    //     total_value_partial = (aux_total_line - discount.percentage) / (1 + percentage_igv / 100)
+                    // } else {
+                    //     total_value_partial = aux_total_line - discount.percentage
+                    // }
 
                     discount.base = _.round(aux_total_line, 2)
                     //amount and percentage are equals in input
                     discount.amount = _.round(discount.percentage, 2)
-
                     discount.percentage = _.round(100 * (parseFloat(discount.amount) / parseFloat(discount.base)), 2)
-
                     discount.factor = _.round(discount.percentage / 100, 5)
                     // discount.factor = _.round(discount.percentage / 100, 2)
-
                     // discount_no_base += discount.amount
                 }
 
             } else {
 
-                discount.percentage = parseFloat(discount.percentage)
-                discount.factor = discount.percentage / 100
-                discount.base = _.round(total_value_partial, 2)
-                discount.amount = _.round(discount.base * discount.factor, 2)
                 if (discount.discount_type.base) {
+
+                    discount.percentage = parseFloat(discount.percentage)
+                    discount.factor = discount.percentage / 100
+                    discount.base = _.round(total_value_partial, 2)
+                    discount.amount = _.round(discount.base * discount.factor, 2)
+                    // if (discount.discount_type.base) {
                     discount_base += discount.amount
+                    // } else {
+                    //     discount_no_base += discount.amount
+                    // }
+
                 } else {
-                    discount_no_base += discount.amount
+
+
+                    let aux_total_line = row.unit_price * row.quantity
+                    discount.factor = _.round(discount.percentage / 100, 5)
+                    discount.amount = _.round(aux_total_line * discount.factor, 2)
+
+                    // if (!affectation_igv_type_exonerated.includes(row.affectation_igv_type_id)) {
+                    //     total_value_partial = (aux_total_line - discount.amount) / (1 + percentage_igv / 100)
+                    // } else {
+                    //     total_value_partial = aux_total_line - discount.amount
+                    // }
+
+                    discount.base = _.round(aux_total_line, 2)
+
                 }
 
             }
@@ -237,22 +255,27 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
 
 
     if (row.discounts.length > 0) {
+
         let sum_discount_no_base = 0
         let sum_discount_base = 0
+
         row.discounts.forEach(discount => {
             sum_discount_no_base += (discount.discount_type_id == '01') ? discount.amount : 0
             sum_discount_base += (discount.discount_type_id == '00') ? discount.amount : 0
         })
+
         //obs 4287
         row.unit_price = (total_value + total_taxes - sum_discount_no_base) / row.quantity
+
         //obs 4288
-        let exist_discount_no_base = _.find(row.discounts, {discount_type_id: '01'})
-        if (exist_discount_no_base) {
-            row.unit_value = (total_value + total_taxes) / row.quantity
-            if (row.affectation_igv_type_id === '10') {
-                row.unit_value = row.unit_value / (1 + percentage_igv / 100)
-            }
-        }
+        // let exist_discount_no_base = _.find(row.discounts, {discount_type_id: '01'})
+        // if (exist_discount_no_base) {
+        //     row.unit_value = (total_value + total_taxes) / row.quantity
+        //     if (row.affectation_igv_type_id === '10') {
+        //         row.unit_value = row.unit_value / (1 + percentage_igv / 100)
+        //     }
+        // }
+
         let total_discounts = sum_discount_no_base + sum_discount_base;
         row.total_discount = _.round(total_discounts, 2)
     }
@@ -285,4 +308,41 @@ function getUniqueArray(arr, keyProps) {
     )
 }
 
-export {calculateRowItem, getUniqueArray}
+function showNamePdfOfDescription(item, show_pdf_name) {
+    if (show_pdf_name !== undefined &&
+        show_pdf_name === true &&
+        item !== undefined &&
+        item.name_product_pdf !== undefined &&
+        item.name_product_pdf !== null
+    ) {
+        let temn = item.name_product_pdf;
+        temn = temn.substring(3)
+        temn = temn.slice(0, -4)
+        if (temn.length > 0) {
+            return temn;
+        }
+    }
+    return item.description
+}
+
+function sumAmountDiscountsNoBaseByItem(row) {
+
+    let sum_discount_no_base = 0
+
+    if (row.discounts) {
+        // if(row.discounts.length > 0){
+        sum_discount_no_base = _.sumBy(row.discounts, function (discount) {
+            return (discount.discount_type_id == '01') ? discount.amount : 0
+        })
+        // }
+    }
+
+    return sum_discount_no_base
+}
+
+function FormatUnitPriceRow(unit_price){
+    return _.round(unit_price, 6)
+    // return unit_price.toFixed(6)
+}
+
+export {calculateRowItem, getUniqueArray, showNamePdfOfDescription, sumAmountDiscountsNoBaseByItem, FormatUnitPriceRow}

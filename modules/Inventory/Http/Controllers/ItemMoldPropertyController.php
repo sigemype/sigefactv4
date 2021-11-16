@@ -7,31 +7,41 @@
     use Illuminate\Http\Request;
 
 
-    class ItemMoldPropertyController extends Controller{
+    class ItemMoldPropertyController extends Controller
+    {
 
-        public function index(){
+        public function index()
+        {
             return view('inventory::extra_info.item_mold_property.index');
         }
 
-        public function records(){
+        public function records()
+        {
+
+
             $records = CatItemMoldProperty::where('id', '!=', 0);
             return $records->paginate(config('tenant.items_per_page'));
         }
 
-        public function record(Request $request, $id = 0){
+        public function record(Request $request, $id = 0)
+        {
             $record = CatItemMoldProperty::find($id);
             if (empty($record)) $record = new CatItemMoldProperty(['name' => '']);
+
             return $record;
         }
 
-        public function store(Request $request, $id = 0){
+        public function store(Request $request, $id = 0)
+        {
             $data = $request->all();
+
             $record = CatItemMoldProperty::find($id);
             $name = (isset($data['param']) && isset($data['param']['name'])) ? ucfirst(trim($data['param']['name'])) : null;
             $search = CatItemMoldProperty::where('name', '=', $name);
             if (!empty($record)) {
                 $search->where('id', '!=', $id);
             }
+
             $fund = $search->first();
             if (!empty($fund)) {
                 return response()->json([
@@ -47,8 +57,11 @@
             }
             if (empty($record)) {
                 $record = new CatItemMoldProperty();
+
             }
             $record->setName($name)->push();
+
             return $record;
         }
+
     }

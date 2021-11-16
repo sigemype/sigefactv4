@@ -194,6 +194,23 @@
                         </div>
                     </div>
                         </div>
+
+                        
+                        <div class="row" v-if="typeUser != 'integrator' && config_permission_to_edit_cpe">
+                            <div  class="col-md-12 mt-4">
+                                <div class="form-comtrol">
+                                    <label class="control-label">Otros Permisos</label>
+                                </div>
+                            </div>
+                            <div  class="col-md-4 mt-1">
+                                <div class="form-comtrol">
+                                    <el-checkbox v-model="form.permission_edit_cpe">
+                                        Editar CPE
+                                    </el-checkbox>
+                                </div>
+                            </div>
+                        </div>
+
                     </el-tab-pane>
                 </el-tabs>
             </div>
@@ -235,6 +252,7 @@ export default {
                 document_id: null,
                 modules: [],
                 levels: [],
+                permission_edit_cpe: false,
             },
             modules: [],
             datai: [],
@@ -247,7 +265,8 @@ export default {
             // define options
             alwaysOpen: true,
             options: [],
-            activeName: 'first'
+            activeName: 'first',
+            config_permission_to_edit_cpe : false,
         };
     },
     updated() {
@@ -262,6 +281,8 @@ export default {
             this.establishments = response.data.establishments;
             this.types = response.data.types;
             this.documents = response.data.documents;
+            this.config_permission_to_edit_cpe = response.data.config_permission_to_edit_cpe
+            
             this.getSeries();
         });
         await this.initForm();
@@ -355,6 +376,7 @@ export default {
                 document_id: null,
                 modules: [],
                 levels: [],
+                permission_edit_cpe: false,
             };
         },
         create() {

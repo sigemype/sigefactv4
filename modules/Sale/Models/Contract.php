@@ -11,9 +11,12 @@ use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Quotation;
 use App\Models\Tenant\PaymentMethodType;
 use App\Models\Tenant\ModelTenant;
+use App\Traits\SellerIdTrait;
 
 class Contract extends ModelTenant
 {
+    use SellerIdTrait;
+
     protected $with = ['user', 'soap_type', 'state_type', 'currency_type', 'items', 'payments'];
 
     protected $fillable = [
@@ -76,6 +79,14 @@ class Contract extends ModelTenant
         'delivery_date' => 'date',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function (self $model) {
+            self::adjustSellerIdField($model);
+        });
+
+    }
     public function getEstablishmentAttribute($value)
     {
         return (is_null($value))?null:(object) json_decode($value);

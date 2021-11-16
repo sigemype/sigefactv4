@@ -182,14 +182,13 @@
     {{--@endif--}}
 {{--</table>--}}
 
-@if ($document->guides)
 <br/>
-{{--<strong>Guías:</strong>--}}
+@if ($document->guides)
 <table>
     @foreach($document->guides as $guide)
         <tr>
             @if(isset($guide->document_type_description))
-            <td>{{ $guide->document_type_description }}</td>
+            <td><span style="text-transform: uppercase;">{{ $guide->document_type_description }}</span></td>
             @else
             <td>{{ $guide->document_type_id }}</td>
             @endif
@@ -199,25 +198,27 @@
     @endforeach
 </table>
 @endif
-
-
-
 @if ($document->reference_guides)
-<br/>
-<strong>Guias de remisión</strong>
 <table>
     @foreach($document->reference_guides as $guide)
+        @if($loop->first)
         <tr>
-            <td>{{ $guide->series }}</td>
-            <td>-</td>
-            <td>{{ $guide->number }}</td>
+            <td width="120px">GUIAS DE REMISIÓN</td>
+            <td width="8px">:</td>
+        @endif
+            <td>{{ $guide->series }}-{{ $guide->number }}</td>
         </tr>
     @endforeach
 </table>
 @endif
-
-
-<table class="full-width mt-3">
+<table class="full-width">
+    @if ($document->purchase_order)
+        <tr>
+            <td width="120px">ORDEN DE COMPRA</td>
+            <td width="8px">:</td>
+            <td>{{ $document->purchase_order }}</td>
+        </tr>
+    @endif
     @if ($document->prepayments)
         @foreach($document->prepayments as $p)
         <tr>
@@ -226,13 +227,6 @@
             <td>{{$p->number}}</td>
         </tr>
         @endforeach
-    @endif
-    @if ($document->purchase_order)
-        <tr>
-            <td width="120px">ORDEN DE COMPRA</td>
-            <td width="8px">:</td>
-            <td>{{ $document->purchase_order }}</td>
-        </tr>
     @endif
     @if ($document->quotation_id)
         <tr>

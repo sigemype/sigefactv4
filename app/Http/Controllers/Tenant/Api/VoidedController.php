@@ -8,15 +8,13 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class VoidedController extends Controller
-{
-    public function __construct()
-    {
+class VoidedController extends Controller{
+
+    public function __construct(){
         $this->middleware('input.request:voided,api', ['only' => ['store']]);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $fact = DB::connection('tenant')->transaction(function () use($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
@@ -39,12 +37,10 @@ class VoidedController extends Controller
         ];
     }
 
-    public function status(Request $request)
-    {
+    public function status(Request $request){
         if($request->has('external_id')) {
             $external_id = $request->input('external_id');
-            $summary = Voided::where('external_id', $external_id)
-                            ->first();
+            $summary = Voided::where('external_id', $external_id)->first();
             if(!$summary) {
                 throw new Exception("El código externo {$external_id} es inválido, no se encontró anulación relacionada");
             }

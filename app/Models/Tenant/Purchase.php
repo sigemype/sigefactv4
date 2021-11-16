@@ -2,50 +2,52 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Tenant\GuideFile;
 use App\Models\Tenant\Catalogs\CurrencyType;
 use App\Models\Tenant\Catalogs\DocumentType;
 use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
 use Modules\Purchase\Models\PurchaseOrder;
+use stdClass;
 
 /**
  * Class Purchase
  *
  * @package App\Models\Tenant
  * @mixin ModelTenant
- * @property-read CurrencyType $currency_type
- * @property-read \App\Models\Tenant\Person $customer
- * @property-read DocumentType $document_type
- * @property-read \App\Models\Tenant\Establishment $establishment
+ * @property CurrencyType $currency_type
+ * @property \App\Models\Tenant\Person $customer
+ * @property DocumentType $document_type
+ * @property \App\Models\Tenant\Establishment $establishment
  * @property mixed $charges
+ * @property string $additional_information
  * @property mixed $detraction
  * @property mixed $discounts
  * @property mixed $guides
  * @property mixed $legends
- * @property-read mixed $number_full
- * @property-read mixed $number_to_letter
+ * @property mixed $number_full
+ * @property mixed $number_to_letter
  * @property mixed $perception
  * @property mixed $prepayments
- * @property-read mixed $related
+ * @property mixed $related
  * @property \App\Models\Tenant\Person $supplier
- * @property-read \App\Models\Tenant\Group $group
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\InventoryKardex[] $inventory_kardex
- * @property-read int|null $inventory_kardex_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchaseItem[] $items
- * @property-read int|null $items_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\Kardex[] $kardex
- * @property-read int|null $kardex_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchasePayment[] $payments
- * @property-read int|null $payments_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchaseItem[] $purchase_items
- * @property-read int|null $purchase_items_count
- * @property-read PurchaseOrder $purchase_order
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchasePayment[] $purchase_payments
- * @property-read int|null $purchase_payments_count
- * @property-write mixed $related_documents
- * @property-read \App\Models\Tenant\SoapType $soap_type
- * @property-read \App\Models\Tenant\StateType $state_type
- * @property-read \App\Models\Tenant\User $user
+ * @property \App\Models\Tenant\Group $group
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\InventoryKardex[] $inventory_kardex
+ * @property int|null $inventory_kardex_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchaseItem[] $items
+ * @property int|null $items_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\Kardex[] $kardex
+ * @property int|null $kardex_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchasePayment[] $payments
+ * @property int|null $payments_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchaseItem[] $purchase_items
+ * @property int|null $purchase_items_count
+ * @property PurchaseOrder $purchase_order
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchasePayment[] $purchase_payments
+ * @property int|null $purchase_payments_count
+ * @property mixed $related_documents
+ * @property \App\Models\Tenant\SoapType $soap_type
+ * @property \App\Models\Tenant\StateType $state_type
+ * @property \App\Models\Tenant\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase dasboardSalePurchase($establishment_id = 0)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newQuery()
@@ -105,6 +107,7 @@ class Purchase extends ModelTenant
         'perception',
         'detraction',
         'legends',
+        'additional_information',
         'date_of_due',
         'purchase_order_id',
         'customer_id',
@@ -314,6 +317,10 @@ class Purchase extends ModelTenant
     }
 
     /**
+     * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
+     * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
+     * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function inventory_kardex()
@@ -472,7 +479,7 @@ class Purchase extends ModelTenant
                             // --    total_item_purchase
                             // --    utility_item
 
-
+        $guides = (array)$this->guides;
         return [
             'id'                             => $this->id,
             'customer_number'                             => $customer_number,
@@ -480,6 +487,7 @@ class Purchase extends ModelTenant
             'series'                             => $this->series,
             'document_type_description'      => $this->document_type->description,
             'group_id'                       => $this->group_id,
+            'guides'                       => $guides,
             'soap_type_id'                   => $this->soap_type_id,
             'date_of_issue'                  => $this->date_of_issue->format('Y-m-d'),
             'date_of_due'                    => ($this->date_of_due) ? $this->date_of_due->format('Y-m-d') : '-',
@@ -521,4 +529,55 @@ class Purchase extends ModelTenant
             'print_a4'                       => url('')."/purchases/print/{$this->external_id}/a4",
         ];
     }
+
+
+    /**
+     * @param $query
+     *
+     * @return mixed
+     */
+    public function scopeWhereValuedKardexFormatSunat($query, $params)
+    {
+        return $query->whereStateTypeAccepted()
+                    ->whereTypeUser()
+                    ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
     }
+
+    /**
+     * @return string
+     */
+    public function getAdditionalInformation(): string
+    {
+        return (string) $this->additional_information;
+    }
+
+    /**
+     * @param string|null $additional_information
+     *
+     * @return Purchase
+     */
+    public function setAdditionalInformation(string $additional_information = ''): Purchase
+    {
+        $this->additional_information = $additional_information;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGuides()
+    {
+        /** @var stdClass $guide */
+        return (array) $this->guides;
+
+    }
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function guide_files()
+    {
+        return $this->hasMany(GuideFile::class);
+    }
+}

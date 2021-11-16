@@ -7,9 +7,11 @@ use App\Models\Tenant\Catalogs\CurrencyType;
 use App\Models\Tenant\Catalogs\UnitType;
 use App\Models\Tenant\ItemType;
 use App\Models\Tenant\ModelTenant;
+use App\Traits\AttributePerItems;
 
 class FixedAssetItem extends ModelTenant
 {
+    use AttributePerItems;
     protected $with = ['item_type', 'unit_type', 'currency_type'];
 
     protected $fillable = [
@@ -22,8 +24,8 @@ class FixedAssetItem extends ModelTenant
         'purchase_unit_price',
         'purchase_affectation_igv_type_id',
     ];
- 
- 
+
+
 
     public function item_type()
     {
@@ -38,8 +40,8 @@ class FixedAssetItem extends ModelTenant
     public function currency_type()
     {
         return $this->belongsTo(CurrencyType::class, 'currency_type_id');
-    } 
- 
+    }
+
     public function fixed_asset_purchase_item()
     {
         return $this->hasMany(FixedAssetPurchaseItem::class);
@@ -55,6 +57,6 @@ class FixedAssetItem extends ModelTenant
         $user = auth()->user();
         return ($user->type == 'seller') ? $this->scopeWhereWarehouse($query) : null;
     }
-  
-    
+
+
 }

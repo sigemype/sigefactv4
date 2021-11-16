@@ -13,6 +13,7 @@ class DocumentCollection extends ResourceCollection
 
         return $this->collection->transform(function($row, $key){
 
+            /** @var \App\Models\Tenant\Document $row */
             $affected_document = null;
             if(in_array($row->document_type_id,['07','08']) && $row->note){
 
@@ -25,7 +26,7 @@ class DocumentCollection extends ResourceCollection
             $state = $row->state_type_id;
 
             $web_platforms = $row->getPlatformThroughItems();
-
+            $seller = $row->getSellerData();
 
             return [
                 'id' => $row->id,
@@ -58,8 +59,8 @@ class DocumentCollection extends ResourceCollection
                 'document_type_description' => $row->document_type->description,
                 'document_type_id' => $row->document_type->id,
                 'affected_document' => $affected_document,
-                'user_name' => ($row->user) ? $row->user->name : '',
-                'user_email' => ($row->user) ? $row->user->email : '',
+                'user_name' => ($seller) ? $seller->name : '',
+                'user_email' => ($seller) ? $seller->email : '',
 
                 'notes' => (in_array($row->document_type_id, ['01', '03'])) ? $row->affected_documents->transform(function($row) {
                     return [

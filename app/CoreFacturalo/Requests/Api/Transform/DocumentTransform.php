@@ -39,6 +39,7 @@ class DocumentTransform
             'total_unaffected' => Functions::valueKeyInArray($totals, 'total_operaciones_inafectas'),
             'total_exonerated' => Functions::valueKeyInArray($totals, 'total_operaciones_exoneradas'),
             'total_igv' => Functions::valueKeyInArray($totals, 'total_igv'),
+            'total_igv_free' => Functions::valueKeyInArray($totals, 'total_igv_operaciones_gratuitas'),
             'total_base_isc' => Functions::valueKeyInArray($totals, 'total_base_isc'),
             'total_isc' => Functions::valueKeyInArray($totals, 'total_isc'),
             'total_base_other_taxes' => Functions::valueKeyInArray($totals, 'total_base_otros_impuestos'),
@@ -46,12 +47,16 @@ class DocumentTransform
             'total_plastic_bag_taxes' => Functions::valueKeyInArray($totals, 'total_impuestos_bolsa_plastica'),
             'total_taxes' => Functions::valueKeyInArray($totals, 'total_impuestos'),
             'total_value' => Functions::valueKeyInArray($totals, 'total_valor'),
+            'subtotal' => (Functions::valueKeyInArray($totals, 'subtotal_venta')) ? $totals['subtotal_venta'] : $totals['total_venta'],
             'total' => Functions::valueKeyInArray($totals, 'total_venta'),
+            'total_pending_payment' => Functions::valueKeyInArray($totals, 'total_pendiente_pago'),
+            // 'pending_amount_detraction' => Functions::valueKeyInArray($totals, 'total_pendiente_detraccion'),
             'has_prepayment' => Functions::valueKeyInArray($inputs, 'pago_anticipado',0),
             'items' => self::items($inputs),
             'charges' => self::charges($inputs),
             'discounts' => self::discounts($inputs),
             'detraction' => self::detraction($inputs),
+            'retention' => self::retention($inputs),
             'perception' => self::perception($inputs),
             'prepayments' => self::prepayments($inputs),
             'guides' => self::guides($inputs),
@@ -122,6 +127,8 @@ class DocumentTransform
                     'charges' => self::charges($row),
                     'additional_information' => Functions::valueKeyInArray($row, 'informacion_adicional'),
                     'lots' => Functions::valueKeyInArray($row, 'lots', []),
+                    'update_description' => Functions::valueKeyInArray($row, 'actualizar_descripcion', true), //variable para determinar si se actualiza la descripcion del item cuando se envia desde api
+                    'name_product_pdf' => Functions::valueKeyInArray($row, 'nombre_producto_pdf'),
                 ];
             }
 
@@ -193,16 +200,42 @@ class DocumentTransform
     private static function detraction($inputs)
     {
         if(key_exists('detraccion', $inputs)) {
+
             $detraction = $inputs['detraccion'];
+
+            $origin_location_id = Functions::valueKeyInArray($detraction, 'ubigeo_origen') ? self::parseLocation($detraction['ubigeo_origen']) : null;
+            $delivery_location_id = Functions::valueKeyInArray($detraction, 'ubigeo_destino') ? self::parseLocation($detraction['ubigeo_destino']) : null;
+            
             return [
                 'detraction_type_id' => $detraction['codigo_tipo_detraccion'],
                 'percentage' => $detraction['porcentaje'],
                 'amount' => $detraction['monto'],
                 'payment_method_id' => $detraction['codigo_metodo_pago'],
                 'bank_account' => $detraction['cuenta_bancaria'],
+
+                'trip_detail' => Functions::valueKeyInArray($detraction, 'detalle_viaje'),
+                'origin_address' => Functions::valueKeyInArray($detraction, 'direccion_origen'),
+                'delivery_address' => Functions::valueKeyInArray($detraction, 'direccion_destino'),
+                'origin_location_id' => $origin_location_id, 
+                'delivery_location_id' => $delivery_location_id,
+                'reference_value_payload' => Functions::valueKeyInArray($detraction, 'valor_referencial_carga_util'),
+                'reference_value_service' => Functions::valueKeyInArray($detraction, 'valor_referencial_servicio_transporte'),
+                'reference_value_effective_load' => Functions::valueKeyInArray($detraction, 'valor_referencia_carga_efectiva')
             ];
         }
         return null;
+    }
+    
+    private static function parseLocation($district_id)
+    {
+        $province_id = $district_id ? substr($district_id, 0 ,4) : null;
+        $department_id = $district_id ? substr($district_id, 0 ,2) : null;
+
+        return [
+            $department_id,
+            $province_id,
+            $district_id
+        ];
     }
 
     private static function perception($inputs)
@@ -219,6 +252,26 @@ class DocumentTransform
         }
         return null;
     }
+    
+    private static function retention($inputs)
+    {
+        // dd($inputs);
+        if(key_exists('retencion', $inputs)) {
+
+            $retention = $inputs['retencion'];
+
+            return [
+                'code' => $retention['codigo'],
+                'percentage' => $retention['porcentaje'],
+                'amount' => $retention['monto'],
+                'base' => $retention['base'],
+            ];
+
+        }
+
+        return null;
+    }
+    
 
     private static function prepayments($inputs)
     {

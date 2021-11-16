@@ -28,6 +28,9 @@ if($hostname) {
                 Route::get('balance/filter', 'BalanceController@filter');
                 Route::get('balance/records', 'BalanceController@records');
 
+                Route::post('balance/bank_accounts', 'BalanceController@getBankAcounts');
+                Route::post('balance/cash', 'BalanceController@getCashAcounts');
+                Route::post('balance/transfer', 'BalanceController@makeTransfer');
                 Route::get('payment-method-types', 'PaymentMethodTypeController@index')->name('tenant.finances.payment_method_types.index');
                 Route::get('payment-method-types/pdf', 'PaymentMethodTypeController@pdf');
                 Route::get('payment-method-types/excel', 'PaymentMethodTypeController@excel');

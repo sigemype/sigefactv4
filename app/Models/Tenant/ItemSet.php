@@ -1,30 +1,115 @@
 <?php
 
-namespace App\Models\Tenant;
+    namespace App\Models\Tenant;
 
 
-class ItemSet extends ModelTenant
-{
+    use Eloquent;
+    use Illuminate\Database\Eloquent\Builder;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-    protected $fillable = [
-        'item_id',
-        'individual_item_id',    
-        'quantity',    
-    ];
 
-    public function item()
+    /**
+     * App\Models\Tenant\ItemSet
+     *
+     * @property int|null   $item_id
+     * @property int|null   $individual_item_id
+     * @property float|null $quantity
+     * @property Item  $individual_item
+     * @property Item  $item
+     * @property Item  $relation_item
+     * @method static Builder|ItemSet newModelQuery()
+     * @method static Builder|ItemSet newQuery()
+     * @method static Builder|ItemSet query()
+     * @mixin Eloquent
+     */
+    class ItemSet extends ModelTenant
     {
-        return $this->belongsTo(Item::class);
-    }
 
-    public function individual_item()
-    {
-        return $this->belongsTo(Item::class, 'individual_item_id');
-    }
- 
-    public function relation_item()
-    {
-        return $this->belongsTo(Item::class, 'individual_item_id');
-    }
+        protected $fillable = [
+            'item_id',
+            'individual_item_id',
+            'quantity',
+        ];
 
-}
+        /**
+         * @return BelongsTo
+         */
+        public function item()
+        {
+            return $this->belongsTo(Item::class);
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function individual_item()
+        {
+            return $this->belongsTo(Item::class, 'individual_item_id');
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function relation_item()
+        {
+            return $this->belongsTo(Item::class, 'individual_item_id');
+        }
+
+        /**
+         * @return int
+         */
+        public function getItemId()
+        {
+            return (int)$this->item_id;
+        }
+
+        /**
+         * @param int $item_id
+         *
+         * @return ItemSet
+         */
+        public function setItemId($item_id = 0)
+        {
+            $this->item_id = (int)$item_id;
+            return $this;
+        }
+
+        /**
+         * @return int
+         */
+        public function getIndividualItemId()
+        {
+            return (int)$this->individual_item_id;
+        }
+
+        /**
+         * @param int $individual_item_id
+         *
+         * @return ItemSet
+         */
+        public function setIndividualItemId($individual_item_id = 0)
+        {
+            $this->individual_item_id = (int)$individual_item_id;
+            return $this;
+        }
+
+        /**
+         * @return float
+         */
+        public function getQuantity()
+        {
+            return (float)$this->quantity;
+        }
+
+        /**
+         * @param float $quantity
+         *
+         * @return ItemSet
+         */
+        public function setQuantity($quantity = 0)
+        {
+            $this->quantity = (float)$quantity;
+            return $this;
+        }
+
+    }

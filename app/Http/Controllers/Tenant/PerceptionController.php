@@ -64,6 +64,7 @@ class PerceptionController extends Controller
         $document_types = DocumentType::all();
         $series = Series::all();
         $establishments = Establishment::where('id', auth()->user()->establishment_id)->get();// Establishment::all();
+        $user_id = auth()->user()->id;
 
         return compact('user_id', 'currency_types', 'customers', 'items', 'company', 'establishments','document_types', 'series', 'perception_types');
     }

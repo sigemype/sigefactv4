@@ -1,3 +1,448 @@
+## 4.1.6
+
+### docs
+2021-10-18 : fixed | #981 | S. Tecnico - agregar pagos al generar docs - validar documento asociado<br>
+2021-09-24 : docs | correciones en manual de migracion de server<br>
+2021-09-23 : docs | wiki | migracion de servidor con docker<br>
+2021-09-21 : docs | update changelog<br>
+
+
+### fixed
+2021-10-26 : fixed | #1082 | Ajustes valor nuull en item_code y barcode - busqueda items api<br>
+2021-10-26 : fixed | #1028 | Ajuste para mostrar decimales en form items - nota venta<br>
+2021-10-25 : fixed | #1053 | reconfigurando muestra de validadores en listado de comprobantes<br>
+2021-10-25 : fixed | #1053 | error en merge sobre consulta ruc en administrador<br>
+2021-10-25 : fixed | #1006 | Ajustes error descuentos por item en cotizacion al generar cpe<br>
+2021-10-22 : fixed | #1089 | Ajustes moneda xml detraccion transporte<br>
+2021-10-22 : fixed | #1039 | Ajustes al vender productos con promociones cpe/nv - ecommerce<br>
+2021-10-22 : fixed | #1082 | Ajustes campos categoria, marca, cod barra - busqueda de items api<br>
+2021-10-22 : fixed | #972 | Se agregan 2 motivos de traslado guias a reporte kardex valorizado<br>
+2021-10-22 : fixed | #972 | Se agregan 2 motivos de traslado guias a reporte kardex valorizado<br>
+2021-10-21 : fixed | #1084 | Se regulariza pagos, retenciones, m pendiente en plantilla blank<br>
+2021-10-21 : fixed | delete trash file<br>
+2021-10-20 : fixed | #1049 | Ajustes opcion generar cpe desde nota venta<br>
+2021-10-20 : fixed | #956 | Se agrega detraccion transporte por api<br>
+2021-10-20 : fixed | #1033 | plantilla pdf, arreglos de valor sin igv unitario y margen superior de logo<br>
+2021-10-19 : fixed | #956 | Ajustes api - cpe con detraccion transporte<br>
+2021-10-19 : fixed | #996 | Ajustes nuevo cpe - calculo de montos/pagos con detraccion<br>
+2021-10-18 : fixed | - | Consulta de documentos: Devuelve el nombre del vendedor correctamente.<br>
+2021-10-18 : fixed | #1086 | Reporte de comisiones: ajuste para filtrar correctamente el rango de fechas. Los status de documento deben estar en `state_type_id` IN ( '01', '03', '05', '07', '13' )<br>
+2021-10-18 : fixed | #816 | Reporte Consolidado de ventas por vendedor: ajuste para filtrar correctamente el vendedor<br>
+2021-10-18 : fixed | #816 | Reporte Consolidado de ventas por vendedor: ajuste para filtrar correctamente el vendedor<br>
+2021-10-18 : fixed | #574 | Envio Email de Comprobantes: Cuando son varios destinatarios, se envia un solo correo para no replicar los anexos<br>
+2021-10-18 : fixed | #1021 | Template: Citec/Datetime/Internal_code: Ajuste para mostrar condicion de pago y formas de pago<br>
+2021-10-18 : fixed | #981 | S. Tecnico - agregar pagos al generar docs - validar documento asociado<br>
+2021-10-18 : fixed | #824 | Ajuste para mostrar condicion de pago y detalles de pagos en CITEC<br>
+2021-10-18 : fixed | - | Template Citec/Wsc: Ajuste para obtener la plantila del establecimiento correctamente<br>
+2021-10-18 : fixed | #1046 | Migracion: Ajuste de standar<br>
+2021-10-18 : fixed | #1021 | Template InternalCode: Ajuste para no mostrar hora en fecha de vencimiento<br>
+2021-10-18 : fixed | #1046 | Contratos: Ajuste para buscar item correctamente<br>
+2021-10-14 : fixed | resources | slepp al guardar para evitar duplicidad de registro<br>
+2021-10-14 : fixed | resources | validacion por minuto sobre registro de recursos en comando<br>
+2021-10-14 : fixed | resources | en servidor se repite el comando y guarda multiples registros en un solo minuto<br>
+2021-10-14 : fixed | resources | error en asignar frecuencia de comando<br>
+2021-10-14 : fixed | tiempo de espera para consulta de tasa de cambio<br>
+2021-10-14 : fixed | tiempo de espera para consulta de tasa de cambio<br>
+2021-10-12 : fixed | #927 | Ajustes reporte kardex valorizado - montos promedios - n credito<br>
+2021-10-11 : fixed | #1007 | Ajustes para generar nota de venta desde hoteles<br>
+2021-10-11 : fixed | #1036 | Se agrega campo reference date en reporte nv<br>
+2021-10-07 : fixed | #1007 | Ajustes iniciales nv - hoteles<br>
+2021-10-07 : fixed | #1015 | Ajuste al buscar productos inhabilitados<br>
+2021-10-07 : fixed | #977 | Ajustes errores al pago credito - metodo de pago a X dias<br>
+2021-10-06 : fixed | #1010 | Ajustes pedidos op gratuitas - convertir cpe<br>
+2021-10-06 : fixed | #1010 | Regularizacion igv free al generar cpe desde cotizacion<br>
+2021-10-05 : fixed | #1010 | Ajustando calculos op gratuita registrar/editar cotizacion<br>
+2021-10-05 : fixed | #931 | Ajuste campo factor - descuento anticipos<br>
+2021-10-05 : fixed | #973 | Campos opcionales en guia - validaciones<br>
+2021-10-04 : fixed | #973 | Ajustes seleccion lista precios - validacion tgs xml obligatorios guia<br>
+2021-10-04 : fixed | #1008 | Ajuste al agregar pago sin datos requeridos - edicion cpe<br>
+2021-10-01 : fixed | #1008 | Edicion cpe: Ajustes para editar cpe con detracciones<br>
+2021-10-01 : fixed | #954 | Superposicion de textos en plantilla de cotizaciones - tyc<br>
+2021-09-30 : fixed | #949 | Descarga masiva: Se mantiene la plantilla por defecto en configuracion para ticket<br>
+2021-09-30 : fixed | #949 | Descarga masiva: Ajuste para colocar el template, para el del establecimiento del usuario.<br>
+2021-09-28 : fixed | - | Config: show_pdf_name por default false -  COMPILE JS<br>
+2021-09-28 : fixed | - | Config: show_pdf_name por default false<br>
+2021-09-28 : fixed | #988 | Nota de venta: Stock muestra el mismo que CPE<br>
+2021-09-28 : fixed | #965 | Deshabilitar cambio de tipo de documento al editar cpe<br>
+2021-09-28 : fixed | #885 | Compile JS<br>
+2021-09-28 : fixed | #885 | Servicio tecnico: Convertir a factura requiere descuentos por linea<br>
+2021-09-27 : fixed | #885 | Servicio tecnico: Convertir a factura requiere descuentos por linea<br>
+2021-09-27 : fixed | #885 | Servicio tecnico: Convertir a factura requiere descuentos por linea<br>
+2021-09-27 : fixed | #950 | Template SWZ: Variable $payments definida<br>
+2021-09-27 : fixed | #995 | Busqueda de items: Filtro por alamcen de usuario<br>
+2021-09-27 : fixed | - | Template Boleta/Factura  A4 CITEC : Devolviendo CITEC invoice.blade.php<br>
+2021-09-27 : fixed | - | Template Boleta/Factura  A4 CITEC : Validacion de existencia de archivo<br>
+2021-09-27 : fixed | - | Migraciones: Se deber validar compatilibidad con Mysql 5.7, Windows debe ser base de prueba<br>
+2021-09-27 : fixed | #945 | Ajustes validador por cron<br>
+2021-09-27 : fixed | #945 | Ajustes validador por cron<br>
+2021-09-24 : fixed | #975 | Configuracion: Moneda predeterminada guarda correctamente<br>
+2021-09-24 : fixed | #994 | Items: No limitar productos cuando se realiza una busqueda (pueden salir 5000)<br>
+2021-09-24 : fixed | #945 | Validador: Se agrega consulta integrada al validador por cron<br>
+2021-09-24 : fixed | - | ajuste para indice indefinido<br>
+2021-09-24 : fixed | - | Nota de venta: Envio a servidor: Previniendo error de objeto<br>
+2021-09-21 : fixed | #966 | Ajustes op. gravada retiro por premio - gratuita<br>
+
+
+### feature
+2021-10-27 : feature | #1060 | tasa de cambio - consulta a sunat y alternativa a consulta apiperu - importante: modules.Services.ServiceController<br>
+2021-10-26 : feature | #930 | Ajustes nota credito tipo 13, pruebas<br>
+2021-10-25 : feature | #930 | Agregando nota credito tipo 13<br>
+2021-10-25 : feature | #1083 | Se agrega descuento al reporte excel - ventas/documentos<br>
+2021-10-21 : feature | #1042 | Se agrega json de ejemplo - factura retencion api<br>
+2021-10-21 : feature | #1042 | Se agrega retencion en nuevo cpe<br>
+2021-10-20 : feature | #1042 | Se agrega cpe con retencion por api<br>
+2021-10-20 : feature | #956 | Se agrega casuisticas detraccion api - postam collection<br>
+2021-10-19 : feature | #1033 | plantilla personalizada custom_multisaba para cliente<br>
+2021-10-19 : feature | #934 | Se agrega descripcion lista precios pos - agrega lista precios busqueda items api<br>
+2021-10-18 : feature | #1053 | avance de consulta ruc con soporte para apiperu.dev y apiperu.net.pe<br>
+2021-10-18 : feature | #938 | se agrega json liquidacion de compra - Update README.md<br>
+2021-10-18 : feature | #938 | Se agrega liquidacion de compra - api<br>
+2021-10-15 : feature | #596 | Movimiento de item: Suspendiendo modelos no observados<br>
+2021-10-15 : feature | #596 | Compile JS<br>
+2021-10-15 : feature | #596 | Template Factura: Generando Miniatura y adicion de comentarios extra al manual feature | #596 | Items: Atributos extra: Mostrar el stock en la seccion del producto feature | #596 | Items: Atributos extra: Posibilidad de generar un reporte de venta por items. feature | #596 | Inventario por atributos: Se almacenan los datos de cada proceso en una tabla para poder filtrar el resultado, es necesario evaluar los status y nota de credito/debito<br>
+2021-10-14 : feature | resources | compile js<br>
+2021-10-14 : feature | resources | mostrando graficas en admin/informacion<br>
+2021-10-14 : feature | resources | comando para obtener recursos de cpu y memoria con cron que almacena en bd<br>
+2021-10-14 : feature | resources | recursos de cpu y memoria ram mostrandose por urls<br>
+2021-10-13 : feature | #1046 | Items: Busqueda de items: Configuracion para mostrar solo productos del almacen del usuario.<br>
+2021-10-07 : feature | #1024 | Ejemplo json descuento lineal no afecta a la bi - productos exonerados update README.md<br>
+2021-10-07 : feature | #596 | Missing migration<br>
+2021-10-07 : feature | #596 | Compile JS<br>
+2021-10-07 : feature | #596 | Compras: Añadir guias a compra<br>
+2021-10-06 : feature | #1026 | avance menu en dropdwon para mostrar botones de accion en listado de documentos<br>
+2021-10-06 : feature | #596 | Compras: Añadir guias a compra<br>
+2021-10-06 : feature | #1036 | Se agrega caampo reference data en reporte general de prductos<br>
+2021-10-06 : feature | #1014 | Agrega campo observacion reporte general de productos<br>
+2021-10-05 : feature | #990 | Configuracion: Limitando acceso de los modulos Empresa, Visual y Avanzado.<br>
+2021-10-05 : feature | #1026 | avances en sidebar, hover<br>
+2021-10-05 : feature | #1026 | avances en sidebar<br>
+2021-10-04 : feature | - | Compile JS<br>
+2021-10-04 : feature | - | Configuracion: Cambio de nombre a la pagina<br>
+2021-10-04 : feature | - | Lista de precios en pedidos<br>
+2021-10-01 : feature | #969 #885 | Compile js<br>
+2021-10-01 : feature | #969 | Pedidos: Enfoque en el campo descripcion al añadir item. Cantidad por defaul 1<br>
+2021-10-01 : feature | #885  Servicio Tecnico: Bajo ciertas circunstancias, additional_information al insertarse se mantiene como array, esto modifica el valor para que sea string<br>
+2021-10-01 : feature | - | Servicio Tecnico: Evitando NaN en precio unitario<br>
+2021-09-30 : feature | #916 | Asignar permisos de edicion cpe desde configuracion y usuario<br>
+2021-09-30 : feature | #991 | Minor: Añadiendo valor de venta para tipo decambio y ajusets de estilo<br>
+2021-09-30 : feature | #986 | orden de actualizacion estado<br>
+2021-09-30 : feature | #986 | Se agrega nv a ecommerce<br>
+2021-09-30 : feature | #885 #969 | Compile JS<br>
+2021-09-30 : feature | #969 | Guia de Remision: Mostrar Agregar en lina para pantallas y mantener el agregar para moviles<br>
+2021-09-29 : feature | #984 | Se define por defecto la direccion registrada en establecimiento como direccion de partida - guia<br>
+2021-09-29 : feature | #986 | Agregando nv a ecommerce - v inicial<br>
+2021-09-29 : feature | #969 #974 | Compile JS<br>
+2021-09-29 : feature | #969 | Dispatches: Cliente: Añadiendo busqueda por CE<br>
+2021-09-29 : feature | #969 | Dispatches: Direccion de destino: Permite colocar la direccion en texto.<br>
+2021-09-29 : feature | #969 | Dispatches: Cliente: Busqueda de clientes remoto<br>
+2021-09-29 : feature | - | Controller: Metodo de busqueda de cliente generica para todos los controllers<br>
+2021-09-29 : feature | #974 | Reporte de inventario: Ajuste para filtrar por fecha de vencimiento<br>
+2021-09-29 : feature | #983 | Pedidos. Añadir direccion de cliente automatica<br>
+2021-09-28 : feature | #908 | Cotizacion: Ajuste para validar correctamente name_product_pdf<br>
+2021-09-28 : feature | #983 | se agrega autocompletado de la direccion del cliente al generar pedido<br>
+2021-09-28 : feature | - | Removiendo seller_id de los documentos y nota de venta para funcion seller()<br>
+2021-09-28 : feature | #927 | se agregar kardex valorizado, formato sunat 13.1<br>
+2021-09-27 : feature | #927 | avance kardex formato sunat<br>
+2021-09-27 : feature | #885 | Servicio Tecnico: Unidad de item a ZZ<br>
+2021-09-27 : feature | #885 | Servicio Tecnico: Unidad de item a ZZ<br>
+2021-09-27 : feature | #908 | Compile JS<br>
+2021-09-27 : feature | #908 | Cotizacion: Nombre del pdf en la vista<br>
+2021-09-24 : feature | #961 | Compile JS<br>
+2021-09-24 : feature | #961 | Reporte de comision: Filtro por vendedor<br>
+2021-09-24 : feature | #908 | Compile JS<br>
+2021-09-24 : feature | #908 | Factura/Boleta: Mostrar el nombre del PDF en el listado de items<br>
+2021-09-24 : feature | #950 | Template font_swz: Añadiendo placa y condicion de pago a factura/boleta<br>
+2021-09-23 : feature | #950 | Template font_swz: Añadiendo placa y condicion de pago a factura/boleta<br>
+2021-09-23 : feature | - | Compile JS<br>
+2021-09-23 : feature | #823 | Items: Homologación de búsqueda de ítems a un controlador<br>
+2021-09-23 : feature | #885 | Compile JS.<br>
+2021-09-23 : feature | #885 | Servicio técnico: Posibilidad de añadir Productos a Servicio Técnico - See merge request carlomagno83/facturadorpro4!334<br>
+2021-09-22 : feature | #392 | ver plantilla muestra detalle de plantilla seleccionada<br>
+2021-09-21 : feature | #932 | union de plantillas para facturas y guias, una sola vista para su seleccion<br>
+2021-09-21 : feature | #911 | Template default3_911: Ajuste para calculo de producto sin igv. Imagen de fondo mas amplia<br>
+2021-09-21 : feature | #911 | Template default3_911: Ajuste para calculo de producto sin igv. Imagen de fondo mas amplia<br>
+2021-09-17 : feature | #927 | Avance formato kardex sunat 13.1<br>
+
+
+## 4.1.5
+
+### docs
+2021-09-21 : docs | configuracion nuevo validador<br>
+2021-09-15 : docs | wiki funcional - similar a wiki en gitlab del proyecto<br>
+2021-09-14 : feature | wiki-docs | añadiendo vistas en base a la wiki que se posee en gitlab - rutas: dominio/docs subdominio/docs<br>
+2021-09-14 : docs | add package larecipe<br>
+2021-09-06 : docs | changelog update<br>
+
+
+### fixed
+2021-09-17 : fixed | - | Validando almacenes<br>
+2021-09-17 : fixed | #953 #960 #962 | busqueda de items<br>
+2021-09-17 : fixed | #958 | Ajustes calculos para operaciones gravadas gratuitas<br>
+2021-09-17 : fixed | #885 | Balance: Ajuste de textos e icon os<br>
+2021-09-17 : fixed | #885 | Balance: Transferencia entre cuentas y caja<br>
+2021-09-17 : fixed | #960 | Nota de venta: Pasando request para cuando se realzia una busqueda de item<br>
+2021-09-17 : fixed | #885 | Geneerando modal para transferencias entre cuentas bancarias<br>
+2021-09-17 : fixed | #953 | Unficando #823 en SearchItemController.<br>
+2021-09-16 : fixed | #926 | Ajustes error de calculo, op. exoneradas - gratuitas<br>
+2021-09-16 : fixed | #933 | Ajuste al mostrar series seleccionadas - edicion item nuevo cpe<br>
+2021-09-15 : fixed | #922 | Ajuste pdf moneda detraccion usd<br>
+2021-09-15 : fixed | #931 | Ajustes anticipos op, exonerada e inafecta<br>
+2021-09-14 : fixed | #931 | Ajustes anticipos gravados<br>
+2021-09-14 : fixed | #823 | Busqueda por Lote: Si se tiene activada la busqueda por lote y al momento de buscar, se encuentra el registro, se devuelve el elemento.<br>
+2021-09-14 : fixed | - | Quitando logs<br>
+2021-09-14 : fixed | - | Añadiendo log<br>
+2021-09-14 : fixed | - | Ajustes de controlador<br>
+2021-09-14 : fixed | #823 #900 | Compile JS<br>
+2021-09-14 : fixed | #921 | Agrega condicion de pago en plantilla default3<br>
+2021-09-13 : fixed | #918 | Ajustes op. gratuita - api<br>
+2021-09-13 : fixed | #704 | Pedidos: Añadiendo filtrado en direccion. Ajuste de minimo para 0.1.<br>
+2021-09-13 : fixed | #574 | Quitando Logs<br>
+2021-09-13 : fixed | #574 #704 #900 | Compile JS<br>
+2021-09-13 : fixed | #900 | Items: Codigo de Barras: Exportar Codiugo de barras en formato 5cm x 2.5cm, desde seccion de items.<br>
+2021-09-13 : fixed | - | PDF: Estandarizacion de codigo para generacion de un pdf a partir de varios<br>
+2021-09-13 : fixed | #900 | Codigo de barras: Generar el PDF para codigod e barras de 5 cm x 2.5 cm.<br>
+2021-09-13 : fixed | #903 | Se agrega cuotas - pagos plantilla multiples logos<br>
+2021-09-13 : fixed | - | Minor: Ajuste de estilo<br>
+2021-09-13 : fixed | #914 | validar propiedad discounts - dscto por item<br>
+2021-09-10 : fixed | #914 | Ajustes descuentos no afectan a la bi, global - item<br>
+2021-09-10 : fixed | #704 | Dispaches: Ajuste en obtencion de direcciones.<br>
+2021-09-10 : fixed | #574 | Correos: Guardando eventos de envio de correo en la tabla correspondiente<br>
+2021-09-10 : fixed | #574 | Correos: Centralizando el codigo de envio de correo para evitar duplicidad de codigo.<br>
+2021-09-09 : fixed | #914 | ajuste validacion dscto por item no afecta a la bi<br>
+2021-09-09 : fixed | #914 | Ajustes descuento global afecta bi<br>
+2021-09-09 : fixed | #622 | Testing: Añadiendo logs<br>
+2021-09-09 : fixed | #622 | Testing: Añadiendo logs<br>
+2021-09-09 : fixed | #622 | Testing: Añadiendo logs<br>
+2021-09-09 : fixed | #622 | Testing: Añadiendo logs<br>
+2021-09-09 : fixed | #622 | Compile JS<br>
+2021-09-09 : fixed | #622 | Migrar NV a otro server: Cambio de curl a GuzzleHttp<br>
+2021-09-09 : fixed | #914 | test variable payable<br>
+2021-09-08 : fixed | #914 | Modificaciones para descuento global que no afecta a la bi<br>
+2021-09-07 : fixed | #889 | Se agrega n! ruc en plantilla header_image_full_width<br>
+2021-09-07 : fixed | #813 | Reporte Masivo: Ajuste de bordes derecho e izquierdo a 1<br>
+2021-09-07 : fixed | #907 | Ajustes descuentos por item que no afectan a la bi - por % dscto<br>
+2021-09-07 : fixed | #704 | Compile JS<br>
+2021-09-06 : fixed | #704 | Compile JS<br>
+2021-09-06 : fixed | #704 | Guias de Remision: Ajuste para seleccion de serie si existe.<br>
+
+
+### feature
+2021-09-21 : feature | #940 | default_brand_as_lab: Factura/Boleta, Nota, Nota de venta: Ajuste para Marca como Laboratorio (Brand as Lab)<br>
+2021-09-21 : feature | - | Añadiendo Ignore a marcas de agua<br>
+2021-09-20 : feature |#929 | Ajuste en plantilla 929 Boleta/Factura:<br>
+2021-09-20 : feature |#936 | Reporte de Guia: Cambio de ID por Number<br>
+2021-09-20 : feature |#936 | Reporte de Guia: Cambio de ID por Number<br>
+2021-09-20 : feature | #813 #900 #936 | Compile JS<br>
+2021-09-20 : feature | #936 | Guias: Consulta de guías por producto: Se añade filtro con rango de número de comprobante<br>
+2021-09-20 : feature | #936 | Minor: Ajuste de formato de codigo<br>
+2021-09-20 : feature | #900 | Código de barras: Añadiendo rango de id minimo y maximo por edicion del usuario.<br>
+2021-09-20 : feature | #813 | Descarga masiva de comprobantes: Añadiendo filtro por number .<br>
+2021-09-20 : feature | #911 | Template: Factura/Boleta A4: Ajustes de cuentas bancarias<br>
+2021-09-20 : feature | #929 | Template: Factura/Boleta A4: Ajustes para direccion y % ded esciuento<br>
+2021-09-20 : feature | #911 | Template: Factura/Cotizacion A4: Añadiendo imagen de visualziacion<br>
+2021-09-20 : feature | #911 | Template: Factura/Cotizacion A4: Imagen de fondo en public\watermark\item_brand.jpg como marca de agua. Valor unitario (precio sin iva) en cotizacion y factura formato A4.<br>
+2021-09-17 : feature | #885 | Balance: Transferencia: Al momento de realizar la transferencia, el modal debe desaparecer<br>
+2021-09-17 : feature | - | Quitando log<br>
+2021-09-17 : feature | - | añadiendo log<br>
+2021-09-17 : feature | #885 |  Ajuste para objeto id<br>
+2021-09-17 : feature | #885 |  Compile JS<br>
+2021-09-17 : feature | #871 | url asignada en admin para apk es listada en menu apps de cliente<br>
+2021-09-16 : feature | #871 | url configurada desde admin (menu configuracion) - falta mostrar en tenant<br>
+2021-09-16 : feature | #885 | Compile JS<br>
+2021-09-16 : feature | #871 | ocultar menu apps desde admin<br>
+2021-09-16 : feature | #885 | Compras: Cambio de has_igv a purchase_has_igv: Tambien previene que pueda cambiarse el global igv al momento de ingresar items<br>
+2021-09-16 : feature | #924 | Clientes: Importar: Añadiendo tipo de cliente.<br>
+2021-09-16 : feature | #929 | Template: Boleta/Factura 929: Ajuste para 25 items<br>
+2021-09-16 : feature | #929 | Template: Boleta/Factura 929: Ajuste para 35 items<br>
+2021-09-16 : feature | #929 | Template: Boleta/Factura 929<br>
+2021-09-16 : feature | #925 | Se agrega costo total, precio venta - reporte inventario<br>
+2021-09-15 : feature | #925 | se agrega suma total precio venta y compra - vista reporte inventario<br>
+2021-09-15 : feature | #862 | Cotizaciones: modificacion longitud campo obs, pdf, ajustes en vista<br>
+2021-09-15 : feature | #929 | Minor: Ajuste de estilo y responsivo<br>
+2021-09-15 : feature | #885 | Compile JS<br>
+2021-09-15 : feature | #885 | Compras / Configuracion: Mejorando textos<br>
+2021-09-15 : feature | #885 | Compras: Ajuste para establecer IGV de compras globalmente para los items.<br>
+2021-09-15 : feature | wiki-doc | vista por defecto incial<br>
+2021-09-14 : feature | wiki-docs | añadiendo vistas en base a la wiki que se posee en gitlab - rutas: dominio/docs subdominio/docs<br>
+2021-09-13 : feature | #574  | Compile JS<br>
+2021-09-08 : feature | #574 | Compile JS<br>
+2021-09-08 : feature | #574 | Clientes/Person: Añadiendo palabra opcionales<br>
+2021-09-08 : feature | #574 | Clientes/Person: Envio correcto para multiples direcciones separadas con , a demas, de guardar correctamente el dato<br>
+2021-09-08 : feature | #574 | Mails/Emails: Añadiendo la posiblidad de enviar a multiples direcciones cuando estas, se separan con coma (,)<br>
+2021-09-08 : feature | #574 | Clientes/Person: Añadiendo optional_email para editarlo y optional_email_send que deberia ser usado para enviar correos<br>
+2021-09-08 : feature | #574 | Clientes/Person: Ajuste de vue para añadir correos opcionales.<br>
+2021-09-08 : feature | - | Minor: Ajuste de estilo de codigo<br>
+2021-09-08 : feature | #705 | Compile JS<br>
+2021-09-08 : feature | #813 | Reporte Masivo: Formato 80 MM correcto al imprimir<br>
+2021-09-08 : feature | #705 | Compras: Cambio de nomemclatura de "Fecha de Ven Gen" a "Fec. Vencimiento"<br>
+2021-09-07 : feature | #898 | Admin: se agrega notificacion cpe por anular<br>
+2021-09-07 : feature | #705 | Compras: Ajuste para establecer date_of_due en items de forma general, solo para aquellos que no tengan lotes.<br>
+2021-09-07 : feature | #744 | Compile JS<br>
+2021-09-07 : feature | #744 | Factura / Cotizacion / Nota de venta: Unificando estructura basado en resources/js/views/tenant/documents/partials/item.vue<br>
+2021-09-07 : feature | #744 | Factura: Item: ajustes graficos de botones, Se puede mejorar evitando duplicar codigo para movil. Atencion en @todo<br>
+2021-09-07 : feature | #744 | Factura: Se duplica codigo para el resumen de pagos y poder sacarlo de la tabla. Asi ordenarse correctamente en dispositvivos moviles. Se puede plantear hacer modificaciones como elemento para evitar la duplicidad de codigo. Atencion en @todo<br>
+
+
+## 4.1.4
+
+### docs
+2021-08-27 : docs | Update README.md - postman collection - api (icbper)<br>
+2021-08-27 : feature | #877 | Validador: Se modifica funcion para regularizar docs con nueva consulta integrada - ajustes respuesta<br>
+2021-08-13 : feature | #715 | Admin: Se agrega notificiaciones (docs pendientes de envio y rectificacion) - cambio texto a url<br>
+
+
+### fixed
+2021-09-06 : fixed | #907 | CPE: Ajuste para descuentos por item que no afecta a la bi - dscto por monto<br>
+2021-09-06 : fixed | #894 | Pos: Ajuste busqueda productos inhabilitados<br>
+2021-09-06 : fixed | #903 | Se agrega condicion de pago pdf multiple logo<br>
+2021-09-03 : fixed | #837 | Pedidos: No modificar vendedor al actualizar registro<br>
+2021-09-03 : fixed | #860 | Api: Actualizar descripcion de productos registrados<br>
+2021-09-03 : fixed | #185 | Ajuste de teclas lista precios<br>
+2021-09-01 : fixed | - | Compile JS<br>
+2021-09-01 : fixed | ajustes cargos - descuentos globales - api<br>
+2021-08-31 : fixed | - | fixed config url<br>
+2021-08-27 : fixed | #873 | CPE: Ajuste retorno de inventario al anular cpe que salio de diferente almacen principal<br>
+2021-08-27 : fixed | #886 | Ajuste afectacion gravado retiro por donacion<br>
+2021-08-27 : fixed  | - | remove testing PurchaseController.php<br>
+2021-08-27 : fixed  | - | testing PurchaseController.php<br>
+2021-08-27 : fixed  | #778 | Compile JS<br>
+2021-08-27 : fixed | #882 | Core: Se agrega monto icbper al crear items por api<br>
+2021-08-27 : fixed  | #778 | POS: Ajuste para mostrar PAGAR y ocultar los pagos rapido en efectivo cuando el pago es por condicion de credito<br>
+2021-08-27 : fixed  | #778 | POS: Ajuste para separar condiciones de pago en POS<br>
+2021-08-27 : fixed  | #881 | Compras: Ajuste para identificar el row->id<br>
+2021-08-26 : fixed | #861 | Cotizacion: Al editar una cotizacion donde el cliente no existe. este lo busca y lo añade<br>
+2021-08-26 : fixed | #883 | Item: Ajuste para formatear item units type correctamente<br>
+2021-08-26 : fixed | #883 | Minor: Formato de codigo<br>
+2021-08-26 : fixed | #841 | Compile JS<br>
+2021-08-26 : fixed | #841 | Compras: Ajuste para mostrar los descuentos correctamente<br>
+2021-08-26 : fixed | Cotizacion: Se elimina funcion para modificar fecha cuando se modifica termino pago<br>
+2021-08-26 : fixed | #881 | Compras: Validando indices en el guardado<br>
+2021-08-26 : fixed | #881 | Compras: OfflineTrait no se encontraba regstrado correctamente<br>
+2021-08-26 : fixed | - | Removiendo config.include_igv<br>
+2021-08-25 : fixed | #502 #872 | Compile JS<br>
+2021-08-25 : fixed | #872 | Cotizacion: Ajuste para mostrar la lista de precios correctamente<br>
+2021-08-24 : fixed | #878 | Notificaciones: Ajustes validacion de fecha por tipo documento - modificacion texto notificacion<br>
+2021-08-24 : fixed | #822 | formato a5 al regenerar pdf de factura en la creacion de una guia<br>
+2021-08-24 : fixed | #827 | url  configuracion de pago en nuevo menu<br>
+2021-08-24 : fixed | #773 | Reporte de ventas: Ajuste para cantidad<br>
+2021-08-23 : fixed | #596 | Inventario: Datos extra: Ajuste para mostrar correctamente los permisos del modulo<br>
+2021-08-23 : fixed | #863 | Se habilita edicion de fecha de emision al generar cpe desde pedido<br>
+2021-08-23 : fixed | #826 | Pedidos: Ajustes calculos afectacion gravado - bonificaciones<br>
+2021-08-23 : fixed | #872 | Compile JS<br>
+2021-08-23 : fixed | #872 | Compile JS<br>
+2021-08-23 : fixed | #872 | Compile JS<br>
+2021-08-23 : fixed | #872 | Compile js<br>
+2021-08-23 : fixed | #872 | Cotizacion: Ajuste para obtener is_client<br>
+2021-08-20 : fixed | #717 | Pos: Ajuste error n. venta generada desde el pos, no agrega placa al generar cpe<br>
+2021-08-20 : fixed | #858 | Ajuste al editar cpe - descuadre de stock - ajustes reporte kardex<br>
+2021-08-20 : fixed | #842 | informacion se desborda en pdf<br>
+2021-08-20 : fixed | #551 | Ajustes visualizacion de stock al generar cpe desde cotizacion - seleccion almacen<br>
+2021-08-19 : fixed | #551 | Ajustes vista stock cotizacion<br>
+2021-08-19 : fixed | #852 | se rearmará la coleccion de item para enviar otros datos necesarios<br>
+2021-08-18 : fixed | #692 | Ajustes descuento global - pos<br>
+2021-08-18 : fixed | #847 | reporte kardex - se comenta un cambio del 281 temporalmente<br>
+2021-08-18 : fixed | #853 | error 500 en notas desde la app movil<br>
+2021-08-17 : fixed | #827 | mensaje de comunicacion al admin para habilitar app<br>
+2021-08-17 : fixed | #827 | mensaje de comunicacion al admin para habilitar app<br>
+2021-08-17 : fixed | ajustes descuento global pos<br>
+2021-08-16 : fixed | #845 | Validacion propiedad tipo de afectacion<br>
+2021-08-16 : fixed | - | Item: Ajuste para utilizar vuex en la configuracion con config<br>
+2021-08-16 : fixed | #806 | Conexion sunat/ose: Se agrega opcion de contexto ssl verify_peer_name<br>
+2021-08-16 : fixed | #697 | Reporte consolidado de items: Ocultar cpe y notas de venta anuladas<br>
+2021-08-13 : fixed | #625 | Facturacion: Ajustes al validar codigos de errores para determinar estado de cpe<br>
+2021-08-13 : fixed | #596 | Minor: Ajuste de estilo en codigo<br>
+2021-08-13 : fixed | #818 #596 | Compile JS<br>
+2021-08-13 : fixed | #596 | Inventario: Añadiendo sumatoria de Ganancia y Ganancia total<br>
+2021-08-13 : fixed | #818 | Cotizacion: Eliminado logs de debug<br>
+2021-08-13 : fixed | #818 | Cotizacion: Ajuste para estadarizar el añadir item. Ajuste para no recargar igv en los productos al editar<br>
+2021-08-12 : fixed | #838 | Ajuste edicion nota de venta - registro duplicado<br>
+2021-08-12 : fixed | #830 | validacion propiedad attributes en form items<br>
+2021-08-12 : fixed | #830 | Se modifica condicion para visualizar boton lotes en ventas - ajustes al clonar productos con lotes<br>
+2021-08-12 : fixed | #833 | Si el almacen existe, se ajusta, sino queda en null<br>
+2021-08-11 : fixed | - | Ajuste para rango de fechas en GlobalPayment.php<br>
+2021-08-11 : fixed | #185 | Se agrega seleccion lista precio en listado productos - pos<br>
+2021-08-10 : fixed | !249 | Compile JS<br>
+2021-08-10 : fixed | !249 | Compile JS<br>
+2021-08-10 : fixed | #596 | KARDEX VALORIZADO: Ajuste para stock en el excel.<br>
+2021-08-10 : fixed | #281 | KARDEX VALORIZADO: Ajuste para filtrar por establecimientos correctamente<br>
+2021-08-10 : fixed | #773 | Ajuste de error ortografico en plataforma<br>
+2021-08-09 : fixed | - | Formato de codigo y validacion de descuentos y cargos con row.XX.length > 0<br>
+2021-08-10 : fixed | #656 | Ajuste propiedad attributes en productos - error atributos nulos en cpe<br>
+2021-08-10 : fixed | #735 | Notas de venta: ajuste nombre de archivo recurrencia nv<br>
+2021-08-10 : fixed | #809 | Nuevo cpe: Ajuste para busqueda por codigo de barras<br>
+2021-08-09 : fixed | #772 | Productos: Restriccion historial de productos a administradores<br>
+
+
+### feature
+2021-09-06 : feature | - | retornando external id para uso en app movil<br>
+2021-09-03 : feature | #813 | Compile JS<br>
+2021-09-03 : feature | #901 | Compras: Se evaula si es array para devolver el dato.<br>
+2021-09-03 : feature | #704 | Guias: Añadiendo UBIGEO a la direccion. Ruta para buscar Clientes en dispatchs<br>
+2021-09-03 : feature | #704 | Guias: Establecimiento automatico al del usuario. Serie si se encuentra por defecto asignada. Unidad de medida a Kilos, Peso total y Numero de paquete a 1. Cliente Al asignado por defecto en la empresa<br>
+2021-09-03 : feature | - | Unificacion para busqueda de Clientes (Customers) por id.<br>
+2021-09-03 : feature | - | Minor: Ajuste de estilo de codigo<br>
+2021-09-03 : feature | #750 | Listado de CPE: Mostrar generar guia cuando el documento este registrado.<br>
+2021-09-03 : feature | #813 | Reporte Masivo: Ajuste de salida como vista, no como descarga de archivo<br>
+2021-09-03 : feature | #813 | Compile JS<br>
+2021-09-02 : feature | #813 | Compile JS<br>
+2021-09-02 : feature | #185 | Pos: Se agrega seleccion lista de precios mediante atajo teclas (qwsd)<br>
+2021-09-01 : feature | #701 | compile js<br>
+2021-09-01 : feature | #701 | Compras: Añadiendo Stock y almacen por defecto<br>
+2021-09-01 : feature | #873 | Reporte inventario: se agrego filtro para productos habilitados/inhabilitados<br>
+2021-08-31 : feature | #880 | APK: Solo añadir url del apk para env, de forma general<br>
+2021-08-31 : feature | #880 | Aplicaciones Extra: Añadiendo wiki para farmacia. Ajuste para Caambiar automaticamente farmacia al habilitar el modulo desde admin<br>
+2021-08-28 : feature | #778 | Revirtiendo POS / Condicion de pago eliminada<br>
+2021-08-27 : feature | #877 | Validador: Se modifica funcion para regularizar docs con nueva consulta integrada - ajustes respuesta<br>
+2021-08-26 : feature | #877 | Validador: integracion consulta integrada - ajuste en vista<br>
+2021-08-26 : feature | - | minor: Ajuste de estilo<br>
+2021-08-26 : feature | - | Documentos, Cotizacion, Nota de venta: Ajuste para validar los atributos del item.<br>
+2021-08-25 : feature | #877 | Validador documentos: consulta integrada autenticacion<br>
+2021-08-25 : feature | #289 | Funcionalidad para regularizar/cancelar resumen<br>
+2021-08-25 : feature | #502 | Compras: Añadiendo lista de Precios por almacen.<br>
+2021-08-24 : feature | #289 | Resumenes: Agregando funcion para regularizar cpe<br>
+2021-08-24 : feature | #502 | Compile JS<br>
+2021-08-24 : feature | #502 | Compras: Lista de precios: Se puede actualizar la lista de precios al seleccionar "Editar precio de venta"<br>
+2021-08-24 : feature | #502 | Minor: Ajuste de estilo<br>
+2021-08-24 : feature | #849 | Compile JS<br>
+2021-08-24 : feature | #849 | Compile JS<br>
+2021-08-24 : feature | #849 | Documentos / Cotizaciones / Nota de venta: Unificacion de elemento Agregar/editar item. Cotizacion difiere en unit_price_value y unit_price. Listado de precios: Se valida is_client = false para mostrarlo  OfflineConfiguration::firstOrFail()->is_client<br>
+2021-08-24 : feature | #849 | ItemSlotTooltip; Para normalizar todos los tooltip de item. ItemOptionDescription: Para normalizar la descripcion de items. Aplica en agregar / editar item de document / quotations / sale_notes<br>
+2021-08-24 : feature | #849 | item_tables: Añadiendo $operation_types y $is_client para crear un standar en la seleccion de items<br>
+2021-08-23 : feature | #874 | Se agrega columna hora a reporte de notas de venta<br>
+2021-08-23 : feature | #719 | Se agrega configuracion y funcionalidad para generar cpe desde multiples notas, sin que los items se agrupen<br>
+2021-08-20 : feature | #596 | Items: Configuracion para mostrar los datos extra.<br>
+2021-08-20 : feature | #596 | Items: Configuracion para mostrar los datos extra.<br>
+2021-08-20 : feature | #596 | Items: Generando codigo para utilizarlo el extra data en cotizacion<br>
+2021-08-20 : feature | #596 | Items: Guardado de caracteristicas opcionales y forma de implementacion de ser necesario<br>
+2021-08-20 : feature | #596 | Items: Añadiendo              'colors',              'CatItemMoldCavity',              'CatItemMoldProperty',              'CatItemUnitBusiness',              'CatItemStatus',              'CatItemPackageMeasurement',              'CatItemProductFamily',              'CatItemUnitsPerPackage' a las caracteristicas del item en CPE<br>
+2021-08-19 : feature | #827 | apps que estaran proximamente en listado de apps<br>
+2021-08-19 : feature | #827 | apps que estaran proximamente en listado de apps<br>
+2021-08-18 : feature | #596 | Items: Añadiendo              'colors',              'CatItemMoldCavity',              'CatItemMoldProperty',              'CatItemUnitBusiness',              'CatItemStatus',              'CatItemPackageMeasurement',              'CatItemProductFamily',              'CatItemUnitsPerPackage' a las caracteristicas del item en CPE<br>
+2021-08-18 : feature | #596 | Items: Añadiendo              'colors',              'CatItemMoldCavity',              'CatItemMoldProperty',              'CatItemUnitBusiness',              'CatItemStatus',              'CatItemPackageMeasurement',              'CatItemProductFamily',              'CatItemUnitsPerPackage' a las caracteristicas del item en edicion/creacion de item<br>
+2021-08-17 : feature | #852 | attributos en items de cotizaciones<br>
+2021-08-16 : feature | #596 | Items: Añadiendo color a las caracteristicas del item<br>
+2021-08-13 : feature | #715 | Admin: Se agrega notificiaciones (docs pendientes de envio y rectificacion) - cambio texto a url<br>
+2021-08-13 : feature | #596 | Compile jS<br>
+2021-08-13 : feature | #737 | Guias: Se modifica componente datatable - agrega campos y filtros<br>
+2021-08-13 : feature | #596 | Pedidos: Ajuste para mostrar Despachado pedidos con guia de remision<br>
+2021-08-13 : feature | #827 | menu pagos, menu apps en tenant y system<br>
+2021-08-12 : feature | #740 | Nuevo cpe: Se agrega informacion de pasajeros a pdf default<br>
+2021-08-11 : feature |  | Compile JS<br>
+2021-08-11 : feature | #773 | Reporte de inventario: Ajuste de prefijo (pck) para items en el pack<br>
+2021-08-11 : feature | #596 | Reporte de inventario: Ganacia total en el reporte de inventario<br>
+2021-08-10 : feature | #596 | Reportes de kardex: Añadiendo valores por almacen de los items<br>
+2021-08-09 : feature | - | Ajuste para moneda automatica<br>
+2021-08-09 : feature | - | Ajuste de nomenclatura de rutas.<br>
+2021-08-09 : feature | #570 | CPE: Ajuste para seleccionar moneda automaticamente.<br>
+2021-08-09 : feature | #570 | Nota de venta: Ajuste para seleccionar moneda automaticamente.<br>
+2021-08-09 : feature | #570 | Configuracion: Añadiendo Moneda por defecto.<br>
+2021-08-10 : feature | #711 | mas espacio para bancos en plantilla default3_banks<br>
+2021-08-09 : feature | #831 | div genera salto de linea innecesario en detalle de empresa, nuevo comprobante<br>
+2021-08-09 : feature | #185 | Pos: se agrega opcion para seleccionar precio de listado de precios al agregar producto - configuracion<br>
+2021-08-09 : feature | #828 | modo claro/oscuro afecta al sidebar<br>
+2021-08-06 : feature | #772 | Se agrega historial ventas/compras en productos - stock y series por productos - seleccion y configuracion automatica de afectacion gratuita en nuevo cpe - ajustes xml calculos afectacion gratuita<br>
+
+
 ## 4.1.3
 
 ### docs

@@ -4,21 +4,33 @@
         $customer = $document->customer;
         $invoice = $document->invoice;
         $document_base = ($document->note) ? $document->note : null;
+
         //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
         $document_number = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
+
         if($document_base) {
+
             $affected_document_number = ($document_base->affected_document) ? $document_base->affected_document->series.'-'.str_pad($document_base->affected_document->number, 8, '0', STR_PAD_LEFT) : $document_base->data_affected_document->series.'-'.str_pad($document_base->data_affected_document->number, 8, '0', STR_PAD_LEFT);
+
         } else {
+
             $affected_document_number = null;
         }
+
         $payments = $document->payments;
+
         // $document->load('reference_guides');
+
         if ($document->payments) {
             $total_payment = $document->payments->sum('payment');
             $balance = ($document->total - $total_payment) - $document->payments->sum('change');
         }
+
+
     }
+
     $accounts = \App\Models\Tenant\BankAccount::all();
+
     $path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
 @endphp
 <head>
@@ -26,47 +38,19 @@
 </head>
 <body>
 @if($document != null)
-    @if(!is_null($document_base))
-        <table class="full-width border-box my-2">
-            <tr>
-                <th class="border-box text-center py-1 desc">DOC. RELACIONADO</th>
-                <th class="border-box text-center py-1 desc">TIPO DE NOTA</th>
-                <th class="border-box text-center py-1 desc">DESCRIPCIÓN</th>
-            </tr>
-            <tr>
-                <td class="border-box text-center py-1 desc">{{ $affected_document_number }}</td>
-                <td class="border-box text-center py-1 desc">{{ ($document_base->note_type === 'credit')?$document_base->note_credit_type->description:$document_base->note_debit_type->description}}</td>
-                <td class="border-box text-center py-1 desc">{{ $document_base->note_description }}</td>
-            </tr>
-        </table>
-    @endif
-    
-    @foreach(array_reverse( (array) $document->legends) as $row)
-    @if ($row->code == "1000")
     <table class="full-width border-box my-2">
-        <tr>
-            <td class="text-upp p-2">SON: {{ $row->value }} {{ $document->currency_type->description }}</td>
-        </tr>
-    </table>
-    @else
-    <table class="full-width border-box my-2">
-        <tr>
-            <td class="text-upp p-2">{{$row->code}}: {{ $row->value }}</td>
-        </tr>
-    </table>
-    @endif
-
-    {{-- <table class="full-width border-box my-2">
         <tr>
             <td class="text-upp p-2">SON:
-                @if ($row->code == "1000")
-                    {{ $row->value }} {{ $document->currency_type->description }}
-                @endif
+                @foreach(array_reverse( (array) $document->legends) as $row)
+                    @if ($row->code == "1000")
+                        {{ $row->value }} {{ $document->currency_type->description }}
+                    @else
+                        {{$row->code}}: {{ $row->value }}
+                    @endif
+                @endforeach
             </td>
         </tr>
-    </table> --}}
-    @endforeach
-
+    </table>
     <table class="full-width border-box my-2">
         <tr>
             <td class="text-upp p-2">OBSERVACIONES:

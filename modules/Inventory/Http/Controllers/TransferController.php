@@ -44,6 +44,17 @@ class TransferController extends Controller{
         }else{
             $records = InventoryTransfer::with(['warehouse','warehouse_destination', 'inventory'])->latest();
         }
+        //return json_encode( $records );
+        /*$records = Inventory::with(['item', 'warehouse', 'warehouse_destination'])
+                            ->where('type', 2)
+                            ->whereHas('warehouse_destination')
+                            ->whereHas('item', function($query) use($request) {
+                                $query->where('description', 'like', '%' . $request->value . '%');
+
+                            })
+                            ->latest();*/
+
+
         return new TransferCollection($records->paginate(config('tenant.items_per_page')));
     }
 
@@ -111,6 +122,7 @@ class TransferController extends Controller{
 
     public function tables(){
         return [
+            //'items' => $this->optionsItemWareHouse(),
             'warehouses' => $this->optionsWarehouse()
         ];
     }

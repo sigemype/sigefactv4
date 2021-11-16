@@ -2,9 +2,11 @@
     $note = $document->note;
     $establishment = $document->establishment;
     $customer = $document->customer;
+
     $series = ($note->affected_document) ? $note->affected_document->series : $note->data_affected_document->series;
     $document_type_id = ($note->affected_document) ? $note->affected_document->document_type_id : $note->data_affected_document->document_type_id;
     $number = ($note->affected_document) ? $note->affected_document->number : $note->data_affected_document->number;
+
 @endphp
 {!! '<?xml version="1.0" encoding="utf-8" standalone="no"?>' !!}
 <CreditNote xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
@@ -17,17 +19,14 @@
             <ext:ExtensionContent/>
         </ext:UBLExtension>
     </ext:UBLExtensions>
-    
     <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
     <cbc:CustomizationID>2.0</cbc:CustomizationID>
     <cbc:ID>{{ $document->series }}-{{ $document->number }}</cbc:ID>
     <cbc:IssueDate>{{ $document->date_of_issue->format('Y-m-d') }}</cbc:IssueDate>
     <cbc:IssueTime>{{ $document->time_of_issue }}</cbc:IssueTime>
-
     @foreach($document->legends as $leg)
     <cbc:Note languageLocaleID="{{ $leg->code }}"><![CDATA[{{ $leg->value }}]]></cbc:Note>
     @endforeach
-    
     <cbc:DocumentCurrencyCode>{{ $document->currency_type_id }}</cbc:DocumentCurrencyCode>
     <cac:DiscrepancyResponse>
         <cbc:ReferenceID>{{ $series.'-'.$number }}</cbc:ReferenceID>
@@ -152,6 +151,21 @@
             @endif
         </cac:Party>
     </cac:AccountingCustomerParty>
+    @if ($note->note_credit_type_id === '13' && $document->payment_condition_id === '02')
+    <cac:PaymentTerms>
+        <cbc:ID>FormaPago</cbc:ID>
+        <cbc:PaymentMeansID>Credito</cbc:PaymentMeansID>
+        <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $document->fees()->sum('amount') }}</cbc:Amount>
+    </cac:PaymentTerms>
+    @foreach($document->fees as $fee)
+        <cac:PaymentTerms>
+            <cbc:ID>FormaPago</cbc:ID>
+            <cbc:PaymentMeansID>Cuota{{ sprintf("%03d", $loop->iteration) }}</cbc:PaymentMeansID>
+            <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $fee->amount }}</cbc:Amount>
+            <cbc:PaymentDueDate>{{ $fee->date->format('Y-m-d') }}</cbc:PaymentDueDate>
+        </cac:PaymentTerms>
+    @endforeach
+    @endif
     <cac:TaxTotal>
         <cbc:TaxAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_taxes }}</cbc:TaxAmount>
         @if($document->total_isc > 0)
@@ -261,8 +275,8 @@
     <cac:LegalMonetaryTotal>
         <cbc:LineExtensionAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_value }}</cbc:LineExtensionAmount>
         <cbc:TaxInclusiveAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total }}</cbc:TaxInclusiveAmount>
-        @if($document->total_charges > 0)
-        <cbc:ChargeTotalAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_charges }}</cbc:ChargeTotalAmount>
+        @if($document->total_charge > 0)
+        <cbc:ChargeTotalAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_charge }}</cbc:ChargeTotalAmount>
         @endif
         <cbc:PayableAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total }}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>

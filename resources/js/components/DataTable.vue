@@ -83,7 +83,7 @@ export default {
         productType: {
             type: String,
             required: false,
-            default: ""
+            default: ''
         },
         resource: String,
         applyFilter: {
@@ -91,7 +91,7 @@ export default {
             default: true,
             required: false
         },
-        pharmacy: Boolean
+        pharmacy: Boolean,
     },
     data() {
         return {
@@ -103,11 +103,11 @@ export default {
             records: [],
             pagination: {},
             loading_submit: false,
-            fromPharmacy: false
+            fromPharmacy: false,
         };
     },
     created() {
-        if (this.pharmacy !== undefined && this.pharmacy === true) {
+        if(this.pharmacy !== undefined && this.pharmacy === true){
             this.fromPharmacy = true;
         }
         this.$eventHub.$on("reloadData", () => {
@@ -150,8 +150,8 @@ export default {
                 });
         },
         getQueryParameters() {
-            if (this.productType == "ZZ") {
-                this.search.type = "ZZ";
+            if (this.productType == 'ZZ') {
+                this.search.type = 'ZZ';
             }
             return queryString.stringify({
                 page: this.pagination.current_page,

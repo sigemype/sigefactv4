@@ -5,6 +5,7 @@ namespace App\Models\Tenant;
 use App\Models\Tenant\Catalogs\AffectationIgvType;
 use App\Models\Tenant\Catalogs\PriceType;
 use App\Models\Tenant\Catalogs\SystemIscType;
+use App\Traits\AttributePerItems;
 use Modules\Inventory\Models\Warehouse;
 use Modules\Item\Models\ItemLot;
 
@@ -30,6 +31,7 @@ use Modules\Item\Models\ItemLot;
  */
 class PurchaseItem extends ModelTenant
 {
+    use AttributePerItems;
     protected $with = ['affectation_igv_type', 'system_isc_type', 'price_type', 'lots', 'warehouse'];
     public $timestamps = false;
 

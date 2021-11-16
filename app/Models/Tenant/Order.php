@@ -35,6 +35,11 @@ class Order extends ModelTenant
         return $this->belongsTo(StatusOrder::class);
     }
 
+    public function sale_note()
+    {
+        return $this->hasOne(SaleNote::class);
+    }
+
     /**
      * Retorna un standar de nomenclatura para el modelo
      *

@@ -8,6 +8,7 @@ class Template{
             $template = 'note';
         }
         $path_template =  $this->validate_template($base_template, $template, $format_pdf);
+        // Log::info($document);
         return self::render($path_template, $company, $document);
     }
 

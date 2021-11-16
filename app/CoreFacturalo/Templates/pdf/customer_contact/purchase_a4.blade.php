@@ -2,6 +2,7 @@
     $establishment = $document->establishment;
     $supplier = $document->supplier;
     $payments = $document->payments;
+    $customer = $document->customer;
     $tittle = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
 @endphp
 <html>
@@ -81,7 +82,7 @@
             {{ ($supplier->department_id !== '-')? '- '.$supplier->department->description : '' }}
         </td>
     </tr>
-    @endif 
+    @endif
     @if ($supplier->telephone)
     <tr>
         <td class="align-top">Teléfono:</td>
@@ -89,7 +90,7 @@
             {{ $supplier->telephone }}
         </td>
     </tr>
-    @endif 
+    @endif
     <tr>
         <td class="align-top">Usuario:</td>
         <td colspan="3">
@@ -100,6 +101,14 @@
     <tr>
         <td class="align-top">O. Compra:</td>
         <td  colspan="3">{{ $document->purchase_order->number_full }}</td>
+    </tr>
+    @endif
+    @if ($customer)
+    <tr>
+        <td class="align-top">Cliente:</td>
+        <td colspan="3">
+            {{ $customer->name }} {{ $customer->identity_document_type->description }} {{ $customer->number }}
+        </td>
     </tr>
     @endif
 </table>

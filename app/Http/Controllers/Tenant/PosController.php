@@ -386,6 +386,9 @@ class PosController extends Controller
                 $query->where($whereExtra);
             });
         }
+
+        $item->whereIsActive();
+        
     }
 
     /**
@@ -398,7 +401,7 @@ class PosController extends Controller
     public function search_items_cat(Request $request)
     {
         $item = Item::whereWarehouse()
-            ->whereIsActive()
+            // ->whereIsActive()
             ->where('series_enabled', 0);
 
         self::FilterItem($item, $request);

@@ -14,6 +14,7 @@ class OrderCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+
         return $this->collection->transform(function($row, $key) {
             return [
                 'id' => $row->id,
@@ -30,8 +31,13 @@ class OrderCollection extends ResourceCollection
                 'document_external_id' => $row->document_external_id,
                 'created_at' => $row->created_at->format('Y-m-d H:i:s'),
                 'status_order_id' => $row->status_order_id,
-                'purchase' => $row->purchase
+                'purchase' => $row->purchase,
+                'document_type_id' => optional($row->purchase)->codigo_tipo_documento,
+                'has_sale_note' => !is_null($row->sale_note),
+                'sale_note_number_full' => optional($row->sale_note)->number_full,
+                'sale_note_id' => optional($row->sale_note)->id,
             ];
         });
+
     }
 }

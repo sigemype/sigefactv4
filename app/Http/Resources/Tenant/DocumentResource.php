@@ -3,19 +3,18 @@
 namespace App\Http\Resources\Tenant;
 
 use App\Models\Tenant\Document;
+use App\Models\Tenant\Person;
 use App\Models\Tenant\SaleNote;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DocumentResource extends JsonResource
-{
+class DocumentResource extends JsonResource{
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request
      * @return array
      */
-    public function toArray($request)
-    {
+    public function toArray($request){
 
         $response_message = null;
         $response_type = null;
@@ -50,6 +49,16 @@ class DocumentResource extends JsonResource
 
         $nvs = $document->getNvCollection();
 
+        $customer = $document->customer;
+        $customer_email = $customer->email;
+
+        /** @var Person $person */
+        $person = $document->person;
+        $mails = $person->getCollectionData();
+        $customer_email=  $mails['optional_email_send'];
+
+
+
         $data = [
             'id' => $document->id,
             'external_id' => $document->external_id,
@@ -57,7 +66,7 @@ class DocumentResource extends JsonResource
             'number' => $document->number_full,
             'regularize_shipping' => (bool) $document->regularize_shipping,
             'date_of_issue' => $document->date_of_issue->format('Y-m-d'),
-            'customer_email' => $document->customer->email,
+            'customer_email' => $customer_email,
             'download_pdf' => $document->download_external_pdf,
             'print_ticket' => url('')."/print/document/{$document->external_id}/ticket",
             'print_a4' => url('')."/print/document/{$document->external_id}/a4",

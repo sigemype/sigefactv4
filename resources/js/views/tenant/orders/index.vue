@@ -30,8 +30,8 @@
             <th>Fecha Emision</th>
             <th>Medio Pago</th>
             <th>Estatus del Pedido</th>
-            <th>Comprobante Electronico</th>
-            <th>Comprobante</th>
+            <th class="text-center">Documento</th>
+            <th class="text-center">Opciones</th>
           </tr>
           <tr></tr>
           <tr slot-scope="{ index, row }">
@@ -96,9 +96,22 @@
                 ></el-option>
               </el-select>
             </td>
-            <td class="text-center">{{row.number_document}}</td>
             <td class="text-center">
-              <el-button v-if="row.document_external_id" class="submit" type="success" icon="el-icon-tickets" @click.prevent="clickDownload(row.document_external_id)"></el-button>
+              <template v-if="row.document_type_id == '80'">
+                {{row.sale_note_number_full}}
+              </template>
+              <template v-else>
+                {{row.number_document}}
+              </template>
+            </td>
+            <td class="text-center">
+              <template v-if="row.document_type_id == '80'">
+                <el-button v-if="row.sale_note_id" class="submit" type="success" icon="el-icon-tickets" @click.prevent="clickOptions(row.sale_note_id)"></el-button>
+              </template>
+              <template v-else>
+                <el-button v-if="row.document_external_id" class="submit" type="success" icon="el-icon-tickets" @click.prevent="clickDownload(row.document_external_id)"></el-button>
+              </template>
+
             </td>
           </tr>
         </data-table>
@@ -163,8 +176,14 @@
     ></options-form>
 
     <document-form :order_id="order_id" :user="user" :document_types="document_types" ref="document_form">
-
     </document-form>
+    
+    <sale-note-form 
+      :showDialog.sync="showDialogSaleNote"
+      :orderId="order_id"
+      :dataSaleNote="dataSaleNote" 
+      >
+    </sale-note-form>
   </div>
 </template>
 <script>
@@ -172,11 +191,12 @@ import DataTable from "../../../components/DataTable.vue";
 import queryString from "query-string";
 import OptionsForm from "../pos/partials/options.vue";
 import DocumentForm from "./partials/document_form.vue";
+import SaleNoteForm from "./partials/sale_note_form.vue";
 
 export default {
   props: ['user'],
 
-  components: { DataTable, OptionsForm, DocumentForm},
+  components: { DataTable, OptionsForm, DocumentForm, SaleNoteForm},
   data() {
     return {
       showDialog: false,
@@ -198,8 +218,9 @@ export default {
       resource_options: null,
       loading_submit: false,
       document_types:[],
-      order_id: null
-
+      order_id: null,
+      dataSaleNote: {},
+      showDialogSaleNote: false,
     }
   },
   async created() {
@@ -210,6 +231,14 @@ export default {
   },
   computed: {},
   methods: {
+    clickOptions(recordId){
+
+      this.documentNewId = recordId
+      this.statusDocument.send = ""
+      this.resource_options = 'sale-notes'
+      this.showDialogOptions = true
+
+    },
     async clickDownload(row) {
       await this.$http.get(`/documents/search/externalId/${row}`).then((response) => {
         this.documentNewId = response.data.id
@@ -242,20 +271,35 @@ export default {
         }
       }
     },
+    openDialogSaleNote(sale_note){
+      this.dataSaleNote = sale_note
+      this.showDialogSaleNote = true
+    },
     async updateStatus(record) {
+
       this.record = record
+
       if (record.status_order_id === 2) {
 
-         this.order_id =  record.id
+        this.order_id =  record.id   
 
-        if(record.document_external_id)
-        {
+        if(record.purchase.codigo_tipo_documento == '80'){
+
+          if(record.has_sale_note) return this.$message.success("Ya existe una nota de venta")
+          this.openDialogSaleNote(record.purchase)
+          // console.log(record)
+
+        }else{
+
+          if(record.document_external_id)
+          {
             return this.$message.success("Ya existe un comprobante.")
+          }
+          this.$refs.document_form.sendPreview(record.purchase)
+          //this.loading_submit = true
+          //await this.sendDocument(record.purchase)
         }
 
-        this.$refs.document_form.sendPreview(record.purchase)
-        //this.loading_submit = true
-        //await this.sendDocument(record.purchase)
       } else if (record.status_order_id === 3) {
         this.totalProduct = await this.products(record)
         await this.$http

@@ -71,7 +71,14 @@ class Devolution extends ModelTenant
         $user = auth()->user();
         return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
     }
-    
+
+    /**
+     * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
+     * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
+     * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function inventory_kardex()
     {
         return $this->morphMany(InventoryKardex::class, 'inventory_kardexable');

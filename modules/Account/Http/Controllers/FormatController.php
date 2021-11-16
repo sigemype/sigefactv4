@@ -17,19 +17,17 @@ use Modules\Account\Exports\ReportFormatSaleExport;
      *
      * @package Modules\Account\Http\Controllers
      */
-class FormatController extends Controller
-{
+    class FormatController extends Controller {
         /**
          * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
          */
-    public function index() 
-    {
-        $currencies = CurrencyType::select(
-            'id',
-            'symbol',
-            'description'
-        )->Actives()->get();
-        return view('account::account.format', compact('currencies'));
+        public function index() {
+            $currencies = CurrencyType::select(
+                'id',
+                'symbol',
+                'description'
+            )->Actives()->get();
+            return view('account::account.format', compact('currencies'));
     }
 
         /**
@@ -37,43 +35,41 @@ class FormatController extends Controller
          *
          * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
          */
-    public function download(Request $request)
-    {
+        public function download(Request $request) {
         $type = $request->input('type');
         $month = $request->input('month');
         $d_start = Carbon::parse($month.'-01')->format('Y-m-d');
         $d_end = Carbon::parse($month.'-01')->endOfMonth()->format('Y-m-d');
 
-        $company = $this->getCompany();
-        $filename = 'Reporte_Formato_Compras_'.date('YmdHis');
-        $data = [
-            'period' => $month,
-            'company' => $company,
-        ];
+            $company = $this->getCompany();
+            $filename = 'Reporte_Formato_Compras_'.date('YmdHis');
+            $data = [
+                'period' => $month,
+                'company' => $company,
+            ];
 
-        if ($type === 'sale') {
-            $filename = 'Reporte_Formato_Ventas_'.date('YmdHis');
-            $data['records'] = $this->getSaleDocuments($d_start, $d_end);
-            $reportFormatSaleExport = new ReportFormatSaleExport();
-            $reportFormatSaleExport->data($data);
-            // return $reportFormatSaleExport->view();
-            return $reportFormatSaleExport
+            if ($type === 'sale') {
+                $filename = 'Reporte_Formato_Ventas_'.date('YmdHis');
+                $data['records'] = $this->getSaleDocuments($d_start, $d_end);
+                $reportFormatSaleExport = new ReportFormatSaleExport();
+                $reportFormatSaleExport->data($data);
+                // return $reportFormatSaleExport->view();
+                return $reportFormatSaleExport
+                    ->download($filename.'.xlsx');
+            }
+            $data['records'] = $this->getPurchaseDocuments($d_start, $d_end);
+
+            $reportFormatPurchaseExport = new ReportFormatPurchaseExport();
+            $reportFormatPurchaseExport->data($data);
+            // return $reportFormatPurchaseExport->view();
+            return $reportFormatPurchaseExport
                 ->download($filename.'.xlsx');
         }
-        $data['records'] = $this->getPurchaseDocuments($d_start, $d_end);
-
-        $reportFormatPurchaseExport = new ReportFormatPurchaseExport();
-        $reportFormatPurchaseExport->data($data);
-        // return $reportFormatPurchaseExport->view();
-        return $reportFormatPurchaseExport
-            ->download($filename.'.xlsx');
-    }
 
         /**
          * @return array
          */
-        private function getCompany()
-        {
+        private function getCompany() {
         $company = Company::query()->first();
 
         return [

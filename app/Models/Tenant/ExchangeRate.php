@@ -16,4 +16,11 @@ class ExchangeRate extends ModelTenant
         'sale',
         'sale_original',
     ];
+
+    protected $casts = [
+        'purchase' => 'float',
+        'purchase_original' => 'float',
+        'sale' => 'float',
+        'sale_original' => 'float',
+    ];
 }

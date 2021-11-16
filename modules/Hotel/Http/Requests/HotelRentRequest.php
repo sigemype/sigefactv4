@@ -25,7 +25,8 @@ class HotelRentRequest extends FormRequest
 			'payment_status'           => 'required|in:PAID,DEBT',
 			'output_date'              => 'required|date_format:Y-m-d',
 			'output_time'              => 'required|date_format:H:i',
-			'product'                  => 'required'
+			'product'                  => 'required',
+			'hotel_rate_id'              => 'required|numeric',
 		];
 	}
 }

@@ -40,7 +40,7 @@
 @if($document->state_type->id == '11')
     <div class="company_logo_box" style="position: absolute; text-align: center; top:30%;">
         <img src="data:{{mime_content_type(public_path("status_images".DIRECTORY_SEPARATOR."anulado.png"))}};base64, {{base64_encode(file_get_contents(public_path("status_images".DIRECTORY_SEPARATOR."anulado.png")))}}" alt="anulado" class="" style="opacity: 0.6;">
-    </div> 
+    </div>
 @endif
 <table class="full-width">
 
@@ -90,7 +90,7 @@
             <br>
             <h3 class="text-center font-bold">{{ $document_number }}</h3>
         </td>
-    </tr> 
+    </tr>
 </table>
 <table class="full-width mt-3">
     <tr>
@@ -129,8 +129,8 @@
                             </span>
                         @endif
                     </td>
-                </tr> 
-                
+                </tr>
+
                 @if(!is_null($document_base))
                 <tr>
                     <td class="font-sm font-bold" width="80px">Doc. Afectado</td>
@@ -147,14 +147,14 @@
                     <td class="font-sm">:</td>
                     <td class="font-sm">{{ $document_base->note_description }}</td>
                 </tr>
-                @endif 
+                @endif
             </table>
         </td>
         <td width="3%"></td>
         <td width="50%" class="border-box pl-1 ">
             <table class="full-width">
 
-                
+
                 <tr>
                     <td class="font-sm" width="90px">
                         <strong>Fecha Emisión</strong>
@@ -212,7 +212,7 @@
                         {{ $document->payments()->first()->payment_method_type->description }} - {{ $document->currency_type_id }} {{ $document->payments()->first()->payment }}
                     </td>
                     @endif
-                </tr> 
+                </tr>
 
                 <tr>
                     @if($document->guides)
@@ -225,8 +225,8 @@
                         {{ $item->document_type_description }}:  {{ $item->number }}<br>
                         @endforeach
                     </td>
-                    @endif 
-                </tr> 
+                    @endif
+                </tr>
 
 
             </table>
@@ -236,12 +236,12 @@
         </td> --}}
     </tr>
 </table>
-<table class="full-width my-2 text-center" border="0"> 
+<table class="full-width my-2 text-center" border="0">
     <tr>
         <td class="desc"></td>
     </tr>
 </table>
- 
+
 
 <table class="full-width mt-0 mb-0" >
     <thead >
@@ -255,7 +255,7 @@
             <th class="border-top-bottom text-center py-1 desc" class="cell-solid"  width="12%">TOTAL</th>
         </tr>
     </thead>
-    <tbody class=""> 
+    <tbody class="">
         @foreach($document->items as $row)
             <tr>
                 <td class="p-1 text-center align-top desc cell-solid-rl">{{ $row->item->internal_id }}</td>
@@ -280,7 +280,7 @@
                         @foreach($row->attributes as $attr)
                             @if($attr->attribute_type_id === '5032')
                             @php
-                                $total_weight += $attr->value * $row->quantity;    
+                                $total_weight += $attr->value * $row->quantity;
                             @endphp
                             @endif
                             <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
@@ -329,7 +329,7 @@
             <td class="p-1 text-right align-top desc cell-solid-rl"></td>
         </tr>
         @endfor
- 
+
         <tr>
             <td class="p-1 text-left align-top desc cell-solid" colspan="3"><strong> VENDEDOR:</strong> {{ $document->user->name }}</td>
             <td class="p-1 text-left align-top desc cell-solid font-bold">
@@ -347,12 +347,12 @@
             </td>
             <td class="p-1 text-right align-top desc cell-solid font-bold">{{ number_format($document->total_taxed, 2) }}</td>
         </tr>
-        
+
         <tr>
             <td class="p-1 text-left align-top desc cell-solid" colspan="3" rowspan="6">
                 @php
                     $total_packages = $document->items()->sum('quantity');
-                     
+
                 @endphp
 
                 <strong> Total bultos:</strong>
@@ -369,7 +369,7 @@
 
                 <strong> Observación:</strong>
                 @foreach($document->additional_information as $information)
-                    @if ($information) 
+                    @if ($information)
                         {{ $information }} <br>
                     @endif
                 @endforeach
@@ -377,7 +377,7 @@
                 <br>
             </td>
             <td class="p-1 text-center align-top desc cell-solid " rowspan="6">
-                
+
                 <img src="data:image/png;base64, {{ $document->qr }}" class="p-0 m-0" style="width: 120px;" /><br>
                 Código Hash: {{ $document->hash }}
 
@@ -388,7 +388,7 @@
             </td>
             <td class="p-1 text-right align-top desc cell-solid font-bold">{{ number_format($document->total_unaffected, 2) }}</td>
         </tr>
- 
+
 
         <tr>
             <td class="p-1 text-right align-top desc cell-solid font-bold" colspan="2">
@@ -425,7 +425,7 @@
     </tbody>
 
 </table>
- 
+
 
 </body>
-</html> 
+</html>

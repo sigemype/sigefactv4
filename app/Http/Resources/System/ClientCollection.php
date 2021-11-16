@@ -39,6 +39,7 @@ class ClientCollection extends ResourceCollection
                 'soap_type' => $row->soap_type,
                 'document_regularize_shipping' => $row->document_regularize_shipping,
                 'document_not_sent' => $row->document_not_sent,
+                'document_to_be_canceled' => $row->document_to_be_canceled,
             ];
         });
     }

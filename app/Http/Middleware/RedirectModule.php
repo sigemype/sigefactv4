@@ -3,22 +3,26 @@
     namespace App\Http\Middleware;
 
     use Closure;
+    use Illuminate\Http\RedirectResponse;
+    use Illuminate\Http\Request;
 
     /**
      * Class RedirectModule
      *
      * @package App\Http\Middleware
      */
-    class RedirectModule {
+    class RedirectModule
+    {
         /**
          * Handle an incoming request.
          *
-         * @param \Illuminate\Http\Request $request
-         * @param \Closure                 $next
+         * @param Request $request
+         * @param Closure $next
          *
          * @return mixed
          */
-        public function handle($request, Closure $next) {
+        public function handle($request, Closure $next)
+        {
 
             $module = $request->user()->getModule();
             $path = explode('/', $request->path());
@@ -52,7 +56,8 @@
          *
          * @return string
          */
-        private function getGroup($path, $module) {
+        private function getGroup($path, $module)
+        {
 
             ///* Module Documents */
 
@@ -182,8 +187,10 @@
                 $group = "hotels";
             } elseif ($path[0] == "documentary-procedure") {
                 $group = "documentary-procedure";
-            }elseif ($path[0] == "digemid") {
+            } elseif ($path[0] == "digemid") {
                 $group = "digemid";
+            } elseif ($path[0] == "suscription") {
+                $group = "suscription_app";
             } else {
                 $group = null;
             }
@@ -197,7 +204,8 @@
          *
          * @return mixed
          */
-        private function getModuleByGroup($modules, $group) {
+        private function getModuleByGroup($modules, $group)
+        {
 
             $modules_x_group = $modules->filter(function ($module, $key) use ($group) {
                 return $module->value === $group;
@@ -209,9 +217,10 @@
         /**
          * @param $module
          *
-         * @return \Illuminate\Http\RedirectResponse
+         * @return RedirectResponse
          */
-        private function redirectRoute($module) {
+        private function redirectRoute($module)
+        {
 
             switch ($module) {
 
@@ -245,13 +254,13 @@
                 case 'establishments':
                     return redirect()->route('tenant.users.index');
 
-                case 'hotels':
-                    return redirect()->url('/');
-
                 case 'documentary-procedure':
+                case 'hotels':
                     return redirect()->url('/');
                 case 'digemid':
                     return redirect()->route('tenant.digemid.index');
+                case 'suscription_app':
+                    return redirect()->route('tenant.suscription.client.index');
 
                 default;
                     return redirect()->route('tenant.dashboard.index');

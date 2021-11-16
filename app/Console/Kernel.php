@@ -25,6 +25,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule) {
         $schedule->command('tenancy:run tenant:run')
             ->everyMinute();
+        $schedule->command('status:server')
+            ->hourly();
     }
 
     /**

@@ -8,7 +8,7 @@
             <div class="right-wrapper pull-right">
                 <a href="#" @click.prevent="clickCreate()" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
                 <a href="#" @click.prevent="onOpenModalGenerateCPE" class="btn btn-custom btn-sm  mt-2 mr-2">Generar comprobante desde múltiples Notas</a>
-                <a href="#" v-if="config.send_data_to_other_server === true"@click.prevent="onOpenModalMigrateNv" class="btn btn-custom btn-sm  mt-2 mr-2">Migrar Datos</a>
+                <a href="#" v-if="config.send_data_to_other_server === true" @click.prevent="onOpenModalMigrateNv" class="btn btn-custom btn-sm  mt-2 mr-2">Migrar Datos</a>
             </div>
         </div>
         <div class="card mb-0">
@@ -105,13 +105,11 @@
                         <td>{{ row.purchase_order }}</td>
 
                         <td class="text-center">
-                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-primary"
-                                    @click.prevent="clickPayment(row.id)" ><i class="fas fa-money-bill-alt"></i></button>
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickPayment(row.id)" ><i class="fas fa-money-bill-alt"></i></button>
                         </td>
 
                         <td class="text-right">
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickDownload(row.external_id)"><i class="fas fa-file-pdf"></i></button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickDownload(row.external_id)"><i class="fas fa-file-pdf"></i></button>
                         </td>
                         <td class="text-right">
                             <template v-if="row.type_period && row.quantity_period>0">

@@ -60,6 +60,11 @@ class PersonInput
             'perception_agent' => $person->perception_agent,
             'address_id' => $address_id,
             'internal_code' => $person->internal_code,
+            'address_type_id' => $person->address_type_id,
+            'address_type' => [
+                'id' => $person->address_type_id,
+                'description' => optional($person->address_type)->description,
+            ],
         ];
     }
 }

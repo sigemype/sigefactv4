@@ -1,5 +1,5 @@
 <template> 
-    <el-dialog :title="titleDialog" :visible="showDialog" @open="create"  @close="close" append-to-body top="7vh" :close-on-click-modal="false">
+    <el-dialog :title="titleDialog" :visible="showDialog" @open="create"  @close="close"   append-to-body top="7vh" :close-on-click-modal="false">
         <form autocomplete="off" @submit.prevent="submit">
             <div class="form-body">
                 <div class="row">
@@ -49,6 +49,7 @@
                 titleDialog: 'Almacenes/Stock',
                 my_warehouses:[],
                 warehouse_id:null,
+
             }
         },
         created() {
@@ -56,8 +57,10 @@
         },
         methods: {
             async create(){
+
                 this.warehouse_id = null
                 // console.log(this.isUpdateWarehouseId)
+                
                 if(this.isUpdateWarehouseId){
                     await this.warehouses.forEach((it) => {
                         if(it.warehouse_id == this.isUpdateWarehouseId){
@@ -69,27 +72,35 @@
                 }
             },
             async changeWarehouse(index){
+
                 await this.warehouses.forEach((it, ind) => {
                     // console.log(ind, index)
                     if(ind != index){
                         it.checked = false
                     }
                 });
+
                 await this.selectWarehouseId()
             },
             async selectWarehouseId(){
+
                 await this.warehouses.forEach((it, ind) => {
                     if(it.checked){
                         this.warehouse_id = it.warehouse_id
                     }
                 });
+
             },
             async close() {
+
                 await this.selectWarehouseId()
+
                 if(!this.warehouse_id)
                     return this.$message.error('Debe seleccionar un almacén');
+
                 await this.$eventHub.$emit('selectWarehouseId', this.warehouse_id) 
                 await this.$emit('update:showDialog', false)
+                
             },
         }
     }

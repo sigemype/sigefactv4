@@ -257,8 +257,11 @@
     </cac:TaxTotal>
     <cac:RequestedMonetaryTotal>
         <cbc:TaxInclusiveAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total }}</cbc:TaxInclusiveAmount>
-        @if($document->total_other_charges > 0)
+        {{-- @if($document->total_other_charges > 0)
         <cbc:ChargeTotalAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_other_charges }}</cbc:ChargeTotalAmount>
+        @endif --}}
+        @if($document->total_charge > 0)
+        <cbc:ChargeTotalAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_charge }}</cbc:ChargeTotalAmount>
         @endif
         <cbc:PayableAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total }}</cbc:PayableAmount>
     </cac:RequestedMonetaryTotal>

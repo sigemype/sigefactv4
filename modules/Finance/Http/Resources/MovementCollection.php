@@ -3,17 +3,20 @@
     namespace Modules\Finance\Http\Resources;
 
     use Carbon\Carbon;
+    use Illuminate\Http\Request;
     use Illuminate\Http\Resources\Json\ResourceCollection;
+    use Illuminate\Support\Collection;
     use Modules\Finance\Http\Controllers\MovementController;
     use Modules\Finance\Models\GlobalPayment;
     use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 
-    class MovementCollection extends ResourceCollection {
+    class MovementCollection extends ResourceCollection
+    {
         /**
          * Transform the resource collection into an array.
          *
-         * @param \Illuminate\Http\Request $request
+         * @param Request $request
          *
          * @return array
          */
@@ -22,14 +25,16 @@
         protected static $request;
 
 
-        public function toArray($request) {
+        public function toArray($request)
+        {
             self::$request = $request;
             $this->calculateResiduary(self::$request);
-            /** @var \Illuminate\Support\Collection $data */
+            /** @var Collection $data */
 
             $data = $this->collection->transform(function ($row, $key) use ($request) {
-                /** @var \Modules\Finance\Models\GlobalPayment $row */
+                /** @var GlobalPayment $row */
                 $data_person = $row->data_person;
+
 
                 $amount = $row->payment->payment;
                 $document = $row->payment->document;
@@ -50,7 +55,7 @@
                 $payments = $payment->payment;
 
                 if ($payment->associated_record_payment && $payment->associated_record_payment->date_of_issue) {
-                    $timedate = $payment->associated_record_payment->date_of_issue->format('Y-m-d')." ".$payment->associated_record_payment->time_of_issue;
+                    $timedate = $payment->associated_record_payment->date_of_issue->format('Y-m-d') . " " . $payment->associated_record_payment->time_of_issue;
                     $timedate = Carbon::createFromFormat('Y-m-d H:i:s', $timedate)->toDateTimeString();
                 }
 
@@ -62,33 +67,33 @@
 
                 return [
                     'index' => $index,
-                    'payments'                        => $payments,
-                    'document_type'                   => $document_type,
-                    'id'                              => $row->id,
-                    'destination_description'         => $row->destination_description,
-                    'date_of_payment_class'           => get_class($payment),
-                    'date_of_payment'                 => $timedate,
+                    'payments' => $payments,
+                    'document_type' => $document_type,
+                    'id' => $row->id,
+                    'destination_description' => $row->destination_description,
+                    'date_of_payment_class' => get_class($payment),
+                    'date_of_payment' => $timedate,
                     'payment_method_type_description' => $this->getPaymentMethodTypeDescription($row),
-                    'reference'                       => $payment->reference,
-                    'total'                           => $amount,
-                    'number_full'                     => $payment->associated_record_payment->number_full,
-                    'currency_type_id'                => $payment->associated_record_payment->currency_type_id,
+                    'reference' => $payment->reference,
+                    'total' => $amount,
+                    'number_full' => $payment->associated_record_payment->number_full,
+                    'currency_type_id' => $payment->associated_record_payment->currency_type_id,
                     // 'document_type_description' => ($payment->associated_record_payment->document_type) ? $payment->associated_record_payment->document_type->description:'NV',
-                    'document_type_description'       => $this->getDocumentTypeDescription($row),
-                    'person_name'                     => $data_person->name,
-                    'person_number'                   => $data_person->number,
+                    'document_type_description' => $this->getDocumentTypeDescription($row),
+                    'person_name' => $data_person->name,
+                    'person_number' => $data_person->number,
                     // 'payment' => $row->payment,
                     // 'payment_type' => $row->payment_type,
-                    'instance_type'                   => $row->instance_type,
-                    'instance_type_description'       => $row->instance_type_description,
-                    'user_id'                         => $row->user_id,
-                    'user_name'                       => optional($row->user)->name,
+                    'instance_type' => $row->instance_type,
+                    'instance_type_description' => $row->instance_type_description,
+                    'user_id' => $row->user_id,
+                    'user_name' => optional($row->user)->name,
 
                     'type_movement' => $row->type_movement,
-                    'input'         => ($row->type_movement == 'input') ? number_format($amount, 2, ".", "") : '-',
-                    'output'        => ($row->type_movement == 'output') ? number_format($amount, 2, ".", "") : '-',
-                    'balance'       => number_format(self::$balance, 2, ".", ""),
-                    'items'         => $this->getItems($row),
+                    'input' => ($row->type_movement == 'input') ? number_format($amount, 2, ".", "") : '-',
+                    'output' => ($row->type_movement == 'output') ? number_format($amount, 2, ".", "") : '-',
+                    'balance' => number_format(self::$balance, 2, ".", ""),
+                    'items' => $this->getItems($row),
 
 
                 ];
@@ -97,12 +102,13 @@
             return $data;
         }
 
-        public function calculateResiduary($request) {
+        public function calculateResiduary($request)
+        {
 
             if ($request->page >= 2) {
 
                 $data = app(MovementController::class)->getRecords($request, GlobalPayment::class)
-                                                      ->limit(($request->page * 20) - 20)->get();
+                    ->limit(($request->page * 20) - 20)->get();
 
                 $input = $data->where('type_movement', 'input')->sum('payment.payment');
                 $output = $data->where('type_movement', 'output')->sum('payment.payment');
@@ -114,7 +120,8 @@
 
         }
 
-        public function getPaymentMethodTypeDescription($row) {
+        public function getPaymentMethodTypeDescription($row)
+        {
 
             $payment_method_type_description = '';
 
@@ -129,7 +136,8 @@
             return $payment_method_type_description;
         }
 
-        public function getDocumentTypeDescription($row) {
+        public function getDocumentTypeDescription($row)
+        {
 
             $document_type = '';
 
@@ -146,7 +154,8 @@
 
         }
 
-        public function getItems($row) {
+        public function getItems($row)
+        {
 
             if (in_array($row->instance_type, ['expense', 'income'])) {
 

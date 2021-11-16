@@ -390,9 +390,130 @@ html.dark .el-switch__label *,
 @media only screen and (min-width: 768px){
   html.newinvoice .inner-wrapper {
     margin-top: 0px;
+    padding-top: 60px;
   }
 }
 
 html.dashboard-system .content-body {
   /*margin-top: 60px;*/
+}
+
+html.dark .el-switch__label:not(.is-active) {
+  color: #FFF;
+}
+
+html.dark .card.card-dashboard .card-title,
+html.dark .card.card-dashboard small.text-muted  {
+  color: #FFF !important;
+}
+
+html.dark .card.card-reports .card-report-links li a {
+  color: #808697;
+}
+
+/* Rediseño sidebar */
+ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a {
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  color: #4b4b4b !important;
+  font-weight: 600;
+}
+html:not(.sidebar-light) ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a {
+  background-color: #161d31 ;
+  color: #fff !important;
+}
+
+ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a::before {
+  border-color: #4b4b4b;
+  background: #4b4b4b;
+}
+
+html:not(.sidebar-light) ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a::before {
+  border-color: #fff;
+  background: #fff;
+}
+
+
+ul.nav-main li .nav-children li a:before {
+  /* background: #4b4b4b; */
+}
+
+ul.nav-main li .nav-children li a {
+  margin: 0px;
+  padding: 3px 0px 3px 48px;
+  margin-bottom: 0rem;
+}
+
+ul.nav-main li .nav-children li a:after {
+  padding: 5px 15px;
+}
+
+ul.nav-main li a:hover::before {
+  left: 20px !important;
+}
+
+ul.nav-main li.nav-parent > ul.nav-children {
+  background-color: #f5f5f5;
+  margin: 0 15px;
+  border-radius: 0 0 6px 6px;
+}
+
+html:not(.sidebar-light) ul.nav-main li.nav-parent > ul.nav-children {
+  background-color: #161d31 ;
+}
+
+ul.nav-main > li.nav-active > a,
+ul.nav-main li.nav-expanded > a {
+  border-radius: 6px 6px 0 0 !important;
+}
+
+html.fixed.sidebar-dark ul.nav-main li a:hover, html.fixed.sidebar-dark ul.nav-main li .nav-children li a:focus {
+  background-color: #161d31 ;
+}
+
+/* tema morado */
+.sidebar-blue ul.nav-main li.nav-active:not(.nav-parent) > a, .sidebar-blue ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a {
+  box-shadow: none;
+}
+
+.sidebar-gray ul.nav-main li .nav-children li:not(.nav-parent) > a,
+.sidebar-gray ul.nav-main li .nav-children li a,
+.sidebar-green ul.nav-main li .nav-children li:not(.nav-parent) > a,
+.sidebar-green ul.nav-main li .nav-children li a,
+.sidebar-ligth-blue ul.nav-main li .nav-children li:not(.nav-parent) > a,
+.sidebar-ligth-blue ul.nav-main li .nav-children li a,
+.sidebar-warning ul.nav-main li .nav-children li:not(.nav-parent) > a,
+.sidebar-warning ul.nav-main li .nav-children li a {
+  color: #4b4b4b !important;
+}
+
+.sidebar-gray .sidebar-left a::before,
+.sidebar-green .sidebar-left a::before,
+.sidebar-ligth-blue .sidebar-left a::before,
+.sidebar-warning .sidebar-left a::before {
+  color: #4b4b4b !important;
+  border-color: #4b4b4b !important;
+}
+
+html.fixed.sidebar-warning .sidebar-left a:hover,
+html.fixed.sidebar-gray .sidebar-left a:hover,
+html.fixed.sidebar-green .sidebar-left a:hover,
+html.fixed.sidebar-ligth-blue .sidebar-left a:hover {
+  background-color: #f5f5f5;
+  color: #4b4b4b !important;
+}
+
+.dropdown-menu .dropdown-item {
+  font-size: 0.8rem;
+}
+.dropdown-item:focus {
+  outline: 0px auto -webkit-focus-ring-color;
+}
+.dropdown-item {
+  padding: 0.1rem 1.5rem;
+}
+
+.custom-mt-button{
+  margin-top: 1.9rem !important;
 }

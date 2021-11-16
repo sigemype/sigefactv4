@@ -204,6 +204,16 @@
                             </div>
                         </template>
 
+                        <div class="row" v-if="form.soap_send_id == '02'">
+                            <div class="col-md-12">
+                                <div class="form-group" :class="{'has-danger': errors.soap_url}">
+                                    <label class="control-label">SOAP Url</label>
+                                    <el-input v-model="form.soap_url"></el-input>
+                                    <small class="form-control-feedback" v-if="errors.soap_url" v-text="errors.soap_url[0]"></small>
+                                </div>
+                            </div>
+                        </div>
+
                         <template v-if="form.soap_type_id == '02'">
                             <div class="row">
                                 <div class="col-md-12 mt-2">
@@ -230,16 +240,6 @@
                                 </div>
                             </div>
                         </template>
-
-                        <div class="row" v-if="form.soap_send_id == '02'">
-                            <div class="col-md-12">
-                                <div class="form-group" :class="{'has-danger': errors.soap_url}">
-                                    <label class="control-label">SOAP Url</label>
-                                    <el-input v-model="form.soap_url"></el-input>
-                                    <small class="form-control-feedback" v-if="errors.soap_url" v-text="errors.soap_url[0]"></small>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="form-actions text-right pt-2">
                         <el-button type="primary" native-type="submit" :loading="loading_submit">Guardar</el-button>

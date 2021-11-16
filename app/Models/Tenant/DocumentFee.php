@@ -17,11 +17,9 @@ class DocumentFee extends ModelTenant
     protected $fillable = [
         'document_id',
         'date',
-        'cat_payment_method_type_id',
         'currency_type_id',
         'payment_method_type_id',
         'amount',
-        'reference'
     ];
 
     protected $casts = [
@@ -32,7 +30,7 @@ class DocumentFee extends ModelTenant
     /**
      * @return mixed
      */
-    public function getPaymentMethodTypeId(){
+    public function getPaymentMethodTypeId() {
         return $this->payment_method_type_id;
     }
 
@@ -41,7 +39,7 @@ class DocumentFee extends ModelTenant
      *
      * @return DocumentFee
      */
-    public function setPaymentMethodTypeId($payment_method_type_id){
+    public function setPaymentMethodTypeId($payment_method_type_id) {
         $this->payment_method_type_id = $payment_method_type_id;
         return $this;
     }
@@ -49,21 +47,24 @@ class DocumentFee extends ModelTenant
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function document(){
+    public function document()
+    {
         return $this->belongsTo(Document::class, 'document_id');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function currency_type(){
+    public function currency_type()
+    {
         return $this->belongsTo(CurrencyType::class, 'currency_type_id');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function payment_method_type(){
+    public function payment_method_type()
+    {
         return $this->belongsTo(PaymentMethodType::class, 'payment_method_type_id');
     }
 

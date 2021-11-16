@@ -1,5 +1,7 @@
 @extends('tenant.layouts.app')
 
 @section('content')
-    <tenant-dispatches-create ></tenant-dispatches-create>
+    <tenant-dispatches-create
+        :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
+    ></tenant-dispatches-create>
 @endsection

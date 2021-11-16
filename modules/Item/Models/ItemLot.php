@@ -6,6 +6,17 @@ use App\Models\Tenant\Item;
 use App\Models\Tenant\ModelTenant;
 use Modules\Inventory\Models\Warehouse;
 
+/**
+ * Modules\Item\Models\ItemLot
+ *
+ * @property Item $item
+ * @property \Illuminate\Database\Eloquent\Model|\Eloquent $item_loteable
+ * @property Warehouse $warehouse
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemLot newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemLot newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemLot query()
+ * @mixin \Eloquent
+ */
 class ItemLot extends ModelTenant
 {
 

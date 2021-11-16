@@ -22,6 +22,7 @@
      * @method static Builder|ItemColor newModelQuery()
      * @method static Builder|ItemColor newQuery()
      * @method static Builder|ItemColor query()
+     * @method static \Illuminate\Database\Eloquent\Builder|ItemColor ByItem($item_id)
      * @mixin Eloquent
      */
     class ItemColor extends ModelTenant
@@ -163,5 +164,27 @@
             $this->cat_colors_item_id = $e->id;
             return $this->color;
         }
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\HasMany
+         */
+        public function item_movement_rel_extra()
+        {
+            return $this->hasMany(ItemMovementRelExtra::class);
+        }
 
+        /**
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param int $item_id
+         *
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+         /**
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param int $item_id
+         *
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public function scopeByItem($query,$item_id){
+            return $query->where('item_id',$item_id);
+        }
     }

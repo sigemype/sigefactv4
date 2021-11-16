@@ -300,11 +300,9 @@
                 @endif
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-
             <td class="text-left align-top">
                 @if($row->name_product_pdf)
-                    {!!$row->name_product_pdf!!} <br>
-                    {!!html_entity_decode($row->name_product_pdf)!!}
+                    {!!$row->name_product_pdf!!}
                 @else
                     {!!$row->item->description!!}
                 @endif
@@ -328,7 +326,6 @@
                     {{join( "-", $itemSet->getItemsSet($row->item_id) )}}
                 @endif
             </td>
-
             <td class="text-center align-top">
                 @inject('itemLotGroup', 'App\Services\ItemLotsGroupService')
                 {{ $itemLotGroup->getLote($row->item->IdLoteSelected) }}

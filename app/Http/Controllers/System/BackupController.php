@@ -15,32 +15,25 @@ use App\Http\Controllers\Controller;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Storage;
 
-class BackupController extends Controller
-{
+class BackupController extends Controller{
 
     use BackupTrait;
 
-    public function index() {
+    public function index(){
 
         $avail = new Process('df -m -h --output=avail /');
         $avail->run();
         $disc_used = $avail->getOutput();
-
         $df = new Process('du -sh '.storage_path().' | cut -f1');
         $df->run();
         $storage_size = $df->getOutput();
-
         $most_recent = $this->mostRecent();
-
-        $clients = Client::without(['hostname','plan'])
-            ->select('hostname_id', 'name')
-            ->get();
+        $clients = Client::without(['hostname','plan'])->select('hostname_id', 'name')->get();
 
         return view('system.backup.index')->with('disc_used', $disc_used)->with('storage_size', $storage_size)->with('last_zip', $most_recent)->with('clients', $clients);
     }
 
-    public function db(Request $request)
-    {
+    public function db(Request $request){
         $request->validate([
             'type' => 'required|in:individual,todos',
             'hostname_id' => 'nullable|required_if:type,individual',
@@ -59,8 +52,7 @@ class BackupController extends Controller
         return json_encode($output);
     }
 
-    public function files(Request $request)
-    {
+    public function files(Request $request){
         $request->validate([
             'type' => 'required|in:individual,todos',
             'hostname_id' => 'nullable|required_if:type,individual',
@@ -111,20 +103,14 @@ class BackupController extends Controller
                 'message' => 'Proceso finalizado satisfactoriamente'
             ];
 
-
         } catch (Exception $e) {
-
             $this->setErrorLog($e);
             return $this->getErrorMessage("Lo sentimos, ocurrió un error inesperado: {$e->getMessage()}");
-
         }
-
     }
 
-    public function mostRecent()
-    {
+    public function mostRecent(){
         $zips = Storage::allFiles('backups/zip/');
-
         if (count($zips) > 0) {
             $name_zips = [];
             $most_recent_time = '';
@@ -155,12 +141,7 @@ class BackupController extends Controller
         }
     }
 
-
-    public function download($filename)
-    {
-
+    public function download($filename){
         return Storage::download('backups'.DIRECTORY_SEPARATOR.'zip'.DIRECTORY_SEPARATOR.$filename);
-
     }
-
 }

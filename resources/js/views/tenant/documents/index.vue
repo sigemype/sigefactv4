@@ -15,7 +15,10 @@
                 </span>
                 <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
                 <div class="btn-group flex-wrap">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i> Reportes <span class="caret"></span></button>
+                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i>Reporte de Pagos <span class="caret"></span></button>
+                    <!-- validadores apiperu  -->
+                    <a href="#" @click.prevent="showDialogApiPeruDevValidate = true" v-if="view_apiperudev_validator_cpe" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-check"></i> Validación masiva</a>
+                    <a href="#" @click.prevent="showDialogValidate = true" v-if="view_validator_cpe" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-file"></i> Validar CPE</a>
                     <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
                         <a class="dropdown-item text-1" href="#" @click.prevent="clickReportPayments()">Generar Reporte Pagos</a>
                         <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportPagos()">Descargar Excel</a> -->
@@ -40,7 +43,7 @@
                     <tr slot="heading">
                         <th>#</th>
                         <th>SOAP</th>
-                        <th class="text-center">Fecha Emisión</th>
+                        <th class="text-center" style="min-width: 95px;">Emisión</th>
                         <th class="text-center" v-if="columns.date_of_due.visible">Fecha Vencimiento</th>
                         <th>Cliente</th>
                         <th>Número</th>
@@ -48,6 +51,7 @@
                         <th v-if="columns.dispatch.visible">Guía de Remisión</th>
                         <th v-if="columns.sales_note.visible">Nota de venta</th>
                         <th v-if="columns.order_note.visible">Pedidos</th>
+                        <th v-if="columns.send_it.visible">Email Enviado</th>
                         <th>Estado</th>
                         <th v-if="columns.user_name.visible">Usuario</th>
                         <th class="text-center">Moneda</th>
@@ -60,10 +64,8 @@
                         <th class="text-right">T.Igv</th>
                         <th class="text-right">Total</th>
                         <th class="text-center">Saldo</th>
-                        <th class="text-center">Orden de compra</th>
+                        <th class="text-center" style="min-width: 95px;">Orden de compra</th>
                         <th class="text-center"></th>
-                        <th class="text-center">Descargas</th>
-                        <!--<th class="text-center">Anulación</th>-->
                         <th class="text-right" v-if="typeUser != 'integrator'">Acciones</th>
                     <tr>
                     <tr slot-scope="{ index, row }" :class="{'text-danger': (row.state_type_id === '11'),
@@ -96,7 +98,7 @@
                         </td>
                         <td v-if="columns.sales_note.visible">
                             <template v-for="(row,index) in row.sales_note">
-                                <label class="d-block" :key="index">{{ row.number_full }} ({{row.state_type_description}})</label>
+                                <label class="d-block" :key="index">{{ row.number_full }} ({{ row.state_type_description }})</label>
                             </template>
                         </td>
                         <td v-if="columns.order_note.visible">
@@ -104,6 +106,37 @@
                                 {{ row.order_note.identifier }}
                             </template>
                         </td>
+                        <td v-if="columns.send_it.visible">
+                            <!--
+                            <el-tooltip
+                                        class="item"
+                                        effect="dark"
+                                        placement="bottom">
+                                <div slot="content">
+                                    <span v-for="(item, i) in row.email_send_it_array"
+                                          :key="i">
+                                        {{ (item.email_send_it === false)?'No enviado':'Enviado' }} - {{ item.email }}  - {{ item.send_date }} <br>
+                                    </span>
+                                </div>
+                                <span class="badge "
+                                      :class="
+                                      {'text-danger': (row.email_send_it === false), 'text-success': (row.email_send_it === true), }">
+                                    <i class="fas fa-lg"
+                                       :class="{ 'fa-times': (row.email_send_it === false), 'fa-check': (row.email_send_it === true), }"
+                                    ></i>
+                                </span>
+                            </el-tooltip>-->
+
+                            <span class="badge "
+                                  :class="
+                                      {'text-danger': (row.email_send_it === false), 'text-success': (row.email_send_it === true), }">
+                                    <i class="fas fa-lg"
+                                       :class="{ 'fa-times': (row.email_send_it === false), 'fa-check': (row.email_send_it === true), }"
+                                    ></i>
+                                </span>
+
+                        </td>
+
                         <td>
                             <el-tooltip v-if="tooltip(row, false)" class="item" effect="dark" placement="bottom">
                                 <div slot="content">{{ tooltip(row) }}</div>
@@ -116,7 +149,7 @@
                             </span>
                             <template v-if="row.regularize_shipping && row.state_type_id === '01'">
                                 <el-tooltip class="item" effect="dark" :content="row.message_regularize_shipping" placement="top-start">
-                                    <i class="fas fa-exclamation-triangle fa-lg" style="color: #d2322d !important"></i>
+                                    <i class="fas fa-exclamation-triangle fa-lg" style="color: #D2322D !important"></i>
                                 </el-tooltip>
                             </template>
                         </td>
@@ -133,38 +166,167 @@
                         <td class="text-right">{{ row.balance }}</td>
                         <td>{{ row.purchase_order }}</td>
                         <td class="text-center">
-                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickPayment(row.id)">Pagos </button>
-                        </td>
-                        <td class="text-center">
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_xml)" v-if="row.has_xml">XML</button>
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_pdf)" v-if="row.has_pdf">PDF </button>
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_cdr)" v-if="row.has_cdr">CDR </button>
                         </td>
-                        <!--<td class="text-center">-->
-                        <!--<button type="button" class="btn waves-effect waves-light btn-xs btn-danger"-->
-                        <!--@click.prevent="clickDownload(row.download_xml_voided)"-->
-                        <!--v-if="row.has_xml_voided">XML</button>-->
-                        <!--<button type="button" class="btn waves-effect waves-light btn-xs btn-danger"-->
-                        <!--@click.prevent="clickDownload(row.download_cdr_voided)"-->
-                        <!--v-if="row.has_cdr_voided">CDR</button>-->
-                        <!--<button type="button" class="btn waves-effect waves-light btn-xs btn-warning"-->
-                        <!--@click.prevent="clickTicket(row.voided.id, row.group_id)"-->
-                        <!--v-if="row.btn_ticket">Consultar</button>-->
-                        <!--</td>-->
 
                         <td class="text-right" v-if="typeUser != 'integrator'">
-                            <a :href="`/documents/${row.id}/edit`" class="btn btn-success waves-effect waves-light btn-xs m-1__2" v-if="row.state_type_id === '01' && userId == row.user_id && row.is_editable">Editar</a>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2" @click.prevent="clickDeleteDocument(row.id)" v-if="row.btn_delete_doc_type_03">Eliminar </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickChangeToRegisteredStatus(row.id)" v-if="row.btn_change_to_registered_status">Cambiar a estado registrado </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickReStore(row.id)" v-if="row.btn_recreate_document">Volver a recrear </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger m-1__2" @click.prevent="clickVoided(row.id)" v-if="row.btn_voided">Anular </button>
-                            <a :href="`/${resource}/note/${row.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2" v-if="row.btn_note">Nota</a>
-                            <a :href="`/dispatches/create/${row.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2" v-if="row.btn_note">Guía</a>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickResend(row.id)" v-if="row.btn_resend && !isClient">Enviar a Sunat </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickSendOnline(row.id)" v-if="isClient && !row.send_server">Enviar Servidor </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickCheckOnline(row.id)" v-if="isClient && row.send_server && (row.state_type_id === '01' || row.state_type_id === '03')">Consultar Servidor </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickOptions(row.id)">Opciones </button>
-                            <button type="button" v-if="row.btn_constancy_detraction" class="btn waves-effect waves-light btn-xs btn-success m-1__2" @click.prevent="clickCDetraction(row.id)">C. Detracción </button>
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <div v-if="configuration.permission_to_edit_cpe">
+                                        <a :href="`/documents/${row.id}/edit`"
+                                            class="dropdown-item"
+                                            v-if="row.state_type_id === '01' && userPermissionEditCpe && row.is_editable">
+                                            Editar
+                                        </a>
+                                    </div>
+                                    <div v-else>
+                                        <a :href="`/documents/${row.id}/edit`"
+                                            class="dropdown-item"
+                                            v-if="row.state_type_id === '01' && userId == row.user_id && row.is_editable">
+                                            Editar
+                                        </a>
+                                    </div>
+                                    <button class="dropdown-item"
+                                            @click.prevent="clickResend(row.id)"
+                                            v-if="row.btn_resend && !isClient">
+                                        Reenviar
+                                    </button>
+                                    <button class="dropdown-item" @click.prevent="clickReStore(row.id)" v-if="row.btn_recreate_document">
+                                        Volver a recrear
+                                    </button>
+                                    <button class="dropdown-item"
+                                            @click.prevent="clickChangeToRegisteredStatus(row.id)"
+                                            v-if="row.btn_change_to_registered_status">
+                                        Cambiar a estado registrado
+                                    </button>
+                                    <a :href="`/${resource}/note/${row.id}`"
+                                        class="dropdown-item"
+                                        v-if="row.btn_note">
+                                        Nota
+                                    </a>
+                                    <a :href="`/dispatches/create/${row.id}`"
+                                        class="dropdown-item"
+                                        v-if="row.btn_guide">
+                                        Guía
+                                    </a>
+                                    <button class="dropdown-item"
+                                        @click.prevent="clickVoided(row.id)"
+                                        v-if="row.btn_voided">
+                                        Anular
+                                    </button>
+                                    <a type="button"
+                                            class="dropdown-item"
+                                            @click.prevent="clickDeleteDocument(row.id)"
+                                            v-if="row.btn_delete_doc_type_03">
+                                        Eliminar
+                                    </a>
+                                    <a class="dropdown-item"
+                                            @click.prevent="clickSendOnline(row.id)"
+                                            v-if="isClient && !row.send_server">
+                                        Enviar Servidor
+                                    </a>
+                                    <a class="dropdown-item"
+                                            @click.prevent="clickCheckOnline(row.id)"
+                                            v-if="isClient && row.send_server && (row.state_type_id === '01' || row.state_type_id === '03')">
+                                        Consultar Servidor
+                                    </a>
+                                    <a v-if="row.btn_constancy_detraction"
+                                            class="dropdown-item"
+                                            @click.prevent="clickCDetraction(row.id)">
+                                        C. Detracción
+                                    </a>
+                                    <button class="dropdown-item"
+                                            @click.prevent="clickOptions(row.id)">
+                                        Opciones
+                                    </button>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item"
+                                            @click.prevent="clickPayment(row.id)">
+                                        Pagos
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- funciona pero con funciones para cada boton, parametro command -->
+                            <!-- <el-dropdown trigger="click" size="small">
+                                <el-button size="mini" type="default" class="el-dropdown-selfdefine">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </el-button>
+                                <el-dropdown-menu slot="dropdown">
+                                    <el-dropdown-item v-if="row.btn_recreate_document">Recrear</el-dropdown-item>
+                                    <el-dropdown-item>Action 2</el-dropdown-item>
+                                    <el-dropdown-item>Action 3</el-dropdown-item>
+                                    <el-dropdown-item>Action 4</el-dropdown-item>
+                                    <el-dropdown-item>Action 5</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </el-dropdown> -->
+
+
+                            <!-- <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
+                                    @click.prevent="clickDeleteDocument(row.id)"
+                                    v-if="row.btn_delete_doc_type_03">
+                                Eliminar
+                            </button>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickChangeToRegisteredStatus(row.id)"
+                                    v-if="row.btn_change_to_registered_status">
+                                Cambiar a estado registrado
+                            </button>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickReStore(row.id)"
+                                    v-if="row.btn_recreate_document">
+                                Volver a recrear
+                            </button>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
+                                    @click.prevent="clickVoided(row.id)"
+                                    v-if="row.btn_voided">
+                                Anular
+                            </button>
+                            <a :href="`/${resource}/note/${row.id}`"
+                               class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
+                               v-if="row.btn_note">
+                                Nota
+                            </a>
+                            <a :href="`/dispatches/create/${row.id}`"
+                               class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
+                               v-if="row.btn_guide">
+                                Guía
+                            </a>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickResend(row.id)"
+                                    v-if="row.btn_resend && !isClient">
+                                Reenviar
+                            </button>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickSendOnline(row.id)"
+                                    v-if="isClient && !row.send_server">
+                                Enviar Servidor
+                            </button>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickCheckOnline(row.id)"
+                                    v-if="isClient && row.send_server && (row.state_type_id === '01' || row.state_type_id === '03')">
+                                Consultar Servidor
+                            </button>
+                            <button type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickOptions(row.id)">
+                                Opciones
+                            </button>
+                            <button type="button"
+                                    v-if="row.btn_constancy_detraction"
+                                    class="btn waves-effect waves-light btn-xs btn-success m-1__2"
+                                    @click.prevent="clickCDetraction(row.id)">
+                                C. Detracción
+                            </button> -->
                         </td>
                     </tr>
                 </data-table>
@@ -178,6 +340,8 @@
             <report-payment :showDialog.sync="showDialogReportPayment"></report-payment>
             <report-documents :showDialog.sync="showDialogReportDocuments"></report-documents>
             <report-payment-complete :showDialog.sync="showDialogReportPaymentComplete"></report-payment-complete>
+            <DocumentValidate :showDialogValidate.sync="showDialogValidate"></DocumentValidate>
+            <massive-validate-cpe :showDialogValidate.sync="showDialogApiPeruDevValidate"></massive-validate-cpe>
         </div>
     </div>
 </template>
@@ -195,10 +359,12 @@ import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
 import ReportDocuments from './partials/report_documents.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
+import DocumentValidate from './partials/validate.vue';
+import MassiveValidateCpe from '../../../../../modules/ApiPeruDev/Resources/assets/js/components/MassiveValidateCPE';
 
 export default {
     mixins: [deletable],
-    props: ['isClient', 'typeUser', 'import_documents', 'import_documents_second', 'userId', 'configuration'],
+    props: ['isClient', 'typeUser', 'import_documents', 'import_documents_second', 'userId', 'configuration', 'userPermissionEditCpe','view_apiperudev_validator_cpe', 'view_validator_cpe'],
     components: {
         DocumentsVoided,
         ItemsImport,
@@ -209,10 +375,14 @@ export default {
         DocumentConstancyDetraction,
         ReportPayment,
         ReportPaymentComplete,
-        ReportDocuments
+        ReportDocuments,
+        DocumentValidate,
+        MassiveValidateCpe
     },
     data() {
         return {
+            showDialogApiPeruDevValidate: false,
+            showDialogValidate: false,
             showDialogReportPayment: false,
             showDialogReportPaymentComplete: false,
             showDialogReportDocuments: false,
@@ -267,6 +437,10 @@ export default {
                 },
                 order_note: {
                     title: 'Pedidos',
+                    visible: false
+                },
+                send_it: {
+                    title: 'Correo enviado al destinatario',
                     visible: false
                 },
             }

@@ -7,34 +7,46 @@
     use Illuminate\Http\Request;
 
 
-    class ColorController extends Controller{
-        public function index(){
+    class ColorController extends Controller
+    {
+
+        public function index()
+        {
             return view('inventory::colors.index');
         }
 
-        public function create(){
+
+        public function create()
+        {
             return view('inventory::colors.form');
         }
 
-        public function records(){
+        public function records()
+        {
+
             $records = CatColorsItem::where('id', '!=', 0);
             return $records->paginate(config('tenant.items_per_page'));
         }
 
-        public function record(Request $request, $id = 0){
+        public function record(Request $request, $id = 0)
+        {
             $record = CatColorsItem::find($id);
             if (empty($record)) $record = new CatColorsItem(['name' => '']);
+
             return $record;
         }
 
-        public function store(Request $request, $id = 0){
+        public function store(Request $request, $id = 0)
+        {
             $data = $request->all();
+
             $record = CatColorsItem::find($id);
             $name = (isset($data['param']) && isset($data['param']['name'])) ? ucfirst(trim($data['param']['name'])) : null;
             $search = CatColorsItem::where('name', '=', $name);
             if (!empty($record)) {
                 $search->where('id', '!=', $id);
             }
+
             $fund = $search->first();
             if (!empty($fund)) {
                 return response()->json([

@@ -2,6 +2,8 @@
 
 namespace Modules\Purchase\Http\Controllers;
 
+use App\Http\Controllers\SearchItemController;
+use App\Http\Controllers\Tenant\EmailController;
 use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -77,7 +79,9 @@ class PurchaseQuotationController extends Controller
     public function item_tables()
     {
 
-        $items = $this->table('items');
+        // $items = $this->table('items');
+        $items = SearchItemController::getItemToPurchaseQuotation();
+
 
         return compact('items');
     }
@@ -314,12 +318,55 @@ class PurchaseQuotationController extends Controller
             $client = Person::find($supplier->supplier_id);
             $supplier_email = $supplier->email;
 
+            $email = $supplier_email;
+            $mailable =new  PurchaseQuotationEmail($client, $purchase_quotation);
+            $id = (int)$purchase_quotation->id;
+            $model = __FILE__.";;".__LINE__;
+            $sendIt = EmailController::SendMail($email, $mailable, $id, $model);
+            /*
             Configuration::setConfigSmtpMail();
-            Mail::to($supplier_email)->send(new PurchaseQuotationEmail($client, $purchase_quotation));
+            $array_email = explode(',', $supplier_email);
+            if (count($array_email) > 1) {
+                foreach ($array_email as $email_to) {
+                    $email_to = trim($email_to);
+                if(!empty($email_to)) {
+                        Mail::to($email_to)->send(new  PurchaseQuotationEmail($client, $purchase_quotation));
+                    }
+                }
+            } else {
+                Mail::to($supplier_email)->send(new  PurchaseQuotationEmail($client, $purchase_quotation));
+            }
+            */
         }
 
         return [
             'success' => true
         ];
+    }
+
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function searchItemById($id)
+    {
+        $items = SearchItemController::getItemToPurchaseQuotation(null, $id);
+
+        return compact('items');
+
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return array
+     */
+    public function searchItems(Request $request)
+    {
+        $items = SearchItemController::getItemToPurchaseQuotation($request);
+
+        return compact('items');
     }
 }

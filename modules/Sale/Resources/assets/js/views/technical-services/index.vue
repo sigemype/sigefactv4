@@ -24,7 +24,10 @@
                         <th>Número</th>
                         <th>F. Emisión</th>
                         <th>N° Serie</th>
-                        <th>Costo</th>
+                        <th>Costo S.</th>
+                        <th>Costo P.</th>
+                        <th>Total</th>
+                        <th class="text-center">Documento</th>
                         <!-- <th>Pago adelantado</th> -->
                         <th></th>
                         <th>Saldo</th>
@@ -39,6 +42,9 @@
                         <td class="text-center">{{ row.date_of_issue }}</td>
                         <td class="text-center">{{ row.serial_number }}</td>
                         <td class="text-center">{{ row.cost }}</td>
+                        <td class="text-center">{{ row.total }}</td>
+                        <td class="text-center">{{ row.sum_total }}</td>
+                        <td class="text-center">{{ row.number_document_sale_note }}</td>
                         <!-- <td class="text-center">{{ row.prepayment }}</td> -->
                         <td class="text-right">
                             <button
@@ -59,14 +65,17 @@
                         </td>
 
                         <td class="text-right">
-                            <button type="button"
-                                    class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickOptions(row.id)">
-                                Generar comprobante
-                            </button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickCreate(row.id)">Editar
-                            </button>
+                            <template v-if="!row.has_document_sale_note">
+                                <button type="button"
+                                        class="btn waves-effect waves-light btn-xs btn-info"
+                                        @click.prevent="clickOptions(row.id)" >
+                                    Generar comprobante
+                                </button>
+                                <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
+                                        @click.prevent="clickCreate(row.id)">Editar
+                                </button>
+                            </template>
+
                             <template v-if="typeUser === 'admin'">
                                 <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"
                                         @click.prevent="clickDelete(row.id)">Eliminar
@@ -102,11 +111,29 @@ import DataTable from '@components/DataTable.vue'
 import {deletable} from '@mixins/deletable'
 import TechnicalServicePayments from './partials/payments.vue'
 import TechnicalServiceOptions from './partials/options'
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+
 
 export default {
-    mixins: [deletable],
-    props: ['typeUser'],
-    components: {TechnicalServicesForm, DataTable, TechnicalServicePayments, TechnicalServiceOptions},
+    mixins: [
+        deletable
+    ],
+    props: [
+        'typeUser'
+    ],
+    computed: {
+        ...mapState([
+            'exchange_rate',
+            'config',
+            'currency_types',
+        ]),
+    },
+    components: {
+        TechnicalServicesForm,
+        DataTable,
+        TechnicalServicePayments,
+        TechnicalServiceOptions
+    },
     data() {
         return {
             title: null,
@@ -118,9 +145,17 @@ export default {
         }
     },
     created() {
+        this.loadConfiguration();
+        this.loadCurrencyTypes();
+        this.loadExchangeRate();
         this.title = 'Servicios de soporte técnico'
     },
     methods: {
+        ...mapActions([
+            'loadConfiguration',
+            'loadExchangeRate',
+            'loadCurrencyTypes',
+        ]),
         clickPayment(recordId) {
             this.recordId = recordId;
             this.showDialogPayments = true

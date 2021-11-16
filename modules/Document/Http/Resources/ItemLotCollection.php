@@ -10,7 +10,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
  * @package Modules\Document\Http\Resources
  * @mixin ResourceCollection
  */
-class ItemLotCollection extends ResourceCollection{
+class ItemLotCollection extends ResourceCollection
+{
     /**
      * Transform the resource collection into an array.
      *

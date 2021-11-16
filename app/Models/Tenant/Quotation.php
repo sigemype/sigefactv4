@@ -2,7 +2,9 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Tenant\GuideFile;
 use App\Models\Tenant\Catalogs\CurrencyType;
+use App\Traits\SellerIdTrait;
 use Illuminate\Support\Collection;
 use Modules\Order\Models\OrderNote;
 use Modules\Sale\Models\SaleOpportunity;
@@ -11,6 +13,8 @@ use Modules\Sale\Models\Contract;
 
 class Quotation extends ModelTenant
 {
+    use SellerIdTrait;
+
     protected $with = ['user', 'soap_type', 'state_type', 'currency_type', 'items', 'payments'];
 
     protected $fillable = [
@@ -68,8 +72,18 @@ class Quotation extends ModelTenant
         'contact',
         'phone',
         'seller_id',
+        'total_igv_free',
+        'subtotal',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function (self $model) {
+            self::adjustSellerIdField($model);
+        });
+
+    }
     protected $casts = [
         'date_of_issue' => 'date',
         // 'date_of_due' => 'date',
@@ -369,4 +383,11 @@ class Quotation extends ModelTenant
             'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),
         ];
     }
-}
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function guide_files()
+    {
+        return $this->hasMany(GuideFile::class);
+    }}

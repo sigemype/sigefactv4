@@ -175,7 +175,8 @@
     @if ($document->description)
         <tr>
             <td class="align-top"><p class="desc">Observación:</p></td>
-            <td><p class="desc">{{ $document->description }}</p></td>
+            <td><p class="desc">{!! str_replace("\n", "<br/>", $document->description) !!}</p></td>
+            {{-- <td><p class="desc">{{ $document->description }}</p></td> --}}
         </tr>
     @endif
 

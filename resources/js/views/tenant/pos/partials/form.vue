@@ -3,12 +3,12 @@
         <form autocomplete="off" @submit.prevent="submit">
             <div class="form-body">
                 <div class="row">
-                    <div class="col-md-12">  
+                    <div class="col-md-12">
                         <el-tabs v-model="activeName"   type="card">
                             <el-tab-pane label="General" name="first">
 
 
-                                    <div class="row"> 
+                                    <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group" >
                                                 <label class="control-label">Imágen <span class="text-danger"></span></label>
@@ -21,13 +21,13 @@
                                                     <img v-if="form.image_url" :src="form.image_url" class="avatar">
                                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                                 </el-upload>
-                                            </div> 
+                                            </div>
                                         </div>
 
-                                        <div class="col-md-9"> 
+                                        <div class="col-md-9">
                                             <div class="row">
 
-                                                <!-- <div class="short-div col-md-6"> 
+                                                <!-- <div class="short-div col-md-6">
                                                     <div class="form-group" :class="{'has-danger': errors.name}">
                                                         <label class="control-label">Nombre <span class="text-danger">*</span></label>
                                                         <el-input v-model="form.name" dusk="name"></el-input>
@@ -35,7 +35,7 @@
                                                     </div>
                                                 </div> -->
 
-                                                <div class="short-div col-md-6"> 
+                                                <div class="short-div col-md-6">
                                                     <div class="form-group" :class="{'has-danger': errors.description}">
                                                         <label class="control-label">Nombre<span class="text-danger">*</span></label>
                                                         <el-input v-model="form.description" dusk="description"></el-input>
@@ -43,7 +43,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="short-div col-md-6"> 
+                                                <div class="short-div col-md-6">
                                                     <div class="form-group" :class="{'has-danger': errors.second_name}">
                                                         <label class="control-label">Nombre secundario</label>
                                                         <el-input v-model="form.second_name" dusk="second_name"></el-input>
@@ -51,7 +51,7 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- <div class="short-div col-md-8"> 
+                                                <!-- <div class="short-div col-md-8">
                                                     <div class="form-group" :class="{'has-danger': errors.description}">
                                                         <label class="control-label">Descripción <span class="text-danger">*</span></label>
                                                         <el-input v-model="form.description" dusk="description"></el-input>
@@ -59,8 +59,8 @@
                                                     </div>
                                                 </div> -->
 
-                                                
-                                                <div class="short-div col-md-8"> 
+
+                                                <div class="short-div col-md-8">
                                                     <div class="form-group" :class="{'has-danger': errors.name}">
                                                         <label class="control-label">Descripción</label>
                                                         <el-input v-model="form.name" dusk="name"></el-input>
@@ -116,21 +116,21 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div> 
+                                        </div>
                                     </div>
 
-                                
-  
-
-                            </el-tab-pane> 
 
 
 
-                            <el-tab-pane label="Precio" name="second"> 
+                            </el-tab-pane>
+
+
+
+                            <el-tab-pane label="Precio" name="second">
 
                                 <div class="row">
 
-                                    
+
                                     <div class="col-md-4">
                                         <div class="form-group" :class="{'has-danger': errors.sale_unit_price}">
                                             <label class="control-label">Precio Unitario (Venta) <span class="text-danger">*</span></label>
@@ -167,7 +167,7 @@
                                             <el-checkbox v-model="form.has_igv">Incluye Igv</el-checkbox><br>
                                             <small class="form-control-feedback" v-if="errors.has_igv" v-text="errors.has_igv[0]"></small>
                                         </div>
-                                    </div>   
+                                    </div>
 
                                     <div class="col-md-4 center-el-checkbox mt-3">
                                         <div class="form-group" :class="{'has-danger': errors.has_plastic_bag_taxes}">
@@ -175,9 +175,9 @@
                                             <small class="form-control-feedback" v-if="errors.has_plastic_bag_taxes" v-text="errors.has_plastic_bag_taxes[0]"></small>
                                         </div>
                                     </div>
-                                    
-                                    
-                                       
+
+
+
 
                                     <div class="col-md-12">
                                         <h5 class="separator-title">Campos adicionales</h5>
@@ -204,15 +204,15 @@
                                             <el-input v-model="form.percentage_of_profit" @input="calculatePercentageOfProfitByPercentage"></el-input>
                                             <small class="form-control-feedback" v-if="errors.percentage_of_profit" v-text="errors.percentage_of_profit[0]"></small>
                                         </div>
-                                    </div>   
-                                    
-                                                              
-                                </div>
-                            </el-tab-pane>    
+                                    </div>
 
-                            <el-tab-pane label="UNSPSC" name="third"> 
+
+                                </div>
+                            </el-tab-pane>
+
+                            <el-tab-pane label="UNSPSC" name="third">
                                 <div class="row">
-                                    
+
                                     <div class="col-md-4">
                                         <div class="form-group" :class="{'has-danger': errors.item_code}">
                                             <label class="control-label">Código Sunat
@@ -225,16 +225,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                    
-                            </el-tab-pane>    
+
+                            </el-tab-pane>
 
                         </el-tabs>
-                    </div> 
+                    </div>
 
-                     
-                </div>   
-                    
-                    
+
+                </div>
+
+
             </div>
             <div class="form-actions text-right mt-4">
                 <el-button @click.prevent="close()">Cancelar</el-button>
@@ -242,7 +242,7 @@
             </div>
         </form>
     </el-dialog>
-</template> 
+</template>
 <script>
 
     export default {
@@ -276,10 +276,10 @@
             }
         },
         async created() {
-            
+
             await this.initForm()
             await this.$http.get(`/${this.resource}/tables`)
-                .then(response => { 
+                .then(response => {
 
                     this.unit_types = response.data.unit_types
                     this.currency_types = response.data.currency_types
@@ -291,7 +291,7 @@
                     this.form.purchase_affectation_igv_type_id = (this.affectation_igv_types.length > 0)?this.affectation_igv_types[0].id:null
                 })
         },
-        methods: { 
+        methods: {
             onSuccess(response, file, fileList) {
                 if (response.success) {
                     this.form.image = response.data.filename
@@ -300,7 +300,7 @@
                 } else {
                     this.$message.error(response.message)
                 }
-            },   
+            },
             initForm() {
                 this.loading_submit = false,
                 this.errors = {}

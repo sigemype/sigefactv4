@@ -12,7 +12,7 @@ if($hostname) {
                 Route::get('records', 'BusinessTurnController@records');
                 Route::post('validate_hotel', 'BusinessTurnController@validate_hotel');
                 Route::post('', 'BusinessTurnController@store');
-                Route::get('', 'BusinessTurnController@index')->name('tenant.bussiness_turns.index');
+                Route::get('', 'BusinessTurnController@index')->name('tenant.bussiness_turns.index')->middleware('redirect.level');
 
                 Route::post('validate_transports', 'BusinessTurnController@validate_transports');
                 Route::get('tables/transports', 'BusinessTurnController@tablesTransports');

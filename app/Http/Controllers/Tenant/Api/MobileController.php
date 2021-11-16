@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Api;
 
+use App\Http\Controllers\Tenant\EmailController;
 use Exception;
 use Carbon\Carbon;
 use App\Models\Tenant\Item;
@@ -30,12 +31,10 @@ use App\Models\Tenant\Warehouse;
 use Modules\Inventory\Models\ItemWarehouse;
 use Modules\Finance\Traits\FinanceTrait;
 
-class MobileController extends Controller
-{
+class MobileController extends Controller{
     use  FinanceTrait;
 
-    public function login(Request $request)
-    {
+    public function login(Request $request){
         $credentials = request(['email', 'password']);
         if (!Auth::attempt($credentials)) {
             return [
@@ -45,7 +44,6 @@ class MobileController extends Controller
         }
 
         $company = Company::active();
-
         $user = $request->user();
         return [
             'success' => true,
@@ -59,8 +57,7 @@ class MobileController extends Controller
 
     }
 
-    public function customers()
-    {
+    public function customers(){
         $customers = Person::whereType('customers')->orderBy('name')->take(20)->get()->transform(function($row) {
             return [
                 'id' => $row->id,
@@ -85,8 +82,7 @@ class MobileController extends Controller
 
     }
 
-    public function tables()
-    {
+    public function tables(){
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         /*$customers = Person::whereType('customers')->orderBy('name')->take(20)->get()->transform(function($row) {
             return [
@@ -101,85 +97,80 @@ class MobileController extends Controller
         $establishment_id = auth()->user()->establishment_id;
         $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
-        $items = Item::with(['brand', 'category'])
-                    ->whereWarehouse()
-                    ->whereHasInternalId()
-                    ->whereNotIsSet()
-                    ->whereIsActive()
-                    ->orderBy('description')
-                    ->take(20)
-                    ->get()
-                    ->transform(function($row) use($warehouse){
-                        $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
+        $items = Item::with(['brand', 'category'])->whereWarehouse()->whereHasInternalId()->whereIsActive()->orderBy('description')->take(20)->get()->transform(function($row) use($warehouse){
+            $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
 
-                        return [
-                            'id' => $row->id,
-                            'item_id' => $row->id,
-                            'name' => $row->name,
-                            'full_description' => $full_description,
-                            'description' => $row->description,
-                            'currency_type_id' => $row->currency_type_id,
-                            'internal_id' => $row->internal_id,
-                            'item_code' => $row->item_code,
-                            'currency_type_symbol' => $row->currency_type->symbol,
-                            'sale_unit_price' => number_format( $row->sale_unit_price, 2),
-                            'purchase_unit_price' => $row->purchase_unit_price,
-                            'unit_type_id' => $row->unit_type_id,
-                            'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
-                            'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
-                            'calculate_quantity' => (bool) $row->calculate_quantity,
-                            'has_igv' => (bool) $row->has_igv,
-                            'is_set' => (bool) $row->is_set,
-                            'aux_quantity' => 1,
-                    'brand' => $row->brand->name,
-                    'category' => $row->brand->name,
-                    'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
-                    'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
-
-                        ];
-                    });
-
+            return [
+                'id' => $row->id,
+                'item_id' => $row->id,
+                'name' => $row->name,
+                'full_description' => $full_description,
+                'description' => $row->description,
+                'currency_type_id' => $row->currency_type_id,
+                'internal_id' => $row->internal_id,
+                'item_code' => $row->item_code,
+                'currency_type_symbol' => $row->currency_type->symbol,
+                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'purchase_unit_price' => $row->purchase_unit_price,
+                'unit_type_id' => $row->unit_type_id,
+                'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
+                'calculate_quantity' => (bool) $row->calculate_quantity,
+                'has_igv' => (bool) $row->has_igv,
+                'is_set' => (bool) $row->is_set,
+                'aux_quantity' => 1,
+                'brand' => $row->brand->name,
+                'category' => $row->brand->name,
+                'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
+                'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
+            ];
+        });
 
         return [
             'success' => true,
             'data' => array('items' => $items, 'affectation_types' => $affectation_igv_types)
         ];
-
     }
 
-
     public function getSeries(){
-
-        return Series::where('establishment_id', auth()->user()->establishment_id)
-                    ->whereIn('document_type_id', ['01', '03'])
-                    ->get()
-                    ->transform(function($row) {
-                        return [
-                            'id' => $row->id,
-                            'document_type_id' => $row->document_type_id,
-                            'number' => $row->number
-                        ];
-                    });
-
+        return Series::where('establishment_id', auth()->user()->establishment_id)->whereIn('document_type_id', ['01', '03'])->get()->transform(function($row) {
+            return [
+                'id' => $row->id,
+                'document_type_id' => $row->document_type_id,
+                'number' => $row->number
+            ];
+        });
     }
 
     public function getPaymentmethod(){
-
         $payment_method_type = PaymentMethodType::all();
-        $payment_destinations = $this->getPaymentDestinations(); 
+        $payment_destinations = $this->getPaymentDestinations();
         return compact( 'payment_method_type','payment_destinations');
     }
 
 
-    public function document_email(Request $request)
-    {
+    public function document_email(Request $request){
         $company = Company::active();
         $document = Document::find($request->id);
         $customer_email = $request->email;
-
+        $email = $customer_email;
+        $mailable =new DocumentEmail($company, $document);
+        $id =  $request->id;
+        $sendIt = EmailController::SendMail($email, $mailable, $id, 1);
+        /*
         Configuration::setConfigSmtpMail();
-        Mail::to($customer_email)->send(new DocumentEmail($company, $document));
-
+        $array_email = explode(',', $customer_email);
+        if (count($array_email) > 1) {
+            foreach ($array_email as $email_to) {
+                $email_to = trim($email_to);
+                if(!empty($email_to)) {
+                    Mail::to($email_to)->send(new DocumentEmail($company, $document));
+                }
+            }
+        } else {
+            Mail::to($customer_email)->send(new DocumentEmail($company, $document));
+        }
+        */
         return [
             'success' => true,
             'message'=> 'Email enviado correctamente.'
@@ -187,8 +178,7 @@ class MobileController extends Controller
     }
 
 
-    public function item(ItemRequest $request)
-    {
+    public function item(ItemRequest $request){
         $row = new Item();
         $row->item_type_id = '01';
         $row->amount_plastic_bag_taxes = Configuration::firstOrFail()->amount_plastic_bag_taxes;
@@ -264,8 +254,7 @@ class MobileController extends Controller
 
     }
 
-    public function person(PersonRequest $request)
-    {
+    public function person(PersonRequest $request){
         $row = new Person();
         if ($request->department_id === '-') {
             $request->merge([
@@ -297,55 +286,59 @@ class MobileController extends Controller
         ];
     }
 
-    public function searchItems(Request $request)
-    {
+    public function searchItems(Request $request){
         $establishment_id = auth()->user()->establishment_id;
         $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
-        $items = Item::where('description', 'like', "%{$request->input}%" )
-                    ->orWhere('internal_id', 'like', "%{$request->input}%")
-                    ->whereHasInternalId()
-                    ->whereWarehouse()
-                    ->whereNotIsSet()
-                    ->whereIsActive()
-                    ->orderBy('description')
-                    ->get()
-                    ->transform(function($row) use($warehouse){
+        $items = Item::where('description', 'like', "%{$request->input}%" )->orWhere('internal_id', 'like', "%{$request->input}%")->whereHasInternalId()->whereWarehouse()->whereIsActive()->orderBy('description')->get()->transform(function($row) use($warehouse){
 
-                        $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
+            $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
 
-                        return [
-                            'id' => $row->id,
-                            'item_id' => $row->id,
-                            'name' => $row->name,
-                            'full_description' => $full_description,
-                            'description' => $row->description,
-                            'currency_type_id' => $row->currency_type_id,
-                            'internal_id' => $row->internal_id,
-                            'item_code' => $row->item_code,
-                            'currency_type_symbol' => $row->currency_type->symbol,
-                            'sale_unit_price' => number_format( $row->sale_unit_price, 2),
-                            'purchase_unit_price' => $row->purchase_unit_price,
-                            'unit_type_id' => $row->unit_type_id,
-                            'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
-                            'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
-                            'calculate_quantity' => (bool) $row->calculate_quantity,
-                            'has_igv' => (bool) $row->has_igv,
-                            'is_set' => (bool) $row->is_set,
-                            'aux_quantity' => 1,
-                    'brand' => $row->brand->name,
-                    'category' => $row->brand->name,
-                    'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
-                    'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
-                            'warehouses' => collect($row->warehouses)->transform(function($row) {
-                                return [
-                                    'warehouse_description' => $row->warehouse->description,
-                                    'stock' => $row->stock,
-                                    'warehouse_id' => $row->warehouse_id,
-                                ];
-                            }),
-                        ];
-                    });
+            return [
+                'id' => $row->id,
+                'item_id' => $row->id,
+                'name' => $row->name,
+                'full_description' => $full_description,
+                'description' => $row->description,
+                'currency_type_id' => $row->currency_type_id,
+                'internal_id' => $row->internal_id,
+                'item_code' => $row->item_code ?? '',
+                'currency_type_symbol' => $row->currency_type->symbol,
+                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'purchase_unit_price' => $row->purchase_unit_price,
+                'unit_type_id' => $row->unit_type_id,
+                'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
+                'calculate_quantity' => (bool) $row->calculate_quantity,
+                'has_igv' => (bool) $row->has_igv,
+                'is_set' => (bool) $row->is_set,
+                'aux_quantity' => 1,
+                'barcode' => $row->barcode ?? '',
+                'brand' => optional($row->brand)->name,
+                'category' => optional($row->category)->name,
+                'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
+                'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
+                'warehouses' => collect($row->warehouses)->transform(function($row) {
+                    return [
+                        'warehouse_description' => $row->warehouse->description,
+                        'stock' => $row->stock,
+                        'warehouse_id' => $row->warehouse_id,
+                    ];
+                }),
+                'item_unit_types' => $row->item_unit_types->transform(function($row) {
+                    return [
+                        'id' => $row->id,
+                        'description' => $row->description,
+                        'unit_type_id' => $row->unit_type_id,
+                        'quantity_unit' => $row->quantity_unit,
+                        'price1' => $row->price1,
+                        'price2' => $row->price2,
+                        'price3' => $row->price3,
+                        'price_default' => $row->price_default,
+                    ];
+                }),
+            ];
+        });
 
         return [
             'success' => true,
@@ -353,33 +346,26 @@ class MobileController extends Controller
         ];
     }
 
-    public function searchCustomers(Request $request)
-    {
+    public function searchCustomers(Request $request){
 
         $identity_document_type_id = $this->getIdentityDocumentTypeId($request->document_type_id);
 
-        $customers = Person::where('name', 'like', "%{$request->input}%" )
-                            ->orWhere('number','like', "%{$request->input}%")
-                            ->whereType('customers')
-                            ->whereIn('identity_document_type_id', $identity_document_type_id)
-                            ->orderBy('name')
-                            ->get()
-                            ->transform(function($row) {
-                                return [
-                                    'id' => $row->id,
-                                    'description' => $row->number.' - '.$row->name,
-                                    'name' => $row->name,
-                                    'number' => $row->number,
-                                    'identity_document_type_id' => $row->identity_document_type_id,
-                                    'identity_document_type_code' => $row->identity_document_type->code,
-                                    'address' => $row->address,
-                                    'telephone' => $row->telephone,
-                                    'email' => $row->email,
-                                    'country_id' => $row->country_id,
-                                    'district_id' => $row->district_id,
-                                    'selected' => false
-                                ];
-                            });
+        $customers = Person::where('name', 'like', "%{$request->input}%" )->orWhere('number','like', "%{$request->input}%")->whereType('customers')                            ->whereIn('identity_document_type_id', $identity_document_type_id)->orderBy('name')->get()->transform(function($row) {
+            return [
+                'id' => $row->id,
+                'description' => $row->number.' - '.$row->name,
+                'name' => $row->name,
+                'number' => $row->number,
+                'identity_document_type_id' => $row->identity_document_type_id,
+                'identity_document_type_code' => $row->identity_document_type->code,
+                'address' => $row->address,
+                'telephone' => $row->telephone,
+                'email' => $row->email,
+                'country_id' => $row->country_id,
+                'district_id' => $row->district_id,
+                'selected' => false
+            ];
+        });
 
         return [
             'success' => true,
@@ -389,13 +375,10 @@ class MobileController extends Controller
 
 
     public function getIdentityDocumentTypeId($document_type_id){
-
         return ($document_type_id == '01') ? [6] : [1,4,6,7,0];
-
     }
 
-    public function report()
-    {
+    public function report(){
         $request = [
             'customer_id' => null,
             'date_end' => date('Y-m-d'),
@@ -415,8 +398,7 @@ class MobileController extends Controller
         ];
     }
 
-    public function updateItem(ItemUpdateRequest $request, $itemId)
-    {
+    public function updateItem(ItemUpdateRequest $request, $itemId){
         $row = Item::findOrFail($itemId);
 
         $row->fill($request->only('internal_id', 'barcode', 'model', 'has_igv', 'description', 'sale_unit_price', 'stock_min', 'item_code'));
@@ -451,8 +433,7 @@ class MobileController extends Controller
     }
 
     //subir imagen app
-    public function upload(Request $request)
-    {
+    public function upload(Request $request){
 
         $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg');
 
@@ -475,8 +456,7 @@ class MobileController extends Controller
     }
 
 
-    function upload_image($request)
-    {
+    function upload_image($request){
         $file = $request['file'];
         $type = $request['type'];
 

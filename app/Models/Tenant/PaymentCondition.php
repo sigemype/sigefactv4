@@ -1,17 +1,40 @@
 <?php
 
-namespace App\Models\Tenant;
+    namespace App\Models\Tenant;
 
-class PaymentCondition extends ModelTenant
-{
-    public $timestamps = false;
-    public $incrementing = false;
+    use Illuminate\Database\Eloquent\Builder;
 
-    protected $fillable = [
-        'id',
-        'name',
-        'days',
-        'is_locked',
-        'is_active',
-    ];
-}
+    /**
+     * App\Models\Tenant\PaymentCondition
+     *
+     * @property string $name
+     * @property int    $int
+     * @property int    $days
+     * @property bool   $is_locked
+     * @property bool   $is_active
+     * @method static Builder|PaymentCondition newModelQuery()
+     * @method static Builder|PaymentCondition newQuery()
+     * @method static Builder|PaymentCondition query()
+     * @mixin ModelTenant
+     * @mixin \Eloquent
+     */
+    class PaymentCondition extends ModelTenant
+    {
+        public $timestamps = false;
+        public $incrementing = false;
+
+        protected $fillable = [
+            'id',
+            'name',
+            'days',
+            'is_locked',
+            'is_active',
+        ];
+
+        protected $casts = [
+            'id' => 'int',
+            'days' => 'int',
+            'is_locked' => 'bool',
+            'is_active' => 'bool',
+        ];
+    }

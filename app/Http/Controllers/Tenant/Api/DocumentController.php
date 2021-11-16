@@ -12,17 +12,15 @@ use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentController
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DocumentController extends Controller
-{
+class DocumentController extends Controller{
     use StorageDocument;
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('input.request:document,api', ['only' => ['store', 'storeServer']]);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
+        // dd($request->all());
         $fact = DB::connection('tenant')->transaction(function () use ($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
@@ -61,8 +59,7 @@ class DocumentController extends Controller
         ];
     }
 
-    public function send(Request $request)
-    {
+    public function send(Request $request){
         if ($request->has('external_id')) {
             $external_id = $request->input('external_id');
             $document = Document::where('external_id', $external_id)->first();
@@ -94,12 +91,10 @@ class DocumentController extends Controller
         }
     }
 
-    public function storeServer(Request $request)
-    {
+    public function storeServer(Request $request){
         $fact = DB::connection('tenant')->transaction(function () use ($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
-
             return $facturalo;
         });
 
@@ -121,18 +116,14 @@ class DocumentController extends Controller
             if ($data_json->query) {
                 DocumentControllerSend::send($document->id);
             }
-
         }
-
         return [
             'success' => true,
         ];
     }
 
-    public function documentCheckServer($external_id)
-    {
+    public function documentCheckServer($external_id){
         $document = Document::where('external_id', $external_id)->first();
-
         if ($document->state_type_id === '05' && $document->group_id === '01') {
             $file_cdr = base64_encode($this->getStorage($document->filename, 'cdr'));
         } else {
@@ -146,28 +137,21 @@ class DocumentController extends Controller
         ];
     }
 
-    private function getStateTypeDescription($id)
-    {
+    private function getStateTypeDescription($id){
         return StateType::find($id)->description;
     }
 
-    public function lists($startDate = null, $endDate = null)
-    {
+    public function lists($startDate = null, $endDate = null){
         if ($startDate == null) {
-            $record = Document::orderBy('date_of_issue', 'desc')
-                ->take(50)
-                ->get();
+            $record = Document::orderBy('date_of_issue', 'desc')->take(50)->get();
         } else {
-            $record = Document::whereBetween('date_of_issue', [$startDate, $endDate])
-                ->orderBy('date_of_issue', 'desc')
-                ->get();
+            $record = Document::whereBetween('date_of_issue', [$startDate, $endDate])->orderBy('date_of_issue', 'desc')->get();
         }
         $records = new DocumentCollection($record);
         return $records;
     }
 
-    public function updatestatus(Request $request)
-    {
+    public function updatestatus(Request $request){
         $record = Document::whereExternal_id($request->externail_id)->first();
         $record->state_type_id = $request->state_type_id;
         $record->save();

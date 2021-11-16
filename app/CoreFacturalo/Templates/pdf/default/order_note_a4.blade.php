@@ -1,4 +1,5 @@
 @php
+/** @var \App\Models\Tenant\Document $document */
     $establishment = $document->establishment;
     $customer = $document->customer;
     //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
@@ -159,17 +160,17 @@
     </thead>
     <tbody>
     @foreach($document->items as $row)
+        @php
+        /** @var \Modules\Order\Models\OrderNoteItem $row */
+        $row = $row;
+        $item = $row->item;
+        @endphp
         <tr>
-            <td class="text-center align-top">
-                @if(((int)$row->quantity != $row->quantity))
-                    {{ $row->quantity }}
-                @else
-                    {{ number_format($row->quantity, 0) }}
-                @endif
-            </td>
-            <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+            <td class="text-center align-top"> {{ $row->getStringQty() }} </td>
+            <td class="text-center align-top">{{ $item->unit_type_id }}</td>
             <td class="text-left">
-                {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                {!!$row->getTemplateDescription() !!}
+                @if (!empty($item->presentation)) {!!$item->presentation->description!!} @endif
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)
                         <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
@@ -181,7 +182,7 @@
                     @endforeach
                 @endif
             </td>
-            <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+            <td class="text-right align-top">{{ $row->getStringUnitPrice()}}</td>
             <td class="text-right align-top">
                 @if($row->discounts)
                     @php
@@ -195,7 +196,7 @@
                 0
                 @endif
             </td>
-            <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
+            <td class="text-right align-top">{{ $row->getStringTotal() }}</td>
         </tr>
         <tr>
             <td colspan="6" class="border-bottom"></td>

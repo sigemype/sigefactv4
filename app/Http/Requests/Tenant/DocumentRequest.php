@@ -13,11 +13,13 @@ use Illuminate\Validation\Rule;
  */
 class DocumentRequest extends FormRequest
 {
-    public function authorize(){
+    public function authorize()
+    {
         return true;
     }
 
-    public function rules(){
+    public function rules()
+    {
         $id = $this->input('id');
         return [
             'customer_id' => [

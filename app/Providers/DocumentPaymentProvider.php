@@ -36,11 +36,10 @@ class DocumentPaymentProvider extends ServiceProvider
 
     private function payments()
     {
-
         DocumentPayment::created(function ($document_payment) {
             $this->transaction_payment($document_payment);
         });
-        
+
         DocumentPayment::deleted(function ($document_payment) {
             $this->transaction_payment($document_payment);
         });

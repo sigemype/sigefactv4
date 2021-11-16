@@ -15,11 +15,7 @@
     }
 
     $config = \App\Models\Tenant\Configuration::first();
-    $miimage = null;
-    if($config->formats == "wsc")
-    {
-        $miimage = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'wsc'.DIRECTORY_SEPARATOR.'membrete.jpg');
-    }
+	$miimage = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'wsc'.DIRECTORY_SEPARATOR.'membrete.jpg');
 
 
 @endphp

@@ -154,7 +154,7 @@
         @if ($document->detraction)
             <td width="120px">MONTO DETRACCIÓN</td>
             <td width="8px">:</td>
-            <td>{{ $document->currency_type->symbol }} {{ $document->detraction->amount}}</td>
+            <td>S/ {{ $document->detraction->amount}}</td>
         @endif
     </tr>
     @endif
@@ -549,27 +549,49 @@
         </td>
     </tr>
 </table>
-@if($payments->count())
+
+@if($document->payment_condition_id)
+<table class="full-width">
+    <tr>
+        <td>
+            <strong>CONDICIÓN DE PAGO: {{ $document->payment_condition->name }} </strong>
+        </td>
+    </tr>
+</table>
+@endif
 
 
+@if ($document->payment_condition_id === '01')
+    @if($payments->count())
+        <table class="full-width">
+            <tr>
+                <td>
+                    <strong>PAGOS:</strong>
+                </td>
+            </tr>
+                @php
+                    $payment = 0;
+                @endphp
+                @foreach($payments as $row)
+                    <tr>
+                        <td>&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                    </tr>
+                @endforeach
+            </tr>
+
+        </table>
+    @endif
+@else
     <table class="full-width">
-        <tr>
-            <td>
-                <strong>PAGOS:</strong>
-            </td>
-        </tr>
-            @php
-                $payment = 0;
-            @endphp
-            @foreach($payments as $row)
+            @foreach($document->fee as $key => $quote)
                 <tr>
-                    <td>&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                    <td>&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
                 </tr>
             @endforeach
         </tr>
-
     </table>
 @endif
+
 
 @if($document->user)
      <br>

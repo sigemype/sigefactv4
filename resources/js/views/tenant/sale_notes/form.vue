@@ -301,6 +301,7 @@
                                 <p class="text-right" v-if="form.total_exonerated > 0">OP.EXONERADAS: {{ currency_type.symbol }} {{ form.total_exonerated }}</p>
                                 <p class="text-right" v-if="form.total_taxed > 0">OP.GRAVADA: {{ currency_type.symbol }} {{ form.total_taxed }}</p>
                                 <p class="text-right" v-if="form.total_igv > 0">IGV: {{ currency_type.symbol }} {{ form.total_igv }}</p>
+                                <p class="text-right" v-if="form.total_discount > 0">DESCUENTO: {{ currency_type.symbol }} {{ form.total_discount }}</p>
                                 <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
                             </div>
 
@@ -340,7 +341,7 @@
     import PersonForm from '../persons/form.vue'
     import SaleNotesOptions from './partials/options.vue'
     import {functions, exchangeRate} from '../../../mixins/functions'
-    import {calculateRowItem} from '../../../helpers/functions'
+    import {calculateRowItem, sumAmountDiscountsNoBaseByItem} from '../../../helpers/functions'
     import Logo from '../companies/logo.vue'
     import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
@@ -412,7 +413,7 @@
                 is_contingency: false,
                 enabled_payments: true,
                 payment_destinations:  [],
-
+                total_discount_no_base: 0,
             }
         },
         async created() {
@@ -634,6 +635,7 @@
                     total_other_taxes: 0,
                     total_taxes: 0,
                     total_value: 0,
+                    subtotal: 0,
                     total: 0,
                     operation_type_id: null,
                     items: [],
@@ -656,6 +658,8 @@
                     paid: false,
                     observation: null,
                 }
+
+                this.total_discount_no_base = 0
 
                 this.clickAddPayment()
                 this.enabled_payments = true
@@ -714,6 +718,7 @@
                 this.calculateTotal()
             },
             calculateTotal() {
+                
                 let total_discount = 0
                 let total_charge = 0
                 let total_exportation = 0
@@ -724,6 +729,8 @@
                 let total_igv = 0
                 let total_value = 0
                 let total = 0
+                this.total_discount_no_base = 0
+
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
@@ -764,9 +771,14 @@
                         total_igv += parseFloat(row.total_igv)
                         total += parseFloat(row.total)
                     }
+
                     total_value += parseFloat(row.total_value)
+
+                    this.total_discount_no_base += sumAmountDiscountsNoBaseByItem(row)
+
                 });
 
+                this.form.total_discount = _.round(total_discount, 2)
                 this.form.total_exportation = _.round(total_exportation, 2)
                 this.form.total_taxed = _.round(total_taxed, 2)
                 this.form.total_exonerated = _.round(total_exonerated, 2)
@@ -775,8 +787,12 @@
                 this.form.total_igv = _.round(total_igv, 2)
                 this.form.total_value = _.round(total_value, 2)
                 this.form.total_taxes = _.round(total_igv, 2)
-                this.form.total = _.round(total, 2)
+                // this.form.total = _.round(total, 2)
                 this.form_payment.payment = this.form.total
+
+                this.form.subtotal = _.round(total, 2)
+                this.form.total = _.round(total - this.total_discount_no_base, 2)
+
                 this.setTotalDefaultPayment()
             },
             async saveCashDocument(sale_note_id){

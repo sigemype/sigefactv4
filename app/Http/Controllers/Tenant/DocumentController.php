@@ -6,6 +6,7 @@ use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SearchItemController;
 use App\Http\Requests\Tenant\DocumentEmailRequest;
 use App\Http\Requests\Tenant\DocumentRequest;
 use App\Http\Requests\Tenant\DocumentUpdateRequest;
@@ -32,6 +33,7 @@ use App\Models\Tenant\Catalogs\NoteDebitType;
 use App\Models\Tenant\Catalogs\OperationType;
 use App\Models\Tenant\Catalogs\PriceType;
 use App\Models\Tenant\Catalogs\SystemIscType;
+use App\Models\Tenant\CatItemSize;
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Configuration;
 use App\Models\Tenant\Dispatch;
@@ -62,7 +64,7 @@ use Modules\Item\Http\Requests\BrandRequest;
 use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
-use App\Models\Tenant\Catalogs\PaymentMethodType as CatPaymentMethodType;
+use Html2Text\Html2Text;
 use Barryvdh\DomPDF\Facade as PDF;
 
 class DocumentController extends Controller{
@@ -81,7 +83,11 @@ class DocumentController extends Controller{
         $import_documents = config('tenant.import_documents');
         $import_documents_second = config('tenant.import_documents_second_format');
         $configuration = Configuration::getPublicConfig();
-        return view('tenant.documents.index', compact('is_client','import_documents','import_documents_second','configuration'));
+        // apiperu
+        // se valida cual api usar para validacion desde el listado de comprobantes
+        $view_apiperudev_validator_cpe = config('tenant.apiperudev_validator_cpe');
+        $view_validator_cpe = config('tenant.validator_cpe');
+        return view('tenant.documents.index', compact('is_client', 'import_documents', 'import_documents_second', 'configuration', 'view_apiperudev_validator_cpe', 'view_validator_cpe'));
     }
 
     public function columns(){
@@ -179,7 +185,7 @@ class DocumentController extends Controller{
                 'description' => ucfirst(mb_strtolower(str_replace('REMITENTE ELECTRÓNICA','REMITENTE',$row->description))),
             ];
         });
-        $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
+        // $cat_payment_method_types = CatPaymentMethodType::whereActive()->get();
         // $detraction_types = DetractionType::whereActive()->get();
         //return compact('customers', 'establishments', 'series', 'document_types_invoice', 'document_types_note',
         //'note_credit_types', 'note_debit_types', 'currency_types', 'operation_types',
@@ -220,14 +226,14 @@ class DocumentController extends Controller{
             'select_first_document_type_03',
             'payment_destinations',
             'payment_conditions',
-            'affectation_igv_types',
-            'cat_payment_method_types'
+            'affectation_igv_types'
         );
 
     }
 
     public function item_tables(){
-        $items = $this->table('items');
+        // $items = $this->table('items');
+        $items = SearchItemController::getItemsToDocuments();
         $categories = [];
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $system_isc_types = SystemIscType::whereActive()->get();
@@ -242,6 +248,7 @@ class DocumentController extends Controller{
 
         /** Informacion adicional */
         $colors = collect([]);
+        $CatItemSize=$colors;
         $CatItemStatus=$colors;
         $CatItemUnitBusiness = $colors;
         $CatItemMoldCavity = $colors;
@@ -251,6 +258,7 @@ class DocumentController extends Controller{
         $CatItemProductFamily= $colors;
         if($configuration->isShowExtraInfoToItem()){
             $colors = CatColorsItem::all();
+            $CatItemSize= CatItemSize::all();
             $CatItemStatus= CatItemStatus::all();
             $CatItemUnitBusiness = CatItemUnitBusiness::all();
             $CatItemMoldCavity = CatItemMoldCavity::all();
@@ -272,6 +280,7 @@ class DocumentController extends Controller{
             'attribute_types',
             'is_client',
             'colors',
+            'CatItemSize',
             'CatItemMoldCavity',
             'CatItemMoldProperty',
             'CatItemUnitBusiness',
@@ -333,6 +342,7 @@ class DocumentController extends Controller{
             */
         }
         if ($table === 'items') {
+            return SearchItemController::getItemsToDocuments();
             $establishment_id = auth()->user()->establishment_id;
             $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
             // $items_u = Item::whereWarehouse()->whereIsActive()->whereNotIsSet()->orderBy('description')->take(20)->get();
@@ -450,12 +460,44 @@ class DocumentController extends Controller{
     }
 
     public function store(DocumentRequest $request){
+        $validate = $this->validateDocument($request);
+        if(!$validate['success']) return $validate;
         $res = $this->storeWithData($request->all());
         $document_id = $res['data']['id'];
         $this->associateDispatchesToDocument($request, $document_id);
         $this->associateSaleNoteToDocument($request, $document_id);
         return $res;
     }
+
+    /**
+     * Validaciones previas al proceso de facturacion
+     *
+     * @param array $request
+     * @return array
+     */
+    public function validateDocument($request){
+
+        // validar nombre de producto pdf en xml - items
+        foreach ($request->items as $item) {
+
+            if($item['name_product_xml']){
+                // validar error 2027 sunat
+                if(mb_strlen($item['name_product_xml']) > 500){
+                    return [
+                        'success' => false,
+                        'message' => "El campo Nombre producto en PDF/XML no puede superar los 500 caracteres - Producto/Servicio: {$item['item']['description']}"
+                    ];
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => ''
+        ];
+
+    }
+
 
     /**
      * @param array $data
@@ -553,6 +595,8 @@ class DocumentController extends Controller{
      * @throws \Throwable
      */
     public function update(DocumentUpdateRequest $request, $id){
+        $validate = $this->validateDocument($request);
+        if(!$validate['success']) return $validate;
         $fact = DB::connection('tenant')->transaction(function () use ($request, $id) {
             $facturalo = new Facturalo();
             $facturalo->update($request->all(), $id);
@@ -621,9 +665,22 @@ class DocumentController extends Controller{
         $company = Company::active();
         $document = Document::find($request->input('id'));
         $customer_email = $request->input('customer_email');
+        $email = $customer_email;
+        $mailable =  new DocumentEmail($company, $document);
+        $id = (int) $request->input('id');
+        $sendIt = EmailController::SendMail($email, $mailable, $id, 1);
+        // Centralizar el envio de correos a Email Controller
+        /*
         Configuration::setConfigSmtpMail();
-        Mail::to($customer_email)->send(new DocumentEmail($company, $document));
-
+        $array_customer = explode(',', $customer_email);
+        if (count($array_customer) > 1) {
+            foreach ($array_customer as $customer) {
+                Mail::to($customer)->send(new DocumentEmail($company, $document));
+            }
+        } else {
+            Mail::to($customer_email)->send(new DocumentEmail($company, $document));
+        }
+        */
         return [
             'success' => true
         ];
@@ -649,6 +706,7 @@ class DocumentController extends Controller{
 
     public function consultCdr($document_id){
         $document = Document::find($document_id);
+
         $fact = DB::connection('tenant')->transaction(function () use ($document) {
             $facturalo = new Facturalo();
             $facturalo->setDocument($document);
@@ -726,6 +784,7 @@ class DocumentController extends Controller{
     }
 
     public function searchCustomerById($id){
+
         $customers = Person::with('addresses')->whereType('customers')
                     ->where('id',$id)
                     ->get()->transform(function($row) {

@@ -3,20 +3,27 @@
     $customer = $document->customer;
     $invoice = $document->invoice;
     $document_base = ($document->note) ? $document->note : null;
+
     //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
     $document_number = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
     $accounts = \App\Models\Tenant\BankAccount::all();
 
     if($document_base) {
+
         $affected_document_number = ($document_base->affected_document) ? $document_base->affected_document->series.'-'.str_pad($document_base->affected_document->number, 8, '0', STR_PAD_LEFT) : $document_base->data_affected_document->series.'-'.str_pad($document_base->data_affected_document->number, 8, '0', STR_PAD_LEFT);
+
     } else {
+
         $affected_document_number = null;
     }
+
     $payments = $document->payments;
+
     $document->load('reference_guides');
+
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
-    $fees = $document->fees;
+
 @endphp
 <html>
 <head>
@@ -50,11 +57,15 @@
                 {{ ($establishment->province_id !== '-')? ', '.$establishment->province->description : '' }}
                 {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
             </h6>
+
             @isset($establishment->trade_address)
                 <h6>{{ ($establishment->trade_address !== '-')? 'D. Comercial: '.$establishment->trade_address : '' }}</h6>
             @endisset
+
             <h6>{{ ($establishment->telephone !== '-')? 'Telf. '.$establishment->telephone : '' }}</h6>
+
             <h6>{{ ($establishment->email !== '-')? 'Email: '.$establishment->email : '' }}</h6>
+
             @isset($establishment->web_address)
                 <h6>{{ ($establishment->web_address !== '-')? 'Web: '.$establishment->web_address : '' }}</h6>
             @endisset
@@ -129,7 +140,7 @@
     <tr>
         <td width="16.6%" class="desc">UBIGEO</td>
         <td width="16.6%" class="desc">O/C</td>
-        <td width="16.6%" class="desc">FORMA DE PAGO</td>
+        <td width="16.6%" class="desc">CONDICIONES DE PAGO</td>
         <td width="16.6%" class="desc">VENDEDOR</td>
         <td width="16.6%" class="desc">GUIA DE REMISIÓN</td>
         <td width="16.6%" class="desc">AGENCIA DE TRANSPORTE</td>
@@ -138,17 +149,12 @@
         <td class="desc"></td>
         <td class="desc">{{$document->purchase_order}}</td>
         <td class="desc">
-            @if($fees->count())
-                Credito
-            @else
-                Contado
-            @endif
-            {{-- @php
+            @php
                 $payment = 0;
             @endphp
             @foreach($payments as $row)
                 {{ $row->payment_method_type->description }}
-            @endforeach --}}
+            @endforeach
         </td>
         <td class="desc">{{ $document->user->name }}</td>
         <td class="desc">
@@ -167,21 +173,21 @@
         <td class="desc"></td>
     </tr>
 </table>
+<div style="border: 1px solid #000;height: 48%;padding-left: -1px;width:95.1%;position: absolute;display: table;">
+</div>
+<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:11.4%;position: absolute;display: table;">
+</div>
+<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:49.5%;position: absolute;display: table;">
+</div>
+<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:57.2%;position: absolute;display: table;">
+</div>
+<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:64.8%;position: absolute;display: table;">
+</div>
+<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:76.3%;position: absolute;display: table;">
+</div>
+<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:83.7%;position: absolute;display: table;">
+</div>
 
-<div style="border: 1px solid #000;height: 45.1%;padding-left: -1px;width:95.1%;position: absolute;display: table;">
-</div>
-<div style="border-right: 1px solid #000;height: 45.1%;padding-left: -1px;width:11.4%;position: absolute;display: table;">
-</div>
-<div style="border-right: 1px solid #000;height: 45.1%;padding-left: -1px;width:49.5%;position: absolute;display: table;">
-</div>
-<div style="border-right: 1px solid #000;height: 45.1%;padding-left: -1px;width:57.2%;position: absolute;display: table;">
-</div>
-<div style="border-right: 1px solid #000;height: 45.1%;padding-left: -1px;width:64.8%;position: absolute;display: table;">
-</div>
-<div style="border-right: 1px solid #000;height: 45.1%;padding-left: -1px;width:76.3%;position: absolute;display: table;">
-</div>
-<div style="border-right: 1px solid #000;height: 45.1%;padding-left: -1px;width:83.7%;position: absolute;display: table;">
-</div>
 
 <table class="full-width mt-0 mb-0">
     <thead >
@@ -201,12 +207,13 @@
                 <td class="p-1 text-center align-top desc">{{ $row->item->internal_id }}</div></td>
                 <td class="p-1 text-left align-top desc text-upp">
                     @if($row->name_product_pdf)
-                        {!!$row->item->description!!} <br> 
                         {!!$row->name_product_pdf!!}
                     @else
                         {!!$row->item->description!!}
                     @endif
+
                     @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+
                     @if($row->attributes)
                         @foreach($row->attributes as $attr)
                             <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
@@ -249,6 +256,8 @@
         @endforeach
     </tbody>
 </table>
+
+
 </body>
 </html>
 {{-- <table class="full-width">

@@ -155,6 +155,30 @@
     @endif
 </table>
 @endif
+@if ($document->data_affected_document)
+    @php
+        $document_data_affected_document = $document->data_affected_document;
 
+    $number = (property_exists($document_data_affected_document,'number'))?$document_data_affected_document->number:null;
+    $series = (property_exists($document_data_affected_document,'series'))?$document_data_affected_document->series:null;
+    $document_type_id = (property_exists($document_data_affected_document,'document_type_id'))?$document_data_affected_document->document_type_id:null;
+
+    @endphp
+    @if($number !== null && $series !== null && $document_type_id !== null)
+
+        @php
+            $documentType  = App\Models\Tenant\Catalogs\DocumentType::find($document_type_id);
+            $textDocumentType = $documentType->getDescription();
+        @endphp
+        <table class="full-width border-box">
+            <tr>
+                <td class="text-bold border-bottom font-bold">{{$textDocumentType}}</td>
+            </tr>
+            <tr>
+                <td>{{$series }}-{{$number}}</td>
+            </tr>
+        </table>
+    @endif
+@endif
 </body>
 </html>

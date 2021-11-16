@@ -66,6 +66,13 @@ class ReportItemController extends Controller
         $d_start = null;
         $d_end = null;
 
+        /** @todo: Eliminar periodo, fechas y cambiar por
+
+        $date_start = $request['date_start'];
+        $date_end = $request['date_end'];
+        \App\CoreFacturalo\Helpers\Functions\FunctionsHelper\FunctionsHelper::setDateInPeriod($request, $date_start, $date_end);
+         */
+
         switch ($period) {
             case 'month':
                 $d_start = Carbon::parse($month_start.'-01')->format('Y-m-d');

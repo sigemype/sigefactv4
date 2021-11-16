@@ -15,40 +15,47 @@
 <body>
 <table class="full-width">
     <tr>
-        {{--@if($company->logo)--}}
-            {{--<td width="20%">--}}
-                {{--<div class="company_logo_box">--}}
-                    {{--<img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64,--}}
-                                   {{--{{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}"--}}
-                         {{--alt="{{$company->name}}"--}}
-                         {{--class="company_logo"--}}
-                         {{--style="max-width: 150px;">--}}
-                {{--</div>--}}
-            {{--</td>--}}
-        {{--@else--}}
-            {{--<td width="20%">--}}
-                {{--<img src="{{ public_path("storage/uploads/logos/{$company->logo}") }}" class="company_logo" style="max-width: 150px">--}}
-            {{--</td>--}}
-        {{--@endif--}}
-        <td width="70%">
-            <div class="company_logo_box">
-                <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
+        @if($company->logo)
+            <td width="20%">
+                <div class="company_logo_box">
+                    <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
+                </div>
+            </td>
+        @else
+            <td width="20%">
+                {{--<img src="{{ asset('logo/logo.jpg') }}" class="company_logo" style="max-width: 150px">--}}
+            </td>
+        @endif
+        <td width="50%" class="pl-3">
+            <div class="text-left">
+                <h4 class="">{{ $company->name }}</h4>
+                <h5>{{ 'RUC '.$company->number }}</h5>
+                <h6 style="text-transform: uppercase;">
+                    {{ ($establishment->address !== '-')? $establishment->address : '' }}
+                    {{ ($establishment->district_id !== '-')? ', '.$establishment->district->description : '' }}
+                    {{ ($establishment->province_id !== '-')? ', '.$establishment->province->description : '' }}
+                    {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
+                </h6>
+
+                @isset($establishment->trade_address)
+                    <h6>{{ ($establishment->trade_address !== '-')? 'D. Comercial: '.$establishment->trade_address : '' }}</h6>
+                @endisset
+
+                <h6>{{ ($establishment->telephone !== '-')? 'Central telefónica: '.$establishment->telephone : '' }}</h6>
+
+                <h6>{{ ($establishment->email !== '-')? 'Email: '.$establishment->email : '' }}</h6>
+
+                @isset($establishment->web_address)
+                    <h6>{{ ($establishment->web_address !== '-')? 'Web: '.$establishment->web_address : '' }}</h6>
+                @endisset
+
+                @isset($establishment->aditional_information)
+                    <h6>{{ ($establishment->aditional_information !== '-')? $establishment->aditional_information : '' }}</h6>
+                @endisset
             </div>
         </td>
-        {{--<td width="50%" class="pl-3">--}}
-            {{--<div class="text-left">--}}
-                {{--<h4 class="">{{ $company->name }}</h4>--}}
-                {{--<h5>{{ 'RUC '.$company->number }}</h5>--}}
-                {{--<h6>{{ ($establishment->address !== '-')? $establishment->address : '' }}</h6>--}}
-                {{--<h6>{{ ($establishment->email !== '-')? $establishment->email : '' }}</h6>--}}
-                {{--<h6>{{ ($establishment->telephone !== '-')? $establishment->telephone : '' }}</h6>--}}
-            {{--</div>--}}
-        {{--</td>--}}
-        <td width="30%" class="py-4 px-2 text-center" style="border: thin solid #ccc;">
-            <h4>{{ 'RUC '.$company->number }}</h4>
-            <br/>
+        <td width="30%" class="border-box py-4 px-2 text-center">
             <h5 class="text-center">{{ $document->document_type->description }}</h5>
-            <br/>
             <h3 class="text-center">{{ $document_number }}</h3>
         </td>
     </tr>
@@ -125,6 +132,8 @@
         <th class="border-bottom text-center py-2 w-60">CANT.</th>
         <th class="border-bottom text-center py-2 w-60">UND.</th>
         <th class="border-bottom text-center py-2">DESCRIPCIÓN</th>
+    <th class="border-bottom text-right py-2">P.UNIT</th>
+    <th class="border-bottom text-right py-2">DTO.</th>
         <th class="border-bottom text-right py-2">TOTAL</th>
     </tr>
     </thead>
@@ -134,14 +143,28 @@
             <td class="text-left">
                 {{ $row->quantity }}
             </td>
-            <td class="text-center">
-                @php
+             <td class="text-center align-top">
+        @php
                 $unit_type_description = \App\Models\Tenant\Catalogs\UnitType::find($row->item->unit_type_id);
                 @endphp
                 {{ $unit_type_description->description }}
             </td>
             <td class="text-left">
                 {!! $row->item->description !!}
+            </td>
+        <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+        <td class="text-right align-top">
+                @if($row->discounts)
+                    @php
+                        $total_discount_line = 0;
+                        foreach ($row->discounts as $disto) {
+                            $total_discount_line = $total_discount_line + $disto->amount;
+                        }
+                    @endphp
+                    {{ number_format($total_discount_line, 2) }}
+                @else
+                0
+                @endif
             </td>
             <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
         </tr>

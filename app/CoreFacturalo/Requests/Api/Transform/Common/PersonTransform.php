@@ -18,6 +18,7 @@ class PersonTransform
             'address' => Functions::valueKeyInArray($inputs, 'direccion'),
             'email' => Functions::valueKeyInArray($inputs, 'correo_electronico'),
             'telephone' => Functions::valueKeyInArray($inputs, 'telefono'),
+            'address_type_id' => Functions::valueKeyInArray($inputs, 'codigo_tipo_direccion'),
         ];
     }
 }

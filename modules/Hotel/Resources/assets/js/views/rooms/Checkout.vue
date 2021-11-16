@@ -338,18 +338,27 @@
       :isContingency="false"
       :showClose="true"
     ></document-options>
+    
+    <sale-note-options :showDialog.sync="showDialogSaleNoteOptions"
+      :recordId="documentNewId"
+      :showClose="true"
+      :configuration="{}">
+    </sale-note-options>
+
   </div>
 </template>
 
 <script>
 import moment from "moment";
 import DocumentOptions from "@views/documents/partials/options.vue";
+import SaleNoteOptions from "@views/sale_notes/partials/options.vue";
 import { calculateRowItem } from "../../../../../../../resources/js/helpers/functions";
 import { exchangeRate } from "../../../../../../../resources/js/mixins/functions";
 
 export default {
   components: {
     DocumentOptions,
+    SaleNoteOptions,
   },
   mixins: [exchangeRate],
   props: {
@@ -410,6 +419,7 @@ export default {
       showDialogDocumentOptions: false,
       documentNewId: null,
       form_cash_document: {},
+      showDialogSaleNoteOptions: false,
     };
   },
   async mounted() {
@@ -442,12 +452,19 @@ export default {
   },
   methods: {
     validateIdentityDocumentType() {
+      
       let identity_document_types = ["0", "1"];
       let customer = this.document.customer;
+
       if (
         identity_document_types.includes(customer.identity_document_type_id)
       ) {
-        this.document_types = _.filter(this.all_document_types, { id: "03" });
+
+        this.document_types = this.all_document_types.filter((row)=>{
+          return ['03', '80'].includes(row.id)
+        })
+
+        // this.document_types = _.filter(this.all_document_types, { id: "03" });
       } else {
         this.document_types = this.all_document_types;
       }
@@ -501,22 +518,53 @@ export default {
         sale_note_id: null,
       };
     },
+    updateDataForSend(){
+
+      if(this.document.document_type_id === '80') {
+          this.document.prefix = 'NV'
+          this.resource_documents = 'sale-notes'
+      } else {
+          this.document.prefix = null
+          this.resource_documents = 'documents'
+      }
+
+    },
+    successGoToInvoice(){
+
+      //inicializa form_cash_document
+      this.initForm()
+
+      if (this.document.document_type_id === '80') //NV
+      {
+        this.form_cash_document.sale_note_id = this.documentNewId
+        this.showDialogSaleNoteOptions = true
+
+      } else 
+      {
+        this.form_cash_document.document_id = this.documentNewId
+        this.showDialogDocumentOptions = true;
+      }
+
+    },
     async onGoToInvoice() {
-      this.onUpdateItemsWithExtras();
+      await this.onUpdateItemsWithExtras();
       this.onCalculateTotals();
       let validate_payment_destination = this.validatePaymentDestination();
 
       if (validate_payment_destination.error_by_item > 0) {
         return this.$message.error("El destino del pago es obligatorio");
       }
+
+      this.updateDataForSend()
       this.loading = true;
       this.$http
         .post(`/${this.resource_documents}`, this.document)
         .then((response) => {
           if (response.data.success) {
+
             this.documentNewId = response.data.data.id;
-            this.form_cash_document.document_id = response.data.data.id;
-            this.showDialogDocumentOptions = true;
+            this.successGoToInvoice()
+
             this.$emit("update:showDialog", false);
             this.saveCashDocument();
 
@@ -567,6 +615,10 @@ export default {
         return it;
       });
     },
+    // async getItemsForSaleNote() 
+    // {
+    //   return await this.$http.post(`/sale-notes/items-by-ids`, { ids : _.map(this.document.items, 'item_id')})
+    // },
     saveCashDocument() {
       this.$http
         .post(`/cash/cash_document`, this.form_cash_document)
@@ -604,6 +656,7 @@ export default {
         customer: this.rent.customer,
         document_type_id: null,
         series_id: null,
+        prefix: null,
         establishment_id: this.warehouseId,
         number: "#",
         date_of_issue: moment().format("YYYY-MM-DD"),

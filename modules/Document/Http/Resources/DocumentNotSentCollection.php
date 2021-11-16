@@ -5,15 +5,17 @@ namespace Modules\Document\Http\Resources;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Carbon\Carbon;
 
-class DocumentNotSentCollection extends ResourceCollection{
+class DocumentNotSentCollection extends ResourceCollection
+{
     /**
      * Transform the resource collection into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
-    public function toArray($request){
+    public function toArray($request) {
         return $this->collection->transform(function($row, $key) {
+            
             $btn_resend = false; 
             $text_tooltip = '';
             $affected_document = null;
@@ -22,6 +24,7 @@ class DocumentNotSentCollection extends ResourceCollection{
                 if ($row->state_type_id === '01') {
                     $btn_resend = true;
                 }
+                
                 if ($row->state_type_id === '05') { 
                     $btn_resend = false; 
                 } 
@@ -31,6 +34,7 @@ class DocumentNotSentCollection extends ResourceCollection{
                 if ($row->state_type_id === '01') {
                     $text_tooltip = 'Envíe mediante resúmen de boletas';
                 }
+                
                 if ($row->state_type_id === '03') { 
                     $text_tooltip = 'Consulte el ticket del resúmen de boletas'; 
                 } 

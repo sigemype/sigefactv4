@@ -21,9 +21,24 @@ class Configuration extends Model
         'token_private_culqui',
         'url_apiruc',
         'token_apiruc',
+        'apk_url',
         'login',
         'use_login_global'
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function (self $item) {
+
+            // if(empty($item->apk_url)) $item->apk_url = 'https://facturaloperu.com/apk/app-debug.apk';
+        });
+        static::retrieved(function (self $item) {
+
+            // if (empty($item->apk_url)) $item->apk_url = 'https://facturaloperu.com/apk/app-debug.apk';
+        });
+
+    }
 
     public function getUseLoginGlobalAttribute($value)
     {

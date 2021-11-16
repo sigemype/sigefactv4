@@ -137,8 +137,9 @@
                         </div>
                         <div class="col-lg-2">
                             <div :class="{'has-danger': errors.packages_number}" class="form-group">
-                                <label class="control-label">Número de paquetes<span
-                                    class="text-danger"> *</span></label>
+                                <label class="control-label">Número de paquetes
+                                    <!-- <span class="text-danger"> *</span> -->
+                                </label>
                                 <el-input-number v-model="form.packages_number" :max="9999999999" :min="0"
                                                  :precision="0"
                                                  :step="1"></el-input-number>
@@ -365,8 +366,9 @@
                         <div class="col-12">&nbsp;</div>
                         <div class="col-lg-4">
                             <div :class="{'has-danger': errors['driver.identity_document_type_id']}" class="form-group">
-                                <label class="control-label">Tipo Doc. Identidad<span
-                                    class="text-danger"> *</span></label>
+                                <label class="control-label">Tipo Doc. Identidad
+                                    <!-- <span class="text-danger"> *</span> -->
+                                </label>
                                 <el-select v-model="form.driver.identity_document_type_id" filterable>
                                     <el-option v-for="option in identityDocumentTypes" :key="option.id"
                                                :label="option.description" :value="option.id"></el-option>
@@ -377,7 +379,9 @@
                         </div>
                         <div class="col-lg-4">
                             <div :class="{'has-danger': errors['driver.number']}" class="form-group">
-                                <label class="control-label">Número<span class="text-danger"> *</span></label>
+                                <label class="control-label">Número
+                                    <!-- <span class="text-danger"> *</span> -->
+                                </label>
                                 <el-input v-model="form.driver.number" :maxlength="11"
 
                                           placeholder="Número..."></el-input>
@@ -387,8 +391,9 @@
                         </div>
                         <div class="col-lg-4">
                             <div :class="{'has-danger': errors.license_plate}" class="form-group">
-                                <label class="control-label">Número de placa del vehiculo<span
-                                    class="text-danger"> *</span></label>
+                                <label class="control-label">Número de placa del vehiculo
+                                    <!-- <span class="text-danger"> *</span> -->
+                                </label>
                                 <el-input v-model="form.license_plate" :maxlength="8"
                                           placeholder="Numero de placa del vehiculo..."></el-input>
                                 <small v-if="errors.license_plate" class="form-control-feedback"
@@ -562,12 +567,21 @@ export default {
             this.form.transport_mode_type_id = '02'
             this.form.items = this.document.items
             this.form.origin.country_id = this.document.establishment.country_id
-            this.form.origin.location_id = [
-                this.document.establishment.department_id,
-                this.document.establishment.province_id,
-                this.document.establishment.district_id
-            ]
-            this.form.origin.address = this.document.establishment.address
+
+            if(this.configuration.set_address_by_establishment)
+            {
+                this.setOriginAddressByEstablishment()
+            }else
+            {
+                this.form.origin.location_id = [
+                    this.document.establishment.department_id,
+                    this.document.establishment.province_id,
+                    this.document.establishment.district_id
+                ]
+                this.form.origin.address = this.document.establishment.address
+            }
+
+
             this.form.delivery.country_id = this.document.customer.country_id
             this.form.delivery.location_id = [
                 this.document.customer.department_id,
@@ -625,6 +639,24 @@ export default {
 
     },
     methods: {
+        setOriginAddressByEstablishment(){
+
+            if(this.configuration.set_address_by_establishment){
+
+                let establishment = _.find(this.establishments, { id : this.form.establishment_id})
+    
+                if(this.form.origin && establishment){
+    
+                    this.form.origin.address = establishment.address
+                    this.form.origin.location_id = [
+                        establishment.department_id,
+                        establishment.province_id,
+                        establishment.district_id
+                    ]
+                }
+            }
+
+        },
         ...mapActions([
             'loadConfiguration',
         ]),
@@ -700,6 +732,7 @@ export default {
         changeEstablishment() {
             this.form.establishment = _.find(this.establishments, {'id': this.form.establishment_id})
             this.filterSeries()
+            this.setOriginAddressByEstablishment()
         },
         changeDateOfIssue() {
             this.form.date_of_shipping = this.form.date_of_issue

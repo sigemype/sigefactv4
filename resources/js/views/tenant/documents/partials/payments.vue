@@ -28,6 +28,7 @@
                                         <td>{{ row.payment_method_type_description }}</td>
                                         <td>{{ row.destination_description }}</td>
                                         <td>{{ row.reference }}</td>
+                                        <!-- <td>{{ row.filename }}</td> -->
                                         <td class="text-center">
                                             <button  type="button" v-if="row.filename" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickDownloadFile(row.filename)">
                                                 <i class="fas fa-file-download"></i>
@@ -36,6 +37,7 @@
                                         <td class="text-right">{{ row.payment }}</td>
                                         <td class="series-table-actions text-right">
                                             <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
+                                            <!--<el-button type="danger" icon="el-icon-delete" plain @click.prevent="clickDelete(row.id)"></el-button>-->
                                         </td>
                                     </template>
                                     <template v-else>
@@ -92,7 +94,7 @@
                                     </template>
                                 </tr>
                             </tbody>
-                                <tfoot>
+                            <tfoot>
                                 <tr>
                                     <td colspan="6" class="text-right">TOTAL PAGADO</td>
                                     <td class="text-right">{{ document.total_paid }}</td>

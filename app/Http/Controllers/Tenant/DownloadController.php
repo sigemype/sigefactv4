@@ -6,13 +6,12 @@ use App\Http\Controllers\Controller;
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Template;
 use App\Models\Tenant\Company;
+use App\Models\Tenant\Dispatch;
 use Mpdf\Mpdf;
 use Exception;
 
-class DownloadController extends Controller
-{
+class DownloadController extends Controller{
     use StorageDocument;
-
     public function downloadExternal($model, $type, $external_id, $format = null) {
         $model = "App\\Models\\Tenant\\".ucfirst($model);
         $document = $model::where('external_id', $external_id)->first();
@@ -79,6 +78,25 @@ class DownloadController extends Controller
         file_put_contents($temp, $this->getStorage($document->filename, 'pdf'));
 
         return response()->file($temp);
+    }
+
+    /**
+     * Se usa para obtener el pdf individual standar por documento.
+     *
+     * @param      $model
+     * @param      $external_id
+     * @param null $format
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|null
+     */
+    public static function getPdf($model, $external_id, $format = null) {
+        $download = new self();
+        try {
+            return $download->toPrint($model, $external_id, $format);
+        } catch (Exception $e) {
+            return null;
+        }
+
     }
 
     /**

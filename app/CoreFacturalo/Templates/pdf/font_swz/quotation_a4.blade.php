@@ -121,7 +121,7 @@
                 <p>{{ $row->item->unit_type_id }}</p>
             </td>
             <td class="text-left">
-                <p>{!!$row->item->description!!}</p>
+                <p>@if($row->item->name_product_pdf ?? false) {!!$row->item->name_product_pdf ?? ''!!} @else {!!$row->item->description!!} @endif @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif</p>
                 @if (!empty($row->item->presentation))
                     <p>{!!$row->item->presentation->description!!}</p>
                 @endif

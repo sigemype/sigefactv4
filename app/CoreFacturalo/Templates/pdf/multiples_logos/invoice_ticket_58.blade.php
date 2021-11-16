@@ -446,6 +446,14 @@
         <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
     </tr>
 
+    @if($document->payment_condition_id)
+    <tr>
+        <td class="desc pt-5">
+            <strong>CONDICIÓN DE PAGO: {{ $document->payment_condition->name }} </strong>
+        </td>
+    </tr>
+    @endif
+    
     @if($document->payment_method_type_id)
         <tr>
             <td class="desc pt-5">
@@ -453,18 +461,28 @@
             </td>
         </tr>
     @endif
-    @if($payments->count())
-        <tr>
-            <td class="desc pt-5">
-                <strong>PAGOS:</strong>
-            </td>
-        </tr>
-        @foreach($payments as $row)
+    
+    @if ($document->payment_condition_id === '01')
+        @if($payments->count())
             <tr>
-                <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                <td class="desc pt-5">
+                    <strong>PAGOS:</strong>
+                </td>
+            </tr>
+            @foreach($payments as $row)
+                <tr>
+                    <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                </tr>
+            @endforeach
+        @endif
+    @else
+        @foreach($document->fee as $key => $quote)
+            <tr>
+                <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
             </tr>
         @endforeach
     @endif
+
     <tr>
         <td class="desc">
             <strong>Vendedor:</strong>

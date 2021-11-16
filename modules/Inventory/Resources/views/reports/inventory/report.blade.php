@@ -137,9 +137,9 @@
         <th></th>
         <th align="right"></th>
         <th align="right"></th>
-        <th align="right"></th>
+        <th align="right"><strong>Costo</strong></th>
         <th align="right"><strong>Costo Total de Inventario</strong></th>
-        <th align="right"></th>
+        <th align="right"><strong>Precio de venta</strong></th>
         <th align="right"><strong>Ganancia</strong></th>
         <th align="right"><strong>Ganancia Total</strong></th>
         <th></th>
@@ -147,9 +147,10 @@
         <th></th>
     </tr>
     <tr>
-        <td colspan="8" class="celda"></td>
+        <td colspan="7" class="celda"></td>
+        <td class="celda">{{$totals['purchase_unit_price']}}</td>
         <td class="celda">{{$total}}</td>
-        <td></td>
+        <td class="celda">{{$totals['sale_unit_price']}}</td>
         <td class="celda">S/ {{number_format($total_profit,2,'.','')}}</td>
         <td class="celda">S/ {{number_format($total_all_profit,2,'.','')}}</td>
         <td colspan="3" class="celda"></td>

@@ -3,22 +3,23 @@
 namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Barryvdh\DomPDF\Facade as PDF;
-use DB;
-use Illuminate\Http\Request;
-use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Company;
-use App\Models\Tenant\Item;
-use Modules\Inventory\Models\ItemWarehouse;
+use App\Models\Tenant\Establishment;
+use Barryvdh\DomPDF\Facade as PDF;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Modules\Inventory\Exports\InventoryExport;
+use Modules\Inventory\Models\ItemWarehouse;
 use Modules\Inventory\Models\Warehouse;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
-use Carbon\Carbon;
 
-class ReportInventoryController extends Controller{
-
-    public function tables(){
+class ReportInventoryController extends Controller
+{
+    public function tables()
+    {
         return [
             'warehouses' => Warehouse::query()->select('id', 'description')->get(),
             'categories' => Category::query()->select('id', 'name')->get(),
@@ -26,7 +27,8 @@ class ReportInventoryController extends Controller{
         ];
     }
 
-    public function index(){
+    public function index()
+    {
 //        $warehouse_id = $request->input('warehouse_id');
 //        $reports = $this->getRecords($warehouse_id)->paginate(config('tenant.items_per_page'));
 //
@@ -36,19 +38,41 @@ class ReportInventoryController extends Controller{
         return view('inventory::reports.inventory.index');
     }
 
-    public function records(Request $request){
+    public function records(Request $request)
+    {
         $warehouse_id = $request->input('warehouse_id');
         $brand_id = (int)$request->brand_id;
         $category_id = (int)$request->category_id;
+        $active = $request->active;
         $filter = $request->input('filter');
+        $date_end = $request->has('date_end') ? $request->date_end : null;
+        $date_start = $request->has('date_start') ? $request->date_start : null;
+        /** @var Builder $records */
         $records = $this->getRecords($warehouse_id);
+
         if ($brand_id != 0) {
             $records->where('items.brand_id', $brand_id);
         }
         if ($category_id != 0) {
             $records->where('items.category_id', $category_id);
         }
-        $records->orderBy('items.name','desc');
+
+        if (!is_null($active)) {
+            $records->where('items.active', $active == '01' ? true : false);
+        }
+        if (!empty($date_start) && !empty($date_end)) {
+            $date_end = Carbon::createFromFormat('Y-m-d', $request->date_end);
+            $date_start = Carbon::createFromFormat('Y-m-d', $request->date_start);
+            $records->whereBetween('items.date_of_due', [$date_start, $date_end]);
+        } elseif (!empty($date_start)) {
+            $date_start = Carbon::createFromFormat('Y-m-d', $request->date_start);
+            $records->where('items.date_of_due', '>=', $date_start);
+        } elseif (!empty($date_end)) {
+            $date_end = Carbon::createFromFormat('Y-m-d', $request->date_end);
+            $records->where('items.date_of_due', '<=', $date_end);
+        }
+        $records->orderBy('items.name', 'desc');
+
         $records = $records->latest()->get()->transform(function($row) use ($filter,&$data) {
             /** @var \Modules\Inventory\Models\ItemWarehouse $row */
 
@@ -119,6 +143,7 @@ class ReportInventoryController extends Controller{
                 ];
             }
         }
+
         return $data;
 //        return $this->getRecords($warehouse_id, $filter)->get()->transform(function($row) {
 //            return [
@@ -137,7 +162,7 @@ class ReportInventoryController extends Controller{
     /**
      * @param int $warehouse_id Id de almacen
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     private function getRecords($warehouse_id = 0) {
         $query = ItemWarehouse::with(['item', 'item.category', 'item.brand'])
@@ -155,17 +180,23 @@ class ReportInventoryController extends Controller{
         }
         //dd($query);
         return $query;
+
     }
 
-    public function export(Request $request){
+    public function export(Request $request)
+    {
+
         try {
             $company = Company::query()->first();
             $establishment = Establishment::query()->first();
             ini_set('max_execution_time', 0);
+
             $records = $request->input('records');
             $format = $request->input('format');
+            $totals = $request->input('totals');
+
             if ($format === 'pdf') {
-                $pdf = PDF::loadView('inventory::reports.inventory.report', compact('records', 'company', 'establishment', 'format'));
+                $pdf = PDF::loadView('inventory::reports.inventory.report', compact('records', 'company', 'establishment', 'format', 'totals'));
                 $pdf->setPaper('A4', 'landscape');
                 $filename = 'ReporteInv_' . date('YmdHis');
                 return $pdf->download($filename . '.pdf');
@@ -176,7 +207,7 @@ class ReportInventoryController extends Controller{
                 ->company($company)
                 ->establishment($establishment)
                 ->format($format)
-                ;
+                ->totals($totals);
             // return $inventoryExport->view();
             return $inventoryExport->download('ReporteInv_' . Carbon::now() . '.xlsx');
 
@@ -193,11 +224,14 @@ class ReportInventoryController extends Controller{
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function search(Request $request){
+    public function search(Request $request)
+    {
+
         $reports = ItemWarehouse::with(['item'])->whereHas('item', function ($q) {
             $q->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']]);
             $q->whereNotIsSet();
         })->latest()->get();
+
         return view('inventory::reports.inventory.index', compact('reports'));
     }
 
@@ -206,24 +240,31 @@ class ReportInventoryController extends Controller{
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function pdf(Request $request){
+    public function pdf(Request $request)
+    {
+
         $company = Company::first();
         $establishment = Establishment::first();
         ini_set('max_execution_time', 0);
+
         if ($request->warehouse_id && $request->warehouse_id != 'all') {
             $reports = ItemWarehouse::with(['item', 'item.brand'])->where('warehouse_id', $request->warehouse_id)->whereHas('item', function ($q) {
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
         } else {
+
             $reports = ItemWarehouse::with(['item', 'item.brand'])->whereHas('item', function ($q) {
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
         }
+
+
         $pdf = PDF::loadView('inventory::reports.inventory.report_pdf', compact("reports", "company", "establishment"));
         $pdf->setPaper('A4', 'landscape');
         $filename = 'Reporte_Inventario' . date('YmdHis');
+
         return $pdf->download($filename . '.pdf');
     }
 
@@ -232,20 +273,27 @@ class ReportInventoryController extends Controller{
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request){
+    public function excel(Request $request)
+    {
         $company = Company::first();
         $establishment = Establishment::first();
+
+
         if ($request->warehouse_id && $request->warehouse_id != 'all') {
             $records = ItemWarehouse::with(['item', 'item.brand'])->where('warehouse_id', $request->warehouse_id)->whereHas('item', function ($q) {
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
+
         } else {
             $records = ItemWarehouse::with(['item', 'item.brand'])->whereHas('item', function ($q) {
                 $q->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']]);
                 $q->whereNotIsSet();
             })->latest()->get();
+
         }
+
+
         return (new InventoryExport)
             ->records($records)
             ->company($company)

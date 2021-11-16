@@ -10,18 +10,21 @@ use Illuminate\Foundation\Http\FormRequest;
  * @package App\Http\Requests\Tenant
  * @mixin FormRequest
  */
-class DocumentUpdateRequest extends FormRequest{
+class DocumentUpdateRequest extends FormRequest
+{
     /**
      * @return bool
      */
-    public function authorize(){
+    public function authorize()
+    {
         return true;
     }
 
     /**
      * @return array
      */
-    public function rules(){
+    public function rules()
+    {
         return [
             'id' => 'required|numeric',
             'customer_id' => [

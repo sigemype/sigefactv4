@@ -2,11 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\CoreFacturalo\Services\Extras\ValidateCpe2;
+// use App\CoreFacturalo\Services\Extras\ValidateCpe2;
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Document;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use App\CoreFacturalo\Services\IntegratedQuery\{
+    AuthApi,
+    ValidateCpe,
+};
+use App\Models\Tenant\StateType;
+
 
 class ValidateDocumentsCommand extends Command
 {
@@ -40,6 +46,7 @@ class ValidateDocumentsCommand extends Command
      */
     public function handle()
     {
+
         $establishment_id = $this->argument('establishment_id');
         $state_type_id = $this->argument('state_type_id');
 
@@ -48,71 +55,86 @@ class ValidateDocumentsCommand extends Command
         }
 
         if ($establishment_id) {
+
             $documents = Document::query()
-                ->where('establishment_id', $establishment_id)
-                ->where('state_type_id', $state_type_id)
-                //->whereNotIn('response_code', ['1', '2', '3', '4'])
-                ->orderBy('series')
-                ->orderBy('number')
-                ->get();
+                                ->where('establishment_id', $establishment_id)
+                                ->where('state_type_id', $state_type_id)
+                                ->orderBy('series')
+                                ->orderBy('number')
+                                ->get();
+
         } else {
+
             $documents = Document::query()
-                ->where('state_type_id', $state_type_id)
-//                ->whereNull('response_code')
-//                ->whereNotIn('response_code', ['1', '2', '3', '4'])
-                ->orderBy('series')
-                ->orderBy('number')
-                ->get();
+                                ->where('state_type_id', $state_type_id)
+                                ->orderBy('series')
+                                ->orderBy('number')
+                                ->get();
+
         }
 
         $count = 0;
         $this->info('-------------------------------------------------');
         $this->info(Company::query()->first()->name);
-        $this->info('Documentos:' . count($documents));
-        foreach ($documents as $document)
-        {
-            $count++;
-            reValidate:
-            $validate_cpe = new ValidateCpe2();
-            $response = $validate_cpe->search($document->company->number,
-                $document->document_type_id,
-                $document->series,
-                $document->number,
-                $document->date_of_issue,
-                $document->total);
-            if ($response['success']) {
-                $state_type_id = null;
-                $response_code = $response['data']['comprobante_estado_codigo'];
-                $response_description = $response['data']['comprobante_estado_descripcion'];
+        $this->info('----- Documentos:' . $documents->count().' ----- ');
 
-                $message = $count.': '.$document->number_full.'|Código: '.$response_code.'|Mensaje: '.$response_description;
+        if($documents->count() > 0){
+            
+            $auth_api = (new AuthApi())->getToken();
+            
+            if(!$auth_api['success']) {
+                $this->info($auth_api['message']);
+            
+            }else{
 
-                $this->info($message);
-                if($response_code !== '1')
+                $access_token = $auth_api['data']['access_token'];
+                $state_types = StateType::get();
+
+                foreach ($documents as $document)
                 {
-                    Log::info($message);
+                    $count++;
+                    
+                    $validate_cpe = new ValidateCpe(
+                                        $access_token,
+                                        $document->company->number,
+                                        $document->document_type_id,
+                                        $document->series,
+                                        $document->number,
+                                        $document->date_of_issue,
+                                        $document->total
+                                    );
+
+                    $response = $validate_cpe->search();
+
+                    if ($response['success']) {
+
+                        $response_description = $response['message'];
+                        $response_code = $response['data']['estadoCp'];
+                        $response_state_type_id = $response['data']['state_type_id'];
+                        
+                        $state_type = $state_types->first(function($state) use($response_state_type_id){
+                            return $state->id === $response_state_type_id;
+                        });
+
+                        $state_type_description = $state_type ? $state_type->description : 'No existe';
+
+                        $message = $count.': '.$document->number_full.' | Código: '.$response_code.' | Mensaje: '.$response_description
+                                    .'| Estado Sistema: '.$document->state_type_id.' - '.$document->state_type->description
+                                    .' | Estado Sunat: '.$response_state_type_id.' - '.$state_type_description;
+
+                        $this->info($message);
+                        
+                        if($response_code !== '1') Log::info($message);
+
+                    }
+ 
                 }
 
-//                if ($response_code === '0') {
-//                    $state_type_id = '01';
-//                }
-//                if ($response_code === '1') {
-//                    $state_type_id = '05';
-//                }
-//                if ($response_code === '2') {
-//                    $state_type_id = '11';
-//                }
-//                if (in_array($response_code, ['0', '1', '2'])) {
-//                    $document->update([
-//                        'state_type_id' => $state_type_id,
-//                        'response_code' => $response_code,
-//                        'response_description' => $response_description,
-//                    ]);
-//                }
-            } else {
-                goto reValidate;
             }
+
         }
+
+
         $this->info('-------------------------------------------------');
 
         return ;

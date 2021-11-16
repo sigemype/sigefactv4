@@ -39,6 +39,9 @@
                         <!-- <th>F. Pago</th> -->
                         <!-- <th>Estado</th> -->
                         <th class="text-center">Moneda</th>
+                        <th class="text-right"
+                            v-if="columns.guides.visible">Guía
+                        </th>
                         <!-- <th class="text-right">T.Exportación</th> -->
                         <th v-if="columns.total_free.visible"  class="text-right">T.Gratuita</th>
                         <th v-if="columns.total_unaffected.visible" class="text-right">T.Inafecta</th>
@@ -93,6 +96,13 @@
                         </td>
 
                         <td class="text-center">{{ row.currency_type_id }}</td>
+                    <td class="text-center"
+                        v-if="columns.guides.visible">
+                        <span v-for="(item, i) in row.guides"
+                              :key="i">
+                            {{ item.number }} <br>
+                        </span>
+                    </td>
                         <!-- <td class="text-right">{{ row.total_exportation }}</td> -->
                         <td v-if="columns.total_free.visible" class="text-right">{{ row.total_free }}</td>
                         <td v-if="columns.total_unaffected.visible" class="text-right">{{ row.total_unaffected }}</td>
@@ -107,6 +117,13 @@
                             <button v-if="row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickAnulate(row.id)">Anular</button>
                             <button v-if="row.state_type_id == '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
                             <button  type="button" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickOptions(row.id)">Opciones</button>
+                            <button
+                                type="button"
+                                :disabled="disableGuideBtn"
+                                class="btn waves-effect waves-light btn-xs btn-warning m-1__2"
+                                @click.prevent="clickGuide(row.id)">
+                                Guía
+                            </button>
 
 
 
@@ -141,7 +158,11 @@
             <purchase-import :showDialog.sync="showImportDialog"></purchase-import>
         </div>
 
-
+<tenant-guides-modal
+    :show.sync="showModalGuide"
+    :id="recordId"
+    :type="'purchases'"
+></tenant-guides-modal>
         <purchase-payments
             :showDialog.sync="showDialogPurchasePayments"
             :purchaseId="recordId"
@@ -176,6 +197,8 @@ import {mapActions, mapState} from 'vuex'
         ],
         data() {
             return {
+                disableGuideBtn: true,
+                showModalGuide: false,
                 showDialogVoided: false,
                 resource: 'purchases',
                 recordId: null,
@@ -210,19 +233,25 @@ import {mapActions, mapState} from 'vuex'
                     total_perception:{
                         title: 'Percepcion',
                         visible: false
-                    }
+                    },
+                    guides: {
+                        title: 'Guias',
+                        visible: false
+                    },
 
                 }
             }
         },
         computed: {
             ...mapState([
+                'document_types_guide',
                 'warehouses',
             ]),
         },
         created() {
             this.$store.commit('setConfiguration',this.configuration)
             this.$store.commit('setTypeUser',this.typeUser)
+            this.getDocumentTypes()
         },
         methods: {
             ...mapActions(['loadConfiguration']),
@@ -241,6 +270,10 @@ import {mapActions, mapState} from 'vuex'
                 this.recordId = recordId
                 this.showDialogOptions = true
             },
+            clickGuide(recordId = null) {
+                this.recordId = recordId
+                this.showModalGuide = true
+            },
             clickAnulate(id)
             {
                 this.anular(`/${this.resource}/anular/${id}`).then(() =>
@@ -256,6 +289,16 @@ import {mapActions, mapState} from 'vuex'
              clickImport() {
                 this.showImportDialog = true
             },
+            getDocumentTypes(){
+
+                this.$http
+                    .post('/dispatches/getDocumentType')
+                    .then((result)=>{
+                         this.$store.commit('setDocumentTypesGuide',result.data)
+                    }).then(()=>{
+                        this.disableGuideBtn = !this.disableGuideBtn;
+                })
+            }
         }
     }
 </script>

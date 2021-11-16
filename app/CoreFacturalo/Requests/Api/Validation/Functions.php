@@ -48,6 +48,7 @@ class Functions
             'address' => $inputs['address'],
             'email' => $inputs['email'],
             'telephone' => $inputs['telephone'],
+            'address_type_id' => $inputs['address_type_id'],
         ]);
 
         return $person->id;
@@ -88,6 +89,17 @@ class Functions
             $item->amount_plastic_bag_taxes = self::getAmountPlasticBagTaxes();
             $item->save();
 
+        }else{
+            
+            $update_description = isset($inputs['update_description']) ? $inputs['update_description'] : false;
+
+            if($update_description)
+            {
+                $item->update([
+                    'description' => $inputs['description'],
+                ]);
+            }
+            
         }
 
         return $item->id;
@@ -183,5 +195,33 @@ class Functions
             }
         }
     }
+
+
+    public static function validateDetraction($inputs) 
+    {
+
+        if(!is_null($inputs['detraction']) && $inputs['operation_type_id'] == '1004')
+        {
+            // validar ubigeo origen
+            self::validateRequiredDistrict($inputs['detraction']['origin_location_id'][2] ?? null);
+
+            // validar ubigeo destino
+            self::validateRequiredDistrict($inputs['detraction']['delivery_location_id'][2] ?? null);
+
+        }
+
+    }
+
+
+    public static function validateRequiredDistrict($district_id) 
+    {
+        if (is_null($district_id)) throw new Exception("El campo ubigeo es obligatorio");
+
+        if (strlen($district_id) !== 6) throw new Exception("El campo ubigeo debe contener 6 dígitos");
+
+        $exist_district = District::select('id')->find($district_id);
+        if (!$exist_district) throw new Exception("El código ubigeo es incorrecto");
+    }
+
 
 }

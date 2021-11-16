@@ -6,6 +6,15 @@ use App\Models\Tenant\Item;
 use App\Models\Tenant\ModelTenant;
 
 
+/**
+ * Modules\Item\Models\ItemLotsGroup
+ *
+ * @property Item $item
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemLotsGroup newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemLotsGroup newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemLotsGroup query()
+ * @mixin \Eloquent
+ */
 class ItemLotsGroup extends ModelTenant
 {
     protected $table = 'item_lots_group';

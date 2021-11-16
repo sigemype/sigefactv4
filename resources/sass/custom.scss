@@ -150,6 +150,16 @@
             min-height: 36px;
         }
     }
+    .table {
+        td,
+        th {
+            font-size: 12px;
+            font-weight: 400;
+        }
+        th{
+            font-weight: 600;
+        }
+    }
 }
 .card-report-links {
     padding-left: 1rem;
@@ -217,5 +227,21 @@ html.dark {
     }
     .container-btns {
         display: block;
+    }
+}
+
+.card-table-report {
+    font-size: 12px;
+}
+
+.dialog-modal {
+    .el-dialog__body {
+        padding-top: 10px;
+        .form-group {
+            margin-bottom: 5px;
+            .control-label {
+                margin-bottom: 0;
+            }
+        }
     }
 }

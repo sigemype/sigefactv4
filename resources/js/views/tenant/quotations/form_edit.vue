@@ -207,7 +207,9 @@
                                                 <div class="form-group" :class="{'has-danger': errors.exchange_rate_sale}">
                                                     <label class="control-label">Observación
                                                     </label>
-                                                    <el-input  type="textarea"  :rows="3" v-model="form.description"></el-input>
+                                                    <el-input  type="textarea"  :rows="3" v-model="form.description"
+                                                        maxlength="1000"
+                                                        show-word-limit></el-input>
                                                     <small class="form-control-feedback" v-if="errors.description" v-text="errors.description[0]"></small>
                                                 </div>
                                             </div>
@@ -324,7 +326,7 @@ import QuotationFormItem from './partials/item.vue'
 import PersonForm from '../persons/form.vue'
 import QuotationOptions from '../quotations/partials/options.vue'
 import {exchangeRate, functions} from '../../../mixins/functions'
-import {calculateRowItem} from '../../../helpers/functions'
+import {calculateRowItem, sumAmountDiscountsNoBaseByItem} from '../../../helpers/functions'
 import Logo from '../companies/logo.vue'
 
 export default {
@@ -369,6 +371,7 @@ export default {
                 configuration: {},
                 loading_search:false,
                 recordItem: null,
+                total_discount_no_base: 0,
             }
         },
         async created() {
@@ -543,7 +546,8 @@ export default {
                     this.form.account_number = dato.account_number
                     this.form.terms_condition = dato.terms_condition
                     this.form.active_terms_condition = dato.terms_condition ? true:false
-                    this.form.items = dato.items
+                    this.form.items = this.onPrepareItems(dato.items)
+                    // this.form.items = dato.items
                     this.form.payments = dato.payments
                     this.form.referential_information = dato.referential_information
                     this.changeCustomer()
@@ -552,6 +556,12 @@ export default {
                     //console.log(response.data)
                 })
 
+            },
+            onPrepareItems(items) {
+                return items.map(item => {
+                    item.discounts = (item.discounts) ? Object.values(item.discounts) : []
+                    return item;
+                });
             },
 
             searchRemoteCustomers(input) {
@@ -593,6 +603,7 @@ export default {
                     total_taxed: 0,
                     total_unaffected: 0,
                     total_exonerated: 0,
+                    total_igv_free: 0,
                     total_igv: 0,
                     total_base_isc: 0,
                     total_isc: 0,
@@ -600,6 +611,7 @@ export default {
                     total_other_taxes: 0,
                     total_taxes: 0,
                     total_value: 0,
+                    subtotal: 0,
                     total: 0,
                     payment_method_type_id:null,
                     operation_type_id: null,
@@ -623,6 +635,8 @@ export default {
                     contact:null,
                     phone:null,
                 }
+
+                this.total_discount_no_base = 0
 
                 this.clickAddPayment()
             },
@@ -687,6 +701,9 @@ export default {
                 let total_igv = 0
                 let total_value = 0
                 let total = 0
+                let total_igv_free = 0
+                this.total_discount_no_base = 0
+
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
@@ -711,8 +728,25 @@ export default {
                         total += parseFloat(row.total)
                     }
                     total_value += parseFloat(row.total_value)
+                    
+                    if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
+
+                        let unit_value = row.total_value / row.quantity
+                        let total_value_partial = unit_value * row.quantity
+                        row.total_taxes = row.total_value - total_value_partial
+                        row.total_igv = total_value_partial * (row.percentage_igv / 100)
+                        row.total_base_igv = total_value_partial
+                        total_value -= row.total_value
+                        total_igv_free += row.total_igv
+
+                    }
+
+                    this.total_discount_no_base += sumAmountDiscountsNoBaseByItem(row)
+
                 });
 
+                this.form.total_igv_free = _.round(total_igv_free, 2)
+                this.form.total_discount = _.round(total_discount, 2)
                 this.form.total_exportation = _.round(total_exportation, 2)
                 this.form.total_taxed = _.round(total_taxed, 2)
                 this.form.total_exonerated = _.round(total_exonerated, 2)
@@ -721,7 +755,11 @@ export default {
                 this.form.total_igv = _.round(total_igv, 2)
                 this.form.total_value = _.round(total_value, 2)
                 this.form.total_taxes = _.round(total_igv, 2)
-                this.form.total = _.round(total, 2)
+
+                this.form.subtotal = _.round(total, 2)
+                this.form.total = _.round(total - this.total_discount_no_base, 2)
+
+                // this.form.total = _.round(total, 2)
 
                 this.setTotalDefaultPayment()
 

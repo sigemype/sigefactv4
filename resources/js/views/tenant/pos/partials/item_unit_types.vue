@@ -42,7 +42,7 @@
                     this.$eventHub.$emit("enterSelectItemUnitType", (unit_type))
                     this.close()
                 }else{
-                    this.$message.warning('No ha seleccionado una precio');
+                    this.$message.warning('No ha seleccionado un precio');
                 }
                 // console.log(unit_type.description)
 

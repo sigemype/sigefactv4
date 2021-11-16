@@ -2,6 +2,8 @@
 
 namespace Modules\Sale\Http\Controllers;
 
+use App\Http\Controllers\SearchItemController;
+use App\Http\Controllers\Tenant\EmailController;
 use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -40,6 +42,12 @@ use Modules\Sale\Http\Resources\SaleOpportunityResource2;
 use Modules\Sale\Http\Requests\SaleOpportunityRequest;
 use Modules\Sale\Mail\SaleOpportunityEmail;
 
+/**
+ * Class SaleOpportunityController
+ *
+ * @package Modules\Sale\Http\Controllers
+ * @mixin Controller
+ */
 class SaleOpportunityController extends Controller
 {
 
@@ -152,7 +160,9 @@ class SaleOpportunityController extends Controller
 
     public function item_tables() {
 
-        $items = $this->table('items');
+         $items = $this->table('items');
+        // $items = SearchItemController::getNotServiceItemToModal();
+
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $price_types = PriceType::whereActive()->get();
 
@@ -319,23 +329,15 @@ class SaleOpportunityController extends Controller
         }
     }
 
+    /**
+     * @param $id
+     *
+     * @return array
+     */
     public function searchCustomerById($id)
     {
 
-        $customers = Person::whereType('customers')
-                    ->where('id',$id)
-                    ->get()->transform(function($row) {
-                        return [
-                            'id' => $row->id,
-                            'description' => $row->number.' - '.$row->name,
-                            'name' => $row->name,
-                            'number' => $row->number,
-                            'identity_document_type_id' => $row->identity_document_type_id,
-                            'identity_document_type_code' => $row->identity_document_type->code
-                        ];
-                    });
-
-        return compact('customers');
+        return $this->searchClientById($id);
     }
 
     public function download($external_id, $format = 'a4') {
@@ -441,8 +443,24 @@ class SaleOpportunityController extends Controller
         $sale_opportunity = SaleOpportunity::find($request->id);
         $customer_email = $request->input('customer_email');
 
+        $email = $customer_email;
+        $mailable = new SaleOpportunityEmail($client, $sale_opportunity);
+        $id = (int)$sale_opportunity->id;
+        $model = __FILE__.";;".__LINE__;
+        $sendIt = EmailController::SendMail($email, $mailable, $id, $model);
+        /*
         Configuration::setConfigSmtpMail();
-        Mail::to($customer_email)->send(new SaleOpportunityEmail($client, $sale_opportunity));
+        $array_email = explode(',', $customer_email);
+        if (count($array_email) > 1) {
+            foreach ($array_email as $email_to) {
+                $email_to = trim($email_to);
+                if(!empty($email_to)) {
+                    Mail::to($email_to)->send(new SaleOpportunityEmail($client, $sale_opportunity));
+                }
+            }
+        } else {
+            Mail::to($customer_email)->send(new SaleOpportunityEmail($client, $sale_opportunity));
+        }*/
 
         return [
             'success' => true

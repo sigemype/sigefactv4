@@ -2,6 +2,8 @@
 
 namespace Modules\Purchase\Http\Controllers;
 
+use App\Http\Controllers\SearchItemController;
+use App\Http\Controllers\Tenant\EmailController;
 use App\Models\Tenant\Catalogs\OperationType;
 use App\Models\Tenant\Configuration;
 use App\Traits\OfflineTrait;
@@ -111,7 +113,9 @@ class PurchaseOrderController extends Controller
     public function item_tables()
     {
 
-        $items = $this->table('items');
+        // $items = $this->table('items');
+        $items =  SearchItemController::getItemToPurchaseOrder();
+
         $categories = [];
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $system_isc_types = SystemIscType::whereActive()->get();
@@ -421,9 +425,24 @@ class PurchaseOrderController extends Controller
         $record = PurchaseOrder::find($request->input('id'));
         $customer_email = $request->input('customer_email');
 
+        $email = $customer_email;
+        $mailable = new  PurchaseOrderEmail($record);
+        $id = (int)$record->id;
+        $sendIt = EmailController::SendMail($email, $mailable, $id, 5);
+        /*
         Configuration::setConfigSmtpMail();
-        Mail::to($customer_email)->send(new PurchaseOrderEmail($record));
-
+        $array_email = explode(',', $customer_email);
+        if (count($array_email) > 1) {
+            foreach ($array_email as $email_to) {
+                $email_to = trim($email_to);
+                if(!empty($email_to)) {
+                    Mail::to($email_to)->send(new  PurchaseOrderEmail($record));
+                }
+            }
+        } else {
+            Mail::to($customer_email)->send(new  PurchaseOrderEmail($record));
+        }
+        */
         return [
             'success' => true
         ];
@@ -482,5 +501,73 @@ class PurchaseOrderController extends Controller
             'success' => true,
             'message' => 'Orden de compra anulada con éxito'
         ];
+    }
+
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function searchItemById($id)
+    {
+        $items = SearchItemController::getItemToPurchaseOrder(null, $id);
+
+        return compact('items');
+
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return array
+     */
+    public function searchItems(Request $request)
+    {
+        $items = SearchItemController::getItemToPurchaseOrder($request);
+
+        return compact('items');
+    }
+
+
+    /**
+     * @deprecated
+     * @param \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection $items
+     */
+    public function formatItem($items){
+        // $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
+        return $items->transform(function($row) {
+            $full_description = $this->getFullDescription($row);
+            return [
+                'id' => $row->id,
+                'full_description' => $full_description,
+                'description' => $row->description,
+                'model' => $row->model,
+                'currency_type_id' => $row->currency_type_id,
+                'currency_type_symbol' => $row->currency_type->symbol,
+                'sale_unit_price' => $row->sale_unit_price,
+                'purchase_unit_price' => $row->purchase_unit_price,
+                'unit_type_id' => $row->unit_type_id,
+                'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
+                'has_perception' => (bool) $row->has_perception,
+                'purchase_has_igv' => (bool) $row->purchase_has_igv,
+                'percentage_perception' => $row->percentage_perception,
+                'item_unit_types' => collect($row->item_unit_types)->transform(function($row) {
+                    return [
+                        'id' => $row->id,
+                        'description' => "{$row->description}",
+                        'item_id' => $row->item_id,
+                        'unit_type_id' => $row->unit_type_id,
+                        'quantity_unit' => $row->quantity_unit,
+                        'price1' => $row->price1,
+                        'price2' => $row->price2,
+                        'price3' => $row->price3,
+                        'price_default' => $row->price_default,
+                    ];
+                }),
+                'series_enabled' => (bool) $row->series_enabled,
+            ];
+        });
     }
 }

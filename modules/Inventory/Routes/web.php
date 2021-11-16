@@ -18,6 +18,41 @@
                     Route::post('/', 'WarehouseController@store');
                     Route::get('initialize', 'WarehouseController@initialize');
                 });
+                /**
+                 * extra_info_items
+                 * extra_info_items/colors
+                 * extra_info_items/colors/records
+                 * extra_info_items/colors/record/{id}
+                 * extra_info_items/colors/save/{id}
+                 * extra_info_items/item-units-per-package
+                 * extra_info_items/item-units-per-package/records
+                 * extra_info_items/item-units-per-package/record/{id}
+                 * extra_info_items/item-units-per-package/save/{id}
+                 * extra_info_items/item-units-business
+                 * extra_info_items/item-units-business/records
+                 * extra_info_items/item-units-business/record/{id}
+                 * extra_info_items/item-units-business/save/{id}
+                 * extra_info_items/item-status
+                 * extra_info_items/item-status/records
+                 * extra_info_items/item-status/record/{id}
+                 * extra_info_items/item-status/save/{id}
+                 * extra_info_items/item-package-measurements
+                 * extra_info_items/item-package-measurements/records
+                 * extra_info_items/item-package-measurements/record/{id}
+                 * extra_info_items/item-package-measurements/save/{id}
+                 * extra_info_items/item-mold-cavities
+                 * extra_info_items/item-mold-cavities/records
+                 * extra_info_items/item-mold-cavities/record/{id}
+                 * extra_info_items/item-mold-cavities/save/{id}
+                 * extra_info_items/item-mold-property
+                 * extra_info_items/item-mold-property/records
+                 * extra_info_items/item-mold-property/record/{id}
+                 * extra_info_items/item-mold-property/save/{id}
+                 * extra_info_items/item-prodcut-family
+                 * extra_info_items/item-prodcut-family/records
+                 * extra_info_items/item-prodcut-family/record/{id}
+                 * extra_info_items/item-prodcut-family/save/{id}
+                 */
                 Route::prefix('extra_info_items')->group(function () {
 
                     Route::get('', 'InventoryController@ExtraDataList')->name('extra_info_items.index');
@@ -72,6 +107,12 @@
                         Route::get('records', 'ItemMoldPropertyController@records');
                         Route::post('record/{id}', 'ItemMoldPropertyController@record');
                         Route::post('save/{id}', 'ItemMoldPropertyController@store');
+                    });
+                    Route::prefix('item-size')->group(function () {
+                        Route::get('/', 'ItemSizeController@index');
+                        Route::get('records', 'ItemSizeController@records');
+                        Route::post('record/{id}', 'ItemSizeController@record');
+                        Route::post('save/{id}', 'ItemSizeController@store');
                     });
 
                 });
@@ -172,13 +213,14 @@
                     Route::prefix('valued-kardex')->group(function () {
                         Route::get('', 'ReportValuedKardexController@index')->name('reports.valued_kardex.index');
                         Route::get('/excel', 'ReportValuedKardexController@excel');
+                        Route::get('/excel-format-sunat', 'ReportValuedKardexController@excelFormatSunat');
                         Route::get('/filter', 'ReportValuedKardexController@filter');
                         Route::get('/records', 'ReportValuedKardexController@records');
                     });
                 });
 
                 Route::prefix('inventories')->group(function () {
-                    Route::get('configuration', 'InventoryConfigurationController@index')->name('tenant.inventories.configuration.index');
+                    Route::get('configuration', 'InventoryConfigurationController@index')->name('tenant.inventories.configuration.index')->middleware('redirect.level');
                     Route::get('configuration/record', 'InventoryConfigurationController@record');
                     Route::post('configuration', 'InventoryConfigurationController@store');
 

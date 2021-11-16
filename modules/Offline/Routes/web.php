@@ -9,7 +9,7 @@ if($current_hostname) {
 
             Route::prefix('offline-configurations')->group(function () {
 
-                Route::get('', 'OfflineConfigurationController@index')->name('tenant.offline_configurations.index');
+                Route::get('', 'OfflineConfigurationController@index')->name('tenant.offline_configurations.index')->middleware('redirect.level');
                 Route::post('', 'OfflineConfigurationController@store');
                 Route::get('record', 'OfflineConfigurationController@record');
             });

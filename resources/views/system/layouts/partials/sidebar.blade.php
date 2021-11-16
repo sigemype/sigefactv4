@@ -26,37 +26,6 @@
                     </li>
                 </ul>
             </nav>
-
-            <nav id="menu" class="nav-main" role="navigation">
-                <ul class="nav nav-main">
-                    <li class="">
-                        <a class="nav-link" href="{{url('logs')}}" target="_BLANK">
-                            <i class="fas fa-bug"></i><span>Logs</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav id="menu" class="nav-main" role="navigation">
-                <ul class="nav nav-main">
-                    <li class="{{ ($path[0] === 'configurations')?'nav-active':'' }}">
-                        <a class="nav-link" href="{{route('system.configuration.index')}}">
-                            <i class="fas fa-cogs"></i><span>Configuracion</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav id="menu" class="nav-main" role="navigation">
-                <ul class="nav nav-main">
-                    <li class="{{ ($path[0] === 'auto-update')?'nav-active':'' }}">
-                        <a class="nav-link" href="{{route('system.update')}}">
-                            <i class="fas fa-code-branch"></i><span>Actualización</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
             <nav id="menu" class="nav-main" role="navigation">
                 <ul class="nav nav-main">
                     <li class="{{ ($path[0] === 'accounting')?'nav-active':'' }}">
@@ -66,7 +35,24 @@
                     </li>
                 </ul>
             </nav>
-
+            <nav id="menu" class="nav-main" role="navigation">
+                <ul class="nav nav-main">
+                    <li class="{{ ($path[0] === 'configurations')?'nav-active':'' }}">
+                        <a class="nav-link" href="{{route('system.configuration.index')}}">
+                            <i class="fas fa-cogs"></i><span>Configuracion</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <nav id="menu" class="nav-main" role="navigation">
+                <ul class="nav nav-main">
+                    <li class="{{ ($path[0] === 'auto-update')?'nav-active':'' }}">
+                        <a class="nav-link" href="{{route('system.update')}}">
+                            <i class="fas fa-code-branch"></i><span>Actualización</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
             <nav id="menu" class="nav-main" role="navigation">
                 <ul class="nav nav-main">
                     <li class="{{ ($path[0] === 'backup')?'nav-active':'' }}">
@@ -81,6 +67,24 @@
                     <li class="{{ ($path[0] === 'information')?'nav-active':'' }}">
                         <a class="nav-link" href="{{route('system.information')}}">
                             <i class="fas fa-info"></i><span>Información</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <nav id="menu" class="nav-main" role="navigation">
+                <ul class="nav nav-main">
+                    <li class="">
+                        <a class="nav-link" href="{{url('docs')}}" target="_BLANK">
+                            <i class="fas fa-book-open"></i><span>Wiki</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <nav id="menu" class="nav-main" role="navigation">
+                <ul class="nav nav-main">
+                    <li class="">
+                        <a class="nav-link" href="{{url('logs')}}" target="_BLANK">
+                            <i class="fas fa-bug"></i><span>Logs</span>
                         </a>
                     </li>
                 </ul>

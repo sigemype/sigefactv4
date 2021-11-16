@@ -34,6 +34,8 @@ if($current_hostname) {
              * order-notes/documents
              * order-notes/documents
              * order-notes/document_tables
+             * order-notes/search-items
+             * order-notes/search/item/{item}
              */
             Route::prefix('order-notes')->group(function () {
 
@@ -53,6 +55,8 @@ if($current_hostname) {
                 Route::get('option/tables', 'OrderNoteController@option_tables');
                 Route::get('search/customers', 'OrderNoteController@searchCustomers');
                 Route::get('search/customer/{id}', 'OrderNoteController@searchCustomerById');
+                Route::get('search-items', 'OrderNoteController@searchItems');
+                Route::get('search/item/{item}', 'OrderNoteController@searchItemById');
                 Route::get('download/{external_id}/{format?}', 'OrderNoteController@download');
                 // Route::get('print/{external_id}/{format?}', 'OrderNoteController@toPrint');
                 Route::post('email', 'OrderNoteController@email');

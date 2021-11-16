@@ -7,8 +7,7 @@ use App\Models\Tenant\Summary;
 use Illuminate\Support\Facades\Log;
 use DB;
 
-trait SummaryTrait
-{
+trait SummaryTrait{
     public function save($request) {
         $fact = DB::connection('tenant')->transaction(function () use($request) {
             $facturalo = new Facturalo();

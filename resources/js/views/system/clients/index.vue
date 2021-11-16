@@ -278,6 +278,12 @@
                     </el-badge>
                   </el-tooltip>
                   
+                  <el-tooltip class="item" effect="dark" content="Comprobantes por anular" placement="top-start">
+                    <el-badge class="item  ml-4" :value="row.document_to_be_canceled">
+                      <i class="fas fa-exclamation-circle text-secondary"></i>
+                    </el-badge>
+                  </el-tooltip>
+
                 </td>
                   <td>
                       <template v-if="row.start_billing_cycle">

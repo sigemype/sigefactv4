@@ -5,11 +5,14 @@ namespace App\Models\Tenant;
 use App\Models\Tenant\Catalogs\AffectationIgvType;
 use App\Models\Tenant\Catalogs\PriceType;
 use App\Models\Tenant\Catalogs\SystemIscType;
+use App\Traits\AttributePerItems;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Modules\Inventory\Models\Warehouse;
 
 class SaleNoteItem extends ModelTenant
 {
+    use AttributePerItems;
     protected $with = ['affectation_igv_type', 'system_isc_type', 'price_type'];
     public $timestamps = false;
 
@@ -119,49 +122,42 @@ class SaleNoteItem extends ModelTenant
         return $this->belongsTo(Item::class, 'item_id');
     }
 
-
+    /**
+     * @param $query
+     * @param $params
+     *
+     * @return Builder
+     */
     public function scopeWhereDefaultDocumentType($query, $params)
     {
 
-        $db_raw =  DB::raw("sale_note_items.id as id, sale_notes.series as series, sale_notes.number as number,
-                            sale_note_items.item as item, sale_note_items.quantity as quantity, sale_note_items.item_id as item_id,sale_notes.date_of_issue as date_of_issue");
+        $db_raw = DB::raw("sale_note_items.id as id, sale_notes.series as series, sale_notes.number as number,
+                            sale_note_items.item as item, sale_note_items.quantity as quantity,
+                            sale_note_items.item_id as item_id,sale_notes.date_of_issue as date_of_issue");
 
         if (isset($params['establishment_id'])) {
             $query->where('establishment_id', $params['establishment_id']);
         }
-        if($params['person_id']){
 
-            return $query->whereHas('sale_note', function($q) use($params){
-                            $q->whereBetween($params['date_range_type_id'], [$params['date_start'], $params['date_end']])
-                                ->where('customer_id', $params['person_id'])
-                                ->whereStateTypeAccepted()
-                                ->whereTypeUser();
-                        })
-                        ->join('sale_notes', 'sale_note_items.sale_note_id', '=', 'sale_notes.id')
-                        ->select($db_raw)
-                        ->latest('id');
+        $query->whereHas('sale_note', function ($q) use ($params) {
+            $q->whereBetween($params['date_range_type_id'], [$params['date_start'], $params['date_end']])
+                ->whereStateTypeAccepted()
+                ->whereTypeUser();
+            if ($params['person_id']) {
+                $q->where('customer_id', $params['person_id']);
+            }
+            if (isset($params['sellers'])) {
+                $sellers = json_decode($params['sellers']);
+                if (count($sellers) > 0) {
+                    $q->whereIn('user_id', $sellers);
+                }
+            }
+        })
+            ->join('sale_notes', 'sale_note_items.sale_note_id', '=', 'sale_notes.id')
+            ->select($db_raw)
+            ->latest('id');
 
-        }
-
-
-        $data = $query->whereHas('sale_note', function($q) use($params){
-                    $q->whereBetween($params['date_range_type_id'], [$params['date_start'], $params['date_end']])
-                        // ->where('user_id', $params['seller_id'])
-                        ->whereStateTypeAccepted()
-                        ->whereTypeUser();
-                })
-                ->join('sale_notes', 'sale_note_items.sale_note_id', '=', 'sale_notes.id')
-                ->select($db_raw)
-                ->latest('id');
-
-
-        $sellers = json_decode($params['sellers']);
-
-        if(count($sellers) > 0){
-            $data = $data->whereHas('sale_note', function($q) use($params, $sellers){$q->whereIn('user_id', $sellers);});
-        }
-
-        return $data;
+        return $query;
     }
 
     public function warehouse()

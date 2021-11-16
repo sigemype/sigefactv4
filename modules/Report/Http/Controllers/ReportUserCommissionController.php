@@ -42,12 +42,12 @@ class ReportUserCommissionController extends Controller
     public function records(Request $request)
     {
         $records = $this->getRecords($request->all(), User::class);
-        
+
         return new ReportUserCommissionCollection($records->paginate(config('tenant.items_per_page')));
     }
 
 
-    
+
     public function getRecords($request, $model){
 
         $document_type_id = $request['document_type_id'];
@@ -60,6 +60,12 @@ class ReportUserCommissionController extends Controller
 
         $d_start = null;
         $d_end = null;
+        /** @todo: Eliminar periodo, fechas y cambiar por
+
+        $date_start = $request['date_start'];
+        $date_end = $request['date_end'];
+        \App\CoreFacturalo\Helpers\Functions\FunctionsHelper\FunctionsHelper::setDateInPeriod($request, $date_start, $date_end);
+         */
 
         switch ($period) {
             case 'month':
@@ -89,7 +95,7 @@ class ReportUserCommissionController extends Controller
 
     private function data($document_type_id, $establishment_id, $date_start, $date_end, $model)
     {
- 
+
         if($establishment_id){
 
             $data = $model::whereHas('user_commission')
@@ -113,16 +119,16 @@ class ReportUserCommissionController extends Controller
 
             $data = $model::whereHas('user_commission')
                             ->with(['documents'=>function($q) use($date_start, $date_end){
-                            
+
                                 $q->whereStateTypeAccepted()
                                 ->whereBetween('date_of_issue', [$date_start, $date_end]);
-                            
+
                             },'sale_notes'=>function($z) use($date_start, $date_end){
 
                                 $z->whereStateTypeAccepted()
                                 ->whereNotChanged()
                                 ->whereBetween('date_of_issue', [$date_start, $date_end]);
-                            
+
                             }])
                             ->latest()
                             ->whereTypeUser();
@@ -132,7 +138,7 @@ class ReportUserCommissionController extends Controller
 
     }
 
- 
+
 
 
     public function pdf(Request $request) {

@@ -1,14 +1,16 @@
 <?php
 
-namespace Modules\Purchase\Models; 
- 
+namespace Modules\Purchase\Models;
+
 use App\Models\Tenant\ModelTenant;
 use App\Models\Tenant\Catalogs\AffectationIgvType;
 use App\Models\Tenant\Catalogs\PriceType;
 use App\Models\Tenant\Catalogs\SystemIscType;
+use App\Traits\AttributePerItems;
 
 class PurchaseOrderItem extends ModelTenant
 {
+    use AttributePerItems;
     protected $with = ['affectation_igv_type', 'system_isc_type', 'price_type'];
     public $timestamps = false;
 

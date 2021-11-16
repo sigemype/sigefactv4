@@ -142,7 +142,7 @@
                 @endif
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-            <td class="text-right align-top">{{ $row->relation_item->date_of_due }}</td>
+            <td class="text-right align-top">@if($row->relation_item->date_of_due){{ $row->relation_item->date_of_due->format('Y-m-d')  }} @endif</td>
             <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
             <td class="text-right align-top">
                 @if($row->discounts)

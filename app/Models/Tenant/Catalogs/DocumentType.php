@@ -81,7 +81,7 @@ class DocumentType extends ModelCatalog
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOnlyAvaibleDocuments($query){
-        return $query->OnlyActive()->wherein('id',['01', '03', '07', '08', '09', '20','40', '80']);
+        return $query->OnlyActive()->wherein('id',['01', '03', '07', '08', '09', '20','40', '80', '04']);
     }
 
     /**

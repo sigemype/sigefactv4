@@ -35,6 +35,9 @@
                     </h6>
                     <ul class="card-report-links">
                         <li>
+                            <a :href="`./extra_info_items/item-size`">Tallas/Tamaño</a>
+                        </li>
+                        <li>
                             <a :href="`./extra_info_items/colors`">Lista de colores</a>
                         </li>
                         <li>

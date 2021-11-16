@@ -397,6 +397,7 @@
                     total_other_taxes: 0,
                     total_taxes: 0,
                     total_value: 0,
+                    subtotal: 0,
                     total: 0,
                     operation_type_id: null,
                     date_of_due: null,
@@ -419,6 +420,7 @@
             },
             resetDocument(){
                 this.generate = (this.showGenerate) ? true:false
+                this.flag_generate = true
                 this.initDocument()
                 this.document.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
                 this.changeDocumentType()
@@ -460,7 +462,7 @@
                             this.showDialogDocumentOptions = true;
                             this.$http.get(`/${this.resource}/changed/${this.form.id}`).then(() => {
                                 this.$eventHub.$emit('reloadData');
-                                this.flag_generate = false
+                                // this.flag_generate = false
                             });
                             this.resetDocument()
 
@@ -510,6 +512,7 @@
                 this.document.total_other_taxes = q.total_other_taxes
                 this.document.total_taxes = q.total_taxes
                 this.document.total_value = q.total_value
+                this.document.subtotal = q.subtotal
                 this.document.total = q.total
                 this.document.operation_type_id = '0101'
 
@@ -626,7 +629,7 @@
                 this.$emit('update:show', false)
                 this.initForm()
                 this.resetDocument()
-                this.flag_generate = true
+                // this.flag_generate = true
             },
             clickToPrint(){
                 window.open(`/downloads/saleNote/sale_note/${this.form.external_id}`, '_blank');

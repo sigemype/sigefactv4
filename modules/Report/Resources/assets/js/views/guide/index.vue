@@ -46,7 +46,7 @@
     </div>
 </template>
 <script>
-import DataTable from '../../components/DataTableGuide.vue'
+import DataTable from './partials/DataTableGuide.vue'
 
 export default {
     components: {DataTable},

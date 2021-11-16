@@ -14,6 +14,8 @@ use App\Models\Tenant\Item;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\Offline\Models\OfflineConfiguration;
+use Html2Text\Html2Text;
+use App\Models\Tenant\Configuration;
 
 class DocumentInput
 {
@@ -61,6 +63,7 @@ class DocumentInput
         }
 
         $items = self::items($inputs);
+
         return [
             'type' => $inputs['type'],
             'group_id' => $inputs['group_id'],
@@ -85,6 +88,7 @@ class DocumentInput
             'quotation_id' => Functions::valueKeyInArray($inputs, 'quotation_id'),
             'sale_note_id' => Functions::valueKeyInArray($inputs, 'sale_note_id'),
             'order_note_id' => Functions::valueKeyInArray($inputs, 'order_note_id'),
+            'technical_service_id' => Functions::valueKeyInArray($inputs, 'technical_service_id'),
             'dispatch_id' => Functions::valueKeyInArray($inputs, 'dispatch_id'),
             'exchange_rate_sale' => $inputs['exchange_rate_sale'],
             'total_prepayment' => Functions::valueKeyInArray($inputs, 'total_prepayment', 0),
@@ -96,6 +100,7 @@ class DocumentInput
             'total_unaffected' => Functions::valueKeyInArray($inputs, 'total_unaffected', 0),
             'total_exonerated' => Functions::valueKeyInArray($inputs, 'total_exonerated', 0),
             'total_igv' => $inputs['total_igv'],
+            'total_igv_free' => Functions::valueKeyInArray($inputs, 'total_igv_free', 0),
             'total_base_isc' => Functions::valueKeyInArray($inputs, 'total_base_isc', 0),
             'total_isc' => Functions::valueKeyInArray($inputs, 'total_isc', 0),
             'total_base_other_taxes' => Functions::valueKeyInArray($inputs, 'total_base_other_taxes', 0),
@@ -103,6 +108,7 @@ class DocumentInput
             'total_plastic_bag_taxes' => Functions::valueKeyInArray($inputs, 'total_plastic_bag_taxes', 0),
             'total_taxes' => $inputs['total_taxes'],
             'total_value' => $inputs['total_value'],
+            'subtotal' => (Functions::valueKeyInArray($inputs, 'subtotal')) ? $inputs['subtotal'] : $inputs['total'],
             'total' => $inputs['total'],
             'has_prepayment' => Functions::valueKeyInArray($inputs, 'has_prepayment', 0),
             'affectation_type_prepayment' => Functions::valueKeyInArray($inputs, 'affectation_type_prepayment'),
@@ -116,6 +122,7 @@ class DocumentInput
             'related' => self::related($inputs),
             'perception' => self::perception($inputs),
             'detraction' => self::detraction($inputs),
+            'retention' => self::retention($inputs),
             'invoice' => $invoice,
             'note' => $note,
             'hotel' => self::hotel($inputs),
@@ -135,6 +142,8 @@ class DocumentInput
             'payment_condition_id' => key_exists('payment_condition_id', $inputs) ? $inputs['payment_condition_id'] : '01',
             'fee' => Functions::valueKeyInArray($inputs, 'fee', []),
             'is_editable' => true,
+            'total_pending_payment' => Functions::valueKeyInArray($inputs, 'total_pending_payment', 0),
+            // 'pending_amount_detraction' => Functions::valueKeyInArray($inputs, 'pending_amount_detraction', 0),
         ];
     }
 
@@ -192,7 +201,9 @@ class DocumentInput
                     'charges' => self::charges($row),
                     'warehouse_id' => Functions::valueKeyInArray($row, 'warehouse_id'),
                     'additional_information' => Functions::valueKeyInArray($row, 'additional_information'),
-                    'name_product_pdf' => Functions::valueKeyInArray($row, 'name_product_pdf')
+                    'name_product_pdf' => Functions::valueKeyInArray($row, 'name_product_pdf'),
+                    'name_product_xml' => Functions::valueKeyInArray($row, 'name_product_pdf') ? self::getNameProductXml($row, $inputs) : null,
+                    'update_description' => Functions::valueKeyInArray($row, 'update_description', false),
                 ];
                 Item::SaveExtraDataToRequest($arayItem,$row);
                 $items[] = $arayItem;
@@ -201,6 +212,31 @@ class DocumentInput
         }
         return null;
     }
+    
+    /**
+     * Devuelve el nombre producto pdf en texto plano para ser usado en el xml
+     *
+     * @param  array $row
+     * @return string
+     */
+    public static function getNameProductXml($row, $inputs)
+    {
+
+        if(in_array($inputs['document_type_id'], ['01', '03'])){
+
+            // validar configuracion
+            $configuration = Configuration::select('name_product_pdf_to_xml')->firstOrFail();
+    
+            if($configuration->name_product_pdf_to_xml)
+            {
+                return trim((new Html2Text($row['name_product_pdf']))->getText());
+            }
+
+        }
+
+        return null;
+    }
+
 
     private static function lots($row)
     {
@@ -376,6 +412,31 @@ class DocumentInput
                 ];
             }
         }
+        return null;
+    }
+    
+    private static function retention($inputs)
+    {
+
+        if (array_key_exists('retention', $inputs)) {
+
+            if ($inputs['retention']) {
+
+                $retention = $inputs['retention'];
+                $code = $retention['code'];
+                $percentage = $retention['percentage'];
+                $amount = $retention['amount'];
+                $base = $retention['base'];
+
+                return [
+                    'code' => $code,
+                    'percentage' => $percentage,
+                    'amount' => $amount,
+                    'base' => $base,
+                ];
+            }
+        }
+
         return null;
     }
 

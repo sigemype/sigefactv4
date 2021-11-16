@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="row justify-content-center">
+    <div class="row">
         <!--<div class="col-lg-6 col-md-12 pt-2 pt-md-0">
             <system-companies-form></system-companies-form>
         </div> -->
@@ -14,6 +14,9 @@
                 :backtrack_limit="'{!! $pcre_backtrack_limit !!}'"
                 :all_config="{{json_encode($all_config)}}"
             ></system-php-configuration>
+        </div>
+        <div class="col-6">
+            <system-server-status></system-server-status>
         </div>
     </div>
 

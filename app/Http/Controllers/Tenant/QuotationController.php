@@ -7,6 +7,7 @@ use App\CoreFacturalo\Requests\Inputs\Common\EstablishmentInput;
 use App\CoreFacturalo\Requests\Inputs\Common\PersonInput;
 use App\CoreFacturalo\Template;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SearchItemController;
 use App\Http\Requests\Tenant\QuotationRequest;
 use App\Http\Resources\Tenant\QuotationCollection;
 use App\Http\Resources\Tenant\QuotationResource;
@@ -210,7 +211,8 @@ class QuotationController extends Controller
     }
 
     public function item_tables() {
-        $items = $this->table('items');
+        // $items = $this->table('items');
+        $items = SearchItemController::getItemsToQuotation();
         $categories = [];
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $system_isc_types = SystemIscType::whereActive()->get();
@@ -459,22 +461,7 @@ class QuotationController extends Controller
      */
     public function searchItems(Request $request)
     {
-        $items = Item::orderBy('description')->whereIsActive();
-        if ($request->has('search_by_barcode') && (int)$request->search_by_barcode === 1) {
-            $items->where('barcode', $request->input)
-                ->limit(1);
-        }else{
-            $items->where('description', 'like', "%{$request->input}%")
-                ->orWhere('internal_id', 'like', "%{$request->input}%")
-                ->orWhereHas('category', function ($query) use ($request) {
-                    $query->where('name', 'like', '%' . $request->input . '%');
-                })
-                ->orWhereHas('brand', function ($query) use ($request) {
-                    $query->where('name', 'like', '%' . $request->input . '%');
-                });
-        }
-        $items = $items->get();
-        $this->ReturnItem($items);
+        $items = SearchItemController::getItemsToQuotation($request);
         return compact('items');
 
     }
@@ -538,11 +525,8 @@ class QuotationController extends Controller
 
     public function searchItemById($id)
     {
-        $items = Item::where('id', $id)
-                        ->whereIsActive()
-                        ->get();
 
-        $this->ReturnItem($items);
+        $items =  SearchItemController::getItemsToQuotation(null,$id);
         return compact('items');
 
     }
@@ -550,24 +534,8 @@ class QuotationController extends Controller
 
     public function searchCustomerById($id)
     {
+        return $this->searchClientById($id);
 
-        $customers = Person::whereType('customers')
-                           ->where('id', $id)
-                           ->get()->transform(function ($row) {
-                /** @var Person $row */
-                return $row->getCollectionData();
-                /** Se ha movido al modelo  */
-                return [
-                    'id'                          => $row->id,
-                    'description'                 => $row->number.' - '.$row->name,
-                    'name'                        => $row->name,
-                    'number'                      => $row->number,
-                    'identity_document_type_id'   => $row->identity_document_type_id,
-                    'identity_document_type_code' => $row->identity_document_type->code,
-                ];
-            });
-
-        return compact('customers');
     }
 
     public function download($external_id, $format) {
@@ -635,6 +603,9 @@ class QuotationController extends Controller
             $terms_condition = $document->terms_condition ? 15 : 0;
             $contact = $document->contact ? 15 : 0;
 
+            $document_description = ($document->description) ? count(explode("\n", $document->description)) * 3 : 0;
+
+
             foreach ($document->items as $it) {
                 if ($it->discounts) {
                     $discount_global = $discount_global + 1;
@@ -663,6 +634,7 @@ class QuotationController extends Controller
                     $total_exonerated +
                     $terms_condition +
                     $contact +
+                    $document_description +
                     $total_taxed],
                 'margin_top' => 2,
                 'margin_right' => 5,
@@ -791,7 +763,7 @@ class QuotationController extends Controller
         $stylesheet = file_get_contents($path_css);
 
         $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
-        $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+        // $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         if ($format_pdf != 'ticket') {
             if(config('tenant.pdf_template_footer')) {
@@ -804,11 +776,15 @@ class QuotationController extends Controller
                     $html_footer_legend = $template->pdfFooterLegend($base_template, $this->quotation);
                 }
 
+                $pdf->setAutoBottomMargin = 'stretch';
+
                 $pdf->SetHTMLFooter($html_footer_term_condition.$html_footer.$html_footer_legend);
             }
             //$html_footer = $template->pdfFooter();
             //$pdf->SetHTMLFooter($html_footer);
         }
+        
+        $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         $this->uploadFile($filename, $pdf->output('', 'S'), 'quotation');
     }
@@ -826,8 +802,24 @@ class QuotationController extends Controller
 
         // $this->reloadPDF($quotation, "a4", $quotation->filename);
 
+        $email = $customer_email;
+        $mailable =  new QuotationEmail($client, $quotation);
+        $id = (int) $request->id;
+        $sendIt = EmailController::SendMail($email, $mailable, $id, 3);
+        /*
         Configuration::setConfigSmtpMail();
-        Mail::to($customer_email)->send(new QuotationEmail($client, $quotation));
+        $array_email = explode(',', $customer_email);
+        if (count($array_email) > 1) {
+            foreach ($array_email as $email_to) {
+                $email_to = trim($email_to);
+                if(!empty($email_to)) {
+                    Mail::to($email_to)->send(new QuotationEmail($client, $quotation));
+                }
+            }
+        } else {
+            Mail::to($customer_email)->send(new QuotationEmail($client, $quotation));
+        }
+        */
         return [
             'success' => true
         ];

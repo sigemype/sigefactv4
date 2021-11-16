@@ -29,7 +29,7 @@ if($hostname) {
             });
 
             Route::prefix('company_accounts')->group(function () {
-                Route::get('create', 'CompanyAccountController@create')->name('tenant.company_accounts.create');
+                Route::get('create', 'CompanyAccountController@create')->name('tenant.company_accounts.create')->middleware('redirect.level');
                 Route::get('record', 'CompanyAccountController@record');
                 Route::post('', 'CompanyAccountController@store');
             });

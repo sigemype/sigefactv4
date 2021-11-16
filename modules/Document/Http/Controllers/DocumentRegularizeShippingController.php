@@ -10,19 +10,31 @@ use Modules\Document\Http\Resources\DocumentRegularizeShippingCollection;
 use App\Traits\OfflineTrait;
 
 
-class DocumentRegularizeShippingController extends Controller{
+class DocumentRegularizeShippingController extends Controller
+{
+
     use OfflineTrait;
-    public function index(){
+
+    public function index()
+    {
+
         $is_client = $this->getIsClient();
+
         return view('document::documents.regularize_shipping', compact('is_client'));
     }
 
-    public function records(Request $request){
+    public function records(Request $request)
+    {
+
         $records = $this->getRecords($request);
+
         return new DocumentRegularizeShippingCollection($records->paginate(config('tenant.items_per_page')));
+
     }
 
     public function getRecords($request){
+
+
         $d_end = $request->d_end;
         $d_start = $request->d_start;
         $date_of_issue = $request->date_of_issue;
@@ -33,7 +45,9 @@ class DocumentRegularizeShippingController extends Controller{
         $pending_payment = ($request->pending_payment == "true") ? true:false;
         $customer_id = $request->customer_id;
 
+
         if($d_start && $d_end){
+
             $records = Document::where('document_type_id', 'like', '%' . $document_type_id . '%')
                             ->where('series', 'like', '%' . $series . '%')
                             ->where('number', 'like', '%' . $number . '%')
@@ -42,7 +56,9 @@ class DocumentRegularizeShippingController extends Controller{
                             ->whereRegularizeShipping()
                             ->whereTypeUser()
                             ->latest();
+
         }else{
+
             $records = Document::where('date_of_issue', 'like', '%' . $date_of_issue . '%')
                             ->where('document_type_id', 'like', '%' . $document_type_id . '%')
                             ->where('state_type_id', 'like', '%' . $state_type_id . '%')
@@ -60,11 +76,18 @@ class DocumentRegularizeShippingController extends Controller{
         if($customer_id){
             $records = $records->where('customer_id', $customer_id);
         }
+
         return $records;
+
     }
 
-    public function data_table(){
+
+    public function data_table()
+    {
+
         return app(DocumentController::class)->data_table();
+
     }
+
 
 }

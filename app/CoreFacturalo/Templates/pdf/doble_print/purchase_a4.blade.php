@@ -81,7 +81,7 @@
             {{ ($supplier->department_id !== '-')? '- '.$supplier->department->description : '' }}
         </td>
     </tr>
-    @endif 
+    @endif
     @if ($supplier->telephone)
     <tr>
         <td class="align-top">Teléfono:</td>
@@ -89,7 +89,7 @@
             {{ $supplier->telephone }}
         </td>
     </tr>
-    @endif 
+    @endif
     <tr>
         <td class="align-top">Usuario:</td>
         <td colspan="3">
@@ -103,7 +103,7 @@
     </tr>
     @endif
 </table>
- 
+
 
 <table class="full-width mt-10 mb-10">
     <thead class="">

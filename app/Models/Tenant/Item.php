@@ -13,7 +13,14 @@ use App\Models\Tenant\Catalogs\CurrencyType;
 use App\Models\Tenant\Catalogs\SystemIscType;
 use App\Models\Tenant\Catalogs\UnitType;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 use Modules\Account\Models\Account;
 use Modules\Digemid\Models\CatDigemid;
 use Modules\Inventory\Helpers\InventoryValuedKardex;
@@ -23,6 +30,7 @@ use Modules\Item\Models\Category;
 use Modules\Item\Models\ItemLot;
 use Modules\Item\Models\ItemLotsGroup;
 use Modules\Item\Models\WebPlatform;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 
 /**
@@ -44,6 +52,55 @@ use Modules\Item\Models\WebPlatform;
  * @method static Builder|Item whereService()
  * @method static Builder|Item whereTypeUser()
  * @method static Builder|Item whereWarehouse()
+ * @property \Illuminate\Database\Eloquent\Collection|ItemMovementRelExtra[] $item_movement_rel_extras
+ * @property Account $account
+ * @property Brand $brand
+ * @property CatDigemid|null $cat_digemid
+ * @property Category $category
+ * @property CurrencyType $currency_type
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\DispatchItem[] $dispatch_items
+ * @property int|null $dispatch_items_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\DocumentItem[] $document_items
+ * @property int|null $document_items_count
+ * @property mixed $attributes
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemImage[] $images
+ * @property int|null $images_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\InventoryKardex[] $inventory_kardex
+ * @property int|null $inventory_kardex_count
+ * @property \Illuminate\Database\Eloquent\Collection|ItemLot[] $item_lots
+ * @property int|null $item_lots_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemMovementRelExtra[] $item_movement_rel_extra
+ * @property int|null $item_movement_rel_extra_count
+ * @property \App\Models\Tenant\ItemType $item_type
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemUnitType[] $item_unit_types
+ * @property int|null $item_unit_types_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\Kardex[] $kardex
+ * @property int|null $kardex_count
+ * @property \Illuminate\Database\Eloquent\Collection|ItemLot[] $lots
+ * @property int|null $lots_count
+ * @property \Illuminate\Database\Eloquent\Collection|ItemLotsGroup[] $lots_group
+ * @property int|null $lots_group_count
+ * @property AffectationIgvType $purchase_affectation_igv_type
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchaseItem[] $purchase_item
+ * @property int|null $purchase_item_count
+ * @property AffectationIgvType $sale_affectation_igv_type
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\SaleNoteItem[] $sale_note_items
+ * @property int|null $sale_note_items_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemSet[] $sets
+ * @property int|null $sets_count
+ * @property SystemIscType $system_isc_type
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemTag[] $tags
+ * @property int|null $tags_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\TechnicalServiceItem[] $technical_service_item
+ * @property int|null $technical_service_item_count
+ * @property UnitType $unit_type
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemWarehousePrice[] $warehousePrices
+ * @property int|null $warehouse_prices_count
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\ItemWarehouse[] $warehouses
+ * @property int|null $warehouses_count
+ * @property WebPlatform $web_platform
+ * @method  array getCollectionData()
+ * @method static Builder|Item whereFilterValuedKardexFormatSunat($params)
  */
 class Item extends ModelTenant
 {
@@ -180,7 +237,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function account()
     {
@@ -188,7 +245,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function item_type()
     {
@@ -196,7 +253,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function unit_type()
     {
@@ -204,7 +261,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function currency_type()
     {
@@ -212,7 +269,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function system_isc_type()
     {
@@ -220,7 +277,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function kardex()
     {
@@ -228,7 +285,11 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
+     * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
+     * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+     *
+     * @return HasMany
      */
     public function inventory_kardex()
     {
@@ -237,7 +298,7 @@ class Item extends ModelTenant
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function cat_digemid()
     {
@@ -245,7 +306,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function purchase_item()
     {
@@ -253,7 +314,15 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return HasMany
+     */
+    public function dispatch_items()
+    {
+        return $this->hasMany(DispatchItem::class);
+    }
+
+    /**
+     * @return BelongsTo
      */
     public function sale_affectation_igv_type()
     {
@@ -261,7 +330,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function purchase_affectation_igv_type()
     {
@@ -269,9 +338,9 @@ class Item extends ModelTenant
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeWhereWarehouse($query)
      {
@@ -286,9 +355,9 @@ class Item extends ModelTenant
      }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeWhereTypeUser($query)
     {
@@ -297,9 +366,9 @@ class Item extends ModelTenant
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeWhereNotIsSet($query)
     {
@@ -307,9 +376,9 @@ class Item extends ModelTenant
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeWhereIsActive($query)
     {
@@ -317,9 +386,9 @@ class Item extends ModelTenant
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeWhereIsSet($query)
     {
@@ -328,9 +397,9 @@ class Item extends ModelTenant
 
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
+     * @return Builder|\Illuminate\Database\Query\Builder
      */
     public function scopePharmacy($query){
         return $query
@@ -359,7 +428,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function warehouses()
     {
@@ -368,7 +437,7 @@ class Item extends ModelTenant
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function item_unit_types()
     {
@@ -376,7 +445,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function tags()
     {
@@ -384,7 +453,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function sets()
     {
@@ -392,7 +461,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function brand()
     {
@@ -403,9 +472,10 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class)->withDefault([
             'id' => '',
             'name' => ''
@@ -413,72 +483,81 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function item_lots(){
+    public function item_lots()
+    {
         return $this->hasMany(ItemLot::class, 'item_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return MorphMany
      */
-    public function lots(){
+    public function lots()
+    {
         return $this->morphMany(ItemLot::class, 'item_loteable');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public  function images(){
+    public  function images()
+    {
         return $this->hasMany(ItemImage::class, 'item_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function lots_group(){
+    public function lots_group()
+    {
         return $this->hasMany(ItemLotsGroup::class, 'item_id');
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeWhereNotService($query){
+    public function scopeWhereNotService($query)
+    {
         return $query->where('unit_type_id','!=', 'ZZ');
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeWhereService($query){
+    public function scopeWhereService($query)
+    {
         return $query->where('unit_type_id', 'ZZ');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public  function document_items(){
+    public  function document_items()
+    {
         return $this->hasMany(DocumentItem::class, 'item_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public  function sale_note_items(){
+    public  function sale_note_items()
+    {
         return $this->hasMany(SaleNoteItem::class, 'item_id');
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder                               $query
      * @param                                       $params
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeWhereFilterValuedKardex(Builder $query, $params){
+    public function scopeWhereFilterValuedKardex(Builder $query, $params)
+    {
         /*
         $query->OrWhereHas('document_items', function ($q) use ($params) {
             $q->whereHas('document', function ($q1) use ($params) {
@@ -507,56 +586,66 @@ class Item extends ModelTenant
         */
         // No selecciona corectamente los establecimeintos.
         if ($params->establishment_id) {
+
             return $query->with(['document_items' => function ($q) use ($params) {
                 $q->whereHas('document', function ($q) use ($params) {
-                    $q->whereStateTypeAccepted()->whereTypeUser()
+                    $q->whereStateTypeAccepted()
+                        ->whereTypeUser()
                         ->whereBetween('date_of_issue', [$params->date_start, $params->date_end])
                         ->where('establishment_id', $params->establishment_id);
                 });
-            },'sale_note_items' => function ($q) use ($params) {
-                $q->whereHas('sale_note', function ($q) use ($params) {
-                    $q->whereStateTypeAccepted()->whereNotChanged()->whereTypeUser()
-                        ->whereBetween('date_of_issue', [$params->date_start, $params->date_end])
-                        ->where('establishment_id', $params->establishment_id);
-                });
-            }]);
+            },
+                'sale_note_items' => function ($q) use ($params) {
+                    $q->whereHas('sale_note', function ($q) use ($params) {
+                        $q->whereStateTypeAccepted()
+                            ->whereNotChanged()
+                            ->whereTypeUser()
+                            ->whereBetween('date_of_issue', [$params->date_start, $params->date_end])
+                            ->where('establishment_id', $params->establishment_id);
+                    });
+                }]);
+
         }
 
         return $query->with(['document_items' => function ($q) use ($params) {
-            $q->whereHas('document', function ($q) use ($params){
+            $q->whereHas('document', function ($q) use ($params) {
                 $q->whereStateTypeAccepted()
                     ->whereTypeUser()
                     ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
             });
-        },'sale_note_items' => function ($q) use ($params) {
-            $q->whereHas('sale_note', function ($q) use ($params) {
-                $q->whereStateTypeAccepted()->whereNotChanged()
-                    ->whereTypeUser()
-                    ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
-            });
-        }]);
+        },
+            'sale_note_items' => function ($q) use ($params) {
+                $q->whereHas('sale_note', function ($q) use ($params) {
+                    $q->whereStateTypeAccepted()
+                        ->whereNotChanged()
+                        ->whereTypeUser()
+                        ->whereBetween('date_of_issue', [$params->date_start, $params->date_end]);
+                });
+            }]);
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeWhereIsNotActive($query){
+    public function scopeWhereIsNotActive($query)
+    {
         return $query->where('active', false);
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeWhereHasInternalId($query){
+    public function scopeWhereHasInternalId($query)
+    {
         return $query->where('internal_id','!=', null);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function web_platform()
     {
@@ -564,7 +653,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function warehousePrices()
     {
@@ -584,8 +673,8 @@ class Item extends ModelTenant
     /**
      * Devuelve la esuctura de item para los select correspondientes.
      *
-     * @param \App\Models\Tenant\Warehouse|\Modules\Inventory\Models\Warehouse $warehouse
-     * @param false $extended
+     * @param \App\Models\Tenant\Warehouse|Warehouse $warehouse
+     * @param false                                  $extended
      *
      * @return array
      */
@@ -626,7 +715,7 @@ class Item extends ModelTenant
      * Devuelve la relacion con el almacen dado
      * @param int $warehouse_id
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function getCurrentItemWarehouse($warehouse_id){
         return $this->warehouses()->where('warehouse_id',$warehouse_id);
@@ -653,16 +742,14 @@ class Item extends ModelTenant
 
     /**
      * Devuelve un estandar de estructura para items.
-     *
      * Es utilizado en :
      * app/Http/Controllers/Tenant/DocumentController.php
      * modules/Order/Http/Controllers/OrderNoteController.php
      *
-     * @param \App\Models\Tenant\Warehouse|\Modules\Inventory\Models\Warehouse|null $warehouse
-     * @param false                                    $with_lots_has_sale
-     * @param false                                    $extended_description
-
-     *
+     * @param \App\Models\Tenant\Warehouse|Warehouse|null $warehouse
+     * @param false                                       $with_lots_has_sale
+     * @param false                                       $extended_description
+ *
      * @return array
      */
     public function getDataToItemModal(
@@ -691,6 +778,7 @@ class Item extends ModelTenant
         $ItemMoldCavity = collect($blank);
         $ItemPackageMeasurement = collect($blank);
         $ItemStatus = collect($blank);
+        $ItemSize = collect($blank);
         $ItemUnitBusiness = collect($blank);
 
         if($aditional_data === true){
@@ -719,6 +807,10 @@ class Item extends ModelTenant
             });
             $ItemUnitBusiness = $this->getItemUnitBusiness()->transform(function ($row) {
                 return $row->cat_item_unit_business_id;
+            });
+
+            $ItemSize = $this->getItemSize()->transform(function ($row) {
+                return $row->cat_item_size_id;
             });
 
         }
@@ -752,6 +844,7 @@ class Item extends ModelTenant
             $stock = $stockItemWarehouse->stock;
         }
 
+        $stockPerCategory = ItemMovement::getStockByCategory($this->id,auth()->user()->establishment_id);
 
         $data = [
             'id'                               => $this->id,
@@ -759,6 +852,7 @@ class Item extends ModelTenant
             'full_description'                 => $detail['full_description'],
             'model'                            => $this->model,
             'brand'                            => $detail['brand'],
+            'stock_by_extra'                            =>  $stockPerCategory,
             'warehouse_description'            => $detail['warehouse_description'],
             'extra'                         => collect([
                                                 'colors' => null,
@@ -768,6 +862,7 @@ class Item extends ModelTenant
                                                 'CatItemMoldCavity' => null,
                                                 'CatItemPackageMeasurement' => null,
                                                 'CatItemStatus' => null,
+                                                'CatItemSize' => null,
                                                 'CatItemUnitBusiness' => null,
                                              ]),
             'category'                         => $detail['category'],
@@ -779,6 +874,7 @@ class Item extends ModelTenant
             'sale_unit_price'                  => self::getSaleUnitPriceByWarehouse($this, $warehouse->id),
             'purchase_unit_price'              => $this->purchase_unit_price,
             'unit_type_id'                     => $this->unit_type_id,
+            'original_unit_type_id'                     => $this->unit_type_id,
             'sale_affectation_igv_type'     => $this->sale_affectation_igv_type,
             'sale_affectation_igv_type_id'     => $this->sale_affectation_igv_type_id,
             'purchase_affectation_igv_type_id' => $this->purchase_affectation_igv_type_id,
@@ -793,8 +889,12 @@ class Item extends ModelTenant
             'CatItemMoldCavity' => $ItemMoldCavity,
             'CatItemPackageMeasurement' => $ItemPackageMeasurement,
             'CatItemStatus' => $ItemStatus,
+            'CatItemSize' => $ItemSize,
             'CatItemUnitBusiness' => $ItemUnitBusiness,
-            'item_unit_types'                  => collect($realtion_item_unit_types)->transform(function ($item_unit_types) {
+            'item_unit_types'                  => $this->item_unit_types->transform(function ($item_unit_types) {
+                if(is_array($item_unit_types)){
+                    return $item_unit_types;
+                }
                 return [
                     'id'            => $item_unit_types->id,
                     'description'   => "{$item_unit_types->description}",
@@ -843,7 +943,7 @@ class Item extends ModelTenant
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|mixed|\Modules\Digemid\Models\CatDigemid|object|null
+     * @return Model|\Illuminate\Database\Query\Builder|mixed|CatDigemid|object|null
      */
     public function getCatDigemid(){
         return CatDigemid::where('item_id',$this->id)->first();
@@ -861,7 +961,7 @@ class Item extends ModelTenant
     /**
      * Retorna un standar de nomenclatura para el modelo
      *
-     * @param \App\Models\Tenant\Configuration|null $configuration
+     * @param Configuration|null $configuration
      *
      * @return array
      */
@@ -906,12 +1006,14 @@ class Item extends ModelTenant
         }
 
         $decimal_units = (int)$configuration->decimal_quantity;
+        $stockPerCategory = ItemMovement::getStockByCategory($this->id,auth()->user()->establishment_id);
 
         return [
             'name_disa'                           => $name_disa,
             'laboratory'                           => $laboratory,
             'exportable_pharmacy'                           => $digemid_exportable,
             'colors' => $currentColors,
+            'stock_by_extra'                            =>  $stockPerCategory,
             'id'                           => $this->id,
             'sanitary'                 => $this->sanitary,
             'cod_digemid'                 => $this->cod_digemid,
@@ -961,7 +1063,7 @@ class Item extends ModelTenant
             'tags'                         => $this->tags,
             'tags_id'                      => $this->tags->pluck('tag_id'),
             'item_unit_types'              => $this->item_unit_types->transform(function ($row) use ($decimal_units) {
-                /** @var \App\Models\Tenant\ItemUnitType $row */
+                /** @var ItemUnitType $row */
                 return $row ->getCollectionData($decimal_units);
                 /** Movido al modelo */
                 return [
@@ -1104,7 +1206,7 @@ class Item extends ModelTenant
     /**
      * @param $cod
      *
-     * @return \App\Models\Tenant\Item|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|mixed|object|null
+     * @return Item|Model|\Illuminate\Database\Query\Builder|mixed|object|null
      */
     public static function FindByCodDigemid($cod){
         return self::where('cod_digemid',$cod)->first();
@@ -1114,14 +1216,14 @@ class Item extends ModelTenant
     /**
      * Devuelve el modelo de WebPlatform Asociado
      *
-     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed|WebPlatform|WebPlatform[]|null
+     * @return \Illuminate\Database\Eloquent\Collection|Model|mixed|WebPlatform|WebPlatform[]|null
      */
     public function getWebPlatformModel(){
         return WebPlatform::find($this->web_platform_id);
     }
 
     /**
-     * @return ItemSet[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection|mixed|null
+     * @return ItemSet[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection|mixed|null
      */
     public function getSetItems(){
 
@@ -1175,7 +1277,7 @@ class Item extends ModelTenant
      * @param array $ItemUnitsPerPackage
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function setItemUnitsPerPackage(array $ItemUnitsPerPackage = []) {
 
@@ -1192,7 +1294,7 @@ class Item extends ModelTenant
      * @param array $colors
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function setItemColor($colors = []) {
         return $this->setExtraData(ItemColor::class,'cat_colors_item_id',$colors);
@@ -1239,9 +1341,15 @@ class Item extends ModelTenant
     public function setItemProductFamily($data = []) {
         return $this->setExtraData(ItemProductFamily::class,'cat_item_product_family_id',$data);
     }
+    public function setItemSize($data = []) {
+        return $this->setExtraData(ItemSize::class,'cat_item_size_id',$data);
+    }
 
     public function getItemProductFamily(){
         return ItemProductFamily::where('item_id', $this->id)->where('active',1)->get();
+    }
+    public function getItemSize(){
+        return ItemSize::where('item_id', $this->id)->where('active',1)->get();
     }
 
     /**
@@ -1293,6 +1401,7 @@ class Item extends ModelTenant
         $CatItemPackageMeasurement_id = isset($row['item']['extra']['CatItemPackageMeasurement']) ? (int)$row['item']['extra']['CatItemPackageMeasurement'] : null;
         $CatItemStatus_id = isset($row['item']['extra']['CatItemStatus']) ? (int)$row['item']['extra']['CatItemStatus'] : null;
         $CatItemUnitBusiness_id = isset($row['item']['extra']['CatItemUnitBusiness']) ? (int)$row['item']['extra']['CatItemUnitBusiness'] : null;
+        $CatItemSize_id = isset($row['item']['extra']['CatItemSize']) ? (int)$row['item']['extra']['CatItemSize'] : null;
 
 
         $array['item']['extra']["colors"] = $colors_id;
@@ -1303,6 +1412,7 @@ class Item extends ModelTenant
         $array['item']['extra']["CatItemPackageMeasurement"] = $CatItemPackageMeasurement_id;
         $array['item']['extra']["CatItemStatus"] = $CatItemStatus_id;
         $array['item']['extra']["CatItemUnitBusiness"] = $CatItemUnitBusiness_id;
+        $array['item']['extra']["CatItemSize"] = $CatItemSize_id;
 
         // Guarda el nombre del campo si existe
 
@@ -1370,6 +1480,15 @@ class Item extends ModelTenant
             }
         }
 
+        $CatItemSize_string = '';
+
+        if (!empty($CatItemSize_id)) {
+            $temp = CatItemSize::find($CatItemSize_id);
+            if ($temp !== null) {
+                $CatItemSize_string = $temp->getName();
+            }
+        }
+
 
         $array['item']['extra']["string"]["colors"] = $colors_string;
         $array['item']['extra']["string"]["CatItemUnitsPerPackage"] = $CatItemUnitsPerPackage_string;
@@ -1379,6 +1498,7 @@ class Item extends ModelTenant
         $array['item']['extra']["string"]["CatItemPackageMeasurement"] = $CatItemPackageMeasurement_string;
         $array['item']['extra']["string"]["CatItemStatus"] = $CatItemStatus_string;
         $array['item']['extra']["string"]["CatItemUnitBusiness"] = $CatItemUnitBusiness_string;
+        $array['item']['extra']["string"]["CatItemSize"] = $CatItemSize_string;
     }
 
     /**
@@ -1409,7 +1529,7 @@ class Item extends ModelTenant
      * @param string $price
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function setItemWarehousePrice(
         $item_warehouse_id = 0,
@@ -1439,7 +1559,7 @@ class Item extends ModelTenant
      * @param string $price
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public static function setStaticItemWarehousePrice(
         $item_id = 0,
@@ -1461,4 +1581,328 @@ class Item extends ModelTenant
         }
         return false;
     }
+
+    /**
+     * Deuelve codificacion 64 para el codigo de barras
+     *
+     * @param int   $height
+     * @param int[] $colour
+     *
+     * @return string
+     */
+    public function getBarCode(int $height = 60, $colour = [0,0,0]){
+
+       $code = $this->getIdentificacionCode();
+        if(empty($code)) {
+            return null;
+        }
+        $generator = new BarcodeGeneratorPNG();
+        return  "data:image/png;base64,".base64_encode($generator->getBarcode($code, $generator::TYPE_CODE_128, 1, $height, $colour));
+    }
+
+    /**
+     * Obtiene el codigo de barras o el codigo interno para devolverlo
+     * @return string|null
+     */
+    public function getIdentificacionCode()
+    {
+        $code = $this->barcode;
+        if(empty($code)){
+            $code = $this->internal_id;
+        }
+        return $code;
+    }
+
+
+    /**
+     * Obtiene una estructura estandar para generar los codigos de barra
+     * Normalmente, el alto ($barCodeHeight) de codigo de barradas es 60 px.
+     *
+     * @param int $barCodeHeight
+     *
+     * @return array
+     */
+    public function getBarCodeData($barCodeHeight = 60 ){
+
+        $data = [];
+        $data['internal_id'] = $this->internal_id;
+        $data['name'] = $this->getDescription();
+        $data['model'] = $this->model;
+        $data['code'] = $this->getIdentificacionCode();
+        $data['short_name'] = substr($data['name'],0,30);
+        $data['short_model'] = substr($data['model'],0,10);
+        $data['bar_code'] = $this->getBarCode($barCodeHeight);
+        $data['price'] = $this->currency_type->symbol." ".$this->withoutRounding();
+        $data['second_name'] = $this->second_name;
+        $data['short_second_name'] = substr($data['second_name'],0,4);
+        $data['talla'] = $data['short_second_name'];
+        return $data;
+    }
+
+
+    /**
+     * Genera los numeros para el codigo de barras sin redondeo.
+     *
+     * @param int $total_decimals
+     *
+     * @return mixed|string
+     */
+    public  function withoutRounding( $total_decimals = 2) {
+        $number = (string)$this->sale_unit_price;
+        if($number === '') {
+            $number = '0';
+        }
+        if(strpos($number, '.') === false) {
+            $number .= '.';
+        }
+        $number_arr = explode('.', $number);
+
+        $decimals = substr($number_arr[1], 0, $total_decimals);
+        if($decimals === false) {
+            $decimals = '0';
+        }
+
+        $return = '';
+        if($total_decimals == 0) {
+            $return = $number_arr[0];
+        } else {
+            if(strlen($decimals) < $total_decimals) {
+                $decimals = str_pad($decimals, $total_decimals, '0', STR_PAD_RIGHT);
+            }
+            $return = $number_arr[0] . '.' . $decimals;
+        }
+        return $return;
+    }
+
+    public function getDataToPurchase(){
+
+        $full_description = ($this->internal_id)?$this->internal_id.' - '.$this->description:$this->description;
+        return [
+            'id' => $this->id,
+            'item_code'  => $this->item_code,
+            'full_description' => $full_description,
+            'description' => $this->description,
+            'currency_type_id' => $this->currency_type_id,
+            'currency_type_symbol' => $this->currency_type->symbol,
+            'sale_unit_price' => $this->sale_unit_price,
+            'purchase_unit_price' => $this->purchase_unit_price,
+            'unit_type_id' => $this->unit_type_id,
+            'sale_affectation_igv_type_id' => $this->sale_affectation_igv_type_id,
+            'purchase_affectation_igv_type_id' => $this->purchase_affectation_igv_type_id,
+            'purchase_has_igv' => (bool) $this->purchase_has_igv,
+            'has_perception' => (bool) $this->has_perception,
+            'lots_enabled' => (bool) $this->lots_enabled,
+            'percentage_perception' => $this->percentage_perception,
+            'item_unit_types' => collect($this->item_unit_types)->transform(function($row) {
+                // validar este
+                /*
+                dd([
+                    __LINE__,
+                    __FILE__,
+                    $this->item_unit_types
+                ]);
+                */
+                return [
+                    'id' => $row->id,
+                    'description' => "{$row->description}",
+                    'item_id' => $row->item_id,
+                    'unit_type_id' => $row->unit_type_id,
+                    'quantity_unit' => $row->quantity_unit,
+                    'price1' => $row->price1,
+                    'price2' => $row->price2,
+                    'price3' => $row->price3,
+                    'price_default' => $row->price_default,
+                ];
+            }),
+            'series_enabled' => (bool) $this->series_enabled,
+
+            // 'warehouses' => collect($row->warehouses)->transform(function($row) {
+            //     return [
+            //         'warehouse_id' => $row->warehouse->id,
+            //         'warehouse_description' => $row->warehouse->description,
+            //         'stock' => $row->stock,
+            //     ];
+            // })
+        ];
+    }
+
+
+    /**
+     * @param Builder                               $query
+     * @param                                       $params
+     *
+     * @return Builder
+     */
+    public function scopeWhereFilterValuedKardexFormatSunat(Builder $query, $params)
+    {
+
+        if ($params->establishment_id) {
+
+            return $query->with([
+                    'document_items' => function ($q) use ($params) {
+                        $q->whereHas('document', function ($q) use ($params) {
+                            $q->whereValuedKardexFormatSunat($params)
+                                ->where('establishment_id', $params->establishment_id);
+                        });
+                    },
+                    'purchase_item' => function ($q) use ($params) {
+                        $q->whereHas('purchase', function ($q) use ($params) {
+                            $q->whereValuedKardexFormatSunat($params)
+                                ->where('establishment_id', $params->establishment_id);
+                        });
+                    },
+                    'dispatch_items' => function ($q) use ($params) {
+                        $q->whereHas('dispatch', function ($q) use ($params) {
+                            $q->whereValuedKardexFormatSunat($params)
+                                ->where('establishment_id', $params->establishment_id);
+                        });
+                    }
+                ])
+                ->without([
+                    'currency_type', 'item_type', 'warehouses', 'item_unit_types', 'tags'
+                ]);
+        }
+
+
+        return $query->with([
+                'document_items' => function ($q) use ($params) {
+                    $q->whereHas('document', function ($q) use ($params) {
+                        $q->whereValuedKardexFormatSunat($params);
+                    });
+                },
+                'purchase_item' => function ($q) use ($params) {
+                    $q->whereHas('purchase', function ($q) use ($params) {
+                        $q->whereValuedKardexFormatSunat($params);
+                    });
+                },
+                'dispatch_items' => function ($q) use ($params) {
+                    $q->whereHas('dispatch', function ($q) use ($params) {
+                        $q->whereValuedKardexFormatSunat($params);
+                    });
+                }
+            ])
+            ->without([
+                'currency_type', 'item_type', 'warehouses', 'item_unit_types', 'tags'
+            ]);
+    }
+
+
+    /**
+     * Buscar codigo de la tabla 6
+     */
+    public function findUnitTypeCodeTableSix()
+    {
+
+        $record = $this->findUnitTypeCodeTableSixByDescription( strtoupper($this->unit_type->description) );
+        if($record) return $record;
+
+        //buscar otros
+        $others = $this->findUnitTypeCodeTableSixByDescription('OTROS');
+        $others['description'] = $others['description'] .' - '. strtoupper($this->unit_type->description);
+
+        return $others;
+    }
+
+
+    /**
+     * Buscar codigo de la tabla 6 por descripcion de unidad
+     */
+    public function findUnitTypeCodeTableSixByDescription($description)
+    {
+
+        return $this->getDataTableSixKardexSunat()->first(function($row) use($description){
+            return $row['description'] == strtoupper($description);
+        });
+
+    }
+
+    /**
+     * Datos de la tabla 6 para reporte kardex valorizado formato sunat 13.1
+     */
+    public function getDataTableSixKardexSunat()
+    {
+        return collect([
+            ['code' => '01', 'description' => 'KILOGRAMOS'],
+            ['code' => '02', 'description' => 'LIBRAS'],
+            ['code' => '03', 'description' => 'TONELADAS LARGAS'],
+            ['code' => '04', 'description' => 'TONELADAS MÉTRICAS'],
+            ['code' => '05', 'description' => 'TONELADAS CORTAS'],
+            ['code' => '06', 'description' => 'GRAMOS'],
+            ['code' => '07', 'description' => 'UNIDADES'],
+            ['code' => '08', 'description' => 'LITROS'],
+            ['code' => '09', 'description' => 'GALONES'],
+            ['code' => '10', 'description' => 'BARRILES'],
+            ['code' => '11', 'description' => 'LATAS'],
+            ['code' => '12', 'description' => 'CAJAS'],
+            ['code' => '13', 'description' => 'MILLARES'],
+            ['code' => '14', 'description' => 'METROS CÚBICOS'],
+            ['code' => '15', 'description' => 'METROS'],
+            ['code' => '99', 'description' => 'OTROS'],
+        ]);
+    }
+
+
+    /**
+     * @return HasMany
+     */
+    public  function technical_service_item()
+    {
+        return $this->hasMany(TechnicalServiceItem::class, 'item_id');
+    }
+
+    /**
+     * Devuelve el total de stock basado en la tabla item_movement
+     *
+     * Si $establisnment_id es diferente a 0, se sumaria basado en el establecimiento. Solo se suma los elementos countable
+     *
+     * @param int $establisnment_id
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function getNewStock($establisnment_id = 0)
+    {
+        $query = \DB::connection('tenant')
+            ->table('item_movement')
+            ->where('countable', 1)
+            ->where('item_id', $this->id);
+        if ($establisnment_id != 0) {
+            $query->where('establishment_id', $establisnment_id);
+        }
+        // Validacion para almacen?
+        $query = $query->select(\DB::raw(' sum(quantity) as total'))->first();
+
+        return $query->total;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function item_movement_rel_extra()
+    {
+        return $this->hasMany(ItemMovementRelExtra::class);
+    }
+
+    /**
+     * Devuelve una estructura comun para los datos extra
+     *
+     * @return array
+     */
+    public function getExtraDataFields()
+    {
+        $data = [
+                'colors' => ItemColor::ByItem($this->id)->get(),
+                'CatItemUnitsPerPackage' => ItemUnitsPerPackage::ByItem($this->id)->get(),
+                'CatItemMoldProperty' => ItemMoldProperty::ByItem($this->id)->get(),
+                'CatItemUnitBusiness' => ItemUnitBusiness::ByItem($this->id)->get(),
+                'CatItemStatus' => ItemStatus::ByItem($this->id)->get(),
+                'CatItemPackageMeasurement' => ItemPackageMeasurement::ByItem($this->id)->get(),
+                'CatItemMoldCavity' => ItemMoldCavity::ByItem($this->id)->get(),
+                'CatItemProductFamily' => ItemProductFamily::ByItem($this->id)->get(),
+                'CatItemSize' => ItemSize::ByItem($this->id)->get(),
+
+        ];
+        return $data;
+
+    }
 }
+

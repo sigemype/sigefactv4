@@ -61,4 +61,25 @@ class Company extends ModelTenant
     {
         return Company::first();
     }
+
+    /**
+     * @return string|null
+     */
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    /**
+     * @param string|null $logo
+     *
+     * @return Company
+     */
+    public function setLogo(?string $logo): Company
+    {
+        $this->logo = $logo;
+        return $this;
+    }
+
+
 }

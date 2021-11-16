@@ -38,6 +38,12 @@ class MovementController extends Controller
 
     }
 
+    /**
+     * @param array $request
+     * @param  GlobalPayment::class  $model
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function getRecords($request, $model){
 
         $data_of_period = $this->getDatesOfPeriod($request);
@@ -64,6 +70,7 @@ class MovementController extends Controller
                                             ->where('destination_id', $cash->id)
                                             ->latest()
                                             ->first();
+                /** @var \Illuminate\Database\Eloquent\Builder  $records */
 
                 return $records->whereDestinationType(Cash::class)
                                 ->where('destination_id', $cash->id)->latest();
@@ -72,7 +79,7 @@ class MovementController extends Controller
 
 
         }
-
+        /** @var \Illuminate\Database\Eloquent\Builder  $records */
         return $records->latest();
     }
 

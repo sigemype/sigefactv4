@@ -1,6 +1,32 @@
 <template>
     <div class="row" v-if="canShowExtraData">
 
+        <!-- Tamaño -->
+
+        <div class="col-md-4">
+            <div v-if="CatItemSize.length > 0"
+                 :class="{'has-danger': errors.name}"
+                 class="form-group">
+                <label class="control-label">Tamaños</label>
+                <el-select v-model="form.CatItemSize"
+                           :multiple="true"
+                >
+                    <el-option v-for="option in CatItemSize"
+                               :key="option.id"
+                               :label="option.name"
+                               :value="option.id"></el-option>
+                </el-select>
+                <small v-if="errors.name"
+                       class="form-control-feedback"
+                       v-text="errors.name[0]"></small>
+            </div>
+            <div v-else
+                 class="row col-12">
+                No hay Tamaños, puedes gestionarlos en
+                <a :href="`./extra_info_items/item-size`">Pagina de propiedades</a>
+
+            </div>
+        </div>
         <!-- Colores -->
         <div class="col-md-4">
             <div v-if="colors.length > 0"
@@ -227,6 +253,7 @@ export default {
             'colors',
 
 
+            'CatItemSize',
             'CatItemUnitsPerPackage',
             'CatItemMoldProperty',
             'CatItemUnitBusiness',

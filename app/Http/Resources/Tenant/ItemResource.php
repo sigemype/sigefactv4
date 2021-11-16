@@ -30,6 +30,7 @@
             $ItemProductFamily = $currentColors;
             $ItemMoldCavity = $currentColors;
             $ItemPackageMeasurement = $currentColors;
+            $ItemSize = $currentColors;
             $ItemStatus = $currentColors;
             $ItemUnitBusiness = $currentColors;
             if ($configuration->isShowExtraInfoToItem()) {
@@ -57,6 +58,9 @@
                 $ItemUnitBusiness = $this->getItemUnitBusiness()->transform(function ($row) {
                     return $row->cat_item_unit_business_id;
                 });
+                $ItemSize = $this->getItemSize()->transform(function ($row) {
+                    return $row->cat_item_size_id;
+                });
             }
 
 
@@ -71,6 +75,7 @@
                 'CatItemMoldCavity' => $ItemMoldCavity,
                 'CatItemPackageMeasurement' => $ItemPackageMeasurement,
                 'CatItemStatus' => $ItemStatus,
+                'CatItemSize' => $ItemSize,
                 'CatItemUnitBusiness' => $ItemUnitBusiness,
                 'name' => $this->name,
                 'second_name' => $this->second_name,

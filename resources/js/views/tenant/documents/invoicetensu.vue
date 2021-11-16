@@ -232,9 +232,11 @@
                                     <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="showDialogAddItem = true">+ Agregar Producto</button>
                                 </div>
                             </div>
+ 
                             <div class="col-md-8 mt-3">
 
                             </div>
+
                             <div class="col-md-4">
                                 <p class="text-right" v-if="form.total_exportation > 0">OP.EXPORTACIÓN: {{ currency_type.symbol }} {{ form.total_exportation }}</p>
                                 <p class="text-right" v-if="form.total_free > 0">OP.GRATUITAS: {{ currency_type.symbol }} {{ form.total_free }}</p>
@@ -244,8 +246,12 @@
                                 <p class="text-right" v-if="form.total_igv > 0">IGV: {{ currency_type.symbol }} {{ form.total_igv }}</p>
                                 <h3 class="text-right" v-if="form.total > 0"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
                             </div> 
+                            
                         </div>
-                    </div>                    
+
+                    </div>
+
+                    
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
                         <el-button class="submit" type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0">Generar</el-button>
@@ -253,6 +259,7 @@
                 </form>
             </div>
         </div>
+
        <el-button @click.prevent="generateFact()">prueba</el-button>
         <document-form-item :showDialog.sync="showDialogAddItem"
                            :recordItem="recordItem"
@@ -326,7 +333,8 @@
         async created() {
             //console.log(this.is_contingency )
             await this.initForm()
-            await this.$http.get(`/${this.resource}/tables`).then(response => {
+            await this.$http.get(`/${this.resource}/tables`)
+                .then(response => {
                     this.document_types = response.data.document_types_invoice
                     this.document_types_guide = response.data.document_types_guide
                     this.currency_types = response.data.currency_types
@@ -343,6 +351,7 @@
                     this.form.establishment_id = (this.establishments.length > 0)?this.establishments[0].id:null
                     this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
                     this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
+
                     this.changeEstablishment()
                     this.changeDateOfIssue()
                     this.changeDocumentType()
@@ -354,18 +363,20 @@
             })
         },
         methods: {
-            getIde(){
-                return { 
-                    numeracion : "BQA1-00000008",
-                    fechaEmision: "2018-10-30",
-                    horaEmision: "10:41:23",
-                    codTipoDocumento: "03",
-                    tipoMoneda: "PEN",
-                    numeroOrdenCompra: "5220141",
-                    fechaVencimiento: "2018-04-13" 
-                }
+
+            getIde()
+            {
+                return { numeracion : "BQA1-00000008",
+                         fechaEmision: "2018-10-30",
+                         horaEmision: "10:41:23",
+                         codTipoDocumento: "03",
+                         tipoMoneda: "PEN",
+                         numeroOrdenCompra: "5220141",
+                         fechaVencimiento: "2018-04-13" 
+                        }
             },
-            getEmi(){
+            getEmi()
+            {
                 return {
                     tipoDocId: "6",
                     numeroDocId: "20100070031",
@@ -383,64 +394,81 @@
                     codigoAsigSUNAT: "0000"
                 }
             },
-            getRec(){
-                return{
-                    tipoDocId: "1",
-                    numeroDocId: "35226658",
-                    razonSocial: "PEREZ QUIROZ JAIME",
-                    direccion: "AV. LARCO 1522, DPTO. 505, MIRAFLORES - LIMA",
-                    codigoPais: "PE"
-                }
+            getRec()
+            {
+                return  {
+                            tipoDocId: "1",
+                            numeroDocId: "35226658",
+                            razonSocial: "PEREZ QUIROZ JAIME",
+                            direccion: "AV. LARCO 1522, DPTO. 505, MIRAFLORES - LIMA",
+                            codigoPais: "PE"
+                        }
             },
-            getDrf(){
-                return{
-                    tipoDocRelacionado: "09",
-                    numeroDocRelacionado: "G074-5547"
-                }
+            getDrf()
+            {
+                return  {
+                            tipoDocRelacionado: "09",
+                            numeroDocRelacionado: "G074-5547"
+                        }
             },
-            getCab(){
+            getCab()
+            {
                 return {
                     "gravadas":{
                         "codigo": "1001",
                         "totalVentas": "2118.64"
                     },
-                    "totalImpuestos":[{
+                    "totalImpuestos":[
+                        {
                         "idImpuesto":"1000",
                         "montoImpuesto": "381.36"
-                        }],      
+                        }
+                    ],      
                     "importeTotal": "2500.00",
                     "tipoOperacion": "0101",
-                    "leyenda":[{
+                    "leyenda":[
+                    {
                         "codigo": "1000",
                         "descripcion": "DOS MIL QUINIENTOS CON 00/100"
-                    }],
+                    }
+                    ],
                     "montoTotalImpuestos": "381.36"
                 }
             },
-            getDetalle(){
+            getDetalle()
+            {
                 let items = this.form.items
+                
                 let result = items.map(( obj, index ) => {
-                    return { 
-                        numeroItem : index + 1,
-                        codigoProducto : 'code_' + obj.item_id, //obj.item.item_code,
-                        descripcionProducto: obj.item.description,
-                        cantidadItems : obj.quantity,
-                        unidad: obj.item.unit_type_id,
-                        valorUnitario: obj.unit_price,
-                        precioVentaUnitario: obj.item.sale_unit_price,
-                        totalImpuestos : [{   
-                                idImpuesto:"9996", "montoImpuesto":"0.00", 
-                                tipoAfectacion:"21", "montoBase":"1000.00",
-                                porcentaje:"0.00" 
-                            }],
-                        valorVenta:"1000.00",
-                        valorRefOpOnerosas:"1000.00",
-                        montoTotalImpuestos:"0.00"
-                    }
+
+                   return { 
+                            numeroItem : index + 1,
+                            codigoProducto : 'code_' + obj.item_id, //obj.item.item_code,
+                            descripcionProducto: obj.item.description,
+                            cantidadItems : obj.quantity,
+                            unidad: obj.item.unit_type_id,
+                            valorUnitario: obj.unit_price,
+                            precioVentaUnitario: obj.item.sale_unit_price,
+                            totalImpuestos : [ 
+                                {   
+                                    idImpuesto:"9996", "montoImpuesto":"0.00", 
+                                    tipoAfectacion:"21", "montoBase":"1000.00",
+                                    porcentaje:"0.00" 
+                                }
+                             ],
+                            valorVenta:"1000.00",
+                            valorRefOpOnerosas:"1000.00",
+                            montoTotalImpuestos:"0.00"
+
+                          }
+
                 })
+
                 return result
+
             },
-            getAdi(){
+            getAdi()
+            {
                 return [
                     {
                         "tituloAdicional":"Parametro Adicional",
@@ -452,7 +480,8 @@
                     }
                 ]
             },
-            generateFact(){
+            generateFact()
+            {
                 const fact = {}
                 let type = this.form.document_type_id == '01' ? 'factura' : 'boleta'
                 fact[type] = {
@@ -464,29 +493,45 @@
                     DET: this.getDetalle(),
                     ADI: this.getAdi()
                 }
+
+
                 let fileCont = btoa(JSON.stringify(fact))
                 this.formStage.fileContent = fileCont
+
+                
                 console.log(this.formStage)
+
             },
-            ediItem(row, index){
+           
+
+
+            ediItem(row, index)
+            {
                 row.indexi = index
                 this.recordItem = row
                 this.showDialogAddItem = true
+
             },
-            searchRemoteCustomers(input){
+
+              searchRemoteCustomers(input) {  
+                  
                 if (input.length > 0) {
                 // if (input!="") {
+
                     this.loading_search = true
                     let parameters = `input=${input}&document_type_id=${this.form.document_type_id}`
-                    this.$http.get(`/${this.resource}/search/customers?${parameters}`).then(response => { 
-                        this.customers = response.data.customers
-                        this.loading_search = false
-                        if(this.customers.length == 0){this.filterCustomers()}
-                    })
+
+                    this.$http.get(`/${this.resource}/search/customers?${parameters}`)
+                            .then(response => { 
+                                this.customers = response.data.customers
+                                this.loading_search = false
+                                if(this.customers.length == 0){this.filterCustomers()}
+                            })  
                 } else {
                     // this.customers = []
                     this.filterCustomers()
                 }
+
             },
             initForm() {
                 this.errors = {}
@@ -529,6 +574,7 @@
                         format_pdf:'a4',
                     }
                 }
+
                 this.form_payment = {
                     id: null,
                     document_id: null,
@@ -537,6 +583,7 @@
                     reference: null,
                     payment: null,
                 }
+
                 this.is_receivable = false
             },
             resetForm() {
@@ -552,6 +599,7 @@
                 this.changeCurrencyType()
             },
             changeOperationType() {
+
             },
             changeEstablishment() {
                 this.establishment = _.find(this.establishments, {'id': this.form.establishment_id})
@@ -566,19 +614,23 @@
                 this.form.customer_id = null
                 // this.customers = []
             },
-            changeDateOfIssue(){
+            changeDateOfIssue() {
                 this.form.date_of_due = this.form.date_of_issue
                 this.form_payment.date_of_payment = this.form.date_of_issue
+
                 this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
                     this.form.exchange_rate_sale = response
                 })
             },
-            filterSeries(){
+            filterSeries() {
                 this.form.series_id = null
-                this.series = _.filter(this.all_series, {'establishment_id': this.form.establishment_id,'document_type_id': this.form.document_type_id,'contingency': this.is_contingency});
+                this.series = _.filter(this.all_series, {'establishment_id': this.form.establishment_id,
+                                                         'document_type_id': this.form.document_type_id,
+                                                         'contingency': this.is_contingency});
                 this.form.series_id = (this.series.length > 0)?this.series[0].id:null
             },
-            filterCustomers(){
+            filterCustomers() {
+                
                 // this.form.customer_id = null
                 if(this.form.document_type_id === '01') {
                     this.customers = _.filter(this.all_customers, {'identity_document_type_id': '6'})
@@ -590,7 +642,7 @@
                     }
                 }
             },
-            clickAddGuide(){
+            clickAddGuide() {
                 this.form.guides.push({
                     document_type_id: null,
                     number: null
@@ -599,22 +651,24 @@
             clickRemoveGuide(index) {
                 this.form.guides.splice(index, 1)
             },
-            addRow(row){
-                if(this.recordItem){
+            addRow(row) {
+                if(this.recordItem)
+                {
                     //this.form.items.$set(this.recordItem.indexi, row)
                     this.form.items[this.recordItem.indexi] = row
                     this.recordItem = null
                 }
                 else{
-                    this.form.items.push(JSON.parse(JSON.stringify(row)));
+                      this.form.items.push(JSON.parse(JSON.stringify(row)));
                 }
+              
                 this.calculateTotal();
             },
             clickRemoveItem(index) {
                 this.form.items.splice(index, 1)
                 this.calculateTotal()
             },
-            changeCurrencyType(){
+            changeCurrencyType() {
                 this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
                 let items = []
                 this.form.items.forEach((row) => {
@@ -623,7 +677,7 @@
                 this.form.items = items
                 this.calculateTotal()
             },
-            calculateTotal(){
+            calculateTotal() {
                 let total_discount = 0
                 let total_charge = 0
                 let total_exportation = 0
@@ -637,6 +691,7 @@
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
+
                     if (row.affectation_igv_type_id === '10') {
                         total_taxed += parseFloat(row.total_value)
                     }
@@ -658,6 +713,7 @@
                     }
                     total_value += parseFloat(row.total_value)
                 });
+
                 this.form.total_exportation = _.round(total_exportation, 2)
                 this.form.total_taxed = _.round(total_taxed, 2)
                 this.form.total_exonerated = _.round(total_exonerated, 2)
@@ -667,9 +723,12 @@
                 this.form.total_value = _.round(total_value, 2)
                 this.form.total_taxes = _.round(total_igv, 2)
                 this.form.total = _.round(total, 2)
+
                 this.form_payment.payment = this.form.total
+
              },
-            submit(){
+            submit() {
+
                 return false
                 this.loading_submit = true
                 this.$http.post(`/${this.resource}`, this.form).then(response => {
@@ -697,23 +756,29 @@
                 });
             },
             document_payment(){
-                if(this.form.document_type_id == '03' && !this.is_receivable){
-                    this.$http.post(`/document_payments`, this.form_payment).then(response => {
-                        if (response.data.success) { 
 
+                if(this.form.document_type_id == '03' && !this.is_receivable){
+
+                    this.$http.post(`/document_payments`, this.form_payment)
+                    .then(response => {
+                        if (response.data.success) { 
                         } else {
                             this.$message.error(response.data.message);
                         }
-                    }).catch(error => {
+                    })
+                    .catch(error => {
                         if (error.response.status === 422) {
                             this.records[index].errors = error.response.data;
                         } else {
                             console.log(error);
                         }
                     })
+
                 }
+                
+
             },
-            close(){
+            close() {
                 location.href = (this.is_contingency) ? `/contingencies` : `/${this.resource}`
             },
             reloadDataCustomers(customer_id) {

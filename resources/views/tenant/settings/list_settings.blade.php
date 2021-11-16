@@ -12,7 +12,7 @@
             <span>Dashboard</span>
         </li>
         <li>
-            <span class="text-muted">Reportes</span>
+            <span class="text-muted">Configuración</span>
         </li>
     </ol>
 </div>
@@ -23,7 +23,7 @@
             <div class="card-body">
                 <h6 class="card-title">General</h6>
                 <ul class="card-report-links">
-                    @if(auth()->user()->type != 'integrator')
+                    @if($user->type != 'integrator')
                     <li>
                         <a href="{{ url('list-banks') }}">Listado de bancos</a>
                     </li>
@@ -44,6 +44,7 @@
             </div>
         </div>
     </div>
+        @if(!empty($companyMenu))
     <div class="col-6 col-md-4 mb-4">
         <div class="card card-dashboard card-reports">
             <div class="card-body">
@@ -62,12 +63,13 @@
             </div>
         </div>
     </div>
+        @endif
     <div class="col-6 col-md-4 mb-4">
         <div class="card card-dashboard card-reports">
             <div class="card-body">
                 <h6 class="card-title">SUNAT</h6>
                 <ul class="card-report-links">
-                    @if(auth()->user()->type != 'integrator')
+                        @if($user->type != 'integrator')
                     <li>
                         <a href="{{url('list-attributes')}}">Listado de Atributos</a>
                     </li>
@@ -90,7 +92,7 @@
             <div class="card-body">
                 <h6 class="card-title">Ingresos/Egresos</h6>
                 <ul class="card-report-links">
-                    @if(auth()->user()->type != 'integrator')
+                        @if($user->type != 'integrator')
                     <li>
                         <a href="{{url('list-payment-methods')}}">Métodos de pago - ingreso / gastos</a>
                     </li>
@@ -101,7 +103,7 @@
                         <a href="{{url('list-payments')}}">Listado de métodos de pago</a>
                     </li>
                     @endif
-                    @if(auth()->user()->type != 'integrator')
+                        @if($user->type != 'integrator')
                     <li>
                         <a href="{{url('list-vouchers-type')}}">Tipos de comprobantes INGRESOS Y GASTOS</a>
                     </li>
@@ -118,9 +120,9 @@
                     <li>
                         <a href="{{route('tenant.advanced.pdf_templates')}}">PDF</a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{route('tenant.advanced.pdf_guide_templates')}}">Guía de remisión</a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a href="{{route('tenant.advanced.pdf_preprinted_templates')}}">Pre Impresos</a>
                     </li>
@@ -128,12 +130,13 @@
             </div>
         </div>
     </div>
+        @if(!empty($advanceMenu))
     <div class="col-6 col-md-4 mb-4">
         <div class="card card-dashboard card-reports">
             <div class="card-body">
                 <h6 class="card-title">Avanzado</h6>
                 <ul class="card-report-links">
-                    @if(auth()->user()->type != 'integrator' && $vc_company->soap_type_id != '03')
+                            @if($user->type != 'integrator' && $vc_company->soap_type_id != '03')
                     <li>
                         <a href="{{route('tenant.tasks.index')}}">Tareas programadas</a>
                     </li>
@@ -149,12 +152,12 @@
                     <li>
                         <a href="{{route('tenant.company_accounts.create')}}">Avanzado - Contable</a>
                     </li>
-                    @if(auth()->user()->type != 'integrator' && $vc_company->soap_type_id != '03')
+                            @if($user->type != 'integrator' && $vc_company->soap_type_id != '03')
                     <li>
                         <a href="{{route('tenant.inventories.configuration.index')}}">Inventarios</a>
                     </li>
                     @endif
-                        @if(auth()->user()->type === 'admin')
+                            @if($user->type === 'admin')
                             <li>
                                 <a href="{{route('tenant.sale_notes.configuration')}}">Nota de ventas</a>
                             </li>
@@ -163,13 +166,15 @@
             </div>
         </div>
     </div>
+        @endif
     @if (! $useLoginGlobal)
+            @if(!empty($visualMenu))
     <div class="col-6 col-md-4 mb-4">
         <div class="card card-dashboard card-reports">
             <div class="card-body">
                 <h6 class="card-title">Visual</h6>
                 <ul class="card-report-links">
-                    {{-- @if(auth()->user()->type != 'integrator')
+                                {{-- @if($user->type != 'integrator')
                     <li class="{{($path[0] === 'catalogs') ? 'nav-active' : ''}}">
                         <a class="nav-link" href="{{route('tenant.catalogs.index')}}">
                             Catálogos
@@ -183,6 +188,7 @@
             </div>
         </div>
     </div>
+            @endif
     @endif
 </div>
 @endsection
