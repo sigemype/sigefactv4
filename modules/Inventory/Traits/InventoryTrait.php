@@ -92,6 +92,7 @@ trait InventoryTrait{
             })
             ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])
             ->whereNotIsSet()
+            ->whereIsActive()
             ->get();
         return collect($records)->transform(function ($row) use ($warehouse_id){
             return [

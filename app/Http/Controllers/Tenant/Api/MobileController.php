@@ -98,7 +98,7 @@ class MobileController extends Controller{
         $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
         $items = Item::with(['brand', 'category'])->whereWarehouse()->whereHasInternalId()->whereIsActive()->orderBy('description')->take(20)->get()->transform(function($row) use($warehouse){
-            $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
+        $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
 
             return [
                 'id' => $row->id,
