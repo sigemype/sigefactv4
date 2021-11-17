@@ -145,8 +145,8 @@ return [
     */
 
     'seo'                 => [
-        'author'          => '',
-        'description'     => '',
+        'author'          => 'Sigefact S.a.c',
+        'description'     => 'Sistema de facturación SigeFact',
         'keywords'        => '',
         'og'              => [
             'title'       => '',

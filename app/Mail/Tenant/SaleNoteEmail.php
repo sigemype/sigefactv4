@@ -8,16 +8,14 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SaleNoteEmail extends Mailable
-{
+class SaleNoteEmail extends Mailable{
     use Queueable, SerializesModels;
     use StorageDocument;
 
     public $company;
     public $document;
 
-    public function __construct($company, $document)
-    {
+    public function __construct($company, $document){
         $this->company = $company;
         $this->document = $document;
     }
@@ -27,8 +25,7 @@ class SaleNoteEmail extends Mailable
      *
      * @return $this
      */
-    public function build()
-    {
+    public function build(){
         $pdf = $this->getStorage($this->document->filename, 'sale_note');
 
         return $this->subject('Envio de Nota de Venta')

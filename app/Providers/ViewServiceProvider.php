@@ -4,15 +4,13 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
-class ViewServiceProvider extends ServiceProvider
-{
+class ViewServiceProvider extends ServiceProvider{
     /**
      * Bootstrap any application services.
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot(){
         view()->composer(
             'tenant.layouts.partials.header',
             'App\Http\ViewComposers\Tenant\CompanyViewComposer'

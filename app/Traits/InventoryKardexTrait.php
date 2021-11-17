@@ -24,7 +24,6 @@ trait InventoryKardexTrait{
         $item_warehouse->save();
     }
 
-
     public function getWarehouseId($establishment_id){
         $warehouse = Warehouse::where('establishment_id',$establishment_id)->first();
         return $warehouse->id;
