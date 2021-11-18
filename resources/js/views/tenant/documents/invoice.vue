@@ -3,8 +3,7 @@
         <div v-if="loading_form">
             <form autocomplete="off" class="row no-gutters" @submit.prevent="submit">
                 <div class="col-xl-9 col-md-9 col-12">
-                    <div class="row card-header no-gutters align-items-start"
-                         style="background-color: #FFFFFF;">
+                    <div class="row card-header no-gutters align-items-start" style="background-color: #FFFFFF;">
                         <div class="col-xl-2 col-md-2 col-12">
                             <logo :path_logo="(company.logo != null) ? `/storage/uploads/logos/${company.logo}` : ''" :position_class="'text-left'" url="/"></logo>
                         </div>
@@ -856,6 +855,7 @@
                 </div>
             </form>
         </div>
+        <Keypress :key-code="78" key-event="keyup" @success="clickAddItemInvoice"/>
         <document-form-item
             :configuration="config"
             :currency-type-id-active="form.currency_type_id"
@@ -945,6 +945,7 @@ import DocumentTransportForm from '../../../../../modules/BusinessTurn/Resources
 import DocumentDetraction from './partials/detraction.vue'
 import moment from 'moment'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+import Keypress from "vue-keypress";
 
 export default {
     props: [
@@ -961,7 +962,8 @@ export default {
         Logo,
         DocumentHotelForm,
         DocumentDetraction,
-        DocumentTransportForm
+        DocumentTransportForm, 
+        Keypress
     },
     mixins: [functions, exchangeRate],
     data() {
