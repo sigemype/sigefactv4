@@ -855,7 +855,7 @@
                 </div>
             </form>
         </div>
-        <Keypress :key-code="78" key-event="keyup" @success="clickAddItemInvoice"/>
+        <!-- <Keypress :key-code="78" key-event="keyup" @success="clickAddItemInvoice"/> -->
         <document-form-item
             :configuration="config"
             :currency-type-id-active="form.currency_type_id"
@@ -945,7 +945,7 @@ import DocumentTransportForm from '../../../../../modules/BusinessTurn/Resources
 import DocumentDetraction from './partials/detraction.vue'
 import moment from 'moment'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
-import Keypress from "vue-keypress";
+// import Keypress from "vue-keypress";
 
 export default {
     props: [
@@ -963,7 +963,7 @@ export default {
         DocumentHotelForm,
         DocumentDetraction,
         DocumentTransportForm, 
-        Keypress
+        // Keypress
     },
     mixins: [functions, exchangeRate],
     data() {

@@ -20,11 +20,8 @@
     {
 
 
-        public function filter()
-        {
-
+        public function filter(){
             $document_types = [];
-
             $establishments = Establishment::all()->transform(function ($row) {
                 return [
                     'id' => $row->id,
@@ -32,29 +29,21 @@
                 ];
             });
             $sellers = $this->getSellers();
-
-
             return compact('document_types', 'sellers', 'establishments');
         }
 
-
-        public function index()
-        {
-
+        public function index(){
             return view('report::commissions.index');
         }
 
-        public function records(Request $request)
-        {
+        public function records(Request $request){
             /** @var \Illuminate\Database\Eloquent\Builder  $records */
             $records = $this->getRecords($request->all(), User::class);
 
             return new ReportCommissionCollection($records->paginate(config('tenant.items_per_page')));
         }
 
-
-        public function getRecords($request, $model)
-        {
+        public function getRecords($request, $model){
 
             $document_type_id = $request['document_type_id'];
             $establishment_id = $request['establishment_id'];
@@ -99,7 +88,6 @@
 
         }
 
-
         /**
          * @param     $document_type_id
          * @param     $establishment_id
@@ -110,8 +98,7 @@
          *
          * @return Builder
          */
-        private function data($document_type_id, $establishment_id, $date_start, $date_end, $model, $seller_id = 0)
-        {
+        private function data($document_type_id, $establishment_id, $date_start, $date_end, $model, $seller_id = 0){
 
             /** @var Builder $data */
             $data = $model::with(['documents' => function ($q) use ($date_start, $date_end, $seller_id) {
@@ -135,6 +122,7 @@
             if ($establishment_id) {
                 $data = $data->where('establishment_id', $establishment_id);
             }
+
             if($model == (User::class) && $seller_id != 0){
                 $data->where('id',$seller_id);
             }
@@ -144,9 +132,7 @@
         }
 
 
-        public function pdf(Request $request)
-        {
-
+        public function pdf(Request $request){
             $company = Company::first();
             $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
             $records = $this->getRecords($request->all(), User::class)->get();
@@ -158,10 +144,7 @@
             return $pdf->download($filename . '.pdf');
         }
 
-
-        public function excel(Request $request)
-        {
-
+        public function excel(Request $request){
             $company = Company::first();
             $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
 

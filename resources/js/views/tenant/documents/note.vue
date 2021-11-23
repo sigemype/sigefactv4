@@ -217,38 +217,24 @@
                         <div class="col-md-4">
                             <!-- Crédito -->
                             <template v-if="form.payment_condition_id === '02' && isCreditNoteAndType13">
-                                <table v-if="form.fee.length>0"
-                                        class="text-left"
-                                        width="100%">
+                                <table v-if="form.fee.length>0" class="text-left" width="100%">
                                     <thead>
-                                    <tr>
-                                        <th class="text-left"
-                                            style="width: 100px">Fecha
-                                        </th>
-                                        <th class="text-left"
-                                            style="width: 100px">Monto
-                                        </th>
-                                        <th style="width: 30px"></th>
-                                    </tr>
+                                        <tr>
+                                            <th class="text-left" style="width: 100px">Fecha</th>
+                                            <th class="text-left" style="width: 100px">Monto</th>
+                                            <th style="width: 30px"></th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                    <tr v-for="(row, index) in form.fee"
-                                        :key="index">
+                                    <tr v-for="(row, index) in form.fee" :key="index">
                                         <td>
-                                            <el-date-picker v-model="row.date"
-                                                            :clearable="false"
-                                                            format="dd/MM/yyyy"
-                                                            type="date"
-                                                            value-format="yyyy-MM-dd"></el-date-picker>
+                                            <el-date-picker v-model="row.date" :clearable="false" format="dd/MM/yyyy" type="date" value-format="yyyy-MM-dd"></el-date-picker>
                                         </td>
                                         <td>
                                             <el-input v-model="row.amount"></el-input>
                                         </td>
                                         <td class="text-center">
-                                            <button v-if="index > 0"
-                                                    class="btn waves-effect waves-light btn-xs btn-danger"
-                                                    type="button"
-                                                    @click.prevent="clickRemoveFee(index)">
+                                            <button v-if="index > 0" class="btn waves-effect waves-light btn-xs btn-danger" type="button" @click.prevent="clickRemoveFee(index)">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td>
@@ -256,11 +242,7 @@
                                     <tr>
                                         <td colspan="5">
                                             <label class="control-label">
-                                                <a class=""
-                                                    href="#"
-                                                    @click.prevent="clickAddFee"><i class="fa fa-plus font-weight-bold text-info"></i>
-                                                    <span style="color: #777777">Agregar cuota</span></a>
-
+                                                <a class="" href="#" @click.prevent="clickAddFee"><i class="fa fa-plus font-weight-bold text-info"></i><span style="color: #777777">Agregar cuota</span></a>
                                             </label>
                                         </td>
                                     </tr>
@@ -274,6 +256,9 @@
                     <el-button @click.prevent="close()">Cancelar</el-button>
                     <template v-if="isCreditNoteAndType13">
                         <el-button type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0">Generar</el-button>
+                    </template>
+                    <template v-if="this.form.note_credit_or_debit_type_id === '03'">
+                        <el-button type="primary" native-type="submit" :loading="loading_submit">Generar</el-button>
                     </template>
                     <template v-else>
                         <el-button type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && form.total > 0">Generar</el-button>
@@ -720,8 +705,7 @@
                 this.form.note_credit_or_debit_type_id = null
                 this.form.series_id = null
                 if(this.is_contingency) {
-                    this.series = _.filter(this.all_series, {'document_type_id': this.form.document_type_id,
-                                                             'contingency': this.is_contingency});
+                    this.series = _.filter(this.all_series, {'document_type_id': this.form.document_type_id, 'contingency': this.is_contingency});
                 } else {
                     let document_type = _.find(this.document_types, {id: this.form.document_type_id})
                     let firstChar = (this.document.group_id === '01')?'F':'B'

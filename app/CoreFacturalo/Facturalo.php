@@ -465,19 +465,19 @@ class Facturalo{
 
 
             $height = ($quantity_rows * 8) +
-                    ($discount_global * 3) +
-                    $company_name +
-                    $company_address +
-                    $company_number +
-                    $customer_name +
-                    $customer_address +
-                    $p_order +
-                    $legends +
-                    $total_exportation +
-                    $total_free +
-                    $total_unaffected +
-                    $total_exonerated +
-                    $total_taxed;
+                        ($discount_global * 3) +
+                        $company_name +
+                        $company_address +
+                        $company_number +
+                        $customer_name +
+                        $customer_address +
+                        $p_order +
+                        $legends +
+                        $total_exportation +
+                        $total_free +
+                        $total_unaffected +
+                        $total_exonerated +
+                        $total_taxed;
             $diferencia = 148 - (float)$height;
 
             $pdf = new Mpdf([
@@ -980,7 +980,6 @@ class Facturalo{
                     $change = abs($balance);
                     $payment = $row['payment'] - abs($balance);
                     $this->apply_change = true;
-
                 }
 
                 return [

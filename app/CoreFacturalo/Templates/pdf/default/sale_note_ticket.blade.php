@@ -229,7 +229,7 @@
         @endforeach
     </tr>
 
-    <tr>
+    {{-- <tr>
         <td class="desc pt-3">
             <br>
             @foreach($accounts as $account)
@@ -243,7 +243,7 @@
             @endforeach
 
         </td>
-    </tr>
+    </tr> --}}
 
 </table>
 

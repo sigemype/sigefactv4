@@ -798,7 +798,7 @@
                         <p class="desc">
                             <small>
                                 <span class="font-bold desc">{{ $account->bank->description }}</span>
-                                {{ $account->currency_type->description }}
+                                    {{ $account->currency_type->description }}
                                 <span class="font-bold desc">N°:</span> {{ $account->number }}
                                 @if ($account->cci)
                                     <span class="font-bold desc">CCI:</span> {{ $account->cci }}
@@ -810,8 +810,7 @@
             </td>
         </tr>
         <tr>
-            <td class="text-center pt-3"><img class="qr_code"
-                    src="data:image/png;base64, {{ $document->qr }}" /></td>
+            <td class="text-center pt-3"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
         </tr>
         <tr>
             <td class="text-center desc">Código Hash: {{ $document->hash }}</td>

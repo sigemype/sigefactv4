@@ -819,7 +819,7 @@ class SaleNoteController extends Controller{
             $total_exonerated  = $this->document->total_exonerated != '' ? '10' : '0';
             $total_taxed       = $this->document->total_taxed != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items);
-            $payments     = $this->document->payments()->count() * 2;
+            $payments          = $this->document->payments()->count() * 15;
 
             $extra_by_item_description = 0;
             $discount_global = 0;
