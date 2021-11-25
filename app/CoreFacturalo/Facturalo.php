@@ -335,7 +335,7 @@ class Facturalo{
             $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
             $p_order           = $this->document->purchase_order != '' ? '10' : '0';
 
-            $total_prepayment = $this->document->total_prepayment != '' ? '10' : '0';
+            $total_prepayment = $this->document->total_prepayment != '' ? '20' : '0';
             $total_discount = $this->document->total_discount != '' ? '10' : '0';
             $was_deducted_prepayment = $this->document->was_deducted_prepayment ? '10' : '0';
 
@@ -571,7 +571,7 @@ class Facturalo{
                 $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
             }
 
-            if (!in_array($base_pdf_template, ['default'])) {
+            if (in_array($base_pdf_template, ['default'])) {
                 $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
             }
 
@@ -822,8 +822,7 @@ class Facturalo{
         $consultCdrService = new ConsultCdrService();
         $consultCdrService->setClient($this->wsClient);
         $consultCdrService->setCodeProvider(new XmlErrorCodeProvider());
-        $res = $consultCdrService->getStatusCdr($this->company->number, $this->document->document_type_id,
-                                                $this->document->series, $this->document->number);
+        $res = $consultCdrService->getStatusCdr($this->company->number, $this->document->document_type_id, $this->document->series, $this->document->number);
 
         if(!$res->isSuccess()) {
             throw new Exception("Code: {$res->getError()->getCode()}; Description: {$res->getError()->getMessage()}");

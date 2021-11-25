@@ -409,7 +409,7 @@ class ItemController extends Controller
                 }
             }
             */
-            /****************************** SECCION PARA SEIRES EN ITEMLOT **********************************************/
+            /****************************** SECCION PARA SERIES EN ITEMLOT **********************************************/
             $establishment = Establishment::where('id', auth()->user()->establishment_id)->first();
             $warehouse = Warehouse::where('establishment_id',$establishment->id)->first();
             $v_lots = isset($request->lots) ? $request->lots:[];

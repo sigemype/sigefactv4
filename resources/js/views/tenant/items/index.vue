@@ -307,40 +307,16 @@
                 </data-table>
             </div>
 
-            <items-form
-                :showDialog.sync="showDialog"
-                :recordId="recordId"
-                :type="type"
-            ></items-form>
-
+            <items-form :showDialog.sync="showDialog" :recordId="recordId" :type="type"></items-form>
             <items-import :showDialog.sync="showImportDialog"></items-import>
             <items-export :showDialog.sync="showExportDialog"></items-export>
-            <items-export-wp
-                :showDialog.sync="showExportWpDialog"
-            ></items-export-wp>
-            <items-export-barcode
-                :showDialog.sync="showExportBarcodeDialog"
-            ></items-export-barcode>
-
-            <warehouses-detail
-                :showDialog.sync="showWarehousesDetail"
-                :warehouses="warehousesDetail"
-                :item_unit_types="item_unit_types"
-            >
-            </warehouses-detail>
-
-            <items-import-list-price
-                :showDialog.sync="showImportListPriceDialog"
-            ></items-import-list-price>
-            <tenant-item-aditional-info-modal
-                :showDialog.sync="showDialogItemStock"
-                :item="recordItem"
-            ></tenant-item-aditional-info-modal>
-            <items-history
-                :showDialog.sync="showDialogHistory"
-                :recordId="recordId"
-            >
-            </items-history>
+            <items-export-wp :showDialog.sync="showExportWpDialog"></items-export-wp>
+            <items-export-barcode :showDialog.sync="showExportBarcodeDialog"></items-export-barcode>
+            <warehouses-detail :showDialog.sync="showWarehousesDetail" :warehouses="warehousesDetail" :item_unit_types="item_unit_types"></warehouses-detail>
+            <items-import-list-price :showDialog.sync="showImportListPriceDialog"></items-import-list-price>
+            <tenant-item-aditional-info-modal :showDialog.sync="showDialogItemStock" :item="recordItem"></tenant-item-aditional-info-modal>
+            <items-history :showDialog.sync="showDialogHistory" :recordId="recordId"></items-history>
+            
         </div>
     </div>
 </template>
@@ -492,19 +468,14 @@ export default {
             return this.can_add_new_product;
         },
         duplicate(id) {
-            this.$http
-                .post(`${this.resource}/duplicate`, { id })
-                .then((response) => {
+            this.$http.post(`${this.resource}/duplicate`, { id }).then((response) => {
                     if (response.data.success) {
-                        this.$message.success(
-                            "Se guardaron los cambios correctamente."
-                        );
+                        this.$message.success("Se guardaron los cambios correctamente.");
                         this.$eventHub.$emit("reloadData");
                     } else {
                         this.$message.error("No se guardaron los cambios");
                     }
-                })
-                .catch((error) => {});
+                }).catch((error) => {});
             this.$eventHub.$emit("reloadData");
         },
         clickWarehouseDetail(warehouses, item_unit_types) {

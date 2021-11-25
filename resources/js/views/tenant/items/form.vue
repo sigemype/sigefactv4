@@ -1003,8 +1003,7 @@ export default {
             })
         },
         async reloadTables() {
-            await this.$http.get(`/${this.resource}/tables`)
-                .then(response => {
+            await this.$http.get(`/${this.resource}/tables`).then(response => {
                     this.unit_types = response.data.unit_types
                     this.accounts = response.data.accounts
                     this.currency_types = response.data.currency_types

@@ -6,8 +6,8 @@
     <link href="{{ $path_style }}" rel="stylesheet" />
 </head>
 <body>
-    @if (in_array($document,['document_type']))
-    @if($document->document_type)
+    @if ($document)
+        @if(in_array($document->document_type->id,['01', '03', '07', '08']))
         <table class="full-width border-box my-2">
             <tr>
                 <td class="text-upp p-2">SON:
@@ -78,9 +78,8 @@
                     {{-- @endif --}}
                 {{-- @endif --}}
             </td>
-            {{-- @if (in_array($document,['document_type'])) --}}
-            @if($document->document_type)
-                @if(in_array($document->document_type->id,['01','03']))
+            @if ($document)
+                @if(in_array($document->document_type->id,['01', '03', '07', '08']))
                     <td class="text-center">
                         {{-- incio qr --}}
                         <img width="15%" src="data:image/png;base64, {{ $document->qr }}" style="margin-right: -10px;" />
