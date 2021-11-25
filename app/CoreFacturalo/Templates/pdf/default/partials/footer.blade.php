@@ -7,7 +7,7 @@
 </head>
 <body>
     @if ($document)
-        @if(in_array($document->document_type->id,['01', '03', '07', '08']))
+        @if(in_array($document->document_type_id,['01', '03', '07', '08']))
         <table class="full-width border-box my-2">
             <tr>
                 <td class="text-upp p-2">SON:
@@ -79,10 +79,10 @@
                 {{-- @endif --}}
             </td>
             @if ($document)
-                @if(in_array($document->document_type->id,['01', '03', '07', '08']))
+                @if(in_array($document->document_type_id,['01', '03', '07', '08']))
                     <td class="text-center">
                         {{-- incio qr --}}
-                        <img width="15%" src="data:image/png;base64, {{ $document->qr }}" style="margin-right: -10px;" />
+                        <img width="15%" src="data:image/png;base64, {{ $document->qr }}" @if ($accounts != "[]") style="margin-right: -10px;" @endif />
                         {{-- fin qr --}}
                     </td>
                 @endif
