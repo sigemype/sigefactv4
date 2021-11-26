@@ -574,7 +574,7 @@ class Facturalo{
                 $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
             }
 
-            if (in_array($base_pdf_template, ['default'])) {
+            if (in_array($base_pdf_template, ['default', 'full_height'])) {
                 $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
             }
 
