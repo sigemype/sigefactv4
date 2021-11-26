@@ -1,5 +1,5 @@
 @php
-    $establishment = $document->establishment;
+    use App\CoreFacturalo\Helpers\Template\TemplateHelper;$establishment = $document->establishment;
     $customer = $document->customer;
     $invoice = $document->invoice;
     $document_base = ($document->note) ? $document->note : null;
@@ -23,6 +23,11 @@
 
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
+
+// Condicion de pago
+    $condition = TemplateHelper::getDocumentPaymentCondition($document);
+	// Pago/Coutas detalladas
+    $paymentDetailed = TemplateHelper::getDetailedPayment($document)
 
 @endphp
 <html>
@@ -154,6 +159,9 @@
                         <td>FECHA VENCIMIENTO: {{$invoice->date_of_due->format('Y-m-d')}}</td>
                     </tr>
                 @endif
+                <tr>
+                    <td>CONDICIÓN DE PAGO: {{$condition}}</td>
+                </tr>
             </table>
         </td>
     </tr>
@@ -236,7 +244,7 @@
             @isset($document->quotation->delivery_date)
                     <td width="120px">F. ENTREGA</td>
                     <td width="8px">:</td>
-                    <td>{{ $document->quotation->delivery_date->format('Y-m-d')}}</td>
+                    <td>{{ $document->quotation->getStringDeliveryDate()}}</td>
             @endisset
         </tr>
 
@@ -534,26 +542,31 @@
         </td>
     </tr>
 </table>
-@if($payments->count())
 
 
-    <table class="full-width">
-        <tr>
-            <td>
-                <strong>PAGOS:</strong>
-            </td>
-        </tr>
-            @php
-                $payment = 0;
-            @endphp
-            @foreach($payments as $row)
+@if(!empty($paymentDetailed))
+    @foreach($paymentDetailed as $detailed)
+        <table class="full-width">
+            <tr>
+                <td>
+                    <strong>{{ isset($paymentDetailed['CUOTA'])?'Cuotas:':'Pagos:' }}</strong>
+                </td>
+            </tr>
+        @foreach($detailed as $row)
                 <tr>
-                    <td>&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                    <td>
+                        &#8226;
+                        {{ $row['description']  }} -
+                        {{ $row['reference']  }}
+                        {{ $row['symbol']  }}
+                        {{ number_format( $row['amount'], 2) }}
+                    </td>
                 </tr>
-            @endforeach
-        </tr>
 
-    </table>
+            @endforeach
+
+        </table>
+    @endforeach
 @endif
 
 @if($document->user)

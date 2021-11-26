@@ -40,7 +40,7 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 ### Manuales de Usuario
 
 [YouTube Tutorial 1 ](https://youtu.be/a-tH1iYFuYM "Clic")[- YouTube Tutorial 2](https://youtu.be/8oAD2NJdNl8 "Clic")<br>
-[YouTube Dar de alta en Sunat](https://www.youtube.com/watch?v=tic_c2SVKdM&t "Clic")<br>
+[YouTube Dar de alta en Sunat](https://youtu.be/tic_c2SVKdM "Clic")<br>
 [Manual de usuario](https://drive.google.com/file/d/1MRYuJczgGjVsrKMGDjnWlELmVeQ8NZt6/view?usp=sharing "Clic")<br>
 [Manual de Tareas Programadas](https://drive.google.com/file/d/1Z35qKjdoY5lMyXhtcUu6D3fjRAw0Je3U/view?usp=sharing "Clic")<br>
 [Manual de Cambio de Entorno](https://drive.google.com/file/d/1gmWB3LXZ2XP57tJWQSuhEjXlHcTPA03V/view?usp=sharing "Clic")<br>

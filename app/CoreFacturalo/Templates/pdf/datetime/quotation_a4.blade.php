@@ -69,7 +69,7 @@
         <td>{{ $customer->number }}</td>
         @if($document->date_of_due)
             <td width="25%">Fecha de vencimiento:</td>
-            <td width="15%">{{ $document->date_of_due->format('Y-m-d') }}</td>
+            <td width="15%">{{ $document->date_of_due }}</td>
         @endif
     </tr>
     @if ($customer->address !== '')

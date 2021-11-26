@@ -93,6 +93,14 @@ if($current_hostname) {
             });
 
             Route::prefix('drivers')->group(function () {
+                /**
+                 * drivers/
+                 * drivers/columns
+                 * drivers/records
+                 * drivers/record/{id}
+                 * drivers/tables
+                 * drivers/{id}
+                */
 
                 Route::get('/', 'DriverController@index')->name('tenant.order_forms.drivers.index');
                 Route::get('columns', 'DriverController@columns');

@@ -1,5 +1,6 @@
 <?php
 namespace Modules\Inventory\Traits;
+use App\Models\Tenant\Configuration;
 use App\Models\Tenant\Dispatch;
 use App\Models\Tenant\Document;
 use App\Models\Tenant\DocumentItem;
@@ -23,13 +24,15 @@ use Modules\Order\Models\OrderNote;
 /**
  * Se debe tener en cuenta este trait para llevar el control de Kardex
  */
-trait InventoryTrait{
+trait InventoryTrait
+{
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function optionsEstablishment(){
+    public function optionsEstablishment()
+    {
         $records = Establishment::all();
-        return collect($records)->transform(function ($row){
+        return collect($records)->transform(function ($row) {
             return [
                 'id' => $row->id,
                 'description' => $row->description
@@ -40,9 +43,10 @@ trait InventoryTrait{
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function optionsItem(){
+    public function optionsItem()
+    {
         $records = Item::where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])->whereNotIsSet()->get();
-        return collect($records)->transform(function ($row){
+        return collect($records)->transform(function ($row) {
             return [
                 'id' => $row->id,
                 'description' => $row->description
@@ -53,11 +57,12 @@ trait InventoryTrait{
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function optionsItemWareHouse(){
+    public function optionsItemWareHouse()
+    {
         $establishment_id = auth()->user()->establishment_id;
         $current_warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
         $records = Item::whereWarehouse()->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])->whereNotIsSet()->get();
-        return collect($records)->transform(function ($row) use ($current_warehouse){
+        return collect($records)->transform(function ($row) use ($current_warehouse) {
             return [
                 'id' => $row->id,
                 'description' => $row->description,
@@ -82,9 +87,11 @@ trait InventoryTrait{
      *
      * @return \Illuminate\Support\Collection
      */
-    public function optionsItemWareHousexId($warehouse_id){
+    public function optionsItemWareHousexId($warehouse_id)
+    {
         //$establishment_id = auth()->user()->establishment_id;
         //$current_warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
+
         $records = Item::query()
             ->with('item_lots', 'warehouses')
             ->whereHas('warehouses', function ($query) use ($warehouse_id) {
@@ -92,26 +99,30 @@ trait InventoryTrait{
             })
             ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])
             ->whereNotIsSet()
-            ->whereIsActive()
             ->get();
-        return collect($records)->transform(function ($row) use ($warehouse_id){
-            return [
-                'id' => $row->id,
-                'description' => $row->description,
-                'lots_enabled' => (bool)$row->lots_enabled,
-                'series_enabled' => (bool)$row->series_enabled,
-                'lots' => $row->item_lots->where('has_sale', false)->where('warehouse_id', $warehouse_id)->transform(function ($row1) {
-                    return [
-                        'id' => $row1->id,
-                        'series' => $row1->series,
-                        'date' => $row1->date,
-                        'item_id' => $row1->item_id,
-                        'warehouse_id' => $row1->warehouse_id,
-                        'has_sale' => (bool)$row1->has_sale,
-                        'lot_code' => ($row1->item_loteable_type) ? (isset($row1->item_loteable->lot_code) ? $row1->item_loteable->lot_code : null) : null
-                    ];
-                })->values(),
+        return collect($records)->transform(function ($row) use ($warehouse_id) {
+            /** @var \App\Models\Tenant\Item $row */
+            $lots = $row->item_lots->where('has_sale', false)->where('warehouse_id', $warehouse_id)->transform(function ($row1) {
+                return [
+                    'id' => $row1->id,
+                    'series' => $row1->series,
+                    'date' => $row1->date,
+                    'item_id' => $row1->item_id,
+                    'warehouse_id' => $row1->warehouse_id,
+                    'has_sale' => (bool)$row1->has_sale,
+                    'lot_code' => ($row1->item_loteable_type) ? (isset($row1->item_loteable->lot_code) ? $row1->item_loteable->lot_code : null) : null
+                ];
+            })->values();
+            $old = [
+                'lots' => $lots,
             ];
+            $data = $row->getDataToItemModal(
+                \App\Models\Tenant\Warehouse::find($warehouse_id),
+                false,
+                true
+
+            );
+            return array_merge($data, $old);
         });
     }
 
@@ -121,10 +132,13 @@ trait InventoryTrait{
      *
      * @return Item[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
      */
-    public function optionsItemFull($search = null, $take = null){
+    public function optionsItemFull($search = null, $take = null)
+    {
         $query = Item::query()
-            ->with('item_lots', 'item_lots.item_loteable', 'lots_group')->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])->whereNotIsSet();
-        if ($search){
+            ->with('item_lots', 'item_lots.item_loteable', 'lots_group')
+            ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])
+            ->whereNotIsSet();
+        if ($search) {
             $query->where('description', 'like', "%{$search}%")
                 ->orWhere('barcode', 'like', "%{$search}%")
                 ->orWhere('internal_id', 'like', "%{$search}%");
@@ -594,4 +608,15 @@ trait InventoryTrait{
             }
         }
     }
+
+    
+    /**
+     *
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection|InventoryTransaction[]
+     */
+    public function allInventoryTransaction()
+    {
+        return InventoryTransaction::get();
+    }
+    
 }

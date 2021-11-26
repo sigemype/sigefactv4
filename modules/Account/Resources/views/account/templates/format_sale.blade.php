@@ -9,6 +9,7 @@
 </style>
 @php
     $col_span = 25;
+    $add_state_type = $params['add_state_type'] === 'true';
 @endphp
 <table>
     <tr>
@@ -60,6 +61,13 @@
             IGV Y/O<br/>IMP.
         </td>
         <td>
+            IMPUESTO AL<br/>
+            CONSUMO DE<br/>
+            LAS<br/>
+            BOLSAS<br/>
+            DE PLÁSTICO
+        </td>
+        <td>
             OTROS<br/>TRIBUTOS
         </td>
         <td>
@@ -97,10 +105,14 @@
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
         <td>FECHA</td>
         <td>TIPO</td>
         <td>SERIE</td>
         <td>Nro.COMP.</td>
+        @if ($add_state_type)
+            <td>ESTADO</td>
+        @endif
     </tr>
     @foreach($records as $row)
         <tr>
@@ -159,9 +171,10 @@
             <td>{{ $total_exonerated }}</td>
             <td>{{ $total_unaffected  }}</td>
             {{-- Aqui deberia ir $total_isc --}}
-            <td>{{ $total_plastic_bag_taxes }} </td>
+            <td>{{ $total_isc }} </td>
             <td></td>
             <td>{{ $total_igv }}</td>
+            <td>{{ $total_plastic_bag_taxes }}</td>
             <td></td>
             <td>{{ $total }}</td>
 
@@ -178,6 +191,11 @@
                 <td></td>
                 <td></td>
             @endif
+
+            @if ($add_state_type)
+                <td>{{ $row['state_type_description'] }}</td>
+            @endif
+
         </tr>
     @endforeach
 </table>

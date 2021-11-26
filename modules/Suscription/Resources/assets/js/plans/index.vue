@@ -42,10 +42,10 @@
                         <th class="text-center">
                             Cant. Veces
                         </th>
-                        <th class="text-center">
+                        <th class="text-left">
                             Nombre
                         </th>
-                        <th class="text-center">
+                        <th class="text-left">
                             Descripción
                         </th>
                         <!--
@@ -84,16 +84,17 @@
                                 class="btn waves-effect waves-light btn-xs btn-info"
                                 type="button"
                                 @click.prevent="clickShowPlan(row)">
-                                Editar
+                                Ver
                             </button>
-                            <!--
+
                             <button
+                                v-if="!row.hasSuscription"
                                 class="btn waves-effect waves-light btn-xs btn-danger"
                                 type="button"
                                 @click.prevent="clickDelete(row.id)">
                                 Eliminar
                             </button>
-                            -->
+
                         </td>
                     </tr>
                 </data-table>
@@ -154,7 +155,10 @@ export default {
 
         this.$store.commit('setConfiguration', this.configuration)
         this.$store.commit('setResource', 'plans')
-        this.$store.commit('setFormData', {})
+        this.$store.commit('setFormData', {
+            periods: 'M',
+            quantity_period: 12,
+        })
         this.searchExchangeRateByDate(this.date).then(response => {
             this.$store.commit('setExchangeRate', response)
             // this.form.exchange_rate_sale = this.exchange_rate
@@ -185,14 +189,17 @@ export default {
 
         clickShowPlan(row) {
             this.clearFormData();
+            if (row === undefined) row = {};
+            if(row.quantity_period === undefined) row.quantity_period = 12;
+            if(row.periods === undefined) row.periods = 'M';
+
             this.$store.commit('setFormData', row)
             this.showDialog = true
 
         },
 
         clickDelete(id) {
-            console.log('no debe hacer nada')
-            this.destroy(`/${this.resource}/${id}`).then(() =>
+            this.destroy(`/suscription/${this.resource}/${id}`).then(() =>
                 this.$eventHub.$emit('reloadData')
             )
         }

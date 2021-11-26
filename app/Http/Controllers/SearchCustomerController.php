@@ -114,23 +114,56 @@
             $person = Person::query();
             $person->with('addresses');
 
-            if (
-                $request !== null &&
-                $request->has('document_type_id') &&
-                $request->has('operation_type_id')
-            ) {
-                $identity_document_type_id = self::getIdentityDocumentTypeId($request->document_type_id, $request->operation_type_id);
-            }
-            if (
-                $request !== null &&
-                $request->has('input')
-            ) {
-                $person->where('number', 'like', "%{$request->input}%")
-                    ->orWhere('name', 'like', "%{$request->input}%");
-                if ($identity_document_type_id != null) {
-                    $person->whereIn('identity_document_type_id', $identity_document_type_id);
+            if( $request !== null){
+                if (
+                    $request->has('document_type_id') &&
+                    $request->has('operation_type_id')
+                ) {
+                    $identity_document_type_id = self::getIdentityDocumentTypeId($request->document_type_id, $request->operation_type_id);
                 }
+
+                if (
+                    $request->has('type') &&
+                    !empty($request->has('type') )
+                ) {
+                    $typeCustomer = $request->type;
+                    $person->where(function( \Illuminate\Database\Eloquent\Builder  $q) use ($typeCustomer){
+                         if($typeCustomer == 'children'){
+                             //Busca solo hijos, que tienen padre diferente a 0
+                             $q->where('parent_id', '>', "0");
+                         }elseif ($typeCustomer == 'parent'){
+                             //Busca solo padres, que tienen padre igual a 0
+                             $q->where('parent_id',  "0");
+                         }
+                    });
+
+                }
+
+                if (
+                    $request->has('input')&&
+                    !empty($request->has('input') )
+                ) {
+                    $input = $request->input;
+                    $person->where(function( \Illuminate\Database\Eloquent\Builder  $q) use ($input) {
+                        $q->where('number', 'like', "%$input%")
+                            ->orWhere('name', 'like', "%$input%");
+                    });
+
+                    if ($identity_document_type_id != null) {
+                        $person->whereIn('identity_document_type_id', $identity_document_type_id);
+                    }
+                }
+            }else{
+                // Buscará solo padres por defecto
+                $person->where('parent_id',  "0");
+
             }
+            /*
+            dd([
+                $person->toSql(),
+            ]);
+            */
+
             if ($id != 0) {
                 $person->where('id', $id);
             }
@@ -152,10 +185,11 @@
         /**
          * @param \Illuminate\Http\Request|null $request
          * @param int|null                      $id
+         * @param bool                      $onlyParent
          *
          * @return \App\Models\Tenant\Person|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
          */
-        public static function getCustomersToSuscriptionList(Request $request = null, ?int $id = 0){
+        public static function getCustomersToSuscriptionList(Request $request = null, ?int $id = 0, $onlyParent = false){
             $person = Person::query();
             $person->with('addresses');
             $orderColum = 'name';
@@ -180,6 +214,9 @@
                 $person = Person::whereIn('id',$person->get()->pluck('id'));
             }
 
+            if($onlyParent == true && $id == 0){
+                $person->where('parent_id',0);
+            }
             return $person
                 ->whereType('customers')
                 ->whereIsEnabled()

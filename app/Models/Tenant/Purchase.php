@@ -111,7 +111,8 @@ class Purchase extends ModelTenant
         'date_of_due',
         'purchase_order_id',
         'customer_id',
-        'total_canceled'
+        'total_canceled',
+        'payment_condition_id',
     ];
 
     protected $casts = [
@@ -299,6 +300,14 @@ class Purchase extends ModelTenant
     {
         return $this->hasMany(PurchaseItem::class);
     }
+    
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payment_condition()
+    {
+        return $this->belongsTo(GeneralPaymentCondition::class, 'payment_condition_id');
+    }
 
     /**
      * @return string
@@ -390,6 +399,14 @@ class Purchase extends ModelTenant
      */
     public function customer() {
         return $this->belongsTo(Person::class, 'customer_id');
+    }
+    
+    /**
+     * @return HasMany
+     */
+    public function fee()
+    {
+        return $this->hasMany(PurchaseFee::class);
     }
 
     /**

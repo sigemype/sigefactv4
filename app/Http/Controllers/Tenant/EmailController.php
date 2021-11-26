@@ -10,7 +10,8 @@
     use Log;
     use Swift_RfcComplianceException;
 
-    class EmailController extends Controller{
+    class EmailController extends Controller
+    {
         /** @var string|null */
         protected $error;
         /** @var string|null */
@@ -33,7 +34,8 @@
         /**
          * EmailController constructor.
          */
-        public function __construct(){
+        public function __construct()
+        {
             $this->id = 0;
             $this->email = null;
             $this->type = null;
@@ -53,12 +55,14 @@
          *
          * @return bool
          */
-        public static function SendMail($email, $mailable, $id = 0, $type = null): bool{
+        public static function SendMail($email, $mailable, $id = 0, $type = null): bool
+        {
             $sendit = new self();
             $mail = explode(';', str_replace([',', ' '], [';', ''], $email));
             $mails = [];
-            $sendit->setType($type)->setId($id);
-
+            $sendit
+                ->setType($type)
+                ->setId($id);
             if (!empty($mail) && count($mail) > 0) {
                 foreach ($mail as $email) {
                     $email = trim($email);
@@ -67,9 +71,13 @@
                     }
                 }
                 $email= implode(';',$mails);
-            }
 
-            $sendit->setArrayEmail(explode(';',$email))->SendAMail($mailable);
+            }
+            $sendit
+                ->setArrayEmail(explode(';',$email))
+                // ->setEmail(str_replace([';', '  '], [', ', ' '], $email))
+                ->SendAMail($mailable);
+
 
             return true;
         }
@@ -79,7 +87,8 @@
          *
          * @return bool
          */
-        protected function SendAMail($mailable){
+        protected function SendAMail($mailable)
+        {
             Configuration::setConfigSmtpMail();
             $ret = true;
             try {
@@ -110,14 +119,16 @@
         /**
          * @return string|null
          */
-        public function getEmail(): ?string{
+        public function getEmail(): ?string
+        {
             return $this->email;
         }
 
         /**
          * @return array
          */
-        public function getArrayEmail(): ?array{
+        public function getArrayEmail(): ?array
+        {
             return $this->arrayEmail;
         }
 
@@ -126,7 +137,8 @@
          *
          * @return EmailController
          */
-        public function setEmail(?string $email): EmailController{
+        public function setEmail(?string $email): EmailController
+        {
             $this->email = $email;
             return $this;
         }
@@ -135,7 +147,8 @@
          *
          * @return EmailController
          */
-        public function setArrayEmail( $email = []): EmailController{
+        public function setArrayEmail( $email = []): EmailController
+        {
             $this->arrayEmail = $email;
             return $this;
         }
@@ -145,7 +158,9 @@
          *
          * @return $this
          */
-        public function saveModel($sendit = false){
+        public function saveModel($sendit = false)
+        {
+
 
             $e = new EmailSendLog();
             $e->setRelationId($this->getId());
@@ -155,6 +170,7 @@
                     ->setEmail(implode(',',$this->getArrayEmail()))
                     ->setSendit((bool)$sendit)
                     ->push();
+
 
             } else {
                 // No guardar eventos no mapeados
@@ -167,6 +183,7 @@
                 */
             }
 
+
             return $this;
 
         }
@@ -174,7 +191,8 @@
         /**
          * @return int|null
          */
-        public function getId(): ?int{
+        public function getId(): ?int
+        {
             return (int)$this->id;
         }
 
@@ -183,7 +201,8 @@
          *
          * @return EmailController
          */
-        public function setId(?int $id): EmailController{
+        public function setId(?int $id): EmailController
+        {
             $this->id = (int)$id;
             return $this;
         }
@@ -191,7 +210,8 @@
         /**
          * @return object|null
          */
-        public function getType(){
+        public function getType()
+        {
             return $this->type;
             /*
             $class = $this->type;
@@ -211,7 +231,8 @@
          *
          * @return EmailController
          */
-        public function setType($type){
+        public function setType($type)
+        {
             if (is_numeric($type)) {
                 $this->type = $type;
             } else {
@@ -220,7 +241,8 @@
             return $this;
         }
 
-        public function saveError(){
+        public function saveError()
+        {
             Log::channel('emails')->error(
                 "Codigo : " . $this->getErrorCode() . "\n" .
                 "Mensaje : " . $this->getError() . "\n" .
@@ -232,7 +254,8 @@
         /**
          * @return int|null
          */
-        public function getErrorCode(): ?int{
+        public function getErrorCode(): ?int
+        {
             return $this->error_code;
         }
 
@@ -241,7 +264,8 @@
          *
          * @return EmailController
          */
-        public function setErrorCode(?int $error_code): EmailController{
+        public function setErrorCode(?int $error_code): EmailController
+        {
             $this->error_code = $error_code;
             return $this;
         }
@@ -249,7 +273,8 @@
         /**
          * @return string|null
          */
-        public function getError(): ?string{
+        public function getError(): ?string
+        {
             return $this->error;
         }
 
@@ -258,7 +283,8 @@
          *
          * @return EmailController
          */
-        public function setError(?string $error): EmailController{
+        public function setError(?string $error): EmailController
+        {
             $this->error = $error;
             return $this;
         }
@@ -266,7 +292,8 @@
         /**
          * @return int|null
          */
-        public function getLine(): ?int{
+        public function getLine(): ?int
+        {
             return $this->line;
         }
 
@@ -275,7 +302,8 @@
          *
          * @return EmailController
          */
-        public function setLine(?int $line): EmailController{
+        public function setLine(?int $line): EmailController
+        {
             $this->line = $line;
             return $this;
         }
@@ -283,7 +311,8 @@
         /**
          * @return bool|null
          */
-        public function getHasEror(): ?bool{
+        public function getHasEror(): ?bool
+        {
             return (bool)$this->hasEror;
         }
 
@@ -292,7 +321,8 @@
          *
          * @return EmailController
          */
-        public function setHasEror(?bool $hasEror): EmailController{
+        public function setHasEror(?bool $hasEror): EmailController
+        {
             $this->hasEror = (bool)$hasEror;
             return $this;
         }
@@ -300,7 +330,8 @@
         /**
          * @return string|null
          */
-        public function getFileLine(): ?string{
+        public function getFileLine(): ?string
+        {
             return $this->file_line;
         }
 
@@ -309,7 +340,8 @@
          *
          * @return EmailController
          */
-        public function setFileLine(?string $file_line): EmailController{
+        public function setFileLine(?string $file_line): EmailController
+        {
             $this->file_line = $file_line;
             return $this;
         }

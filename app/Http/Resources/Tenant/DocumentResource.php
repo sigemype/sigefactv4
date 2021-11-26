@@ -7,14 +7,16 @@ use App\Models\Tenant\Person;
 use App\Models\Tenant\SaleNote;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DocumentResource extends JsonResource{
+class DocumentResource extends JsonResource
+{
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request
      * @return array
      */
-    public function toArray($request){
+    public function toArray($request)
+    {
 
         $response_message = null;
         $response_type = null;

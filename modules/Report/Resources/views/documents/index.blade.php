@@ -3,7 +3,7 @@
 @section('content')
 
     <tenant-report-documents-index
-        :configuration='@json($configuration)'
+        :configuraton="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
     ></tenant-report-documents-index>
 
 @endsection

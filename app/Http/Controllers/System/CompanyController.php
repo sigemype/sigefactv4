@@ -7,25 +7,33 @@ use App\Models\System\Configuration;
 use App\Http\Requests\System\CompanyRequest;
 
 
-class CompanyController extends Controller{
 
-    public function create(){
+
+class CompanyController extends Controller
+{
+    public function create()
+    {
         return view('tenant.companies.form');
     }
 
-    public function tables(){
+    public function tables()
+    {
         $soap_sends = config('tables.system.soap_sends');
         $soap_types = SoapType::all();
+
+
         return compact('soap_types', 'soap_sends');
     }
 
-    public function record(){
+    public function record()
+    {
         $configuration = Configuration::first();
         $record = new CompanyResource($configuration);
         return $record;
     }
 
-    public function store(CompanyRequest $request){
+    public function store(CompanyRequest $request)
+    {
        // $id = $request->input('id');
         $company = Configuration::first();
         $company->fill($request->all());
@@ -37,13 +45,18 @@ class CompanyController extends Controller{
         ];
     }
 
-    public function uploadFile(Request $request){
+    public function uploadFile(Request $request)
+    {
         if ($request->hasFile('file')) {
+
             $company = Company::active();
+
             $type = $request->input('type');
+
             $file = $request->file('file');
             $ext = $file->getClientOriginalExtension();
             $name = $type.'_'.$company->number.'.'.$ext;
+
 
             if (($type === 'logo')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
 
@@ -52,6 +65,7 @@ class CompanyController extends Controller{
             if (($type === 'logo_store')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
 
             $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
+
 
             $company->$type = $name;
 

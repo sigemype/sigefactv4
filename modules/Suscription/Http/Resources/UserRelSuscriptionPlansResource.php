@@ -23,7 +23,7 @@
          */
         public function toArray($request)
         {
-            return $this->getCollectionData();
+            return $this->getCollectionData(true);
 
         }
     }

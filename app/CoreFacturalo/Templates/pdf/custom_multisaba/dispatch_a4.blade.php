@@ -7,7 +7,7 @@
     $document_type_driver = App\Models\Tenant\Catalogs\IdentityDocumentType::findOrFail($document->driver->identity_document_type_id);
     $document_type_dispatcher = App\Models\Tenant\Catalogs\IdentityDocumentType::findOrFail($document->dispatcher->identity_document_type_id);
 
-    $allowed_items = 90;
+    $allowed_items = 80;
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 5);
     $total_weight = 0;
@@ -23,6 +23,9 @@
     {{--<link href="{{ $path_style }}" rel="stylesheet" />--}}
 </head>
 <body>
+<div class="item_watermark" style="position: absolute; text-align: center; top:46%;">
+    <img style="width: 100%" height="200px" src="data:{{mime_content_type($marca_agua)}};base64, {{base64_encode(file_get_contents($marca_agua))}}" alt="anulado" class="" style="opacity: 0.1;width: 95%">
+</div>
 <table class="full-width">
     <tr>
         @if($company->logo)

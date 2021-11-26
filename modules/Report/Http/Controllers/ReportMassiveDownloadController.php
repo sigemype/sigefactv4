@@ -19,25 +19,31 @@ use App\Models\Tenant\{
 use Carbon\Carbon;
 use Modules\Report\Traits\MassiveDownloadTrait;
 
-class ReportMassiveDownloadController extends Controller{
+class ReportMassiveDownloadController extends Controller
+{
 
     use ReportTrait, MassiveDownloadTrait;
 
-    public function index(){
+    public function index()
+    {
         return view('report::massive-downloads.index');
     }
 
-    public function filter(){
+
+    public function filter() {
 
         $document_types = DocumentType::whereIn('id', ['01', '03','80', '09'])->get();
         $sellers = $this->getSellers();
         $series = $this->getSeries($document_types);
+
         $persons = $this->getPersons('customers');
 
         return compact('document_types','persons','sellers','series');
     }
 
-    public function records(Request $request){
+
+    public function records(Request $request)
+    {
 
         $params = json_decode($request->form);
         $document_types = $params->document_types;
@@ -49,20 +55,23 @@ class ReportMassiveDownloadController extends Controller{
         return [
             'total' => $this->getTotals($document_types, $params)
         ];
+
     }
 
 
-    public function pdf(Request $request){
+    public function pdf(Request $request) {
+
 
         $array = json_decode($request->form,true);
         $params = json_decode($request->form);
+
         $document_types = $params->document_types;
 
         if(count($document_types) == 0){
             $document_types = ['all'];
         }
-
         $height = isset($array['height'])?$array['height']:'a4';
+
         $data = $this->getData($document_types, $params);
         $view =  $this->createPdf($data,$height,$array);
 

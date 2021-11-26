@@ -156,3 +156,93 @@ export const serviceNumber = {
         }
     }
 };
+
+// Funciones para payments - fee
+// Usado en:
+// purchases
+export const fnPaymentsFee = {
+    data() {
+        return { 
+        }
+    },
+    methods: { 
+        initDataPaymentCondition(){
+
+            this.readonly_date_of_due = false
+            this.form.date_of_due = this.form.date_of_issue
+
+        },
+        calculatePayments() {
+            let payment_count = this.form.payments.length
+            let total = this.form.total
+
+            let payment = 0
+            let amount = _.round(total / payment_count, 2)
+
+            _.forEach(this.form.payments, row => {
+                payment += amount
+                if (total - payment < 0) {
+                    amount = _.round(total - payment + amount, 2)
+                }
+                row.payment = amount
+            })
+        },
+        clickAddFee() {
+
+            this.form.date_of_due = moment().format('YYYY-MM-DD');
+            this.form.fee.push({
+                id: null,
+                date: moment().format('YYYY-MM-DD'),
+                currency_type_id: this.form.currency_type_id,
+                amount: 0,
+            });
+            this.calculateFee()
+
+        },
+        clickAddFeeNew() {
+
+            let firstCreditPayment = null
+
+            if (this.creditPaymentMethod.length > 0) {
+                firstCreditPayment = this.creditPaymentMethod[0]
+            }
+
+            let date = moment(this.form.date_of_issue).add(firstCreditPayment.number_days, 'days').format('YYYY-MM-DD')
+
+            this.form.date_of_due = date
+
+            this.form.fee.push({
+                id: null,
+                purchase_id: null,
+                payment_method_type_id: firstCreditPayment.id,
+                date: date,
+                currency_type_id: this.form.currency_type_id,
+                amount: 0,
+            })
+
+            this.calculateFee()
+
+        },
+        calculateFee() {
+
+            let fee_count = this.form.fee.length
+            let total = this.form.total
+
+            let accumulated = 0
+            let amount = _.round(total / fee_count, 2)
+            _.forEach(this.form.fee, row => {
+                accumulated += amount
+                if (total - accumulated < 0) {
+                    amount = _.round(total - accumulated + amount, 2)
+                }
+                row.amount = amount
+            })
+
+        },
+        clickRemoveFee(index) {
+            this.form.fee.splice(index, 1)
+            this.calculateFee()
+        },
+    }
+};
+

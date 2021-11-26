@@ -506,10 +506,10 @@
         {
 
             $records = $payment_method_types->map(function ($row) {
-
+                /** @var \App\Models\Tenant\PaymentMethodType $row */
                 $document_payment = $this->getSumByPMT($row->document_payments, true);
                 $sale_note_payment = $this->getSumByPMT($row->sale_note_payments);
-                $purchase_payment = $this->getSumByPMT($row->purchase_payments);
+                $purchase_payment = $this->getSumByPMT($row->purchase_payments) ;
                 $quotation_payment = $this->getSumByPMT($row->quotation_payments);
                 $contract_payment = $this->getSumByPMT($row->contract_payments);
                 // $contract_payment = 0; //$this->getSumByPMT($row->contract_payments);
@@ -517,7 +517,7 @@
                 $income_payment = $this->getSumByPMT($row->income_payments) + $cash_transaction;
                 $technical_service_payment = $this->getSumByPMT($row->technical_service_payments);
                 $balance = $sale_note_payment +
-                    $document_payment +
+                    $document_payment -
                     $purchase_payment +
                     $quotation_payment +
                     $contract_payment +
@@ -532,7 +532,7 @@
                     'sale_note_payment' => self::FormatNumber($sale_note_payment),
 
                     'document_payment' => self::FormatNumber($document_payment),
-                    'purchase_payment' => self::FormatNumber($purchase_payment),
+                    'purchase_payment' => self::FormatNumber($purchase_payment ),
                     'quotation_payment' => self::FormatNumber($quotation_payment),
                     'contract_payment' => self::FormatNumber($contract_payment),
                     'income_payment' => self::FormatNumber($income_payment),
@@ -620,7 +620,7 @@
             $t_sale_notes = $records_by_pmt->sum('sale_note_payment');
             $t_quotations = $records_by_pmt->sum('quotation_payment');
             $t_contracts = $records_by_pmt->sum('contract_payment');
-            $t_purchases = $records_by_pmt->sum('purchase_payment');
+            $t_purchases = $records_by_pmt->sum('purchase_payment') ;
             $t_income = $records_by_pmt->sum('income_payment');
             $t_technical_services = $records_by_pmt->sum('technical_service_payment');
             $t_balance = $records_by_pmt->sum('balance') - $records_by_emt->sum('balance');

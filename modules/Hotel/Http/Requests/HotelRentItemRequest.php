@@ -14,8 +14,8 @@ class HotelRentItemRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'products'                  => 'required|array',
-			'products.*.payment_status' => 'required|in:PAID,DEBT',
+			// 'products'                  => 'required|array',
+			// 'products.*.payment_status' => 'required|in:PAID,DEBT',
 		];
 	}
 }

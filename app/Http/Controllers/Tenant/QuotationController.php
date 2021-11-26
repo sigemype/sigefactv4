@@ -202,7 +202,8 @@ class QuotationController extends Controller
         $establishment = Establishment::where('id', auth()->user()->establishment_id)->first();
         $series = Series::where('establishment_id',$establishment->id)->get();
         $document_types_invoice = DocumentType::whereIn('id', ['01', '03'])->get();
-        $payment_method_types = PaymentMethodType::all();
+        // $payment_method_types = PaymentMethodType::all();
+        $payment_method_types =PaymentMethodType::getPaymentMethodTypes();
         $payment_destinations = $this->getPaymentDestinations();
         // $sellers = User::GetSellers(true)->get();
         $sellers = User::where('establishment_id', auth()->user()->establishment_id)->whereIn('type', ['seller', 'admin'])->orWhere('id', auth()->user()->id)->get();
@@ -783,7 +784,7 @@ class QuotationController extends Controller
             //$html_footer = $template->pdfFooter();
             //$pdf->SetHTMLFooter($html_footer);
         }
-        
+
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         $this->uploadFile($filename, $pdf->output('', 'S'), 'quotation');

@@ -16,7 +16,6 @@
                     </li>
                 </ul>
             </nav>
-
             <nav id="menu" class="nav-main" role="navigation">
                 <ul class="nav nav-main">
                     <li class="{{ ($path[0] === 'plans')?'nav-active':'' }}">

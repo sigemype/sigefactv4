@@ -30,11 +30,18 @@ class CommissionExport implements  FromView, ShouldAutoSize
         return $this;
     }
     
+    public function request($request) {
+        $this->request = $request;
+        
+        return $this;
+    }
+
     public function view(): View {
         return view('report::commissions.report_excel', [
             'records'=> $this->records,
             'company' => $this->company,
-            'establishment'=>$this->establishment
+            'establishment'=>$this->establishment,
+            'request'=>$this->request
         ]);
     }
 }

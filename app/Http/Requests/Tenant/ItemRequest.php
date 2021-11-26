@@ -75,7 +75,16 @@ class ItemRequest extends FormRequest
             // 'brand_id' => [
             //     'required_if:is_set,false',
             // ],
-            'model' => 'max:100'
+            'model' => 'max:100',
+            
+            'system_isc_type_id' => [
+                'required_if:has_isc, 1',
+            ],
+            'percentage_isc' => [
+                'required_if:has_isc, 1',
+                'numeric',
+                'min:0',
+            ],
 
         ];
     }

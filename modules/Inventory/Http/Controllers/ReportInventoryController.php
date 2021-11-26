@@ -102,6 +102,8 @@ class ReportInventoryController extends Controller
                     'sale_unit_price' => $item->sale_unit_price,
                     'purchase_unit_price' => $item->purchase_unit_price,
                     'profit'=>number_format($item->sale_unit_price-$item->purchase_unit_price,2,'.',''),
+                    'model' => $item->model,
+                    'brand' => optional($item->brand),
                     'brand_name' => $item->brand->name,
                     'date_of_due' => optional($item->date_of_due)->format('d/m/Y'),
                     'warehouse_name' => $row->warehouse->description

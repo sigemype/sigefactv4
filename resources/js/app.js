@@ -299,6 +299,8 @@ Vue.component('system-plans-form', require('./views/system/plans/form.vue'));
 Vue.component('x-input-service', require('../../modules/ApiPeruDev/Resources/assets/js/components/InputService.vue')); // apiperu - porque cambiar el input si tiene el mismo contenido?
 // Vue.component('x-input-service', require('./components/InputService.vue'));
 
+
+
 Vue.component('tenant-items-ecommerce-index', require('./views/tenant/items_ecommerce/index.vue'));
 Vue.component('tenant-ecommerce-cart', require('./views/tenant/ecommerce/cart_dropdown.vue'));
 Vue.component('tenant-tags-index', require('./views/tenant/tags/index.vue'));
@@ -345,6 +347,8 @@ Vue.component('tenant-digemid-index', require('../../modules/Digemid/Resources/a
 Vue.component('tenant-suscription-client-index', require('../../modules/Suscription/Resources/assets/js/clients/index.vue'));
 Vue.component('tenant-suscription-plans-index', require('../../modules/Suscription/Resources/assets/js/plans/index.vue'));
 Vue.component('tenant-suscription-payments-index', require('../../modules/Suscription/Resources/assets/js/payments/index.vue'));
+Vue.component('data-table-payment-receipt', require('../js/components/DataTablePaymentReceipt.vue') );
+Vue.component('tenant-index-payment-receipt', require('../../modules/Suscription/Resources/assets/js/payment_receipt/index.vue') );
 
 import moment from 'moment';
 

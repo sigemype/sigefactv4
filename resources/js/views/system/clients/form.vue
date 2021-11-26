@@ -1,10 +1,19 @@
 <template>
-    <el-dialog :close-on-click-modal="false" :title="titleDialog" :visible="showDialog" @close="close" @open="create">
-        <form autocomplete="off" @submit.prevent="submit">
+    <el-dialog
+        :close-on-click-modal="false"
+        :title="titleDialog"
+        :visible="showDialog"
+        @close="close"
+        @open="create">
+        <form
+            autocomplete="off"
+            @submit.prevent="submit">
             <div class="form-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group" :class="{'has-danger': errors.number}">
+                        <div
+                            :class="{'has-danger': errors.number}"
+                            class="form-group">
                             <label class="control-label">RUC</label>
                             <!-- <el-input :disabled="form.is_update" v-model="form.number" :maxlength="11" dusk="number">
                                 <el-button :disabled="form.is_update" type="primary" slot="append" :loading="loading_search" icon="el-icon-search" @click.prevent="searchSunat">
@@ -13,88 +22,210 @@
                             </el-input> -->
 
                             <!-- apiperu -->
-                            <x-input-service v-model="form.number" :identity_document_type_id="form.identity_document_type_id" @search="searchNumber"></x-input-service>
+                            <x-input-service v-model="form.number"
+                                             :identity_document_type_id="form.identity_document_type_id"
+                                             @search="searchNumber"></x-input-service>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div :class="{'has-danger': errors.name}" class="form-group">
+                        <div :class="{'has-danger': errors.name}"
+                             class="form-group">
                             <label class="control-label">Nombre de la Empresa</label>
-                            <el-input v-model="form.name" :disabled="form.is_update" dusk="name"></el-input>
-                            <small v-if="errors.name" class="form-control-feedback" v-text="errors.name[0]"></small>
+                            <el-input
+                                v-model="form.name"
+                                :disabled="form.is_update"
+                                dusk="name">
+                            </el-input>
+                            <small
+                                v-if="errors.name"
+                                class="form-control-feedback"
+                                v-text="errors.name[0]">
+                            </small>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <div v-if="form.is_update" :class="{'has-danger': (errors.subdomain || errors.uuid)}" class="form-group">
-                            <label class="control-label">Nombre de Subdominio</label>
-                            <el-input v-model="form.hostname" :disabled="form.is_update" dusk="name"></el-input>
+                        <div v-if="form.is_update"
+                             :class="{'has-danger': (errors.subdomain || errors.uuid)}"
+                             class="form-group">
+                            <label class="control-label">
+                                Nombre de Subdominio
+                            </label>
+                            <el-input
+                                v-model="form.hostname"
+                                :disabled="form.is_update"
+                                dusk="name">
+                            </el-input>
                         </div>
-                        <div v-else :class="{'has-danger': (errors.subdomain || errors.uuid)}" class="form-group">
-                            <label class="control-label">Nombre de Subdominio</label>
-                            <el-input v-model="form.subdomain" dusk="subdomain">
+                        <div v-else
+                             :class="{'has-danger': (errors.subdomain || errors.uuid)}"
+                             class="form-group">
+                            <label class="control-label">
+                                Nombre de Subdominio
+                            </label>
+                            <el-input
+                                v-model="form.subdomain"
+                                dusk="subdomain">
                                 <template slot="append">{{ url_base }}</template>
                             </el-input>
-                            <small v-if="errors.subdomain" class="form-control-feedback" v-text="errors.subdomain[0]"></small>
-                            <small v-if="errors.uuid" class="form-control-feedback" v-text="errors.uuid[0]"></small>
+                            <small
+                                v-if="errors.subdomain"
+                                class="form-control-feedback"
+                                v-text="errors.subdomain[0]">
+                            </small>
+                            <small
+                                v-if="errors.uuid"
+                                class="form-control-feedback"
+                                v-text="errors.uuid[0]">
+                            </small>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div :class="{'has-danger': errors.email}" class="form-group">
-                            <label class="control-label">Correo de Acceso </label>
-                            <el-input v-model="form.email" :disabled="form.is_update" dusk="email"></el-input>
-                            <small v-if="errors.email" class="form-control-feedback" v-text="errors.email[0]"> </small>
+                        <div :class="{'has-danger': errors.email}"
+                             class="form-group">
+                            <label class="control-label">
+                                Correo de Acceso
+                            </label>
+                            <el-input
+                                v-model="form.email"
+                                :disabled="form.is_update"
+                                dusk="email">
+                            </el-input>
+                            <small
+                                v-if="errors.email"
+                                class="form-control-feedback"
+                                v-text="errors.email[0]">
+                            </small>
                         </div>
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div v-if="!form.is_update" class="col-md-6">
-                        <div :class="{'has-danger': (errors.password)}" class="form-group">
-                            <label class="control-label">Contraseña </label>
-                            <el-input v-model="form.password" :disabled="form.is_update" dusk="password" type="password"></el-input>
-                            <small v-if="errors.password" class="form-control-feedback" v-text="errors.password[0]"></small>
+                    <div v-if="!form.is_update"
+                         class="col-md-6">
+                        <div :class="{'has-danger': (errors.password)}"
+                             class="form-group">
+                            <label class="control-label">
+                                Contraseña
+                            </label>
+                            <el-input
+                                v-model="form.password"
+                                :disabled="form.is_update"
+                                dusk="password"
+                                type="password">
+                            </el-input>
+                            <small
+                                v-if="errors.password"
+                                class="form-control-feedback"
+                                v-text="errors.password[0]">
+                            </small>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div :class="{'has-danger': errors.plan_id}" class="form-group">
-                            <label class="control-label">Plan</label>
-                            <el-select v-model="form.plan_id" dusk="plan_id">
-                                <el-option v-for="option in plans" :key="option.id" :label="option.name" :value="option.id"></el-option>
+                        <div :class="{'has-danger': errors.plan_id}"
+                             class="form-group">
+                            <label class="control-label">
+                                Plan
+                            </label>
+                            <el-select
+                                v-model="form.plan_id"
+                                dusk="plan_id">
+                                <el-option
+                                    v-for="option in plans"
+                                    :key="option.id"
+                                    :label="option.name"
+                                    :value="option.id">
+                                </el-option>
                             </el-select>
-                            <small v-if="errors.plan_id" class="form-control-feedback" v-text="errors.plan_id[0]"></small>
+                            <small
+                                v-if="errors.plan_id"
+                                class="form-control-feedback"
+                                v-text="errors.plan_id[0]">
+                            </small>
                         </div>
                     </div>
 
-                    <div v-if="!form.is_update" class="col-md-6">
-                        <div :class="{'has-danger': errors.type}" class="form-group">
-                            <label class="control-label">Perfil</label>
-                            <el-select v-model="form.type" :disabled="form.is_update">
-                                <el-option v-for="option in types" :key="option.type" :label="option.description" :value="option.type"></el-option>
+                    <div v-if="!form.is_update"
+                         class="col-md-6">
+                        <div :class="{'has-danger': errors.type}"
+                             class="form-group">
+                            <label class="control-label">
+                                Perfil
+                            </label>
+                            <el-select
+                                v-model="form.type"
+                                :disabled="form.is_update">
+                                <el-option
+                                    v-for="option in types"
+                                    :key="option.type"
+                                    :label="option.description"
+                                    :value="option.type">
+                                </el-option>
                             </el-select>
-                            <small v-if="errors.type" class="form-control-feedback" v-text="errors.type[0]"></small>
+                            <small
+                                v-if="errors.type"
+                                class="form-control-feedback"
+                                v-text="errors.type[0]">
+                            </small>
                         </div>
                     </div>
                     <div class="col-md-6 center-el-checkbox mt-4">
-                        <div :class="{'has-danger': errors.locked_emission}" class="form-group">
-                            <el-checkbox v-model="form.locked_emission" :disabled="form.is_update">                                Limitar emisión de documentos                            </el-checkbox>
+                        <div :class="{'has-danger': errors.locked_emission}"
+                             class="form-group">
+                            <el-checkbox
+                                v-model="form.locked_emission"
+                                :disabled="form.is_update">
+                                Limitar emisión de documentos
+                            </el-checkbox>
                             <br>
-                            <small v-if="errors.locked_emission" class="form-control-feedback" v-text="errors.locked_emission[0]"></small>
+                            <small
+                                v-if="errors.locked_emission"
+                                class="form-control-feedback"
+                                v-text="errors.locked_emission[0]">
+                            </small>
                         </div>
                     </div>
                 </div>
-                <el-collapse v-model="collapse">
-                    <el-collapse-item name="1" title="Módulos">
+                <el-collapse
+                    v-model="collapse">
+                    <el-collapse-item
+                        name="1"
+                        title="Módulos">
                         <div class="row">
                             <div class="col-md-6">
-                                <span>Habilitar módulos</span>
+                                <span>
+                                    Habilitar módulos
+                                </span>
                                 <div class="form-group tree-container-admin">
-                                    <el-tree ref="tree" :check-strictly="true" :data="modules" :props="defaultProps" accordion highlight-current node-key="id" show-checkbox @check="FixChildren"></el-tree>
+                                    <el-tree
+                                        ref="tree"
+                                        :check-strictly="true"
+                                        :data="modules"
+                                        :props="defaultProps"
+                                        accordion
+                                        highlight-current
+                                        node-key="id"
+                                        show-checkbox
+                                        @check="FixChildren">
+                                    </el-tree>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <span>Habilitar apps</span>
+                                <span>
+                                    Habilitar apps
+                                </span>
                                 <div class="form-group tree-container-admin">
-                                    <el-tree ref="Apptree" :check-strictly="true" :data="apps" :props="defaultAppsProps"                                        accordion                                        highlight-current                                        node-key="id" show-checkbox @check="FixAppChildren"></el-tree>
+                                    <el-tree
+                                        ref="Apptree"
+                                        :check-strictly="true"
+                                        :data="apps"
+                                        :props="defaultAppsProps"
+                                        accordion
+                                        highlight-current
+                                        node-key="id"
+                                        show-checkbox
+                                        @check="FixAppChildren">
+                                    </el-tree>
                                 </div>
                             </div>
                         </div>

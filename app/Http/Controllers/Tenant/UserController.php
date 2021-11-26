@@ -111,6 +111,7 @@ class UserController extends Controller
         $user->email = $request->input('email');
         $user->establishment_id = $request->input('establishment_id');
         $user->type = $request->input('type');
+
         if (!$id) {
             $user->api_token = str_random(50);
             $user->password = bcrypt($request->input('password'));
@@ -123,7 +124,11 @@ class UserController extends Controller
              ->setSeriesId($request->input('series_id'));
         $user->establishment_id = $request->input('establishment_id');
 
-        if($user->id != 1) $user->permission_edit_cpe = $request->input('permission_edit_cpe');
+        // if($user->id != 1) 
+        // {
+            $user->recreate_documents = $request->input('recreate_documents');
+            $user->permission_edit_cpe = $request->input('permission_edit_cpe');
+        // }
         
         $user->save();
 

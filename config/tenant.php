@@ -32,5 +32,6 @@ return [
     'admin_delete_client' => env('ADMIN_DELETE_CLIENT', false),
     'soap_stream_context_ssl' => env('SOAP_STREAM_CONTEXT_SSL', false),
     'apiperudev_validator_cpe' => env('APIPERUDEV_VALIDATOR_CPE', true),
-    'validator_cpe' => env('VALIDATOR_CPE', false)
+    'validator_cpe' => env('VALIDATOR_CPE', false),
+    'auto_print' => env('AUTO_PRINT', false)
 ];

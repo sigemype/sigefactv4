@@ -536,6 +536,7 @@
                 if($this->parent_person) {
                     $parent = $this->parent_person->getCollectionData();
                 }
+
                 $data['parent'] = $parent;
 
             }

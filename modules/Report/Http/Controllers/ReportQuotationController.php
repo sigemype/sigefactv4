@@ -32,8 +32,15 @@ class ReportQuotationController extends Controller
         $sellers = $this->getSellers();
 
         $state_types = $this->getStateTypesById(['01', '05', '09']);
+        $users = $this->getUsers();
 
-        return compact('document_types','establishments', 'sellers', 'state_types');
+        return compact(
+            'users',
+            'document_types',
+            'establishments',
+            'sellers',
+            'state_types'
+        );
     }
 
 

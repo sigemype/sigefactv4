@@ -284,6 +284,11 @@ return [
 		'documentary_process_id'                   => 'proceso',
 		'dispatches_id'                            => 'guías',
 		'hostname_id'                              => 'cliente',
-		'license_plate'           				   => 'N° placa',
+		'license_plate'           => 'N° placa',
+		'system_isc_type_id'           => 'tipo de sistema ISC',
+		'has_isc'           => 'incluye ISC',
+		'percentage_isc'           => 'porcentaje ISC',
+		'movement_type'           => 'tipo movimiento',
+
 	],
 ];

@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\System\HistoryResource;
 
-class StatusController extends Controller{
-
-    public function memory($prefix = true){
+class StatusController extends Controller
+{
+    public function memory($prefix = true)
+    {
         // dd($this->getServerMemoryUsage(true));
         // Memory usage: 4.55 GiB / 23.91 GiB (19.013557664178%)
         $memUsage = $this->getServerMemoryUsage(false);
@@ -23,7 +24,8 @@ class StatusController extends Controller{
     }
 
     // Returns used memory (either in percent (without percent sign) or free and overall in bytes)
-    public function getServerMemoryUsage($getPercentage=true){
+    public function getServerMemoryUsage($getPercentage=true)
+    {
         $memoryTotal = null;
         $memoryFree = null;
 
@@ -36,7 +38,7 @@ class StatusController extends Controller{
             $cmd = "wmic OS get FreePhysicalMemory";
             @exec($cmd, $outputFreePhysicalMemory);
 
-            if ($outputTotalPhysicalMemory && $outputFreePhysicalMemory){
+            if ($outputTotalPhysicalMemory && $outputFreePhysicalMemory) {
                 // Find total value
                 foreach ($outputTotalPhysicalMemory as $line) {
                     if ($line && preg_match("/^[0-9]+\$/", $line)) {
@@ -54,9 +56,13 @@ class StatusController extends Controller{
                     }
                 }
             }
-        } else {
-            if (is_readable("/proc/meminfo")){
+        }
+        else
+        {
+            if (is_readable("/proc/meminfo"))
+            {
                 $stats = @file_get_contents("/proc/meminfo");
+
                 if ($stats !== false) {
                     // Separate lines
                     $stats = str_replace(array("\r\n", "\n\r", "\r"), "\n", $stats);
@@ -116,7 +122,8 @@ class StatusController extends Controller{
         }
     }
 
-    public function cpu(){
+    public function cpu()
+    {
         $cpuLoad = $this->getServerLoad();
         $cpu = [
             'cpu' => is_null($cpuLoad) ? 0 : $cpuLoad
@@ -125,11 +132,14 @@ class StatusController extends Controller{
         return $cpu;
     }
 
-    public function getServerLoadLinuxData(){
-        if (is_readable("/proc/stat")){
+    public function getServerLoadLinuxData()
+    {
+        if (is_readable("/proc/stat"))
+        {
             $stats = @file_get_contents("/proc/stat");
-            if ($stats !== false){
 
+            if ($stats !== false)
+            {
                 // Remove double spaces to make it easier to extract values with explode()
                 $stats = preg_replace("/[[:blank:]]+/", " ", $stats);
 
@@ -138,11 +148,17 @@ class StatusController extends Controller{
                 $stats = explode("\n", $stats);
 
                 // Separate values and find line for main CPU load
-                foreach ($stats as $statLine){
+                foreach ($stats as $statLine)
+                {
                     $statLineData = explode(" ", trim($statLine));
 
                     // Found!
-                    if((count($statLineData) >= 5) && ($statLineData[0] == "cpu")){
+                    if
+                    (
+                        (count($statLineData) >= 5) &&
+                        ($statLineData[0] == "cpu")
+                    )
+                    {
                         return array(
                             $statLineData[1],
                             $statLineData[2],
@@ -158,30 +174,43 @@ class StatusController extends Controller{
     }
 
     // Returns server load in percent (just number, without percent sign)
-    public function getServerLoad(){
+    public function getServerLoad()
+    {
         $load = null;
 
-        if (stristr(PHP_OS, "win")){
+        if (stristr(PHP_OS, "win"))
+        {
             $cmd = "wmic cpu get loadpercentage /all";
             @exec($cmd, $output);
 
-            if ($output){
-                foreach ($output as $line){
-                    if ($line && preg_match("/^[0-9]+\$/", $line)){
+            if ($output)
+            {
+                foreach ($output as $line)
+                {
+                    if ($line && preg_match("/^[0-9]+\$/", $line))
+                    {
                         $load = $line;
                         break;
                     }
                 }
             }
-        } else {
-            if (is_readable("/proc/stat")){
+        }
+        else
+        {
+            if (is_readable("/proc/stat"))
+            {
                 // Collect 2 samples - each with 1 second period
                 // See: https://de.wikipedia.org/wiki/Load#Der_Load_Average_auf_Unix-Systemen
                 $statData1 = $this->getServerLoadLinuxData();
                 sleep(1);
                 $statData2 = $this->getServerLoadLinuxData();
 
-                if ((!is_null($statData1)) && (!is_null($statData2))){
+                if
+                (
+                    (!is_null($statData1)) &&
+                    (!is_null($statData2))
+                )
+                {
                     // Get difference
                     $statData2[0] -= $statData1[0];
                     $statData2[1] -= $statData1[1];
@@ -197,11 +226,13 @@ class StatusController extends Controller{
                 }
             }
         }
+
         return $load;
     }
 
     //para graficas
-    public function history(){
+    public function history()
+    {
         $alls = HistoryResource::take(30)->get();
 
         $labels = [];

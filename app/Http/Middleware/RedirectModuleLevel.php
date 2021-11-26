@@ -325,14 +325,15 @@
                 case 'configuration_company':
                     //'configuration_visual' 'configuration_advance' 'configuration_company' redirecciona a configuracion
                     return redirect()->route('tenant.general_configuration.index');
+
                 case  "suscription_app_client":
-                    return redirect()->route('tenant.suscription.client.index');
                 case  "suscription_app_service":
-                    return redirect()->route('tenant.suscription.service.index');
                 case  "suscription_app_payments":
-                    return redirect()->route('tenant.suscription.payments.index');
                 case  "suscription_app_plans":
-                    return redirect()->route('tenant.suscription.plans.index');
+                return redirect()->route('tenant.suscription.client.index');
+                    //return redirect()->route('tenant.suscription.service.index');
+                    //return redirect()->route('tenant.suscription.payments.index');
+                    //return redirect()->route('tenant.suscription.plans.index');
                 default;
                     return redirect()->route('tenant.dashboard.index');
 

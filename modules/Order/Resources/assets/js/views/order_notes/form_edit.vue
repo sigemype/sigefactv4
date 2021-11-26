@@ -570,8 +570,12 @@
                         total_igv += parseFloat(row.total_igv)
                         total += parseFloat(row.total)
                     }
-                    total_value += parseFloat(row.total_value)
+                    // total_value += parseFloat(row.total_value)
                     
+                    if (!['21', '37'].includes(row.affectation_igv_type_id)) {
+                        total_value += parseFloat(row.total_value)
+                    }
+
                     if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
 
                         let unit_value = row.total_value / row.quantity

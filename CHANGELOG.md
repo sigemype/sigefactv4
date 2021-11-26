@@ -1,3 +1,55 @@
+## 4.1.7
+
+### docs
+2021-10-27 : docs | update changelog<br>
+
+
+### fixed
+2021-11-16 : fixed | #1076 | Ajuste afectacion inafecto - gratuito - generar cpe desde pedido<br>
+2021-11-15 : fixed | #1092 | Ajustes campos isc/icbper/estado reporte ventas formato sunat 14.1<br>
+2021-11-15 : fixed | #1147 | Monto igv incorrecto reporte general de productos<br>
+2021-11-11 : fixed | #1159 | arreglo en header para pantallas de tablet<br>
+2021-11-10 : fixed | - | Ajuste para decimales en factor - descuento pos<br>
+2021-11-10 : fixed | #1005 | Ajustes descuento global form nuevo cpe<br>
+2021-11-05 : fixed | #1029 | Ajustes reporte comisiones vendedor<br>
+2021-11-05 : fixed | #1048 | Guias: Agregar igv a los items dependiendo de configuracion del producto al generar cpe<br>
+2021-11-04 : fixed | #1099 | Formato contabilidad compras - ajuste decimales tipo de cambio<br>
+2021-11-03 : fixed | #1105 | Asignar tipo de operacion para filtrar afectaciones form item - notas<br>
+2021-11-03 : fixed | #1110 | Se regulariza codigos de errores/observaciones - core facturalo<br>
+2021-11-03 : fixed | #1103 | Ajuste decimales al agregar item - guia remision<br>
+2021-11-02 : fixed | #1122 | apiperu consulta ubigeo<br>
+2021-11-02 : fixed | #1115 | altura de plantilla custom_multisaba<br>
+2021-10-29 : fixed | Ajuste ejemplo json descuento lineal afecta a la base<br>
+2021-10-29 : fixed | #1107 | Validar tarifa en modulo hoteles<br>
+2021-10-28 : fixed | #1078 | Ajustes al generar n credito desde cpe con descuentos<br>
+2021-10-28 : fixed | #1088 | posicion de url de ose en configuracion de empresa<br>
+2021-10-27 : fixed | #1072  | Habilitar ventas con fechas atrasadas para boletas<br>
+2021-10-27 : fixed | #1057 | Nota de venta: Ajustes descuentos por item al generar cpe<br>
+
+
+### feature
+2021-11-23 : feature | #1033 | plantilla custom_multisaba, cambios en cotizacion y guias<br>
+2021-11-23 : feature | #1157 | logo login aumentado y centrado<br>
+2021-11-16 : feature | #1041 | Se agrega reporte movimientos<br>
+2021-11-12 : feature | #999 | Habilitar recrear documento configurable por usuario<br>
+2021-11-11 : feature | #999 | Agregando configuracion recrear documento en form usuarios<br>
+2021-11-11 : feature | #985 | Se agrega condiciones de pago en compras<br>
+2021-11-09 : feature | #951 | Se agrega configuraciones para nv por defacto y busqueda codigo de barras<br>
+2021-11-09 : feature | #1115 | disminuyendo altura de comprobantes custom_multisaba<br>
+2021-11-08 : feature | #204 | Se agrega total isc reporte documentos - ajuste de columnas desordenadas<br>
+2021-11-03 : feature | #1105 | Se agrega json ejemplo - nota credito - factura exportacion<br>
+2021-11-03 : feature | #204 | Se agrega ejemplos isc - api<br>
+2021-11-02 : feature | #204 | Se agrega isc a pos/nuevo cpe<br>
+2021-11-02 : feature | #1073 | no repetir placa en plantilla header_image_full..<br>
+2021-11-01 : feature | #204 | Agregando calculos isc a formulario pos<br>
+2021-11-01 : feature | #204 | Agregando parametros configuracion isc a items - casuisticas api<br>
+2021-10-29 : feature | #982 | Se agrega nombre producto pdf en xml factura/boleta - configurable<br>
+2021-10-29 : feature | #1111 | deshabilitando servidor alterno de sunat<br>
+2021-10-28 : feature | #982 | Agregando nombre producto xml - nuevo cpe<br>
+2021-10-28 : feature | #1087 | metodo de pago en reporte de items general<br>
+2021-10-27 : feature | #1073 | añadiendo metodos y condicion de pago segun plantilla default a plantilla header_image_full_width<br>
+
+
 ## 4.1.6
 
 ### docs

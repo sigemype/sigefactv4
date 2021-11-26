@@ -8,6 +8,7 @@ use App\Models\Tenant\Catalogs\SystemIscType;
 use App\Traits\AttributePerItems;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Modules\Inventory\Models\Warehouse;
 
 class SaleNoteItem extends ModelTenant
@@ -139,6 +140,24 @@ class SaleNoteItem extends ModelTenant
             $query->where('establishment_id', $params['establishment_id']);
         }
 
+
+        /**
+         * Con este filtro se ajsuta reportes por campo user_id y seller_id para modulos que no lo tengan, esto es
+         * si el envio de la peticion tiene user_type y user_id se considera qomo parte del filtro de creador/vendedor
+         *
+         * Este filtro es compartido por app/Models/Tenant/DocumentItem.php
+         *
+         * @var \Illuminate\Http\Request $rquest
+         */
+        $request = request();
+        $userType = ($request !== null && $request->has('user_type')&& !empty($request->user_type))?$request->user_type:null;
+        $userId =  ($request !== null && $request->has('user_id')&& !empty($request->user_id))?$request->user_id:null;
+
+        $params['user_type'] = $userType;
+        $params['user_id'] = $userId;
+
+
+
         $query->whereHas('sale_note', function ($q) use ($params) {
             $q->whereBetween($params['date_range_type_id'], [$params['date_start'], $params['date_end']])
                 ->whereStateTypeAccepted()
@@ -146,7 +165,34 @@ class SaleNoteItem extends ModelTenant
             if ($params['person_id']) {
                 $q->where('customer_id', $params['person_id']);
             }
-            if (isset($params['sellers'])) {
+            if (
+                !empty($params['user_type']) &&
+                !empty($params['user_id'])
+            ) {
+                // Se ajusta las validaciones para determinar que viene por filtro de vendedor/creador
+                $column = null;
+                if($params['user_type'] == 'CREADOR'){
+                    // Quien realiza el documento
+                    $column =  'user_id';
+                }elseif($params['user_type'] == 'VENDEDOR'){
+                    // Vendedor asignado
+                    $column =  'seller_id';
+                }
+
+                if($column !== null){
+                    if(Str::startsWith($params['user_id'], '[')){
+                        // Si comienza con [ es un array serialziado por json.
+                        $usersId = json_decode($params['user_id']);
+                        if (count($usersId) > 0) {
+                            $q->whereIn($column, $usersId);
+                        }
+                    }else{
+                        $q->where($column,  $params['user_id']);
+
+                    }
+                }
+
+            }elseif (isset($params['sellers'])) {
                 $sellers = json_decode($params['sellers']);
                 if (count($sellers) > 0) {
                     $q->whereIn('user_id', $sellers);

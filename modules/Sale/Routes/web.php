@@ -172,7 +172,13 @@ if($current_hostname) {
         });
 
         Route::prefix('quotation_payments')->group(function () {
-
+            /**
+            quotation_payments/records/{quotation}
+            quotation_payments/document/{quotation}
+            quotation_payments/tables
+            quotation_payments
+            quotation_payments/{quotation_payment}
+             */
             Route::get('/records/{quotation}', 'QuotationPaymentController@records');
             Route::get('/document/{quotation}', 'QuotationPaymentController@document');
             Route::get('/tables', 'QuotationPaymentController@tables');

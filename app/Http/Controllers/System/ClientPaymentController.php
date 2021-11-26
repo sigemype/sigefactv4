@@ -12,22 +12,29 @@ use App\Models\System\CardBrand;
 use Hyn\Tenancy\Environment;
 use Illuminate\Support\Facades\DB;
 
-class ClientPaymentController extends Controller{
 
-    public function records($client_id){
+
+class ClientPaymentController extends Controller
+{
+    public function records($client_id)
+    {
         $records = ClientPayment::where('client_id', $client_id)->get();
+
         return new ClientPaymentCollection($records);
     }
 
-    public function tables(){
+    public function tables()
+    {
         return [
             'payment_method_types' => PaymentMethodType::all(),
             'card_brands' => CardBrand::all()
         ];
     }
 
-    public function client($client_id){
+    public function client($client_id)
+    {
         $client = Client::find($client_id);
+
         $total_paid = collect($client->payments)->where('state',true)->sum('payment');
         $total = collect($client->payments)->sum('payment');
         $total_difference = round($total - $total_paid, 2);
@@ -42,7 +49,8 @@ class ClientPaymentController extends Controller{
 
     }
 
-    public function store(ClientPaymentRequest $request){
+    public function store(ClientPaymentRequest $request)
+    {
         $id = $request->input('id');
         $record = ClientPayment::firstOrNew(['id' => $id]);
         $record->fill($request->all());
@@ -53,6 +61,7 @@ class ClientPaymentController extends Controller{
         $tenancy->tenant($client->hostname->website);
 
         DB::connection('tenant')->table('account_payments')->insert(
+
             ['date_of_payment' => $record->date_of_payment, 'reference_id' => $record->id, 'payment_method_type_id'=> $record->payment_method_type_id, 'card_brand_id' =>$record->card_brand_id, 'reference' => $record->reference, 'payment' => $record->payment, 'state' => 0, 'created_at' => date('Y-m-d H:i:s')]
         );
 
@@ -62,7 +71,8 @@ class ClientPaymentController extends Controller{
         ];
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $item = ClientPayment::findOrFail($id);
         $item->delete();
 
@@ -71,8 +81,10 @@ class ClientPaymentController extends Controller{
             'message' => 'Pago eliminado con éxito'
         ];
     }
+
     
-    public function cancel_payment($client_payment_id){
+    public function cancel_payment($client_payment_id)
+    {
         $client_payment = ClientPayment::find($client_payment_id);
         $client_payment->state = true;
         $client_payment->save();

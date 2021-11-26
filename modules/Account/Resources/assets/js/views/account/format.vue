@@ -54,6 +54,12 @@
                                 value="purchase"></el-option>
                         </el-select>
                     </div>
+                    
+                    <div class="col-md-3 " v-if="form.type == 'sale'">
+                        <el-checkbox class="checkbox mt-4" v-model="form.add_state_type">Agregar columna estado - CPE
+                        </el-checkbox>
+                    </div>
+
                 </div>
             </div>
             <div class="form-actions text-right pt-2">
@@ -117,7 +123,8 @@ import {mapActions, mapState} from "vuex";
                 this.errors = {};
                 this.form = {
                     month: moment().format('YYYY-MM'),
-                    type: 'sale'
+                    type: 'sale',
+                    add_state_type: false
                 }
             },
             clickDownload() {

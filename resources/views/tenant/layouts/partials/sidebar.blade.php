@@ -4,35 +4,58 @@
 
     $configuration = Configuration::first();
 ?>
-<aside id="sidebar-left" class="sidebar-left">
+<aside id="sidebar-left"
+       class="sidebar-left">
     <div class="sidebar-header">
-        <a href="{{route('tenant.dashboard.index')}}" class="logo pt-2 pt-md-0">
+        <a href="{{route('tenant.dashboard.index')}}"
+           class="logo pt-2 pt-md-0">
             @if($vc_company->logo)
-                <img src="{{ asset('storage/uploads/logos/'.$vc_company->logo) }}" alt="Logo" />
+                <img src="{{ asset('storage/uploads/logos/'.$vc_company->logo) }}"
+                     alt="Logo"/>
             @else
-                <img src="{{asset('logo/700x300.jpg')}}" alt="Logo" />
+                <img src="{{asset('logo/700x300.jpg')}}"
+                     alt="Logo"/>
             @endif
         </a>
-        <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
-            <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
+        <div class="d-md-none toggle-sidebar-left"
+             data-toggle-class="sidebar-left-opened"
+             data-target="html"
+             data-fire-event="sidebar-left-opened">
+            <i class="fas fa-bars"
+               aria-label="Toggle sidebar"></i>
         </div>
     </div>
     <div class="nano">
         <div class="nano-content">
-            <nav id="menu" class="nav-main" role="navigation">
+            <nav id="menu"
+                 class="nav-main"
+                 role="navigation">
                 <ul class="nav nav-main">
                     @if(in_array('dashboard', $vc_modules))
-                    <li class="{{ ($path[0] === 'dashboard')?'nav-active':'' }}">
-                        <a class="nav-link" href="{{ route('tenant.dashboard.index') }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-airplay"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path><polygon points="12 15 17 21 7 21 12 15"></polygon></svg>
-                            <span>DASHBOARD</span>
-                        </a>
-                    </li>
+                        <li class="{{ ($path[0] === 'dashboard')?'nav-active':'' }}">
+                            <a class="nav-link"
+                               href="{{ route('tenant.dashboard.index') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="feather feather-airplay">
+                                    <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path>
+                                    <polygon points="12 15 17 21 7 21 12 15"></polygon>
+                                </svg>
+                                <span>DASHBOARD</span>
+                            </a>
+                        </li>
                     @endif
 
                     {{-- Ventas --}}
                     @if(in_array('documents', $vc_modules))
-                    <li class="
+                        <li class="
                         nav-parent
                         {{ ($path[0] === 'documents')?'nav-active nav-expanded':'' }}
                         {{ ($path[0] === 'summaries')?'nav-active nav-expanded':'' }}
@@ -48,182 +71,225 @@
                         {{ ($path[0] === 'technical-services')?'nav-active nav-expanded':'' }}
                         {{ ($path[0] === 'user-commissions')?'nav-active nav-expanded':'' }}
                         {{ ($path[0] === 'regularize-shipping')?'nav-active nav-expanded':'' }}
-                        ">
-                        <a class="nav-link" href="#">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                            <span>VENTAS</span>
-                        </a>
-                        <ul class="nav nav-children" style="">
-                            @if(auth()->user()->type != 'integrator' && $vc_company->soap_type_id != '03')
-                                @if(in_array('documents', $vc_modules))
-                                    @if(in_array('new_document', $vc_module_levels))
-                                        <li class="{{ ($path[0] === 'documents' && $path[1] === 'create')?'nav-active':'' }}">
-                                            <a class="nav-link" href="{{route('tenant.documents.create')}}">Comprobante electrónico</a>
+                            ">
+                            <a class="nav-link"
+                               href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="feather feather-file-text">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16"
+                                          y1="13"
+                                          x2="8"
+                                          y2="13"></line>
+                                    <line x1="16"
+                                          y1="17"
+                                          x2="8"
+                                          y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                                <span>VENTAS</span>
+                            </a>
+                            <ul class="nav nav-children"
+                                style="">
+                                @if(auth()->user()->type != 'integrator' && $vc_company->soap_type_id != '03')
+                                    @if(in_array('documents', $vc_modules))
+                                        @if(in_array('new_document', $vc_module_levels))
+                                            <li class="{{ ($path[0] === 'documents' && $path[1] === 'create')?'nav-active':'' }}">
+                                                <a class="nav-link"
+                                                   href="{{route('tenant.documents.create')}}">Comprobante
+                                                                                               electrónico</a>
+                                            </li>
+                                        @endif
+                                    @endif
+                                @endif
+
+                                @if(in_array('documents', $vc_modules) && $vc_company->soap_type_id != '03')
+                                    @if(in_array('list_document', $vc_module_levels))
+                                        <li class="{{ ($path[0] === 'documents' && $path[1] != 'create' && $path[1] != 'not-sent'&& $path[1] != 'regularize-shipping')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.documents.index')}}">Listado de comprobantes</a>
                                         </li>
                                     @endif
                                 @endif
-                            @endif
 
-                            @if(in_array('documents', $vc_modules) && $vc_company->soap_type_id != '03')
-                                @if(in_array('list_document', $vc_module_levels))
-                                    <li class="{{ ($path[0] === 'documents' && $path[1] != 'create' && $path[1] != 'not-sent'&& $path[1] != 'regularize-shipping')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.documents.index')}}">Listado de comprobantes</a>
-                                    </li>
-                                @endif
-                            @endif
-
-                            @if(in_array('sale_notes', $vc_module_levels))
+                                @if(in_array('sale_notes', $vc_module_levels))
                                     <li class="{{ ($path[0] === 'sale-notes')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.sale_notes.index')}}">Notas de Venta</a>
+                                        <a class="nav-link"
+                                           href="{{route('tenant.sale_notes.index')}}">Notas de Venta</a>
                                     </li>
                                 @endif
 
-                            @if(in_array('documents', $vc_modules) && $vc_company->soap_type_id != '03')
+                                @if(in_array('documents', $vc_modules) && $vc_company->soap_type_id != '03')
 
-                                @if(in_array('document_not_sent', $vc_module_levels))
-                                    <li class="{{ ($path[0] === 'documents' && $path[1] === 'not-sent')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.documents.not_sent')}}">
-                                            Comprobantes no enviados
-                                        </a>
-                                    </li>
-                                @endif
-                                @if(in_array('regularize_shipping', $vc_module_levels))
-                                <li class="{{ ($path[0] === 'documents' && $path[1] === 'regularize-shipping')?'nav-active':'' }}">
-                                    <a class="nav-link" href="{{route('tenant.documents.regularize_shipping')}}">
-                                        CPE pendientes de rectificación
-                                    </a>
-                                </li>
-                                @endif
-                            @endif
-
-                            @if(auth()->user()->type != 'integrator' && in_array('documents', $vc_modules) )
-
-                                @if(auth()->user()->type != 'integrator' && in_array('document_contingengy', $vc_module_levels) && $vc_company->soap_type_id != '03')
-                                <li class="{{ ($path[0] === 'contingencies' )?'nav-active':'' }}">
-                                    <a class="nav-link" href="{{route('tenant.contingencies.index')}}">
-                                        Documentos de contingencia
-                                    </a>
-                                </li>
+                                    @if(in_array('document_not_sent', $vc_module_levels))
+                                        <li class="{{ ($path[0] === 'documents' && $path[1] === 'not-sent')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.documents.not_sent')}}">
+                                                Comprobantes no enviados
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if(in_array('regularize_shipping', $vc_module_levels))
+                                        <li class="{{ ($path[0] === 'documents' && $path[1] === 'regularize-shipping')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.documents.regularize_shipping')}}">
+                                                CPE pendientes de rectificación
+                                            </a>
+                                        </li>
+                                    @endif
                                 @endif
 
-                                @if(in_array('summary_voided', $vc_module_levels) && $vc_company->soap_type_id != '03')
+                                @if(auth()->user()->type != 'integrator' && in_array('documents', $vc_modules) )
 
-                                    <li class="nav-parent
+                                    @if(auth()->user()->type != 'integrator' && in_array('document_contingengy', $vc_module_levels) && $vc_company->soap_type_id != '03')
+                                        <li class="{{ ($path[0] === 'contingencies' )?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.contingencies.index')}}">
+                                                Documentos de contingencia
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if(in_array('summary_voided', $vc_module_levels) && $vc_company->soap_type_id != '03')
+
+                                        <li class="nav-parent
                                         {{ ($path[0] === 'summaries')?'nav-active nav-expanded':'' }}
                                         {{ ($path[0] === 'voided')?'nav-active nav-expanded':'' }}
-                                        ">
-                                        <a class="nav-link" href="#">
-                                            Resúmenes y Anulaciones
-                                        </a>
-                                        <ul class="nav nav-children">
-                                            <li class="{{ ($path[0] === 'summaries')?'nav-active':'' }}">
-                                                <a class="nav-link" href="{{route('tenant.summaries.index')}}">
-                                                    Resúmenes
-                                                </a>
-                                            </li>
-                                            <li class="{{ ($path[0] === 'voided')?'nav-active':'' }}">
-                                                <a class="nav-link" href="{{route('tenant.voided.index')}}">
-                                                    Anulaciones
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                @endif
+                                            ">
+                                            <a class="nav-link"
+                                               href="#">
+                                                Resúmenes y Anulaciones
+                                            </a>
+                                            <ul class="nav nav-children">
+                                                <li class="{{ ($path[0] === 'summaries')?'nav-active':'' }}">
+                                                    <a class="nav-link"
+                                                       href="{{route('tenant.summaries.index')}}">
+                                                        Resúmenes
+                                                    </a>
+                                                </li>
+                                                <li class="{{ ($path[0] === 'voided')?'nav-active':'' }}">
+                                                    <a class="nav-link"
+                                                       href="{{route('tenant.voided.index')}}">
+                                                        Anulaciones
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    @endif
 
-                                @if(in_array('sale-opportunity', $vc_module_levels))
-                                    <li class="{{ ($path[0] === 'sale-opportunities')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.sale_opportunities.index')}}">
-                                            Oportunidad de venta
-                                        </a>
-                                    </li>
-                                @endif
+                                    @if(in_array('sale-opportunity', $vc_module_levels))
+                                        <li class="{{ ($path[0] === 'sale-opportunities')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.sale_opportunities.index')}}">
+                                                Oportunidad de venta
+                                            </a>
+                                        </li>
+                                    @endif
 
-                                @if(in_array('quotations', $vc_module_levels))
+                                    @if(in_array('quotations', $vc_module_levels))
 
-                                    <li class="{{ ($path[0] === 'quotations')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.quotations.index')}}">
-                                            Cotizaciones
-                                        </a>
-                                    </li>
-                                @endif
+                                        <li class="{{ ($path[0] === 'quotations')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.quotations.index')}}">
+                                                Cotizaciones
+                                            </a>
+                                        </li>
+                                    @endif
 
-                                @if(in_array('contracts', $vc_module_levels))
-                                    <li class="nav-parent
+                                    @if(in_array('contracts', $vc_module_levels))
+                                        <li class="nav-parent
                                         {{ ($path[0] === 'contracts')?'nav-active nav-expanded':'' }}
                                         {{ ($path[0] === 'production-orders')?'nav-active nav-expanded':'' }}
-                                        ">
-                                        <a class="nav-link" href="#">
-                                            Contratos
-                                        </a>
-                                        <ul class="nav nav-children">
-                                            <li class="{{ ($path[0] === 'contracts')?'nav-active':'' }}">
-                                                <a class="nav-link" href="{{route('tenant.contracts.index')}}">
-                                                    Listado
-                                                </a>
-                                            </li>
-                                            <li class="{{ ($path[0] === 'production-orders')?'nav-active':'' }}">
-                                                <a class="nav-link" href="{{route('tenant.production_orders.index')}}">
-                                                    Ordenes de Producción
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                @endif
+                                            ">
+                                            <a class="nav-link"
+                                               href="#">
+                                                Contratos
+                                            </a>
+                                            <ul class="nav nav-children">
+                                                <li class="{{ ($path[0] === 'contracts')?'nav-active':'' }}">
+                                                    <a class="nav-link"
+                                                       href="{{route('tenant.contracts.index')}}">
+                                                        Listado
+                                                    </a>
+                                                </li>
+                                                <li class="{{ ($path[0] === 'production-orders')?'nav-active':'' }}">
+                                                    <a class="nav-link"
+                                                       href="{{route('tenant.production_orders.index')}}">
+                                                        Ordenes de Producción
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    @endif
 
-                                @if(in_array('order-note', $vc_module_levels))
-                                    <li class="{{ ($path[0] === 'order-notes')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.order_notes.index')}}">
-                                            Pedidos
-                                        </a>
-                                    </li>
-                                @endif
+                                    @if(in_array('order-note', $vc_module_levels))
+                                        <li class="{{ ($path[0] === 'order-notes')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.order_notes.index')}}">
+                                                Pedidos
+                                            </a>
+                                        </li>
+                                    @endif
 
-                                @if(in_array('technical-service', $vc_module_levels))
-                                    <li class="{{ ($path[0] === 'technical-services')?'nav-active':'' }}">
-                                        <a class="nav-link" href="{{route('tenant.technical_services.index')}}">
-                                            Servicio de soporte técnico
-                                        </a>
-                                    </li>
-                                @endif
+                                    @if(in_array('technical-service', $vc_module_levels))
+                                        <li class="{{ ($path[0] === 'technical-services')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{route('tenant.technical_services.index')}}">
+                                                Servicio de soporte técnico
+                                            </a>
+                                        </li>
+                                    @endif
 
-                                @if(in_array('incentives', $vc_module_levels))
+                                    @if(in_array('incentives', $vc_module_levels))
 
-                                    <li class="nav-parent
+                                        <li class="nav-parent
                                         {{ ($path[0] === 'incentives')?'nav-active nav-expanded':'' }}
                                         {{ ($path[0] === 'user-commissions')?'nav-active nav-expanded':'' }}
-                                        ">
-                                        <a class="nav-link" href="#">
-                                            Comisiones
-                                        </a>
-                                        <ul class="nav nav-children">
-                                            <li class="{{ ($path[0] === 'user-commissions')?'nav-active':'' }}">
-                                                <a class="nav-link" href="{{route('tenant.user_commissions.index')}}">
-                                                    Vendedores
-                                                </a>
-                                            </li>
-                                            <li class="{{ ($path[0] === 'incentives')?'nav-active':'' }}">
-                                                <a class="nav-link" href="{{route('tenant.incentives.index')}}">Productos</a>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                            ">
+                                            <a class="nav-link"
+                                               href="#">
+                                                Comisiones
+                                            </a>
+                                            <ul class="nav nav-children">
+                                                <li class="{{ ($path[0] === 'user-commissions')?'nav-active':'' }}">
+                                                    <a class="nav-link"
+                                                       href="{{route('tenant.user_commissions.index')}}">
+                                                        Vendedores
+                                                    </a>
+                                                </li>
+                                                <li class="{{ ($path[0] === 'incentives')?'nav-active':'' }}">
+                                                    <a class="nav-link"
+                                                       href="{{route('tenant.incentives.index')}}">Productos</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                    @endif
+
+
 
                                 @endif
 
-
-
-                            @endif
-
-                        </ul>
-                    </li>
+                            </ul>
+                        </li>
                     @endif
 
                     {{-- POS --}}
                     @if(auth()->user()->type != 'integrator')
                         @if(in_array('pos', $vc_modules))
-                        <li class="nav-parent
+                            <li class="nav-parent
                         {{ ($path[0] === 'pos')?'nav-active nav-expanded':'' }}
-                        {{ ($path[0] === 'cash')?'nav-active nav-expanded':'' }}
-                        ">
+                            {{ ($path[0] === 'cash')?'nav-active nav-expanded':'' }}
+                                ">
                                 <a class="nav-link"
                                    href="#">
                                     <svg xmlns="http://www.w3.org/2000/svg"
@@ -289,7 +355,9 @@
                             <ul class="nav nav-children">
                                 @if(in_array('ecommerce', $vc_module_levels))
                                     <li class="">
-                                        <a class="nav-link" onclick="window.open( '{{ route("tenant.ecommerce.index") }} ')">Ir a Tienda</a>
+                                        <a class="nav-link"
+                                           onclick="window.open( '{{ route("tenant.ecommerce.index") }} ')">Ir a
+                                                                                                            Tienda</a>
                                     </li>
                                 @endif
                                 @if(in_array('ecommerce_orders', $vc_module_levels))
@@ -1017,16 +1085,18 @@
                                 @endif
                                 @if(in_array('documentary_requirements', $vc_module_levels))
 
-                                <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'requirements')) ? 'nav-active' : '' }}">
-                                    <a class="nav-link" href="{{ route('documentary.requirements') }}">Listado de requerimientos</a>
-                                </li>
+                                    <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'requirements')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link"
+                                           href="{{ route('documentary.requirements') }}">Listado de requerimientos</a>
+                                    </li>
 
                                 @endif
-                            @if(in_array('documentary_process', $vc_module_levels))
-                            <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'processes')) ? 'nav-active' : '' }}">
-                                <a class="nav-link" href="{{ route('documentary.processes') }}">Tipos de tramites</a>
-                            </li>
-                            @endif
+                                @if(in_array('documentary_process', $vc_module_levels))
+                                    <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'processes')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link"
+                                           href="{{ route('documentary.processes') }}">Tipos de tramites</a>
+                                    </li>
+                                @endif
                                 {{--
                             @if(in_array('documentary_documents', $vc_module_levels))
                             <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'documents')) ? 'nav-active' : '' }}">
@@ -1039,13 +1109,14 @@
                             </li>
                             @endif
                                 --}}
-                            @if(in_array('documentary_files', $vc_module_levels))
-                            <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'files')) ? 'nav-active' : '' }}">
-                                <a class="nav-link" href="{{ route('documentary.files') }}">Listado de tramites</a>
-                            </li>
-                            @endif
-                        </ul>
-                    </li>
+                                @if(in_array('documentary_files', $vc_module_levels))
+                                    <li class="{{ (($path[0] === 'documentary-procedure') && ($path[1] === 'files')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link"
+                                           href="{{ route('documentary.files') }}">Listado de tramites</a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
                     @endif
 
                     {{-- DIGEMID --}}
@@ -1077,18 +1148,39 @@
                                href="#">
                                 <i class="fa fas fa-calendar-check"
                                    aria-hidden="true"></i>
-                                <span>Suscripción</span>
+                                <span>Suscripción Escolar</span>
                             </a>
                             <ul class="nav nav-children">
-                                @if(in_array('suscription_app_client', $vc_module_levels))
-                                    <li class="{{ (($path[0] === 'suscription') && ($path[1] === 'client')) ? 'nav-active' : '' }}">
+{{--                                @if(in_array('suscription_app_client', $vc_module_levels))--}}
 
-                                        <a class="nav-link"
-                                           href="{{ route('tenant.suscription.client.index') }}">
-                                            Cliente
-                                        </a>
-                                    </li>
-                                @endif
+
+                                <li class="nav-parent
+{{ ( ($path[0] === 'suscription') && ($path[1] === 'client') ) ? ' nav-active nav-expanded ' : '' }}
+                                    ">
+
+                                    <a class="nav-link"
+                                       href="#">
+                                        Clientes
+                                    </a>
+                                    <ul class="nav nav-children">
+                                        <li class="{{ ( ($path[0] === 'suscription') && ($path[1] === 'client')  && ($path[2] !== 'childrens') )?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{ route('tenant.suscription.client.index') }}">
+                                                Padres
+                                            </a>
+                                        </li>
+                                        <li class="{{ ( ($path[0] === 'suscription') && ($path[1] === 'client') && ($path[2] === 'childrens') )?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                               href="{{ route('tenant.suscription.client_children.index') }}">
+                                                Hijos
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+{{--                                @endif--}}
+                                {{--
+                                @todo suscription_app_service borrar de modulo de permisos admin y cliente
+
                                 @if(in_array('suscription_app_service', $vc_module_levels))
                                     <li class="{{ (($path[0] === 'suscription') && ($path[1] === 'service')) ? 'nav-active' : '' }}">
                                         <a class="nav-link"
@@ -1097,23 +1189,32 @@
                                         </a>
                                     </li>
                                 @endif
-                                    @if(in_array('suscription_app_plans', $vc_module_levels))
+                                    --}}
+{{--                                    @if(in_array('suscription_app_plans', $vc_module_levels))--}}
                                         <li class="{{ (($path[0] === 'suscription') && ($path[1] === 'plans')) ? 'nav-active' : '' }}">
                                             <a class="nav-link"
                                                href="{{ route('tenant.suscription.plans.index') }}">
                                                 Planes
                                             </a>
                                         </li>
-                                    @endif
+{{--                                    @endif--}}
 
-                                   @if(in_array('suscription_app_payments', $vc_module_levels))
+{{--                                   @if(in_array('suscription_app_payments', $vc_module_levels))--}}
                                     <li class="{{ (($path[0] === 'suscription') && ($path[1] === 'payments')) ? 'nav-active' : '' }}">
                                         <a class="nav-link"
                                            href="{{ route('tenant.suscription.payments.index') }}">
-                                            Suscripciones
+                                            Matrículas
                                         </a>
                                     </li>
-                                @endif
+{{--                                @endif--}}
+{{--                                   @if(in_array('suscription_app_payments', $vc_module_levels))--}}
+                                    <li class="{{ (($path[0] === 'suscription') && ($path[1] === 'payment_receipt')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link"
+                                           href="{{ route('tenant.suscription.payment_receipt.index') }}">
+                                            Recibos de pago
+                                        </a>
+                                    </li>
+{{--                                @endif--}}
                             </ul>
                         </li>
                     @endif

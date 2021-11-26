@@ -14,6 +14,7 @@ use phpDocumentor\Reflection\Types\Boolean;
  *
  * @package App\Models\Tenant
  * @mixin ModelTenant
+ * @property bool $item_name_pdf_description
  * @property bool $show_extra_info_to_item
  * @property bool $show_items_only_user_stablishment
  * @method static Builder|Configuration newModelQuery()
@@ -107,6 +108,9 @@ class Configuration extends ModelTenant
         'show_items_only_user_stablishment',
         'igv_retention_percentage',
         'name_product_pdf_to_xml',
+        'default_document_type_80',
+        'search_item_by_barcode',
+        'item_name_pdf_description',
     ];
 
     protected $casts = [
@@ -129,6 +133,9 @@ class Configuration extends ModelTenant
         'show_items_only_user_stablishment' => 'boolean',
         'permission_to_edit_cpe' => 'boolean',
         'name_product_pdf_to_xml' => 'boolean',
+        'item_name_pdf_description' => 'boolean',
+        'default_document_type_80' => 'boolean',
+        'search_item_by_barcode' => 'boolean',
     ];
 
 
@@ -406,9 +413,11 @@ class Configuration extends ModelTenant
         $company = Company::first();
         /** @var User $user */
         $user = new User();
+
         if(\Auth::user()) {
             $user = auth()->user();
         }
+
         $establishment =   $user->establishment;
         $establishment_id = $user->establishment_id;
         $serie = $user->series_id;
@@ -477,6 +486,8 @@ class Configuration extends ModelTenant
             'set_address_by_establishment' => $this->set_address_by_establishment,
             'permission_to_edit_cpe' => $this->permission_to_edit_cpe,
             'name_product_pdf_to_xml' => $this->name_product_pdf_to_xml,
+            'default_document_type_80' => $this->default_document_type_80,
+            'search_item_by_barcode' => $this->search_item_by_barcode,
             'igv_retention_percentage' => $this->igv_retention_percentage,
             'currency_type_id' => $this->getCurrencyTypeId(),
             'currency_types' => $currency,
@@ -485,6 +496,8 @@ class Configuration extends ModelTenant
             'unit_type_id'=>$unit_type_id,
             'enabled_global_igv_to_purchase'=>$this->isEnabledGlobalIgvToPurchase(),
             'show_pdf_name'=>$this->isShowPdfName(),
+            'item_name_pdf_description'=>$this->isItemNamePdfDescription(),
+            'api_service_token'=>self::getApiServiceToken(),
             'user'=>[
                 'serie'=>$serie,
                 'document_id'=>$document_id,
@@ -653,6 +666,7 @@ class Configuration extends ModelTenant
      */
     public function isShowItemsOnlyUserStablishment(): bool
     {
+        return false;
         return (bool)$this->show_items_only_user_stablishment;
     }
 
@@ -664,6 +678,7 @@ class Configuration extends ModelTenant
     public function setShowItemsOnlyUserStablishment(bool $show_items_only_user_stablishment): Configuration
     {
         $this->show_items_only_user_stablishment = (bool) $show_items_only_user_stablishment;
+        $this->show_items_only_user_stablishment = false;
         return $this;
     }
 
@@ -681,6 +696,37 @@ class Configuration extends ModelTenant
             }
         }
         return  $this->formats;
+    }
+
+    /**
+     * Devuele el token de apiperu desde configuracion del sistema
+     * @return \Illuminate\Config\Repository|\Illuminate\Foundation\Application|mixed
+     */
+    public static function getApiServiceToken(){
+        $api_service_token = \App\Models\System\Configuration::getApiServiceToken();
+        // $api_service_token = $configuration->token_apiruc =! '' ? $configuration->token_apiruc : config('configuration.api_service_token');
+        // $api_service_token = $configuration->token_apiruc === 'false' ? config('configuration.api_service_token') : $configuration->token_apiruc;
+
+        return $api_service_token;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isItemNamePdfDescription(): bool
+    {
+        return (bool) $this->item_name_pdf_description;
+    }
+
+    /**
+     * @param bool|null $item_name_pdf_description
+     *
+     * @return Configuration
+     */
+    public function setItemNamePdfDescription(bool $item_name_pdf_description):Configuration
+    {
+        $this->item_name_pdf_description = (bool)$item_name_pdf_description;
+        return $this;
     }
 
 }

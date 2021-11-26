@@ -8,12 +8,15 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class SummaryController extends Controller{
-    public function __construct(){
+class SummaryController extends Controller
+{
+    public function __construct()
+    {
         $this->middleware('input.request:summary,api', ['only' => ['store']]);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $fact = DB::connection('tenant')->transaction(function () use($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
@@ -36,7 +39,8 @@ class SummaryController extends Controller{
         ];
     }
 
-    public function status(Request $request){
+    public function status(Request $request)
+    {
         if($request->has('external_id')) {
             $external_id = $request->input('external_id');
             $summary = Summary::where('external_id', $external_id)

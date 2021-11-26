@@ -64,6 +64,8 @@ export default {
         if (state.identity_document_types === undefined) state.identity_document_types = [];
         if (state.locations === undefined) state.locations = [];
         if (state.person_types === undefined) state.person_types = [];
+        if (state.all_series === undefined) state.all_series = [];
+        if (state.series === undefined) state.series = [];
 
 
 

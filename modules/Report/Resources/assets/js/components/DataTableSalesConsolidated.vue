@@ -5,7 +5,7 @@
             <div class="col-md-12 col-lg-12 col-xl-12 ">
 
                 <div class="row mt-2">
-
+                    <!-- Tipo de rango -->
                         <div class="col-lg-3 col-md-3" >
                             <div class="form-group">
                                 <label class="control-label">Tipo de rango
@@ -17,13 +17,14 @@
 
                             </div>
                         </div>
-
+                    <!-- Fecha del -->
                         <div class="col-md-3">
                             <label class="control-label">Fecha del</label>
                             <el-date-picker v-model="form.date_start" type="date"
                                             @change="changeDisabledDates"
                                             value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="false"></el-date-picker>
                         </div>
+                    <!-- Fecha al -->
 
                         <div class="col-md-3">
                             <label class="control-label">Fecha al</label>
@@ -31,6 +32,7 @@
                                             :picker-options="pickerOptionsDates"
                                             value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="false"></el-date-picker>
                         </div>
+                    <!--  Estado - cuando NO ES reports/sales-consolidated -->
 
                         <template v-if="resource != 'reports/sales-consolidated'">
                             <div class="col-lg-3 col-md-3" >
@@ -45,7 +47,9 @@
                                 </div>
                             </div>
                         </template>
-                        <template v-else>
+                    <!--  Tipo documento - cuando ES reports/sales-consolidated -->
+
+                    <template v-else>
                             <div class="col-lg-3 col-md-3" >
                                 <div class="form-group">
                                     <label class="control-label">Tipo documento
@@ -58,6 +62,7 @@
                                 </div>
                             </div>
                         </template>
+                    <!-- Cliente -->
 
                         <div class="col-lg-6 col-md-6" >
                             <div class="form-group">
@@ -75,7 +80,11 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-6 col-md-6" >
+                    <!-- seleccion de vendedor si no hay datos para users -->
+                    <template v-if="users.length < 1">
+
+                        <div
+                            class="col-lg-6 col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Vendedor
                                 </label>
@@ -86,13 +95,54 @@
                                     <el-option v-for="option in sellers" :key="option.id" :value="option.id" :label="option.name"></el-option>
                                 </el-select> -->
 
-                                <el-select v-model="form.sellers" filterable multiple  popper-class="el-select-customers"  clearable
-                                    placeholder="Nombre"
-                                    @change="changeSellers">
-                                    <el-option v-for="option in sellers" :key="option.id" :value="option.id" :label="option.name"></el-option>
+                                <el-select v-model="form.sellers"
+                                           clearable
+                                           filterable
+                                           multiple
+                                           placeholder="Nombre"
+                                           popper-class="el-select-customers"
+                                           @change="changeSellers">
+                                    <el-option v-for="option in sellers"
+                                               :key="option.id"
+                                               :label="option.name"
+                                               :value="option.id"></el-option>
                                 </el-select>
                             </div>
                         </div>
+                    </template>
+                    <!-- seleccion de creador/vendedor si hay datos para users -->
+                    <template v-else>
+                        <div class="col-md-2 form-group"
+                        >
+                            <label class="control-label">Tipo de usuario</label>
+                            <el-select v-model="form.user_type"
+                                       clearable
+                                       @change="ChangedSalesnote">
+                                <el-option key="CREADOR"
+                                           label="Registrado por"
+                                           value="CREADOR"></el-option>
+                                <el-option v-show="form.document_type_id !== '80'"
+                                           key="VENDEDOR"
+                                           label="Vendedor asignado"
+                                           value="VENDEDOR"></el-option>
+                            </el-select>
+                        </div>
+                        <!-- seleccion de usuarios -->
+                        <div class="col-md-2 form-group"
+                        >
+                            <label class="control-label">
+                                {{ form.user_type === 'CREADOR' ? 'Usuario' : 'Vendedor' }}</label>
+                            <el-select v-model="form.user_id"
+                                       filterable
+                                       multiple
+                                       clearable>
+                                <el-option v-for="user in users"
+                                           :key="user.id"
+                                           :label="user.name"
+                                           :value="user.id"></el-option>
+                            </el-select>
+                        </div>
+                    </template>
 
                     <!-- Serie -->
                     <div class="col-lg-3 col-md-3" >
@@ -117,6 +167,7 @@
 
                         </div>
                     </div>
+                    <!-- Botones de accion -->
 
                         <div class="col-lg-7 col-md-7 col-md-7 col-sm-12" style="margin-top:29px">
                             <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
@@ -185,11 +236,11 @@
 </style>
 <script>
 
-    import moment from 'moment'
-    import queryString from 'query-string'
-    import TotalsByItemForm from './partials/totals_by_item.vue'
+import moment from 'moment'
+import queryString from 'query-string'
+import TotalsByItemForm from './partials/totals_by_item.vue'
 
-    export default {
+export default {
         components: {TotalsByItemForm},
         props: {
             resource: String,
@@ -207,6 +258,7 @@
                 document_types: [],
                 order_state_types: [],
                 sellers: [],
+                users: [],
                 series: [],
                 pagination: {},
                 search: {},
@@ -214,7 +266,10 @@
                 establishment: null,
                 establishment_id: null,
                 parameters: null,
-                form: {},
+                form: {
+                    user_type: null,
+                    user_id: [],
+                },
                 pickerOptionsDates: {
                     disabledDate: (time) => {
                         time = moment(time).format('YYYY-MM-DD')
@@ -242,6 +297,10 @@
                     this.document_types = response.data.document_types
                     this.series = response.data.series
                     this.establishment_id = response.data.establishment_id
+                        if(response.data.users !== undefined) {
+
+                            this.users = response.data.users
+                        }
                 });
 
 
@@ -313,6 +372,8 @@
                     date_range_type_id: 'date_of_issue',
                     order_state_type_id: 'all_states',
                     type_person:null,
+                    user_type: null,
+                    user_id: [],
                     sellers:[],
                     date_start: moment().startOf('month').format('YYYY-MM-DD'),
                     date_end: moment().endOf('month').format('YYYY-MM-DD'),
@@ -355,10 +416,22 @@
                     limit: this.limit,
                     ...this.form
                 })
+                delete(parameters.user_id)
 
+                return `${parameters}&user_id=${JSON.stringify(this.form.user_id)}&document_type_id=${JSON.stringify(this.form.document_type_id)}`
                 return `${parameters}&sellers=${JSON.stringify(this.form.sellers)}&document_type_id=${JSON.stringify(this.form.document_type_id)}`
 
             },
+
+            ChangedSalesnote(){
+                if(this.form.document_type_id == '80' && this.form.user_type != null ){
+                    this.form.user_type = 'CREADOR';
+                }
+                this.form.person_id = null
+                this.form.user_id = [];
+                this.$eventHub.$emit('changeFilterColumn', 'seller')
+            },
+
         }
     }
 </script>

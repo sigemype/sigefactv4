@@ -26,8 +26,10 @@ class QuotationPaymentController extends Controller
     public function tables()
     {
         return [
-            'payment_method_types' => PaymentMethodType::all(),
+            'payment_method_types' => PaymentMethodType::getPaymentMethodTypes(),
+            // 'payment_method_types' => PaymentMethodType::all(),
             'payment_destinations' => $this->getPaymentDestinations()
+
         ];
     }
 
@@ -60,7 +62,7 @@ class QuotationPaymentController extends Controller
             $this->saveFiles($record, $request, 'quotations');
 
         });
- 
+
         return [
             'success' => true,
             'message' => ($id)?'Pago editado con éxito':'Pago registrado con éxito'
@@ -77,7 +79,7 @@ class QuotationPaymentController extends Controller
             'message' => 'Pago eliminado con éxito'
         ];
     }
- 
+
 
 
 }

@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DispatchController extends Controller{
-    public function __construct(){
+class DispatchController extends Controller
+{
+    public function __construct()
+    {
         $this->middleware('input.request:dispatch,api', ['only' => ['store']]);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
+
         $request->validate([
             'delivery.address' => 'required|max:100',
             'origin.address' => 'required|max:100',

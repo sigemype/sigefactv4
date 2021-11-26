@@ -15,7 +15,9 @@
         || $visual->sidebar_theme == 'green'
         || $visual->sidebar_theme == 'warning'
         || $visual->sidebar_theme == 'ligth-blue') ? 'sidebar-light' : '' }}
-        {{$vc_compact_sidebar->compact_sidebar == true || $path[0] === 'documents' && $path[1] === 'create' ? 'sidebar-left-collapsed' : ''}}
+        {{$vc_compact_sidebar->compact_sidebar == true
+        || $path[0] === 'pos'
+        || $path[0] === 'documents' && $path[1] === 'create' ? 'sidebar-left-collapsed' : ''}}
         {{-- header-{{$visual->navbar ?? 'fixed'}} --}}
         {{-- {{$visual->header == 'dark' ? 'header-dark' : ''}} --}}
         {{-- {{$visual->sidebars == 'dark' ? '' : 'sidebar-light'}} --}}
@@ -181,6 +183,7 @@
     <!-- Theme Custom -->
     <script src="{{asset('porto-light/js/custom.js')}}"></script>
     <script src="{{asset('porto-light/js/jquery.xml2json.js')}}"></script>
+
     <script>
 
         function parseXMLToJSON(source)

@@ -1,44 +1,3 @@
-<?php
-function getLocationData($value)
-{
-    $customer = null;
-    $district = '';
-    $department = '';
-    $province = '';
-    $type_doc = $value;
-    if (
-        $type_doc &&
-        $type_doc->customer
-    ) {
-        $customer = $type_doc->customer;
-    }
-    if ($customer != null) {
-        if (
-            $customer->district &&
-            $customer->district->description
-        ) {
-            $district = $customer->district->description;
-        }
-        if (
-            $customer->department &&
-            $customer->department->description
-        ) {
-            $department = $customer->department->description;
-        }
-        if (
-            $customer->province &&
-            $customer->province->description
-        ) {
-            $province = $customer->province->description;
-        }
-    }
-    return [
-        'district' => $district,
-        'department' => $department,
-        'province' => $province,
-    ];
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -185,20 +144,20 @@ function getLocationData($value)
                         <tbody>
                             @foreach($records as $key => $value)
                                 <?php
-                                    /** @var \App\Models\Tenant\Document  $value */
+                    /** @var \App\Models\Tenant\Document|App\Models\Tenant\SaleNote  $value */
                                     $iteration = $loop->iteration;
 
                                     $user = $value->user->name;
+                    $document_type = $value->getDocumentType();
 
                                 ?>
                                 <tr>
                                     <td class="celda">{{$loop->iteration}}</td>
-                                    <td class="celda">{{$value->document_type->id}}</td>
+                                    <td class="celda">{{$document_type->id}}</td>
                                     <td class="celda">{{$value->series}}-{{$value->number}}</td>
                                     <td class="celda">{{$value->date_of_issue->format('Y-m-d')}}</td>
                                     <td class="celda">{{isset($value->invoice)?$value->invoice->date_of_due->format('Y-m-d'):''}}</td>
-
-                                        @if(in_array($value->document_type_id,["07","08"]) && $value->note)
+                                        @if(in_array($document_type->id,["07","08"]) && $value->note)
 
                                             @php
                                                 $serie = ($value->note->affected_document) ? $value->note->affected_document->series : $value->note->data_affected_document->series;
@@ -218,8 +177,8 @@ function getLocationData($value)
                                             @endforeach
                                         @endif
                                     </td>
-                                    <?php $stablihsment = getLocationData($value); ?>
-                                    <td class="celda">{{$stablihsment['district']}}</td>
+                                    <?php $stablihsment = \App\CoreFacturalo\Helpers\Template\ReportHelper::getLocationData($value); ?>
+                                        <td class="celda">{{$stablihsment['district']}}</td>
                                     <td class="celda">{{$stablihsment['department']}}</td>
                                     <td class="celda">{{$stablihsment['province']}}</td>
 
@@ -235,7 +194,7 @@ function getLocationData($value)
                                     </td>
                                     <td class="celda">{{ $value->purchase_order }}</td>
                                     @php
-                                     $signal = $value->document_type_id;
+                                     $signal = $document_type->id;
                                      $state = $value->state_type_id;
                                     @endphp
 
@@ -254,18 +213,18 @@ function getLocationData($value)
                                         <td class="celda">{{$signal == '07' ? "-" : ""  }}{{$value->total}}</td>
 
                                     @else
-                                        <td class="celda">{{ (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_taxed}}</td>
-                                        <td class="celda">{{ (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_igv}}</td>
-                                        <td class="celda">{{ (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total}}</td>
+                                        <td class="celda">{{ (in_array($document_type->id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_taxed}}</td>
+                                        <td class="celda">{{ (in_array($document_type->id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_igv}}</td>
+                                        <td class="celda">{{ (in_array($document_type->id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total}}</td>
 
                                     @endif
 
 
 
                                     @php
-                                        $value->total_taxed = (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_taxed;
-                                        $value->total_igv = (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_igv;
-                                        $value->total = (in_array($value->document_type_id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total;
+                                        $value->total_taxed = (in_array($document_type->id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_taxed;
+                                        $value->total_igv = (in_array($document_type->id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total_igv;
+                                        $value->total = (in_array($document_type->id,['01','03']) && in_array($value->state_type_id,['09','11'])) ? 0 : $value->total;
                                     @endphp
                                 </tr>
                                 @php

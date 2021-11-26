@@ -16,8 +16,10 @@ class GeneralItemCollection extends ResourceCollection
             $resource = self::getDocument($row);
             $purchase_item = null;
             $total_item_purchase = self::getPurchaseUnitPrice($row,$resource,$purchase_item);
-            if ($row->item->presentation) {
-                $total_item_purchase = $total_item_purchase * $row->item->presentation->quantity_unit;
+            $quantity_unit = 0;
+            if (property_exists($row, 'item') && property_exists($row->item, 'presentation')) {
+                $quantity_unit= $row->item->presentation->quantity_unit;
+                $total_item_purchase *= $quantity_unit;
             }
             $utility_item = $row->total - $total_item_purchase;
             $item = $row->getModelItem();
@@ -47,7 +49,7 @@ class GeneralItemCollection extends ResourceCollection
                 'total_item_purchase' => number_format($total_item_purchase, 2),
                 'is_set' => (bool) $row->relation_item->is_set,
                 'utility_item' => number_format($utility_item, 2),
-                'factor' => $row->item->presentation ? number_format($row->item->presentation->quantity_unit, 2) : 0,
+                'factor' => ($quantity_unit!=0) ? number_format($quantity_unit, 2) : 0,
                 'document_type_description' => $resource['document_type_description'],
                 'document_type_id' => $resource['document_type_id'],
                 'web_platform_name' => optional($row->relation_item->web_platform)->name,

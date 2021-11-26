@@ -203,9 +203,10 @@
                             <p class="text-right" v-if="form.total_exonerated > 0">OP.EXONERADAS: {{ currency_type.symbol }} {{ form.total_exonerated }}</p>
                             <p class="text-right" v-if="form.total_taxed > 0">OP.GRAVADA: {{ currency_type.symbol }} {{ form.total_taxed }}</p>
                             <p class="text-right" v-if="form.total_igv > 0">IGV: {{ currency_type.symbol }} {{ form.total_igv }}</p>
+                            <p class="text-right" v-if="form.total_isc > 0">ISC: {{ currency_type.symbol }} {{ form.total_isc }}</p>
                             <p class="text-right" v-if="form.total_charge > 0">OTROS CARGOS: {{ currency_type.symbol }} {{ form.total_charge }}</p>
 
-                            <template v-if="isCreditNoteAndType13">
+                            <template v-if="isCreditNoteAndType13 || isCreditNoteAndType03">
                                 <h3 class="text-right"><b>TOTAL A PAGAR: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
                             </template>
                             <template v-else>
@@ -217,24 +218,38 @@
                         <div class="col-md-4">
                             <!-- Crédito -->
                             <template v-if="form.payment_condition_id === '02' && isCreditNoteAndType13">
-                                <table v-if="form.fee.length>0" class="text-left" width="100%">
+                                <table v-if="form.fee.length>0"
+                                        class="text-left"
+                                        width="100%">
                                     <thead>
-                                        <tr>
-                                            <th class="text-left" style="width: 100px">Fecha</th>
-                                            <th class="text-left" style="width: 100px">Monto</th>
-                                            <th style="width: 30px"></th>
-                                        </tr>
+                                    <tr>
+                                        <th class="text-left"
+                                            style="width: 100px">Fecha
+                                        </th>
+                                        <th class="text-left"
+                                            style="width: 100px">Monto
+                                        </th>
+                                        <th style="width: 30px"></th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                    <tr v-for="(row, index) in form.fee" :key="index">
+                                    <tr v-for="(row, index) in form.fee"
+                                        :key="index">
                                         <td>
-                                            <el-date-picker v-model="row.date" :clearable="false" format="dd/MM/yyyy" type="date" value-format="yyyy-MM-dd"></el-date-picker>
+                                            <el-date-picker v-model="row.date"
+                                                            :clearable="false"
+                                                            format="dd/MM/yyyy"
+                                                            type="date"
+                                                            value-format="yyyy-MM-dd"></el-date-picker>
                                         </td>
                                         <td>
                                             <el-input v-model="row.amount"></el-input>
                                         </td>
                                         <td class="text-center">
-                                            <button v-if="index > 0" class="btn waves-effect waves-light btn-xs btn-danger" type="button" @click.prevent="clickRemoveFee(index)">
+                                            <button v-if="index > 0"
+                                                    class="btn waves-effect waves-light btn-xs btn-danger"
+                                                    type="button"
+                                                    @click.prevent="clickRemoveFee(index)">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td>
@@ -242,7 +257,11 @@
                                     <tr>
                                         <td colspan="5">
                                             <label class="control-label">
-                                                <a class="" href="#" @click.prevent="clickAddFee"><i class="fa fa-plus font-weight-bold text-info"></i><span style="color: #777777">Agregar cuota</span></a>
+                                                <a class=""
+                                                    href="#"
+                                                    @click.prevent="clickAddFee"><i class="fa fa-plus font-weight-bold text-info"></i>
+                                                    <span style="color: #777777">Agregar cuota</span></a>
+
                                             </label>
                                         </td>
                                     </tr>
@@ -254,7 +273,7 @@
                 </div>
                 <div class="form-actions text-right mt-4">
                     <el-button @click.prevent="close()">Cancelar</el-button>
-                    <template v-if="isCreditNoteAndType13">
+                    <template v-if="isCreditNoteAndType13 || isCreditNoteAndType03">
                         <el-button type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0">Generar</el-button>
                     </template>
                     <template v-if="this.form.note_credit_or_debit_type_id === '03'">
@@ -324,7 +343,8 @@
                 affected_documents: [],
                 temp_total:0,
                 selected_credit_note_type_13: false,
-                apply_change_has_discounts: false
+                apply_change_has_discounts: false,
+                selected_credit_note_type_03: false,
             }
         },
         created() {
@@ -343,7 +363,7 @@
 
                     this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
                     this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
-                    this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
+                    // this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
 
                     this.changeDocumentType()
                     this.changeDateOfIssue()
@@ -360,6 +380,9 @@
         computed: { 
             isCreditNoteAndType13: function () {
                 return (this.form.document_type_id === '07' && this.form.note_credit_or_debit_type_id === '13')
+            },
+            isCreditNoteAndType03: function () {
+                return (this.form.document_type_id === '07' && this.form.note_credit_or_debit_type_id === '03')
             },
             hasDiscounts: function () {
                 return (parseFloat(this.document_affected.total_discount) > 0)
@@ -458,7 +481,9 @@
             },
             changeNoteCreditType(){
 
-                if(this.isCreditNoteAndType13){
+                if(this.isCreditNoteAndType13)
+                {
+                    // Ajustes – montos y/o fechas de pago
 
                     //si la condicion de pago del cpe relacionado es diferente de credito, no es posible usar el tipo de nota = 13
                     if(this.document_affected.payment_condition_id !== '02'){
@@ -475,17 +500,27 @@
                     // variable usada para determinar si al menos usaron una vez el tipo de nota 13
                     this.selected_credit_note_type_13 = true
 
-                }else{
+                }
+                else if(this.isCreditNoteAndType03)
+                {
+                    //Corrección por error en la descripción
 
+                    //cuando es tipo de nota credito = 03 se recalculan los montos a 0
+                    this.recalculateItems()
+                    // variable usada para determinar si al menos usaron una vez el tipo de nota 03
+                    this.selected_credit_note_type_03 = true
+                }
+                else
+                {
+                    // Otros
                     this.initData()
-                
                 }
 
             },
             async initData(){
 
                 // si se seleccionó el tipo de nota 13, se deberá reiniciar la data
-                if(this.selected_credit_note_type_13){
+                if(this.selected_credit_note_type_13 || this.selected_credit_note_type_03){
 
                     //si no tiene descuento, se puede inicializar la data, caso contrario los items se deben agregar manualmente
                     if(!this.hasDiscounts){
@@ -598,7 +633,8 @@
                     actions: {
                         format_pdf: 'a4'
                     },
-                    operation_type_id: null,
+                    // operation_type_id: null,
+                    operation_type_id: this.document.invoice.operation_type_id, //se asigna el t. operacion del documento relacionado para filtrar en form item el tipo de afectacion
                     hotel: {},
                     charges: this.document.charges ? Object.values(this.document.charges) : null,
                     payment_condition_id : null,
@@ -614,6 +650,7 @@
 
                 this.temp_total = this.form.total
                 this.selected_credit_note_type_13 = false
+                this.selected_credit_note_type_03 = false
                 this.apply_change_has_discounts = false
 
             },
@@ -657,7 +694,7 @@
                 await this.getNote()
                 await this.getHasDocuments()
                 await this.initForm()
-                this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
+                // this.form.operation_type_id = (this.operation_types.length > 0)?this.operation_types[0].id:null
                 this.form.document_type_id = (this.document_types.length > 0)?this.document_types[0].id:null
                 this.changeDocumentType()
                 this.changeDateOfIssue()
@@ -705,7 +742,8 @@
                 this.form.note_credit_or_debit_type_id = null
                 this.form.series_id = null
                 if(this.is_contingency) {
-                    this.series = _.filter(this.all_series, {'document_type_id': this.form.document_type_id, 'contingency': this.is_contingency});
+                    this.series = _.filter(this.all_series, {'document_type_id': this.form.document_type_id,
+                                                             'contingency': this.is_contingency});
                 } else {
                     let document_type = _.find(this.document_types, {id: this.form.document_type_id})
                     let firstChar = (this.document.group_id === '01')?'F':'B'
@@ -758,6 +796,9 @@
                 let total_value = 0
                 let total = 0
                 let total_plastic_bag_taxes = 0
+                let total_base_isc = 0
+                let total_isc = 0
+
                 this.form.items.forEach((row) => {
                     total_discount += parseFloat(row.total_discount)
                     total_charge += parseFloat(row.total_charge)
@@ -781,7 +822,16 @@
                     total_igv += parseFloat(row.total_igv)
                     total += parseFloat(row.total)
                     total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
+                    
+                    // isc
+                    total_isc += parseFloat(row.total_isc)
+                    total_base_isc += parseFloat(row.total_base_isc)
+
                 });
+
+                // isc
+                this.form.total_base_isc = _.round(total_base_isc, 2)
+                this.form.total_isc = _.round(total_isc, 2)
 
                 this.form.total_exportation = _.round(total_exportation, 2)
                 this.form.total_taxed = _.round(total_taxed, 2)
@@ -790,7 +840,11 @@
                 this.form.total_free = _.round(total_free, 2)
                 this.form.total_igv = _.round(total_igv, 2)
                 this.form.total_value = _.round(total_value, 2)
-                this.form.total_taxes = _.round(total_igv, 2)
+                // this.form.total_taxes = _.round(total_igv, 2)
+                
+                //impuestos (isc + igv)
+                this.form.total_taxes = _.round(total_igv + total_isc, 2);
+
                 this.form.total_plastic_bag_taxes = _.round(total_plastic_bag_taxes, 2)
                 // this.form.total = _.round(total, 2)
                 this.form.total = _.round(total, 2) + this.form.total_plastic_bag_taxes

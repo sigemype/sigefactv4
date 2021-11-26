@@ -15,8 +15,6 @@
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Illuminate\Database\Eloquent\Builder;
     use Illuminate\Database\Eloquent\Collection;
-    use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
-    use thiagoalessio\TesseractOCR\Tests\Common\SkipException;
 
     /**
      * Class ItemRelSuscriptionPlan
@@ -792,7 +790,12 @@
         public function getCollectionData(CurrencyType  $currencyType = null)
         {
             $data = $this->toArray();
-            $data = array_merge($data, $this->relation_item->getCollectionData(),$this->getTransformItem());
+            $item = $this->relation_item;
+            $relationItem = [];
+            if ($item != null) {
+                $relationItem = $item->getCollectionData();
+            }
+            $data = array_merge($data, $relationItem, $this->getTransformItem());
             $data['affectation_igv_type'] = $this->affectation_igv_type();
             $data['currency_type'] = $currencyType;
 
@@ -826,7 +829,7 @@
                 //         'lot_code' => ($row->item_loteable_type) ? (isset($row->item_loteable->lot_code) ? $row->item_loteable->lot_code:null):null
                 //     ];
                 // })->values(),
-                'series_enabled' => (bool)$resource->series_enabled,
+                'series_enabled' => (bool)(($resource!= null)?$resource->series_enabled:false),
             ];
 
             return $data_lots;

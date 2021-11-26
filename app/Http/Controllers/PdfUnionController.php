@@ -7,7 +7,8 @@
     use setasign\Fpdi\Fpdi;
     use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-    class PdfUnionController extends Controller{
+    class PdfUnionController extends Controller
+    {
         /**
          * Unifica varios pdf en uno solo.
          *
@@ -16,7 +17,8 @@
          *
          * @throws MpdfException
          */
-        public static function addFpi(Fpdi &$fpdi, Mpdf &$pdf){
+        public static function addFpi(Fpdi &$fpdi, Mpdf &$pdf)
+        {
             $path = storage_path('app/public/temp_pdf/' . microtime() . ".pdf");
             if (!is_dir(storage_path('app/public/temp_pdf/'))) mkdir(storage_path('app/public/temp_pdf/'));
             ob_clean();

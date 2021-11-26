@@ -7,6 +7,7 @@
             </ol>
             <div v-if="typeUser == 'admin'" class="right-wrapper pull-right">
                 <!--<button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i class="fa fa-upload"></i> Importar</button>-->
+                <button type="button" class="btn btn-success btn-sm  mt-2 mr-2" @click.prevent="clickReport()"><i class="fa fa-file-excel"></i> Reporte</button>
                 <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickCreate('input')"><i class="fa fa-plus-circle"></i> Ingreso</button>
                 <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickOutput()"><i class="fa fa-minus-circle"></i> Salida</button>
             </div>
@@ -69,6 +70,11 @@
             <inventories-remove :showDialog.sync="showDialogRemove"
                                 :recordId="recordId"></inventories-remove>
             <MoveGlobal :products="selectedItems" :show.sync="showHideModalMoveGlobal"></MoveGlobal>
+
+            <movement-report
+                            :showDialog.sync="showDialogMovementReport"
+                                ></movement-report>
+
         </div>
     </div>
 </template>
@@ -80,12 +86,13 @@
 
     import InventoriesMove from './move.vue'
     import InventoriesRemove from './remove.vue'
-    import DataTable from '../../../../../../resources/js/components/DataTable.vue'
+    import DataTable from '@components/DataTable.vue'
     import MoveGlobal from './MoveGlobal.vue';
+    import MovementReport from './reports/movement_report.vue';
 
     export default {
         props: ['type', 'typeUser'],
-        components: {DataTable, InventoriesForm, InventoriesMove, InventoriesRemove, InventoriesFormOutput, MoveGlobal},
+        components: {DataTable, InventoriesForm, InventoriesMove, InventoriesRemove, InventoriesFormOutput, MoveGlobal, MovementReport},
         data() {
             return {
                 showHideModalMoveGlobal: false,
@@ -98,12 +105,16 @@
                 resource: 'inventory',
                 recordId: null,
                 typeTransaction:null,
+                showDialogMovementReport:false
             }
         },
         created() {
             this.title = 'Inventario'
         },
         methods: {
+            clickReport(){
+                this.showDialogMovementReport = true
+            },
             async onOpenModalMoveGlobal() {
                 const itemsSelecteds = await this.$refs.datatable.records.filter(p => p.selected);
                 if (itemsSelecteds.length > 0) {

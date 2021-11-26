@@ -3,6 +3,7 @@
     namespace Modules\Suscription\Http\Controllers;
 
     use App\Http\Controllers\SearchCustomerController;
+    use Carbon\Carbon;
     use Illuminate\Http\Request;
     use Modules\Suscription\Http\Requests\PaymentsSuscriptionRequest;
     use Modules\Suscription\Http\Resources\UserRelSuscriptionPlansCollection;
@@ -46,6 +47,7 @@
 
             $customers = SearchCustomerController::getSuscriptionCustomers();
             $periods = CatPeriod::where('active', 1)->get();
+            $startDate = Carbon::createFromFormat('Y-m-d', '2022-01-01')->format('Y-m-d');
             $plans = SuscriptionPlan::where('id', '!=', 0)
                 ->get()
                 ->transform(function ($row) {
@@ -55,6 +57,7 @@
             return compact(
                 'periods',
                 'customers',
+                'startDate',
                 'plans'
 
             );
@@ -70,8 +73,17 @@
          */
         public function destroy($id)
         {
-            //
+
+            $record = UserRelSuscriptionPlan::findOrFail($id);
+            $record->delete();
+
+            return [
+                'success' => true,
+                'message' => 'Matrícula eliminada con éxito'
+            ];
+
         }
+
 
         /**
          * Show the form for editing the specified resource.
@@ -141,8 +153,13 @@
             if ($request->has('id')) $id = (int)$request->id;
             $plan = UserRelSuscriptionPlan::firstOrNew(['id' => $id], []);
             $plan->fill($request->all());
-
             $plan->push();
+            $salesNotes = UserRelSuscriptionPlan::setSaleNote($plan);
+
+            if ( !empty($salesNotes)) {
+                $plan->sale_notes = implode(',', $salesNotes);
+                $plan->push();
+            }
             return new UserRelSuscriptionPlansResource($plan);
 
         }

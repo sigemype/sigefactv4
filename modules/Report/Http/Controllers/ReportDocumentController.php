@@ -2,19 +2,20 @@
 
 namespace Modules\Report\Http\Controllers;
 
-use App\Models\Tenant\Catalogs\DocumentType;
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\Configuration;
-use Barryvdh\DomPDF\Facade as PDF;
-use Modules\Report\Exports\DocumentExport;
-use Illuminate\Http\Request;
-use Modules\Report\Traits\ReportTrait;
-use App\Models\Tenant\Establishment;
-use App\Models\Tenant\Document;
+use App\Models\Tenant\Catalogs\DocumentType;
 use App\Models\Tenant\Company;
+use App\Models\Tenant\Document;
+use App\Models\Tenant\Establishment;
+use App\Models\Tenant\SaleNote;
+use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
-use Modules\Report\Http\Resources\DocumentCollection;
+use Illuminate\Http\Request;
 use Modules\Item\Models\Category;
+use Modules\Report\Exports\DocumentExport;
+use Modules\Report\Http\Resources\DocumentCollection;
+use Modules\Report\Http\Resources\SaleNoteCollection;
+use Modules\Report\Traits\ReportTrait;
 
 
 class ReportDocumentController extends Controller
@@ -22,9 +23,16 @@ class ReportDocumentController extends Controller
     use ReportTrait;
 
 
+
     public function filter() {
 
-        $document_types = DocumentType::whereIn('id', ['01', '03','07', '08'])->get();
+        $document_types = DocumentType::whereIn('id',[
+                '01',// factura
+                '03',// boleta
+                '07', // nota de credito
+                '08',// nota de debito
+                '80', // nota de venta
+            ])->get();
 
         $persons = $this->getPersons('customers');
         $sellers = $this->getSellers();
@@ -35,22 +43,37 @@ class ReportDocumentController extends Controller
                 'name' => $row->description
             ];
         });
+        $users = $this->getUsers();
 
-        return compact('document_types','establishments','persons', 'sellers');
+        return compact('document_types','establishments','persons', 'sellers', 'users');
     }
 
 
     public function index() {
-        $configuration = Configuration::first();
-        $configuration->ticket_58 = (bool)$configuration->ticket_58;
-        return view('report::documents.index',compact('configuration'));
+        return view('report::documents.index');
     }
 
     public function records(Request $request)
     {
-        $records = $this->getRecords($request->all(), Document::class);
+        $documentTypeId = "01";
+        if ($request->has('document_type_id')) {
+            $documentTypeId = str_replace('"', '', $request->document_type_id);
+        }
+        $documentType = DocumentType::find($documentTypeId);
+        if (null === $documentType) {
+            $documentType = new DocumentType();
+        }
 
+        $classType = $documentType->getCurrentRelatiomClass();
+
+        $records = $this->getRecords($request->all(), $classType);
+
+        if ($classType == SaleNote::class) {
+            return new SaleNoteCollection($records->paginate(config('tenant.items_per_page')));
+        }
         return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
+
+
     }
 
 
@@ -59,7 +82,19 @@ class ReportDocumentController extends Controller
         set_time_limit (1800); // Maximo 30 minutos
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
-        $records = $this->getRecords($request->all(), Document::class)->get();
+        $documentTypeId = "01";
+        if ($request->has('document_type_id')) {
+            $documentTypeId = str_replace('"', '', $request->document_type_id);
+        }
+        $documentType = DocumentType::find($documentTypeId);
+        if (null === $documentType) {
+            $documentType = new DocumentType();
+        }
+
+        $classType = $documentType->getCurrentRelatiomClass();
+        $records = $this->getRecords($request->all(), $classType);
+        $records= $records->get();
+
         $filters = $request->all();
 
         $pdf = PDF::loadView('report::documents.report_pdf', compact("records", "company", "establishment", "filters"))
@@ -71,14 +106,23 @@ class ReportDocumentController extends Controller
     }
 
 
-
-
     public function excel(Request $request) {
 
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
 
-        $records = $this->getRecords($request->all(), Document::class)->get();
+        $documentTypeId = "01";
+        if ($request->has('document_type_id')) {
+            $documentTypeId = str_replace('"', '', $request->document_type_id);
+        }
+        $documentType = DocumentType::find($documentTypeId);
+        if (null === $documentType) {
+            $documentType = new DocumentType();
+        }
+
+        $classType = $documentType->getCurrentRelatiomClass();
+        $records = $this->getRecords($request->all(), $classType);
+        $records= $records->get();
         $filters = $request->all();
 
         //get categories
@@ -98,6 +142,7 @@ class ReportDocumentController extends Controller
             ->filters($filters)
             ->categories($categories)
             ->categories_services($categories_services);
+         // return $documentExport->view();
         return $documentExport->download('Reporte_Ventas_'.Carbon::now().'.xlsx');
 
     }

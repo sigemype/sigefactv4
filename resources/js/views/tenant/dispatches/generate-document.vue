@@ -758,11 +758,15 @@ export default {
             this.form.dispatch = await data.dispatch;
 
             const items = await data.items.map((i) => {
-                const it = this.form.dispatch.items
-                    .filter((ite) => ite.item_id == i.id)
-                    .reduce((ite) => ite);
+
+                const it = this.form.dispatch.items.filter((ite) => ite.item_id == i.id).reduce((ite) => ite);
+
+                let unit_price = (!i.has_igv) ? i.sale_unit_price * 1.18 : i.sale_unit_price;
+
                 i.quantity = it.quantity;
-                i.unit_price = i.sale_unit_price;
+                i.unit_price = unit_price;
+                // i.unit_price = i.sale_unit_price;
+
                 return i;
             });
 

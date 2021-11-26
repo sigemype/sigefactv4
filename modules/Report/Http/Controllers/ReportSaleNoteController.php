@@ -33,9 +33,16 @@ class ReportSaleNoteController extends Controller
 
         $sellers = $this->getSellers();
         $web_platforms = WebPlatform::get();
+        $users = $this->getUsers();
 
 
-        return compact('document_types','establishments', 'sellers','web_platforms');
+        return compact(
+            'users',
+            'document_types',
+            'establishments',
+            'sellers',
+            'web_platforms'
+        );
     }
 
 

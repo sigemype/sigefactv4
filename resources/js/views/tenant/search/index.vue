@@ -1,7 +1,9 @@
 <template>
     <div class="card">
         <div class="card-header bg-info">
-            <h3 class="my-0">Buscar comprobante electrónico</h3>
+            <h3 class="my-0">
+                Buscar comprobante electrónico
+            </h3>
         </div>
         <div class="card-body">
             <form autocomplete="off" @submit.prevent="submit">
@@ -105,9 +107,10 @@
         },
         created() {
             this.initForm()
-            this.$http.get(`/${this.resource}/tables`).then(response => {
-                this.document_types = response.data.document_types
-            })
+            this.$http.get(`/${this.resource}/tables`)
+                .then(response => {
+                    this.document_types = response.data.document_types
+                })
         },
         methods: {
             initForm() {
@@ -125,21 +128,24 @@
             submit() {
                 this.loading_submit = true
                 this.record = null
-                this.$http.post(`/${this.resource}`, this.form).then(response => {
-                    if (response.data.success) {
-                        this.record = response.data.data
-                    } else {
-                        this.$message.error(response.data.message)
-                    }
-                }).catch(error => {
-                    if (error.response.status === 422) {
-                        this.errors = error.response.data
-                    } else {
-                        this.$message.error(error.response.data.message)
-                    }
-                }).then(() => {
-                    this.loading_submit = false
-                })
+                this.$http.post(`/${this.resource}`, this.form)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.record = response.data.data
+                        } else {
+                            this.$message.error(response.data.message)
+                        }
+                    })
+                    .catch(error => {
+                        if (error.response.status === 422) {
+                            this.errors = error.response.data
+                        } else {
+                            this.$message.error(error.response.data.message)
+                        }
+                    })
+                    .then(() => {
+                        this.loading_submit = false
+                    })
             },
         }
     }

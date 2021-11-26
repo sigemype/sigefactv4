@@ -59,6 +59,7 @@
                                                 :clearable="false"
                                                 type="date"
                                                 value-format="yyyy-MM-dd"
+                                                :readonly="readonly_date_of_due"
                                                 @change="changeDateOfIssue"></el-date-picker>
                                 <small v-if="errors.date_of_issue"
                                        class="form-control-feedback"
@@ -73,6 +74,7 @@
                                 <el-date-picker v-model="form.date_of_due"
                                                 :clearable="false"
                                                 type="date"
+                                                :readonly="readonly_date_of_due"
                                                 value-format="yyyy-MM-dd"></el-date-picker>
                                 <small v-if="errors.date_of_due"
                                        class="form-control-feedback"
@@ -205,85 +207,208 @@
                             </div>
                         </div>
 
-                        <div v-if="form.has_payment"
-                             class="col-md-8 col-lg-8 mt-2">
-
-                            <table>
-                                <thead>
-                                <tr width="100%">
-                                    <th v-if="form.payments.length>0"
-                                        class="pb-2">Forma de pago
-                                    </th>
-                                    <th v-if="form.payments.length>0"
-                                        class="pb-2">Desde
-                                        <el-tooltip class="item"
-                                                    content="Aperture caja o cuentas bancarias"
-                                                    effect="dark"
-                                                    placement="top-start">
-                                            <i class="fa fa-info-circle"></i>
-                                        </el-tooltip>
-                                    </th>
-                                    <th v-if="form.payments.length>0"
-                                        class="pb-2">Referencia
-                                    </th>
-                                    <th v-if="form.payments.length>0"
-                                        class="pb-2">Monto
-                                    </th>
-                                    <th width="15%"><a class="text-center font-weight-bold text-info"
-                                                       href="#"
-                                                       @click.prevent="clickAddPayment">[+ Agregar]</a>
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr v-for="(row, index) in form.payments"
-                                    :key="index">
-                                    <td>
-                                        <div class="form-group mb-2 mr-2">
-                                            <el-select v-model="row.payment_method_type_id"
-                                                       @change="changePaymentMethodType(true,index)">
-                                                <el-option v-for="option in payment_method_types"
-                                                           :key="option.id"
-                                                           :label="option.description"
-                                                           :value="option.id"></el-option>
-                                            </el-select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group mb-2 mr-2">
-                                            <el-select v-model="row.payment_destination_id"
-                                                       filterable>
-                                                <el-option v-for="option in payment_destinations"
-                                                           :key="option.id"
-                                                           :label="option.description"
-                                                           :value="option.id"></el-option>
-                                            </el-select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group mb-2 mr-2">
-                                            <el-input v-model="row.reference"></el-input>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="form-group mb-2 mr-2">
-                                            <el-input v-model="row.payment"></el-input>
-                                        </div>
-                                    </td>
-                                    <td class="series-table-actions text-center">
-                                        <button class="btn waves-effect waves-light btn-xs btn-danger"
-                                                type="button"
-                                                @click.prevent="clickCancel(index)">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                    <br>
-                                </tr>
-                                </tbody>
-                            </table>
 
 
-                        </div>
+                    </div>
+                    <div class="row">
+                        <template v-if="form.has_payment">
+
+                            <div class="col-lg-2 col-md-2">
+                                <div :class="{'has-danger': errors.payment_condition_id}"
+                                    class="form-group">
+                                    <label class="control-label">Condición de pago</label>
+                                    <el-select v-model="form.payment_condition_id"
+                                            @change="changePaymentCondition">
+                                        <el-option v-for="option in payment_conditions"
+                                                :key="option.id"
+                                                :label="option.name"
+                                                :value="option.id"></el-option>
+                                    </el-select>
+                                    <small v-if="errors.payment_condition_id"
+                                        class="form-control-feedback"
+                                        v-text="errors.payment_condition_id[0]"></small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12 col-lg-12 mt-2">
+                                <!-- Contado -->
+                                <template v-if="form.payment_condition_id === '01'">
+                                    <table>
+                                        <thead>
+                                        <tr width="100%">
+                                            <th v-if="form.payments.length>0"
+                                                class="pb-2">Forma de pago
+                                            </th>
+                                            <th v-if="form.payments.length>0"
+                                                class="pb-2">Desde
+                                                <el-tooltip class="item"
+                                                            content="Aperture caja o cuentas bancarias"
+                                                            effect="dark"
+                                                            placement="top-start">
+                                                    <i class="fa fa-info-circle"></i>
+                                                </el-tooltip>
+                                            </th>
+                                            <th v-if="form.payments.length>0"
+                                                class="pb-2">Referencia
+                                            </th>
+                                            <th v-if="form.payments.length>0"
+                                                class="pb-2">Monto
+                                            </th>
+                                            <th width="15%"><a class="text-center font-weight-bold text-info"
+                                                            href="#"
+                                                            @click.prevent="clickAddPayment">[+ Agregar]</a>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(row, index) in form.payments"
+                                            :key="index">
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-select v-model="row.payment_method_type_id"
+                                                            @change="changePaymentMethodType(index)">
+                                                        <el-option v-for="option in cashPaymentMethod"
+                                                                :key="option.id"
+                                                                :label="option.description"
+                                                                :value="option.id"></el-option>
+                                                    </el-select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-select v-model="row.payment_destination_id"
+                                                            filterable>
+                                                        <el-option v-for="option in payment_destinations"
+                                                                :key="option.id"
+                                                                :label="option.description"
+                                                                :value="option.id"></el-option>
+                                                    </el-select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-input v-model="row.reference"></el-input>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-input v-model="row.payment"></el-input>
+                                                </div>
+                                            </td>
+                                            <td class="series-table-actions text-center">
+                                                <button class="btn waves-effect waves-light btn-xs btn-danger"
+                                                        type="button"
+                                                        @click.prevent="clickCancel(index)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                            <br>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+
+                                <!-- Credito -->
+                                <template v-else-if="form.payment_condition_id === '02'">
+                                    <table v-if="form.fee.length>0">
+                                        <thead>
+                                        <tr width="100%">
+                                            <th class="pb-2" v-if="form.fee.length>0"
+                                                >Método de pago
+                                            </th>
+                                            <th class="pb-2" 
+                                                >Fecha
+                                            </th>
+                                            <th class="pb-2" 
+                                                >Monto
+                                            </th>
+                                            <th class="pb-2" ></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(row, index) in form.fee"
+                                            :key="index">
+                                            <td>
+                                                <el-select
+                                                    v-model="row.payment_method_type_id"
+                                                    @change="changePaymentMethodType(index)">
+                                                    <el-option
+                                                        v-for="option in creditPaymentMethod"
+                                                        :key="option.id"
+                                                        :label="option.description"
+                                                        :value="option.id"
+                                                    ></el-option>
+                                                </el-select>
+                                            </td>
+                                            <td>
+                                                <el-date-picker
+                                                    v-model="row.date"
+                                                    :clearable="false"
+                                                    format="dd/MM/yyyy"
+                                                    type="date"
+                                                    :readonly="readonly_date_of_due"
+                                                    value-format="yyyy-MM-dd"></el-date-picker>
+                                            </td>
+                                            <td>
+                                                <el-input v-model="row.amount"></el-input>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+                                </template>
+ 
+                                <!-- Crédito con cuotas -->
+                                <template v-else>
+                                    <table v-if="form.fee.length > 0">
+                                        <thead>
+                                            <tr width="100%">
+                                                <th class="pb-2" >Fecha
+                                                </th>
+                                                <th class="pb-2" >Monto
+                                                </th>
+                                                <th class="pb-2" ></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(row, index) in form.fee"
+                                                :key="index">
+                                                <td>
+                                                    <el-date-picker v-model="row.date"
+                                                                    :clearable="false"
+                                                                    format="dd/MM/yyyy"
+                                                                    type="date"
+                                                                    value-format="yyyy-MM-dd"></el-date-picker>
+                                                </td>
+                                                <td>
+                                                    <el-input v-model="row.amount"></el-input>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button v-if="index > 0"
+                                                            class="btn waves-effect waves-light btn-xs btn-danger"
+                                                            type="button"
+                                                            @click.prevent="clickRemoveFee(index)">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5">
+                                                    <label class="control-label">
+                                                        <a class=""
+                                                            href="#"
+                                                            @click.prevent="clickAddFee"><i class="fa fa-plus font-weight-bold text-info"></i>
+                                                            <span style="color: #777777">Agregar cuota</span></a>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="row">
 
                         <div class="col-lg-12 col-md-6 d-flex align-items-end mt-4">
                             <div class="form-group">
@@ -479,7 +604,7 @@
 import PurchaseFormItem from './partials/item.vue'
 import PersonForm from '../persons/form.vue'
 import PurchaseOptions from './partials/options.vue'
-import {exchangeRate, functions} from '../../../mixins/functions'
+import {exchangeRate, functions, fnPaymentsFee} from '../../../mixins/functions'
 import {calculateRowItem} from '../../../helpers/functions'
 import SeriesForm from './partials/series'
 import {mapActions, mapState} from "vuex";
@@ -487,19 +612,29 @@ import {mapActions, mapState} from "vuex";
 export default {
     props: ['purchase_order_id'],
     components: {PurchaseFormItem, PersonForm, PurchaseOptions, SeriesForm},
-    mixins: [functions, exchangeRate],
+    mixins: [functions, exchangeRate, fnPaymentsFee],
     computed: {
         ...mapState([
             'config',
             'establishment',
             'hasGlobalIgv',
         ]),
+        creditPaymentMethod: function () {
+            return _.filter(this.payment_method_types, {'is_credit': true})
+        },
+        cashPaymentMethod: function () {
+            return _.filter(this.payment_method_types, {'is_credit': false})
+        },
+        isCreditPaymentCondition: function () {
+            return ['02', '03'].includes(this.form.payment_condition_id)
+        },
     },
     data() {
         return {
             input_person: {},
             resource: 'purchases',
             showDialogAddItem: false,
+            readonly_date_of_due: false,
             localHasGlobalIgv: false,
             showDialogNewPerson: false,
             showDialogOptions: false,
@@ -526,6 +661,7 @@ export default {
             all_series: [],
             series: [],
             payment_destinations: [],
+            payment_conditions: [],
             currency_type: {},
             loading_search: false,
             purchaseNewId: null,
@@ -539,6 +675,7 @@ export default {
                 let data = response.data
                 this.document_types = data.document_types_invoice
                 this.currency_types = data.currency_types
+                this.payment_conditions = data.payment_conditions
                 // this.establishment = data.establishment
 
 
@@ -598,6 +735,11 @@ export default {
 
             if (!this.form.has_payment) {
                 this.form.payments = []
+                this.form.fee = []
+                this.form.payment_condition_id = '01'
+            
+            }else{
+                this.changePaymentCondition()
             }
         },
         changeHasClient() {
@@ -705,10 +847,24 @@ export default {
                 }
             }
 
-            if (this.form.has_payment && this.form.payments.length == 0) {
-                return {
-                    success: false,
-                    message: 'Debe registrar al menos un pago'
+            if (this.form.has_payment) {
+
+                if(this.form.payment_condition_id === '01' && this.form.payments.length == 0){
+
+                    return {
+                        success: false,
+                        message: 'Debe registrar al menos un pago'
+                    }
+
+                }
+                
+                if(this.isCreditPaymentCondition && this.form.fee.length == 0){
+
+                    return {
+                        success: false,
+                        message: 'Debe registrar al menos una cuota'
+                    }
+
                 }
             }
 
@@ -719,6 +875,7 @@ export default {
         },
         clickCancel(index) {
             this.form.payments.splice(index, 1);
+            this.calculatePayments()
         },
         clickAddPayment() {
 
@@ -732,7 +889,7 @@ export default {
                 payment: 0,
             });
 
-            this.setTotalDefaultPayment()
+            this.calculatePayments()
 
         },
         getPaymentDestinationId() {
@@ -803,17 +960,38 @@ export default {
             }
 
         },
-        changePaymentMethodType(flag_submit = true, index = null) {
-            let payment_method_type = _.find(this.payment_method_types, {'id': this.form.payments[index].payment_method_type_id})
-            if (payment_method_type.number_days) {
-                this.form.date_of_issue = moment().add(payment_method_type.number_days, 'days').format('YYYY-MM-DD');
-                this.changeDateOfIssue()
-            } else {
-                if (flag_submit) {
-                    this.form.date_of_issue = moment().format('YYYY-MM-DD')
-                    this.changeDateOfIssue()
-                }
+        changePaymentMethodType(index) {
+            
+            let id = '01'
+
+            if (this.form.payments.length > 0) {
+                id = this.form.payments[index].payment_method_type_id
+            } else if (this.form.fee.length > 0) {
+                id = this.form.fee[index].payment_method_type_id
             }
+
+            let payment_method_type = _.find(this.payment_method_types, {'id': id})
+
+            if (payment_method_type.number_days) {
+
+                this.form.date_of_due = moment(this.form.date_of_issue).add(payment_method_type.number_days, 'days').format('YYYY-MM-DD')
+                this.readonly_date_of_due = true
+
+                let date = moment(this.form.date_of_issue).add(payment_method_type.number_days, 'days').format('YYYY-MM-DD')
+
+                if (this.form.fee.length > 0) {
+                    for (let index = 0; index < this.form.fee.length; index++) {
+                        this.form.fee[index].date = date
+                    }
+                }
+
+            } else {
+
+                this.form.date_of_due = this.form.date_of_issue
+                this.readonly_date_of_due = false
+
+            }
+ 
         },
         inputTotalPerception() {
             this.total_amount = parseFloat(this.form.total) + parseFloat(this.form.total_perception)
@@ -891,11 +1069,16 @@ export default {
                 customer_id: null,
                 has_client: false,
                 has_payment: false,
+                payment_condition_id: '01',
+                fee: [],
 
             }
-            this.clickAddPayment()
+            
+            // this.clickAddPayment()
 
             this.initInputPerson()
+            
+            this.readonly_date_of_due = false
 
         },
         resetForm() {
@@ -907,6 +1090,27 @@ export default {
             this.changeDateOfIssue()
             this.changeDocumentType()
             this.changeCurrencyType()
+        },
+        changePaymentCondition(){
+
+            this.form.fee = []
+            this.form.payments = []
+
+            if (this.form.payment_condition_id === '01') {
+
+                this.clickAddPayment()
+                this.initDataPaymentCondition()
+
+            }
+            if (this.form.payment_condition_id === '02') {
+                this.clickAddFeeNew()
+                this.readonly_date_of_due = true
+            }
+            if (this.form.payment_condition_id === '03') {
+                this.clickAddFee()
+                this.initDataPaymentCondition()
+            }
+
         },
         changeDateOfIssue() {
             this.form.date_of_due = this.form.date_of_issue
@@ -984,7 +1188,9 @@ export default {
             this.calculatePerception()
 
             // this.form.payments[0].payment = this.form.total
-            this.setTotalDefaultPayment()
+            // this.setTotalDefaultPayment()
+            this.calculatePayments()
+            this.calculateFee()
 
         },
         setTotalDefaultPayment() {

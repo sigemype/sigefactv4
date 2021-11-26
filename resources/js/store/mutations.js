@@ -269,8 +269,8 @@ export default {
     setIdentityDocumentTypes(state,identity_document_types){ state.identity_document_types = (identity_document_types === undefined) ?[]: identity_document_types },
     setLocations(state,locations){ state.locations = (locations === undefined) ?[]: locations },
     setPersonTypes(state,person_types){ state.person_types = (person_types === undefined) ?[]: person_types },
-
-
+    setSeries(state,series){ state.series = (series === undefined) ?[]: series },
+    setAllSeries(state,all_series){ state.all_series = (all_series === undefined) ?[]: all_series },
 
 
 

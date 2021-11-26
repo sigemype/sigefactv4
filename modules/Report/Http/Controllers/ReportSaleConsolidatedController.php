@@ -34,8 +34,18 @@ class ReportSaleConsolidatedController extends Controller
         $document_types = $this->getCIDocumentTypes();
         $establishment_id = $this->getEstablishment();
         $series = $this->getSeries($document_types);
+        $users = $this->getUsers();
 
-        return compact('persons', 'date_range_types', 'order_state_types', 'sellers', 'document_types', 'series', 'establishment_id');
+        return compact(
+             'users',
+             'persons',
+             'date_range_types',
+             'order_state_types',
+             'sellers',
+             'document_types',
+             'series',
+             'establishment_id'
+        );
     }
 
 
@@ -99,6 +109,7 @@ class ReportSaleConsolidatedController extends Controller
             $data = $document_items->union($sale_note_items);
         }
 
+
         return $data;
 
         $document_type_id = $request['document_type_id'];
@@ -151,12 +162,14 @@ class ReportSaleConsolidatedController extends Controller
         $params = $request->all();
         $filename = 'Reporte_Consolidado_Items_Ventas_'.date('YmdHis');
 
-        return (new SaleConsolidatedExport)
-                ->records($records)
-                ->company($company)
-                ->establishment($establishment)
-                ->params($params)
-                ->download($filename.'.xlsx');
+        $saleConsolidatedExport = new SaleConsolidatedExport();
+        $saleConsolidatedExport
+            ->records($records)
+            ->company($company)
+            ->establishment($establishment)
+            ->params($params);
+        // return  $saleConsolidatedExport->view();
+        return $saleConsolidatedExport->download($filename.'.xlsx');
 
     }
 

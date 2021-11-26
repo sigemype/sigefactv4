@@ -59,7 +59,8 @@ class ItemController extends Controller
 {
     public function index()
     {
-        return view('tenant.items.index');
+        $type = 'PRODUCTS';
+        return view('tenant.items.index', compact('type'));
     }
 
     public function indexServices()
@@ -91,6 +92,7 @@ class ItemController extends Controller
     public function records(Request $request)
     {
 
+        // dd($request->all());
         $records = $this->getRecords($request);
 
         return new ItemCollection($records->paginate(config('tenant.items_per_page')));
@@ -127,7 +129,12 @@ class ItemController extends Controller
                 break;
         }
         if ($request->type) {
-            $records->whereService();
+            if($request->type ==='PRODUCTS') {
+                // listar solo productos en la lista de productos
+                $records->whereNotService();
+            }else{
+                $records->whereService();
+            }
         }
         $isPharmacy = false;
         if($request->has('isPharmacy') ){
@@ -409,7 +416,7 @@ class ItemController extends Controller
                 }
             }
             */
-            /****************************** SECCION PARA SERIES EN ITEMLOT **********************************************/
+            /****************************** SECCION PARA SEIRES EN ITEMLOT **********************************************/
             $establishment = Establishment::where('id', auth()->user()->establishment_id)->first();
             $warehouse = Warehouse::where('establishment_id',$establishment->id)->first();
             $v_lots = isset($request->lots) ? $request->lots:[];

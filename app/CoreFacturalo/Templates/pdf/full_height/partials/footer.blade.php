@@ -1,4 +1,7 @@
 @php
+    use App\CoreFacturalo\Helpers\Template\TemplateHelper;
+    use App\Models\Tenant\Document;
+	use App\Models\Tenant\SaleNote;
     if ($document != null) {
         $establishment = $document->establishment;
         $customer = $document->customer;
@@ -32,6 +35,16 @@
     $accounts = \App\Models\Tenant\BankAccount::all();
 
     $path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
+
+
+    // Pago/Coutas detalladas
+    $paymentDetailed= [];
+	if(
+		get_class($document) == Document::class ||
+		get_class($document) == SaleNote::class
+	){
+        $paymentDetailed = TemplateHelper::getDetailedPayment($document);
+	}
 @endphp
 <head>
     <link href="{{ $path_style }}" rel="stylesheet" />
@@ -96,7 +109,21 @@
             <td class="border-box text-center py-1 desc">
                 {{ $document->currency_type->symbol }} {{ number_format($document->total, 2) }}
             </td>
-            <td class="border-box text-center py-1 desc"></td>
+            <td class="border-box text-center py-1 desc">
+                @if(!empty($paymentDetailed))
+                    @foreach($paymentDetailed as $detailed)
+                        @foreach($detailed as $row)
+                            {{--{{ isset($paymentDetailed['CUOTA'])?'Cuotas:':'Pagos:' }}--}}
+
+                            {{ $row['description']  }} -
+                            {{ $row['reference']  }}
+                            {{ $row['symbol']  }}
+                            {{ number_format( $row['amount'], 2) }}
+                        @endforeach
+                    <br>
+                    @endforeach
+                @endif
+            </td>
             <td class="border-box text-center py-1 desc">
                 {{ $document->currency_type->symbol }} {{ number_format($document->total, 2) }}
             </td>

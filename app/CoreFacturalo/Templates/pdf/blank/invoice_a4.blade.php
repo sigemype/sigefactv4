@@ -689,7 +689,7 @@
     </table>
 @endif
 
-@if($payments->count())
+{{-- @if($payments->count())
 
 
     <table class="full-width">
@@ -709,7 +709,7 @@
         </tr>
 
     </table>
-@endif
+@endif --}}
 
 @if($document->user)
      <br>

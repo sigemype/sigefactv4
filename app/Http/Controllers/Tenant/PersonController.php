@@ -24,8 +24,10 @@ class PersonController extends Controller
 {
     public function index($type)
     {
-        $configuration = Configuration::first();
-        $api_service_token = $configuration->token_apiruc =! '' ? $configuration->token_apiruc : config('configuration.api_service_token');
+        // $configuration = Configuration::first();
+        // $api_service_token = $configuration->token_apiruc =! '' ? $configuration->token_apiruc : config('configuration.api_service_token');
+        $api_service_token = \App\Models\Tenant\Configuration::getApiServiceToken();
+
         return view('tenant.persons.index', compact('type','api_service_token'));
     }
 
@@ -62,8 +64,10 @@ class PersonController extends Controller
         $identity_document_types = IdentityDocumentType::whereActive()->get();
         $person_types = PersonType::get();
         $locations = $this->getLocationCascade();
-        $configuration = Configuration::first();
-        $api_service_token = $configuration->token_apiruc == 'false' ? config('configuration.api_service_token') : $configuration->token_apiruc;
+        // $configuration = Configuration::first();
+        // $api_service_token = $configuration->token_apiruc == 'false' ? config('configuration.api_service_token') : $configuration->token_apiruc;
+        $api_service_token = \App\Models\Tenant\Configuration::getApiServiceToken();
+
 
         return compact('countries', 'departments', 'provinces', 'districts', 'identity_document_types', 'locations','person_types','api_service_token');
     }

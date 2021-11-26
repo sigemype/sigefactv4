@@ -27,7 +27,7 @@
         <div class="card mb-0">
             <div class="card-header bg-info">
                 <h3 class="my-0">
-                    Listado de suscripciones
+                    Listado de matrículas
                 </h3>
             </div>
             <div class="card-body">
@@ -41,6 +41,15 @@
                         </th>
                         <th class="text-center">
                             Hijo
+                        </th>
+                        <th class="text-center">
+                            Plan
+                        </th>
+                        <th class="text-center">
+                            Grado
+                        </th>
+                        <th class="text-center">
+                            Sección
                         </th>
                         <th class="text-center">
                             Cant.Periodo/Ciclo
@@ -69,6 +78,11 @@
                             {{ row.children_customer.description }}
                         </td>
                         <td class="text-left">
+                            {{ row.plan.name }}
+                        </td>
+                        <td class="text-left"> {{ row.grade }} </td>
+                        <td class="text-left"> {{ row.section }} </td>
+                        <td class="text-left">
                             {{ row.quantity_period }}
                         </td>
                         <td class="text-left">
@@ -84,7 +98,7 @@
                                 class="btn waves-effect waves-light btn-xs btn-info"
                                 type="button"
                                 @click.prevent="clickShowPlan(row)">
-                                Editar
+                                Ver
                             </button>
                             <!--
                             <button
@@ -98,10 +112,10 @@
                     </tr>
                 </data-table>
             </div>
-   <customers-form
-            @clearSuscriptionId="clearsuscriptionid"
-            :suscriptionId="suscriptionId"
-                :showDialog.sync="showDialog">
+            <customers-form
+                :showDialog.sync="showDialog"
+                :suscriptionId="suscriptionId"
+                @clearSuscriptionId="clearsuscriptionid">
             </customers-form>
         </div>
     </div>
@@ -187,10 +201,10 @@ export default {
             this.$http
                 .post(`/suscription/${this.resource}/tables`, {})
                 .then(response => {
-                    let customers =  response.data.customers;
+                    let customers = response.data.customers;
                     this.$store.commit('setPeriods', response.data.periods)
-                    this.$store.commit('setCustomers',customers)
-                    this.$store.commit('setAllCustomers',customers)
+                    this.$store.commit('setCustomers', customers)
+                    this.$store.commit('setAllCustomers', customers)
                     this.$store.commit('setPlans', response.data.plans)
                 })
         },
@@ -200,7 +214,7 @@ export default {
 
             this.clearFormData();
             this.suscriptionId = null
-            if(row !== undefined && row.id !== null) {
+            if (row !== undefined && row.id !== null) {
                 this.suscriptionId = row.id
             }
 
@@ -215,7 +229,7 @@ export default {
                 this.$eventHub.$emit('reloadData')
             )
         },
-        clearsuscriptionid(data){
+        clearsuscriptionid(data) {
             this.suscriptionId = null;
         }
     }

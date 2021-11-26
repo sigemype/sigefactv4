@@ -37,15 +37,30 @@ if ($hostname) {
 				Route::post('rooms/{id}/rates/store', 'HotelRoomController@addRateToRoom');
 				Route::delete('rooms/{id}/rates/{rateId}/delete', 'HotelRoomController@deleteRoomRate');
 
-				Route::get('reception', 'HotelReceptionController@index');
-				Route::get('reception/tables', 'HotelRentController@tables');
-				Route::get('reception/tables/customers', 'HotelRentController@searchCustomers');
-				Route::get('reception/{roomId}/rent', 'HotelRentController@rent');
-				Route::post('reception/{roomId}/rent/store', 'HotelRentController@store');
-				Route::get('reception/{id}/rent/products', 'HotelRentController@showFormAddProduct');
-				Route::post('reception/{id}/rent/products/store', 'HotelRentController@addProductsToRoom');
-				Route::get('reception/{id}/rent/checkout', 'HotelRentController@showFormChekout');
-				Route::post('reception/{id}/rent/finalized', 'HotelRentController@finalizeRent');
+                Route::prefix('reception')->group(function () {
+                    /**
+                    hotels/reception
+                    hotels/reception/search/
+                    hotels/reception/tables
+                    hotels/reception/tables/customers
+                    hotels/reception/{roomId}/rent
+                    hotels/reception/{roomId}/rent/store
+                    hotels/reception/{id}/rent/products
+                    hotels/reception/{id}/rent/products/store
+                    hotels/reception/{id}/rent/checkout
+                    hotels/reception/{id}/rent/finalized
+                     */
+                    Route::get('', 'HotelReceptionController@index');
+                    Route::post('/search', 'HotelReceptionController@searchRooms');
+                    Route::get('/tables', 'HotelRentController@tables');
+                    Route::get('/tables/customers', 'HotelRentController@searchCustomers');
+                    Route::get('/{roomId}/rent', 'HotelRentController@rent');
+                    Route::post('/{roomId}/rent/store', 'HotelRentController@store');
+                    Route::get('/{id}/rent/products', 'HotelRentController@showFormAddProduct');
+                    Route::post('/{id}/rent/products/store', 'HotelRentController@addProductsToRoom');
+                    Route::get('/{id}/rent/checkout', 'HotelRentController@showFormChekout');
+                    Route::post('/{id}/rent/finalized', 'HotelRentController@finalizeRent');
+                });
 			});
 	});
 }

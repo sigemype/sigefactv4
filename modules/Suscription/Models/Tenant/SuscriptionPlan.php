@@ -449,6 +449,7 @@
                 'periods' => $this->cat_period->period,
 
             ];
+            $data['hasSuscription'] = (bool)count(UserRelSuscriptionPlan::where('suscription_plan_id',$this->id)->get()) > 0;
             $data = array_merge($data, $this->toArray());
             return $data;
         }

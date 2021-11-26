@@ -21,6 +21,7 @@ class PurchaseResource extends JsonResource
         $purchase->purchase_payments = self::getTransformPayments($purchase->purchase_payments);
         $purchase->items = self::getTransformItems($purchase->items);
         $purchase->customer_number = $purchase->customer_id ? $purchase->customer->number:null;
+        $purchase->fee = $purchase->fee;
 
         return [
             'id' => $this->id,

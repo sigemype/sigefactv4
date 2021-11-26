@@ -136,7 +136,7 @@
             {{ $document->contact }}
         </td>
     </tr>
-    @endif 
+    @endif
     @if ($document->phone)
     <tr>
         <td class="align-top">Telf. Contacto:</td>
@@ -144,7 +144,7 @@
             {{ $document->phone }}
         </td>
     </tr>
-    @endif 
+    @endif
 </table>
 
 <table class="full-width mt-3">

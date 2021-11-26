@@ -54,4 +54,14 @@ class Configuration extends Model
     {
         return is_null($value) ? null : (object) json_decode($value);
     }
+
+
+    public static function getApiServiceToken(){
+        $configuration = self::first();
+        // $api_service_token = $configuration->token_apiruc =! '' ? $configuration->token_apiruc : config('configuration.api_service_token');
+        $api_service_token = $configuration->token_apiruc == 'false' ? config('configuration.api_service_token') : $configuration->token_apiruc;
+        return $api_service_token;
+    }
+
+
 }

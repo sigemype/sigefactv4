@@ -286,7 +286,7 @@ class Facturalo{
         return $qr;
     }
 
-    public function createPdf($document = null, $type = null, $format = null){
+    public function createPdf($document = null, $type = null, $format = null, $output = 'pdf') {
         ini_set("pcre.backtrack_limit", "5000000");
         $template = new Template();
         $pdf = new Mpdf();
@@ -400,6 +400,9 @@ class Facturalo{
                     // $height  +
                     30+
                     $company_logo +
+                    (($quantity_rows * 8) + $extra_by_item_description) +
+                    ($document_payments * 8) +
+                    ($discount_global * 8) +
                     $company_name +
                     $company_address +
                     $company_number +
@@ -598,9 +601,30 @@ class Facturalo{
             $pdf->SetHTMLFooter($html_footer_blank);
         }
 
-        $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
-        $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+        if ($base_pdf_template === 'default3_929' && in_array($this->document->document_type_id, ['03','01'])) {
+            // Solo boleta o factura #929
+            $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
+            $pdf->SetHTMLHeader($html_header);
+            $html_footer = $template->pdfFooter($base_pdf_template, $this->document);
+            $pdf->SetHTMLFooter($html_footer);
+        }
 
+        // para impresion automatica se requiere el resultado en html ya que es lo que se envia a las funciones de impresión
+        if($output == 'html') {
+            $path_html = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.
+                                             DIRECTORY_SEPARATOR.'pdf'.
+                                             DIRECTORY_SEPARATOR.'ticket_html.css');
+            $ticket_html = file_get_contents($path_html);
+            $pdf->WriteHTML($ticket_html, HTMLParserMode::HEADER_CSS);
+            $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+            return "<style>".$ticket_html.$stylesheet."</style>".$html;
+        }
+        else {
+            $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
+            $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+        }
+
+        // echo $html_header.$html.$html_footer; exit();
         $this->uploadFile($pdf->output('', 'S'), 'pdf');
         return $this;
     }

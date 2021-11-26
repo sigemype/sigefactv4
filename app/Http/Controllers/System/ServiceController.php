@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\System\Configuration;
 use Modules\Services\Data\ServiceData;
 use App\CoreFacturalo\Services\Ruc\Sunat;
-class ServiceController extends Controller{
-	
-	public function ruc($number){
+class ServiceController extends Controller
+{
+	public function ruc($number)
+	{
 		$configuration = Configuration::first();
 		if (!$configuration->token_apiruc || $configuration->token_apiruc === 'false') {
 			$service = new Sunat();

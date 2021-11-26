@@ -56,7 +56,28 @@
                     <!--<small class="form-control-feedback" v-if="errors.customer_email" v-text="errors.customer_email[0]"></small> -->
                 </div>
             </div>
+            <div v-show="!showGenerate" class="row mt-3">
+                <div class="col-md-12">
+                    <el-input v-model="form.customer_telephone">
+                        <template slot="prepend">+51</template>
+                        <el-button slot="append"
+                                   @click="clickSendWhatsapp">Enviar
+                            <el-tooltip class="item"
+                                        content="Se recomienta tener abierta la sesión de Whatsapp web"
+                                        effect="dark"
+                                        placement="top-start">
+                                <i class="fab fa-whatsapp"></i>
+                            </el-tooltip>
+                        </el-button>
+                    </el-input>
+                    <small v-if="errors.customer_telephone"
+                           class="form-control-feedback"
+                           v-text="errors.customer_telephone[0]"></small>
+                </div>
+            </div>
+
             <br/>
+
             <div v-if="typeUser == 'admin'" class="row">
                 <div v-show="!showGenerate" class="col-md-9">
                     <div class="form-group">
@@ -145,6 +166,7 @@
                         <el-select v-model="document.payment_condition_id" dusk="document_type_id"
                                    popper-class="el-select-document_type" style="max-width: 200px;"
                                    @change="changePaymentCondition">
+                            <el-option label="Crédito con cuotas"value="03"></el-option>
                             <el-option label="Crédito" value="02"></el-option>
                             <el-option label="Contado" value="01"></el-option>
                         </el-select>
@@ -162,7 +184,7 @@
                         <el-date-picker
                             v-model="document.date_of_issue"
                             :clearable="false"
-                            readonly
+
                             type="date"
                             value-format="yyyy-MM-dd"
                             @change="changeDateOfIssue"
@@ -238,131 +260,200 @@
                         </el-select>
                     </div>
                 </div>
-                <div v-show="is_document_type_invoice && document.payment_condition_id === '02'" class="col-lg-12">
-                    <table v-if="document.fee.length>0" width="100%">
-                        <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Monto</th>
-                            <th style="width: 30px">
-                                <a
-                                    class="text-center font-weight-bold text-center text-info"
-                                    href="#"
-                                    style="font-size:18px"
-                                    @click.prevent="clickAddFee"
-                                >[+]</a>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-for="(row, index) in document.fee" :key="index">
-                            <td v-if="document.fee.length>0">
-                                <div class="form-group mb-2 mr-2">
-                                    <el-date-picker v-model="row.date" :clearable="false"
-                                                    format="dd/MM/yyyy"
-                                                    type="date"
-                                                    value-format="yyyy-MM-dd"></el-date-picker>
-                                </div>
-                            </td>
-                            <td v-if="document.fee.length>0">
-                                <div class="form-group mb-2 mr-2">
-                                    <el-input v-model="row.amount"></el-input>
-                                </div>
-                            </td>
-                            <td class="series-table-actions text-center">
-                                <button
-                                    class="btn waves-effect waves-light btn-xs btn-danger"
-                                    type="button"
-                                    @click.prevent="clickRemoveFee(index)"
-                                >
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div v-show="is_document_type_invoice && document.payment_condition_id != '02'" class="col-lg-12">
-                    <table>
-                        <thead>
-                        <tr width="100%">
-                            <th v-if="document.payments.length>0">F.Pago</th>
-                            <th v-if="document.payments.length>0">M.Pago</th>
-                            <th v-if="document.payments.length>0">Destino</th>
-                            <th v-if="document.payments.length>0">Referencia</th>
-                            <th v-if="document.payments.length>0">Monto</th>
-                            <th width="5%">
-                                <a
-                                    class="text-center font-weight-bold text-center text-info"
-                                    href="#"
-                                    style="font-size:18px"
-                                    @click.prevent="clickAddPayment"
-                                >[+]</a>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-for="(row, index) in document.payments" :key="index">
-                            <td>
-                                <el-date-picker
-                                    v-model="row.date_of_payment"
-                                    :clearable="false"
-                                    type="date"
-                                    value-format="yyyy-MM-dd"
-                                ></el-date-picker>
-                            </td>
-                            <td>
-                                <div class="form-group mb-2 mr-2">
-                                    <el-select v-model="row.payment_method_type_id">
-                                        <el-option
-                                            v-for="option in payment_method_types"
-                                            :key="option.id"
-                                            :label="option.description"
-                                            :value="option.id"
-                                        ></el-option>
-                                    </el-select>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group mb-2 mr-2">
-                                    <el-select
-                                        v-model="row.payment_destination_id"
-                                        :disabled="row.payment_destination_disabled"
-                                        filterable
+                <template v-if="is_document_type_invoice">
+                    <!-- Crédito con cuotas -->
+                    <div v-show=" document.payment_condition_id === '03'" class="col-lg-12">
+                        <table v-if="document.fee.length>0" width="100%">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th style="width: 30px">
+                                    <a
+                                        class="text-center font-weight-bold text-center text-info"
+                                        href="#"
+                                        style="font-size:18px"
+                                        @click.prevent="clickAddFee"
+                                    >[+]</a>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(row, index) in document.fee"
+                                :key="index">
+                                <td v-if="document.fee.length>0">
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-date-picker v-model="row.date"
+                                                        :clearable="false"
+                                                        format="dd/MM/yyyy"
+                                                        type="date"
+                                                        value-format="yyyy-MM-dd"></el-date-picker>
+                                    </div>
+                                </td>
+                                <td v-if="document.fee.length>0">
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-input v-model="row.amount"></el-input>
+                                    </div>
+                                </td>
+                                <td class="series-table-actions text-center">
+                                    <button
+                                        class="btn waves-effect waves-light btn-xs btn-danger"
+                                        type="button"
+                                        @click.prevent="clickRemoveFee(index)"
                                     >
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Credito -->
+                    <div v-show=" document.payment_condition_id === '02'" class="col-lg-12">
+                        <table v-if="document.fee.length>0" width="100%">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Método de pago
+                                </th>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th style="width: 30px">
+                                    <a
+                                        class="text-center font-weight-bold text-center text-info"
+                                        href="#"
+                                        style="font-size:18px"
+                                        @click.prevent="clickAddFeeNew"
+                                    >[+]</a>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(row, index) in document.fee" :key="index">
+
+
+                                <td>
+                                    <el-select
+                                        v-model="row.payment_method_type_id"
+                                        @change="changePaymentMethodType(index)">
                                         <el-option
-                                            v-for="option in payment_destinations"
+                                            v-for="option in credit_payment_metod"
                                             :key="option.id"
                                             :label="option.description"
                                             :value="option.id"
                                         ></el-option>
                                     </el-select>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group mb-2 mr-2">
-                                    <el-input v-model="row.reference"></el-input>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group mb-2 mr-2">
-                                    <el-input v-model="row.payment"></el-input>
-                                </div>
-                            </td>
-                            <td class="series-table-actions text-center">
-                                <button
-                                    class="btn waves-effect waves-light btn-xs btn-danger"
-                                    type="button"
-                                    @click.prevent="clickCancel(index)"
-                                >
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                            <br/>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                </td>
+
+                                <td v-if="document.fee.length>0">
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-date-picker v-model="row.date" :clearable="false"
+                                                        format="dd/MM/yyyy"
+                                                        type="date"
+                                                        value-format="yyyy-MM-dd"></el-date-picker>
+                                    </div>
+                                </td>
+                                <td v-if="document.fee.length>0">
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-input v-model="row.amount"></el-input>
+                                    </div>
+                                </td>
+                                <td class="series-table-actions text-center">
+                                    <button
+                                        class="btn waves-effect waves-light btn-xs btn-danger"
+                                        type="button"
+                                        @click.prevent="clickRemoveFee(index)"
+                                    >
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Contado -->
+                    <div v-show="document.payment_condition_id == '01'" class="col-lg-12">
+                        <table>
+                            <thead>
+                            <tr width="100%">
+                                <th v-if="document.payments.length>0">F.Pago</th>
+                                <th v-if="document.payments.length>0">M.Pago</th>
+                                <th v-if="document.payments.length>0">Destino</th>
+                                <th v-if="document.payments.length>0">Referencia</th>
+                                <th v-if="document.payments.length>0">Monto</th>
+                                <th width="5%">
+                                    <a
+                                        class="text-center font-weight-bold text-center text-info"
+                                        href="#"
+                                        style="font-size:18px"
+                                        @click.prevent="clickAddPayment"
+                                    >[+]</a>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(row, index) in document.payments" :key="index">
+                                <td>
+                                    <el-date-picker
+                                        v-model="row.date_of_payment"
+                                        :clearable="false"
+                                        type="date"
+                                        value-format="yyyy-MM-dd"
+                                    ></el-date-picker>
+                                </td>
+                                <td>
+                                    <el-select
+                                        v-model="row.payment_method_type_id"
+                                        @change="changePaymentMethodType(index)">
+                                        <el-option
+                                            v-for="option in cash_payment_metod"
+                                            :key="option.id"
+                                            :label="option.description"
+                                            :value="option.id"></el-option>
+                                    </el-select>
+                                </td>
+                                <td>
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-select
+                                            v-model="row.payment_destination_id"
+                                            :disabled="row.payment_destination_disabled"
+                                            filterable
+                                        >
+                                            <el-option
+                                                v-for="option in payment_destinations"
+                                                :key="option.id"
+                                                :label="option.description"
+                                                :value="option.id"
+                                            ></el-option>
+                                        </el-select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-input v-model="row.reference"></el-input>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group mb-2 mr-2">
+                                        <el-input v-model="row.payment"></el-input>
+                                    </div>
+                                </td>
+                                <td class="series-table-actions text-center">
+                                    <button
+                                        class="btn waves-effect waves-light btn-xs btn-danger"
+                                        type="button"
+                                        @click.prevent="clickCancel(index)"
+                                    >
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                                <br/>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
             </div>
 
             <series-form v-if="generate && form.quotation" :items="form.quotation.items"></series-form>
@@ -420,6 +511,7 @@ import DocumentOptions from "../../documents/partials/options.vue";
 import SaleNoteOptions from "../../sale_notes/partials/options.vue";
 import SeriesForm from "./series_form.vue";
 import moment from "moment";
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
 export default {
     components: {DocumentOptions, SaleNoteOptions, SeriesForm},
@@ -433,6 +525,19 @@ export default {
         "typeUser",
     ],
     computed:{
+        ...mapState([
+            'config',
+            'payment_method_types'
+        ]),
+        credit_payment_metod: function () {
+            return _.filter(this.payment_method_types, {'is_credit': true})
+        },
+        cash_payment_metod: function () {
+            return _.filter(this.payment_method_types, {'is_credit': false})
+        },
+        isCreditPaymentCondition: function () {
+            return ['02', '03'].includes(this.document.payment_condition_id)
+        },
     },
     data() {
         return {
@@ -457,16 +562,26 @@ export default {
             is_document_type_invoice: true,
             payment_destinations: [],
             loading_search: false,
-            payment_method_types: [],
+            // payment_method_types: [],
             sellers: [],
         };
     },
     created() {
+        this.loadConfiguration()
         this.initForm();
         this.initDocument();
         this.clickAddPayment();
     },
     methods: {
+        ...mapActions([
+            'loadConfiguration',
+        ]),
+        clickSendWhatsapp() {
+            if (!this.form.customer_telephone) {
+                return this.$message.error('El número es obligatorio')
+            }
+            window.open(`https://wa.me/51${this.form.customer_telephone}?text=${this.form.message_text}`, '_blank');
+        },
         changePaymentCondition() {
             this.document.fee = [];
             this.document.payments = [];
@@ -479,12 +594,38 @@ export default {
             if (this.document.payment_condition_id === '02') {
                 this.document.fee = this.form.quotation.fee;
                 if (this.document.fee === undefined || this.document.fee.length < 1) {
+                    this.clickAddFeeNew();
+                }
+            }
+            if (this.document.payment_condition_id === '03') {
+                this.document.fee = this.form.quotation.fee;
+                if (this.document.fee === undefined || this.document.fee.length < 1) {
                     this.clickAddFee();
                 }
             }
         },
         clickRemoveFee(index) {
             this.document.fee.splice(index, 1);
+            this.calculateFee();
+        },
+        clickAddFeeNew() {
+            let first = {
+                id: '05',
+                number_days: 0,
+            };
+            if (this.credit_payment_metod[0] !== undefined) {
+                first = this.credit_payment_metod[0];
+            }
+
+            let date = moment(this.form.date_of_issue).add(first.number_days, 'days').format('YYYY-MM-DD')
+            if (this.document.fee === undefined) this.document.fee = [];
+            this.document.fee.push({
+                id: null,
+                payment_method_type_id: first.id,
+                date: date,
+                currency_type_id: this.document.currency_type_id,
+                amount: 0,
+            });
             this.calculateFee();
         },
         clickAddFee() {
@@ -514,7 +655,13 @@ export default {
             this.document.payments.splice(index, 1);
         },
         clickAddPayment() {
-           if (this.document.payments === undefined) this.document.payments = [];
+            let id = '01';
+                if (this.cash_payment_metod !== undefined &&
+                this.cash_payment_metod[0] !== undefined) {
+                id = this.cash_payment_metod[0].id
+            }
+
+            if (this.document.payments === undefined) this.document.payments = [];
             let total = 0
             if(
                 this.form !== null &&
@@ -527,7 +674,7 @@ export default {
                 id: null,
                 document_id: null,
                 date_of_payment: moment().format("YYYY-MM-DD"),
-                payment_method_type_id: "01",
+                payment_method_type_id: id,
                 payment_destination_id: null,
                 reference: null,
                 payment: parseFloat(total),
@@ -669,7 +816,8 @@ export default {
                 this.document.prefix = null;
                 this.resource_documents = "documents";
             }
-
+            // Condicion de pago Credito con cuota pasa a credito
+            if (this.document.payment_condition_id === '03') this.document.payment_condition_id = '02';
             this.$http
                 .post(`/${this.resource_documents}`, this.document)
                 .then((response) => {
@@ -704,7 +852,7 @@ export default {
                         this.$message.error(error.response.data.message);
                     }
                 })
-                .then(() => {
+                .finally(() => {
                     this.loading_submit = false;
                 });
         },
@@ -769,8 +917,8 @@ export default {
                     this.all_series = response.data.series;
                     this.payment_destinations =
                         response.data.payment_destinations;
-                    this.payment_method_types =
-                        response.data.payment_method_types;
+                    this.$store.commit('setPaymentMethodTypes', response.data.payment_method_types)
+                    // this.payment_method_types = response.data.payment_method_types ;
                     this.sellers = response.data.sellers
                     // this.document.document_type_id = (this.all_document_types.length > 0)?this.all_document_types[0].id:null
                     // this.changeDocumentType()
@@ -863,6 +1011,8 @@ export default {
             this.resetDocument();
         },
         clickToPrint(format) {
+            // Si no hay external id, no hará nada.
+            if(this.form.external_id == null) return null;
             window.open(
                 `/${this.resource}/print/${this.form.external_id}/${format}`,
                 "_blank"
@@ -911,6 +1061,55 @@ export default {
 
             return {success: true};
         },
+        changePaymentMethodType(index) {
+            let id = '01';
+            if (this.document.payments[index] !== undefined &&
+                this.document.payments[index].payment_method_type_id !== undefined) {
+                id = this.document.payments[index].payment_method_type_id;
+            } else if (this.document.fee[index] !== undefined &&
+                this.document.fee[index].payment_method_type_id !== undefined) {
+                id = this.document.fee[index].payment_method_type_id;
+            }
+            let payment_method_type = _.find(this.payment_method_types, {'id': id});
+
+            if (payment_method_type.number_days) {
+
+                this.document.date_of_due = moment(this.document.date_of_issue).add(payment_method_type.number_days, 'days').format('YYYY-MM-DD')
+                // this.document.payments = []
+                this.enabled_payments = false
+                this.readonly_date_of_due = true
+                this.document.payment_method_type_id = payment_method_type.id
+
+                let date = moment(this.document.date_of_issue).add(payment_method_type.number_days, 'days').format('YYYY-MM-DD')
+
+                // let date = moment()
+                //     .add(payment_method_type.number_days, 'days')
+                //     .format('YYYY-MM-DD')
+
+                if (this.document.fee !== undefined) {
+                    for (let index = 0; index < this.document.fee.length; index++) {
+                        this.document.fee[index].date = date;
+                    }
+                }
+
+            } else if (payment_method_type.id == '09') {
+
+                this.document.payment_method_type_id = payment_method_type.id
+                this.document.date_of_due = this.document.date_of_issue
+                // this.document.payments = []
+                this.enabled_payments = false
+
+            } else {
+
+                this.document.date_of_due = this.document.date_of_issue
+                this.readonly_date_of_due = false
+                this.document.payment_method_type_id = null
+                this.enabled_payments = true
+
+            }
+
+        },
+
     },
 };
 </script>

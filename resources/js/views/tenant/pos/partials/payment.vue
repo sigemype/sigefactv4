@@ -60,6 +60,15 @@
                                                                  {{ form.total_igv }}</p>
                         </div>
                     </div>
+                    <div class="row m-0 p-0 bg-white h-17 d-flex align-items-center" v-if="form.total_isc > 0">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">ISC</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{ currencyTypeActive.symbol }}
+                                                                 {{ form.total_isc }}</p>
+                        </div>
+                    </div>
                     <div class="row m-0 p-0 bg-white h-17 d-flex align-items-center">
                         <div class="col-sm-6 py-1">
                             <p class="font-weight-semibold mb-0">ICBPER</p>
@@ -90,6 +99,15 @@
                                                                  {{ form.total_igv }}</p>
                         </div>
                     </div>
+                    <div class="row m-0 p-0 bg-white h-25 d-flex align-items-center" v-if="form.total_isc > 0">
+                        <div class="col-sm-6 py-1">
+                            <p class="font-weight-semibold mb-0">ISC</p>
+                        </div>
+                        <div class="col-sm-6 py-1 text-right">
+                            <p class="font-weight-semibold mb-0">{{ currencyTypeActive.symbol }}
+                                                                 {{ form.total_isc }}</p>
+                        </div>
+                    </div>
                 </template>
 
                 <!-- <div class="row m-0 p-0 bg-white">
@@ -104,9 +122,9 @@
                     <div class="col-sm-6 py-2">
                         <p class="font-weight-semibold mb-0 text-white">TOTAL</p>
                     </div>
-                    <div class="col-sm-6 py-2 text-right"> 
+                    <div class="col-sm-6 py-2 text-right">
                         <h4 class="font-weight-semibold mb-0 text-white">{{ currencyTypeActive.symbol }} {{form.total}}</h4>
-                    </div> 
+                    </div>
                 </div>
                 <div class="row m-0 p-0 h-25 d-flex align-items-center bg-white">
                     <div class="col-lg-6">
@@ -430,7 +448,7 @@ import MultiplePaymentForm from './multiple_payment.vue'
 export default {
     components: {OptionsForm, CardBrandsForm, SaleNotesOptions, MultiplePaymentForm, Keypress},
 
-    props: ['form', 'customer', 'currencyTypeActive', 'exchangeRateSale', 'is_payment', 'soapCompany', 'businessTurns'],
+    props: ['form', 'customer', 'currencyTypeActive', 'exchangeRateSale', 'is_payment', 'soapCompany', 'businessTurns', 'isPrint'],
     data() {
         return {
             enabled_discount: false,
@@ -484,6 +502,10 @@ export default {
 
         await this.getFormPosLocalStorage()
         // console.log(this.form.payments, this.payments)
+        console.log(this.isPrint);
+        if (!qz.websocket.isActive() && this.isPrint) {
+            startConnection();
+        }
     },
     mounted() {
         // console.log(this.currencyTypeActive)
@@ -571,7 +593,7 @@ export default {
 
             let base = parseFloat(this.form.total)
             let amount = parseFloat(global_discount)
-            let factor = _.round(amount / base, 4)
+            let factor = _.round(amount / base, 5)
 
             let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
 
@@ -593,7 +615,7 @@ export default {
             this.difference = this.enter_amount - this.form.total
             // this.difference = this.enter_amount - this.form.total_payable_amount
             // console.log(this.form.discounts)
-        }, 
+        },
         reCalculateTotal() {
 
             let total_discount = 0
@@ -607,6 +629,8 @@ export default {
             let total_value = 0
             let total = 0
             let total_plastic_bag_taxes = 0
+            let total_base_isc = 0
+            let total_isc = 0
 
             this.form.items.forEach((row) => {
                 total_discount += parseFloat(row.total_discount)
@@ -633,7 +657,16 @@ export default {
                 }
                 total_value += parseFloat(row.total_value)
                 total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
+
+                // isc
+                total_isc += parseFloat(row.total_isc)
+                total_base_isc += parseFloat(row.total_base_isc)
+
             });
+
+            // isc
+            this.form.total_base_isc = _.round(total_base_isc, 2)
+            this.form.total_isc = _.round(total_isc, 2)
 
             this.form.total_exportation = _.round(total_exportation, 2)
             this.form.total_taxed = _.round(total_taxed, 2)
@@ -642,7 +675,11 @@ export default {
             this.form.total_free = _.round(total_free, 2)
             this.form.total_igv = _.round(total_igv, 2)
             this.form.total_value = _.round(total_value, 2)
-            this.form.total_taxes = _.round(total_igv, 2)
+            // this.form.total_taxes = _.round(total_igv, 2)
+
+            //impuestos (isc + igv)
+            this.form.total_taxes = _.round(total_igv + total_isc, 2);
+
             this.form.total_plastic_bag_taxes = _.round(total_plastic_bag_taxes, 2)
             // this.form.total = _.round(total, 2)
             this.form.subtotal = _.round(total + this.form.total_plastic_bag_taxes, 2)
@@ -822,7 +859,7 @@ export default {
         initFormPayment() {
 
             this.difference = -this.form.total
-            
+
             this.form_payment = {
                 id: null,
                 date_of_payment: moment().format('YYYY-MM-DD'),
@@ -940,6 +977,9 @@ export default {
 
                     // this.initFormPayment() ;
                     this.cleanLocalStoragePayment()
+                    if(this.isPrint){
+                        this.gethtml();
+                    }
                     this.$eventHub.$emit('saleSuccess');
                 } else {
                     this.$message.error(response.data.message);
@@ -954,6 +994,43 @@ export default {
                 this.loading_submit = false;
                 this.locked_submit = false
             });
+        },
+        gethtml(){
+            this.form.datahtml="";
+            var doc='salenote';
+            var route = `/printticket/document/${this.documentNewId}/ticket`;
+            if(this.resource_documents!=='documents'){
+                route = `/sale-notes/ticket/${this.documentNewId}/ticket`;
+            }
+
+            console.log(route);
+
+            this.$http.get(route)
+            .then(response => {
+                if (response.data.length>0) {
+                    this.form.datahtml=response.data;
+                    this.printticket();
+                }
+
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        },
+        async printticket(){
+            //getUpdatedConfig();
+            await this.sleep(400);
+            var configg = getUpdatedConfig();
+            var opts = getUpdatedConfig();
+            var printData = [
+                {
+                    type: 'html',
+                    format: 'plain',
+                    data: this.form.datahtml,
+                    options: opts
+                }
+            ];
+            qz.print(configg, printData).catch(displayError);
         },
         saveCashDocument() {
             this.$http.post(`/cash/cash_document`, this.form_cash_document)

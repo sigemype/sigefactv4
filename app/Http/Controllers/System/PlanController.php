@@ -11,29 +11,38 @@ use App\Http\Resources\System\PlanCollection;
 use App\Http\Resources\System\PlanResource;
 use App\Http\Requests\System\PlanRequest;
 
-class PlanController extends Controller{
-
-    public function index(){
+class PlanController extends Controller
+{
+    public function index()
+    {
         return view('system.plans.index');
     }
 
     
-    public function records(){
+    public function records()
+    {
         $records = Plan::all();
+
         return new PlanCollection($records);
     }
 
-    public function record($id){
+    public function record($id)
+    {
         $record = new PlanResource(Plan::findOrFail($id));
+
         return $record;
     }
 
-    public function tables(){
+    public function tables()
+    {
         $plan_documents = PlanDocument::all(); 
+
         return compact('plan_documents');
     }
 
-    public function store(PlanRequest $request){
+
+    public function store(PlanRequest $request)
+    {
         $id = $request->input('id');
         $plan = Plan::firstOrNew(['id' => $id]);
         $plan->fill($request->all());
@@ -45,7 +54,8 @@ class PlanController extends Controller{
         ];
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $plan = Plan::findOrFail($id);
         $plan->delete();
 

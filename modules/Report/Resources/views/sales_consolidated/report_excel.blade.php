@@ -11,38 +11,38 @@
                 font-family: sans-serif;
                 font-size: 12px;
             }
-            
+
             table {
                 width: 100%;
                 border-spacing: 0;
                 border: 1px solid black;
             }
-            
+
             .celda {
                 text-align: center;
                 padding: 5px;
                 border: 0.1px solid black;
             }
-            
+
             th {
                 padding: 5px;
                 text-align: center;
                 border-color: #0088cc;
                 border: 0.1px solid black;
             }
-            
+
             .title {
                 font-weight: bold;
                 padding: 5px;
                 font-size: 20px !important;
                 text-decoration: underline;
             }
-            
+
             p>strong {
                 margin-left: 5px;
                 font-size: 13px;
             }
-            
+
             thead {
                 font-weight: bold;
                 background: #0088cc;
@@ -75,7 +75,7 @@
                         <p><strong>Usuario: </strong>{{$reportService->getUserName($params['seller_id'])}}</p>
                     </td>
                     @endif  --}}
-                    @if($params['sellers'])
+                    @if(isset($params['sellers']))
                         @php
                             $sellers = json_decode($params['sellers']);
                         @endphp
@@ -87,23 +87,44 @@
                             @endforeach
                             </p>
                         </td>
-                        @endif 
-                    @endif
+                        @endif
+                    @elseif( isset($params['user_type']) && isset($params['user_id']) )
+                        @php
+                            $sellers = \App\CoreFacturalo\Helpers\Template\ReportHelper::getSellersFromRequest( $params['user_type'] , $params['user_id'] );
+                            // user_id   Creador del documento
+                            // seller_id Usuario Asignado
 
+                        @endphp
+                        @if(count($sellers) > 0)
+                            <td>
+                                <p>
+                                    <strong>Usuario(s): </strong>
+                                    {{-- Creador --}}
+                                    @if(isset($sellers['user_id']))
+                                        @foreach ($sellers['user_id'] as $seller) - {{ $seller }} @endforeach
+                                    @endif
+                                    {{-- Asignado --}}
+                                    @if(isset($sellers['seller_id']))
+                                        @foreach ($sellers['seller_id'] as $seller) - {{ $seller }} @endforeach
+                                    @endif
+                                </p>
+                            </td>
+                        @endif
+                    @endif
 
                     @if($params['person_id'])
                     <td>
                         <p><strong>Cliente: </strong>{{$reportService->getPersonName($params['person_id'])}}</p>
                     </td>
-                    @endif 
+                    @endif
                 </tr>
             </table>
         </div>
         @if(!empty($records))
             <div class="">
                 <div class=" ">
-                    @php 
-                        $acum_total=0; 
+                    @php
+                        $acum_total=0;
                     @endphp
                     <table class="">
                         <thead>
@@ -120,13 +141,13 @@
                             @foreach($records as $key => $value)
                                 <tr>
                                     <td class="celda">{{$loop->iteration}}</td>
-                                    <td class="celda">{{$value->series}}-{{$value->number}}</td> 
+                                    <td class="celda">{{$value->series}}-{{$value->number}}</td>
                                     <td class="celda">{{$value->relation_item->internal_id}}</td>
                                     <td class="celda">{{ ($value->item->presentation) ? $value->item->presentation->unit_type_id : $value->relation_item->unit_type_id}}</td>
                                     {{-- <td class="celda">{{$value->relation_item->unit_type_id}}</td> --}}
                                     <td class="celda">{{$value->item->description}}</td>
-                                    <td class="celda">{{$value->quantity}}</td> 
-                                </tr> 
+                                    <td class="celda">{{$value->quantity}}</td>
+                                </tr>
 
                                 @php
                                     $acum_total += $value->quantity;
@@ -136,7 +157,7 @@
                                 <td class="celda" colspan="4"></td>
                                 <td class="celda" ><strong>Total</strong></td>
                                 <td class="celda">{{$acum_total}}</td>
-                            </tr> 
+                            </tr>
                         </tbody>
                     </table>
                 </div>

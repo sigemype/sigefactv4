@@ -1,4 +1,5 @@
 @php
+    use App\CoreFacturalo\Helpers\Template\TemplateHelper;
     $establishment = $document->establishment;
     $customer = $document->customer;
     $invoice = $document->invoice;
@@ -23,6 +24,11 @@
 
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
+
+// Condicion de pago
+    $condition = TemplateHelper::getDocumentPaymentCondition($document);
+	// Pago/Coutas detalladas
+    $paymentDetailed = TemplateHelper::getDetailedPayment($document)
 
 @endphp
 <html>
@@ -112,9 +118,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2"  class="font-xlg">
+                    <td colspan=""  class="font-xlg">
                         <strong>MONEDA: </strong>
                         <span class="text-upp">{{ $document->currency_type->description }}</span>
+                    </td>
+                    <td colspan=""  class="font-xlg">
+                        <strong>CONDICIÓN DE PAGO: </strong>
+                        <span class="text-upp">{{ $condition }}</span>
                     </td>
                 </tr>
                 <tr>

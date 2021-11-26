@@ -22,27 +22,39 @@
     use Illuminate\Support\Collection;
     use Illuminate\Support\Facades\DB;
 
-    class ClientController extends Controller{
-
-        public function index(){
+    class ClientController extends Controller
+    {
+        public function index()
+        {
             return view('system.clients.index');
         }
 
-        public function create(){
+        public function create()
+        {
             return view('system.clients.form');
         }
 
-        public function tables(){
+        public function tables()
+        {
+
             $url_base = '.' . config('tenant.app_url_base');
             $plans = Plan::all();
             $types = [['type' => 'admin', 'description' => 'Administrador'], ['type' => 'integrator', 'description' => 'Listar Documentos']];
-            $modules = Module::with('levels')->where('sort', '<', 14)->orderBy('sort')->get()->each(function ($module) {
-                return $this->prepareModules($module);
-            });
+            $modules = Module::with('levels')
+                ->where('sort', '<', 14)
+                ->orderBy('sort')
+                ->get()
+                ->each(function ($module) {
+                    return $this->prepareModules($module);
+                });
 
-            $apps = Module::with('levels')->where('sort', '>', 13)->orderBy('sort')->get()->each(function ($module) {
-                return $this->prepareModules($module);
-            });
+            $apps = Module::with('levels')
+                ->where('sort', '>', 13)
+                ->orderBy('sort')
+                ->get()
+                ->each(function ($module) {
+                    return $this->prepareModules($module);
+                });
 
             $config = Configuration::first();
 
@@ -53,7 +65,8 @@
             return compact('url_base', 'plans', 'types', 'modules', 'apps', 'certificate_admin', 'soap_username', 'soap_password');
         }
 
-        private function prepareModules(Module $module): Module{
+        private function prepareModules(Module $module): Module
+        {
             $levels = [];
             foreach ($module->levels as $level) {
                 array_push($levels, [
@@ -69,15 +82,25 @@
             return $module;
         }
 
-        public function records(){
-            $records = Client::latest()->get();
+        public function records()
+        {
+            $records = Client::latest()
+                ->get();
             foreach ($records as &$row) {
                 $tenancy = app(Environment::class);
                 $tenancy->tenant($row->hostname->website);
                 // $row->count_doc = DB::connection('tenant')-> table('documents') ->count();
-                $row->count_doc = DB::connection('tenant')->table('configurations')->first()->quantity_documents;
-                $row->soap_type = DB::connection('tenant')->table('companies')->first()->soap_type_id;
-                $row->count_user = DB::connection('tenant')->table('users')->count();
+                $row->count_doc = DB::connection('tenant')
+                    ->table('configurations')
+                    ->first()
+                    ->quantity_documents;
+                $row->soap_type = DB::connection('tenant')
+                    ->table('companies')
+                    ->first()
+                    ->soap_type_id;
+                $row->count_user = DB::connection('tenant')
+                    ->table('users')
+                    ->count();
                 $quantity_pending_documents = $this->getQuantityPendingDocuments();
                 $row->document_regularize_shipping = $quantity_pending_documents['document_regularize_shipping'];
                 $row->document_not_sent = $quantity_pending_documents['document_not_sent'];
@@ -88,49 +111,107 @@
                     if ($day_now <= $day_start_billing) {
                         $init = Carbon::parse(date('Y') . '-' . ((int)date('n') - 1) . '-' . $day_start_billing);
                         $end = Carbon::parse(date('Y-m-d'));
-                        $row->count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [$init, $end])->count();
+                        $row->count_doc_month = DB::connection('tenant')
+                            ->table('documents')
+                            ->whereBetween('date_of_issue', [$init, $end])
+                            ->count();
                     } else {
                         $init = Carbon::parse(date('Y') . '-' . ((int)date('n')) . '-' . $day_start_billing);
                         $end = Carbon::parse(date('Y-m-d'));
-                        $row->count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [$init, $end])->count();
+                        $row->count_doc_month = DB::connection('tenant')
+                            ->table('documents')
+                            ->whereBetween('date_of_issue', [$init, $end])
+                            ->count();
                     }
                 }
             }
             return new ClientCollection($records);
         }
 
-        private function getQuantityPendingDocuments(){
+
+        private function getQuantityPendingDocuments()
+        {
+
             return [
                 'document_regularize_shipping' => DB::connection('tenant')->table('documents')->where('state_type_id', '01')->where('regularize_shipping', true)->count(),
                 'document_not_sent' => DB::connection('tenant')->table('documents')->whereIn('state_type_id', ['01', '03'])->where('date_of_issue', '<=', date('Y-m-d'))->count(),
                 'document_to_be_canceled' => DB::connection('tenant')->table('documents')->where('state_type_id', '13')->count(),
             ];
+
         }
 
-        public function record($id){
+
+        public function record($id)
+        {
             $client = Client::findOrFail($id);
             $tenancy = app(Environment::class);
             $tenancy->tenant($client->hostname->website);
             $user_id = 1;
             // Se buscan los valores en las tablas de los clientes, luego se compara con las tablas de admin para mostrar
             // correctamente la seleccion en la seccion de modulos de permisos
-            $modules = DB::connection('tenant')->table('modules')->where('modules.order_menu', '<=', 13)->join('module_user', 'module_user.module_id', '=', 'modules.id')->where('module_user.user_id', $user_id)->select('modules.value as value')->get()->pluck('value');
-            $client->modules = DB::connection('system')->table('modules')->wherein('value', $modules)->select('id')->distinct()->get()->pluck('id');
+            $modules = DB::connection('tenant')
+                ->table('modules')
+                ->where('modules.order_menu', '<=', 13)
+                ->join('module_user', 'module_user.module_id', '=', 'modules.id')
+                ->where('module_user.user_id', $user_id)
+                ->select('modules.value as value')
+                ->get()
+                ->pluck('value');
+            $client->modules = DB::connection('system')
+                ->table('modules')
+                ->wherein('value', $modules)
+                ->select('id')
+                ->distinct()
+                ->get()
+                ->pluck('id');
 
             // Se buscan los valores en las tablas de los clientes, luego se compara con las tablas de admin para mostrar
             // correctamente la seleccion en la seccion de modulos de permisos
             // Apps
-            $apps = DB::connection('tenant')->table('modules')->where('modules.order_menu', '>', 13)->join('module_user', 'module_user.module_id', '=', 'modules.id')->where('module_user.user_id', $user_id)->select('modules.value as value')->get()->pluck('value');
-            $client->apps = DB::connection('system')->table('modules')->wherein('value', $apps)->select('id')->distinct()->get()->pluck('id');
+            $apps = DB::connection('tenant')
+                ->table('modules')
+                ->where('modules.order_menu', '>', 13)
+                ->join('module_user', 'module_user.module_id', '=', 'modules.id')
+                ->where('module_user.user_id', $user_id)
+                ->select('modules.value as value')
+                ->get()
+                ->pluck('value');
+
+            $client->apps = DB::connection('system')
+                ->table('modules')
+                ->wherein('value', $apps)
+                ->select('id')
+                ->distinct()
+                ->get()
+                ->pluck('id');
 
             // Se buscan los valores en las tablas de los clientes, luego se compara con las tablas de admin para mostrar
             // correctamente la seleccion en la seccion de modulos de permisos
-            $levels = DB::connection('tenant')->table('module_level_user')->where('module_level_user.user_id', $user_id)->join('module_levels', 'module_levels.id', '=', 'module_level_user.module_level_id')->get()->pluck('value');
-            $client->levels = DB::connection('system')->table('module_levels')->wherein('value', $levels)->select('id')->distinct()->get()->pluck('id');
-            $config = DB::connection('tenant')->table('configurations')->first();
+            $levels = DB::connection('tenant')
+                ->table('module_level_user')
+                ->where('module_level_user.user_id', $user_id)
+                ->join('module_levels', 'module_levels.id', '=', 'module_level_user.module_level_id')
+                ->get()
+                ->pluck('value');
+
+            $client->levels = DB::connection('system')
+                ->table('module_levels')
+                ->wherein('value', $levels)
+                ->select('id')
+                ->distinct()
+                ->get()
+                ->pluck('id');
+
+            $config = DB::connection('tenant')
+                ->table('configurations')
+                ->first();
+
             $client->config_system_env = $config->config_system_env;
 
-            $company = DB::connection('tenant')->table('companies')->first();
+            $company = DB::connection('tenant')
+                ->table('companies')
+                ->first();
+
             $client->soap_send_id = $company->soap_send_id;
             $client->soap_type_id = $company->soap_type_id;
             $client->soap_username = $company->soap_username;
@@ -143,7 +224,8 @@
 
         }
 
-        public function charts(){
+        public function charts()
+        {
             $records = Client::all();
             $count_documents = [];
             foreach ($records as $row) {
@@ -165,6 +247,7 @@
             }
 
             $total_documents = collect($count_documents)->sum('count');
+
             $groups_by_month = collect($count_documents)->groupBy('month');
             $labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'];
             $documents_by_month = [];
@@ -185,7 +268,8 @@
          *
          * @return array
          */
-        public function update(Request $request){
+        public function update(Request $request)
+        {
             /**
              * @var Collection $valueModules
              * @var Collection $valueLevels
@@ -193,15 +277,21 @@
             $user_id = 1;
             $array_modules = [];
             $array_levels = [];
+
+
             $smtp_host = ($request->has('smtp_host')) ? $request->smtp_host : null;
             $smtp_password = ($request->has('smtp_password')) ? $request->smtp_password : null;
             $smtp_port = ($request->has('smtp_port')) ? $request->smtp_port : null;
             $smtp_user = ($request->has('smtp_user')) ? $request->smtp_user : null;
             $smtp_encryption = ($request->has('smtp_encryption')) ? $request->smtp_encryption : null;
             try {
+
                 $temp_path = $request->input('temp_path');
+
                 $name_certificate = $request->input('certificate');
+
                 if ($temp_path) {
+
                     try {
                         $password = $request->input('password_certificate');
                         $pfx = file_get_contents($temp_path);
@@ -213,7 +303,7 @@
                         file_put_contents(storage_path('app' . DIRECTORY_SEPARATOR . 'certificates' . DIRECTORY_SEPARATOR . $name), $pem);
                         $name_certificate = $name;
 
-                    } catch (Exception $e){
+                    } catch (Exception $e) {
                         return [
                             'success' => false,
                             'message' => $e->getMessage()
@@ -224,15 +314,20 @@
 
                 $client = Client::findOrFail($request->id);
 
-                $client->setSmtpHost($smtp_host)->setSmtpPort($smtp_port)->setSmtpUser($smtp_user)->setSmtpEncryption($smtp_encryption);
-
+                $client
+                    ->setSmtpHost($smtp_host)
+                    ->setSmtpPort($smtp_port)
+                    ->setSmtpUser($smtp_user)
+                    //    ->setSmtpPassword($smtp_password)
+                    ->setSmtpEncryption($smtp_encryption);
                 if (!empty($smtp_password)) {
                     $client->setSmtpPassword($smtp_password);
                 }
-
                 $client->plan_id = $request->plan_id;
                 $client->save();
+
                 $plan = Plan::find($request->plan_id);
+
                 $tenancy = app(Environment::class);
                 $tenancy->tenant($client->hostname->website);
                 $clientData = [
@@ -246,7 +341,10 @@
                     'smtp_encryption' => $client->smtp_encryption,
                 ];
                 if (empty($client->smtp_password)) unset($clientData['smtp_password']);
-                DB::connection('tenant')->table('configurations')->where('id', 1)->update($clientData);
+                DB::connection('tenant')
+                    ->table('configurations')
+                    ->where('id', 1)
+                    ->update($clientData);
 
                 DB::connection('tenant')
                     ->table('companies')
@@ -260,30 +358,69 @@
                         'certificate' => $name_certificate
                     ]);
 
+
                 //modules
-                DB::connection('tenant')->table('module_user')->where('user_id', $user_id)->delete();
-                DB::connection('tenant')->table('module_level_user')->where('user_id', $user_id)->delete();
+                DB::connection('tenant')
+                    ->table('module_user')
+                    ->where('user_id', $user_id)
+                    ->delete();
+                DB::connection('tenant')
+                    ->table('module_level_user')
+                    ->where('user_id', $user_id)
+                    ->delete();
 
                 // Obtenemos los value de las tablas
-                $valueModules = DB::connection('system')->table('modules')->wherein('id', $request->modules)->get()->pluck('value');
-                $valueLevels = DB::connection('system')->table('module_levels')->wherein('id', $request->levels)->get()->pluck('value');
+                $valueModules = DB::connection('system')
+                    ->table('modules')
+                    ->wherein('id', $request->modules)
+                    ->get()
+                    ->pluck('value');
+                $valueLevels = DB::connection('system')
+                    ->table('module_levels')
+                    ->wherein('id', $request->levels)
+                    ->get()
+                    ->pluck('value');
 
                 // Obtenemos el modelo del modulo, asi se obtendrá el id del elemento
-                DB::connection('tenant')->table('modules')->wherein('value', $valueModules)->select('id as module_id', DB::raw(" CONCAT($user_id) as user_id"))->get()->transform(function ($module) use (&$array_modules) {
-                    $array_modules[] = (array)$module;
-                });
-                DB::connection('tenant')->table('module_levels')->wherein('value', $valueLevels)->select('id as module_level_id', DB::raw(" CONCAT($user_id) as user_id"))->get()->transform(function ($level) use (&$array_levels) {
-                    $array_levels[] = (array)$level;
-                });
+                DB::connection('tenant')
+                    ->table('modules')
+                    ->wherein('value', $valueModules)
+                    ->select(
+                        'id as module_id',
+                        DB::raw(" CONCAT($user_id) as user_id")
+                    )
+                    ->get()
+                    ->transform(function ($module) use (&$array_modules) {
+                        $array_modules[] = (array)$module;
+                    });
+                DB::connection('tenant')
+                    ->table('module_levels')
+                    ->wherein('value', $valueLevels)
+                    ->select(
+                        'id as module_level_id',
+                        DB::raw(" CONCAT($user_id) as user_id")
+                    )
+                    ->get()
+                    ->transform(function ($level) use (&$array_levels) {
+                        $array_levels[] = (array)$level;
+                    });
 
                 // Se actualiza las tablas de permisos
-                DB::connection('tenant')->table('module_user')->insert($array_modules);
-                DB::connection('tenant')->table('module_level_user')->insert($array_levels);
+                DB::connection('tenant')
+                    ->table('module_user')
+                    ->insert($array_modules);
+                DB::connection('tenant')
+                    ->table('module_level_user')
+                    ->insert($array_levels);
 
                 // Actualiza el modulo de farmacia.
-                $config = (array)DB::connection('tenant')->table('configurations')->first();
+                $config = (array)DB::connection('tenant')
+                    ->table('configurations')
+                    ->first();
                 $config['is_pharmacy'] = (self::EnablePharmacy($user_id)) ? 1 : 0;
-                DB::connection('tenant')->table('configurations')->update($config);
+                DB::connection('tenant')
+                    ->table('configurations')
+                    ->update($config);
                 return [
                     'success' => true,
                     'message' => 'Cliente Actualizado satisfactoriamente',
@@ -296,7 +433,9 @@
                     'success' => false,
                     'message' => $e->getMessage()
                 ];
+
             }
+
         }
 
         /**
@@ -307,18 +446,31 @@
          *
          * @return bool
          */
-        public static function EnablePharmacy($user_id = 0){
-            $modulo_id = DB::connection('tenant')->table('modules')->where('value', 'digemid')->first()->id;
-            $modulo = DB::connection('tenant')->table('module_user')->where('module_id', $modulo_id)->where('user_id', $user_id)->first();
+        public static function EnablePharmacy($user_id = 0)
+        {
+            $modulo_id = DB::connection('tenant')
+                ->table('modules')
+                ->where('value', 'digemid')
+                ->first()->id;
+            $modulo = DB::connection('tenant')
+                ->table('module_user')
+                ->where('module_id', $modulo_id)
+                ->where('user_id', $user_id)
+                ->first();
+
             return ($modulo == null) ? false : true;
+
         }
 
-        public function store(ClientRequest $request){
+        public function store(ClientRequest $request)
+        {
             $temp_path = $request->input('temp_path');
             $configuration = Configuration::first();
+
             $name_certificate = $configuration->certificate;
 
             if ($temp_path) {
+
                 try {
                     $password = $request->input('password_certificate');
                     $pfx = file_get_contents($temp_path);
@@ -329,6 +481,7 @@
                     }
                     file_put_contents(storage_path('app' . DIRECTORY_SEPARATOR . 'certificates' . DIRECTORY_SEPARATOR . $name), $pem);
                     $name_certificate = $name;
+
                 } catch (Exception $e) {
                     return [
                         'success' => false,
@@ -337,9 +490,11 @@
                 }
             }
 
+
             $subDom = strtolower($request->input('subdomain'));
             $uuid = config('tenant.prefix_database') . '_' . $subDom;
             $fqdn = $subDom . '.' . config('tenant.app_url_base');
+
             $website = new Website();
             $hostname = new Hostname();
             $this->validateWebsite($uuid, $website);
@@ -350,9 +505,12 @@
                 app(WebsiteRepository::class)->create($website);
                 $hostname->fqdn = $fqdn;
                 app(HostnameRepository::class)->attach($hostname, $website);
+
                 $tenancy = app(Environment::class);
                 $tenancy->tenant($website);
+
                 $token = str_random(50);
+
                 $client = new Client();
                 $client->hostname_id = $hostname->id;
                 $client->token = $token;
@@ -362,12 +520,13 @@
                 $client->plan_id = $request->input('plan_id');
                 $client->locked_emission = $request->input('locked_emission');
                 $client->save();
-                DB::connection('system')->commit();
 
+                DB::connection('system')->commit();
             } catch (Exception $e) {
                 DB::connection('system')->rollBack();
                 app(HostnameRepository::class)->delete($hostname, true);
                 app(WebsiteRepository::class)->delete($website, true);
+
                 return [
                     'success' => false,
                     'message' => $e->getMessage()
@@ -414,6 +573,7 @@
                 ])
             ]);
 
+
             $establishment_id = DB::connection('tenant')->table('establishments')->insertGetId([
                 'description' => 'Oficina Principal',
                 'country_id' => 'PE',
@@ -447,6 +607,7 @@
                 ['establishment_id' => 1, 'document_type_id' => '04', 'number' => 'L001'],
             ]);
 
+
             $user_id = DB::connection('tenant')->table('users')->insert([
                 'name' => 'Administrador',
                 'email' => $request->input('email'),
@@ -457,6 +618,7 @@
                 'locked' => true,
                 'permission_edit_cpe' => true,
             ]);
+
 
             if ($request->input('type') == 'admin') {
                 $array_modules = [];
@@ -487,14 +649,19 @@
             ];
         }
 
-        public function validateWebsite($uuid, $website){
+        public function validateWebsite($uuid, $website)
+        {
+
             $exists = $website::where('uuid', $uuid)->first();
+
             if ($exists) {
                 throw new Exception("El subdominio ya se encuentra registrado");
             }
+
         }
 
-        public function renewPlan(Request $request){
+        public function renewPlan(Request $request)
+        {
 
             // dd($request->all());
             $client = Client::findOrFail($request->id);
@@ -508,17 +675,25 @@
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
             DB::connection('tenant')->table('configurations')->where('id', 1)->update(['quantity_documents' => 0]);
+
+
             return [
                 'success' => true,
                 'message' => 'Plan renovado con exito'
             ];
+
         }
 
-        public function lockedUser(Request $request){
+
+        public function lockedUser(Request $request)
+        {
+
             $client = Client::findOrFail($request->id);
             $client->locked_users = $request->locked_users;
             $client->save();
+
             $tenancy = app(Environment::class);
             $tenancy->tenant($client->hostname->website);
             DB::connection('tenant')->table('configurations')->where('id', 1)->update(['locked_users' => $client->locked_users]);
@@ -531,35 +706,48 @@
         }
 
 
-        public function lockedEmission(Request $request){
+        public function lockedEmission(Request $request)
+        {
+
             $client = Client::findOrFail($request->id);
             $client->locked_emission = $request->locked_emission;
             $client->save();
+
             $tenancy = app(Environment::class);
             $tenancy->tenant($client->hostname->website);
             DB::connection('tenant')->table('configurations')->where('id', 1)->update(['locked_emission' => $client->locked_emission]);
+
             return [
                 'success' => true,
                 'message' => ($client->locked_emission) ? 'Limitar emisión de documentos activado' : 'Limitar emisión de documentos desactivado'
             ];
+
         }
 
-        public function lockedTenant(Request $request){
+
+        public function lockedTenant(Request $request)
+        {
 
             $client = Client::findOrFail($request->id);
             $client->locked_tenant = $request->locked_tenant;
             $client->save();
+
             $tenancy = app(Environment::class);
             $tenancy->tenant($client->hostname->website);
             DB::connection('tenant')->table('configurations')->where('id', 1)->update(['locked_tenant' => $client->locked_tenant]);
+
             return [
                 'success' => true,
                 'message' => ($client->locked_tenant) ? 'Cuenta bloqueada' : 'Cuenta desbloqueada'
             ];
+
         }
 
-        public function destroy($id){
+
+        public function destroy($id)
+        {
             $client = Client::find($id);
+
             if ($client->locked) {
                 return [
                     'success' => false,
@@ -579,34 +767,42 @@
             ];
         }
 
-        public function password($id){
+        public function password($id)
+        {
             $client = Client::find($id);
             $website = Website::find($client->hostname->website_id);
             $tenancy = app(Environment::class);
             $tenancy->tenant($website);
-            DB::connection('tenant')->table('users')->where('id', 1)->update(['password' => bcrypt($client->number)]);
+            DB::connection('tenant')->table('users')
+                ->where('id', 1)
+                ->update(['password' => bcrypt($client->number)]);
+
             return [
                 'success' => true,
                 'message' => 'Clave cambiada con éxito'
             ];
         }
 
-        public function startBillingCycle(Request $request){
+        public function startBillingCycle(Request $request)
+        {
             $client = Client::findOrFail($request->id);
             $client->start_billing_cycle = $request->start_billing_cycle;
             $client->save();
+
             return [
                 'success' => true,
                 'message' => ($client->start_billing_cycle) ? 'Ciclo de Facturacion definido.' : 'No se pudieron guardar los cambios.'
             ];
         }
 
-        public function upload(Request $request){
+        public function upload(Request $request)
+        {
             if ($request->hasFile('file')) {
                 $new_request = [
                     'file' => $request->file('file'),
                     'type' => $request->input('type'),
                 ];
+
                 return $this->upload_certificate($new_request);
             }
             return [
@@ -615,13 +811,17 @@
             ];
         }
 
-        public function upload_certificate($request){
+        public function upload_certificate($request)
+        {
             $file = $request['file'];
             $type = $request['type'];
+
             $temp = tempnam(sys_get_temp_dir(), $type);
             file_put_contents($temp, file_get_contents($file));
+
             $mime = mime_content_type($temp);
             $data = file_get_contents($temp);
+
             return [
                 'success' => true,
                 'data' => [
@@ -631,5 +831,6 @@
                 ]
             ];
         }
+
 
     }

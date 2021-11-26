@@ -1,41 +1,80 @@
 <?php
 
-namespace Modules\Inventory\Models;
+    namespace Modules\Inventory\Models;
 
-use App\Models\Tenant\Item;
-use App\Models\Tenant\ModelTenant;
+    use App\Models\Tenant\Item;
+    use App\Models\Tenant\ModelTenant;
+    use Carbon\Carbon;
+    use Eloquent;
+    use Hyn\Tenancy\Traits\UsesTenantConnection;
+    use Illuminate\Database\Eloquent\Builder;
 
-class ItemWarehouse extends ModelTenant
-{
-    protected $table = 'item_warehouse';
-
-    protected $fillable = [
-        'item_id',
-        'warehouse_id',
-        'stock',
-    ];
-
-    protected $casts = [
-        'stock' => 'float'
-    ];
-
-    public function warehouse()
+    /**
+     * \Modules\Inventory\Models\ItemWarehouse
+     *
+     * @property int         $id
+     * @property int         $item_id
+     * @property int         $warehouse_id
+     * @property float       $stock
+     * @property Carbon|null $created_at
+     * @property Carbon|null $updated_at
+     * @property Item        $item
+     * @property Warehouse   $warehouse
+     * @method static Builder|ItemWarehouse newModelQuery()
+     * @method static Builder|ItemWarehouse newQuery()
+     * @method static Builder|ItemWarehouse query()
+     * @method static Builder|ItemWarehouse whereWarehouse($warehouse_id)
+     * @mixin ModelTenant
+     * @mixin Eloquent
+     */
+    class ItemWarehouse extends ModelTenant
     {
-        return $this->belongsTo(Warehouse::class);
-    }
+        use UsesTenantConnection;
 
-    public function item()
-    {
-        return $this->belongsTo(Item::class);
-    }
+        protected $table = 'item_warehouse';
 
-    public function scopeWhereWarehouse($query, $warehouse_id)
-    {
-        if(!is_null($warehouse_id) && $warehouse_id !== 'all') {
-            return $query->where('warehouse_id', $warehouse_id);
+        protected $fillable = [
+            'item_id',
+            'warehouse_id',
+            'stock',
+        ];
+
+        protected $casts = [
+            'stock' => 'float',
+            'item_id' => 'int',
+            'warehouse_id' => 'int',
+        ];
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function warehouse()
+        {
+            return $this->belongsTo(Warehouse::class);
         }
-        return $query;
-    }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function item()
+        {
+            return $this->belongsTo(Item::class);
+        }
+
+
+        /**
+         * @param Builder $query
+         * @param         $warehouse_id
+         *
+         * @return Builder
+         */
+        public function scopeWhereWarehouse(\Illuminate\Database\Eloquent\Builder $query, $warehouse_id)
+        {
+            if (!is_null($warehouse_id) && $warehouse_id !== 'all') {
+                return $query->where('warehouse_id', $warehouse_id);
+            }
+            return $query;
+        }
 
 //    public function scopeWhereFilter($query, $filter, $stock_min)
 //    {
@@ -55,4 +94,4 @@ class ItemWarehouse extends ModelTenant
 //
 //        return $query;
 //    }
-}
+    }

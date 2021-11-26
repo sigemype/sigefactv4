@@ -150,7 +150,7 @@
                         <tr>
                             <td>F. ENTREGA</td>
                             <td>:</td>
-                            <td>{{ $document->quotation->delivery_date->format('Y-m-d')}}</td>
+                            <td>{{ $document->quotation->getStringDeliveryDate()}}</td>
                         </tr>
                     @endisset
                 @endif
@@ -657,7 +657,7 @@
                         <tr>
                             <td>F. ENTREGA</td>
                             <td>:</td>
-                            <td>{{ $document->quotation->delivery_date->format('Y-m-d')}}</td>
+                            <td>{{ $document->quotation->getStringDeliveryDate()}}</td>
                         </tr>
                     @endisset
                 @endif

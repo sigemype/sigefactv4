@@ -149,6 +149,13 @@
                          ->name('tenant.reports.document_hotels.records');
 
 
+                   /**
+                    * reports/commissions
+                    * reports/commissions/pdf
+                    * reports/commissions/excel
+                    * reports/commissions/filter
+                    * reports/commissions/records
+                    */
                     Route::get('commissions', 'ReportCommissionController@index')
                          ->name('tenant.reports.commissions.index');
                     Route::get('commissions/pdf', 'ReportCommissionController@pdf')

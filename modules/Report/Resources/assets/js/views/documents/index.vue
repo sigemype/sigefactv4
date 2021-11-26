@@ -17,7 +17,7 @@
         </div>
         <div class="card mb-0">
                 <div class="card-body">
-                    <data-table :applyCustomer="true" :resource="resource">
+                    <data-table :applyCustomer="true" :resource="resource" :visibleColumns="columns">
                         <tr slot="heading">
                             <th class="">#</th>
                             <th class="">Usuario/Vendedor</th>
@@ -41,6 +41,7 @@
                             <th>Total Gravado</th>
 
                             <th class="">Total IGV</th>
+                            <th class="" v-if="columns.total_isc.visible">Total ISC</th>
                             <th class="">Total</th>
                         <tr>
                         <tr slot-scope="{ index, row }">
@@ -98,6 +99,11 @@
                                     (row.document_type_id == '07') ? ((row.total_igv == 0) ? '0.00' : '-' + row.total_igv) : ((row.document_type_id != '07' && (row.state_type_id == '11' || row.state_type_id == '09')) ? '0.00' : row.total_igv)
                                 }}
                             </td>
+                            <td v-if="columns.total_isc.visible">
+                                {{
+                                    (row.document_type_id == '07') ? ((row.total_isc == 0) ? '0.00' : '-' + row.total_isc) : ((row.document_type_id != '07' && (row.state_type_id == '11' || row.state_type_id == '09')) ? '0.00' : row.total_isc)
+                                }}
+                            </td>
                             <td>{{
                                     (row.document_type_id == '07') ? ((row.total == 0) ? '0.00' : '-' + row.total) : ((row.document_type_id != '07' && (row.state_type_id == '11' || row.state_type_id == '09')) ? '0.00' : row.total)
                                 }}
@@ -150,6 +156,10 @@
                     },
                     web_platforms: {
                         title: 'Plataformas web',
+                        visible: false
+                    },
+                    total_isc: {
+                        title: 'Total ISC',
                         visible: false
                     },
                 }

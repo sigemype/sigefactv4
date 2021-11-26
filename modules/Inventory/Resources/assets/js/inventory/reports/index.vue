@@ -109,7 +109,8 @@
                             </el-select>
                         </div>
 
-                        <div class="col-md-3" v-if="filters.range.visible">
+                        <div v-if="filters.range.visible"
+                             class="col-md-3">
                             <label class="control-label">Fecha de vencimiento - inicio</label>
                             <el-date-picker v-model="form.date_start"
                                             :clearable="true"
@@ -118,15 +119,16 @@
                                             value-format="yyyy-MM-dd"
                                             @change="changeDisabledDates"></el-date-picker>
                         </div>
-                        <div class="col-md-3"  v-if="filters.range.visible">
+                        <div v-if="filters.range.visible"
+                             class="col-md-3">
                             <label class="control-label">Fecha de vencimiento - Fecha término</label>
                             <el-date-picker v-model="form.date_end"
                                             :clearable="true"
                                             :picker-options="pickerOptionsDates"
                                             format="dd/MM/yyyy"
                                             type="date"
-                                            @change="changeDisabledDates"
-                                            value-format="yyyy-MM-dd"></el-date-picker>
+                                            value-format="yyyy-MM-dd"
+                                            @change="changeDisabledDates"></el-date-picker>
                         </div>
 
                         <div class="col-12">&nbsp;</div>
@@ -154,6 +156,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Descripción</th>
+                                        <th v-if="filters.model.visible">Modelo</th>
                                         <th>Categoria</th>
                                         <th class="text-right">Stock mínimo</th>
                                         <th class="text-right">Stock actual</th>
@@ -189,6 +192,7 @@
                                         :key="index">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ row.name }}</td>
+                                        <td v-if="filters.model.visible">{{ row.model }}</td>
                                         <td>{{ row.item_category_name }}</td>
                                         <td class="text-right">{{ row.stock_min }}</td>
                                         <td class="text-right">{{ row.stock }}</td>
@@ -277,6 +281,10 @@ export default {
                 title: 'Categorias',
                 visible: false
             },
+            model: {
+                title: 'Modelo',
+                visible: false
+            },
             brand: {
                 title: 'Marcas',
                 visible: false
@@ -363,7 +371,7 @@ export default {
             this.total_all_profit = 0;
             this.initTotals()
             let range = this.filters.range.visible
-            if(range !== true){
+            if (range !== true) {
                 delete this.form.date_start
                 delete this.form.date_end
             }

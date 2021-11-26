@@ -10,7 +10,7 @@
             <ol class="breadcrumbs">
                 <li class="active">
                     <span>
-                        Clientes
+                        {{ typeText }}
                     </span>
                 </li>
             </ol>
@@ -27,17 +27,22 @@
         <div class="card mb-0">
             <div class="card-header bg-info">
                 <h3 class="my-0">
-                    Listado de clientes
+                    Listado de {{ typeText }}
                 </h3>
             </div>
             <div class="card-body">
-                <data-table >
+                <data-table
+                    :extraquery={users:type}>
                     <tr slot="heading">
                         <th>
                             #
                         </th>
-                        <th>
+                        <th class="text-left">
+
                             Nombre
+                        </th>
+                        <th class="text-left">
+                            Documento
                         </th>
                         <th class="text-right">
                             Número
@@ -50,18 +55,21 @@
                         <td>
                             {{ index }}
                         </td>
-                        <td>
+                        <td class="text-left">
+
                             {{ row.name }}
+                        </td>
+                        <td class="text-left">
+                            {{ row.document_type }}
                         </td>
                         <td class="text-right">
                             {{ row.number }}
                         </td>
                         <td class="text-right">
                             <button
-                                v-if="row.parent_id < 1"
                                 class="btn waves-effect waves-light btn-xs btn-info"
                                 type="button"
-                                @click.prevent="clickCreate(row.id)">
+                                @click.prevent="clickCreate(getRowId(row))">
                                 Editar
                             </button>
                             <!--
@@ -94,7 +102,8 @@ import {deletable} from '../../../../../../resources/js/mixins/deletable'
 
 export default {
     props: [
-        'configurations'
+        'configurations',
+        'listtype',
     ],
     mixins: [
         deletable
@@ -107,6 +116,8 @@ export default {
         return {
             showDialog: false,
             recordId: null,
+            type: null,
+            typeText: 'Clientes',
         }
     },
     computed: {
@@ -129,6 +140,16 @@ export default {
         this.$store.commit('setResource', 'client')
 
         this.getCommonData()
+        // Clientes
+
+        if (this.listtype !== undefined) {
+            this.type = this.listtype
+            if (this.type == 'parent') {
+                this.typeText = 'Padres';
+            } else if (this.type == 'children') {
+                this.typeText = 'Hijos';
+            }
+        }
         // this.getPersonData()
 
     },
@@ -136,6 +157,13 @@ export default {
         ...mapActions([
             'loadConfiguration',
         ]),
+        getRowId(row) {
+            // Si es un hijo, mostraria el modal del padre
+            if (row.parent_id > 0) {
+                return row.parent_id
+            }
+            return row.id
+        },
         clickCreate(recordId = null) {
             this.recordId = recordId
             this.showDialog = true
@@ -156,21 +184,21 @@ export default {
         },
 
         getPersonData() {
-           this.$http.post(`/suscription/${this.resource}/tables`)
-            .then(response => {
-                this.api_service_token = response.data.api_service_token
-                // console.log(this.api_service_token)
+            this.$http.post(`/suscription/${this.resource}/tables`)
+                .then(response => {
+                    this.api_service_token = response.data.api_service_token
+                    // console.log(this.api_service_token)
 
-                this.$store.commit('setCountries',response.data.countrie);
-                this.$store.commit('setAllDepartments',response.data.departments);
-                this.$store.commit('setAllProvinces',response.data.provinces);
-                this.$store.commit('setAllDistricts',response.data.districts);
-                this.$store.commit('setIdentityDocumentTypes',response.data.identity_document_types);
-                this.$store.commit('setLocations',response.data.locations);
-                this.$store.commit('setPersonTypes',response.data.person_types);
+                    this.$store.commit('setCountries', response.data.countrie);
+                    this.$store.commit('setAllDepartments', response.data.departments);
+                    this.$store.commit('setAllProvinces', response.data.provinces);
+                    this.$store.commit('setAllDistricts', response.data.districts);
+                    this.$store.commit('setIdentityDocumentTypes', response.data.identity_document_types);
+                    this.$store.commit('setLocations', response.data.locations);
+                    this.$store.commit('setPersonTypes', response.data.person_types);
 
 
-            })
+                })
         },
 
     }

@@ -92,6 +92,11 @@ import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
 export default {
     props: {
+        extraquery: {
+            type: Object,
+            default: {},
+            required: false
+        },
         productType: {
             type: String,
             required: false,
@@ -124,7 +129,7 @@ export default {
             this.fromPharmacy = true;
         }
         this.$eventHub.$on("reloadData", () => {
-            console.log('Dispara reloadData')
+            //  console.log('Dispara reloadData')
             this.getRecords();
         });
         this.$root.$refs.DataTable = this;
@@ -174,7 +179,8 @@ export default {
                 page: this.pagination.current_page,
                 limit: this.limit,
                 isPharmacy: this.fromPharmacy,
-                ...this.search
+                ...this.search,
+                ...this.extraquery
             };
             return queryString.stringify({
                 page: this.pagination.current_page,

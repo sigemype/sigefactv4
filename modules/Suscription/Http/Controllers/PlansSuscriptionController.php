@@ -50,17 +50,6 @@
 
         }
 
-        /**
-         * Remove the specified resource from storage.
-         *
-         * @param int $id
-         *
-         * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|\Illuminate\View\View
-         */
-        public function destroy($id)
-        {
-            //
-        }
 
         /**
          * Show the form for editing the specified resource.
@@ -149,5 +138,17 @@
 
         }
 
+        public function destroy($id)
+        {
+
+            $record = SuscriptionPlan::findOrFail($id);
+            $record->delete();
+
+            return [
+                'success' => true,
+                'message' => 'Plan eliminado con éxito'
+            ];
+
+        }
 
     }

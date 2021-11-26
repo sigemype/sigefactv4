@@ -23,7 +23,7 @@
             <div class="card-body">
                 <h6 class="card-title">General</h6>
                 <ul class="card-report-links">
-                    @if($user->type != 'integrator')
+                        @if($user->type != 'integrator')
                     <li>
                         <a href="{{ url('list-banks') }}">Listado de bancos</a>
                     </li>

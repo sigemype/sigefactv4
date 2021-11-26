@@ -18,14 +18,18 @@
     use Modules\Document\Helpers\ConsultCdr;
 
 
-    class ServiceController extends Controller{
+    class ServiceController extends Controller
+    {
+
 
         public const ACCEPTED = '05';
         protected $wsClient;
         use StorageDocument;
         protected $document;
 
-        public function consultCdrStatus(ServiceRequest $request){
+        public function consultCdrStatus(ServiceRequest $request)
+        {
+
             $document_type_id = $request->codigo_tipo_documento;
             $series = $request->serie_documento;
             $number = $request->numero_documento;
@@ -43,9 +47,12 @@
             ];
 
             return (new ConsultCdr())->search($this->document);
+
         }
 
-        public function ruc($number){
+
+        public function ruc($number)
+        {
             $service = new Sunat();
             $res = $service->get($number);
             if ($res) {
@@ -73,12 +80,15 @@
             }
         }
 
-        public function dni($number){
+        public function dni($number)
+        {
             $res = Dni::search($number);
+
             return $res;
         }
 
-        public function exchangeRateTest($date){
+        public function exchangeRateTest($date)
+        {
             $sale = 1;
             $purchase = 1;
             if ($date <= now()->format('Y-m-d')) {
@@ -123,7 +133,8 @@
             ];
         }
 
-        public function documentStatus(Request $request){
+        public function documentStatus(Request $request)
+        {
             if ($request->has('external_id') or $request->has('serie_number')) {
                 $external_id = $request->input('external_id');
                 $request_serie = $request->input('serie_number');
@@ -165,26 +176,34 @@
             }
         }
 
-        public function validateCpe(Request $request){
+        public function validateCpe(Request $request)
+        {
+
             $company_number = $request->numero_ruc_emisor;
             $document_type_id = $request->codigo_tipo_documento;
             $series = $request->serie_documento;
             $number = $request->numero_documento;
             $date_of_issue = $request->fecha_de_emision;
             $total = $request->total;
+
             $validate_cpe = new ValidateCpe2();
             $response = $validate_cpe->search($company_number, $document_type_id, $series, $number, $date_of_issue, $total);
 
             if ($response['success']) {
+
                 return [
                     'success' => true,
                     'data' => $response['data']
                 ];
+
             } else {
                 return [
                     'success' => false,
                     'data' => $response
                 ];
             }
+
         }
+
+
     }

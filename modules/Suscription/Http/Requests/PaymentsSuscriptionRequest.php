@@ -38,6 +38,8 @@
                 'parent_customer_id' => [ 'required', ],
                 'parent_customer' => [ 'required', ],
                 'children_customer' => [ 'required', ],
+                'section' => [ 'required', ],
+                'grade' => [ 'required', ],
 
             ];
         }
@@ -56,6 +58,8 @@
                 'parent_customer_id.required' => 'Se debe seleccionar un padre',
                 'parent_customer.required' => 'El campo parent_customer es obligatorio.',
                 'children_customer.required' => 'El campo children_customer es obligatorio.',
+                'section.required' => 'Se requiere una sección.',
+                'grade.required' => 'Se requiere un grado.',
             ];
         }
     }

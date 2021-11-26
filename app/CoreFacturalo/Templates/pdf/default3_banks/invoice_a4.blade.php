@@ -1,4 +1,5 @@
 @php
+    use App\CoreFacturalo\Helpers\Template\TemplateHelper;
     $establishment = $document->establishment;
     $customer = $document->customer;
     $invoice = $document->invoice;
@@ -29,6 +30,11 @@
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 3);
     $total_weight = 0;
+
+    // Condicion de pago
+    $condition = TemplateHelper::getDocumentPaymentCondition($document);
+	// Pago/Coutas detalladas
+    $paymentDetailed = TemplateHelper::getDetailedPayment($document)
 
 @endphp
 <html>
@@ -219,6 +225,13 @@
                 </tr>
 
                 <tr>
+                        <td class="font-sm" width="100px">
+                            <strong>Condición de pago</strong>
+                        </td>
+                        <td class="font-sm" width="8px">:</td>
+                        <td class="font-sm" colspan="4">
+                            {{ $condition }}
+                        </td>
                     @if($document->guides)
                         <td class="font-sm" width="100px">
                             <strong>Guía de Remisión</strong>
@@ -360,6 +373,21 @@
 
             @endphp
 
+            {{-- Detalles de pago --}}
+            @if(!empty($paymentDetailed))
+                @foreach($paymentDetailed as $detailed)
+                    <strong> {{ isset($paymentDetailed['PAGOS'])?'Pagos:':'Cuotas:' }}</strong>
+                    <br>
+                    @foreach($detailed as $row)
+                        {{ $row['description']  }} -
+                        {{ $row['reference']  }}
+                        {{ $row['symbol']  }}
+                        {{ $row['amount']  }}
+                        <br>
+                    @endforeach
+                @endforeach
+                <br>
+            @endif
             <strong> Total bultos:</strong>
             @if(((int)$total_packages != $total_packages))
                 {{ $total_packages }}

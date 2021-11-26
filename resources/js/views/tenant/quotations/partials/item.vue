@@ -260,7 +260,7 @@
                                    v-text="errors.extra_attr_value[0]"></small>
                         </div>
                     </div>
-                    <div v-if="config.edit_name_product"
+                    <div v-if="config.edit_name_product && showDiscounts"
                          class="col-md-12 col-sm-12 mt-2">
                         <div class="form-group">
                             <label class="control-label">Nombre producto en PDF</label>
@@ -1068,6 +1068,9 @@ export default {
                 })
             }
             // this.form.lots_group = this.form.item.lots_group
+            if(this.form.item.name_product_pdf && this.config.item_name_pdf_description){
+                this.form.name_product_pdf = this.form.item.name_product_pdf;
+            }
         },
         focusTotalItem(change) {
             if (!change && this.form.item.calculate_quantity) {

@@ -366,7 +366,7 @@
                     if (type === 'year') {
                         text = time > 1 ? text + ' años' : text + ' año';
                     }else if (type === 'month'){
-                        text = time > 1 ? text + ' meces' : text + ' mes';
+                        text = time > 1 ? text + ' meses' : text + ' mes';
                     }else{
                         text = '';
                     }

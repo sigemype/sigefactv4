@@ -1,5 +1,9 @@
 <template>
-    <el-input :value="value" :maxlength="maxLength" @input="handleInput($event)" show-word-limit>
+    <el-input
+        :value="value"
+        :maxlength="maxLength"
+        @input="handleInput($event)"
+        show-word-limit>
         <template v-if="buttonText">
             <el-button type="primary"
                        slot="append"
@@ -71,8 +75,51 @@
                 this.$http.get(`/${this.resource}/${this.value}`)
                     .then(response => {
                         let res = response.data;
+
                         if (res.success) {
-                            this.$emit('search', res.data)
+                            let data_return = res.data
+                            // Se añaden datos para que funcione en varias busqeudas internas
+                            data_return.nombre_o_razon_social = null;
+                            data_return.nombre_completo = null;
+                            data_return.direccion_completa = null;
+                            data_return.condicion = null;
+                            data_return.estado = null;
+                            data_return.ubigeo = [];
+                            data_return.ubigeo[0] = null;// department_id
+                            data_return.ubigeo[1] = null;// province_id
+                            data_return.ubigeo[2] = null;// district_id
+                            if (data_return.name !== undefined) {
+                                data_return.nombre_completo = data_return.name
+                                data_return.nombre_o_razon_social = data_return.name
+                            }
+                            if (
+                                data_return.trade_name !== undefined  &&
+                                data_return.trade_name !== null
+                            ) {
+                                if( data_return.trade_name != '') {
+                                    data_return.nombre_o_razon_social = data_return.trade_name
+                                }
+                            }
+                            if (data_return.address !== undefined) {
+                                data_return.direccion_completa = data_return.address
+                                data_return.direccion = data_return.address
+                            }
+                            if (data_return.condition !== undefined) {
+                                data_return.condicion = data_return.condition
+                            }
+                            if (data_return.state !== undefined) {
+                                data_return.estado = data_return.state
+                            }
+                            if (data_return.department_id !== undefined) {
+                                data_return.ubigeo[0] = data_return.department_id
+                            }
+                            if (data_return.district_id !== undefined) {
+                                data_return.ubigeo[2] = data_return.district_id
+                            }
+                            if (data_return.province_id !== undefined) {
+                                data_return.ubigeo[1] = data_return.province_id
+                            }
+                            this.$emit('search', data_return)
                         } else {
                             this.$message.error(res.message)
                         }
@@ -80,7 +127,7 @@
                     .catch(error => {
                         console.log(error.response)
                     })
-                    .then(() => {
+                    .finally(() => {
                         this.loading = false
                     })
             }

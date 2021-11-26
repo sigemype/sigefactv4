@@ -75,7 +75,8 @@ class DocumentCollection extends ResourceCollection
                 $btn_constancy_detraction = ($row->detraction) ? true:false;
             }
 
-            $btn_recreate_document = config('tenant.recreate_document');
+            // $btn_recreate_document = config('tenant.recreate_document');
+            $btn_recreate_document = auth()->user()->recreate_documents;
 
             $btn_change_to_registered_status = false;
             if($row->state_type_id === '01') {

@@ -1010,6 +1010,9 @@ export default {
 
             //this.item_unit_types = this.form.item.item_unit_types;
             //(this.item_unit_types.length > 0) ? this.has_list_prices = true : this.has_list_prices = false;
+            if(this.form.item.name_product_pdf && this.config.item_name_pdf_description){
+                this.form.name_product_pdf = this.form.item.name_product_pdf;
+            }
         },
         focusTotalItem(change) {
             if (!change && this.form.item.calculate_quantity) {

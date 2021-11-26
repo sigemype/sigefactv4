@@ -75,7 +75,6 @@
                         Route::post('record/{id}', 'ItemUnitBusinessController@record');
                         Route::post('save/{id}', 'ItemUnitBusinessController@store');
                     });
-
                     Route::prefix('item-status')->group(function () {
                         Route::get('/', 'ItemStatusController@index')->name('item-status.index');
                         Route::get('records', 'ItemStatusController@records');
@@ -154,7 +153,7 @@
                     Route::get('regularize_stock', 'InventoryController@regularize_stock');
 
                     Route::post('search_items', 'InventoryController@searchItems');
-                    /*
+                    /**
                      * inventory/report/tables
                      * inventory/report/records
                      * inventory/report/export
@@ -197,9 +196,13 @@
                     });
                     Route::get('kardex_lots/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
                     Route::get('kardex_series/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
+
+
                     Route::get('kardex_lots/records', 'ReportKardexController@records_lots_kardex')->name('reports.kardex_lots.records');
                     Route::get('kardex_lots/pdf', 'ReportKardexLotsController@pdf');
                     Route::get('kardex_lots/excel', 'ReportKardexLotsController@excel');
+
+
                     Route::get('kardex_series/records', 'ReportKardexController@records_series_kardex')->name('reports.kardex_series.records');
                     Route::get('kardex_series/pdf', 'ReportKardexSeriesController@pdf');
                     Route::get('kardex_series/excel', 'ReportKardexSeriesController@excel');
@@ -216,22 +219,46 @@
                         Route::get('/excel-format-sunat', 'ReportValuedKardexController@excelFormatSunat');
                         Route::get('/filter', 'ReportValuedKardexController@filter');
                         Route::get('/records', 'ReportValuedKardexController@records');
+
                     });
+
+                    // reporte movimientos
+                    Route::prefix('inventory-movements')->group(function () {
+                        Route::get('pdf', 'ReportMovementController@pdf');
+                        Route::get('excel', 'ReportMovementController@excel');
+                        Route::get('filter', 'ReportMovementController@filter');
+                        Route::get('records', 'ReportMovementController@records');
+                    });
+
                 });
 
+
                 Route::prefix('inventories')->group(function () {
+
                     Route::get('configuration', 'InventoryConfigurationController@index')->name('tenant.inventories.configuration.index')->middleware('redirect.level');
                     Route::get('configuration/record', 'InventoryConfigurationController@record');
                     Route::post('configuration', 'InventoryConfigurationController@store');
-
                 });
 
                 Route::prefix('moves')->group(function () {
+
                     Route::get('/', 'MovesController@index')->name('moves.index');
                     Route::get('records', 'MovesController@records');
                     Route::get('columns', 'MovesController@columns');
 
                 });
+
+                /**
+                    transfers/
+                    transfers/records
+                    transfers/columns
+                    transfers/tables
+                    transfers/record/{inventory}
+                    transfers/{inventory}
+                    transfers/create
+                    transfers/stock/{item_id}/{warehouse_id}
+                    transfers/items/{warehouse_id}
+                 */
 
                 Route::prefix('transfers')->group(function () {
                     Route::get('/', 'TransferController@index')->name('transfers.index');
@@ -244,11 +271,16 @@
                     Route::get('create', 'TransferController@create')->name('transfer.create');
                     Route::get('stock/{item_id}/{warehouse_id}', 'TransferController@stock');
                     Route::get('items/{warehouse_id}', 'TransferController@items');
-                    Route::get('download', 'TransferController@transfers_download');
+                    Route::post('search-items', 'TransferController@searchItems');
+
+                     Route::get('/download/pdf/{inventoryTransfer}', 'TransferController@getPdf');
+                     // Route::get('info/{inventoryTransfer}', 'TransferController@getInventoryTransferData');
 
                 });
 
+
                 Route::prefix('devolutions')->group(function () {
+
                     Route::get('/', 'DevolutionController@index')->name('devolutions.index');
                     Route::get('records', 'DevolutionController@records');
                     Route::get('columns', 'DevolutionController@columns');

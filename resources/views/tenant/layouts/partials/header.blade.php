@@ -16,24 +16,24 @@
         <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
             <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
         </div>
-
-        <a class="topbar-links" href="{{ route('tenant.documents.create') }}" title="Nueva factura" data-toggle="tooltip" data-placement="bottom">
-            <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-            <span>FA</span>
-        </a>
-        <a class="topbar-links" href="{{ in_array('pos', $vc_modules) ? route('tenant.pos.index') : '#' }}" title="POS" data-toggle="tooltip" data-placement="bottom">
-            <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-            <span>POS</span>
-        </a>
-        <a class="topbar-links" href="{{ in_array('configuration', $vc_modules) ? route('tenant.companies.create') : '#' }}" title="Mi empresa" data-toggle="tooltip" data-placement="bottom">
-            <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-            <span>ME</span>
-        </a>
-        <a class="topbar-links" href="{{ in_array('establishments', $vc_modules) ? route('tenant.establishments.index') : '#' }}" title="Nuevo establecimiento" data-toggle="tooltip" data-placement="bottom">
-            <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-            <span>ES</span>
-        </a>
-
+        <div class="d-md-none d-lg-block">
+            <a class="topbar-links" href="{{ route('tenant.documents.create') }}" title="Nueva factura" data-toggle="tooltip" data-placement="bottom">
+                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
+                <span>FA</span>
+            </a>
+            <a class="topbar-links" href="{{ in_array('pos', $vc_modules) ? route('tenant.pos.index') : '#' }}" title="POS" data-toggle="tooltip" data-placement="bottom">
+                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
+                <span>POS</span>
+            </a>
+            <a class="topbar-links" href="{{ in_array('configuration', $vc_modules) ? route('tenant.companies.create') : '#' }}" title="Mi empresa" data-toggle="tooltip" data-placement="bottom">
+                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
+                <span>ME</span>
+            </a>
+            <a class="topbar-links" href="{{ in_array('establishments', $vc_modules) ? route('tenant.establishments.index') : '#' }}" title="Nuevo establecimiento" data-toggle="tooltip" data-placement="bottom">
+                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
+                <span>ES</span>
+            </a>
+        </div>
     </div>
     <div class="header-right">
 

@@ -22,16 +22,18 @@
     use ZipArchive;
 
 
-    trait MassiveDownloadTrait{
+    trait MassiveDownloadTrait
+    {
 
-        public function getData($document_types, $params){
+        public function getData($document_types, $params)
+        {
 
             $documents_01 = [];
             $documents_03 = [];
             $sale_notes = [];
             $dispatches = [];
 
-            foreach ($document_types as $document_type){
+            foreach ($document_types as $document_type) {
 
                 switch ($document_type) {
                     case '01':
@@ -64,17 +66,18 @@
 
         }
 
-        public function getRecordsByModel($model, $params){
+        public function getRecordsByModel($model, $params)
+        {
             $param_array = (array)$params;
             /** @var Builder $records */
             $records = $model::whereBetween('date_of_issue', [$params->date_start, $params->date_end])
                 ->latest()
                 ->whereTypeUser();
 
-            if ($params->person_id){
+            if ($params->person_id) {
                 $records = $records->where('customer_id', $params->person_id);
             }
-            if ($model == Document::class || $model == SaleNote::class){
+            if ($model == Document::class || $model == SaleNote::class) {
                 if ($params->series) {
                     $records = $records->where('series', $params->series);
                 }
@@ -83,7 +86,7 @@
                 }
             }
 
-            if (isset($param_array['min']) && isset($param_array['max'])){
+            if (isset($param_array['min']) && isset($param_array['max'])) {
                 $min = (int)$param_array['min'];
                 $max = (int)$param_array['max'];
                 if($max < $min){
@@ -95,11 +98,12 @@
             return $records;
         }
 
-        public function getTotals($document_types, $params){
+        public function getTotals($document_types, $params)
+        {
 
             $total_documents = 0;
 
-            foreach ($document_types as $document_type){
+            foreach ($document_types as $document_type) {
 
                 switch ($document_type) {
                     case '01':
@@ -127,7 +131,8 @@
 
         }
 
-        public function toPrintByView($folder, $view){
+        public function toPrintByView($folder, $view)
+        {
 
             $temp = tempnam(sys_get_temp_dir(), $folder);
             file_put_contents($temp, $view);
@@ -137,7 +142,8 @@
         }
 
 
-        public function newCreatePdf($sale_note = null, $format_pdf = 'a4', $filename = null){
+        public function newCreatePdf($sale_note = null, $format_pdf = 'a4', $filename = null)
+        {
 
             ini_set("pcre.backtrack_limit", "5000000");
             $template = new Template();
@@ -336,7 +342,10 @@
             $this->uploadFile($this->document->filename, $pdf->output('', 'S'), 'sale_note');
         }
 
-        public function createPdf($data, $format_pdf = 'a4', $array = []){
+        public function createPdf($data,
+                                  $format_pdf = 'a4',
+                                  $array = [])
+        {
 
             ini_set("pcre.backtrack_limit", "5000000");
 
@@ -359,33 +368,96 @@
 
             $pdf_font_regular = config('tenant.pdf_name_regular');
             $pdf_font_bold = config('tenant.pdf_name_bold');
-            $path_css = app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'pdf' . DIRECTORY_SEPARATOR . $base_pdf_template . DIRECTORY_SEPARATOR . 'style.css');
+            $path_css = app_path('CoreFacturalo' .
+                DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'pdf' . DIRECTORY_SEPARATOR . $base_pdf_template . DIRECTORY_SEPARATOR . 'style.css');
             $stylesheet = file_get_contents($path_css);
+
 
             if (($format_pdf === 'ticket') or ($format_pdf === 'ticket_58')) {
                 $base_pdf_template = $configuration->formats;
                 $width = ($format_pdf === 'ticket_58') ? 56 : 78;
 
                 if (config('tenant.enabled_template_ticket_80')) $width = 76;
-                    $pdf_margin_top = 5;
-                    $pdf_margin_right = 1;
-                    $pdf_margin_bottom = 5;
-                    $pdf_margin_left = 1;
+                $pdf_margin_top = 5;
+                $pdf_margin_right = 1;
+                $pdf_margin_bottom = 5;
+                $pdf_margin_left = 1;
 
-                    $pdf_data = [
-                        'margin_top' => $pdf_margin_top,
-                        'margin_right' => $pdf_margin_right,
-                        'margin_bottom' => $pdf_margin_bottom,
-                        'margin_left' => $pdf_margin_left
-                    ];
+                $pdf_data = [
 
-                    $documents = isset($data['documents_01']) ? $data['documents_01'] : [];
-                    $type = 'invoice';
-                    $pdf_array = [];
-                    $pdfj = new Fpdi();
+                    'margin_top' => $pdf_margin_top,
+                    'margin_right' => $pdf_margin_right,
+                    'margin_bottom' => $pdf_margin_bottom,
+                    'margin_left' => $pdf_margin_left
+                ];
+
+
+                $documents = isset($data['documents_01']) ? $data['documents_01'] : [];
+                $type = 'invoice';
+                $pdf_array = [];
+                $pdfj = new Fpdi();
+                foreach ($documents as $document) {
+                    /** @var Document $document */
+                    $pdf = $this->addRecordToPdf(
+                        $document,
+                        $format_pdf,
+                        $base_pdf_template,
+                        $type,
+                        $stylesheet,
+                        $pdf_data
+                    );
+
+                    $pdf1 = $pdf;
+                    PdfUnionController::addFpi($pdfj, $pdf1);
+                    // $this->SaveTempPdf($pdf,$pdf_array,$document);
+                }
+
+                $documents = isset($data['documents_03']) ? $data['documents_03'] : [];
+                $type = 'invoice';
+
+                foreach ($documents as $document) {
+                    /** @var Document $document */
+                    $pdf = $this->addRecordToPdf(
+                        $document,
+                        $format_pdf,
+                        $base_pdf_template,
+                        $type,
+                        $stylesheet,
+                        $pdf_data
+                    );
+
+                    $pdf1 = $pdf;
+                    PdfUnionController::addFpi($pdfj, $pdf1);
+                    // $this->SaveTempPdf($pdf,$pdf_array,$document);
+                }
+
+                $documents = isset($data['sale_notes']) ? $data['sale_notes'] : [];
+                $type = 'sale_note';
+
+                foreach ($documents as $document) {
+                    /** @var SaleNote $document */
+                    $pdf = $this->addRecordToPdf(
+                        $document,
+                        $format_pdf,
+                        $base_pdf_template,
+                        $type,
+                        $stylesheet,
+                        $pdf_data
+                    );
+
+                    $pdf1 = $pdf;
+                    PdfUnionController::addFpi($pdfj, $pdf1);
+                    //   $this->SaveTempPdf($pdf,$pdf_array,$document);
+                }
+                /*
+                    $documents = isset($data['dispatches']) ? $data['dispatches'] : [];
+                    $type = 'dispatch';
 
                     foreach ($documents as $document) {
-                        /** @var Document $document */
+                        dd([
+                            __LINE__,
+                            $document
+                        ]);
                         $pdf = $this->addRecordToPdf(
                             $document,
                             $format_pdf,
@@ -394,72 +466,11 @@
                             $stylesheet,
                             $pdf_data
                         );
-
                         $pdf1 = $pdf;
                         PdfUnionController::addFpi($pdfj, $pdf1);
                         // $this->SaveTempPdf($pdf,$pdf_array,$document);
                     }
-
-                    $documents = isset($data['documents_03']) ? $data['documents_03'] : [];
-                    $type = 'invoice';
-
-                    foreach ($documents as $document) {
-                        /** @var Document $document */
-                        $pdf = $this->addRecordToPdf(
-                            $document,
-                            $format_pdf,
-                            $base_pdf_template,
-                            $type,
-                            $stylesheet,
-                            $pdf_data
-                        );
-
-                        $pdf1 = $pdf;
-                        PdfUnionController::addFpi($pdfj, $pdf1);
-                        // $this->SaveTempPdf($pdf,$pdf_array,$document);
-                    }
-
-                    $documents = isset($data['sale_notes']) ? $data['sale_notes'] : [];
-                    $type = 'sale_note';
-
-                    foreach ($documents as $document) {
-                        /** @var SaleNote $document */
-                        $pdf = $this->addRecordToPdf(
-                            $document,
-                            $format_pdf,
-                            $base_pdf_template,
-                            $type,
-                            $stylesheet,
-                            $pdf_data
-                        );
-
-                        $pdf1 = $pdf;
-                        PdfUnionController::addFpi($pdfj, $pdf1);
-                        //   $this->SaveTempPdf($pdf,$pdf_array,$document);
-                    }
-                    
-                    /*
-                        $documents = isset($data['dispatches']) ? $data['dispatches'] : [];
-                        $type = 'dispatch';
-
-                        foreach ($documents as $document) {
-                            dd([
-                                __LINE__,
-                                $document
-                            ]);
-                            $pdf = $this->addRecordToPdf(
-                                $document,
-                                $format_pdf,
-                                $base_pdf_template,
-                                $type,
-                                $stylesheet,
-                                $pdf_data
-                            );
-                            $pdf1 = $pdf;
-                            PdfUnionController::addFpi($pdfj, $pdf1);
-                            // $this->SaveTempPdf($pdf,$pdf_array,$document);
-                        }
-                    */
+                */
                 return $pdfj->Output('S');
 
             } else {
@@ -606,35 +617,32 @@
                         if ($configuration->legend_footer) {
                             $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
                         }
-                        if ($format == 'ticket') {
-                            $pdf->SetHTMLFooter($html_footer . $html_footer_legend);
-                        }
+                        $pdf->SetHTMLFooter($html_footer . $html_footer_legend);
                         break;
 
                     case 'dispatch':
                         $html_footer = $template->pdfFooter($base_pdf_template, $document);
-                        if ($format == 'ticket') {
-                            $pdf->SetHTMLFooter($html_footer . $html_footer_legend);
-                        }
+                        $pdf->SetHTMLFooter($html_footer . $html_footer_legend);
                         break;
 
                     case 'sale_note':
                         $html_footer = ($base_pdf_template != 'full_height') ? $template->pdfFooter($base_pdf_template, $document) : $template->pdfFooter('default', $document);
-                        // $pdf->SetHTMLFooter($html_footer);
-                        if ($format == 'ticket') {
-                            $pdf->SetHTMLFooter($html_footer);
-                        }
+                        $pdf->SetHTMLFooter($html_footer);
                         break;
+
                 }
+
             }
             $pdf->AddPage();
             $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
             $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
             return $pdf;
 
+
         }
 
-        public function addPageRecords($documents, $template, $base_pdf_template, $company, $pdf, $stylesheet, $format_pdf, $type, $configuration){
+        public function addPageRecords($documents, $template, $base_pdf_template, $company, $pdf, $stylesheet, $format_pdf, $type, $configuration)
+        {
 
             foreach ($documents as $document) {
 
@@ -675,7 +683,8 @@
 
         }
 
-        public function nextPage($pdf, $stylesheet, $html){
+        public function nextPage($pdf, $stylesheet, $html)
+        {
 
             $pdf->AddPage();
             $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
@@ -693,7 +702,8 @@
          *
          * @throws MpdfException
          */
-        public function SaveTempPdf(Mpdf $pdf, &$list_files, $document){
+        public function SaveTempPdf(Mpdf $pdf, &$list_files, $document)
+        {
             /** @var Document $document */
             $name = strtoupper(STR::slug("ticket " . $document->series . " " . $document->number, '-'));
             $path = storage_path('app/public/temp_pdf/' . $name . ".pdf");
@@ -710,6 +720,8 @@
             $pdf->output($path, 'F');
             $list_files[$name] = $path;
 
+
         }
+
 
     }

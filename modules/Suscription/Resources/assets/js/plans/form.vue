@@ -16,7 +16,7 @@
                     <div class="form-body">
 
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div
                                     :class="{'has-danger': errors.name}"
                                     class="form-group">
@@ -33,23 +33,7 @@
                                     </small>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div
-                                    :class="{'has-danger': errors.quantity_period}"
-                                    class="form-group">
-                                    <label class="control-label">
-                                        Cantidad de Periodos
-                                    </label>
-                                    <el-input
-                                        v-model="form_data.quantity_period"
-                                    ></el-input>
-                                    <small
-                                        v-if="errors.quantity_period"
-                                        class="form-control-feedback"
-                                        v-text="errors.quantity_period[0]">
-                                    </small>
-                                </div>
-                            </div>
+
                             <div class="col-md-3">
                                 <div
                                     :class="{'has-danger': errors.periods}"
@@ -74,6 +58,26 @@
                                     </small>
                                 </div>
                             </div>
+
+                            <div class="col-md-3">
+                                <div
+                                    :class="{'has-danger': errors.quantity_period}"
+                                    class="form-group">
+                                    <label class="control-label">
+                                        Cantidad de Periodos
+                                    </label>
+                                    <el-input
+                                        v-model="form_data.quantity_period"
+                                    ></el-input>
+                                    <small
+                                        v-if="errors.quantity_period"
+                                        class="form-control-feedback"
+                                        v-text="errors.quantity_period[0]">
+                                    </small>
+                                </div>
+                            </div>
+                            <!--
+
                             <div class="col-md-3">
                                 <div
                                     :class="{'has-danger': errors.payment_method_type_id}"
@@ -98,8 +102,9 @@
                                     </small>
                                 </div>
                             </div>
+                            -->
 
-                            <div class="col-md-12">
+                            <div class="col-md-8">
                                 <div
                                     :class="{'has-danger': errors.description}"
                                     class="form-group">
@@ -378,6 +383,8 @@ export default {
                 description: null,
                 period: null,
                 items: [],
+                periods: 12,
+                quantity_period : 'M'
             }
             this.$store.commit('setFormData', form)
         },

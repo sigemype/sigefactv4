@@ -29,10 +29,11 @@ class QuotationResource extends JsonResource
             'external_id' => $this->external_id,
             'identifier' => $this->identifier,
             'date_of_issue' => $this->date_of_issue->format('Y-m-d'),
-            'quotation' => $quotation
-        ];
+            'quotation' => $quotation,
+            'message_text' => "Su cotización {$this->number_full} ha sido generado correctamente, " .
+                "puede revisarlo en el siguiente enlace: " . url('') . "/print/quotation/{$this->external_id}/a4" . "",
+            ];
     }
-
 
     public static function getTransformPayments($payments){
 

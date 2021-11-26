@@ -1,62 +1,200 @@
 <?php
 
-namespace Modules\Inventory\Models;
+    namespace Modules\Inventory\Models;
 
-use App\Models\Tenant\Item;
-use App\Models\Tenant\ModelTenant;
-use Modules\Item\Models\ItemLot;
+    use App\Models\Tenant\Item;
+    use App\Models\Tenant\ModelTenant;
+    use Modules\Inventory\Models\InventoryKardex;
+    use Carbon\Carbon;
+    use Hyn\Tenancy\Traits\UsesTenantConnection;
+    use Illuminate\Database\Eloquent\Builder;
+    use Modules\Item\Models\ItemLot;
 
-class Inventory extends ModelTenant
-{
-    protected $with = ['transaction', 'warehouse', 'warehouse_destination', 'item'];
 
-    protected $fillable = [
-        'type',
-        'description',
-        'item_id',
-        'warehouse_id',
-        'warehouse_destination_id',
-        'quantity',
-        'inventory_transaction_id',
-        'lot_code',
-        'detail',
-        'inventories_transfer_id'
-    ];
+    /**
+     * Class Inventory
+     *
+     * @property int                                                             $id
 
-    public function warehouse()
+     * @property string|null                                                     $type
+     * @property string                                                          $description
+     * @property string|null                                                     $detail
+     * @property int                                                             $item_id
+     * @property int                                                             $warehouse_id
+     * @property int|null                                                        $warehouse_destination_id
+     * @property string|null                                                     $inventory_transaction_id
+     * @property float                                                           $quantity
+     * @property string|null                                                     $lot_code
+     * @property int|null                                                        $inventories_transfer_id
+     * @property Carbon|null                                                     $created_at
+     * @property Carbon|null                                                     $updated_at
+     * @property \Modules\Inventory\Models\InventoryTransfer|null                $inventories_transfer
+     * @property InventoryTransaction|null                                       $inventory_transaction
+     * @property Item                                                            $item
+     * @property Warehouse                                                       $warehouse
+     * @property-read \Illuminate\Database\Eloquent\Collection|InventoryKardex[] $inventory_kardex
+     * @package Modules\Inventory\Models
+     * @mixin ModelTenant
+     * @property-read int|null                                                   $inventory_kardex_count
+     * @property-read \Illuminate\Database\Eloquent\Collection|ItemLot[]         $lots
+     * @property-read int|null                                                   $lots_count
+     * @property-read \Modules\Inventory\Models\InventoryTransaction             $transaction
+     * @property-read \Modules\Inventory\Models\Warehouse                        $warehouse_destination
+     * @mixin \Eloquent
+     * @method static Builder|Inventory newModelQuery()
+     * @method static Builder|Inventory newQuery()
+     * @method static Builder|Inventory query()
+     */
+    class Inventory extends ModelTenant
     {
-        return $this->belongsTo(Warehouse::class);
-    }
+        use UsesTenantConnection;
 
-    public function warehouse_destination()
-    {
-        return $this->belongsTo(Warehouse::class, 'warehouse_destination_id');
-    }
+        protected $with = [
+            'transaction',
+            'warehouse',
+            'warehouse_destination',
+            'item'
+        ];
 
-    public function item()
+        protected $casts = [
+            'item_id' => 'int',
+
+            'warehouse_id' => 'int',
+            'warehouse_destination_id' => 'int',
+            'quantity' => 'float',
+            'inventories_transfer_id' => 'int'
+        ];
+        protected $fillable = [
+            'type',
+            'description',
+            'item_id',
+            'warehouse_id',
+
+            'warehouse_destination_id',
+            'quantity',
+            'inventory_transaction_id',
+            'lot_code',
+            'detail',
+            'inventories_transfer_id'
+        ];
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function warehouse()
+        {
+            return $this->belongsTo(Warehouse::class);
+        }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function warehouse_destination()
+        {
+            return $this->belongsTo(Warehouse::class, 'warehouse_destination_id');
+        }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function item()
+        {
+            return $this->belongsTo(Item::class, 'item_id');
+        }
+
+        /**
+         * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
+         * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
+         * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+         *
+         * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+         */
+        public function inventory_kardex()
+        {
+            return $this->morphMany(InventoryKardex::class, 'inventory_kardexable');
+        }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function transaction()
+        {
+        return $this->belongsTo(InventoryTransaction::class, 'inventory_transaction_id');
+        }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+         */
+        public function lots()
+        {
+            return $this->morphMany(ItemLot::class, 'item_loteable');
+        }
+
+    public function getRowResourceReport()
     {
-        return $this->belongsTo(Item::class, 'item_id');
+
+        $input = '-';
+        $output = '-';
+
+        if($this->transaction->type === 'input'){
+            $input = $this->quantity;
+        }else{
+            $output = -$this->quantity;
+        }
+
+        return [
+            'description' => $this->description,
+            'item_id' => $this->item_id,
+            'item_description' => $this->item->getInternalIdDescription(),
+            'inventory_transaction_id' => $this->inventory_transaction_id,
+            'quantity' => $this->quantity,
+            'input' => $input,
+            'output' => $output,
+            'date_time' => $this->created_at->format('Y-m-d H:i:s'),
+        ];
+
     }
 
     /**
-     * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
-     * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
-     * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+     * Filtros para reporte movimientos
+     * Usado en:
+     * ReportMovementController
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @param  $query
+     * @param  $warehouse_id
+     * @param  $inventory_transaction_id
+     * @param  $date_start
+     * @param  $date_end
      */
-    public function inventory_kardex()
+    public function scopeWhereFilterReportMovement($query, $warehouse_id, $inventory_transaction_id, $date_start, $date_end)
     {
-        return $this->morphMany(InventoryKardex::class, 'inventory_kardexable');
+        return $query->with(['inventory_kardex'])
+                    ->where('warehouse_id', $warehouse_id)
+                    ->where('inventory_transaction_id', $inventory_transaction_id)
+                    ->whereHas('inventory_kardex', function($query) use($date_start, $date_end){
+
+                        if ($date_start) $query->where('date_of_issue', '>=', $date_start);
+                        if ($date_end) $query->where('date_of_issue', '<=', $date_end);
+
+                    });
     }
 
-    public function transaction()
-    {
-        return $this->belongsTo(InventoryTransaction::class);
-    }
 
-    public function lots()
-    {
-        return $this->morphMany(ItemLot::class, 'item_loteable');
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function inventories_transfer()
+        {
+            return $this->belongsTo(InventoryTransfer::class);
+        }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         */
+        public function inventory_transaction()
+        {
+            return $this->belongsTo(InventoryTransaction::class, 'inventory_transaction_id', 'id');
+        }
+
     }
-}

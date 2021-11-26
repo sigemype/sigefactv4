@@ -301,7 +301,8 @@
                            :currency-type-id-active="form.currency_type_id"
                            :exchange-rate-sale="form.exchange_rate_sale"
                            :recordItem="recordItem"
-                           @add="addRow"></quotation-form-item>
+                             :typeUser="typeUser"
+                             @add="addRow"></quotation-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
                        type="customers"
@@ -728,7 +729,7 @@ export default {
                         total += parseFloat(row.total)
                     }
                     total_value += parseFloat(row.total_value)
-                    
+
                     if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
 
                         let unit_value = row.total_value / row.quantity

@@ -270,6 +270,7 @@ class ConfigurationController extends Controller
         $configuration->fill($request->all());
         $configuration->save();
 
+
         return [
             'success' => true,
             'configuration' => $configuration->getCollectionData(),

@@ -390,4 +390,25 @@ class Quotation extends ModelTenant
     public function guide_files()
     {
         return $this->hasMany(GuideFile::class);
-    }}
+    }
+
+    /**
+     * Devuelve un standar para la fecha de entrega.
+     *
+     * Si es string devuelve dicho string. Contrario devolveria un formato de fecha
+     *
+     * @return mixed|string|null
+     */
+    public function getStringDeliveryDate(){
+
+        if(empty($this->delivery_date)) {
+            return null;
+        }
+        if(is_string($this->delivery_date)) {
+            return $this->delivery_date;
+        }
+
+        return $this->delivery_date->format('Y-m-d');
+    }
+
+}

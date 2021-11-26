@@ -6,110 +6,126 @@
                     <!--<div class="right-wrapper pull-right">
                         <button type="button" @click.prevent="clickDownloadReport()" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fas fa-money-bill-wave-alt"></i> Reporte</button>
                     </div>-->
+
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Fecha de pago</th>
-                                    <th>Método de pago</th>
-                                    <th>Destino</th>
-                                    <th>Referencia</th>
-                                    <th>Archivo</th>
-                                    <th class="text-right">Monto</th>
-                                    <th></th>
-                                </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Fecha de pago</th>
+                                <th>Método de pago</th>
+                                <th>Destino</th>
+                                <th>Referencia</th>
+                                <th>Archivo</th>
+                                <th class="text-right">Monto</th>
+                                <th></th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(row, index) in records" :key="index">
-                                    <template v-if="row.id">
-                                        <td>PAGO-{{ row.id }}</td>
-                                        <td>{{ row.date_of_payment }}</td>
-                                        <td>{{ row.payment_method_type_description }}</td>
-                                        <td>{{ row.destination_description }}</td>
-                                        <td>{{ row.reference }}</td>
-                                        <!-- <td>{{ row.filename }}</td> -->
-                                        <td class="text-center">
-                                            <button  type="button" v-if="row.filename" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickDownloadFile(row.filename)">
-                                                <i class="fas fa-file-download"></i>
-                                            </button>
-                                        </td>
-                                        <td class="text-right">{{ row.payment }}</td>
-                                        <td class="series-table-actions text-right">
-                                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
-                                            <!--<el-button type="danger" icon="el-icon-delete" plain @click.prevent="clickDelete(row.id)"></el-button>-->
-                                        </td>
-                                    </template>
-                                    <template v-else>
-                                        <td></td>
-                                        <td>
-                                            <div class="form-group mb-0" :class="{'has-danger': row.errors.date_of_payment}">
-                                                <el-date-picker v-model="row.date_of_payment" type="date" :clearable="false" format="dd/MM/yyyy" value-format="yyyy-MM-dd"></el-date-picker>
-                                                <small class="form-control-feedback" v-if="row.errors.date_of_payment" v-text="row.errors.date_of_payment[0]"></small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-group mb-0" :class="{'has-danger': row.errors.payment_method_type_id}">
-                                                <el-select v-model="row.payment_method_type_id">
-                                                    <el-option v-for="option in payment_method_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                                </el-select>
-                                                <small class="form-control-feedback" v-if="row.errors.payment_method_type_id" v-text="row.errors.payment_method_type_id[0]"></small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-group mb-0" :class="{'has-danger': row.errors.payment_destination_id}">
-                                                <el-select v-model="row.payment_destination_id" filterable :disabled="row.payment_destination_disabled">
-                                                    <el-option v-for="option in payment_destinations" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                                </el-select>
-                                                <small class="form-control-feedback" v-if="row.errors.payment_destination_id" v-text="row.errors.payment_destination_id[0]"></small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-group mb-0" :class="{'has-danger': row.errors.reference}">
-                                                <el-input v-model="row.reference"></el-input>
-                                                <small class="form-control-feedback" v-if="row.errors.reference" v-text="row.errors.reference[0]"></small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-group mb-0">
-                                                <el-upload :data="{'index': index}" :headers="headers" :multiple="false" :on-remove="handleRemove" :action="`/finances/payment-file/upload`" :show-file-list="true" :file-list="fileList" :on-success="onSuccess" :limit="1">
-                                                    <el-button slot="trigger" type="primary">Seleccione un archivo</el-button>
-                                                </el-upload>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-group mb-0" :class="{'has-danger': row.errors.payment}">
-                                                <el-input v-model="row.payment"></el-input>
-                                                <small class="form-control-feedback" v-if="row.errors.payment" v-text="row.errors.payment[0]"></small>
-                                            </div>
-                                        </td>
-                                        <td class="series-table-actions text-right">
-                                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickSubmit(index)">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </template>
-                                </tr>
+                            <tr v-for="(row, index) in records" :key="index">
+                                <template v-if="row.id">
+                                    <td>PAGO-{{ row.id }}</td>
+                                    <td>{{ row.date_of_payment }}</td>
+                                    <td>{{ row.payment_method_type_description }}</td>
+                                    <td>{{ row.destination_description }}</td>
+                                    <td>{{ row.reference }}</td>
+                                    <!-- <td>{{ row.filename }}</td> -->
+                                    <td class="text-center">
+                                        <button  type="button" v-if="row.filename" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickDownloadFile(row.filename)">
+                                            <i class="fas fa-file-download"></i>
+                                        </button>
+                                    </td>
+                                    <td class="text-right">{{ row.payment }}</td>
+                                    <td class="series-table-actions text-right">
+                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
+                                        <!--<el-button type="danger" icon="el-icon-delete" plain @click.prevent="clickDelete(row.id)"></el-button>-->
+                                    </td>
+                                </template>
+                                <template v-else>
+                                    <td></td>
+                                    <td>
+                                        <div class="form-group mb-0" :class="{'has-danger': row.errors.date_of_payment}">
+                                            <el-date-picker v-model="row.date_of_payment"
+                                                            type="date"
+                                                            :clearable="false"
+                                                            format="dd/MM/yyyy"
+                                                            value-format="yyyy-MM-dd"></el-date-picker>
+                                            <small class="form-control-feedback" v-if="row.errors.date_of_payment" v-text="row.errors.date_of_payment[0]"></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0" :class="{'has-danger': row.errors.payment_method_type_id}">
+                                            <el-select v-model="row.payment_method_type_id">
+                                                <el-option v-for="option in payment_method_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                            </el-select>
+                                            <small class="form-control-feedback" v-if="row.errors.payment_method_type_id" v-text="row.errors.payment_method_type_id[0]"></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0" :class="{'has-danger': row.errors.payment_destination_id}">
+                                            <el-select v-model="row.payment_destination_id" filterable :disabled="row.payment_destination_disabled">
+                                                <el-option v-for="option in payment_destinations" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                            </el-select>
+                                            <small class="form-control-feedback" v-if="row.errors.payment_destination_id" v-text="row.errors.payment_destination_id[0]"></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0" :class="{'has-danger': row.errors.reference}">
+                                            <el-input v-model="row.reference"></el-input>
+                                            <small class="form-control-feedback" v-if="row.errors.reference" v-text="row.errors.reference[0]"></small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0">
+                                            
+                                            <el-upload
+                                                    :data="{'index': index}"
+                                                    :headers="headers"
+                                                    :multiple="false"
+                                                    :on-remove="handleRemove"
+                                                    :action="`/finances/payment-file/upload`"
+                                                    :show-file-list="true"
+                                                    :file-list="fileList"
+                                                    :on-success="onSuccess"
+                                                    :limit="1"
+                                                    >
+                                                <el-button slot="trigger" type="primary">Seleccione un archivo</el-button>
+                                            </el-upload>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0" :class="{'has-danger': row.errors.payment}">
+                                            <el-input v-model="row.payment"></el-input>
+                                            <small class="form-control-feedback" v-if="row.errors.payment" v-text="row.errors.payment[0]"></small>
+                                        </div>
+                                    </td>
+                                    <td class="series-table-actions text-right">
+                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickSubmit(index)">
+                                            <i class="fa fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </template>
+                            </tr>
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <td colspan="6" class="text-right">TOTAL PAGADO</td>
-                                    <td class="text-right">{{ document.total_paid }}</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="6" class="text-right">TOTAL A PAGAR</td>
-                                    <td class="text-right">{{ document.total }}</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="6" class="text-right">PENDIENTE DE PAGO</td>
-                                    <td class="text-right">{{ document.total_difference }}</td>
-                                    <td></td>
-                                </tr>
+                            <tr>
+                                <td colspan="6" class="text-right">TOTAL PAGADO</td>
+                                <td class="text-right">{{ document.total_paid }}</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="text-right">TOTAL A PAGAR</td>
+                                <td class="text-right">{{ document.total }}</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="text-right">PENDIENTE DE PAGO</td>
+                                <td class="text-right">{{ document.total_difference }}</td>
+                                <td></td>
+                            </tr>
                             </tfoot>
                         </table>
                     </div>
@@ -154,29 +170,41 @@
         },
         methods: {
             clickDownloadFile(filename) {
-                window.open(`/finances/payment-file/download-file/${filename}/documents`, "_blank");
+                window.open(
+                    `/finances/payment-file/download-file/${filename}/documents`,
+                    "_blank"
+                );
             },
             onSuccess(response, file, fileList) {
+
                 // console.log(response, file, fileList)
                 this.fileList = fileList
+
                 if (response.success) {
+
                     this.index_file = response.data.index
                     this.records[this.index_file].filename = response.data.filename
                     this.records[this.index_file].temp_path = response.data.temp_path
+
                 } else {
+
                     this.cleanFileList()
                     this.$message.error(response.message)
                 }
+
                 // console.log(this.records)
+            
             },
             cleanFileList(){
                 this.fileList = []
             },
             handleRemove(file, fileList) {       
+                
                 this.records[this.index_file].filename = null
                 this.records[this.index_file].temp_path = null
                 this.fileList = []
                 this.index_file = null
+
             }, 
             initForm() {
                 this.records = [];
@@ -185,14 +213,18 @@
             },
             async getData() {
                 this.initForm();
-                await this.$http.get(`/${this.resource}/document/${this.documentId}`).then(response => {
+                await this.$http.get(`/${this.resource}/document/${this.documentId}`)
+                    .then(response => {
                         this.document = response.data;
                         this.title = 'Pagos del comprobante: '+this.document.number_full;
                     });
-                await this.$http.get(`/${this.resource}/records/${this.documentId}`).then(response => {
+                await this.$http.get(`/${this.resource}/records/${this.documentId}`)
+                    .then(response => {
                         this.records = response.data.data
                     });
+
                 this.$eventHub.$emit('reloadDataUnpaid')
+
             },
             clickAddRow() {
                 this.records.push({
@@ -230,23 +262,25 @@
                     temp_path: this.records[index].temp_path,
                     payment: this.records[index].payment,
                 };
-                this.$http.post(`/${this.resource}`, form).then(response => {
-                    if (response.data.success) {
-                        this.$message.success(response.data.message);
-                        this.getData();
-                        // this.initDocumentTypes()
-                        this.showAddButton = true;
-                        this.$eventHub.$emit('reloadData')
-                    } else {
-                        this.$message.error(response.data.message);
-                    }
-                }).catch(error => {
-                    if (error.response.status === 422) {
-                        this.records[index].errors = error.response.data;
-                    } else {
-                        console.log(error);
-                    }
-                })
+                this.$http.post(`/${this.resource}`, form)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$message.success(response.data.message);
+                            this.getData();
+                            // this.initDocumentTypes()
+                            this.showAddButton = true;
+                            this.$eventHub.$emit('reloadData')
+                        } else {
+                            this.$message.error(response.data.message);
+                        }
+                    })
+                    .catch(error => {
+                        if (error.response.status === 422) {
+                            this.records[index].errors = error.response.data;
+                        } else {
+                            console.log(error);
+                        }
+                    })
             },
             // filterDocumentType(row){
             //
@@ -268,12 +302,14 @@
             },
             clickDelete(id) {
                 this.destroy(`/${this.resource}/${id}`).then(() =>{
-                    this.getData()
-                    this.$eventHub.$emit('reloadData')
-                    // this.initDocumentTypes()
-                })
+                        this.getData()
+                        this.$eventHub.$emit('reloadData')
+                        // this.initDocumentTypes()
+                    }
+                )
             },
-            clickDownloadReport(id){
+            clickDownloadReport(id)
+            {
                 window.open(`/${this.resource}/report/${this.documentId}`, '_blank');
             }
         }

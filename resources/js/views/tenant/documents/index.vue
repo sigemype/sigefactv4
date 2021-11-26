@@ -4,7 +4,8 @@
             <h2><a href="/dashboard"><i class="fas fa-tachometer-alt"></i></a></h2>
             <ol class="breadcrumbs">
                 <li class="active"><span>Comprobantes</span></li>
-                <li><span class="text-muted">Facturas - Notas <small>(crédito y débito)</small> - Boletas - Anulaciones</span></li>
+                <li><span class="text-muted">Facturas - Notas <small>(crédito y débito)</small> - Boletas - Anulaciones</span>
+                </li>
             </ol>
             <div class="right-wrapper pull-right" v-if="typeUser != 'integrator'">
                 <span v-if="import_documents == true">
@@ -29,10 +30,14 @@
         </div>
         <div class="card mb-0">
             <div class="data-table-visible-columns">
+
                 <el-dropdown :hide-on-click="false">
-                    <el-button type="primary"> Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+                    <el-button type="primary">
+                        Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item v-for="(column, index) in columns" :key="index">
+                        <el-dropdown-item v-for="(column, index) in columns"
+                                          :key="index">
                             <el-checkbox v-model="column.visible">{{ column.title }}</el-checkbox>
                         </el-dropdown-item>
                     </el-dropdown-menu>
@@ -44,7 +49,9 @@
                         <th>#</th>
                         <th>SOAP</th>
                         <th class="text-center" style="min-width: 95px;">Emisión</th>
-                        <th class="text-center" v-if="columns.date_of_due.visible">Fecha Vencimiento</th>
+                        <th class="text-center"
+                            v-if="columns.date_of_due.visible">Fecha Vencimiento
+                        </th>
                         <th>Cliente</th>
                         <th>Número</th>
                         <th v-if="columns.notes.visible">Notas C/D</th>
@@ -55,20 +62,32 @@
                         <th>Estado</th>
                         <th v-if="columns.user_name.visible">Usuario</th>
                         <th class="text-center">Moneda</th>
-                        <th class="text-right" v-if="columns.guides.visible">Guia</th>
-                        <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
-                        <th class="text-right" v-if="columns.total_free.visible">T.Gratuita</th>
-                        <th class="text-right" v-if="columns.total_unaffected.visible">T.Inafecta</th>
-                        <th class="text-right" v-if="columns.total_exonerated.visible">T.Exonerado</th>
+                        <th class="text-right"
+                            v-if="columns.guides.visible">Guia
+                        </th>
+                        <th class="text-right"
+                            v-if="columns.total_exportation.visible">T.Exportación
+                        </th>
+                        <th class="text-right"
+                            v-if="columns.total_free.visible">T.Gratuita
+                        </th>
+                        <th class="text-right"
+                            v-if="columns.total_unaffected.visible">T.Inafecta
+                        </th>
+                        <th class="text-right"
+                            v-if="columns.total_exonerated.visible">T.Exonerado
+                        </th>
                         <th class="text-right">T.Gravado</th>
                         <th class="text-right">T.Igv</th>
                         <th class="text-right">Total</th>
                         <th class="text-center">Saldo</th>
                         <th class="text-center" style="min-width: 95px;">Orden de compra</th>
                         <th class="text-center"></th>
-                        <th class="text-right" v-if="typeUser != 'integrator'">Acciones</th>
+                        <th class="text-right" v-if="typeUser != 'integrator'">
+                        </th>
                     <tr>
-                    <tr slot-scope="{ index, row }" :class="{'text-danger': (row.state_type_id === '11'),
+                    <tr slot-scope="{ index, row }"
+                        :class="{'text-danger': (row.state_type_id === '11'),
                             'text-warning': (row.state_type_id === '13'),
                             'border-light': (row.state_type_id === '01'),
                             'border-left border-info': (row.state_type_id === '03'),
@@ -80,25 +99,32 @@
                         <td>{{ index }}</td>
                         <td>{{ row.soap_type_description }}</td>
                         <td class="text-center">{{ row.date_of_issue }}</td>
-                        <td class="text-center" v-if="columns.date_of_due.visible">{{ row.date_of_due }}</td>
+                        <td class="text-center"
+                            v-if="columns.date_of_due.visible">{{ row.date_of_due }}
+                        </td>
                         <td>{{ row.customer_name }}<br/><small v-text="row.customer_number"></small></td>
                         <td>{{ row.number }}<br/>
                             <small v-text="row.document_type_description"></small><br/>
-                            <small v-if="row.affected_document" v-text="row.affected_document"></small>
+                            <small v-if="row.affected_document"
+                                   v-text="row.affected_document"></small>
                         </td>
                         <td v-if="columns.notes.visible">
                             <template v-for="(row,index) in row.notes">
-                                <label class="d-block" :key="index">{{ row.note_type_description }}: {{ row.description }}</label>
+                                <label class="d-block"
+                                       :key="index">{{ row.note_type_description }}:
+                                                    {{ row.description }}</label>
                             </template>
                         </td>
                         <td v-if="columns.dispatch.visible">
                             <template v-for="(row,index) in row.dispatches">
-                                <label class="d-block" :key="index">{{ row.description }}</label>
+                                <label class="d-block"
+                                       :key="index">{{ row.description }}</label>
                             </template>
                         </td>
                         <td v-if="columns.sales_note.visible">
                             <template v-for="(row,index) in row.sales_note">
-                                <label class="d-block" :key="index">{{ row.number_full }} ({{ row.state_type_description }})</label>
+                                <label class="d-block"
+                                       :key="index">{{ row.number_full }} ({{ row.state_type_description }})</label>
                             </template>
                         </td>
                         <td v-if="columns.order_note.visible">
@@ -138,42 +164,89 @@
                         </td>
 
                         <td>
-                            <el-tooltip v-if="tooltip(row, false)" class="item" effect="dark" placement="bottom">
+                            <el-tooltip v-if="tooltip(row, false)"
+                                        class="item"
+                                        effect="dark"
+                                        placement="bottom">
                                 <div slot="content">{{ tooltip(row) }}</div>
-                                <span class="badge bg-secondary text-white" :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
+                                <span class="badge bg-secondary text-white"
+                                      :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
                                     {{ row.state_type_description }}
                                 </span>
                             </el-tooltip>
-                            <span v-else class="badge bg-secondary text-white" :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
+                            <span v-else
+                                  class="badge bg-secondary text-white"
+                                  :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">
                                 {{ row.state_type_description }}
                             </span>
                             <template v-if="row.regularize_shipping && row.state_type_id === '01'">
-                                <el-tooltip class="item" effect="dark" :content="row.message_regularize_shipping" placement="top-start">
-                                    <i class="fas fa-exclamation-triangle fa-lg" style="color: #D2322D !important"></i>
+                                <el-tooltip class="item"
+                                            effect="dark"
+                                            :content="row.message_regularize_shipping"
+                                            placement="top-start">
+                                    <i class="fas fa-exclamation-triangle fa-lg"
+                                       style="color: #D2322D !important"></i>
                                 </el-tooltip>
                             </template>
                         </td>
-                        <td v-if="columns.user_name.visible">{{ row.user_name }}<br/><small v-text="row.user_email"></small></td>
+                        <td v-if="columns.user_name.visible">
+                            {{ row.user_name }}
+                            <br/><small v-text="row.user_email"></small>
+                        </td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
-                        <td class="text-center" v-if="columns.guides.visible"><span v-for="(item, i) in row.guides" :key="i">{{ item.number }} <br></span></td>
-                        <td class="text-right" v-if="columns.total_exportation.visible">{{ row.total_exportation }}</td>
-                        <td class="text-right" v-if="columns.total_free.visible">{{ row.total_free }}</td>
-                        <td class="text-right" v-if="columns.total_unaffected.visible">{{ row.total_unaffected }}</td>
-                        <td class="text-right" v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}</td>
+                        <td class="text-center"
+                            v-if="columns.guides.visible">
+                        <span v-for="(item, i) in row.guides"
+                              :key="i">
+                            {{ item.number }} <br>
+                        </span>
+                        </td>
+                        <td class="text-right"
+                            v-if="columns.total_exportation.visible">{{ row.total_exportation }}
+                        </td>
+
+                        <td class="text-right"
+                            v-if="columns.total_free.visible">{{ row.total_free }}
+                        </td>
+
+                        <td class="text-right"
+                            v-if="columns.total_unaffected.visible">{{ row.total_unaffected }}
+                        </td>
+                        <td class="text-right"
+                            v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}
+                        </td>
                         <td class="text-right">{{ row.total_taxed }}</td>
                         <td class="text-right">{{ row.total_igv }}</td>
                         <td class="text-right">{{ row.total }}</td>
                         <td class="text-right">{{ row.balance }}</td>
                         <td>{{ row.purchase_order }}</td>
                         <td class="text-center">
-                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_xml)" v-if="row.has_xml">XML</button>
-                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_pdf)" v-if="row.has_pdf">PDF </button>
-                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2" @click.prevent="clickDownload(row.download_cdr)" v-if="row.has_cdr">CDR </button>
+                            <button type="button"
+                                    style="min-width: 41px"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickDownload(row.download_xml)"
+                                    v-if="row.has_xml">XML
+                            </button>
+                            <button type="button"
+                                    style="min-width: 41px"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickDownload(row.download_pdf)"
+                                    v-if="row.has_pdf">PDF
+                            </button>
+                            <button type="button"
+                                    style="min-width: 41px"
+                                    class="btn waves-effect waves-light btn-xs btn-info m-1__2"
+                                    @click.prevent="clickDownload(row.download_cdr)"
+                                    v-if="row.has_cdr">CDR
+                            </button>
                         </td>
 
-                        <td class="text-right" v-if="typeUser != 'integrator'">
+                        <td class="text-right"
+                            v-if="typeUser != 'integrator'">
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
+                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     <div v-if="configuration.permission_to_edit_cpe">
                                         <a :href="`/documents/${row.id}/edit`"
@@ -331,16 +404,31 @@
                     </tr>
                 </data-table>
             </div>
-            <documents-voided :showDialog.sync="showDialogVoided" :recordId="recordId"></documents-voided>
+
+            <documents-voided :showDialog.sync="showDialogVoided"
+                              :recordId="recordId"></documents-voided>
+
             <items-import :showDialog.sync="showImportDialog"></items-import>
+
             <document-import-second :showDialog.sync="showImportSecondDialog"></document-import-second>
-            <document-options :showDialog.sync="showDialogOptions" :recordId="recordId" :showClose="true" :configuration="configuration"></document-options>
-            <document-payments :showDialog.sync="showDialogPayments" :documentId="recordId"></document-payments>
-            <document-constancy-detraction :showDialog.sync="showDialogCDetraction" :recordId="recordId"></document-constancy-detraction>
+
+            <document-options :showDialog.sync="showDialogOptions"
+                              :recordId="recordId"
+                              :showClose="true"
+                              :configuration="configuration"></document-options>
+
+            <document-payments :showDialog.sync="showDialogPayments"
+                               :documentId="recordId"></document-payments>
+
+
+            <document-constancy-detraction :showDialog.sync="showDialogCDetraction"
+                                           :recordId="recordId"></document-constancy-detraction>
             <report-payment :showDialog.sync="showDialogReportPayment"></report-payment>
-            <report-documents :showDialog.sync="showDialogReportDocuments"></report-documents>
+
             <report-payment-complete :showDialog.sync="showDialogReportPaymentComplete"></report-payment-complete>
+
             <DocumentValidate :showDialogValidate.sync="showDialogValidate"></DocumentValidate>
+
             <massive-validate-cpe :showDialogValidate.sync="showDialogApiPeruDevValidate"></massive-validate-cpe>
         </div>
     </div>
@@ -357,10 +445,10 @@ import ItemsImport from './import.vue'
 import {deletable} from '../../../mixins/deletable'
 import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
-import ReportDocuments from './partials/report_documents.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
 import DocumentValidate from './partials/validate.vue';
 import MassiveValidateCpe from '../../../../../modules/ApiPeruDev/Resources/assets/js/components/MassiveValidateCPE';
+
 
 export default {
     mixins: [deletable],
@@ -375,7 +463,6 @@ export default {
         DocumentConstancyDetraction,
         ReportPayment,
         ReportPaymentComplete,
-        ReportDocuments,
         DocumentValidate,
         MassiveValidateCpe
     },
@@ -385,7 +472,6 @@ export default {
             showDialogValidate: false,
             showDialogReportPayment: false,
             showDialogReportPaymentComplete: false,
-            showDialogReportDocuments: false,
             showDialogVoided: false,
             showImportDialog: false,
             showDialogCDetraction: false,
@@ -457,14 +543,16 @@ export default {
             window.open(download, '_blank');
         },
         clickResend(document_id) {
-            this.$http.get(`/${this.resource}/send/${document_id}`).then(response => {
+            this.$http.get(`/${this.resource}/send/${document_id}`)
+                .then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         this.$eventHub.$emit('reloadData')
                     } else {
                         this.$message.error(response.data.message)
                     }
-                }).catch(error => {
+                })
+                .catch(error => {
                     this.$message.error(error.response.data.message)
                 })
         },
@@ -483,14 +571,16 @@ export default {
             });
         },
         clickCheckOnline(document_id) {
-            this.$http.get(`/${this.resource}/check_server/${document_id}`).then(response => {
+            this.$http.get(`/${this.resource}/check_server/${document_id}`)
+                .then(response => {
                     if (response.data.success) {
                         this.$message.success('Consulta satisfactoria.')
                         this.$eventHub.$emit('reloadData')
                     } else {
                         this.$message.error(response.data.message)
                     }
-                }).catch(error => {
+                })
+                .catch(error => {
                     this.$message.error(error.response.data.message)
                 })
         },
@@ -503,24 +593,30 @@ export default {
             this.showDialogOptions = true
         },
         clickReStore(document_id) {
-            this.$http.get(`/${this.resource}/re_store/${document_id}`).then(response => {
+            this.$http.get(`/${this.resource}/re_store/${document_id}`)
+                .then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         this.$eventHub.$emit('reloadData')
                     } else {
                         this.$message.error(response.data.message)
                     }
-                }).catch(error => {
+                })
+                .catch(error => {
                     this.$message.error(error.response.data.message)
                 })
         },
         tooltip(row, message = true) {
             if (message) {
                 if (row.shipping_status) return row.shipping_status.message;
+
                 if (row.sunat_shipping_status) return row.sunat_shipping_status.message;
+
                 if (row.query_status) return row.query_status.message;
             }
+
             if ((row.shipping_status) || (row.sunat_shipping_status) || (row.query_status)) return true;
+
             return false;
         },
         clickPayment(recordId) {
@@ -528,7 +624,8 @@ export default {
             this.showDialogPayments = true;
         },
         clickChangeToRegisteredStatus(document_id) {
-            this.$http.get(`/${this.resource}/change_to_registered_status/${document_id}`).then(response => {
+            this.$http.get(`/${this.resource}/change_to_registered_status/${document_id}`)
+                .then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         this.$eventHub.$emit('reloadData')
@@ -544,10 +641,8 @@ export default {
             this.showImportDialog = true
         },
         clickDownloadReportPagos() {
+
             this.showDialogReportPaymentComplete = true
-        },
-        clickDownloadReportDocuments(){
-            this.showDialogReportDocuments = true
         },
         clickImportSecond() {
             this.showImportSecondDialog = true

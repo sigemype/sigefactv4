@@ -1,6 +1,7 @@
 <?php
 namespace Modules\Order\Http\Controllers;
 
+use App\Models\Tenant\Configuration;
 use Modules\Order\Http\Requests\DriverRequest;
 use Modules\Order\Http\Resources\DriverCollection;
 use Modules\Order\Http\Resources\DriverResource;
@@ -38,7 +39,7 @@ class DriverController extends Controller
     public function tables()
     {
         $identity_document_types = IdentityDocumentType::whereActive()->get();
-        $api_service_token = config('configuration.api_service_token');
+        $api_service_token = \App\Models\Tenant\Configuration::getApiServiceToken();
 
         return compact('identity_document_types', 'api_service_token');
     }

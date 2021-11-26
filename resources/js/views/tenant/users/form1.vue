@@ -196,16 +196,23 @@
                         </div>
 
                         
-                        <div class="row" v-if="typeUser != 'integrator' && config_permission_to_edit_cpe">
+                        <div class="row" v-if="typeUser != 'integrator'">
                             <div  class="col-md-12 mt-4">
                                 <div class="form-comtrol">
                                     <label class="control-label">Otros Permisos</label>
                                 </div>
                             </div>
-                            <div  class="col-md-4 mt-1">
+                            <div  class="col-md-4 mt-1" v-if="config_permission_to_edit_cpe">
                                 <div class="form-comtrol">
                                     <el-checkbox v-model="form.permission_edit_cpe">
                                         Editar CPE
+                                    </el-checkbox>
+                                </div>
+                            </div>
+                            <div  class="col-md-4 mt-1">
+                                <div class="form-comtrol">
+                                    <el-checkbox v-model="form.recreate_documents">
+                                        Recrear documentos
                                     </el-checkbox>
                                 </div>
                             </div>
@@ -253,6 +260,7 @@ export default {
                 modules: [],
                 levels: [],
                 permission_edit_cpe: false,
+                recreate_documents: false,
             },
             modules: [],
             datai: [],
@@ -377,6 +385,7 @@ export default {
                 modules: [],
                 levels: [],
                 permission_edit_cpe: false,
+                recreate_documents: false,
             };
         },
         create() {

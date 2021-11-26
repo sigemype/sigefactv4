@@ -36,7 +36,7 @@
 
 <script>
 
-    import DataTable from '../../components/DataTableReports.vue'
+    import DataTable from '../../components/DataTableCommissions.vue'
 
     export default {
         components: {DataTable},

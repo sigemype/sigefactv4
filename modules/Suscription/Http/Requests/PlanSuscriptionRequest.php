@@ -37,12 +37,12 @@
                 'name' => [
                     'required',
                 ],
-                'periods' => [
-                    'required',
-                ],
-                'payment_method_type_id' => [
-                    'required',
-                ],
+                // 'periods' => [
+                   //  'required',
+                // ],
+                // 'payment_method_type_id' => [
+                   //  'required',
+                // ],
                 'items' => [
                     'required',
                 ],
@@ -57,8 +57,8 @@
             return [
                 'description.required' => 'El campo Descripción es obligatorio.',
                 'name.required' => 'El campo Nombre es obligatorio.',
-                'periods.required' => 'El campo Periodo es obligatorio.',
-                'payment_method_type_id.required' => 'El Método de pago es obligatorio.',
+                //'periods.required' => 'El campo Periodo es obligatorio.',
+                //'payment_method_type_id.required' => 'El Método de pago es obligatorio.',
                 'items.required' => 'Se requiere artículos.',
             ];
         }

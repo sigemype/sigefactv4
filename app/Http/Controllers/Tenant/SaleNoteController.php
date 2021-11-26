@@ -44,7 +44,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\Document\Traits\SearchTrait;
 use Modules\Finance\Traits\FinanceTrait;
@@ -52,14 +51,16 @@ use Modules\Inventory\Models\Warehouse;
 use Modules\Inventory\Traits\InventoryTrait;
 use Modules\Item\Models\ItemLot;
 use Modules\Item\Models\ItemLotsGroup;
+use Modules\Sale\Helpers\SaleNoteHelper;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
-use Modules\Sale\Helpers\SaleNoteHelper;
+
 // use App\Models\Tenant\Warehouse;
 
-class SaleNoteController extends Controller{
+class SaleNoteController extends Controller
+{
 
     use FinanceTrait;
     use InventoryTrait;
@@ -71,7 +72,8 @@ class SaleNoteController extends Controller{
     protected $company;
     protected $apply_change;
 
-    public function index(){
+    public function index()
+    {
         $company = Company::select('soap_type_id')->first();
         $soap_company  = $company->soap_type_id;
         $configuration = Configuration::select('ticket_58')->first();
@@ -80,7 +82,8 @@ class SaleNoteController extends Controller{
     }
 
 
-    public function create($id = null){
+    public function create($id = null)
+    {
         return view('tenant.sale_notes.form', compact('id'));
     }
 
@@ -424,9 +427,13 @@ class SaleNoteController extends Controller{
      *
      * @return \App\Http\Resources\Tenant\SaleNoteCollection
      */
-    public function records(Request $request){
+    public function records(Request $request)
+    {
+
         $records = $this->getRecords($request);
+
         return new SaleNoteCollection($records->paginate(config('tenant.items_per_page')));
+
     }
 
 
@@ -437,12 +444,17 @@ class SaleNoteController extends Controller{
      */
     private function getRecords($request){
         $records = SaleNote::whereTypeUser();
+        // Solo devuelve matriculas
+        if($request != null && $request->has('onlySuscription') && (bool)$request->onlySuscription == true){
+            $records->whereNotNull('grade')->whereNotNull('section') ;
+        }
         if($request->column == 'customer'){
             $records->whereHas('person', function($query) use($request){
                                     $query
                                         ->where('name', 'like', "%{$request->value}%")
                                         ->orWhere('number', 'like', "%{$request->value}%");
-                                })->latest();
+                                })
+                                ->latest();
 
         }else{
             $records->where($request->column, 'like', "%{$request->value}%")
@@ -453,10 +465,6 @@ class SaleNoteController extends Controller{
         }
         if($request->total_canceled != null) {
             $records->where('total_canceled', $request->total_canceled);
-        }
-
-        if($request->number) {
-            $records->where('number', $request->number);
         }
 
         if($request->purchase_order) {
@@ -687,9 +695,12 @@ class SaleNoteController extends Controller{
 
     public function mergeData($inputs)
     {
+
         $this->company = Company::active();
 
-
+        // Para matricula, se busca el hijo en atributos
+        $attributes = $inputs['attributes']??[];
+        $children = $attributes['children_customer_id']??null;
         $type_period = isset($inputs['type_period']) ? $inputs['type_period'] : null;
         $quantity_period = isset($inputs['quantity_period']) ? $inputs['quantity_period'] : null;
         $d_of_issue = new Carbon($inputs['date_of_issue']);
@@ -745,6 +756,12 @@ class SaleNoteController extends Controller{
             'series' => $series,
             'number' => $number
         ];
+        if(!empty($children)){
+            $customer = PersonInput::set($inputs['customer_id']);
+            $customer['children'] = PersonInput::set($children);
+            $values['customer'] = $customer;
+        }
+
 
         unset($inputs['series_id']);
 
@@ -819,7 +836,7 @@ class SaleNoteController extends Controller{
             $total_exonerated  = $this->document->total_exonerated != '' ? '10' : '0';
             $total_taxed       = $this->document->total_taxed != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items);
-            $payments          = $this->document->payments()->count() * 15;
+            $payments     = $this->document->payments()->count() * 2;
 
             $extra_by_item_description = 0;
             $discount_global = 0;
@@ -1686,7 +1703,7 @@ class SaleNoteController extends Controller{
         return [
             'data' => $data
         ];
-        
+
     }
 
 

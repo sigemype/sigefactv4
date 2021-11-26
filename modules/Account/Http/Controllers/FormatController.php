@@ -38,14 +38,17 @@ use Modules\Account\Exports\ReportFormatSaleExport;
         public function download(Request $request) {
         $type = $request->input('type');
         $month = $request->input('month');
+
         $d_start = Carbon::parse($month.'-01')->format('Y-m-d');
         $d_end = Carbon::parse($month.'-01')->endOfMonth()->format('Y-m-d');
 
             $company = $this->getCompany();
+
             $filename = 'Reporte_Formato_Compras_'.date('YmdHis');
             $data = [
                 'period' => $month,
                 'company' => $company,
+                'params' => $request->all(),
             ];
 
             if ($type === 'sale') {
@@ -135,6 +138,7 @@ use Modules\Account\Exports\ReportFormatSaleExport;
                                     'date_of_issue'                      => $row->date_of_issue->format('d/m/Y'),
                                     'document_type_id'                   => $row->document_type_id,
                                     'state_type_id'                      => $row->state_type_id,
+                                    'state_type_description'             => $row->state_type->description,
                                     'series'                             => $row->series,
                                     'number'                             => $row->number,
                                     'customer_identity_document_type_id' => $row->customer->identity_document_type_id,
@@ -255,7 +259,8 @@ use Modules\Account\Exports\ReportFormatSaleExport;
                                 $total = round($row->total, 2);
                                 $total_taxed = round($row->total_taxed, 2);
                                 $total_igv = round($row->total_igv, 2);
-                                $exchange_rate_sale = round($row->exchange_rate_sale, 2);
+                                $exchange_rate_sale = $row->exchange_rate_sale;
+                                // $exchange_rate_sale = round($row->exchange_rate_sale, 2);
                                 $total_exportation = round($row->total_exportation, 2);
                                 $total_exonerated = round($row->total_exonerated, 2);
                                 $total_unaffected = round($row->total_unaffected, 2);

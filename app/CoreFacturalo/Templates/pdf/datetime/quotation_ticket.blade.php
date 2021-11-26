@@ -76,7 +76,7 @@
     @if($document->date_of_due)
     <tr>
         <td width="" class=""><p class="desc">F. Vencimiento:</p></td>
-        <td width="" class=""><p class="desc">{{ $document->date_of_due->format('Y-m-d') }}</p></td>
+        <td width="" class=""><p class="desc">{{ $document->date_of_due }}</p></td>
     </tr>
     @endif
 
