@@ -29,10 +29,10 @@
                 <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
                 <span>ME</span>
             </a>
-            {{-- <a class="topbar-links" href="{{ in_array('establishments', $vc_modules) ? route('tenant.establishments.index') : '#' }}" title="Nuevo establecimiento" data-toggle="tooltip" data-placement="bottom">
+            <a class="topbar-links" href="{{ in_array('establishments', $vc_modules) ? route('tenant.establishments.index') : '#' }}" title="Nuevo establecimiento" data-toggle="tooltip" data-placement="bottom">
                 <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
                 <span>ES</span>
-            </a> --}}
+            </a>
         </div>
     </div>
     <div class="header-right">
