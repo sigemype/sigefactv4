@@ -16,7 +16,7 @@
         <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
             <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
         </div>
-        <div class="d-md-none d-lg-block">
+        {{-- <div class="d-md-none d-lg-block"> --}}
             <a class="topbar-links" href="{{ route('tenant.documents.create') }}" title="Nueva factura" data-toggle="tooltip" data-placement="bottom">
                 <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
                 <span>FA</span>
@@ -33,7 +33,7 @@
                 <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
                 <span>ES</span>
             </a>
-        </div>
+        {{-- </div> --}}
     </div>
     <div class="header-right">
 
