@@ -106,8 +106,11 @@ use App\Http\Controllers\Controller;
                     'inventory' => $row->inventory->transform(function($o) use ($row) {
                         return [
                             'id' => $o->item->id,
+                            'code' => $o->item->internal_id,
                             'description' => $o->item->description,
                             'quantity' => $o->quantity,
+                            'sale_unit_price' => $o->item->sale_unit_price,
+                            'purchase_unit_price' => $o->item->purchase_unit_price,
                             'lots_enabled' => (bool)$o->item->lots_enabled,
                             'lots' => $o->item->item_lots->where('has_sale', false)->where('warehouse_id', $row->warehouse_destination_id)->transform(function($row) {
                                 return [
