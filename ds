@@ -1,0 +1,2331 @@
+[33mcommit 7eacd50ae3a6d3803206a0d25f9c4b0f8302ec54[m
+Merge: 5ef7b3a 4b6146a
+Author: sigemype <sigemype@gmail.com>
+Date:   Tue Nov 30 16:57:01 2021 +0000
+
+    Merge branch 'main' of https://github.com/sigemype/sigefactv4 into main
+
+[33mcommit 4b6146a4586a55ee7fd78c7dca5434698ad32352[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Nov 30 11:56:21 2021 -0500
+
+    c
+
+[33mcommit 5ef7b3aa2d239e5fcacbd48afffe589a14ce03ed[m
+Author: sigemype <sigemype@gmail.com>
+Date:   Tue Nov 30 16:36:17 2021 +0000
+
+    Archivos App
+
+[33mcommit ee023071fde86dea33ff270e0fb489906084c15c[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat Nov 27 08:43:48 2021 -0500
+
+    correcion de reporte de transferencias
+
+[33mcommit a3611fe72c01712fba6fa84b9e5fb7f2a09cd546[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Nov 26 14:38:06 2021 -0500
+
+    correcion del header
+
+[33mcommit 1c17fbb23a4214537c1031165a2a20a188ca931d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Nov 26 14:33:19 2021 -0500
+
+    Reporte de transferencia en excel
+
+[33mcommit 1af5a73a479351aeac59a6833583f1ff2a4347b3[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Nov 26 12:18:54 2021 -0500
+
+    oculatar boton establecimiento, header
+
+[33mcommit df74aad493f5ead706376a76b7e0a3d773d218a7[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Nov 26 12:15:27 2021 -0500
+
+    footer-> full_height
+
+[33mcommit f0f9e5ee91172d14e17176d9a39770084eba60dd[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Nov 26 12:01:07 2021 -0500
+
+    Fusion 26/11
+
+[33mcommit b7531a621cf2945cce3b7ec7a9a449e43cdeac9f[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Nov 25 12:53:19 2021 -0500
+
+    cambio en footer_default
+    de document_type->id a document_type_id
+
+[33mcommit 0547a097a07c566e661d64f28f4fdb3b30bef0fd[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Nov 25 11:32:36 2021 -0500
+
+    correcion en pdf defaul y footer sigefact
+
+[33mcommit c5fee9ef0f60e8d4755f2cc48b232405f4faee30[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Nov 23 09:27:59 2021 -0500
+
+    Correcion en impresion
+    
+    Se retiro cuentas bancarias de cuerpo del ticket note_sale default
+
+[33mcommit 6d89c9b5f9dc7265a3b290d1214dd494fcbcbc92[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Nov 19 23:33:08 2021 -0500
+
+    Error de sintaxis
+    Se corrigio webController, or Webcontroller
+
+[33mcommit 4d0cc72fd64ab0fe80de06b5d209f07ca0b84427[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Nov 18 11:17:39 2021 -0500
+
+    boton alt+n en agregar invoice
+
+[33mcommit bf3d406f14c8d8a8999f8f88bfe35a92df38b189[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Nov 17 16:43:19 2021 -0500
+
+    Tranferencias, item inhabilitados
+
+[33mcommit a4ab9d545ca061cf89711d1d8b2a8f613f6d7ae8[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Nov 17 11:26:32 2021 -0500
+
+    Pagina sigefact incrustada.
+    Web principal ocultando login de administrador
+    Formulario de envio de correo
+
+[33mcommit 70d2229c2b45e7f8b9d769f6862e35a610ef0fe3[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Nov 16 15:54:22 2021 -0500
+
+    Fusion y correciones actualización nov-21
+
+[33mcommit f3314cb7c9a2318d68fff4621051fb40c9961916[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Nov 4 16:59:18 2021 -0500
+
+    QR mostrado default
+
+[33mcommit 76af86f37771923a9be3e73baf8cd5e8d95680f7[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Nov 3 17:14:50 2021 -0500
+
+    ticket con logo y sin logo
+
+[33mcommit a005fd0d1c37d8baecca4909aa6d47a3fa5a5a1c[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Nov 3 16:24:32 2021 -0500
+
+    ticket con logo
+
+[33mcommit 77474554c741ba0167232d5f3a9d61e70777c70d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Nov 3 15:15:22 2021 -0500
+
+    Correcion de tickets
+
+[33mcommit 052586c9aa2b5d054f5de357bfc51087b68e5d3d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Oct 26 17:15:56 2021 -0500
+
+    reporte de comprobantes EUR
+
+[33mcommit 63a4e3a9b07309a900b7dccd702cffae89c638be[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Oct 20 09:29:18 2021 -0500
+
+    detraciones full_height
+
+[33mcommit 209b02a7a8e417b065b590468b409eef95b02a2d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Oct 19 14:14:28 2021 -0500
+
+    Correcion en el formato full_height
+
+[33mcommit e78c9365a0a9bdad198958100898624937659230[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat Oct 16 09:09:25 2021 -0500
+
+    correcion de error xml y cambio de nombre boton reenviar
+
+[33mcommit 5b01f0133d04ca594b3babe0e65bac8d06b747a5[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat Oct 16 08:15:08 2021 -0500
+
+    dev prod
+
+[33mcommit b17049d7d2b849e62ee103f883a6692a0d97ec8c[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat Oct 16 08:13:47 2021 -0500
+
+    optimizacion
+
+[33mcommit df1ed4bdb556be5754167b6e23d89b4ce57b853f[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Oct 14 17:34:37 2021 -0500
+
+    depuracion y reporte de documentos
+
+[33mcommit 9bb810fe98a7374aff443d03a80805e6bf161eb9[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat Oct 9 12:04:34 2021 -0500
+
+    Correccion de texto en pdf
+
+[33mcommit 4d4bdb90a97e7d8a62a3f8e64bfc3d1fe3397020[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat Oct 9 09:34:15 2021 -0500
+
+    Boton generar reporte de translados
+
+[33mcommit 9c8bf5ce3fd83ea1a9f89e6b6a79eeae8c042cdc[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Oct 7 17:34:10 2021 -0500
+
+    descargar excel de traslados
+
+[33mcommit 807c7631f8b7f257833218a9f1b4cdce5eacb820[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Oct 1 10:25:29 2021 -0500
+
+    function controller -ok
+
+[33mcommit 19e60ec958513bbb8100fc9c3ba07d3d18510232[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Sep 23 15:04:42 2021 -0500
+
+    ocultar footer para guias
+
+[33mcommit 0b970fced0fb66adac5e84f63750fc01100c8113[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Sep 21 16:51:22 2021 -0500
+
+    logo footer
+
+[33mcommit ce1f49d57d7c7decb2023e97db8f38fdd0e2d58e[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Sep 16 15:04:07 2021 -0500
+
+    correcion en el monto en letras
+
+[33mcommit 9fd8e43bb127215f2c293f1285746ac700e56ac6[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Sep 16 14:23:45 2021 -0500
+
+    pdf al contado
+
+[33mcommit 32e7d6e88bcc1c9f02ea8b0d171c836dd604dc32[m
+Author: jxux <jxux25@gmail.com>
+Date:   Mon Sep 13 08:44:16 2021 -0500
+
+    imput en destino de guias de remision
+
+[33mcommit f6adebd3c9d687e3c440e668b1b012b5808502c3[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Sep 9 11:07:58 2021 -0500
+
+    fees edit
+
+[33mcommit 022fdc804d61351b83381e0ab6671445922aa50e[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Sep 9 10:22:43 2021 -0500
+
+    api total
+
+[33mcommit be2aa253fea964f0b6189ce584d371f7a5951df8[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Sep 9 08:47:10 2021 -0500
+
+    ultimos cambios
+
+[33mcommit d6150e5ed27823c14e0ff55047aa546305c990a3[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 11:20:11 2021 -0500
+
+    actualizacion completa
+
+[33mcommit 77a105f995b5f18a813c94d3aff7259307bfc67d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 10:39:12 2021 -0500
+
+    JS
+
+[33mcommit 4d4110c6355e26f86f8f577db0036f0a1d75da9e[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 10:34:51 2021 -0500
+
+    view balde
+
+[33mcommit c72286f35b9ac27b1022ed15b3ed29fa6e61acf5[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 10:32:11 2021 -0500
+
+    Modules
+
+[33mcommit fe1342c0f1ec655afb38e10ead7216d921bb10c1[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 10:14:35 2021 -0500
+
+    Database
+
+[33mcommit 2ae764ca800c23cc77495ad9ffb6bd1ceeff303c[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 10:07:30 2021 -0500
+
+    models
+
+[33mcommit 64f02512318aca89f60271adbeb917bd6112176d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 10:01:21 2021 -0500
+
+    module system
+
+[33mcommit 32d5d971cf70c53dd60436053a70d026bfb73520[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 09:59:02 2021 -0500
+
+    Http
+
+[33mcommit 545724538493beb53aa969b41c0fed777dce1f27[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Sep 3 09:53:42 2021 -0500
+
+    Middleware
+
+[33mcommit f01aae2c06cec6ccf5c0050e61052095798731c7[m
+Author: jxux <jxux25@gmail.com>
+Date:   Wed Jul 14 11:31:39 2021 -0500
+
+    ruta edit
+
+[33mcommit 042d658edbcac1145611b6fa17d56484f66e5ecb[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Jul 8 17:05:40 2021 -0500
+
+    Full_height
+    se agrego descripcion en los campos item
+
+[33mcommit 17c3cfbe05e27729a6f4c328baff19b72fd388be[m
+Author: jxux <jxux25@gmail.com>
+Date:   Tue Jul 6 16:36:27 2021 -0500
+
+    nota de credito full_height
+
+[33mcommit abf142444434bd73483258154d85f11c0b71c3a0[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Jul 2 08:48:04 2021 -0500
+
+    Modificacion pdf jazmar
+
+[33mcommit 93f054ad87a73aa248adac1113640a117269ebb9[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Jun 4 17:32:06 2021 -0500
+
+    Se estraen las cuetas en condicion de pago a credito
+
+[33mcommit 7fcf2b7628e623b8b66ca3eec82d87a14d152bb5[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri Jun 4 16:23:40 2021 -0500
+
+    condicional payment_condition_id
+
+[33mcommit 9656d6f82be0dd2045d6c02563d059ddcbe0eeda[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu Jun 3 17:31:29 2021 -0500
+
+    Se cambio en nombre de la funcion fee a fees.
+
+[33mcommit 7fba26c51e22ba2e909e1a5ecf43a3fdb4e76845[m
+Author: jxux <jxux25@gmail.com>
+Date:   Mon May 31 12:00:07 2021 -0500
+
+    Vista previa pdf
+
+[33mcommit bee74728baeb84759c9e9a836e7018248d2891ad[m
+Author: jxux <jxux25@gmail.com>
+Date:   Mon May 31 11:45:21 2021 -0500
+
+    Sacar vista previa de la factura
+
+[33mcommit 3de747eeb9f243d771280c0a13d57aa421c23acb[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sun May 30 06:28:22 2021 -0500
+
+    laravel-debugbar
+
+[33mcommit b6d0e9e409d1f6f70750f50f517022682ae5d30f[m
+Author: jxux <jxux25@gmail.com>
+Date:   Thu May 27 14:54:03 2021 -0500
+
+    cambio en el formato default
+
+[33mcommit c3e64947734139ec28d60bc2d7cd08c3b9d5ab89[m
+Author: jxux <jxux25@gmail.com>
+Date:   Sat May 15 11:32:02 2021 -0500
+
+    modificacion del pdf
+
+[33mcommit 2a1ef6cf23c09007d07517e7f074fa9caa336e3d[m
+Author: jxux <jxux25@gmail.com>
+Date:   Fri May 14 10:37:26 2021 -0500
+
+    se agrego metodo de pago y referencia a las cuotas
+
+[33mcommit 7dae57537bc10d2bf5eca3e2bfed0e8396f2e06a[m
+Author: = <=>
+Date:   Wed May 12 10:14:58 2021 -0500
+
+    correcion en el calculo - detracciones 027
+
+[33mcommit 4a73f1da8cbe335d3a80e640f250ce78b0a3cf05[m
+Author: = <=>
+Date:   Fri May 7 12:52:41 2021 -0500
+
+    vista en pdf de campo a credito
+
+[33mcommit e6206b06e2dbb3b3c1d8f395cbbb6b288afe5e1c[m
+Author: = <=>
+Date:   Fri May 7 11:09:35 2021 -0500
+
+    Condicional de facturas a credito
+    se agrego el botón de cuotas.
+
+[33mcommit 192df12fd9cae6bad04b7924505d4c1877b1aa99[m
+Author: = <=>
+Date:   Wed Apr 14 16:24:12 2021 -0500
+
+    sidebar
+    cambio de la separacion modulos extras
+
+[33mcommit 6eda0f5c4792cd2539a86e81e4394d6e583eb055[m
+Author: = <=>
+Date:   Wed Apr 14 16:13:02 2021 -0500
+
+    retiro de debugbar
+    "barryvdh/laravel-debugbar": "~3.2.3",
+
+[33mcommit 4a3698aeeadfccf402cb7c2583d0ab629da3e8ed[m
+Author: = <=>
+Date:   Wed Apr 14 15:27:26 2021 -0500
+
+    cambio a produccion v4
+
+[33mcommit 4c0d26c007a2a88c3f009820d5b9de45bb3f805e[m
+Author: = <=>
+Date:   Wed Apr 14 12:52:49 2021 -0500
+
+    carga completa de la version 4
+
+[33mcommit dc37fbab9322c4c91588c218538885d83b6c6238[m
+Author: = <=>
+Date:   Wed Apr 14 12:16:45 2021 -0500
+
+    tenant ok
+
+[33mcommit db27ccf45833c0aa233321426e3078791748410e[m
+Author: = <=>
+Date:   Tue Apr 13 09:49:12 2021 -0500
+
+    detracccion transporte de carga
+
+[33mcommit 9427f4a88ed0cc55c7c7d5a4b426e4e56397414d[m
+Author: = <=>
+Date:   Mon Apr 12 16:56:10 2021 -0500
+
+    carga de tablas
+    tenant
+    tenancy
+
+[33mcommit e7da04d0ea9341fe69d9d9c43dae4f6411a74b10[m
+Author: = <=>
+Date:   Mon Apr 12 16:53:26 2021 -0500
+
+    carga de modelos y redme
+
+[33mcommit aab6d7af917d8a982d31d6956e7a86dbe517d518[m
+Author: = <=>
+Date:   Mon Apr 12 14:27:43 2021 -0500
+
+    actualizacion del tipo de cambio
+
+[33mcommit 9c483920d007288874bba5f76c8f126e5abb6a04[m
+Author: = <=>
+Date:   Mon Apr 12 11:45:57 2021 -0500
+
+    cambio de rama github
+
+[33mcommit b338ef4594764692b4449d2345c22c6bc6301ac6[m
+Author: = <=>
+Date:   Mon Apr 12 11:32:43 2021 -0500
+
+    borrado de archivo c (vacio)
+
+[33mcommit 06bd7b964c8cbe44df22d9cede820309a2f00b63[m
+Author: sigemype <sigemype@gmail.com>
+Date:   Mon Apr 12 13:39:34 2021 +0000
+
+    first commit
+
+[33mcommit 5eafcce86eca8b80b38a51cd859895722a9bf559[m
+Author: facturaperu <67800863+facturaperu@users.noreply.github.com>
+Date:   Wed Oct 28 16:10:02 2020 -0500
+
+    Update readme.md
+
+[33mcommit 63f607278a0f880bcad74c0bc36735757b057fff[m
+Merge: 4950b46 2490d38
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 28 17:49:57 2020 +0000
+
+    Merge branch 'i_558' into 'master'
+    
+    feature | i-558 | Agregar columna moneda repore productos
+    
+    See merge request b.mendoza/facturadorpro3!212
+
+[33mcommit 2490d38b7012a1ae9f665ddf6bf91c06b136a394[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 28 12:48:59 2020 -0500
+
+    feature | i-558 | Agregar columna moneda repore productos
+
+[33mcommit 4950b461124db4b9e8101132744d532291dcab9e[m
+Merge: 6f4fd30 07ae0d5
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 28 16:15:32 2020 +0000
+
+    Merge branch 'i_571' into 'master'
+    
+    fixed | i-571 | Se agrega validacion para cantidad mayor a 0 en listado de precios - productos
+    
+    See merge request b.mendoza/facturadorpro3!211
+
+[33mcommit 07ae0d5464dbdd2d70999c27ed783728cf237bea[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 28 11:14:54 2020 -0500
+
+    fixed | i-571 | Se agrega validacion para cantidad mayor a 0 en listado de precios - productos
+
+[33mcommit 6f4fd30c56a4725f5d0187973246edace21750c2[m
+Merge: a2a7851 6631f4d
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 27 23:20:08 2020 +0000
+
+    Merge branch 'i_557' into 'master'
+    
+    feature | i-557 | Se agrega columna detalle de transaccion ingresos/gastos...
+    
+    See merge request b.mendoza/facturadorpro3!210
+
+[33mcommit 6631f4de1215f926f7d0f9fe12e2154e3930bc37[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 27 18:19:37 2020 -0500
+
+    feature | i-557 | Se agrega columna detalle de transaccion ingresos/gastos reporte movimientos finanzas
+
+[33mcommit a2a7851308169672eda3e07d578862059a489434[m
+Merge: fd3f6ce ff1cdf0
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 27 16:51:24 2020 +0000
+
+    Merge branch 'i_565' into 'master'
+    
+    feature | i-565 | Se agrega destino pago por defecto y monto pago en cotizacion y n venta
+    
+    See merge request b.mendoza/facturadorpro3!209
+
+[33mcommit ff1cdf014123a9860dc38d2e083b7855fdca22be[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 27 11:50:24 2020 -0500
+
+    feature | i-565 | Se agrega destino pago por defecto y monto pago en cotizacion y n venta
+
+[33mcommit fd3f6ce22193113f4a344a274748afa6ef371bf9[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 27 09:47:40 2020 -0500
+
+    fixed | i-498 | Alineacion columna -  n° item - reporte consolidado items
+
+[33mcommit 3799cd93b450378bd03c4167b4fd0d1ba1ecdfa3[m
+Merge: 70da1c3 c63fc19
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 22:17:00 2020 +0000
+
+    Merge branch 'i_498' into 'master'
+    
+    feature | i-498 | Se agrega reporte pdf en consolidado de items totales
+    
+    See merge request b.mendoza/facturadorpro3!208
+
+[33mcommit c63fc19bc0a56512ebaa335ecf8e18c9578310ae[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 17:16:22 2020 -0500
+
+    feature | i-498 | Se agrega reporte pdf en consolidado de items totales
+
+[33mcommit 70da1c3897f170653aef6b6d7716e7a8ac408397[m
+Merge: 42a0a3e 41c1a54
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 20:45:19 2020 +0000
+
+    Merge branch 'i_531' into 'master'
+    
+    feature | i-531 | Se modifica validaciones para campos opcionales en guia
+    
+    See merge request b.mendoza/facturadorpro3!207
+
+[33mcommit 41c1a54c1fd4ee938d70cce77b1a893f8734cc04[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 15:43:43 2020 -0500
+
+    feature | i-531 | Se modifica validaciones para campos opcionales en guia
+
+[33mcommit 42a0a3ebbed78fc6338c79065ced9981ab1bee33[m
+Merge: 89740a3 9049a1d
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 17:02:25 2020 +0000
+
+    Merge branch 'i_555' into 'master'
+    
+    fixed | i-555 | Error al digitar cantidad en pos - se agrega funcion para ir a barra busqueda
+    
+    See merge request b.mendoza/facturadorpro3!206
+
+[33mcommit 9049a1d0650e1427027d40d85d69b7b7a84fffb5[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 12:01:56 2020 -0500
+
+    fixed | i-555 | Error al digitar cantidad en pos - se agrega funcion para ir a barra busqueda
+
+[33mcommit 89740a331a67e7f1b6bf9beb704db44e2379ac3d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 26 10:30:59 2020 -0500
+
+    fixed | i-520 | Ajustes ancho de la tabla pdf - reporte productos
+
+[33mcommit 9c5cf16799a2554aecb467edd649613a7635fb50[m
+Merge: 39371cc 31b6075
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 23:15:15 2020 +0000
+
+    Merge branch 'i_527' into 'master'
+    
+    feature | i-527 | Se agrega columna categoria reporte inventario
+    
+    See merge request b.mendoza/facturadorpro3!205
+
+[33mcommit 31b60755e857f71035cfc6f3d269b8fd1d213962[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 18:14:40 2020 -0500
+
+    feature | i-527 | Se agrega columna categoria reporte inventario
+
+[33mcommit 39371cca59e5fae48bb75f1eeafa9ccc515eaee7[m
+Merge: 13eb479 9e5aa46
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 22:57:39 2020 +0000
+
+    Merge branch 'i_521' into 'master'
+    
+    feature | i-521 | Se agrega funcion incluye igv - orden de compra
+    
+    See merge request b.mendoza/facturadorpro3!204
+
+[33mcommit 9e5aa46977810c634f86f423d3e5bcc54dbb9283[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 17:57:09 2020 -0500
+
+    feature | i-521 | Se agrega funcion incluye igv - orden de compra
+
+[33mcommit 13eb4794c483e616299220e385cb99170441178a[m
+Merge: 152bc26 9eba5ef
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 21:50:32 2020 +0000
+
+    Merge branch 'i_560' into 'master'
+    
+    fixed | i-560 | Ajuste caja por defecto nuevo cpe - agrega caja por defecto compras
+    
+    See merge request b.mendoza/facturadorpro3!203
+
+[33mcommit 9eba5efacefa6069612478a2861371fdbf680351[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 16:49:28 2020 -0500
+
+    fixed | i-560 | Ajuste caja por defecto nuevo cpe - agrega caja por defecto compras
+
+[33mcommit 152bc268141fa4cb6f2ba1e15f52d5189f819bce[m
+Merge: cb4e35d eddf7a8
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 20:15:48 2020 +0000
+
+    Merge branch 'i_520' into 'master'
+    
+    feature | i-520 | Se agrega campos ganancia y formato pdf en reporte productos
+    
+    See merge request b.mendoza/facturadorpro3!202
+
+[33mcommit eddf7a84731443c23ff7c4cda96608d8f4a95e12[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 15:15:13 2020 -0500
+
+    feature | i-520 | Se agrega campos ganancia y formato pdf en reporte productos
+
+[33mcommit cb4e35d67bae91610eb333a7fc3f191b9ae5cb01[m
+Merge: 085d10f ce27d62
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 16:26:33 2020 +0000
+
+    Merge branch 'i_545' into 'master'
+    
+    fixed | i-545 | Ajuste caja por defecto y seleccion de destino pago
+    
+    See merge request b.mendoza/facturadorpro3!201
+
+[33mcommit ce27d621e701aa3dc69c011a3d77296721bb6945[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 11:25:45 2020 -0500
+
+    fixed | i-545 | Ajuste caja por defecto y seleccion de destino pago
+
+[33mcommit 085d10f25797a06ce43f06e598b2bd9ee942ae6c[m
+Merge: 17dcbf8 5f9dc05
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 14:55:32 2020 +0000
+
+    Merge branch 'i_462' into 'master'
+    
+    feature | i-462 | Se agrega olumna v. unitario compras - contacto formato customer contact
+    
+    See merge request b.mendoza/facturadorpro3!200
+
+[33mcommit 5f9dc05efa6dc257edaaf0f10ca54f178988f88f[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 23 09:52:43 2020 -0500
+
+    feature | i-462 | Se agrega olumna v. unitario compras - contacto formato customer contact
+
+[33mcommit 17dcbf8fa1448064705fe5825e579e36e133f7c9[m
+Merge: 1840057 9d010f3
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 22 23:03:21 2020 +0000
+
+    Merge branch 'i_517' into 'master'
+    
+    fixed | i-517 | Error n credito por devolucion de item - lotes
+    
+    See merge request b.mendoza/facturadorpro3!199
+
+[33mcommit 9d010f392a8fffb717c6249c416da1ded72b62f5[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 22 18:02:46 2020 -0500
+
+    fixed | i-517 | Error n credito por devolucion de item - lotes
+
+[33mcommit 1840057caed151b16192c77d4f7a0c9079d1442a[m
+Merge: 3f16733 28fa14a
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 22 16:42:17 2020 +0000
+
+    Merge branch 'i_448' into 'master'
+    
+    feature | i-448 | Se agrega filtro plataforma en reporte productos - productos busqueda individual
+    
+    See merge request b.mendoza/facturadorpro3!198
+
+[33mcommit 28fa14a858d55823c05bf279f10560e05553fad2[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 22 11:39:58 2020 -0500
+
+    feature | i-448 | Se agrega filtro plataforma en reporte productos - productos busqueda individual
+
+[33mcommit 3f16733e8ad3536bd9e24c240f74cb29309081d1[m
+Merge: a2174d1 832b265
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 22 15:09:57 2020 +0000
+
+    Merge branch 'i_462' into 'master'
+    
+    feature  | i-462 | Agrega columna v. unitario nv, cot, cnt
+    
+    See merge request b.mendoza/facturadorpro3!197
+
+[33mcommit 832b265724ddeae0dd56f80b45dee5907f0e9415[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 22 10:09:12 2020 -0500
+
+    feature  | i-462 | Agrega columna v. unitario nv, cot, cnt
+
+[33mcommit a2174d116a7c436a8396c7cf63bbdea85465cbc9[m
+Merge: f933e34 d721047
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Oct 21 12:27:20 2020 -0500
+
+    Merge branch 'i-512b' of gitlab.com:b.mendoza/facturadorpro3
+
+[33mcommit d7210478b78b385f09633ebc3fc564114d2c54af[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Oct 21 12:25:49 2020 -0500
+
+    feature | i-512 | boton de etiquetas independiente por producto
+
+[33mcommit f933e34263197751f16c79f73319f060ccfafe16[m
+Merge: 56bd57f 519c1c0
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 20 21:07:31 2020 +0000
+
+    Merge branch 'i_523' into 'master'
+    
+    feature | i-523 | Visualizar asatock productos por api
+    
+    See merge request b.mendoza/facturadorpro3!196
+
+[33mcommit 519c1c06f05f9de2cc351f522b013a90ac20052f[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 20 16:06:45 2020 -0500
+
+    feature | i-523 | Visualizar asatock productos por api
+
+[33mcommit 56bd57f2ddb85f261d8f272a977d4cbdb1841d2a[m
+Merge: 5f472d2 839bc48
+Author: Raúl García <sh.raul.jgb@gmail.com>
+Date:   Tue Oct 20 17:36:21 2020 +0000
+
+    Merge branch 'i-512' into 'master'
+    
+    feature | i-512 | merge
+    
+    See merge request b.mendoza/facturadorpro3!195
+
+[33mcommit 839bc48c52714ad142d0f2cf17540ece4f07e4b3[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Tue Oct 20 12:33:40 2020 -0500
+
+    feature | i-512 | rango de seleccion para imprimir etiquetas
+
+[33mcommit ed5d8ec6c8069ed35ccc1be50c0380abc7bbfd4c[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Oct 19 18:46:00 2020 -0500
+
+    feature | i-512 | reporte pdf para exportar e imprimir etiquetas con codigos de barras de productos
+
+[33mcommit 5f472d2fccc1fb5ee14eb31aeef6bc6b044672e6[m
+Merge: 5da7474 59185f8
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 22:34:24 2020 +0000
+
+    Merge branch 'i_462' into 'master'
+    
+    fixed | Ajustes docs global
+    
+    See merge request b.mendoza/facturadorpro3!194
+
+[33mcommit 59185f8b1e7e755da9ac8c28c87f2ff0f2e7f7a3[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 17:33:50 2020 -0500
+
+    fixed | Ajustes docs global
+
+[33mcommit 5da7474ac29b02a4ff746e993f6232fc774bda78[m
+Merge: ca5617e 75f2c69
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 21:52:08 2020 +0000
+
+    Merge branch 'i_502' into 'master'
+    
+    I 502
+    
+    See merge request b.mendoza/facturadorpro3!193
+
+[33mcommit 75f2c690199d0c35fbf3364eb15a092ccc6e3a0e[m
+Merge: 200b19f ca5617e
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 16:50:58 2020 -0500
+
+    merge
+
+[33mcommit 200b19f053e6ee86fb34705f98a40cf06c4a3c95[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 16:45:31 2020 -0500
+
+    feature | i-502 | Se agrega boton para descargar backup
+
+[33mcommit ca5617e362b2f1f89a70972a4fe223916d1bd895[m
+Merge: 3e447b7 25737eb
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Fri Oct 16 16:24:42 2020 -0500
+
+    merge
+
+[33mcommit 25737ebddeebb7c070804d1a49df63043efc3c18[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Fri Oct 16 16:18:25 2020 -0500
+
+    fix | i-526 | decimales en formulario de comprobantes
+
+[33mcommit 3e447b7157a461107d17165605ffb5386fb05663[m
+Merge: 990185c 2971ae5
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Fri Oct 16 16:08:39 2020 -0500
+
+    feature | i_346  | Cambio de control de permisos por tree
+
+[33mcommit 2971ae5f3e12b619d110848f4a9238c28bae2642[m
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Fri Oct 16 15:52:19 2020 -0500
+
+    feature | i_346  | Cambio de control de permisos por tree
+
+[33mcommit f8ff3dcbcb8adb3cef6800befc10e770587f909a[m
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Fri Oct 16 15:43:17 2020 -0500
+
+    feature | i_346  | Cambio de control de permisos por tree
+
+[33mcommit 990185c1ecd096415056ed1bbb7c66c23bdfd2c2[m
+Merge: 26e7138 48d22cc
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 19:56:37 2020 +0000
+
+    Merge branch 'i_510' into 'master'
+    
+    feature | i-510 | Se añade lote a la importacion productos - ajuste...
+    
+    See merge request b.mendoza/facturadorpro3!191
+
+[33mcommit 48d22ccec5a848b2834e04591b350a6e2861bc7d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 14:55:50 2020 -0500
+
+    feature | i-510 | Se añade lote a la importacion productos - ajuste importacion marca y categoria nula
+
+[33mcommit 26e71382532a5f6645e2e74cdb0dffd2e195c35e[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Fri Oct 16 14:54:12 2020 -0500
+
+    fix | i-491 | template brand, salto de pagina, campo descuento, cuentas de banco, logo centrado (solo a4)
+
+[33mcommit e4b594d6090567e7136706d389ac59a5e76fc613[m
+Merge: 391811b afff4db
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Fri Oct 16 12:21:54 2020 -0500
+
+    feature | i_346  | Cambio de control de permisos por tree
+
+[33mcommit 391811bf4e77a04deb24199952d5c48fff3a64cc[m
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Fri Oct 16 12:04:18 2020 -0500
+
+    feature | i_346  | Cambio de control de permisos por tree
+
+[33mcommit afff4dbcf88c021e3dfefe4f71f479046bc6cba9[m
+Merge: f43deab a377066
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 16:16:32 2020 +0000
+
+    Merge branch 'i_462' into 'master'
+    
+    feature | i-462 | Filtros clientes productos en reporte general productos -...
+    
+    See merge request b.mendoza/facturadorpro3!189
+
+[33mcommit a3770668ee7ca7b75929c5eb75167c9fcfdbf5de[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 16 11:15:23 2020 -0500
+
+    feature | i-462 | Filtros clientes productos en reporte general productos - ajuste busqueda usuario compras
+
+[33mcommit 3c21454cf85e7bca3742d662c1ae1b7fc2ed288c[m
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Fri Oct 16 10:36:06 2020 -0500
+
+    feature | i_346  | Cambio de control de permisos por tree
+
+[33mcommit 7324abd9bc9533bfeb157996ba79467cedbff038[m
+Author: Jose Amadeo Castillo Romero <dragonforcecd@☻gmail.com>
+Date:   Thu Oct 15 19:40:15 2020 -0500
+
+    Cambio de menu tree
+
+[33mcommit f43deabddc65fdeae07007ad892f9b2137546c81[m
+Merge: bf0adf5 9c3796d
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 15 23:28:54 2020 +0000
+
+    Merge branch 'i_462' into 'master'
+    
+    feature | i-462 | filtros movimientos finanzas - campos cotizacion - etc
+    
+    See merge request b.mendoza/facturadorpro3!188
+
+[33mcommit 9c3796d9d0fd14e941fa0a24ac5b7707214d0269[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 15 18:27:46 2020 -0500
+
+    feature | i-462 | filtros movimientos finanzas - campos cotizacion - etc
+
+[33mcommit bf0adf5031f7bdd992418077bcb6058b7d802ccd[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Oct 15 15:13:19 2020 -0500
+
+    fix | i-491 | logo marca de agua centrado factura
+
+[33mcommit a174aa8154060fc289df114cca624747b32b74a6[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Oct 15 15:09:07 2020 -0500
+
+    fix | i-491 | espacios entre campos de tabla factura pdf
+
+[33mcommit 9c0c3a96611605d20b635872e31398c57d13af35[m
+Merge: b883c60 8891e2c
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Oct 15 13:35:20 2020 -0500
+
+    feature | i-491 | campos  cotizacion, campo pdf factura (marca)
+
+[33mcommit 8891e2c30fab0744c134bd6ace1a95e7b851efae[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Oct 15 13:26:36 2020 -0500
+
+    feature | i-491 | campos  cotizacion, campo pdf factura (marca)
+
+[33mcommit b883c6032ceb0a24875a8683e9609c7a3267b3fc[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 14 18:03:03 2020 -0500
+
+    fixed | i-496 | Se agrega fecha vencimiento reporte contabilidad compras
+
+[33mcommit 8ba94397dd2b1a6e1e51300b836eed7872a64334[m
+Merge: 18c40ff 608a1ab
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Oct 14 17:39:39 2020 -0500
+
+    js
+
+[33mcommit 18c40ff70f2992bfad68296de3f6873172328af1[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Oct 14 17:37:17 2020 -0500
+
+    fix | destination sale default
+
+[33mcommit 608a1abac02e3d5d412a2387917a181b96ef60a5[m
+Merge: 54f7b25 80528f6
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 14 22:30:50 2020 +0000
+
+    Merge branch 'i_433' into 'master'
+    
+    feature | i-433 | Limpiar input busqueda pos - consulta documento cliente...
+    
+    See merge request b.mendoza/facturadorpro3!187
+
+[33mcommit 80528f63b999ee2fc8fbdc1db2cdbc3bda996354[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 14 17:28:42 2020 -0500
+
+    feature | i-433 | Limpiar input busqueda pos - consulta documento cliente eliminar (-) - whatsap en opciones pos
+
+[33mcommit 2123226b0bf3989f1b61d7d50b620c96b79cb6f4[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Oct 14 17:16:58 2020 -0500
+
+    feature | i-491 | template brand
+
+[33mcommit 54f7b25d20528c7f4872d96649bb497a25b57f58[m
+Merge: 54d7cd1 9009fe5
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 14 19:50:40 2020 +0000
+
+    Merge branch 'i_499' into 'master'
+    
+    fixed | i-499 | Modificar componente cantidad - nuevo cpe item
+    
+    See merge request b.mendoza/facturadorpro3!186
+
+[33mcommit 9009fe55f7316d1ac6b1c677bd3a2733fa566919[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Oct 14 14:50:01 2020 -0500
+
+    fixed | i-499 | Modificar componente cantidad - nuevo cpe item
+
+[33mcommit 54d7cd135a4a2179869b63aa05051696376ec919[m
+Merge: 01efb24 25e15b6
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 23:23:49 2020 +0000
+
+    Merge branch 'i_500' into 'master'
+    
+    I 500
+    
+    See merge request b.mendoza/facturadorpro3!185
+
+[33mcommit 25e15b62d8c3c36c2f59581404aafc857cd807a6[m
+Merge: 6241a78 01efb24
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 18:20:41 2020 -0500
+
+    merge
+
+[33mcommit 6241a789b44b419a28a9403ba7261d9514c8fa4c[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 18:14:14 2020 -0500
+
+    fixed | i-500 | Ajuste kardex pedidos - nota venta - eliminacion items nv/pedido
+
+[33mcommit 01efb24a8480b08fc7ed5ec7d99412978dadd086[m
+Merge: b4036c2 3850204
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Tue Oct 13 17:32:08 2020 -0500
+
+    merge i-506
+
+[33mcommit 3850204ab9f999e01af3e399c204f5018cd121c2[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Tue Oct 13 17:27:53 2020 -0500
+
+    feature | i-506 | caja general mediante configuracion avanzada
+
+[33mcommit b4036c291ff4b3e098aa9407f175ea25257123c9[m
+Merge: 1e27dc2 7202872
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 17:59:20 2020 +0000
+
+    Merge branch 'i_448' into 'master'
+    
+    feature | i-448 | Se agrega plataformas en packs/pos
+    
+    See merge request b.mendoza/facturadorpro3!184
+
+[33mcommit 7202872e7b9e5874985b47abb7001631d1f1cc34[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 12:57:25 2020 -0500
+
+    feature | i-448 | Se agrega plataformas en packs/pos
+
+[33mcommit 1e27dc230fd17ca430bcb0f3d42219fd7c0e4f31[m
+Merge: 72ae2c3 cc00606
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 15:09:50 2020 +0000
+
+    Merge branch 'i_496' into 'master'
+    
+    feature | i-496 | Se agrega servicios publicos tipo de documento - añade a reporte compras
+    
+    See merge request b.mendoza/facturadorpro3!183
+
+[33mcommit cc006063651daeeb1cc90570ba9a612dc5229391[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 13 10:08:47 2020 -0500
+
+    feature | i-496 | Se agrega servicios publicos tipo de documento - añade a reporte compras
+
+[33mcommit 72ae2c3b1a580380ca1351c6ac35b3874d37878d[m
+Merge: 66cd67c 92baca7
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 18:26:18 2020 -0500
+
+    app js
+
+[33mcommit 92baca7e30f32066ee276000fad26a1abb4ab9f8[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 18:13:27 2020 -0500
+
+    ajuste paginacion comprobantes masivos
+
+[33mcommit 66cd67c4fadaa54bdfc2642c3289f6a05d6c2ef9[m
+Merge: 65600d5 7fb1d4a
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 17:43:44 2020 -0500
+
+    merge app js
+
+[33mcommit 7fb1d4a65ac942e1018a9f1266a1047586a4c62b[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 17:31:21 2020 -0500
+
+    test Ajuste teclado en movil cliente
+
+[33mcommit 46de7723735a07a999fb766ce04c8ba5ff8f4052[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 17:26:08 2020 -0500
+
+    test Ajuste teclado en movil cliente
+
+[33mcommit 8091321c155be30ed3368537d47572e3f024bb52[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 17:14:01 2020 -0500
+
+    test Ajuste teclado en movil cliente
+
+[33mcommit 0a607f1de56ede6d2d71a24e9fc7839b18d197fc[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 16:59:23 2020 -0500
+
+    fixed | i-468 | Ajuste teclado en movil cliente
+
+[33mcommit ee75ce59bc440021b778ea6391ee9ce8049db417[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 16:47:18 2020 -0500
+
+    fixed | i-468 | Ajuste teclado en movil cliente
+
+[33mcommit a90efed9ad75fcbfb6465454d39b5247e8e31425[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Oct 12 16:35:11 2020 -0500
+
+    feature | i-468 | Generar comprobantes de forma masiva desde pedidos
+
+[33mcommit 65600d5ca1329d1a30db7b6029282874ea03699a[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Oct 12 12:21:37 2020 -0500
+
+    feature | i-505 | template footer amazonas cotizaciones
+
+[33mcommit 6c6987c16edda3505d4797cd6d8505f16d327471[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Oct 12 11:55:07 2020 -0500
+
+    feature | tamplate footer amazonas en notas de venta
+
+[33mcommit 88d0702f21d2a84508a581d5f307922d0fb57b1d[m
+Merge: 1b5a84b b2231a5
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 23:28:04 2020 +0000
+
+    Merge branch 'i_468' into 'master'
+    
+    feature | i-468 | Ajustes reporte pedidos - modificar precio vendedor form pedido
+    
+    See merge request b.mendoza/facturadorpro3!180
+
+[33mcommit b2231a59533ff5931cc863d4ad48b911dd648dce[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 18:27:05 2020 -0500
+
+    feature | i-468 | Ajustes reporte pedidos - modificar precio vendedor form pedido
+
+[33mcommit 1b5a84bc543028442d60092c82f818f9a0a2dbeb[m
+Merge: 34965b2 ab2535b
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 21:04:22 2020 +0000
+
+    Merge branch 'i_434' into 'master'
+    
+    feature | i-463 |  Se agrega a configuracion seleccion cliente y tipo documento - pos
+    
+    See merge request b.mendoza/facturadorpro3!179
+
+[33mcommit ab2535b5d710a984a3cba1784355f502d65893b9[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 16:03:24 2020 -0500
+
+    feature | i-463 |  Se agrega a configuracion seleccion cliente y tipo documento - pos
+
+[33mcommit 34965b21fb3bb4f2655f35ab462dfbd99d4762dc[m
+Merge: ee1274d fb7db3e
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 17:24:33 2020 +0000
+
+    Merge branch 'i_496' into 'master'
+    
+    feature | i-496 | Se agrega edicion en gastos
+    
+    See merge request b.mendoza/facturadorpro3!178
+
+[33mcommit fb7db3eb33150c9ed911667a22afbb1b3ca70e5c[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 12:22:48 2020 -0500
+
+    feature | i-496 | Se agrega edicion en gastos
+
+[33mcommit ee1274d32b401ba0ea8c2a341ece910e15a89434[m
+Merge: 39885ca 6e44945
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 15:35:17 2020 +0000
+
+    Merge branch 'i_494' into 'master'
+    
+    feature | i-494 | se agrega columna stock en kardex valorizado
+    
+    See merge request b.mendoza/facturadorpro3!177
+
+[33mcommit 6e44945585ed45c4ce3e393942ea2b1660249900[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 10:34:37 2020 -0500
+
+    feature | i-494 | se agrega columna stock en kardex valorizado
+
+[33mcommit 39885caa44bf5952040e206a96cea8728f2091e9[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Fri Oct 9 10:08:58 2020 -0500
+
+    feature | templates footer_term_condition
+
+[33mcommit 6c4383bb2248583a07be40321fa5e669d87349cf[m
+Merge: e1c69ac eebfe35
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 14:45:29 2020 +0000
+
+    Merge branch 'i_494' into 'master'
+    
+    I 494
+    
+    See merge request b.mendoza/facturadorpro3!176
+
+[33mcommit eebfe358626ed69dbdbe93e420c062352ab8611b[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Oct 9 09:44:52 2020 -0500
+
+    app prod
+
+[33mcommit 3dcd2d25cf6184d754afce3f868ef5cb9bc36ddf[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 8 18:22:51 2020 -0500
+
+    permitir tipo doc 0 - compras proveedores
+
+[33mcommit e1c69acf1aa96e7498772bbbf34360a0e93f2a63[m
+Merge: a41e2d5 1f58bb0
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 8 21:57:08 2020 +0000
+
+    Merge branch 'i_492' into 'master'
+    
+    fixed | i-492 | Ajuste para inconsistencia fechas pos - validacion
+    
+    See merge request b.mendoza/facturadorpro3!175
+
+[33mcommit 1f58bb0d553e0bffdb500af0e28544b46a8b3f34[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 8 16:56:08 2020 -0500
+
+    fixed | i-492 | Ajuste para inconsistencia fechas pos - validacion
+
+[33mcommit a41e2d5169ddec1d4a0414e8544d01a98238499a[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 8 14:47:43 2020 -0500
+
+    fixed | i-475 | Se agrega campos nombre - nombre secundario importacion productos
+
+[33mcommit aa5708df143695091a5b39e59df153ab582f3aa6[m
+Merge: 5bb0075 9c5ae69
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 8 19:26:35 2020 +0000
+
+    Merge branch 'i_484' into 'master'
+    
+    fixed | i-484 | Ajuste items - descuento que no afecta a la base imponible
+    
+    See merge request b.mendoza/facturadorpro3!174
+
+[33mcommit 9c5ae695c4eed252a888c1fb39c1a573f0e33d02[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Oct 8 14:26:01 2020 -0500
+
+    fixed | i-484 | Ajuste items - descuento que no afecta a la base imponible
+
+[33mcommit 5bb007568724abb62cab98947d0e4355e5028ced[m
+Merge: 8ef5af9 4f718ec
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 6 16:15:53 2020 +0000
+
+    Merge branch 'i_475' into 'master'
+    
+    feature | i-475 | Ajustes importacion masiva kits
+    
+    See merge request b.mendoza/facturadorpro3!173
+
+[33mcommit 4f718eccd51ec2110253d5d1e6be222d9fc0df8b[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 6 11:15:20 2020 -0500
+
+    feature | i-475 | Ajustes importacion masiva kits
+
+[33mcommit 8ef5af9865daedd56f76d30210602eafd81b66c3[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Oct 6 10:07:01 2020 -0500
+
+    fixed | Elimina espacios al inicio y final de descripcion item xml
+
+[33mcommit 55cd94dde5e7c4706cf90a10d58cf24adf496a2f[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Tue Sep 29 18:24:07 2020 -0500
+
+    docs | changelog
+
+[33mcommit 2606514a99e47f33b6572709195c492dbcc1c14c[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Tue Sep 29 18:21:37 2020 -0500
+
+    feature | cantidad de caracteres para el campo descripcion de producto
+
+[33mcommit c4722290b62594f3e6380719337d01c30ee179ae[m
+Merge: 7d98a23 62f99c9
+Author: Brayan Mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 29 14:55:27 2020 +0000
+
+    Merge branch 'i_449' into 'master'
+    
+    feature | i-449 | Se elimina apertura automatica caja chica
+    
+    See merge request b.mendoza/facturadorpro3!172
+
+[33mcommit 62f99c952456801a90004a0945ef126fe5ef1f2a[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 28 18:21:36 2020 -0500
+
+    feature | i-449 | Se elimina apertura automatica caja chica
+
+[33mcommit 7d98a23a349886df47e2f8b08d6850de9a979f04[m
+Merge: a7a6544 cec4a72
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Sep 28 17:07:37 2020 +0000
+
+    Merge branch 'i_470' into 'master'
+    
+    feature | i-470 | Se agrega formato para visualizar lugar de despacho - nueo cpe, nv, pedidos
+    
+    See merge request b.mendoza/facturadorpro3!171
+
+[33mcommit cec4a72a8ce21fb1d7511584cfd47cf5443d5192[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 28 12:07:03 2020 -0500
+
+    feature | i-470 | Se agrega formato para visualizar lugar de despacho - nueo cpe, nv, pedidos
+
+[33mcommit a7a65443b95d40c20dccf5b2accbfc608283d707[m
+Merge: 23979fd 926a4ec
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 25 23:03:50 2020 +0000
+
+    Merge branch 'i_466' into 'master'
+    
+    fixed | i-466 | Ajuste opcion inicializa stock - se agrega funcion regularizar stock
+    
+    See merge request b.mendoza/facturadorpro3!170
+
+[33mcommit 926a4ec9bf011eb972eefacc6cf5122a729feee6[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 25 18:03:06 2020 -0500
+
+    fixed | i-466 | Ajuste opcion inicializa stock - se agrega funcion regularizar stock
+
+[33mcommit 23979fd5b7273efbe54b463a6db30c520a57e110[m
+Merge: ce55588 da5b44d
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 25 17:56:29 2020 +0000
+
+    Merge branch 'i_429' into 'master'
+    
+    fixed | i-429 | Ajuste serie y numero nota de venta en kardex
+    
+    See merge request b.mendoza/facturadorpro3!169
+
+[33mcommit da5b44d0da618b9ec5e61f0ac2941923971a2bf5[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 25 12:55:49 2020 -0500
+
+    fixed | i-429 | Ajuste serie y numero nota de venta en kardex
+
+[33mcommit ce555880b69ced8730eb8522e8a1cc68da49ab85[m
+Merge: fb7b662 1c3824f
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 25 16:53:49 2020 +0000
+
+    Merge branch 'i_324' into 'master'
+    
+    feature | i-324 | Se agrega tipo de documento recibo por honorario en compras
+    
+    See merge request b.mendoza/facturadorpro3!168
+
+[33mcommit 1c3824f8e1cdda19060e419e7a222cffe7fb9c03[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 25 11:53:16 2020 -0500
+
+    feature | i-324 | Se agrega tipo de documento recibo por honorario en compras
+
+[33mcommit fb7b662375d0402cb3ce2ad737dc1738e1f4b699[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Sep 23 16:23:10 2020 -0500
+
+    fix | i-327 | permisos doc superior
+
+[33mcommit b7a34e625cdc83a2f5a5c3b653631e8d064aa0e4[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Wed Sep 23 16:03:37 2020 -0500
+
+    feature | diseño POS
+
+[33mcommit 38060f1b7900076bc75457784d689ab5f490a6b9[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Sep 23 09:59:36 2020 -0500
+
+    fixed | i-403 | Modifica filtro principal en gastos
+
+[33mcommit 533be119a983ebc6ca50d713b201f9d3a9053e54[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Tue Sep 22 17:00:23 2020 -0500
+
+    fix | i-425 | guias de remision ubigeo metodo por api
+
+[33mcommit fb40c9733cb3c6bb9f2f3a6cc9b0e33720ab5339[m
+Author: Raúl García <sh.raul.jgb@gmail.com>
+Date:   Mon Sep 21 20:30:55 2020 +0000
+
+    Update readme.md
+
+[33mcommit a68e60e2202586b167b2a047cc7c98506400d93c[m
+Merge: afc832e 3dfd27c
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 18 23:16:28 2020 +0000
+
+    Merge branch 'i_435' into 'master'
+    
+    feature | i-435 | importacion conjuntos/packs - integracion conjuntos en nuevo cpe
+    
+    See merge request b.mendoza/facturadorpro3!167
+
+[33mcommit 3dfd27c1bcf1f4ecd4c8389843b0b3c60ae9108d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 18 18:15:28 2020 -0500
+
+    feature | i-435 | importacion conjuntos/packs - integracion conjuntos en nuevo cpe
+
+[33mcommit afc832e6b564707680c4e1091ab06448cb9c83a2[m
+Merge: 74f3f7e 309b9b9
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Tue Sep 15 17:08:14 2020 +0000
+
+    Merge branch 'i_414' into 'master'
+    
+    feature | i-414 | Integracion conjuntos/pack en formulario nuevo cpe  -...
+    
+    See merge request b.mendoza/facturadorpro3!166
+
+[33mcommit 309b9b997d0de80897569e508a7592673778212d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 15 12:07:06 2020 -0500
+
+    feature | i-414 | Integracion conjuntos/pack en formulario nuevo cpe  - elimina campo autocalculado en form conjuntos
+
+[33mcommit 74f3f7eeae1585948b19594e0f5a244ed8c22d94[m
+Merge: c78a50c d9237e7
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Tue Sep 15 15:16:09 2020 +0000
+
+    Merge branch 'fi_240' into 'master'
+    
+    fixed | i-240 | Ajuste anticipos parciales - reintegrar total anulado/rechazado
+    
+    See merge request b.mendoza/facturadorpro3!165
+
+[33mcommit d9237e74eb455b1a787848a662f57876e3efa9f4[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 15 10:15:32 2020 -0500
+
+    fixed | i-240 | Ajuste anticipos parciales - reintegrar total anulado/rechazado
+
+[33mcommit c78a50cdc4d8bd3e40f3da181a5d564397febf79[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Sep 14 20:49:18 2020 -0500
+
+    feature | widgets system
+
+[33mcommit 30e11822610599eb71386efc2536502f3fd2bf0f[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Sep 14 20:39:44 2020 -0500
+
+    fix | system output inodes
+
+[33mcommit a51bb519ad2b0e2396fa0f87da845303d04e1e37[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Sep 14 20:29:37 2020 -0500
+
+    fix | system output hd
+
+[33mcommit 0fef12ad1a196a7104a6b5622c9144195cee5fc1[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Sep 14 20:09:34 2020 -0500
+
+    feature | notion | system dashboard hd, inodes
+
+[33mcommit 9939fa3ab6e765e87972692fda6af6a36abf8aa8[m
+Merge: 1d2e3a0 955afdc
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Sep 14 23:23:17 2020 +0000
+
+    Merge branch 'i_402' into 'master'
+    
+    fixed | i-402 | Ajuste facturas anticipadas con monto total 0 gravadas - exoneradas
+    
+    See merge request b.mendoza/facturadorpro3!164
+
+[33mcommit 955afdcd9effa1ce89e5f3e134d16a5e865c6d72[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 14 18:22:38 2020 -0500
+
+    fixed | i-402 | Ajuste facturas anticipadas con monto total 0 gravadas - exoneradas
+
+[33mcommit 1d2e3a0d8c3c5506ebc900e145f46948b8ec21c6[m
+Merge: 1908696 dc42cd3
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Sep 14 21:51:16 2020 +0000
+
+    Merge branch 'i_351' into 'master'
+    
+    I 351
+    
+    See merge request b.mendoza/facturadorpro3!163
+
+[33mcommit dc42cd372f592fd4397253de20bc74ea6c781320[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 14 16:47:51 2020 -0500
+
+    feature | i-351 | Suma totales reporte pagos - agrega pagos a soporte tecnico y reportes modulo finanzas
+
+[33mcommit f95b7490336c09e1f02879ecddfa2edc3fb35196[m
+Merge: 25609f7 1908696
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 14 12:22:20 2020 -0500
+
+    merge
+
+[33mcommit 1908696c23ecb2843909e7ee29fe0add7985fe03[m
+Merge: 6bc12d2 46894ae
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Sep 14 16:31:36 2020 +0000
+
+    Merge branch 'i_340' into 'master'
+    
+    feature | i-340 | Se agrega productos de nv a reporte caja - agrega formato xls
+    
+    See merge request b.mendoza/facturadorpro3!162
+
+[33mcommit 46894ae77b7d8c4b83c6fdbf8dceaab063535830[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 14 11:30:21 2020 -0500
+
+    feature | i-340 | Se agrega productos de nv a reporte caja - agrega formato xls
+
+[33mcommit 6bc12d288c432b1bd22e78e9d8c585c28083e845[m
+Merge: 8b78730 a54f1fb
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 11 23:39:55 2020 +0000
+
+    Merge branch 'i_403' into 'master'
+    
+    I 403
+    
+    See merge request b.mendoza/facturadorpro3!161
+
+[33mcommit a54f1fb1dfc582f8fbb1572513dba102cbab2a9f[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 11 18:35:22 2020 -0500
+
+    feature | i-403 | Se agrega reporte de movimientos - finanzas
+
+[33mcommit 474e53f00d3d58275f077d941b83496c83eec9e2[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 11 15:14:34 2020 -0500
+
+    feature | i-403 | Se enlaza saldo inicial caja chica pos con caja general finanzas
+
+[33mcommit 8b78730e5575447487a44b64d76f2ead13618fba[m
+Merge: 8da6510 a0aaddf
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 11 15:22:14 2020 +0000
+
+    Merge branch 'i_415' into 'master'
+    
+    I 415
+    
+    See merge request b.mendoza/facturadorpro3!160
+
+[33mcommit a0aaddff7de42fee04343e85ecc2cd77527195fd[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 11 10:20:47 2020 -0500
+
+    fixed | i-415 | Ajuste form lotes en nv
+
+[33mcommit 29e8709cf3b47fc570a1085895b7826f61ccf67e[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 10 18:19:21 2020 -0500
+
+    fixed | i-415 | Se agrega lote en items crear/editar compra
+
+[33mcommit 8da65103afa0bdda50432a69196c972a4dd4a9d4[m
+Merge: f79b615 8c1a568
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 10 22:31:14 2020 +0000
+
+    Merge branch 'i_310' into 'master'
+    
+    feature | i-310 | Se agrega nv a caja chica pos
+    
+    See merge request b.mendoza/facturadorpro3!159
+
+[33mcommit 8c1a568da5da5604d2266bb06aef65789ba928e2[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 10 17:29:46 2020 -0500
+
+    feature | i-310 | Se agrega nv a caja chica pos
+
+[33mcommit f79b61506057b8b42b39fd187cd6c7ef72de5717[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Sep 10 16:17:37 2020 -0500
+
+    feature | emparejando archivos de plantillas pdf
+
+[33mcommit 601235298760e67b12d4cf326aa573561b86634a[m
+Merge: e32be7f 82db79d
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 10 20:54:54 2020 +0000
+
+    Merge branch 'i_365' into 'master'
+    
+    feature | i-365 | Se agrega listado de series - edicion - exportal xls
+    
+    See merge request b.mendoza/facturadorpro3!158
+
+[33mcommit 82db79dd84b7dbde38d40f2663c5e0ed2f5b17af[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 10 15:46:12 2020 -0500
+
+    feature | i-365 | Se agrega listado de series - edicion - exportal xls
+
+[33mcommit e32be7f334a5d4b53ec75e841d69cdec979ff4ad[m
+Merge: 8c200f6 270e510
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Sep 10 11:14:09 2020 -0500
+
+    js
+
+[33mcommit 270e5107410af21c7d1db743e7ce36d14bdb856e[m
+Merge: 0c2f4a5 74b307a
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 10 16:02:59 2020 +0000
+
+    Merge branch 'i_403' into 'master'
+    
+    I 403
+    
+    See merge request b.mendoza/facturadorpro3!157
+
+[33mcommit 8c200f68847d992d24f5998a893c3798c690364a[m
+Merge: eb5d52d 0c2f4a5
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Sep 10 11:02:12 2020 -0500
+
+    js
+
+[33mcommit 74b307ad3ba74e9479a357211f8412262e77ad90[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 10 11:01:49 2020 -0500
+
+    feature | i-403 | Requerimientos GR
+
+[33mcommit eb5d52d14193bbeb701bc7219c058a4b4b031c70[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Thu Sep 10 10:46:08 2020 -0500
+
+    fix | i-418 | metodo de pago
+
+[33mcommit ae9ba6a73bb55bc1942695b44bf60323ecafd7c5[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Sep 9 18:30:11 2020 -0500
+
+    feature | i-403 | Avance requerimientos
+
+[33mcommit 0c2f4a5e629177af59f44496bcf9ec1939ff01ab[m
+Merge: bb0d458 d12d257
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Tue Sep 8 23:04:17 2020 +0000
+
+    Merge branch 'i_334' into 'master'
+    
+    I 334
+    
+    See merge request b.mendoza/facturadorpro3!156
+
+[33mcommit d12d25701785c17c17a1bde9a010ff5bc7ab6d1a[m
+Merge: d286e91 bb0d458
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 8 18:02:47 2020 -0500
+
+    Merge branch 'master' into i_334
+
+[33mcommit d286e91f83e840f1c16908c18973b9d018ff8bf8[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 8 18:02:26 2020 -0500
+
+    feature |i-334| Busqueda por atributos nueo cpe
+
+[33mcommit bb0d458508c403eb971b46c27f2e946de6f7a5ef[m
+Merge: 6c0844b 34b7a95
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Tue Sep 8 22:16:52 2020 +0000
+
+    Merge branch 'error_1033' into 'master'
+    
+    fixed | Se modifica flujo de validacion de respuesta sunat - registra cpe con...
+    
+    See merge request b.mendoza/facturadorpro3!155
+
+[33mcommit 34b7a95742c8733006c978cf4d9d26425ab33797[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 8 17:15:08 2020 -0500
+
+    fixed | Se modifica flujo de validacion de respuesta sunat - registra cpe con pendientes de regularizacion
+
+[33mcommit ab7514d4682868f0a0688a3011acb7bb621fdf69[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 7 18:26:55 2020 -0500
+
+    consulta en json atributos
+
+[33mcommit 6c0844bd0fa24259aef70c7bdfa91c8ce08a5036[m
+Merge: 7d6a350 569fa5e
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Sep 7 21:40:28 2020 +0000
+
+    Merge branch 'i_401' into 'master'
+    
+    fixed | i-401 | Bloquear peticion envio cpe - pos
+    
+    See merge request b.mendoza/facturadorpro3!154
+
+[33mcommit 569fa5e64f8e97c8a1790b89a07c2a834e221f5e[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 7 16:35:44 2020 -0500
+
+    fixed | i-401 | Bloquear peticion envio cpe - pos
+
+[33mcommit 7d6a350a92398faedb400fa61a8703d9d1ffcac5[m
+Author: rash07 <sh.raul.jgb@gmail.com>
+Date:   Mon Sep 7 16:29:54 2020 -0500
+
+    fix | template full_heigth dispatch
+
+[33mcommit 25609f79612b3b45d9e0cccbbd2aa478662ebbda[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 7 14:13:28 2020 -0500
+
+    feature | i-351 | Se agrega sumatoria en pagos - finanzas
+
+[33mcommit 1d95c15478828d4464323c91b753d0d2038e4a25[m
+Merge: 807d757 3bd5064
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Sep 7 16:47:27 2020 +0000
+
+    Merge branch 'i_355' into 'master'
+    
+    I 355
+    
+    See merge request b.mendoza/facturadorpro3!153
+
+[33mcommit 3bd5064b6a3ca8c52b76f7277944eb5cce21857f[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 7 11:45:33 2020 -0500
+
+    feature | i-355 | Se separa los permisos del modulo usuario - establecimientos de configuracion
+
+[33mcommit de7c7cd11e48f7ce93a548cdfae5d0f4fa86acad[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Sep 7 10:59:33 2020 -0500
+
+    fixed | i-355 | Inhabilitar edicion de permisos del usuario admin tenant
+
+[33mcommit 807d757a4367ee4580841249f4284f77d89132a1[m
+Merge: 00b82c1 cfe70aa
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 4 23:17:45 2020 +0000
+
+    Merge branch 'i_405' into 'master'
+    
+    feature | i-405 | Se habilita tipo de operacion 0401
+    
+    See merge request b.mendoza/facturadorpro3!152
+
+[33mcommit cfe70aa01b27d278678b32e3dff8889943e19aa3[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 4 18:16:50 2020 -0500
+
+    feature | i-405 | Se habilita tipo de operacion 0401
+
+[33mcommit 00b82c1b796e6ea6539e20be9e1bd5165f92d8ab[m
+Merge: 73c1f24 0c26006
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 4 21:24:32 2020 +0000
+
+    Merge branch 'i_408' into 'master'
+    
+    fixed | i-408 | Ajuste nuevo cpe - tipo afectacion 13,14
+    
+    See merge request b.mendoza/facturadorpro3!151
+
+[33mcommit 0c26006c10eb84c5756b577a32cda103f06b520e[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 4 16:23:41 2020 -0500
+
+    fixed | i-408 | Ajuste nuevo cpe - tipo afectacion 13,14
+
+[33mcommit 73c1f24568ecf168b595b8f52129b7b18258397f[m
+Author: Raúl García <sh.raul.jgb@gmail.com>
+Date:   Fri Sep 4 17:56:46 2020 +0000
+
+    docs | token apiperu desde panel admin .env.example
+
+[33mcommit e37e86e5ed2c58cdd810d5a8227aa9751443f74c[m
+Merge: 8d1eb9b 0f5ba85
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 4 17:51:09 2020 +0000
+
+    Merge branch 'i_406' into 'master'
+    
+    fixed | i-406 | Ajuste reporte kardex - error descuento al generar cpe desde nv
+    
+    See merge request b.mendoza/facturadorpro3!150
+
+[33mcommit 0f5ba852f6ba58d9dd50f55abaf69dbce3d69659[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 4 12:50:26 2020 -0500
+
+    fixed | i-406 | Ajuste reporte kardex - error descuento al generar cpe desde nv
+
+[33mcommit 8d1eb9b51724f4ae2b8a06c871127c11c0007c2f[m
+Merge: f1a1052 ef0c10a
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Sep 4 17:07:42 2020 +0000
+
+    Merge branch 'n_package' into 'master'
+    
+    feature | Se agrega funcionalidad para asignar cantidad en conjuntos/promociones pos
+    
+    See merge request b.mendoza/facturadorpro3!149
+
+[33mcommit ef0c10a71784ad6d3bab2d01f00cd5725db90080[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Sep 4 12:06:23 2020 -0500
+
+    feature | Se agrega funcionalidad para asignar cantidad en conjuntos/promociones pos
+
+[33mcommit f1a10522532488931cc289c526680acf0881297e[m
+Merge: 9df5015 1d7816c
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 3 21:59:02 2020 +0000
+
+    Merge branch 'i_362' into 'master'
+    
+    fixed | i-362 | Ajuste textos en reporte punto venta
+    
+    See merge request b.mendoza/facturadorpro3!148
+
+[33mcommit 1d7816cd79f199c86e8346860b4f953aa0a8cb5f[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 3 16:55:45 2020 -0500
+
+    fixed | i-362 | Ajuste textos en reporte punto venta
+
+[33mcommit 9df501500f2cbd6f4387fb22dc4416cd7d50d118[m
+Merge: c7432ff a0bdf86
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 3 21:12:42 2020 +0000
+
+    Merge branch 'i_374' into 'master'
+    
+    feature | i-374 | Se agrega destino de pago offline
+    
+    See merge request b.mendoza/facturadorpro3!147
+
+[33mcommit a0bdf86d9d48d7249ad94d874aa557616a862fb4[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 3 16:11:51 2020 -0500
+
+    feature | i-374 | Se agrega destino de pago offline
+
+[33mcommit c7432ffafbc893d73d79fd975d63235503994dc8[m
+Merge: 197cbf9 3cf2e35
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 3 21:02:11 2020 +0000
+
+    Merge branch 'i_374' into 'master'
+    
+    feature | i-374 | Se agrega pagos en modo offline
+    
+    See merge request b.mendoza/facturadorpro3!146
+
+[33mcommit 3cf2e3574821eb8dade65c98faff8da26290c229[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 3 16:01:28 2020 -0500
+
+    feature | i-374 | Se agrega pagos en modo offline
+
+[33mcommit 197cbf9464bb3edb81e6c20368ae310e1c4d9be5[m
+Merge: f0e2e50 46c789b
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Sep 3 19:37:24 2020 +0000
+
+    Merge branch 'i_398' into 'master'
+    
+    fixed | i-398 | Ajuste edicion items en nuevo cpe
+    
+    See merge request b.mendoza/facturadorpro3!145
+
+[33mcommit 46c789b686155206f49252d400e22aecd839520d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Sep 3 14:35:45 2020 -0500
+
+    fixed | i-398 | Ajuste edicion items en nuevo cpe
+
+[33mcommit f0e2e508cb268fdd26d952bb965b55425c8b72a0[m
+Merge: 3b83d3a 1ce166e
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Wed Sep 2 21:30:58 2020 +0000
+
+    Merge branch 'i_384' into 'master'
+    
+    fixed | i-384 | Ajuste kardex valorizado - agrega tipos de cliente
+    
+    See merge request b.mendoza/facturadorpro3!144
+
+[33mcommit 1ce166e22f665d1bc4a1eaeacc435d409656aa3a[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Sep 2 16:30:19 2020 -0500
+
+    fixed | i-384 | Ajuste kardex valorizado - agrega tipos de cliente
+
+[33mcommit 3b83d3a54e34a5dd062d685e14f87192af6e5267[m
+Merge: 8e57a2f 8ce24cc
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Wed Sep 2 20:23:20 2020 +0000
+
+    Merge branch 'i_321' into 'master'
+    
+    feature | i-321 | Se agrega configuracion en establecimiento para seleccionar...
+    
+    See merge request b.mendoza/facturadorpro3!143
+
+[33mcommit 8ce24ccb1de3718b11ce10e0915898b060b59681[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Sep 2 15:22:06 2020 -0500
+
+    feature | i-321 | Se agrega configuracion en establecimiento para seleccionar cliente por defecto en nuevo cpe
+
+[33mcommit 8e57a2ff4d9fb34719383e55e5e82ee336b9a8a4[m
+Merge: 6e01bea d0e9e26
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Wed Sep 2 17:35:23 2020 +0000
+
+    Merge branch 'i_313' into 'master'
+    
+    I 313
+    
+    See merge request b.mendoza/facturadorpro3!142
+
+[33mcommit d0e9e26eddb401748d5ff5b084ef8cb0865919e2[m
+Merge: 1db0b95 6e01bea
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Sep 2 12:34:27 2020 -0500
+
+    Merge branch 'master' into i_313
+
+[33mcommit 1db0b95b982f0413fdf7af1c2f2c49522fb790a1[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Sep 2 12:33:23 2020 -0500
+
+    feature | i-313 | Se agrega seleccion de almacen en pedidos
+
+[33mcommit 6e01bea8ea4a3c0662b2d1afcfd4ed81a6d89471[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Wed Sep 2 09:45:08 2020 -0500
+
+    fix | url tasa de cambio
+
+[33mcommit 047a1f6505d6bf0ff7687761f363b40ff58dbd6c[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Wed Sep 2 09:38:09 2020 -0500
+
+    fix | url tasa de cambio
+
+[33mcommit f347569631e31ac2ec2369d8852aec18c93f87aa[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 1 17:13:41 2020 -0500
+
+    feature | i-313 | Avance seleccion de almacen en items - nota venta
+
+[33mcommit 55e4f79da89cd6060197364e71c906b7fcf69d23[m
+Merge: 21d01ab 6dd660f
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Tue Sep 1 20:02:58 2020 +0000
+
+    Merge branch 'i_279' into 'master'
+    
+    fixed | i-279 | Modificacion de filtros - reporte pagos
+    
+    See merge request b.mendoza/facturadorpro3!141
+
+[33mcommit 6dd660ffc6e96936a891149500c6f5c7e1adb513[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 1 15:02:05 2020 -0500
+
+    fixed | i-279 | Modificacion de filtros - reporte pagos
+
+[33mcommit 21d01abd8bcf11d3891198001682dd1cb040e3e6[m
+Merge: cdbe415 7071185
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Tue Sep 1 17:44:05 2020 +0000
+
+    Merge branch 'i_356' into 'master'
+    
+    I 356
+    
+    See merge request b.mendoza/facturadorpro3!140
+
+[33mcommit 70711854b4cd49eeaf06118160e37e3526480b31[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Sep 1 12:42:32 2020 -0500
+
+    feature | i-356 | Exportacion masiva de documentos - pdf
+
+[33mcommit 3ce36899ceffe059d6d7e833c0d9eeaba5792c1d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Aug 31 18:27:32 2020 -0500
+
+    feature | i-356 | Avance descarga masiva de documentos - totales
+
+[33mcommit cdbe4157b821b117ca662203bfe6e8a9ab496726[m
+Merge: 96e3ed5 3375309
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Mon Aug 31 16:28:03 2020 +0000
+
+    Merge branch 'fi_379' into 'master'
+    
+    fixed | i-379 | Se agrega filtro de busqueda lotes nuevo cpe - ajustes de validacion stock
+    
+    See merge request b.mendoza/facturadorpro3!139
+
+[33mcommit 33753092992113accf718ebccd3197662a4b6907[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Mon Aug 31 11:27:19 2020 -0500
+
+    fixed | i-379 | Se agrega filtro de busqueda lotes nuevo cpe - ajustes de validacion stock
+
+[33mcommit 96e3ed55b97cd45ec4f54bc5a53d44b86673edb5[m
+Merge: 097f381 347c998
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Aug 28 20:02:56 2020 +0000
+
+    Merge branch 'i_381' into 'master'
+    
+    I 381
+    
+    See merge request b.mendoza/facturadorpro3!138
+
+[33mcommit 347c998951cca31eefdafc1f03f7268d13d2e34a[m
+Merge: 04a511d 097f381
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Aug 28 15:02:10 2020 -0500
+
+    app js merge
+
+[33mcommit 04a511d9b96e14859c11b01b8676c7b498d06be4[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Aug 28 14:56:00 2020 -0500
+
+    fixed | i-381 | Ajuste sobrecarga lotes en cotizacion/generar comprobante - ajuste filtro componente lotes
+
+[33mcommit 1b17309721c08b74476aa7ad31b4797fe26807ae[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Aug 28 12:08:40 2020 -0500
+
+    feature | i-381 | Se agrega busqueda por codigo de barras en series
+
+[33mcommit 097f3818d75294b9b4412c6da8966ade0e688985[m
+Merge: 251afe5 fb103e7
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Aug 28 15:59:46 2020 +0000
+
+    Merge branch 'fixed_i_314' into 'master'
+    
+    fixed | i-314 | Modificar template internal_code_contact para contrato y...
+    
+    See merge request b.mendoza/facturadorpro3!137
+
+[33mcommit fb103e7c5f2ecd30f59abd9e818a0e3eb1ede053[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Aug 28 10:58:52 2020 -0500
+
+    fixed | i-314 | Modificar template internal_code_contact para contrato y cotizacion - retiran pagos contratos y finanzas - ajuste formatos anticipos
+
+[33mcommit 251afe5352e403f02e2c6c3195ef41b945b118e5[m
+Merge: 8b0a7ae 66b7d27
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Aug 27 23:41:43 2020 +0000
+
+    Merge branch 'i_381' into 'master'
+    
+    I 381
+    
+    See merge request b.mendoza/facturadorpro3!136
+
+[33mcommit 66b7d27145f6c7589d65970edbf04098a29942a9[m
+Merge: e05ee53 8b0a7ae
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Aug 27 18:40:58 2020 -0500
+
+    Error merge
+
+[33mcommit e05ee53a4f1f696d04c9da756ef646b4235cb2a4[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Aug 27 18:33:27 2020 -0500
+
+    fixed | i-381 | Se modifica el componente para ingreso de lotes - filtro de items en compras - nv - indices en lotes compra venta - focus compras
+
+[33mcommit 8b0a7aeac32c84684cbcf0976037551a0131b825[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Thu Aug 27 11:06:00 2020 -0500
+
+    feature | n | espacios tabla producto crear comprobante
+
+[33mcommit d55717cd2768dc538979870aaaa070382187ef2d[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Aug 27 10:36:59 2020 -0500
+
+    fixed | i-381 | Se modifica busqueda remota en items - nota venta - prueba venta lotes
+
+[33mcommit 89198e745f3ba5594bbdbeae09661a60907e9fce[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Wed Aug 26 18:41:11 2020 -0500
+
+    fix | 386 | template full_height
+
+[33mcommit a39fc84e25668ee1e5fab9b0cbb555518b6dbdda[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Aug 26 18:36:33 2020 -0500
+
+    fixed | i-381 | Modificacion componente para seleccionar lotes en nuevo cpe y nv
+
+[33mcommit c40ac5c780b221e1b96845a08ce950cc41e5dec3[m
+Merge: 6e2a297 736f1c3
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Wed Aug 26 17:02:21 2020 +0000
+
+    Merge branch 'fix_i_314' into 'master'
+    
+    Fix i 314
+    
+    See merge request b.mendoza/facturadorpro3!135
+
+[33mcommit 736f1c31daaca213a29a0d4299c9bf2bf85e805a[m
+Merge: 5b08dc1 6e2a297
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Aug 26 12:01:26 2020 -0500
+
+    Merge branch 'master' into fix_i_314
+
+[33mcommit 5b08dc14f85a48f6e83a692c1323b7fad3f9e9b7[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Wed Aug 26 11:59:35 2020 -0500
+
+    termino puntos asignados
+
+[33mcommit 6e2a297b21bb4fc210a486ea5934b2d8ce56cd1f[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Tue Aug 25 22:46:52 2020 -0500
+
+    feature | style ecommerce
+
+[33mcommit 6362584f83f7cc995ef43842893449c031333219[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Tue Aug 25 18:27:15 2020 -0500
+
+    Avance puntos
+
+[33mcommit b230d361ffe6989e0b1b150ae4cb6d5c44a4f190[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Tue Aug 25 17:21:28 2020 -0500
+
+    fix | i-386 | notas de venta con footer errado
+
+[33mcommit f93c26c6c14d6f49b32a0dc77e2a104de1ef97ce[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Tue Aug 25 10:40:06 2020 -0500
+
+    docs | changelog
+
+[33mcommit 563f4f1670f82c104febd419c5ea8319d85b12d3[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Tue Aug 25 10:36:17 2020 -0500
+
+    feature | template pdf | jazmar
+
+[33mcommit af87fc2cb7f207ebb49ef2c58314f9b1670bbd92[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Mon Aug 24 14:37:05 2020 -0500
+
+    feature | 314 | pto 7 mail orden de compra
+
+[33mcommit b89e1b329e2587eb16d50c481e02e00c65089402[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Mon Aug 24 11:48:01 2020 -0500
+
+    feature | i-260 | add payment invoice
+
+[33mcommit ed7c1d29828f6bb17f8a25e0811a9f027dd9c9d2[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Fri Aug 21 17:00:32 2020 -0500
+
+    fix | i-314 | pto 1
+
+[33mcommit c626f2b3e75c5efb6526a08e05cc673c350423dc[m
+Author: Raul <sh.raul.jgb@gmail.com>
+Date:   Fri Aug 21 16:49:12 2020 -0500
+
+    fix | i-260 | template doble_print
+
+[33mcommit 3a223f9573a3658a4fa74e91244093c25f923e47[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Aug 21 14:46:19 2020 -0500
+
+    fixed | i-349 | Ajuste accedo a propiedad formatos cotizacion
+
+[33mcommit 7c60705c338fbcd6de430379e1b9b2ce1707b622[m
+Merge: 792e49f fc43a76
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Fri Aug 21 19:21:32 2020 +0000
+
+    Merge branch 'fix_i_27' into 'master'
+    
+    fixed | i-27 | Ajustes saldos - vista kardex
+    
+    See merge request b.mendoza/facturadorpro3!134
+
+[33mcommit fc43a76096fd52ce835e48dc7abdc3e22836789a[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Fri Aug 21 14:19:53 2020 -0500
+
+    fixed | i-27 | Ajustes saldos - vista kardex
+
+[33mcommit 792e49f9ca5f303eff5169410d3eefdf882377f5[m
+Merge: 0211350 a449f25
+Author: Brayan Mendoza Arango <bemendozaa@gmail.com>
+Date:   Thu Aug 20 22:46:57 2020 +0000
+
+    Merge branch 'i_379' into 'master'
+    
+    fixed | i-379 | Se modifica tipo de dato con decimales en lotes
+    
+    See merge request b.mendoza/facturadorpro3!133
+
+[33mcommit a449f2543f65893f2643a9023c8890124a3c11f8[m
+Author: b.mendoza <bemendozaa@gmail.com>
+Date:   Thu Aug 20 17:44:46 2020 -0500
+
+    fixed | i-379 | Se modifica tipo de dato con decimales en lotes
