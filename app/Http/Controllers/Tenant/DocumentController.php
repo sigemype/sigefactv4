@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SearchItemController;
@@ -64,10 +65,9 @@ use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
 use Html2Text\Html2Text;
+use Barryvdh\DomPDF\Facade as PDF;
 
-
-class DocumentController extends Controller
-{
+class DocumentController extends Controller{
     use FinanceTrait;
     use OfflineTrait;
     use StorageDocument;
@@ -1189,6 +1189,25 @@ class DocumentController extends Controller
         });
 
         return $records;
+    }
+
+    public function report_documents($start, $end, $type = 'pdf'){
+        $records = Document::whereBetween('date_of_issue', [$start , $end])->get();
+        $date_now = Carbon::now();
+
+        if ($type == 'pdf') {
+            $pdf = PDF::loadView('tenant.documents.report', compact("records", "date_now"))->setPaper('a4', 'landscape');
+            $filename = "Reporte_Documentos_".Carbon::now();
+            // return $pdf->stream($filename.'.pdf');
+            return $pdf->download($filename.'.pdf');
+
+        } elseif ($type == 'excel') {
+            $filename = "Reporte_Documentos_".Carbon::now();
+            return (new DocumentIndexExport)
+                ->records($records)
+                ->download($filename.Carbon::now().'.xlsx');
+        }
+
     }
 
     public function report_payments(Request $request)

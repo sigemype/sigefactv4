@@ -420,7 +420,7 @@
             <document-payments :showDialog.sync="showDialogPayments"
                                :documentId="recordId"></document-payments>
 
-
+            <report-documents :showDialog.sync="showDialogReportDocuments"></report-documents>
             <document-constancy-detraction :showDialog.sync="showDialogCDetraction"
                                            :recordId="recordId"></document-constancy-detraction>
             <report-payment :showDialog.sync="showDialogReportPayment"></report-payment>
@@ -445,6 +445,7 @@ import ItemsImport from './import.vue'
 import {deletable} from '../../../mixins/deletable'
 import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
+import ReportDocuments from './partials/report_documents.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
 import DocumentValidate from './partials/validate.vue';
 import MassiveValidateCpe from '../../../../../modules/ApiPeruDev/Resources/assets/js/components/MassiveValidateCPE';
@@ -463,6 +464,7 @@ export default {
         DocumentConstancyDetraction,
         ReportPayment,
         ReportPaymentComplete,
+        ReportDocuments,
         DocumentValidate,
         MassiveValidateCpe
     },
@@ -472,6 +474,7 @@ export default {
             showDialogValidate: false,
             showDialogReportPayment: false,
             showDialogReportPaymentComplete: false,
+            showDialogReportDocuments: false,
             showDialogVoided: false,
             showImportDialog: false,
             showDialogCDetraction: false,
@@ -643,6 +646,9 @@ export default {
         clickDownloadReportPagos() {
 
             this.showDialogReportPaymentComplete = true
+        },
+        clickDownloadReportDocuments(){
+            this.showDialogReportDocuments = true
         },
         clickImportSecond() {
             this.showImportSecondDialog = true
