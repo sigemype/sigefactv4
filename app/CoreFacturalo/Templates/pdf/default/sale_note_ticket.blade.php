@@ -210,6 +210,19 @@
             <td colspan="4" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total, 2) }}</td>
         </tr>
+        {{-- Vendedor --}}
+        <tr>
+            <td class="desc pt-5">
+                <strong>Vendedor:</strong>
+            </td>
+        </tr>
+        <tr>
+            @if ($document->seller)
+                <td class="desc" colspan="4">{{ $document->seller->name }}</td>
+            @else
+                <td class="desc" colspan="4">{{ $document->user->name }}</td>
+            @endif
+        </tr>
     </tbody>
 </table>
 <table class="full-width">

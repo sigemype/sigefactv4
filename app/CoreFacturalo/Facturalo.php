@@ -327,8 +327,8 @@ class Facturalo{
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
             if($format_pdf === 'ticket_50') $width = 45;
 
-            $company_name      = (strlen($this->company->name) / 20) * 10;
-            $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
+            $company_name      = (strlen($this->company->name) / 25) * 10;
+            $company_address   = (strlen($this->document->establishment->address) / 35) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '15' : '0';
             $customer_name     = strlen($this->document->customer->name) > '25' ? '15' : '0';
             $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
@@ -353,9 +353,11 @@ class Facturalo{
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
             // $document_payments     = count($this->document->payments);
-            $document_payments      = $document->payments()->count() * 2;
+            $document_payments      = $document->payments()->count();
             $document_transport     = ($this->document->transport) ? 30 : 0;
             $document_retention     = ($this->document->retention) ? 10 : 0;
+
+            $seller                 = ($this->document->seller) ? 10 : 0;
 
             $extra_by_item_additional_information = 0;
             $extra_by_item_description = 0;
@@ -388,7 +390,7 @@ class Facturalo{
             }
 
             if (count($this->document->items) <= 2) {
-                $factor = 6;
+                $factor = 4;
             }else{
                 $factor = 2;
             }
@@ -397,19 +399,19 @@ class Facturalo{
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    // $height  +
-                    30+
+                    // $height +
+                    40+
                     $company_logo +
-                    (($quantity_rows * 8) + $extra_by_item_description) +
-                    ($document_payments * 8) +
-                    ($discount_global * 8) +
                     $company_name +
                     $company_address +
                     $company_number +
                     $customer_name +
                     $customer_address +
                     $customer_department_id +
+                    ($quantity_rows + $extra_by_item_description) +
                     (($quantity_rows * $factor) + $extra_by_item_description) +
+                    ($document_payments * 8) +
+                    ($discount_global * 8) +
                     ($document_payments * $factor) +
                     ($discount_global * $factor) +
                     $p_order +
@@ -423,13 +425,13 @@ class Facturalo{
                     $total_prepayment +
                     $total_discount +
                     $was_deducted_prepayment +
-                    $customer_department_id+
-                    $detraction+
-                    $total_plastic_bag_taxes+
-                    $quotation_id+
-                    $extra_by_item_additional_information+
-                    $height_legend+
-                    $document_transport+
+                    $detraction +
+                    $total_plastic_bag_taxes +
+                    $quotation_id +
+                    $seller +
+                    // $extra_by_item_additional_information+
+                    $height_legend +
+                    $document_transport +
                     $document_retention
                 ],
                 'margin_top' => 0,

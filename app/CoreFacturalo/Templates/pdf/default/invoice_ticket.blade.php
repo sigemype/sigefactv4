@@ -831,14 +831,14 @@
         @endphp
         {{-- Condicion de pago Crédito / Contado --}}
         <tr>
-            <td class="desc pt-5">
+            <td class="desc pt-3">
                 <strong>CONDICIÓN DE PAGO: {{ $paymentCondition }} </strong>
             </td>
         </tr>
 
         @if ($document->payment_method_type_id)
             <tr>
-                <td class="desc pt-5">
+                <td class="desc pt-3">
                     <strong>MÉTODO DE PAGO: </strong>{{ $document->payment_method_type->description }}
                 </td>
             </tr>
@@ -847,7 +847,7 @@
         @if ($document->payment_condition_id === '01')
             @if ($payments->count())
                 <tr>
-                    <td class="desc pt-5">
+                    <td class="desc pt-3">
                         <strong>PAGOS:</strong>
                     </td>
                 </tr>

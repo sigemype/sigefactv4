@@ -549,7 +549,7 @@
             $extra_by_item_description = 0;
             $discount_global = 0;
             $quantity_rows = count($document->items);
-            $payments = $document->payments()->count() * 2;
+            $payments = $document->payments()->count();
             $company_logo = ($company->logo) ? 40 : 0;
             $company_name = (strlen($company->name) / 20) * 10;
             $company_address = (strlen($document->establishment->address) / 30) * 10;
@@ -566,7 +566,7 @@
                     $discount_global = $discount_global + 1;
                 }
             }
-            $extra_by_item_description = (($quantity_rows * 8) + 8 + $extra_by_item_description);
+            $extra_by_item_description = (($quantity_rows * 2) + $extra_by_item_description);
             $discount_global *= 3;
             $legends = $document->legends != '' ? 10 : 0;
             $total_exportation = $document->total_exportation != '' ? 10 : 0;
@@ -613,7 +613,8 @@
             if (config('tenant.pdf_template_footer')) {
                 switch ($type) {
                     case 'invoice':
-                        $html_footer = $template->pdfFooter($base_pdf_template, $document);
+                        // $html_footer = $template->pdfFooter($base_pdf_template, $document);
+                        $html_footer = "";
                         if ($configuration->legend_footer) {
                             $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
                         }
@@ -637,7 +638,6 @@
             $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
             $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
             return $pdf;
-
 
         }
 
