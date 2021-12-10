@@ -158,6 +158,8 @@
                 showAddButton: true,
                 document: {},
                 index_file: null,
+                form_cash_document: {},
+
             }
         },
         async created() {
@@ -281,6 +283,8 @@
                             console.log(error);
                         }
                     })
+                this.form_cash_document.document_id = this.documentId;
+                this.saveCashDocument();
             },
             // filterDocumentType(row){
             //
@@ -311,7 +315,20 @@
             clickDownloadReport(id)
             {
                 window.open(`/${this.resource}/report/${this.documentId}`, '_blank');
-            }
+            },
+            saveCashDocument() {
+                this.$http.post(`/cash/cash_document`, this.form_cash_document)
+                    .then(response => {
+                        if (response.data.success) {
+                            // console.log(response)
+                        } else {
+                            this.$message.error(response.data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+            },
         }
     }
 </script>
