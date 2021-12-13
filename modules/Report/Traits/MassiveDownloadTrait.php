@@ -197,7 +197,7 @@
                     'format' => [
                         $width,
                         60 +
-                        (($quantity_rows * 8) + $extra_by_item_description) +
+                        (($quantity_rows * 10) + $extra_by_item_description) +
                         ($discount_global * 3) +
                         $company_logo +
                         $payments +
@@ -378,7 +378,7 @@
                 $width = ($format_pdf === 'ticket_58') ? 56 : 78;
 
                 if (config('tenant.enabled_template_ticket_80')) $width = 76;
-                $pdf_margin_top = 5;
+                $pdf_margin_top = 2;
                 $pdf_margin_right = 1;
                 $pdf_margin_bottom = 5;
                 $pdf_margin_left = 1;

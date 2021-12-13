@@ -2752,13 +2752,13 @@ export default {
         },
         dateValidError() {
 
-            this.$message.error('No puede seleccionar una fecha menor a 6 días.');
+            this.$message.error('No puede seleccionar una fecha menor a 3 días.');
             this.dateValid = false
 
         },
         validateDateOfIssue() {
 
-            let minDate = moment().subtract(7, 'days')
+            let minDate = moment().subtract(4, 'days')
 
             // validar fecha de factura sin considerar configuracion
             if (moment(this.form.date_of_issue) < minDate && this.form.document_type_id === '01') {
