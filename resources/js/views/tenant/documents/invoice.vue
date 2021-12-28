@@ -2758,7 +2758,7 @@ export default {
         },
         validateDateOfIssue() {
 
-            let minDate = moment().subtract(4, 'days')
+            let minDate = moment().subtract(2, 'days')
 
             // validar fecha de factura sin considerar configuracion
             if (moment(this.form.date_of_issue) < minDate && this.form.document_type_id === '01') {
