@@ -2676,7 +2676,7 @@ export default {
                 let detraction = this.form.detraction
 
                 let tot = (this.form.currency_type_id == 'PEN') ? this.form.total : (this.form.total * this.form.exchange_rate_sale)
-                let total_restriction = (this.form.operation_type_id == '1001') ? 700 : 400
+                let total_restriction = (this.form.operation_type_id == '1001') ? 400 : 400
 
                 if (tot <= total_restriction)
                     return {
