@@ -32,8 +32,7 @@
 
                 return response()->json(['data' => $processes], 200);
             }
-            $processes = $processes->get()->transform(function ($row) {
-                /** @var Process $row */
+            $processes = $processes->get()->transform(function (Process $row) {
                 return $row->getCollectionData();
             });
 

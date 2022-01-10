@@ -12,6 +12,7 @@ use App\Models\Tenant\Module;
 use App\Models\Tenant\Series;
 use App\Models\Tenant\User;
 use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Zone;
 
 class UserController extends Controller
 {
@@ -74,8 +75,9 @@ class UserController extends Controller
         ];
 
         $config_permission_to_edit_cpe = Configuration::select('permission_to_edit_cpe')->first()->permission_to_edit_cpe;
+        $zones = Zone::all();
 
-        return compact('modules', 'establishments', 'types', 'documents', 'series', 'config_permission_to_edit_cpe');
+        return compact('modules', 'establishments', 'types', 'documents', 'series', 'config_permission_to_edit_cpe','zones');
     }
 
     public function regenerateToken(User $user){
@@ -111,6 +113,8 @@ class UserController extends Controller
         $user->email = $request->input('email');
         $user->establishment_id = $request->input('establishment_id');
         $user->type = $request->input('type');
+        // Zona por usuario
+        // $user->zone_id = $request->input('zone_id');
 
         if (!$id) {
             $user->api_token = str_random(50);
@@ -124,12 +128,12 @@ class UserController extends Controller
              ->setSeriesId($request->input('series_id'));
         $user->establishment_id = $request->input('establishment_id');
 
-        // if($user->id != 1) 
+        // if($user->id != 1)
         // {
             $user->recreate_documents = $request->input('recreate_documents');
             $user->permission_edit_cpe = $request->input('permission_edit_cpe');
         // }
-        
+
         $user->save();
 
         if ($user->id != 1) {

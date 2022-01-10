@@ -37,20 +37,20 @@
             <br>
             <br>
             <br>
-            <div class="text-center">{{ $document_number }}</div>
+            <div class="text-center text-bold font-bold" style="font-family: 'Lucida Console', arial;">{{ $document_number }}</div>
         </td>
     </tr>
 </table>
-<table class="p-0">
+<table class="p-0 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td>
-            <p>Fecha de emisión:</p>
+            <p>Fecha de Emisión:</p>
             <p>{{ $document->date_of_issue->format('Y-m-d') }}</p>
         </td>
     </tr>
 </table>
-<br>
-<table class="full-width p-0">
+
+<table class="full-width p-0 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td width="10%">
             <br><br><br><br>
@@ -71,7 +71,7 @@
         </td>
     </tr>
 </table>
-<table class="full-width p-0 mt-1">
+<table class="full-width p-0 mt-1 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td width="15%">
             <br><br>
@@ -90,21 +90,21 @@
         <td>{{ $customer->identity_document_type_id == 1 ? $customer->number : '' }}</td>
     </tr>
 </table>
-<table class="full-width p-0 mt-4">
+<table class="full-width p-0 mt-4 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td width="15%">
             <br><br><br><br><br>
         </td>
         <td width="35%" class="align-top pt-2">
             {{ $document->license_plate }}
-            <br><br>
+            <br><br><br>
             {{ $document->driver->license }}
         </td>
         <td width="10%">
         </td>
         <td width="40%" class="align-top pt-2">
             {{ $document->dispatcher->name }}
-            <br><br>
+            <br><br><br>
             {{ $document->dispatcher->number }}
         </td>
     </tr>

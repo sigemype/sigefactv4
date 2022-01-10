@@ -79,9 +79,19 @@ $qty = number_format($qty, 2);
 $description = (strlen($value->item->description) > 50) ? substr($value->item->description, 0, 50) : $value->item->description;
 $description = $pack_prefix . $description;
 $isSaleNote = ($document_type_id != '80' && $type == 'sale') ? true : false;
+
+    $seller = \App\CoreFacturalo\Helpers\Template\ReportHelper::getSellerData($value);
+    try{
+        $user = $seller->name;
+    }catch (ErrorException $e){
+        $user = '';
+    }
+
+
 ?>
 <tr>
     <td class="celda">{{ $document->date_of_issue->format('Y-m-d') }}</td>
+    <td class="celda">{{ $user}}</td>
     @if($isSaleNote)
         <td class="celda">{{ $stablihsment['district'] }}</td>
         <td class="celda">{{ $stablihsment['department'] }}</td>

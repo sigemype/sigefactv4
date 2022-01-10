@@ -35,7 +35,7 @@
                                 </div>
 
                                 <div v-if="hasRequiements" class="col-12 form-group">
-                                    <label>Requerimientos del tramite <span class="text-danger">*</span></label>
+                                    <label>Requisitos del tramite <span class="text-danger">*</span></label>
 
                                     <!-- v-if="form.requirements_id !== undefined" -->
                                     <div class="row " >

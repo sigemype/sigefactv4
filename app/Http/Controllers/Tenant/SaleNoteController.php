@@ -463,6 +463,9 @@ class SaleNoteController extends Controller
         if($request->series) {
             $records->where('series', 'like', '%' . $request->series . '%');
         }
+        if($request->number) {
+            $records->where('number', 'like', '%' . $request->number . '%');
+        }
         if($request->total_canceled != null) {
             $records->where('total_canceled', $request->total_canceled);
         }
@@ -481,10 +484,12 @@ class SaleNoteController extends Controller
                             ->orWhere('name','like', "%{$request->input}%")
                             ->whereType('customers')->orderBy('name')
                             ->whereIsEnabled()
-                            ->get()->transform(function($row) {
+                            ->get()->transform(function(Person $row) {
                                 return [
                                     'id' => $row->id,
                                     'description' => $row->number.' - '.$row->name,
+                                    'seller_id' => $row->seller_id,
+                                    'seller' => $row->seller,
                                     'name' => $row->name,
                                     'number' => $row->number,
                                     'identity_document_type_id' => $row->identity_document_type_id,
@@ -497,6 +502,12 @@ class SaleNoteController extends Controller
 
     public function tables()
     {
+        $user = new User();
+        if(\Auth::user()){
+            $user = \Auth::user();
+        }
+        $establishment_id =  $user->establishment_id;
+        $userId =  $user->id;
         $customers = $this->table('customers');
         $establishments = Establishment::where('id', auth()->user()->establishment_id)->get();
         $currency_types = CurrencyType::whereActive()->get();
@@ -515,7 +526,9 @@ class SaleNoteController extends Controller
         });
         $payment_destinations = $this->getPaymentDestinations();
         $configuration = Configuration::select('destination_sale','ticket_58')->first();
-        $sellers = User::GetSellers(false)->get();
+        // $sellers = User::GetSellers(false)->get();
+        $sellers = User::getSellersToNvCpe($establishment_id,$userId);
+
 
         return compact('customers', 'establishments','currency_types', 'discount_types', 'configuration',
                          'charge_types','company','payment_method_types', 'series', 'payment_destinations','sellers');
@@ -1013,10 +1026,13 @@ class SaleNoteController extends Controller
         switch ($table) {
             case 'customers':
 
-                $customers = Person::whereType('customers')->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function($row) {
+                $customers = Person::whereType('customers')
+                    ->whereIsEnabled()->orderBy('name')->take(20)->get()->transform(function(Person$row) {
                     return [
                         'id' => $row->id,
                         'description' => $row->number.' - '.$row->name,
+                        'seller' => $row->seller,
+                        'seller_id' => $row->seller_id,
                         'name' => $row->name,
                         'number' => $row->number,
                         'identity_document_type_id' => $row->identity_document_type_id,
@@ -1453,7 +1469,7 @@ class SaleNoteController extends Controller
     }
 
 
-    private function savePayments($sale_note, $payments){
+    public function savePayments($sale_note, $payments){
 
         $total = $sale_note->total;
         $balance = $total - collect($payments)->sum('payment');

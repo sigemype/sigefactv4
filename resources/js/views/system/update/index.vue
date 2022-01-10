@@ -8,14 +8,18 @@
                         <p class="">
                             Versión:{{version}}
                         </p>
-                        <el-button type="button" class="btn btn-primary" @click.prevent="start()" :loading="loading_submit">Iniciar proceso</el-button>
+                        <el-button type="button" class="btn btn-sm btn-primary pb-1" @click.prevent="start()" :loading="loading_submit" :disabled="exec_migration">Iniciar proceso</el-button>
+
+                        <el-button type="button" class="btn btn-sm btn-warning" @click.prevent="execMigrations()" :disabled="!exec_migration" :loading="loading_submit_migrations">Ejecutar migraciones</el-button>
+                        <div class="text-right">
+                            <el-checkbox v-model="exec_migration">Ejecutar migraciones</el-checkbox><br>
+                        </div>
                     </div>
                     <div v-if="content.status == true && content.step == 'updating'" id="response-content">
 
-                        <h3>Obteniendo rama del repositorio</h3>
-                        <el-progress :percentage="branch.percent"></el-progress>
-
                         <div v-if="branch.status == 'success'">
+                            <h3>Obteniendo rama del repositorio</h3>
+                            <el-progress :percentage="branch.percent"></el-progress>
                             <h4>Rama actual: <strong>{{branch.name}}</strong></h4>
                             <span class="text-danger">{{branch.error}}</span><br>
                             <!-- <span class="text-danger">{{branch.status}}</span> -->
@@ -26,23 +30,25 @@
                             <!-- <span class="text-danger">{{pull.status}}</span> -->
                         </div>
 
+                        <div v-if="artisan.migrate.status == 'success'">
+                            <hr>
+                            <h3>Corriendo migraciones en administrador</h3>
+                            <h4>Log: {{artisan.migrate.content}}</h4>
+                            <span class="text-danger">{{artisan.migrate.error}}</span><br>
+                            <!-- <span class="text-danger">{{artisan.migrate.status}}</span> -->
+                        </div>
+
+                        <div v-if="artisan.tenancy_migrate.status == 'success'">
+                            <hr>
+                            <h3>Corriendo migraciones en cliente</h3>
+                            <h4>Log: {{artisan.tenancy_migrate.content}}</h4>
+                            <span class="text-danger">{{artisan.tenancy_migrate.error}}</span><br>
+                            <!-- <span class="text-danger">{{artisan.tenancy_migrate.status}}</span> -->
+                        </div>
+
                         <div v-if="pull.status == 'success'">
                             <div v-if="pull.updated == false">
-                                <div v-if="artisan.migrate.status == 'success'">
-                                    <hr>
-                                    <h3>Corriendo migraciones en administrador</h3>
-                                    <h4>Log: {{artisan.migrate.content}}</h4>
-                                    <span class="text-danger">{{artisan.migrate.error}}</span><br>
-                                    <!-- <span class="text-danger">{{artisan.migrate.status}}</span> -->
-                                </div>
 
-                                <div v-if="artisan.tenancy_migrate.status == 'success'">
-                                    <hr>
-                                    <h3>Corriendo migraciones en cliente</h3>
-                                    <h4>Log: {{artisan.tenancy_migrate.content}}</h4>
-                                    <span class="text-danger">{{artisan.tenancy_migrate.error}}</span><br>
-                                    <!-- <span class="text-danger">{{artisan.tenancy_migrate.status}}</span> -->
-                                </div>
 
                                 <div v-if="artisan.clear.status == 'success'">
                                     <hr>
@@ -96,6 +102,8 @@
                 errors: {},
                 form: {},
                 loading_submit: false,
+                loading_submit_migrations: false,
+                exec_migration: false,
                 version: '',
                 changelog: '',
                 content: {
@@ -342,6 +350,16 @@
                     this.artisan.clear.status = false
                     console.log(error)
                 })
+            },
+            execMigrations() {
+                this.loading_submit_migrations = true
+                this.loading_submit = true
+                this.initContent()
+                this.content.status = true
+                this.content.step = 'updating'
+                this.execArtisanMigrate();
+                this.loading_submit_migrations = false
+                this.loading_submit = false
             }
         }
     }

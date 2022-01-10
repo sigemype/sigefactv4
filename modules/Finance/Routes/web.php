@@ -39,21 +39,22 @@ if($hostname) {
 
                 /**
                  * finances/unpaid
-                 * finances/balance/pdf
+                 * finances/unpaid/pdf
                  * finances/unpaid/filter
                  * finances/unpaid/records
                  * finances/unpaid/unpaidall
                  * finances/unpaid/report-payment-method-days
                  */
-                Route::get('unpaid', 'UnpaidController@index')->name('tenant.finances.unpaid.index');
-                // Route::post('unpaid', 'UnpaidController@unpaid');
-                Route::get('unpaid/filter', 'UnpaidController@filter');
-                // Route::post('unpaid/records', 'UnpaidController@records');
-                Route::get('unpaid/records', 'UnpaidController@records');
-                Route::get('unpaid/unpaidall', 'UnpaidController@unpaidall')->name('unpaidall');
-                Route::get('unpaid/report-payment-method-days', 'UnpaidController@reportPaymentMethodDays');
-                Route::get('unpaid/pdf', 'UnpaidController@pdf');
-
+                Route::prefix('unpaid')->group(function () {
+                    Route::get('', 'UnpaidController@index')->name('tenant.finances.unpaid.index');
+                    // Route::post('', 'UnpaidController@unpaid');
+                    Route::get('/filter', 'UnpaidController@filter');
+                    // Route::post('/records', 'UnpaidController@records');
+                    Route::get('/records', 'UnpaidController@records');
+                    Route::get('/unpaidall', 'UnpaidController@unpaidall')->name('unpaidall');
+                    Route::get('/report-payment-method-days', 'UnpaidController@reportPaymentMethodDays');
+                    Route::get('/pdf', 'UnpaidController@pdf');
+                });
                 Route::post('payment-file/upload', 'PaymentFileController@uploadAttached');
                 Route::get('payment-file/download-file/{filename}/{type}', 'PaymentFileController@download');
 
@@ -92,7 +93,7 @@ if($hostname) {
 
                 });
 
-                /*
+                /**
                  * finances/movements
                  * finances/movements/pdf
                  * finances/movements/excel
@@ -101,6 +102,39 @@ if($hostname) {
                 Route::prefix('movements')->group(function () {
 
                     Route::get('', 'MovementController@index')->name('tenant.finances.movements.index');
+                    Route::get('pdf', 'MovementController@pdf');
+                    Route::post('pdf', 'MovementController@postPdf');
+                    Route::get('excel', 'MovementController@excel');
+                    Route::post('excel', 'MovementController@excel');
+                    Route::post('excel', 'MovementController@postExcel');
+                    Route::get('records', 'MovementController@records');
+                });
+                /**
+                 * finances/transactions
+                 * finances/transactions/pdf
+                 * finances/transactions/excel
+                 * finances/transactions/records
+                 */
+                Route::prefix('transactions')->group(function () {
+
+                    Route::get('', 'MovementController@indexTransactions')->name('tenant.finances.transactions.index');
+                    Route::get('pdf', 'MovementController@pdf');
+                    Route::post('pdf', 'MovementController@postPdf');
+                    Route::get('excel', 'MovementController@excel');
+                    Route::post('excel', 'MovementController@excel');
+                    Route::post('excel', 'MovementController@postExcel');
+                    Route::get('records', 'MovementController@records');
+
+                });
+                /**
+                 * finances/movements_cash
+                 * finances/movements_cash/pdf
+                 * finances/movements_cash/excel
+                 * finances/movements_cash/records
+                 */
+                Route::prefix('movements_cash')->group(function () {
+
+                    Route::get('', 'MovementController@index')->name('tenant.finances.movements_cash.index');
                     Route::get('pdf', 'MovementController@pdf');
                     Route::post('pdf', 'MovementController@postPdf');
                     Route::get('excel', 'MovementController@excel');

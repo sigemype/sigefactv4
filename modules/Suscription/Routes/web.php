@@ -6,7 +6,9 @@
     $current_hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
 
     if ($current_hostname) {
-        Route::domain($current_hostname->fqdn)->middleware(['redirect.level'])->group(function () {
+        Route::domain($current_hostname->fqdn)
+            ->middleware(['redirect.level'])
+            ->group(function () {
             Route::middleware(['auth', 'locked.tenant'])
                 ->prefix('suscription')
                 ->group(function () {
@@ -57,6 +59,7 @@
                         Route::post('/record', 'PlansSuscriptionController@Record');
 
                         Route::delete('/{id}', 'PlansSuscriptionController@destroy');
+
                     });
 
                     /**

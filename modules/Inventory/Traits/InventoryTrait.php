@@ -20,6 +20,7 @@ use Modules\Inventory\Models\Warehouse;
 use Modules\Item\Models\ItemLot;
 use Modules\Item\Models\ItemLotsGroup;
 use Modules\Order\Models\OrderNote;
+use App\Models\Tenant\ItemSupply;
 
 /**
  * Se debe tener en cuenta este trait para llevar el control de Kardex
@@ -53,6 +54,30 @@ trait InventoryTrait
             ];
         });
     }
+
+    public function optionsItemProduction()
+    {
+        $records = Item::where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ'], ['is_for_production', 1]])->whereNotIsSet()->get();
+        return collect($records)->transform(function ($row) {
+            return [
+                'id' => $row->id,
+                'description' => $row->description
+            ];
+        });
+    }
+
+    public function optionsItemSupplies()
+    {
+        $ids = ItemSupply::select('individual_item_id')->distinct()->pluck('individual_item_id');
+        $records = Item::find($ids);
+        return collect($records)->transform(function ($row) {
+            return [
+                'id' => $row->id,
+                'description' => $row->description
+            ];
+        });
+    }
+
 
     /**
      * @return \Illuminate\Support\Collection
@@ -179,6 +204,39 @@ trait InventoryTrait
                         'checked' => false
                     ];
                 })
+            ];
+        });
+    }
+
+    public function optionsItemFullProduction($search = null, $take = null)
+    {
+        $query = Item::query()
+            ->with('item_lots', 'item_lots.item_loteable', 'lots_group','supplies')
+            ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ'], ['is_for_production', 1]])
+            ->whereNotIsSet();
+        if ($search) {
+            $query->where('description', 'like', "%{$search}%")
+                ->orWhere('barcode', 'like', "%{$search}%")
+                ->orWhere('internal_id', 'like', "%{$search}%");
+        }
+        if ($take) {
+            $query->take($take);
+        }
+        return $query->get()->transform(function (Item $row) {
+            return $row->getCollectionData();
+            $description = $row->description;
+            if($row->internal_id) {
+                $description .= " | {$row->internal_id}";
+            }
+            if($row->barcode) {
+                $description .= " | {$row->barcode}";
+            }
+            return [
+
+                'id' => $row->id,
+                'description' => $description,
+                'lots_enabled' => (bool)$row->lots_enabled,
+                'series_enabled' => (bool)$row->series_enabled,
             ];
         });
     }
@@ -609,7 +667,7 @@ trait InventoryTrait
         }
     }
 
-    
+
     /**
      *
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection|InventoryTransaction[]
@@ -618,5 +676,5 @@ trait InventoryTrait
     {
         return InventoryTransaction::get();
     }
-    
+
 }

@@ -46,4 +46,30 @@ class OrderFormItem extends ModelTenant
     {
         return $this->belongsTo(Item::class, 'item_id');
     }
+
+    /**
+     *  Devuelve la descripcion del producto
+     *
+     * @return string
+     */
+    public function getTemplateDescription()
+    {
+        return $this->item->description;
+
+        // if (empty($this->name_product_pdf)) {
+        //     return $this->item->description;
+        // }
+        // return $this->getNameProductPdf();
+    }
+
+    /**
+     * @return string
+     */
+    public function getNameProductPdf(): string
+    {
+        // @todo Si existe name_product, añadirlo aqui
+        return $this->item->description;
+
+        return $this->name_product_pdf;
+    }
 }

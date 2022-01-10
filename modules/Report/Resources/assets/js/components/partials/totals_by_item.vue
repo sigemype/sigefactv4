@@ -4,8 +4,24 @@
             <div class="form-body">
                 <div class="row">
                     <div class="col-md-12">
+                        <div class="btn-group flex-wrap">
+                            <button type="button" class="btn waves-effect waves-light btn-sm btn-primary dropdown-toggle"
+                                    data-toggle="dropdown" aria-expanded="false">Reporte <span class="caret"></span></button>
+                            <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
+                                <a class="dropdown-item text-1" href="#" @click.prevent="clickDownload('pdf')">PDF A4</a>
+                                <a class="dropdown-item text-1" href="#" @click.prevent="clickDownload('ticket')">PDF Ticket</a>
+                                <a class="dropdown-item text-1" href="#" @click.prevent="clickDownload('ticket80')">PDF Ticket 80</a>
+                                <!--
+                               @todo validar si es posible, ajustar el alto automaticamente
+                               -->
+                                <a class="dropdown-item text-1" href="#" @click.prevent="clickDownload('excel')">Excel</a>
+                                <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'excel')">Excel</a> -->
+                            </div>
+                        </div>
+                        <!--
                         <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button>
                         <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportal Excel</el-button>
+                        -->
                         <template v-if="canGenerateGuide">
                             <el-button class="submit" type="success" @click.prevent="onGenerateGuide">Generar guía
                             </el-button>
@@ -87,7 +103,7 @@
                 const tab = window.open('/dispatches/create', '_BLANK');
                 tab.focus();
             },
-            clickDownload(type) {
+            clickDownload( type) {
                 window.open(`/${this.resource}/${type}-totals/?${this.parameters}`, '_blank');
             },
             close() {

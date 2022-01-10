@@ -354,22 +354,42 @@
         <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
     </tr>
 
+    @php
+    $paymentCondition = \App\CoreFacturalo\Helpers\Template\TemplateHelper::getDocumentPaymentCondition($document);
+    @endphp
+    {{-- Condicion de pago  Crédito / Contado --}}
+    <tr>
+        <td class="desc pt-5">
+            <strong>CONDICIÓN DE PAGO: {{ $paymentCondition }} </strong>
+        </td>
+    </tr>
+
     @if($document->payment_method_type_id)
         <tr>
             <td class="desc pt-5">
-                <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
-            </td>
-        </tr> 
-    @endif
-    @if($payments->count())
-        <tr>
-            <td class="desc pt-5">
-                <strong>PAGOS:</strong>
+                <strong>MÉTODO DE PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
         </tr>
-        @foreach($payments as $row)
+    @endif
+
+    @if ($document->payment_condition_id === '01')
+
+        @if($payments->count())
             <tr>
-                <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                <td class="desc pt-5">
+                    <strong>PAGOS:</strong>
+                </td>
+            </tr>
+            @foreach($payments as $row)
+                <tr>
+                    <td class="desc">&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                </tr>
+            @endforeach
+        @endif
+    @else
+        @foreach($document->fee as $key => $quote)
+            <tr>
+                <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
             </tr>
         @endforeach
     @endif

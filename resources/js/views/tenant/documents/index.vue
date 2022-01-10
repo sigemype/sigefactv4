@@ -7,28 +7,54 @@
                 <li><span class="text-muted">Facturas - Notas <small>(crédito y débito)</small> - Boletas - Anulaciones</span>
                 </li>
             </ol>
-            <div class="right-wrapper pull-right" v-if="typeUser != 'integrator'">
+            <div class="right-wrapper pull-right"
+                 v-if="typeUser != 'integrator'">
                 <span v-if="import_documents == true">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i class="fa fa-upload"></i> Importar Formato 1</button>
+                    <button type="button"
+                            class="btn btn-custom btn-sm  mt-2 mr-2"
+                            @click.prevent="clickImport()"><i
+                        class="fa fa-upload"></i> Importar Formato 1</button>
                 </span>
                 <span v-if="import_documents_second == true">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImportSecond()"><i class="fa fa-upload"></i> Importar Formato 2</button>
+                    <button type="button"
+                            class="btn btn-custom btn-sm  mt-2 mr-2"
+                            @click.prevent="clickImportSecond()"><i
+                        class="fa fa-upload"></i> Importar Formato 2</button>
                 </span>
-                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a :href="`/${resource}/create`"
+                   class="btn btn-custom btn-sm  mt-2 mr-2"><i
+                    class="fa fa-plus-circle"></i> Nuevo</a>
                 <div class="btn-group flex-wrap">
-                    <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i>Reporte de Pagos <span class="caret"></span></button>
+                    <button type="button"
+                            class="btn btn-custom btn-sm  mt-2 mr-2 dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-expanded="false"><i class="fa fa-money-bill-wave-alt"></i>
+                        Reporte de Pagos <span class="caret"></span></button>
                     <!-- validadores apiperu  -->
-                    <a href="#" @click.prevent="showDialogApiPeruDevValidate = true" v-if="view_apiperudev_validator_cpe" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-check"></i> Validación masiva</a>
-                    <a href="#" @click.prevent="showDialogValidate = true" v-if="view_validator_cpe" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-file"></i> Validar CPE</a>
-                    <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
-                        <a class="dropdown-item text-1" href="#" @click.prevent="clickReportPayments()">Generar Reporte Pagos</a>
-                        <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportPagos()">Descargar Excel</a> -->
+                    <a href="#" @click.prevent="showDialogApiPeruDevValidate = true" v-if="view_apiperudev_validator_cpe"
+                       class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-check"></i> Validación masiva</a>
+                    <a href="#" @click.prevent="showDialogValidate = true" v-if="view_validator_cpe"
+                       class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-file"></i> Validar CPE</a>
+
+                    <div class="dropdown-menu"
+                         role="menu"
+                         x-placement="bottom-start"
+                         style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
+                        <a class="dropdown-item text-1"
+                           href="#"
+                           @click.prevent="clickReportPayments()">Generar
+                                                                  Reporte</a>
+                        <a class="dropdown-item text-1"
+                           href="#"
+                           @click.prevent="clickDownloadReportPagos()">Descargar
+                                                                       Excel de pagos</a>
                         <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportDocuments()">Generar Reporte de Comprobantes</a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="card mb-0">
+            <!--
             <div class="data-table-visible-columns">
 
                 <el-dropdown :hide-on-click="false">
@@ -43,11 +69,27 @@
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
+            -->
             <div class="card-body ">
                 <data-table :resource="resource">
+
+                        <el-dropdown :hide-on-click="false" slot="showhide">
+                            <el-button type="primary">
+                                Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
+                            </el-button>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item v-for="(column, index) in columns"
+                                                  :key="index">
+                                    <el-checkbox
+                                        @change="getColumnsToShow(1)"
+                                        v-model="column.visible">{{ column.title }}</el-checkbox>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+
                     <tr slot="heading">
                         <th>#</th>
-                        <th>SOAP</th>
+                        <th v-if="columns.soap_type.visible">SOAP</th>
                         <th class="text-center" style="min-width: 95px;">Emisión</th>
                         <th class="text-center"
                             v-if="columns.date_of_due.visible">Fecha Vencimiento
@@ -61,7 +103,7 @@
                         <th v-if="columns.send_it.visible">Email Enviado</th>
                         <th>Estado</th>
                         <th v-if="columns.user_name.visible">Usuario</th>
-                        <th class="text-center">Moneda</th>
+                        <th class="text-center" v-if="columns.currency_type_id.visible"  >Moneda</th>
                         <th class="text-right"
                             v-if="columns.guides.visible">Guia
                         </th>
@@ -77,11 +119,13 @@
                         <th class="text-right"
                             v-if="columns.total_exonerated.visible">T.Exonerado
                         </th>
+
+
                         <th class="text-right">T.Gravado</th>
                         <th class="text-right">T.Igv</th>
-                        <th class="text-right">Total</th>
-                        <th class="text-center">Saldo</th>
-                        <th class="text-center" style="min-width: 95px;">Orden de compra</th>
+                        <th class="text-right" v-if="columns.total.visible" >Total</th>
+                        <th class="text-center" v-if="columns.balance.visible">Saldo</th>
+                        <th class="text-center" style="min-width: 95px;" v-if="columns.purchase_order.visible"  >Orden de compra</th>
                         <th class="text-center"></th>
                         <th class="text-right" v-if="typeUser != 'integrator'">
                         </th>
@@ -97,7 +141,7 @@
                             'border-left border-danger': (row.state_type_id === '11'),
                             'border-left border-warning': (row.state_type_id === '13')}">
                         <td>{{ index }}</td>
-                        <td>{{ row.soap_type_description }}</td>
+                        <td v-if="columns.soap_type.visible"> {{ row.soap_type_description }}</td>
                         <td class="text-center">{{ row.date_of_issue }}</td>
                         <td class="text-center"
                             v-if="columns.date_of_due.visible">{{ row.date_of_due }}
@@ -193,7 +237,7 @@
                             {{ row.user_name }}
                             <br/><small v-text="row.user_email"></small>
                         </td>
-                        <td class="text-center">{{ row.currency_type_id }}</td>
+                        <td class="text-center" v-if="columns.currency_type_id.visible">{{ row.currency_type_id }}</td>
                         <td class="text-center"
                             v-if="columns.guides.visible">
                         <span v-for="(item, i) in row.guides"
@@ -217,9 +261,9 @@
                         </td>
                         <td class="text-right">{{ row.total_taxed }}</td>
                         <td class="text-right">{{ row.total_igv }}</td>
-                        <td class="text-right">{{ row.total }}</td>
-                        <td class="text-right">{{ row.balance }}</td>
-                        <td>{{ row.purchase_order }}</td>
+                        <td class="text-right" v-if="columns.total.visible">{{ row.total }}</td>
+                        <td class="text-right" v-if="columns.balance.visible">{{ row.balance }}</td>
+                        <td v-if="columns.purchase_order.visible"  >{{ row.purchase_order }}</td>
                         <td class="text-center">
                             <button type="button"
                                     style="min-width: 41px"
@@ -449,11 +493,27 @@ import ReportDocuments from './partials/report_documents.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
 import DocumentValidate from './partials/validate.vue';
 import MassiveValidateCpe from '../../../../../modules/ApiPeruDev/Resources/assets/js/components/MassiveValidateCPE';
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
 
 export default {
     mixins: [deletable],
-    props: ['isClient', 'typeUser', 'import_documents', 'import_documents_second', 'userId', 'configuration', 'userPermissionEditCpe','view_apiperudev_validator_cpe', 'view_validator_cpe'],
+    props: [
+        'isClient',
+        'typeUser',
+        'import_documents',
+        'import_documents_second',
+        'userId',
+        'configuration',
+        'userPermissionEditCpe',
+        'view_apiperudev_validator_cpe',
+        'view_validator_cpe'
+    ],
+    computed: {
+        ...mapState([
+            'config',
+        ]),
+    },
     components: {
         DocumentsVoided,
         ItemsImport,
@@ -532,12 +592,58 @@ export default {
                     title: 'Correo enviado al destinatario',
                     visible: false
                 },
+                total: {
+                    title: 'Total',
+                    visible: false
+                },
+                currency_type_id: {
+                    title: 'Moneda',
+                    visible: false
+                },
+                purchase_order: {
+                    title: 'Orden de Compra',
+                    visible: false
+                },
+                soap_type: {
+                    title: 'Soap',
+                    visible: false
+                },
+                balance: {
+                    title: 'Saldo',
+                    visible: true
+                },
+
             }
         }
     },
     created() {
+        this.$store.commit('setConfiguration',this.configuration)
+        this.loadConfiguration();
+        this.getColumnsToShow();
+
     },
     methods: {
+        ...mapActions(['loadConfiguration']),
+
+        getColumnsToShow(updated){
+
+            this.$http.post('/validate_columns',{
+                columns : this.columns,
+                report : 'document_index', // Nombre del reporte.
+                updated : (updated !== undefined),
+            })
+                .then((response)=>{
+                    if(updated === undefined){
+                        let currentCols = response.data.columns;
+                        if(currentCols !== undefined) {
+                            this.columns = currentCols
+                        }
+                    }
+                })
+                .catch((error)=>{
+                    console.error(error)
+                })
+        },
         clickVoided(recordId = null) {
             this.recordId = recordId
             this.showDialogVoided = true

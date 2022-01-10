@@ -467,6 +467,9 @@
                                         </table>
                                     </div>
                                 </div>
+                                <div class="card-body">
+                                    <a class="btn btn-primary btn-sm" href="dashboard/sales-by-product">Ver todo</a>
+                                </div>
                             </section>
                         </div>
                         <div class="col-xl-3 col-md-6">

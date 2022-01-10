@@ -5,6 +5,7 @@
     use App\Models\Tenant\ModelTenant;
     use App\Models\Tenant\User;
     use Carbon\Carbon;
+    use Eloquent;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Illuminate\Database\Eloquent\Builder;
     use Illuminate\Database\Eloquent\Collection;
@@ -20,6 +21,7 @@
      * @property int                                      $id
      * @property string                                   $name
      * @property string|null                              $description
+     * @property string|null                              $color
      * @property bool                                     $active
      * @property Carbon|null                              $created_at
      * @property Carbon|null                              $updated_at
@@ -31,7 +33,7 @@
      * @method static Builder|DocumentaryOffice newModelQuery()
      * @method static Builder|DocumentaryOffice newQuery()
      * @method static Builder|DocumentaryOffice query()
-     * @mixin \Eloquent
+     * @mixin ModelTenant
      */
     class DocumentaryOffice extends ModelTenant {
         protected $table = 'documentary_offices';
@@ -50,6 +52,7 @@
             'description',
             'active',
             'days',
+            'color',
             'default',
         ];
 
@@ -109,6 +112,7 @@
                 'id'                              => $this->id,
                 'name'                            => $this->getName(),
                 'print_name'                      => $this->getName(),
+                'color'                      => $this->color,
                 'description'                     => $this->getDescription(),
                 'active'                          => (bool)$this->active,
                 'default'                         => (bool)$this->default,

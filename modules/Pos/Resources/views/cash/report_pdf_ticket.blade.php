@@ -9,7 +9,7 @@
         - {{$data['cash_date_opening']}} {{$data['cash_time_opening']}}</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: courier;
             font-size: 10px;
         }
 

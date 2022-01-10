@@ -79,9 +79,7 @@
                 <cbc:ID>{{ $company->number }}</cbc:ID>
             </cac:PartyIdentification>
             <cac:PartyName>
-                <cbc:Name>
-                    <![CDATA[{{ $company->trade_name }}]]>
-                </cbc:Name>
+                <cbc:Name><![CDATA[{{ $company->trade_name }}]]></cbc:Name>
             </cac:PartyName>
         </cac:SignatoryParty>
         <cac:DigitalSignatureAttachment>
@@ -165,20 +163,20 @@
         </cac:Party>
     </cac:AccountingCustomerParty>
     @if($document->detraction)
-    @php($detraction = $document->detraction)
-    <cac:PaymentMeans>
-        <cbc:ID>Detraccion</cbc:ID>
-        <cbc:PaymentMeansCode>{{ $detraction->payment_method_id }}</cbc:PaymentMeansCode>
-        <cac:PayeeFinancialAccount>
-            <cbc:ID>{{ $detraction->bank_account }}</cbc:ID>
-        </cac:PayeeFinancialAccount>
-    </cac:PaymentMeans>
-    <cac:PaymentTerms>
-        <cbc:ID>Detraccion</cbc:ID>
-        <cbc:PaymentMeansID>{{ $detraction->detraction_type_id }}</cbc:PaymentMeansID>
-        <cbc:PaymentPercent>{{ $detraction->percentage }}</cbc:PaymentPercent>
-        <cbc:Amount currencyID="PEN">{{ $detraction->amount }}</cbc:Amount>
-    </cac:PaymentTerms>
+        @php($detraction = $document->detraction)
+        <cac:PaymentMeans>
+            <cbc:ID>Detraccion</cbc:ID>
+            <cbc:PaymentMeansCode>{{ $detraction->payment_method_id }}</cbc:PaymentMeansCode>
+            <cac:PayeeFinancialAccount>
+                <cbc:ID>{{ $detraction->bank_account }}</cbc:ID>
+            </cac:PayeeFinancialAccount>
+        </cac:PaymentMeans>
+        <cac:PaymentTerms>
+            <cbc:ID>Detraccion</cbc:ID>
+            <cbc:PaymentMeansID>{{ $detraction->detraction_type_id }}</cbc:PaymentMeansID>
+            <cbc:PaymentPercent>{{ $detraction->percentage }}</cbc:PaymentPercent>
+            <cbc:Amount currencyID="PEN">{{ $detraction->amount }}</cbc:Amount>
+        </cac:PaymentTerms>
     @endif
     @if($document->payment_condition_id === '01')
     <cac:PaymentTerms>
@@ -193,12 +191,12 @@
         <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $document->fees()->sum('amount') }}</cbc:Amount>
     </cac:PaymentTerms>
     @foreach($document->fees as $fee)
-    <cac:PaymentTerms>
-        <cbc:ID>FormaPago</cbc:ID>
-        <cbc:PaymentMeansID>Cuota{{ sprintf("%03d", $loop->iteration) }}</cbc:PaymentMeansID>
-        <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $fee->amount }}</cbc:Amount>
-        <cbc:PaymentDueDate>{{ $fee->date->format('Y-m-d') }}</cbc:PaymentDueDate>
-    </cac:PaymentTerms>
+        <cac:PaymentTerms>
+            <cbc:ID>FormaPago</cbc:ID>
+            <cbc:PaymentMeansID>Cuota{{ sprintf("%03d", $loop->iteration) }}</cbc:PaymentMeansID>
+            <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $fee->amount }}</cbc:Amount>
+            <cbc:PaymentDueDate>{{ $fee->date->format('Y-m-d') }}</cbc:PaymentDueDate>
+        </cac:PaymentTerms>
     @endforeach
     @endif
     @if($document->perception)
@@ -366,7 +364,6 @@
             </cac:TaxCategory>
         </cac:TaxSubtotal>
         @endif
-
         @if($document->total_exportation > 0)
         <cac:TaxSubtotal>
             <cbc:TaxableAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_exportation }}</cbc:TaxableAmount>
@@ -380,7 +377,6 @@
             </cac:TaxCategory>
         </cac:TaxSubtotal>
         @endif
-
         @if($document->total_other_taxes > 0)
         <cac:TaxSubtotal>
             <cbc:TaxableAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_other_taxes }}</cbc:TaxableAmount>
@@ -394,7 +390,6 @@
             </cac:TaxCategory>
         </cac:TaxSubtotal>
         @endif
-
         @if($document->total_plastic_bag_taxes > 0)
         <cac:TaxSubtotal>
             <cbc:TaxAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_plastic_bag_taxes }}</cbc:TaxAmount>
@@ -407,9 +402,7 @@
             </cac:TaxCategory>
         </cac:TaxSubtotal>
         @endif
-
     </cac:TaxTotal>
-
     <cac:LegalMonetaryTotal>
         <cbc:LineExtensionAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_value }}</cbc:LineExtensionAmount>
         {{-- no incluye cargos globales que no afectan a la base imponible --}}
@@ -424,15 +417,12 @@
         @if($total_discount_no_base > 0)
         <cbc:AllowanceTotalAmount currencyID="{{ $document->currency_type_id }}">{{ $total_discount_no_base }}</cbc:AllowanceTotalAmount>
         @endif
-
         @if($document->total_charge > 0)
         <cbc:ChargeTotalAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_charge }}</cbc:ChargeTotalAmount>
         @endif
-
         @if($document->total_prepayment > 0)
         <cbc:PrepaidAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_prepayment }}</cbc:PrepaidAmount>
         @endif
-
         {{-- @if($total_discount_no_base > 0)
         <cbc:PayableAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total - $total_discount_no_base}}</cbc:PayableAmount>
         @else
@@ -443,7 +433,6 @@
         @endif --}}
         <cbc:PayableAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total }}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
-
     @foreach($document->items as $row)
     <cac:InvoiceLine>
         <cbc:ID>{{ $loop->iteration }}</cbc:ID>
@@ -455,53 +444,47 @@
                 <cbc:PriceTypeCode>{{ $row->price_type_id }}</cbc:PriceTypeCode>
             </cac:AlternativeConditionPrice>
         </cac:PricingReference>
-
         @if($document->detraction && $invoice->operation_type_id == '1004')
         <cac:Delivery>
             <cac:Despatch>
                 <cbc:Instructions>{{$document->detraction->trip_detail}}</cbc:Instructions>
                 <cac:DespatchAddress>
-                    <cbc:ID>{{ $document->detraction->origin_location_id[2] }}</cbc:ID>
-                    <cac:AddressLine>
-                        <cbc:Line>{{$document->detraction->origin_address}}</cbc:Line>
-                    </cac:AddressLine>
+                <cbc:ID>{{ $document->detraction->origin_location_id[2] }}</cbc:ID>
+                <cac:AddressLine>
+                    <cbc:Line>{{$document->detraction->origin_address}}</cbc:Line>
+                </cac:AddressLine>
                 </cac:DespatchAddress>
             </cac:Despatch>
         </cac:Delivery>
-
         <cac:Delivery>
             <cac:DeliveryTerms>
                 <cbc:ID>01</cbc:ID>
                 <cbc:Amount currencyID="PEN">{{$document->detraction->reference_value_service}}</cbc:Amount>
             </cac:DeliveryTerms>
         </cac:Delivery>
-
         <cac:Delivery>
             <cac:DeliveryTerms>
                 <cbc:ID>02</cbc:ID>
                 <cbc:Amount currencyID="PEN">{{$document->detraction->reference_value_effective_load}}</cbc:Amount>
             </cac:DeliveryTerms>
         </cac:Delivery>
-
         <cac:Delivery>
             <cac:DeliveryTerms>
                 <cbc:ID>03</cbc:ID>
                 <cbc:Amount currencyID="PEN">{{$document->detraction->reference_value_payload}}</cbc:Amount>
             </cac:DeliveryTerms>
         </cac:Delivery>
-
         <cac:Delivery>
             <cac:DeliveryLocation>
                 <cac:Address>
-                    <cbc:ID>{{ $document->detraction->delivery_location_id[2] }}</cbc:ID>
-                    <cac:AddressLine>
-                        <cbc:Line>{{$document->detraction->delivery_address}}</cbc:Line>
-                    </cac:AddressLine>
+                <cbc:ID>{{ $document->detraction->delivery_location_id[2] }}</cbc:ID>
+                <cac:AddressLine>
+                    <cbc:Line>{{$document->detraction->delivery_address}}</cbc:Line>
+                </cac:AddressLine>
                 </cac:Address>
             </cac:DeliveryLocation>
         </cac:Delivery>
         @endif
-
         @if($row->charges)
         @foreach($row->charges as $charge)
         <cac:AllowanceCharge>
@@ -513,7 +496,6 @@
         </cac:AllowanceCharge>
         @endforeach
         @endif
-
         @if($row->discounts)
         @foreach($row->discounts as $discount)
         <cac:AllowanceCharge>
@@ -525,7 +507,6 @@
         </cac:AllowanceCharge>
         @endforeach
         @endif
-
         <cac:TaxTotal>
             <cbc:TaxAmount currencyID="{{ $document->currency_type_id }}">{{ $row->total_taxes }}</cbc:TaxAmount>
             @if($row->total_isc > 0)
@@ -543,7 +524,6 @@
                 </cac:TaxCategory>
             </cac:TaxSubtotal>
             @endif
-
             <cac:TaxSubtotal>
                 <cbc:TaxableAmount currencyID="{{ $document->currency_type_id }}">{{ $row->total_base_igv }}</cbc:TaxableAmount>
                 <cbc:TaxAmount currencyID="{{ $document->currency_type_id }}">{{ $row->total_igv }}</cbc:TaxAmount>
@@ -558,7 +538,6 @@
                     </cac:TaxScheme>
                 </cac:TaxCategory>
             </cac:TaxSubtotal>
-
             @if($row->total_other_taxes > 0)
             <cac:TaxSubtotal>
                 <cbc:TaxableAmount currencyID="{{ $document->currency_type_id }}">{{ $row->total_base_other_taxes }}</cbc:TaxableAmount>
@@ -573,7 +552,6 @@
                 </cac:TaxCategory>
             </cac:TaxSubtotal>
             @endif
-
             @if($row->total_plastic_bag_taxes > 0)
             <cac:TaxSubtotal>
                 <cbc:TaxAmount currencyID="{{ $document->currency_type_id }}">{{$row->total_plastic_bag_taxes}}</cbc:TaxAmount>

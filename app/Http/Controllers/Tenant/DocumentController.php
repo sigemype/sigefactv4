@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\CoreFacturalo\Helpers\Template\ReportHelper;
 use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
@@ -49,13 +50,11 @@ use App\Models\Tenant\StateType;
 use App\Models\Tenant\User;
 use App\Traits\OfflineTrait;
 use Carbon\Carbon;
-use Config;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Excel;
 use Modules\BusinessTurn\Models\BusinessTurn;
 use Modules\Finance\Traits\FinanceTrait;
@@ -64,10 +63,10 @@ use Modules\Item\Http\Requests\BrandRequest;
 use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
-use Html2Text\Html2Text;
 use Barryvdh\DomPDF\Facade as PDF;
 
-class DocumentController extends Controller{
+class DocumentController extends Controller
+{
     use FinanceTrait;
     use OfflineTrait;
     use StorageDocument;
@@ -114,6 +113,47 @@ class DocumentController extends Controller{
         $records = $this->getRecords($request);
 
         return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
+    }
+
+    /**
+     * Devuelve los totales de la busqueda,
+     *
+     * Implementado en resources/js/views/tenant/documents/index.vue
+     * @param Request $request
+     *
+     * @return array[]
+     */
+    public function recordsTotal(Request $request)
+    {
+
+        $FT_t = DocumentType::find('01');
+        $BV_t = DocumentType::find('03');
+        $NC_t = DocumentType::find('07');
+        $ND_t = DocumentType::find('08');
+
+        $BV = $this->getRecords($request)->where('document_type_id', $BV_t->id)->where('currency_type_id','PEN')->sum('total');
+        $FT = $this->getRecords($request)->where('document_type_id', $FT_t->id)->where('currency_type_id','PEN')->sum('total');
+        $NC = $this->getRecords($request)->where('document_type_id', $NC_t->id)->where('currency_type_id','PEN')->sum('total');
+        $ND = $this->getRecords($request)->where('document_type_id', $ND_t->id)->where('currency_type_id','PEN')->sum('total');
+        return [
+            [
+                'name' => $FT_t->description,
+                'total' =>"S/. ". ReportHelper::setNumber($FT),
+            ],
+            [
+                'name' => $BV_t->description,
+                'total' => "S/. ".ReportHelper::setNumber($BV),
+
+            ],
+            [
+                'name' => $NC_t->description,
+                'total' => "S/. ".ReportHelper::setNumber($NC),
+            ],
+            [
+                'name' => $ND_t->description,
+                'total' => "S/. ".ReportHelper::setNumber($ND),
+            ],
+        ];
     }
 
     public function searchCustomers(Request $request)
@@ -193,7 +233,8 @@ class DocumentController extends Controller{
         $charge_types = ChargeDiscountType::whereType('charge')->whereLevel('item')->get();
         $company = Company::active();
         $document_type_03_filter = config('tenant.document_type_03_filter');
-        $sellers = User::where('establishment_id',$establishment_id)->whereIn('type', ['seller', 'admin'])->orWhere('id', $userId)->get();
+        // $sellers = User::where('establishment_id',$establishment_id)->whereIn('type', ['seller', 'admin'])->orWhere('id', $userId)->get();
+        $sellers = User::getSellersToNvCpe($establishment_id,$userId);
         $payment_method_types = $this->table('payment_method_types');
         $business_turns = BusinessTurn::where('active', true)->get();
         $enabled_discount_global = config('tenant.enabled_discount_global');

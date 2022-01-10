@@ -206,9 +206,18 @@
         </tr>
     </tbody>
 </table>
+
+@if($document->payment_condition_id && ($payments->count() || $document->fee->count()))
+<table class="full-width">
+    <tr>
+        <td>
+            <strong>CONDICIÓN DE PAGO: {{ $document->payment_condition->name }} </strong>
+        </td>
+    </tr>
+</table>
+@endif
+
 @if($payments->count())
-
-
     <table class="full-width">
         <tr>
             <td>
@@ -227,6 +236,22 @@
 
     </table>
 @endif
+
+@if($document->fee->count())
+
+<table class="full-width">
+        @foreach($document->fee as $key => $quote)
+            <tr>
+                <td>&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
+            </tr>
+        @endforeach
+    </tr>
+</table>
+
+@endif
+
+
+
 <table class="full-width">
     <tr>
         {{-- <td width="65%">

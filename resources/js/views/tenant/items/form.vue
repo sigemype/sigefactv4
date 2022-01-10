@@ -345,27 +345,34 @@
                                 <table class="table table-sm mb-0 table-borderless">
                                     <thead>
                                     <tr>
-                                        <th width="33%">
+                                        <th width="25%">
                                             <el-checkbox v-model="form.has_perception"
                                                          @change="changeHasPerception">Incluye percepción
                                             </el-checkbox>
                                         </th>
-                                        <th width="33%">
+                                        <th width="25%">
                                             <div v-show="form.unit_type_id !='ZZ'">
                                                 <el-checkbox v-model="form.lots_enabled"
                                                              @change="changeLotsEnabled">¿Maneja lotes?
                                                 </el-checkbox>
                                             </div>
                                         </th>
-                                        <th width="33%">
+                                        <th width="25%">
                                             <div v-show="form.unit_type_id !='ZZ'">
                                                 <el-checkbox v-model="form.series_enabled"
                                                              @change="changeLotsEnabled">¿Maneja series?
                                                 </el-checkbox>
                                             </div>
                                         </th>
+                                        <th width="25%">
+                                            <div v-show="form.unit_type_id !='ZZ' && canSeeProduction">
+                                                <el-checkbox v-model="form.is_for_production"
+                                                             @change="changeProductioTab">Este producto, ¿requiere insumos?
+                                                </el-checkbox>
+                                            </div>
+                                        </th>
                                     </tr>
-                                    </thead>
+                                                                        </thead>
                                     <tbody>
                                     <tr>
                                         <td>
@@ -870,6 +877,154 @@
                         :form.sync="form"
                     ></extra-info>
                 </el-tab-pane>
+
+                <el-tab-pane class
+                             v-if="form.is_for_production && canSeeProduction"
+                             name="six">
+                    <span slot="label">Producción</span>
+                    <div class="row">
+
+                        <div class="col-md-7 col-lg-7 col-xl-7 col-sm-7">
+                            <div id="custom-select"
+                                 :class="{'has-danger': errors.item_id}"
+                                 class="form-group">
+                                <label class="control-label">
+                                    Insumo
+                                </label>
+
+                                <template id="select-append">
+                                    <el-input id="custom-input">
+                                        <el-select
+                                            id="select-width"
+                                            ref="selectSearchNormal"
+                                            slot="prepend"
+                                            v-model="item_suplly"
+                                            :loading="loading_search"
+                                            :remote-method="searchRemoteItems"
+                                            filterable
+                                            placeholder="Buscar"
+                                            popper-class="el-select-items"
+                                            remote
+                                            @change="changeItem"
+                                            @focus="focusSelectItem">
+
+
+                                            <el-tooltip
+                                                v-for="option in items"
+                                                :key="option.id"
+                                                placement="left">
+                                                <div
+                                                    slot="content"
+                                                    v-html="ItemSlotTooltipView(option)"
+                                                ></div>
+                                                <el-option
+                                                    :label="ItemOptionDescriptionView(option)"
+                                                    :value="option.id"
+                                                ></el-option>
+
+                                            </el-tooltip>
+                                        </el-select>
+                                    </el-input>
+                                </template>
+                                <small v-if="errors.item_id"
+                                       class="form-control-feedback"
+                                       v-text="errors.item_id[0]"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-7 col-xl-7 col-sm-7 " style="    margin-top: 1rem !important;">
+                            <div class="form-group ">
+                                <button class="btn waves-effect waves-light btn-primary"
+                                        type="button"
+                                        @click.prevent="clickAddSupply" >
+                                    + Agregar Producto
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12 table-responsive" v-if="form.supplies && form.supplies.length > 0">
+
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+<!--                                        <th>item_id</th>-->
+                                        <th>Insumo</th>
+                                        <th>Cantidad</th>
+<!--                                        <th class="text-right">Acciones</th>-->
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="(row, index) in form.supplies" :key="index">
+                                        <td>{{ index + 1 }}</td>
+<!--                                        <td>{{ row.item_id }}</td>-->
+                                        <td>{{ (row.individual_item)?row.individual_item.description:row.individual_item }}</td>
+                                        <td>
+                                            <el-input-number v-model="row.quantity"
+                                                      ></el-input-number>
+                                            </td>
+
+                                        <!--
+                                        <td class="text-right">
+                                            <button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickCreate(row.id)">Editar</button>
+
+                                            <template v-if="typeUser === 'admin'">
+                                                <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"  @click.prevent="clickDelete(row.id)">Eliminar</button>
+                                            </template>
+                                        </td>
+                                        -->
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!--
+                        <div class="col-md-4">
+                            <div :class="{'has-danger': errors.purchase_unit_price}"
+                                 class="form-group">
+                                <label class="control-label">Precio Unitario</label>
+                                <el-input v-model="form.purchase_unit_price"
+                                          dusk="purchase_unit_price"
+                                          @input="calculatePercentageOfProfitByPurchase"></el-input>
+                                <small v-if="errors.purchase_unit_price"
+                                       class="form-control-feedback"
+                                       v-text="errors.purchase_unit_price[0]"></small>
+                            </div>
+                        </div>
+                        <div v-show="purchase_show_has_igv"
+                             class="col-md-4 center-el-checkbox pt-2">
+                            <div :class="{'has-danger': errors.purchase_has_igv}"
+                                 class="form-group">
+                                <el-checkbox v-model="form.purchase_has_igv">Incluye Igv</el-checkbox>
+                                <br>
+                                <small v-if="errors.purchase_has_igv"
+                                       class="form-control-feedback"
+                                       v-text="errors.purchase_has_igv[0]"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 center-el-checkbox pt-2">
+                            <div class="form-group">
+                                <el-checkbox v-model="enabled_percentage_of_profit"
+                                             @change="changeEnabledPercentageOfProfit">Aplica ganancia
+                                </el-checkbox>
+                                <br>
+                            </div>
+                        </div>
+                        <div class="col-md-4 pt-2">
+                            <div :class="{'has-danger': errors.percentage_of_profit}"
+                                 class="form-group">
+                                <label class="control-label">Porcentaje de ganancia (%)</label>
+                                <el-input v-model="form.percentage_of_profit"
+                                          :disabled="!enabled_percentage_of_profit"
+                                          @input="calculatePercentageOfProfitByPercentage"></el-input>
+                                <small v-if="errors.percentage_of_profit"
+                                       class="form-control-feedback"
+                                       v-text="errors.percentage_of_profit[0]"></small>
+                            </div>
+                        </div>
+                        -->
+                    </div>
+                </el-tab-pane>
             </el-tabs>
             <div class="form-actions text-right pt-2">
                 <el-button @click.prevent="close()">Cancelar</el-button>
@@ -895,6 +1050,7 @@
 import LotsForm from './partials/lots.vue'
 import ExtraInfo from './partials/extra_info'
 import {mapActions, mapState} from "vuex";
+import {ItemOptionDescription, ItemSlotTooltip} from "../../../helpers/modal_item";
 
 
 export default {
@@ -940,6 +1096,19 @@ export default {
             }
             return false;
         },
+        canSeeProduction:function(){
+            if(this.config.production_app) return this.config.production_app
+            return false;
+        },
+        requireSupply:function(){
+
+            if(this.form.is_for_production) {
+
+                if( this.form.is_for_production == true) return true
+            };
+            return false;
+        },
+
         canShowExtraData: function () {
             if (this.config && this.config.show_extra_info_to_item !== undefined) {
                 return this.config.show_extra_info_to_item;
@@ -957,10 +1126,12 @@ export default {
 
     data() {
         return {
+            loading_search: false,
             showDialogLots: false,
             form_category: {add: false, name: null, id: null},
             form_brand: {add: false, name: null, id: null},
             warehouses: [],
+            items: [],
             loading_submit: false,
             showPercentagePerception: false,
             has_percentage_perception: false,
@@ -969,8 +1140,12 @@ export default {
             titleDialog: null,
             resource: 'items',
             errors: {},
+            item_suplly: {},
             headers: headers_token,
-            form: {},
+            form: {
+                item_supplies:[],
+                is_for_production:false,
+            },
             // configuration: {},
             unit_types: [],
             currency_types: [],
@@ -1107,6 +1282,9 @@ export default {
             // }
 
         },
+        changeProductioTab(){
+
+        },
         addRowLot(lots) {
             this.form.lots = lots
         },
@@ -1206,6 +1384,7 @@ export default {
                 web_platform_id: null,
                 has_plastic_bag_taxes: false,
                 item_warehouse_prices: [],
+                item_supplies:[],
             }
             this.show_has_igv = true
             this.purchase_show_has_igv = true
@@ -1258,7 +1437,7 @@ export default {
             //     delete w.price;
             //     return w;
             // });
-
+this.activeName =  'first'
             if (this.type) {
                 if (this.type !== 'PRODUCTS') {
                     this.form.unit_type_id = 'ZZ';
@@ -1324,6 +1503,7 @@ export default {
                 this.$http.get(`/${this.resource}/record/${this.recordId}`)
                     .then(response => {
                         this.form = response.data.data
+                        console.error(this.form.is_for_production)
                         this.changeAffectationIgvType()
                         this.changePurchaseAffectationIgvType()
                     })
@@ -1408,11 +1588,12 @@ export default {
                     return this.$message.error('El porcentaje isc debe ser mayor a 0');
             }
 
-            this.loading_submit = true
-            // this.form.warehouses = this.warehouses.filter(w => w.price);
+            //this.loading_submit = true
+
 
             await this.$http.post(`/${this.resource}`, this.form)
                 .then(response => {
+                    console.log(response.data)
                     if (response.data.success) {
                         this.$message.success(response.data.message)
                         if (this.external) {
@@ -1494,6 +1675,86 @@ export default {
         },
         clickRemoveAttribute(index) {
             this.form.attributes.splice(index, 1)
+        },
+        async searchRemoteItems(input) {
+            if (input.length > 2) {
+                this.loading_search = true
+                const params = {
+                    'input': input,
+                    'search_by_barcode': this.search_item_by_barcode ? 1 : 0,
+                    'production':1
+                }
+                await this.$http.get(`/${this.resource}/search-items/`, {params})
+                    .then(response => {
+                        this.items = response.data.items
+                        this.loading_search = false
+                        // this.enabledSearchItemsBarcode()
+                        // this.enabledSearchItemBySeries()
+                        if (this.items.length == 0) {
+                            // this.filterItems()
+                        }
+                    })
+            } else {
+                // await this.filterItems()
+            }
+
+        },
+        getItems() {
+            this.$http.get(`/${this.resource}/item/tables`).then(response => {
+                this.items = response.data.items
+            })
+        },
+        changeItem() {
+            this.getItems();
+            this.item_suplly = _.find(this.items, {'id': this.item_suplly});
+            /*
+            this.form.unit_price = this.item_suplly.sale_unit_price;
+
+            this.lots = this.item_suplly.lots
+
+            this.form.has_igv = this.item_suplly.has_igv;
+
+            this.form.affectation_igv_type_id = this.item_suplly.sale_affectation_igv_type_id;
+            this.form.quantity = 1;
+            this.item_unit_types = this.item_suplly.item_unit_types;
+
+            (this.item_unit_types.length > 0) ? this.has_list_prices = true : this.has_list_prices = false;
+            */
+
+        },
+        focusSelectItem() {
+            this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
+        },
+
+        ItemSlotTooltipView(item) {
+            return ItemSlotTooltip(item);
+        },
+        ItemOptionDescriptionView(item) {
+            return ItemOptionDescription(item)
+        },
+        clickAddSupply(){
+            // item_supplies
+            if(this.form.supplies === undefined) this.form.supplies = [];
+            let item = this.item_suplly;
+            if(item === null) return false;
+            if(item === undefined) return false;
+            if(item.id=== undefined) return false;
+            this.items = [];
+            this.item_suplly = {}
+
+            item.item_id = this.form.id
+            //item.individual_item_id = item.id
+            item.individual_item_id = item.id
+            item.individual_item = {
+                'description':item.description
+            }
+            //item.individual_item = item
+            // item.quantity = 0
+            //if(isNaN(item.quantity)) item.quantity = 0 ;
+            this.form.supplies.push(item)
+            this.changeItem()
+
+
         },
     }
 }

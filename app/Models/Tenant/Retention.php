@@ -203,4 +203,35 @@ class Retention extends ModelTenant
             return $facturalo->loadDocument($model->id, 'retention');
         });
     }
+
+    /**
+     * @return array
+     */
+    public function  getCollectionData(){
+        $has_cdr = false;
+
+        if (in_array($this->state_type_id, ['05', '07', '09'])) {
+            $has_cdr = true;
+        }
+
+        return [
+            'id' => $this->id,
+            'date_of_issue' => $this->date_of_issue->format('Y-m-d'),
+            'number' => $this->number_full,
+            'supplier_name' => $this->supplier->name,
+            'supplier_number' => $this->supplier->identity_document_type->description.' '.$this->supplier->number,
+            'state_type_id' => $this->state_type_id,
+            'state_type_description' => $this->state_type->description,
+            'total_retention' => $this->total_retention,
+            'total' => $this->total,
+            'has_xml' => $this->has_xml,
+            'has_pdf' => $this->has_pdf,
+            'has_cdr' => $has_cdr,
+            'download_external_xml' => $this->download_external_xml,
+            'download_external_pdf' => $this->download_external_pdf,
+            'download_external_cdr' => $this->download_external_cdr,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+        ];
+    }
 }

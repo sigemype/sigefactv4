@@ -66,7 +66,7 @@
                 <div class="row">
                     <div v-for="ro in items"
                          :key="ro.id"
-                         class="col-6 col-md-3 mb-4">
+                         class="col-sm-12 col-md-6 col-lg-4 mb-4">
                         <el-card
                             :class="onGetColorStatus(ro.status)"
                             style="min-height: 160px"

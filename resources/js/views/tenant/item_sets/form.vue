@@ -354,6 +354,84 @@
                                     </div>
                                 </div>
 
+                                <div class="col-md-6">
+                                    <div :class="{'has-danger': errors.category_id}"
+                                         class="form-group">
+                                        <label class="control-label">
+                                            Categoría
+                                        </label>
+
+                                        <a v-if="form_category.add == false"
+                                           class="control-label font-weight-bold text-info"
+                                           href="#"
+                                           @click="form_category.add = true"> [ + Nuevo]</a>
+                                        <a v-if="form_category.add == true"
+                                           class="control-label font-weight-bold text-info"
+                                           href="#"
+                                           @click="saveCategory()"> [ + Guardar]</a>
+                                        <a v-if="form_category.add == true"
+                                           class="control-label font-weight-bold text-danger"
+                                           href="#"
+                                           @click="form_category.add = false"> [ Cancelar]</a>
+                                        <el-input v-if="form_category.add == true"
+                                                  v-model="form_category.name"
+                                                  dusk="item_code"
+                                                  style="margin-bottom:1.5%;"></el-input>
+
+                                        <el-select v-if="form_category.add == false"
+                                                   v-model="form.category_id"
+                                                   clearable
+                                                   filterable>
+                                            <el-option v-for="option in categories"
+                                                       :key="option.id"
+                                                       :label="option.name"
+                                                       :value="option.id"></el-option>
+                                        </el-select>
+                                        <small v-if="errors.category_id"
+                                               class="form-control-feedback"
+                                               v-text="errors.category_id[0]"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div :class="{'has-danger': errors.brand_id}"
+                                         class="form-group">
+                                        <label class="control-label">
+                                            Marca
+                                        </label>
+
+                                        <a v-if="form_brand.add == false"
+                                           class="control-label font-weight-bold text-info"
+                                           href="#"
+                                           @click="form_brand.add = true"> [ + Nuevo]</a>
+                                        <a v-if="form_brand.add == true"
+                                           class="control-label font-weight-bold text-info"
+                                           href="#"
+                                           @click="saveBrand()"> [ + Guardar]</a>
+                                        <a v-if="form_brand.add == true"
+                                           class="control-label font-weight-bold text-danger"
+                                           href="#"
+                                           @click="form_brand.add = false"> [ Cancelar]</a>
+                                        <el-input v-if="form_brand.add == true"
+                                                  v-model="form_brand.name"
+                                                  dusk="item_code"
+                                                  style="margin-bottom:1.5%;"></el-input>
+
+                                        <el-select v-if="form_brand.add == false"
+                                                   v-model="form.brand_id"
+                                                   clearable
+                                                   filterable>
+                                            <el-option v-for="option in brands"
+                                                       :key="option.id"
+                                                       :label="option.name"
+                                                       :value="option.id"></el-option>
+                                        </el-select>
+                                        <small v-if="errors.brand_id"
+                                               class="form-control-feedback"
+                                               v-text="errors.brand_id[0]"></small>
+                                    </div>
+                                </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -381,6 +459,10 @@ import ItemSetFormItem from './partials/item.vue'
 
         data() {
             return {
+                form_category: {add: false, name: null, id: null},
+                form_brand: {add: false, name: null, id: null},
+                brands: [],
+                categories: [],
                 showDialogAddItem: false,
                 warehouses: [],
                 loading_submit: false,
@@ -428,7 +510,8 @@ import ItemSetFormItem from './partials/item.vue'
                     // this.individual_items = response.data.individual_items
                     this.warehouses = response.data.warehouses
                     this.web_platforms = response.data.web_platforms
-
+                    this.categories = response.data.categories
+                    this.brands = response.data.brands
                     this.form.sale_affectation_igv_type_id = (this.affectation_igv_types.length > 0)?this.affectation_igv_types[0].id:null
                     this.form.purchase_affectation_igv_type_id = (this.affectation_igv_types.length > 0)?this.affectation_igv_types[0].id:null
                 })
@@ -685,7 +768,44 @@ import ItemSetFormItem from './partials/item.vue'
                 if (this.form.system_isc_type_id !== '03') {
                     this.form.suggested_price = 0
                 }
-            }
+            },
+            saveCategory() {
+                this.form_category.add = false
+
+                this.$http.post(`/categories`, this.form_category)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$message.success(response.data.message)
+                            this.categories.push(response.data.data)
+                            this.form_category.name = null
+                        } else {
+                            this.$message.error('No se guardaron los cambios')
+                        }
+                    })
+                    .catch(error => {
+
+                    })
+            },
+            saveBrand() {
+                this.form_brand.add = false
+
+                this.$http.post(`/brands`, this.form_brand)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$message.success(response.data.message)
+                            this.brands.push(response.data.data)
+                            this.form_brand.name = null
+
+                        } else {
+                            this.$message.error('No se guardaron los cambios')
+                        }
+                    })
+                    .catch(error => {
+
+                    })
+
+
+            },
         }
     }
 // Se puede usar datos de la siguiente direccion.

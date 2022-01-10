@@ -11,7 +11,6 @@ use Exception;
 use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentControllerSend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Tenant\Cash;
 
 class DocumentController extends Controller
 {
@@ -22,27 +21,9 @@ class DocumentController extends Controller
         $this->middleware('input.request:document,api', ['only' => ['store', 'storeServer']]);
     }
 
-    // /**
-    //  * @param \Illuminate\Http\Request $request
-    //  *
-    //  * @return array
-    //  */ 
-    // public function cash_document(Request $request) {
-
-    //     $cash = Cash::where([
-    //                             ['user_id', auth()->user()->id],
-    //                             ['state', true],
-    //                         ])->first();
-
-    //     $cash->cash_documents()->updateOrCreate($request->all());
-
-    //     return [
-    //         'success' => true,
-    //         'message' => 'Venta con éxito', 
-    //     ];
-    // }
     public function store(Request $request)
     {
+        // dd($request->all());
         $fact = DB::connection('tenant')->transaction(function () use ($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
@@ -56,14 +37,10 @@ class DocumentController extends Controller
 
             return $facturalo;
         });
+
         $document = $fact->getDocument();
         $response = $fact->getResponse();
 
-        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
-// dd($cash);
-if ($cash!=null) {
-        $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'document_id' => $document->id]);
-}
         return [
             'success' => true,
             'data' => [

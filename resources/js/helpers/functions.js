@@ -64,6 +64,13 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         warehouse_id: warehouse_id,
         name_product_pdf: row_old.name_product_pdf,
         record_id: record_id, // fixed for update sale_note
+
+        //valores sin redondeo, se usa en los calculos (invoice) para mayor precision
+        total_value_without_rounding: 0,
+        total_base_igv_without_rounding: 0,
+        total_igv_without_rounding: 0,
+        total_taxes_without_rounding: 0,
+        total_without_rounding: 0,
     };
 
     // console.log(row)
@@ -233,22 +240,45 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
     
     //procedimiento para agregar isc
     if(has_isc){
+
+        row.total_base_isc = _.round(total_value, 2) //total valor antes de aplicar isc
+        row.total_isc = _.round(total_value * (row.percentage_isc / 100), 2)
+        // row.total_isc = _.round(row.total_base_isc * (row.percentage_isc / 100), 2)
+
+        //calcular nueva base incrementando el valor actual + isc
+        total_base_igv += row.total_isc  
+        row.total_base_igv = _.round(total_base_igv, 2)  
         
-        // console.log("apply isc")
-        row.total_base_isc = total_value //total valor antes de aplicar isc
-        // row.total_base_isc = total_value_partial //total valor antes de aplicar isc
-        row.total_isc = _.round(row.total_base_isc * (row.percentage_isc / 100), 2)
-        row.total_base_igv += row.total_isc  //calcular nueva base incrementando el valor actual + isc
-        row.total_igv = row.total_base_igv * (percentage_igv / 100)
+        total_igv = total_base_igv * (percentage_igv / 100)
+        row.total_igv = _.round(total_igv, 2)
 
         //asignar nuevo total impuestos, si tiene descuentos se usa total_taxes para calcular el precio unitario
-        total_taxes = row.total_igv + row.total_isc 
-        row.total_taxes = total_taxes
+        total_taxes = total_igv + row.total_isc 
+        row.total_taxes = _.round(total_taxes, 2)
 
-        row.total = row.total_value + row.total_taxes
-        
+        total = total_value + total_taxes
+        row.total = _.round(total, 2)
+
         //calcular nuevo precio unitario
-        row.unit_price = _.round(row.total / row.quantity, 6)
+        row.unit_price = _.round(total / row.quantity, 6)
+
+
+        // // console.log("apply isc")
+        // row.total_base_isc = total_value //total valor antes de aplicar isc
+        // // row.total_base_isc = total_value_partial //total valor antes de aplicar isc
+        // row.total_isc = _.round(row.total_base_isc * (row.percentage_isc / 100), 2)
+        // row.total_base_igv += row.total_isc  //calcular nueva base incrementando el valor actual + isc
+        // row.total_igv = row.total_base_igv * (percentage_igv / 100)
+
+        // //asignar nuevo total impuestos, si tiene descuentos se usa total_taxes para calcular el precio unitario
+        // total_taxes = row.total_igv + row.total_isc 
+        // row.total_taxes = total_taxes
+
+        // row.total = row.total_value + row.total_taxes
+        
+        // //calcular nuevo precio unitario
+        // row.unit_price = _.round(row.total / row.quantity, 6)
+
     }
     //procedimiento para agregar isc
 
@@ -283,11 +313,22 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
     // descuentos
 
 
+    //valores sin redondeo, se usa en los calculos para mayor precision (método calculateTotal - Invoice)
+    row.total_value_without_rounding = total_value
+    row.total_base_igv_without_rounding = total_base_igv
+    row.total_igv_without_rounding = total_igv
+    row.total_taxes_without_rounding = total_taxes
+    row.total_without_rounding = total
+    
+
     if (row.affectation_igv_type.free) {
         row.price_type_id = '02'
         row.unit_value = 0
         // row.total_value = 0
         row.total = 0
+
+        //valor sin redondeo
+        row.total_without_rounding = 0
     }
 
     //impuesto bolsa

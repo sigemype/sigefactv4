@@ -507,17 +507,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <!--Zona -->
-                            <div class="col-md-6">
-                                <div :class="{'has-danger': errors.zone }"
-                                     class="form-group">
-                                    <label class="control-label">Zona</label>
-                                    <el-input v-model="form.zone"></el-input>
-                                    <small v-if="errors.zone"
-                                           class="form-control-feedback"
-                                           v-text="errors.zone[0]"></small>
-                                </div>
-                            </div>
+
                             <!--SitioWeb -->
                             <div class="col-md-6">
                                 <div :class="{'has-danger': errors.website }"
@@ -542,6 +532,79 @@
                             </div>
                             <!--ID Días Crédito -->
 
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4">
+
+                                <div :class="{'has-danger': errors.seller_id}"
+                                     class="form-group">
+                                    <label class="control-label">
+                                        Vendedor
+                                    </label>
+                                    <el-select v-model="form.seller_id"
+                                               clearable>
+                                        <el-option v-for="option in sellers"
+                                                   :key="option.id"
+                                                   :label="option.name"
+                                                   :value="option.id">{{ option.name }}
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div :class="{'has-danger': errors.zone_id}"
+                                     class="form-group">
+                                    <label class="control-label">
+                                        Zona
+                                    </label>
+
+                                    <a v-if="form_zone.add == false"
+                                       class="control-label font-weight-bold text-info"
+                                       href="#"
+                                       @click="form_zone.add = true"> [ + Nuevo]</a>
+                                    <a v-if="form_zone.add == true"
+                                       class="control-label font-weight-bold text-info"
+                                       href="#"
+                                       @click="saveZone()"> [ + Guardar]</a>
+                                    <a v-if="form_zone.add == true"
+                                       class="control-label font-weight-bold text-danger"
+                                       href="#"
+                                       @click="form_zone.add = false"> [ Cancelar]</a>
+                                    <el-input v-if="form_zone.add == true"
+                                              v-model="form_zone.name"
+                                              dusk="item_code"
+                                              style="margin-bottom:1.5%;"></el-input>
+
+                                    <el-select v-if="form_zone.add == false"
+                                               v-model="form.zone_id"
+                                               clearable
+                                               filterable>
+                                        <el-option v-for="option in zones"
+                                                   :key="option.id"
+                                                   :label="option.name"
+                                                   :value="option.id"></el-option>
+                                    </el-select>
+                                    <small v-if="errors.zone_id"
+                                           class="form-control-feedback"
+                                           v-text="errors.zone_id[0]"></small>
+                                </div>
+                            </div>
+
+
+                            <!--Zona -->
+                            <!--
+                            <div class="col-md-6">
+                                <div :class="{'has-danger': errors.zone }"
+                                     class="form-group">
+                                    <label class="control-label">Zona</label>
+                                    <el-input v-model="form.zone"></el-input>
+                                    <small v-if="errors.zone"
+                                           class="form-control-feedback"
+                                           v-text="errors.zone[0]"></small>
+                                </div>
+                            </div>
+                            -->
                         </div>
                     </el-tab-pane>
                 </el-tabs>
@@ -575,6 +638,7 @@ export default {
     ],
     data() {
         return {
+            form_zone: {add: false, name: null, id: null},
             parent: null,
             loading_submit: false,
             titleDialog: null,
@@ -589,6 +653,8 @@ export default {
             temp_optional_email: [],
             temp_email: null,
             countries: [],
+            zones: [],
+            sellers: [],
             all_departments: [],
             all_provinces: [],
             all_districts: [],
@@ -610,6 +676,8 @@ export default {
                 // console.log(this.api_service_token)
 
                 this.countries = response.data.countries
+                this.zones = response.data.zones
+                this.sellers = response.data.sellers
                 this.all_departments = response.data.departments;
                 this.all_provinces = response.data.provinces;
                 this.all_districts = response.data.districts;
@@ -947,7 +1015,30 @@ export default {
         },
         clickRemoveAddress(index) {
             this.form.addresses.splice(index, 1);
-        }
+        },
+
+        saveZone() {
+            this.form_zone.add = false
+
+            this.$http.post(`/zones`, this.form_zone)
+                .then(response => {
+                    if (response.data.success) {
+                        this.$message.success(response.data.message)
+                        this.zones.push(response.data.data)
+                        this.form_zone.name = null
+
+                    } else {
+                        this.$message.error('No se guardaron los cambios')
+                    }
+                })
+                .catch(error => {
+
+                })
+
+
+        },
+
+
     }
 }
 </script>

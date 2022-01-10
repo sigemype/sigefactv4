@@ -16,9 +16,11 @@ if ($hostname) {
 
         Route::get('downloads/{model}/{type}/{external_id}/{format?}', 'Tenant\DownloadController@downloadExternal')->name('tenant.download.external_id');
         Route::get('print/{model}/{external_id}/{format?}', 'Tenant\DownloadController@toPrint');
+        Route::get('printticket/{model}/{external_id}/{format?}', 'Tenant\DownloadController@toTicket');
         Route::get('/exchange_rate/ecommence/{date}', 'Tenant\Api\ServiceController@exchangeRateTest');
 
         Route::get('sale-notes/print/{external_id}/{format?}', 'Tenant\SaleNoteController@toPrint');
+        Route::get('sale-notes/ticket/{external_id}/{format?}', 'Tenant\SaleNoteController@toTicket');
         Route::get('purchases/print/{external_id}/{format?}', 'Tenant\PurchaseController@toPrint');
 
         Route::middleware(['auth', 'redirect.module', 'locked.tenant'])->group(function () {
@@ -177,7 +179,12 @@ if ($hostname) {
             Route::get('items/export', 'Tenant\ItemController@export')->name('tenant.items.export');
             Route::get('items/export/wp', 'Tenant\ItemController@exportWp')->name('tenant.items.export.wp');
             Route::get('items/export/digemid', 'Tenant\ItemController@exportDigemid');
+            Route::get('items/search-items', 'Tenant\ItemController@searchItems');
+            Route::get('items/search/item/{item}', 'Tenant\ItemController@searchItemById');
+            Route::get('items/item/tables', 'Tenant\ItemController@item_tables');
             Route::get('items/export/barcode', 'Tenant\ItemController@exportBarCode')->name('tenant.items.export.barcode');
+            Route::get('items/export/extra_atrributes/PDF', 'Tenant\ItemController@downloadExtraDataPdf');
+            Route::get('items/export/extra_atrributes/XLSX', 'Tenant\ItemController@downloadExtraDataItemsExcel');
             Route::get('items/export/barcode_full', 'Tenant\ItemController@exportBarCodeFull');
             Route::get('items/export/barcode/print', 'Tenant\ItemController@printBarCode')->name('tenant.items.export.barcode.print');
             Route::get('items/export/barcode/last', 'Tenant\ItemController@itemLast')->name('tenant.items.last');
@@ -217,6 +224,7 @@ if ($hostname) {
             Route::get('documents', 'Tenant\DocumentController@index')->name('tenant.documents.index')->middleware(['redirect.level', 'tenant.internal.mode']);
             Route::get('documents/columns', 'Tenant\DocumentController@columns');
             Route::get('documents/records', 'Tenant\DocumentController@records');
+            Route::get('documents/recordsTotal', 'Tenant\DocumentController@recordsTotal');
             Route::get('documents/create', 'Tenant\DocumentController@create')->name('tenant.documents.create')->middleware(['redirect.level', 'tenant.internal.mode']);
             Route::get('documents/create_tensu', 'Tenant\DocumentController@create_tensu')->name('tenant.documents.create_tensu');
             Route::get('documents/{id}/edit', 'Tenant\DocumentController@edit')->middleware(['redirect.level', 'tenant.internal.mode']);
@@ -279,6 +287,7 @@ if ($hostname) {
             Route::get('summaries/record/{summary}', 'Tenant\SummaryController@record');
             Route::get('summaries/regularize/{summary}', 'Tenant\SummaryController@regularize');
             Route::get('summaries/cancel-regularize/{summary}', 'Tenant\SummaryController@cancelRegularize');
+            Route::get('summaries/tables', 'Tenant\SummaryController@tables');
 
             //Voided
             Route::get('voided', 'Tenant\VoidedController@index')->name('tenant.voided.index')->middleware('redirect.level', 'tenant.internal.mode');
@@ -572,6 +581,9 @@ if ($hostname) {
             Route::get('cash/report/products/{cash}', 'Tenant\CashController@report_products');
             Route::get('cash/report/products-excel/{cash}', 'Tenant\CashController@report_products_excel');
 
+            //POS VENTA RAPIDA
+            Route::get('pos/fast', 'Tenant\PosController@fast')->name('tenant.pos.fast');
+
             //Tags
             Route::get('tags', 'Tenant\TagController@index')->name('tenant.tags.index');
             Route::get('tags/columns', 'Tenant\TagController@columns');
@@ -639,23 +651,23 @@ if ($hostname) {
             Route::get('purchase-settlements/columns', 'Tenant\PurchaseSettlementController@columns');
             Route::get('purchase-settlements/records', 'Tenant\PurchaseSettlementController@records');
 
+            //Almacen de columnas por usuario
+            Route::post('validate_columns','Tenant\SettingController@getColumnsToDatatable');
+
         });
     });
 } else {
     Route::domain(env('APP_URL_BASE'))->group(function () {
-
         Route::get('login', 'System\LoginController@showLoginForm')->name('login');
         Route::post('login', 'System\LoginController@login');
         Route::post('logout', 'System\LoginController@logout')->name('logout');
         Route::get('phone', 'System\UserController@getPhone');
-        Route::get('/', 'WebController@index')->name('web.index');
-        Route::post('send_mail', 'WebController@send_mail');
 
         Route::middleware('auth:admin')->group(function () {
             Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
-            // Route::get('/', function () {
-            //     return redirect()->route('system.dashboard');
-            // });
+            Route::get('/', function () {
+                return redirect()->route('system.dashboard');
+            });
             Route::get('dashboard', 'System\HomeController@index')->name('system.dashboard');
 
             //Clients
@@ -673,12 +685,13 @@ if ($hostname) {
             Route::post('clients/password/{client}', 'System\ClientController@password');
             Route::post('clients/locked_emission', 'System\ClientController@lockedEmission');
             Route::post('clients/locked_tenant', 'System\ClientController@lockedTenant');
+            // Route::post('clients/locked_tenant', 'System\ClientController@lockedTenant'); //Linea repetida
+
             Route::post('clients/locked_user', 'System\ClientController@lockedUser');
             Route::post('clients/renew_plan', 'System\ClientController@renewPlan');
 
             Route::post('clients/set_billing_cycle', 'System\ClientController@startBillingCycle');
 
-            Route::post('clients/locked_tenant', 'System\ClientController@lockedTenant');
 
             Route::post('clients/upload', 'System\ClientController@upload');
 
@@ -778,4 +791,3 @@ if ($hostname) {
         });
     });
 }
-

@@ -170,7 +170,7 @@
         /**
          * @param $query
          *
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return Builder
          */
         public function scopeNonCredit($query)
         {
@@ -180,7 +180,7 @@
         /**
          * @param $query
          *
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return Builder
          */
         public function scopeCredit($query)
         {
@@ -193,7 +193,7 @@
          * @param       $query
          * @param array $exclude_method_types_id
          *
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return Builder
          */
         public function scopeExcludeMethodTypes($query, $exclude_method_types_id = [])
         {
@@ -303,5 +303,25 @@
         public function fee()
         {
             return $this->hasMany(DocumentFee::class);
+        }
+
+        /**
+         * @param Builder $query
+         *
+         * @return Builder
+         */
+        public function scopeNotCredit(Builder $query)
+        {
+            return $query->where('is_credit', '!=', 1);
+        }
+
+        /**
+         * @param Builder $query
+         *
+         * @return Builder
+         */
+        public function scopeNotCash(Builder $query)
+        {
+            return $query->where('is_cash', '!=', 1);
         }
     }

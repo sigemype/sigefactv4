@@ -124,22 +124,34 @@
         public function getCollectionData(){
             $data=[];
             $data['active'] = $this->isActive();
+            $data['requirement_name'] = '';
+            $data['requirement_file'] ='';
+            $data['requirement_id'] ='';
+            $data['requirement_id_check'] = '';
+            $data['process_id'] = '';
+            $data['process_name']= '';
+            $data['process_active']= '';
+            $data['process_price']= '';
+
 
             /** @var DocumentaryFilesRequirement $req */
             $req = $this->doc_files_requirements()->first();
-            $data['requirement_name'] = $req->getName();
-            $data['requirement_file'] = $req->getFile();
-            $data['requirement_id'] = $req->id;
-            $data['requirement_id_check'] = (string)$req->id;
-            $data['check'] = false;
-
+            if($req!= null) {
+                $data['requirement_name'] = $req->getName();
+                $data['requirement_file'] = $req->getFile();
+                $data['requirement_id'] = $req->id;
+                $data['requirement_id_check'] = (string)$req->id;
+                $data['check'] = false;
+            }
             /** @var DocumentaryProcess $proc */
             $proc = $this->doc_processes()->first();
-            $data['process_id'] = $proc->id;
-            $data['process_name']= $proc->getName();
-            $data['process_active']= $proc->isActive();
-            $data['process_price']= $proc->getPrice();
-            // $data['process'] = $proc->getCollectionData();
+            if($proc!= null) {
+                $data['process_id'] = $proc->id;
+                $data['process_name'] = $proc->getName();
+                $data['process_active'] = $proc->isActive();
+                $data['process_price'] = $proc->getPrice();
+                // $data['process'] = $proc->getCollectionData();
+            }
             return $data;
         }
     }

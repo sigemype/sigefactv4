@@ -54,13 +54,20 @@ class MassiveValidateController extends Controller
 
         $records = Document::query()
             ->where('soap_type_id', $company->soap_type_id)
+            ->whereIn('state_type_id', ['01', '03', '05'])
             ->where('document_type_id', $document_type_id)
             ->whereBetween('date_of_issue', [$d_start, $d_end])
             ->get();
 
-        $documents = [];
-        $groups = $records->chunk(300);
+        $soap_username = '';
+        $c_soap_username = $company->soap_username;
+        if (strlen($c_soap_username) > 11) {
+            $soap_username = substr($c_soap_username, 11, strlen($c_soap_username) - 11);
+        }
+        $total_documents = 0;
+        $groups = $records->chunk(100);
         foreach ($groups as $group) {
+            $documents = [];
             foreach ($group as $row) {
                 $documents[] = [
                     "ruc_emisor" => $company->number,
@@ -71,20 +78,28 @@ class MassiveValidateController extends Controller
                     "total" => $row->total
                 ];
             }
+
+            $data = [
+                "ruc_empresa" => $company->number,
+                "sol_usuario" => $soap_username,
+                "clave_usuario" => $company->soap_password,
+                "comprobantes" => $documents
+            ];
+
+            $res = $this->sendValidate($data, $company);
+            if ($res['success']) {
+                $total_documents += $res['data']['count_documents'];
+            }
         }
 
-        $soap_username = '';
-        $c_soap_username = $company->soap_username;
-        if (strlen($c_soap_username) > 11) {
-            $soap_username = substr($c_soap_username, 11, strlen($c_soap_username) - 11);
-        }
-        $data = [
-            "ruc_empresa" => $company->number,
-            "sol_usuario" => $soap_username,
-            "clave_usuario" => $company->soap_password,
-            "comprobantes" => $documents
+        return [
+            'success' => true,
+            'message' => 'Se validaron ' . $total_documents . ' comprobantes'
         ];
+    }
 
+    private function sendValidate($data, $company)
+    {
         $res = (new ServiceData)->massive_validate_cpe($data);
         if ($res['success']) {
             foreach ($res['data']['comprobantes'] as $row) {
@@ -115,7 +130,9 @@ class MassiveValidateController extends Controller
             }
             return [
                 'success' => true,
-                'message' => 'Se validaron ' . $res['data']['cantidad_de_comprobantes'] . ' comprobantes'
+                'data' => [
+                    'count_documents' => $res['data']['cantidad_de_comprobantes'],
+                ]
             ];
         }
 

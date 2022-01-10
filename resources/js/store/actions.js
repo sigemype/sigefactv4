@@ -66,6 +66,8 @@ export default {
         if (state.person_types === undefined) state.person_types = [];
         if (state.all_series === undefined) state.all_series = [];
         if (state.series === undefined) state.series = [];
+        if (state.payment_destinations === undefined) state.payment_destinations = [];
+        if (state.statusDocumentary === undefined) state.statusDocumentary = [];
 
 
 
@@ -117,7 +119,9 @@ export default {
     },
     loadOffices(store) {
         if (state.offices === undefined) state.offices = [];
-        // state.offices = readStorageData('offices', true)
+    },
+    loadStatusDocumentary(store) {
+        if (state.statusDocumentary === undefined) state.statusDocumentary = [];
     },
     loadCustomers(store) {
         if (state.customers === undefined) state.customers = [];

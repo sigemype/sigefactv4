@@ -127,4 +127,13 @@ class DashboardController extends Controller
 
     }
 
+    /**
+     * Extensión de ventas por producto
+     *
+     */
+    public function salesByProduct()
+    {
+        return view('dashboard::sales_by_product');
+    }
+
 }

@@ -13,6 +13,7 @@ use App\Models\Tenant\Catalogs\Province;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Person;
 use App\Models\Tenant\PersonType;
+use App\Models\Tenant\Zone;
 use Exception;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
@@ -64,12 +65,16 @@ class PersonController extends Controller
         $identity_document_types = IdentityDocumentType::whereActive()->get();
         $person_types = PersonType::get();
         $locations = $this->getLocationCascade();
+        $zones = Zone::all();
+        $sellers = $this->getSellers();
+
         // $configuration = Configuration::first();
         // $api_service_token = $configuration->token_apiruc == 'false' ? config('configuration.api_service_token') : $configuration->token_apiruc;
         $api_service_token = \App\Models\Tenant\Configuration::getApiServiceToken();
 
 
-        return compact('countries', 'departments', 'provinces', 'districts', 'identity_document_types', 'locations','person_types','api_service_token');
+        return compact('countries', 'departments', 'provinces', 'districts', 'identity_document_types', 'locations','person_types','api_service_token'
+        ,'zones','sellers');
     }
 
     public function record($id)
@@ -216,6 +221,7 @@ class PersonController extends Controller
 
     public function export($type, Request $request)
     {
+
         $d_start = null;
         $d_end = null;
         $period = $request->period;
@@ -231,7 +237,13 @@ class PersonController extends Controller
                 break;
         }
 
-        $records = ($period == 'all') ? Person::where('type', $type)->get() : Person::where('type', $type)->whereBetween('created_at', [$d_start, $d_end])->get();
+        if($period == 'all'){
+            $records = Person::where('type', $type)->get();
+        }elseif($period == 'seller'){
+            $records = Person::where([ 'type'=> $type, 'seller_id'=> $request->seller_id, ])->get();
+        }else{
+            $records = Person::where('type', $type)->whereBetween('created_at', [$d_start, $d_end])->get();
+        }
 
         $filename = ($type == 'customers') ? 'Reporte_Clientes_':'Reporte_Proveedores_';
 

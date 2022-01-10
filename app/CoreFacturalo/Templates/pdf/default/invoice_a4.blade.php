@@ -295,20 +295,18 @@
         <tr>
             <td width="65%" style="text-align: top; vertical-align: top;">
                 @foreach(array_reverse( (array) $document->legends) as $row)
-                    @if ($row->code == "1000")
-                        {{-- <p style="text-transform: uppercase;">Son: <span class="font-bold">{{ $row->value }} {{ $document->currency_type->description }}</span></p> --}}
+                    @if ($row->code == "1000" && $row->code == "2006")
                         @if (count((array) $document->legends)>1)
-                        <br>
+                            <br>
                             <p><span class="font-bold">Leyendas</span></p>
                         @endif
                     @else
+                        @if ($row->code == "1000" && $row->code == "2006")
                         <p> {{$row->code}}: {{ $row->value }} </p>
+                        @endif
                     @endif
-
                 @endforeach
                 <br/>
-
-
             </td>
             {{-- <td width="80%" class="text-right">
                 <img src="data:image/png;base64, {{ $document->qr }}" style="margin-right: -10px;" /> --}}
@@ -321,7 +319,7 @@
 {{-- Inicio de detracciones  --}}
     @if ($document->detraction)
         <br>
-        <table class="full-width border-box">
+        <table class="full-width border-box mb-2">
             <tr class="border-box">
                 <td colspan="2"><p class="cuenta"><span class="font-bold">Operación sujeta al Sistema de Pago de Obligaciones Tributarias</span> - CTA. DETRACCIÓN Nº {{ $document->detraction->bank_account}}</p></td>
             </tr>
@@ -364,6 +362,53 @@
         </table>
     @endif
 {{-- fin de detracciones --}}
+
+{{-- inicio retencion --}}
+    @if ($document->retention)
+        <table class="full-width border-box">
+            <tr class="border-box">
+                <td colspan="3"><p class="cuenta"><span class="font-bold">Operación sujeta a retención</span></p></td>
+            </tr>
+            <tr>
+                <td><h6><strong>BASE IMPONIBLE :</strong>{{ $document->currency_type->symbol}} {{ $document->retention->base }}</h6></td>
+                <td><h6><strong>PORCENTAJE :</strong>{{ $document->retention->percentage * 100 }}%</h6></td>
+                <td><h6><strong>MONTO RETENCIÓN :</strong>{{ $document->currency_type->symbol}} {{ $document->retention->amount }}</h6></td>
+            </tr>
+        </table>
+    @endif
+{{-- fin retencion --}}
+
+{{-- inicio metodo de pago --}}
+    @if($document->payment_method_type_id === '01')
+    <table class="full-width">
+        <tr>
+            <td>
+                <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
+            </td>
+        </tr>
+    </table>
+    @endif
+    @if($payments->count())
+    <br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <strong>PAGOS:</strong>
+            </td>
+        </tr>
+            @php
+                $payment = 0;
+            @endphp
+            @foreach($payments as $row)
+                <tr>
+                    <td>&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
+                </tr>
+            @endforeach
+        </tr>
+
+    </table>
+    @endif
+{{-- fin metodo de pago --}}
 
 <table class="full-width mt-3">
     @if ($document->prepayments)
@@ -422,40 +467,6 @@
     @endif
 </table>
 
-
-{{-- inicio metodo de pago --}}
-    @if($document->payment_method_type_id === '01')
-    <table class="full-width">
-        <tr>
-            <td>
-                <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
-            </td>
-        </tr>
-    </table>
-    @endif
-    @if($payments->count())
-    <br>
-    <table class="full-width">
-        <tr>
-            <td>
-                <strong>PAGOS:</strong>
-            </td>
-        </tr>
-            @php
-                $payment = 0;
-            @endphp
-            @foreach($payments as $row)
-                <tr>
-                    <td>&#8226; {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td>
-                </tr>
-            @endforeach
-        </tr>
-
-    </table>
-    @endif
-{{-- fin metodo de pago --}}
-
-
 {{-- inicio guias --}}
     @if ($document->guides)
     <br/>
@@ -491,14 +502,14 @@
     </div>
     <br/>
     @endif
-    @foreach($document->additional_information as $information)
+    {{-- @foreach($document->additional_information as $information)
     @if ($information)
         @if ($loop->first)
             <strong>Observaciones</strong>
         @endif
         <p>{{ $information }}</p>
     @endif
-    @endforeach
+    @endforeach --}}
 {{-- fin observaciones --}}
 
 

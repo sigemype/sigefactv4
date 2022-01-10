@@ -15,8 +15,8 @@ class ProcessRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'name' => ['required', 'max:50', Rule::unique('tenant.documentary_processes', 'name')->ignore($this->id)],
-            'description' => 'max:250',
+			'name' => ['required',  Rule::unique('tenant.documentary_processes', 'name')->ignore($this->id)],
+            // 'description' => 'max:250',
 			'active'      => 'required|boolean',
 		];
 	}

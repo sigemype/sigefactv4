@@ -3,6 +3,9 @@
     namespace App\Http\Controllers\Tenant;
 
     use App\Http\Controllers\Controller;
+
+    use App\Http\Requests\Tenant\ColumnsToReportRequest;
+    use App\Models\Tenant\ColumnsToReport;
     use App\Models\Tenant\Configuration;
     use App\Models\Tenant\User;
     use Auth;
@@ -158,5 +161,69 @@
             // vista blade no vue
             $configuration = Configuration::first();
             return view('tenant.settings.list_extras')->with('apk_url', $configuration->apk_url);
+        }
+
+        /**
+         * Lee o Guarda
+         * @param ColumnsToReportRequest $request
+         *
+         * @return array
+         */
+        public function getColumnsToDatatable(ColumnsToReportRequest  $request){
+
+            $user = \Auth::user();
+            $user_id =  (null!==$user)?$user->id:0;
+            $report = $request->report;
+            $columns = $request->columns;
+            $updated = (bool)$request->updated;
+
+            $cols =  ColumnsToReport::where([
+                'user_id'=>$user_id,
+                'report'=>$report,
+            ])->first();
+
+            if(empty($cols)){
+                // Se crea una nueva por que no existe
+                $cols =  new ColumnsToReport([
+                    'user_id'=>$user_id,
+                    'report'=>$report,
+                    'columns'=>$columns,
+
+                ]);
+                $cols->save();
+            }
+            $return = [
+                'user_id'=>$user_id,
+                'report'=>$report,
+                'columns'=>$columns,
+                'updated'=> $updated,
+            ];
+            if($updated !== false){
+                $cols->columns = $columns;
+                $cols->push();
+                $return['saved'] = 1;
+            }
+            $currencCol = $cols->columns;
+            $currencColDeb = (array)$cols->columns;
+            $orgCOls = $request->columns;
+
+            foreach($columns as $index => $column){
+                // Si existe una nueva columna, se envia de regreso para prevenir error en rendering
+                if (isset($currencColDeb[$index])) {
+                    $currentRow = (array)$currencColDeb[$index];
+                    $currencCol->{$index} = (isset($currentRow['title'])) ?$currentRow: $orgCOls[$index];
+                }else{
+                    if(isset($column['title'])){
+                        $currencCol->{$index} = $column;
+                    }else{
+                        // Si la columna nueva no existe
+                        $orgCOls = $request->columns;
+                        $currencCol->{$index} = $orgCOls[$index];
+                    }
+                }
+            }
+            $return ['columns'] = $currencCol;
+            return $return;
+
         }
     }

@@ -63,8 +63,18 @@ class ToPayController extends Controller
             $query_users = $query_users->add($newUser)->sortBy('id');
         }
         $users = new UserCollection($query_users);
-
-        $establishments = DashboardView::getEstablishments();
+        $establishments= [];
+        $establishments[] = [
+            'id' => 0,
+            'name' => 'Todos',
+        ];
+        $establishments = collect($establishments);
+        Establishment::all()->transform(function($row)  use(&$establishments){
+            $establishments[]  = [
+                'id' => $row->id,
+                'name' => $row->description
+            ]; }
+        );
 
         return compact('suppliers', 'establishments', 'users');
     }
@@ -77,8 +87,14 @@ class ToPayController extends Controller
      */
     public function records(Request $request)
     {
+        $data =$request->all();
+        if($request->establishment_id === 0){
+            $data['withBankLoan'] = 1;
+            $data['stablishmentTopaidAll'] = 1; // Lista todos los establecimients
+        }
+
         return [
-            'records' => ToPay::getToPay($request->all())
+            'records' => ToPay::getToPay($data)
        ];
     }
 

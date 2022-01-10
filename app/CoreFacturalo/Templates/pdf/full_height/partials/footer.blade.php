@@ -51,6 +51,21 @@
 </head>
 <body>
 @if($document != null)
+    @if(!is_null($document_base))
+    <table class="full-width border-box">
+        <tr>
+            <td class="border-box text-center">Documento Afectado:</td>
+            <td class="border-box text-center">Tipo de nota:</td>
+            <td class="border-box text-center">Descripción:</td>
+
+        </tr>
+        <tr>
+            <td class="border-box text-center">{{ $document_base->affected_document->series }}-{{ $document_base->affected_document->number }}</td>
+            <td class="border-box text-center">{{ ($document_base->note_type === 'credit')?$document_base->note_credit_type->description:$document_base->note_debit_type->description}}</td>
+            <td class="border-box text-center">{{ $document_base->note_description }}</td>
+        </tr>
+    </table>        
+    @endif
     <table class="full-width border-box my-2">
         <tr>
             <td class="text-upp p-2">SON:
@@ -64,7 +79,7 @@
             </td>
         </tr>
     </table>
-    <table class="full-width border-box my-2">
+    <table class="full-width border-box">
         <tr>
             <td class="text-upp p-2">OBSERVACIONES:
                 @if($document->additional_information)
@@ -130,29 +145,32 @@
         </tr>
     </table>
     <table class="full-width border-box my-2">
-            @foreach($accounts as $account)
                 <tr>
-                    <th class="p-1">Banco</th>
-                    <th class="p-1">Moneda</th>
-                    <th class="p-1">Código de Cuenta Interbancaria</th>
-                    <th class="p-1">Código de Cuenta</th>
+                    <th class="p-1 border-box">Banco</th>
+                    <th class="p-1 border-box">Moneda</th>
+                    <th class="p-1 border-box">N° Cuenta</th>
+                    <th class="p-1 border-box">N° Cuenta Interbancaria</th>
                 </tr>
+                @foreach($accounts as $account)
                 <tr>
-                    <td class="text-center">{{$account->bank->description}}</td>
-                    <td class="text-center text-upp">{{$account->currency_type->description}}</td>
-                    <td class="text-center">
+                    <td class="text-center border-box">{{$account->bank->description}}</td>
+                    <td class="text-center border-box">{{$account->currency_type->description}}</td>
+                    <td class="text-center border-box">{{$account->number}}</td>
+                    <td class="text-center border-box">
                         @if($account->cci)
                             {{$account->cci}}
                         @endif
                     </td>
-                    <td class="text-center">{{$account->number}}</td>
                 </tr>
-            @endforeach
+                @endforeach
     </table>
 @endif
 <table class="full-width">
     <tr>
         <td class="text-center desc">Representación Impresa de {{ isset($document->document_type) ? $document->document_type->description : 'Comprobante Electrónico'  }} {{ isset($document->hash) ? 'Código Hash: '.$document->hash : '' }} <br>Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>
+    <div class="company_logo_box" style="text-align: center; top:30%;">
+        <img src="data:{{mime_content_type(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png"))}};base64, {{base64_encode(file_get_contents(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png")))}}" alt="sigefact_logo" class="" width="12%">
+    </div>
 </table>
 </body>

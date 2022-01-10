@@ -1030,5 +1030,11 @@
             return $this->document_type;
         }
 
+        /**
+         * @return bool
+         */
+        public function  isHasCdr(){
+            return (bool)$this->has_cdr;
+        }
 
     }

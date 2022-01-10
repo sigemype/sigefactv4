@@ -30,6 +30,7 @@
     use Modules\Sale\Models\ContractItem;
     use Modules\Sale\Models\SaleOpportunity;
     use Modules\Sale\Models\SaleOpportunityItem;
+    use Modules\Sale\Models\TechnicalService;
 
     /**
      * Class ItemMovement
@@ -285,6 +286,26 @@
                 ->table('item_movement')
                 ->where('item_movement.countable', 1)
                 ->where('item_movement.item_id', $item_id);
+            if ($establisnment_id != 0) {
+                $query->where('item_movement.establishment_id', $establisnment_id);
+            }
+            $query->join('item_movement_rel_extra', 'item_movement_rel_extra.item_movement_id', '=', 'item_movement.id');
+
+            return $query;
+        }
+        /**
+         * @param int $item_id
+         * @param int $establisnment_id
+         *
+         * @return \Illuminate\Database\Query\Builder
+         */
+        protected static function getQueryToStockWithOutItemId($establisnment_id = 0)
+        {
+            $query = DB::connection('tenant')
+                ->table('item_movement')
+                ->where('item_movement.countable', 1)
+            //     ->where('item_movement.item_id', $item_id)
+            ;
             if ($establisnment_id != 0) {
                 $query->where('item_movement.establishment_id', $establisnment_id);
             }
@@ -885,17 +906,11 @@
         }
 
         /**
-         * @return Devolution|Contract|Dispatch|Document|Expense|FixedAssetPurchase|OrderForm|OrderNote|Purchase|PurchaseOrder|PurchaseQuotation|Quotation|SaleNote| SaleOpportunity|
-         *                                                                                                                                                           TechnicalService|null
+         * @return Devolution|Contract|Dispatch|Document|Expense|FixedAssetPurchase|OrderForm|OrderNote|Purchase|PurchaseOrder|PurchaseQuotation|Quotation|SaleNote| SaleOpportunity| TechnicalService|null
+         *
          *                                     */
         public function getParentModel()
         {
-            /*
-            * @property FixedAssetItem|null         $fixed_asset_item
-
-                */
-
-            // if($this->contract_item_id != 0) { $model  = $this->contract_item; return $this->contract_item } else
             try {
                 if ($this->devolution_item_id != 0) {
                     // return $this->devolution_item->devolution;

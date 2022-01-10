@@ -8,6 +8,7 @@ use Hyn\Tenancy\Traits\UsesTenantConnection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -140,6 +141,7 @@ use Modules\Sale\Models\UserCommission;
  * @property Collection|UserCommission[] $user_commissions
  * @property int|null $user_commissions_count
  * @property int|null $voideds_count
+ * @property int|null $zone_id
 
  */
 class User extends Authenticatable
@@ -170,6 +172,7 @@ class User extends Authenticatable
         'series_id',
         'permission_edit_cpe',
         'recreate_documents',
+        'zone_id',
 
         // 'email_verified_at',
         // 'api_token',
@@ -192,6 +195,7 @@ class User extends Authenticatable
         'permission_edit_cpe' => 'boolean',
         'recreate_documents' => 'boolean',
         'establishment_id' => 'int',
+        'zone_id' => 'int',
         'locked' => 'bool',
     ];
 
@@ -833,4 +837,25 @@ $withEstablishment = true){
         })->where('disabled',false);
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class, 'zone_id');
+    }
+
+    /**
+     * Devuelve una coleccion de usuarios vendedores para CPE y NV
+     * @param int $establishment_id
+     * @param int $userId
+     *
+     * @return User[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
+     */
+    public static function  getSellersToNvCpe($establishment_id =0,$userId=0){
+        return  self::where('establishment_id',$establishment_id)
+            ->whereIn('type', ['seller', 'admin'])->orWhere('id', $userId)
+            ->get();
+
+    }
 }

@@ -215,9 +215,11 @@ class HotelRentController extends Controller
 	public function tables()
 	{
 		$customers = $this->customers();
+		$configuration = Configuration::select('affectation_igv_type_id')->first();
 
 		return response()->json([
-			'customers'            => $customers,
+			'customers' => $customers,
+			'configuration' => $configuration,
 		], 200);
 	}
 }

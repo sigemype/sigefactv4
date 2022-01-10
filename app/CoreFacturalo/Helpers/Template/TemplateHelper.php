@@ -9,6 +9,7 @@
     use App\Models\Tenant\DocumentFee;
     use App\Models\Tenant\DocumentPayment;
     use App\Models\Tenant\PaymentCondition;
+    use App\Models\Tenant\Zone;
 
     class TemplateHelper
     {
@@ -196,5 +197,39 @@
         public static function setNumber($number, $decimal = 2, $mil = ',', $dec = '.')
         {
             return number_format($number, $decimal, $mil, $dec);
+        }
+
+        /**
+         * Devuelve la marca desde lo sitems del documento.
+         *
+         * @param $row
+         *
+         * @return mixed|string
+         */
+        public static function  getBrandFormItem($row){
+            $brand = '';
+            if(!empty($row->item) && !empty($row->item->brand) ){
+                if(is_string($row->item->brand)){
+                    $brand = $row->item->brand;
+                }elseif($row->item->brand->name){
+                    $brand = $row->item->brand->name;
+                }
+
+            }
+            return $brand;
+        }
+
+        /**
+         * @param int $zone_id
+         *
+         * @return string|null
+         */
+        public static function getZoneById($zone_id =0){
+            $zone = Zone::find($zone_id);
+            if(!empty($zone)){
+
+                return  $zone->getName();
+            }
+            return '';
         }
     }

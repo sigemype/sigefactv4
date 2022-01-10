@@ -10,6 +10,8 @@ use App\Models\Tenant\SaleNoteItem;
 use App\Models\Tenant\Purchase;
 use App\Models\Tenant\Item;
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Class DashboardSalePurchase
@@ -33,6 +35,8 @@ class DashboardSalePurchase
         $month_end = $request['month_end'];
         $enabled_move_item = $request['enabled_move_item'];
         $enabled_transaction_customer = $request['enabled_transaction_customer'];
+        $no_take = isset($request['no_take']) ? $request['no_take'] : false; // evitar limite
+        $page = isset($request['page']) ? $request['page'] : 1;
 
         $d_start = null;
         $d_end = null;
@@ -62,7 +66,7 @@ class DashboardSalePurchase
 
         return [
             'purchase' => $this->purchase_totals($establishment_id, $d_start, $d_end),
-            'items_by_sales' => $this->items_by_sales($establishment_id, $d_start, $d_end, $enabled_move_item),
+            'items_by_sales' => $this->items_by_sales($establishment_id, $d_start, $d_end, $enabled_move_item, $no_take, $page),
             'top_customers' => $this->top_customers($establishment_id, $d_start, $d_end, $enabled_transaction_customer),
         ];
     }
@@ -227,7 +231,7 @@ class DashboardSalePurchase
 
 
 
-    private function items_by_sales($establishment_id, $d_start, $d_end, $enabled_move_item) {
+    private function items_by_sales($establishment_id, $d_start, $d_end, $enabled_move_item, $no_take = false, $page) {
         if ($d_start && $d_end) {
 
             $documents = Document::without(['user', 'soap_type', 'state_type', 'document_type', 'currency_type', 'group', 'items', 'invoice', 'note', 'payments'])
@@ -327,8 +331,13 @@ class DashboardSalePurchase
         $order_column = ($enabled_move_item) ? 'move_quantity' : 'total';
         $sorted = $items_by_sales->sortByDesc($order_column);
 
-        return $sorted->values()->take(10);
-
+        if($no_take) {
+            $collect = $sorted->values();
+            return new LengthAwarePaginator($collect->forPage($page, 10), $collect->count(), 10, $page);
+            //config('tenant.items_per_page_simple_d_table')
+        } else {
+            return $sorted->values()->take(10);
+        }
     }
 
     /**

@@ -8,9 +8,11 @@
     use App\Models\Tenant\Catalogs\District;
     use App\Models\Tenant\Catalogs\IdentityDocumentType;
     use App\Models\Tenant\Catalogs\Province;
+    use Eloquent;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Illuminate\Database\Eloquent\Builder;
     use Illuminate\Database\Eloquent\Collection;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
     use Modules\DocumentaryProcedure\Models\DocumentaryFile;
     use Modules\Expense\Models\Expense;
     use Modules\Order\Models\OrderForm;
@@ -25,6 +27,10 @@
     /**
      * App\Models\Tenant\Person
      *
+     * @property int|null                             $seller_id
+     * @property User                                 $seller
+     * @property int|null                             $zone_id
+     * @property Zone                                 $zone
      * @property-read AddressType                     $address_type
      * @property-read Collection|PersonAddress[]      $addresses
      * @property-read int|null                        $addresses_count
@@ -89,7 +95,7 @@
      * @method static Builder|Person whereIsEnabled()
      * @method static Builder|Person whereType($type)
      * @mixin ModelTenant
-     * @mixin \Eloquent
+     * @mixin Eloquent
      */
     class Person extends ModelTenant
     {
@@ -110,7 +116,9 @@
             'enabled' => 'bool',
             'status' => 'int',
             'credit_days' => 'int',
-            'parent_id' => 'int'
+            'seller_id' => 'int',
+            'zone_id' => 'int',
+            'parent_id' => 'int',
         ];
         protected $fillable = [
             'type',
@@ -136,10 +144,12 @@
             'percentage_perception',
             'enabled',
             'website',
-            'zone',
+            // 'zone',
             'observation',
             'credit_days',
             'optional_email',
+            'seller_id',
+            'zone_id',
             'status',
             'parent_id'
         ];
@@ -162,6 +172,7 @@
         {
             return $this->hasMany(Person::class, 'parent_id');
         }
+
         /**
          * Devuelve el padre basado en parent_id
          *
@@ -478,13 +489,13 @@
             }
             $optional_mail = $this->getOptionalEmailArray();
             $optional_mail_send = [];
-            if ( !empty($this->email)) {
+            if (!empty($this->email)) {
                 $optional_mail_send[] = $this->email;
             }
             $total_optional_mail = count($optional_mail);
             for ($i = 0; $i < $total_optional_mail; $i++) {
                 $temp = trim($optional_mail[$i]['email']);
-                if ( !empty($temp) && $temp != $this->email) {
+                if (!empty($temp) && $temp != $this->email) {
                     $optional_mail_send[] = $temp;
                 }
             }
@@ -498,7 +509,10 @@
                 'address' => $this->address,
                 'internal_code' => $this->internal_code,
                 'observation' => $this->observation,
-                'zone' => $this->zone,
+                'seller' => $this->seller,
+                'zone' => $this->getZone(),
+                'zone_id' => $this->zone_id,
+                'seller_id' => $this->seller_id,
                 'website' => $this->website,
                 'document_type' => $this->identity_document_type->description,
                 'enabled' => (bool)$this->enabled,
@@ -508,8 +522,11 @@
                 'trade_name' => $this->trade_name,
                 'country_id' => $this->country_id,
                 'department_id' => $this->department_id,
+                'department' => $this->department,
                 'province_id' => $this->province_id,
+                'province' => $this->province,
                 'district_id' => $this->district_id,
+                'district' => $this->district,
                 'telephone' => $this->telephone,
                 'email' => $this->email,
                 'perception_agent' => (bool)$this->perception_agent,
@@ -526,14 +543,15 @@
                 'optional_email' => $optional_mail,
                 'optional_email_send' => implode(',', $optional_mail_send),
                 'childrens' => [],
+
             ];
-            if($childrens == true){
-                $child = $this->children_person->transform(function($row){
+            if ($childrens == true) {
+                $child = $this->children_person->transform(function ($row) {
                     return $row->getCollectionData();
                 });
                 $data['childrens'] = $child;
                 $parent = null;
-                if($this->parent_person) {
+                if ($this->parent_person) {
                     $parent = $this->parent_person->getCollectionData();
                 }
 
@@ -576,24 +594,6 @@
             return $this;
         }
 
-        /**
-         * @return string
-         */
-        public function getZone(): string
-        {
-            return $this->zone;
-        }
-
-        /**
-         * @param string $zone
-         *
-         * @return Person
-         */
-        public function setZone(string $zone): Person
-        {
-            $this->zone = $zone;
-            return $this;
-        }
 
         /**
          * @return string
@@ -661,5 +661,24 @@
         {
             $this->parent_id = (int)$parent_id;
             return $this;
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function zone()
+        {
+            return $this->belongsTo(Zone::class, 'zone_id');
+        }
+        public function getZone()
+            {
+                return Zone::find($this->zone_id);
+            }
+        /**
+         * @return BelongsTo
+         */
+        public function seller()
+        {
+            return $this->belongsTo(User::class, 'seller_id');
         }
     }

@@ -52,7 +52,7 @@
             });
             Schema::create('cat_item_product_family', function (Blueprint $table) {
                 $table->increments('id');
-                $table->longText('name')->comment('Nombre de familia de productos');
+                $table->longText('name')->comment('Nombre de familia d eproductos');
                 $table->timestamps();
             });
 

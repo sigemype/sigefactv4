@@ -93,6 +93,9 @@
                     <th class="">Ingresos</th>
                     <th class="">Compras</th>
                     <th class="">Gastos</th>
+
+                    <th class="">P. Bancarios</th>
+                    <th class="">Pago P. Bancarios</th>
                     <th class="">Saldo</th>
                 </tr>
                 </thead>
@@ -112,6 +115,9 @@
                     $technical_service_payment = $value['technical_service_payment'];
                     $income_payment = $value['income_payment'];
                     $balance = $value['balance'];
+
+                    $bank_loan = $value['bank_loan']??0;
+                    $bank_loan_payment = $value['bank_loan_payment']??0;
                     ?>
                     <tr>
                         <td class="celda">
@@ -147,6 +153,12 @@
                         <td class="celda">
                             S/ {{$expense_payment}}
                         </td>
+                            <td class="celda">
+                            S/ {{$bank_loan}}
+                        </td>
+                        <td class="celda">
+                            S/ {{$bank_loan_payment}}
+                        </td>
                         <td class="celda">S/ {{$balance}}
                         </td>
                     </tr>
@@ -166,6 +178,8 @@
                     <td class="text-center celda">S/ {{ $data['totals']['t_income']}}</td>
                     <td class="text-center celda">S/ {{ $data['totals']['t_purchases']}}</td>
                     <td class="text-center celda">S/ {{ $data['totals']['t_expenses']}}</td>
+                    <td class="text-center celda">S/ {{ $data['totals']['t_bank_loan']}}</td>
+                    <td class="text-center celda">S/ {{ $data['totals']['t_bank_loan_payment']}}</td>
                     <td class="text-center celda">S/ {{ $data['totals']['t_balance']}}</td>
                 </tr>
                 </tfoot>

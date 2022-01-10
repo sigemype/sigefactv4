@@ -139,6 +139,8 @@
                             <th class="text-center">Ingresos</th>
                             <th class="text-center">Compras</th>
                             <th class="text-center">Gastos</th>
+                            <th class="text-center">P. Bancarios</th>
+                            <th class="text-center">Pago P. Bancarios</th>
                             <th class="text-center">Saldo</th>
 
                         </tr>
@@ -159,6 +161,8 @@
                             <td class="text-center">{{ row.income_payment | DecimalText }}</td>
                             <td class="text-center">{{ row.purchase_payment | DecimalText }}</td>
                             <td class="text-center">{{ row.expense_payment | DecimalText }}</td>
+                            <td class="text-center">S/ {{ row.bank_loan | DecimalText }}</td>
+                            <td class="text-center">S/ {{ row.bank_loan_payment | DecimalText }}</td>
                             <td class="text-center">S/ {{ row.balance | DecimalText }}</td>
                         </tr>
                         </tbody>
@@ -180,6 +184,8 @@
                             <td class="text-center">S/ {{ totals.t_income | DecimalText }}</td>
                             <td class="text-center">S/ {{ totals.t_purchases | DecimalText }}</td>
                             <td class="text-center">S/ {{ totals.t_expenses | DecimalText }}</td>
+                            <td class="text-center">S/ {{ totals.t_bank_loan | DecimalText }}</td>
+                            <td class="text-center">S/ {{ totals.t_bank_loan_payment | DecimalText }}</td>
                             <td class="text-center">S/ {{ totals.t_balance | DecimalText }}</td>
                         </tr>
                         </tfoot>
@@ -197,7 +203,7 @@
 </template>
 <style>
 .font-custom {
-    font-size: 15px !important
+    font-size: 15px !important;
 }
 </style>
 <script>

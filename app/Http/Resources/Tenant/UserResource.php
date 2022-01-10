@@ -33,6 +33,7 @@ class UserResource extends JsonResource {
             'api_token'        => $this->api_token,
             'establishment_id' => $this->establishment_id,
             'type'             => $this->type,
+            'zone_id'             => $this->zone_id,
             'modules'          => $modules,
             'levels'           => $levels,
             'locked'           => (bool)$this->locked,

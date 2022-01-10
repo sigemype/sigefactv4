@@ -22,6 +22,8 @@ use App\Models\Tenant\{
     Company
 };
 use Exception;
+use App\Models\Tenant\Catalogs\SummaryStatusType;
+
 
 class SummaryController extends Controller
 {
@@ -37,8 +39,12 @@ class SummaryController extends Controller
     
     public function records(Request $request) {
         
-        $records = Summary::where([ ['summary_status_type_id','1'], [ $request->column, 'like', "%{$request->value}%" ]])
-            ->latest();
+        // $records = Summary::where([ ['summary_status_type_id','1'], [ $request->column, 'like', "%{$request->value}%" ]])
+        //     ->latest();
+
+        $records = Summary::whereIn('summary_status_type_id', ['1', '2'])
+                            ->where($request->column, 'like', "%{$request->value}%")
+                            ->latest();
          
         return new SummaryCollection($records->paginate(config('tenant.items_per_page')));
     }
@@ -50,6 +56,14 @@ class SummaryController extends Controller
         ];
     }
     
+    public function tables()
+    {
+        return [
+            'summary_status_types' => SummaryStatusType::whereIn('id', ['1', '2'])->get(),
+            'show_summary_status_type' => config('tenant.show_summary_status_type'),
+        ];
+    }
+
     public function documents(SummaryDocumentsRequest $request) {
         $company = Company::active();
         $date_of_reference = $request->input('date_of_reference');
@@ -104,7 +118,8 @@ class SummaryController extends Controller
         foreach ($summary->documents as $doc)
         {
             $doc->document->update([
-                'state_type_id' => ($summary->summary_status_type_id === '1')?'01':'05'
+                // 'state_type_id' => ($summary->summary_status_type_id === '1')?'01':'05'
+                'state_type_id' => (in_array($summary->summary_status_type_id, ['1', '2']))?'01':'05'
             ]);
         }
         $summary->delete();

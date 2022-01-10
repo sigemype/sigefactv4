@@ -203,9 +203,10 @@
                         </tbody>
                         <tfoot v-if="resource == 'reports/order-notes-consolidated' || resource == 'reports/sales-consolidated'">
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="5"></td>
                                 <td class="text-center"><strong>Total</strong></td>
                                 <td class="text-center">{{totals}}</td>
+                                <td class="text-center">{{totals_sale}}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -262,6 +263,7 @@ export default {
                 series: [],
                 pagination: {},
                 search: {},
+                totals_sale: {},
                 totals: {},
                 establishment: null,
                 establishment_id: null,
@@ -389,6 +391,7 @@ export default {
                 //     return this.$message.error('Debe seleccionar un cliente o vendedor')
                 // }
 
+                this.records= []
                 this.loading_submit = await true
                 await this.getRecords()
                 await this.getTotals()
@@ -397,15 +400,21 @@ export default {
             },
             getTotals(){
                 this.totals = _.sumBy(this.records, (it) => parseFloat(it.item_quantity));
+                this.totals_sale = _.sumBy(this.records, (it) => parseFloat(it.total_sale));
             },
             getRecords() {
 
-                return this.$http.get(`/${this.resource}/records?${this.getQueryParameters()}`).then((response) => {
-                    this.records = response.data.data
-                    this.pagination = response.data.meta
-                    this.pagination.per_page = parseInt(response.data.meta.per_page)
-                    this.loading_submit = false
-                });
+                return this.$http
+                    .get(`/${this.resource}/records?${this.getQueryParameters()}`)
+                    .then((response) => {
+                        this.records = response.data.data
+                        this.pagination = response.data.meta
+                        this.pagination.per_page = parseInt(response.data.meta.per_page)
+                    })
+                    .finally(()=>{
+                        this.loading_submit = false
+
+                    });
 
 
             },

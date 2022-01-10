@@ -44,7 +44,8 @@ use App\Models\Tenant\PurchaseSettlement;
  *
  * @package App\CoreFacturalo
  */
-class Facturalo{
+class Facturalo
+{
     use StorageDocument, FinanceTrait, KardexTrait;
 
     const REGISTERED = '01';
@@ -73,7 +74,8 @@ class Facturalo{
     protected $response;
     protected $apply_change;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->configuration = Configuration::first();
         $this->company = Company::active();
         $this->isDemo = ($this->company->soap_type_id === '01')?true:false;
@@ -83,27 +85,32 @@ class Facturalo{
         $this->setDataSoapType();
     }
 
-    public function setDocument($document){
+    public function setDocument($document)
+    {
         $this->document = $document;
     }
 
-    public function getDocument(){
+    public function getDocument()
+    {
         return $this->document;
     }
 
-    public function setType($type){
+    public function setType($type)
+    {
         $this->type = $type;
     }
 
-    public function getResponse(){
+    public function getResponse()
+    {
         return $this->response;
     }
 
-    public function save($inputs){
+    public function save($inputs)
+    {
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
         $this->type = $inputs['type'];
 
-        switch ($this->type){
+        switch ($this->type) {
             case 'debit':
             case 'credit':
                 $document = Document::create($inputs);
@@ -176,7 +183,8 @@ class Facturalo{
         return $this;
     }
 
-    public function sendEmail(){
+    public function sendEmail()
+    {
         $send_email = ($this->actions['send_email'] === true) ? true : false;
 
         if($send_email){
@@ -206,14 +214,16 @@ class Facturalo{
         }
     }
 
-    public function createXmlUnsigned(){
+    public function createXmlUnsigned()
+    {
         $template = new Template();
         $this->xmlUnsigned = XmlFormat::format($template->xml($this->type, $this->company, $this->document));
         $this->uploadFile($this->xmlUnsigned, 'unsigned');
         return $this;
     }
 
-    public function signXmlUnsigned(){
+    public function signXmlUnsigned()
+    {
         $this->setPathCertificate();
         $this->signer->setCertificateFromFile($this->pathCertificate);
         $this->xmlSigned = $this->signer->signXml($this->xmlUnsigned);
@@ -221,19 +231,22 @@ class Facturalo{
         return $this;
     }
 
-    public function updateHash(){
+    public function updateHash()
+    {
         $this->document->update([
             'hash' => $this->getHash(),
         ]);
     }
 
-    public function updateQr(){
+    public function updateQr()
+    {
         $this->document->update([
             'qr' => $this->getQr(),
         ]);
     }
 
-    public function updateState($state_type_id){
+    public function updateState($state_type_id)
+    {
 
         $this->document->update([
             'state_type_id' => $state_type_id,
@@ -242,7 +255,8 @@ class Facturalo{
 
     }
 
-    public function updateSoap($soap_type_id, $type){
+    public function updateSoap($soap_type_id, $type)
+    {
         $this->document->update([
             'soap_type_id' => $soap_type_id
         ]);
@@ -253,20 +267,24 @@ class Facturalo{
         // }
     }
 
-    public function updateStateDocuments($state_type_id){
-        foreach ($this->document->documents as $doc){
+    public function updateStateDocuments($state_type_id)
+    {
+        foreach ($this->document->documents as $doc)
+        {
             $doc->document->update([
                 'state_type_id' => $state_type_id
             ]);
         }
     }
 
-    private function getHash(){
+    private function getHash()
+    {
         $helper = new XmlHash();
         return $helper->getHashSign($this->xmlSigned);
     }
 
-    private function getQr(){
+    private function getQr()
+    {
         $customer = $this->document->customer;
         $text = join('|', [
             $this->company->number,
@@ -320,9 +338,12 @@ class Facturalo{
 
         $html = $template->pdf($base_pdf_template, $this->type, $this->company, $this->document, $format_pdf);
 
-        if (($format_pdf === 'ticket') OR ($format_pdf === 'ticket_58') OR ($format_pdf === 'ticket_50')){
+        if (($format_pdf === 'ticket') OR
+            ($format_pdf === 'ticket_58') OR
+            ($format_pdf === 'ticket_50'))
+        {
 
-            $width = ($format_pdf === 'ticket_58') ? 56 : 78;
+            $width = ($format_pdf === 'ticket_58') ? 56 : 78 ;
             if(config('tenant.enabled_template_ticket_80')) $width = 76;
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
             if($format_pdf === 'ticket_50') $width = 45;
@@ -349,7 +370,6 @@ class Facturalo{
             $detraction       += ($this->document->detraction && $this->document->invoice->operation_type_id == '1004') ? 45 : 0;
 
             $company_logo = $this->company->logo != '' ? '30' : '0';
-
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
             // $document_payments     = count($this->document->payments);
@@ -399,9 +419,10 @@ class Facturalo{
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    // $height +
-                    40+
-                    $company_logo +
+                    130 +
+                    (($quantity_rows * 8) + $extra_by_item_description) +
+                    ($document_payments * 8) +
+                    ($discount_global * 8) +
                     $company_name +
                     $company_address +
                     $company_number +
@@ -432,6 +453,7 @@ class Facturalo{
                     // $extra_by_item_additional_information+
                     $height_legend +
                     $document_transport +
+                    $customer_department_id+
                     $document_retention
                 ],
                 'margin_top' => 0,
@@ -470,19 +492,19 @@ class Facturalo{
 
 
             $height = ($quantity_rows * 8) +
-                        ($discount_global * 3) +
-                        $company_name +
-                        $company_address +
-                        $company_number +
-                        $customer_name +
-                        $customer_address +
-                        $p_order +
-                        $legends +
-                        $total_exportation +
-                        $total_free +
-                        $total_unaffected +
-                        $total_exonerated +
-                        $total_taxed;
+                    ($discount_global * 3) +
+                    $company_name +
+                    $company_address +
+                    $company_number +
+                    $customer_name +
+                    $customer_address +
+                    $p_order +
+                    $legends +
+                    $total_exportation +
+                    $total_free +
+                    $total_unaffected +
+                    $total_exonerated +
+                    $total_taxed;
             $diferencia = 148 - (float)$height;
 
             $pdf = new Mpdf([
@@ -499,7 +521,8 @@ class Facturalo{
 
 
         } else {
-            if ($base_pdf_template === 'brand'){
+
+            if ($base_pdf_template === 'brand') {
                 $pdf_margin_top = 93.7;
                 $pdf_margin_bottom = 74;
             }
@@ -559,33 +582,31 @@ class Facturalo{
 
         // if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
             // dd($base_pdf_template);// = config(['tenant.pdf_template'=> $configuration]);
-        if(config('tenant.pdf_template_footer')){
-            $html_footer = '';
-            if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
-
+            if(config('tenant.pdf_template_footer')) {
+                $html_footer = '';
+                if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
                 if (in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
                     $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
                 }
 
-                $html_footer_legend = "";
-            }
-            // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
-            // se quiere visuzalizar ahora la legenda amazona en todos los formatos
-            $html_footer_legend = '';
-            if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
-                $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
-            }
+                    $html_footer_legend = "";
+                }
+                // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
+                // se quiere visuzalizar ahora la legenda amazona en todos los formatos
+                $html_footer_legend = '';
+                if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
+                    $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
+                }
 
-            if (in_array($base_pdf_template, ['default', 'full_height'])) {
                 $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
-            }
 
-        }
-        //$html_footer = $template->pdfFooter();
-        //$pdf->SetHTMLFooter($html_footer);
+            }
+//            $html_footer = $template->pdfFooter();
+//            $pdf->SetHTMLFooter($html_footer);
         // }
 
         if ($base_pdf_template === 'brand') {
+
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
             $pdf->SetHTMLHeader($html_header);
 
@@ -596,6 +617,7 @@ class Facturalo{
         }
 
         if ($base_pdf_template === 'blank' && in_array($this->document->document_type_id, ['09'])) {
+
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
             $pdf->SetHTMLHeader($html_header);
 
@@ -608,6 +630,17 @@ class Facturalo{
             $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
             $pdf->SetHTMLHeader($html_header);
             $html_footer = $template->pdfFooter($base_pdf_template, $this->document);
+            $pdf->SetHTMLFooter($html_footer);
+        }
+
+        if ($base_pdf_template === 'distpatch_pharmacy' && in_array($this->document->document_type_id, ['09'])) {
+            // Solo para guia #1192
+            $pdf->setAutoTopMargin = 'stretch'; //margen autommatico
+            $pdf->autoMarginPadding  = 0;
+            $pdf->setAutoBottomMargin = 'stretch';
+            $html_header = $template->pdfHeader($base_pdf_template, $this->company, $this->document);
+            $pdf->SetHTMLHeader($html_header);
+            $html_footer = $template->pdfFooterDispatch($base_pdf_template, $this->document);
             $pdf->SetHTMLFooter($html_footer);
         }
 
@@ -631,13 +664,15 @@ class Facturalo{
         return $this;
     }
 
-    public function loadXmlSigned(){
+    public function loadXmlSigned()
+    {
         $this->xmlSigned = $this->getStorage($this->document->filename, 'signed');
 //        dd($this->xmlSigned);
         return $this;
     }
 
-    private function senderXmlSigned(){
+    private function senderXmlSigned()
+    {
         $this->setDataSoapType();
         $sender = in_array($this->type, ['summary', 'voided'])?new SummarySender():new BillSender();
         $sender->setClient($this->wsClient);
@@ -646,7 +681,8 @@ class Facturalo{
         return $sender->send($this->document->filename, $this->xmlSigned);
     }
 
-    public function senderXmlSignedBill(){
+    public function senderXmlSignedBill()
+    {
         if(!$this->actions['send_xml_signed']) {
             $this->response = [
                 'sent' => false,
@@ -654,9 +690,11 @@ class Facturalo{
             return;
         }
         $this->onlySenderXmlSignedBill();
+
     }
 
-    public function onlySenderXmlSignedBill(){
+    public function onlySenderXmlSignedBill()
+    {
         $res = $this->senderXmlSigned();
         if($res->isSuccess()) {
             $cdrResponse = $res->getCdrResponse();
@@ -688,7 +726,8 @@ class Facturalo{
         }
     }
 
-    public function validationCodeResponse($code, $message){
+    public function validationCodeResponse($code, $message)
+    {
         //Errors
         if(!is_numeric($code)){
 
@@ -703,7 +742,7 @@ class Facturalo{
         // if($code === 'ERROR_CDR') {
         //     return;
         // }
-        
+
         // if($code === 'HTTP') {
         //     // $message = 'La SUNAT no responde a su solicitud, vuelva a intentarlo.';
 
@@ -742,7 +781,9 @@ class Facturalo{
     }
 
 
-    public function updateRegularizeShipping($code, $description){
+    public function updateRegularizeShipping($code, $description)
+    {
+
         $this->document->update([
             'state_type_id' => self::REGISTERED,
             'regularize_shipping' => true,
@@ -755,14 +796,16 @@ class Facturalo{
     }
 
 
-    public function senderXmlSignedSummary(){
+    public function senderXmlSignedSummary()
+    {
         $res = $this->senderXmlSigned();
         if($res->isSuccess()) {
             $ticket = $res->getTicket();
             $this->updateTicket($ticket);
             $this->updateState(self::SENT);
             if($this->type === 'summary') {
-                if($this->document->summary_status_type_id === '1') {
+                // if($this->document->summary_status_type_id === '1') {
+                if(in_array($this->document->summary_status_type_id, ['1', '2'])) {
                     $this->updateStateDocuments(self::SENT);
                 } else {
                     $this->updateStateDocuments(self::CANCELING);
@@ -778,13 +821,15 @@ class Facturalo{
         }
     }
 
-    private function updateTicket($ticket){
+    private function updateTicket($ticket)
+    {
         $this->document->update([
             'ticket' => $ticket
         ]);
     }
 
-    public function statusSummary($ticket){
+    public function statusSummary($ticket)
+    {
         $extService = new ExtService();
         $extService->setClient($this->wsClient);
         $extService->setCodeProvider(new XmlErrorCodeProvider());
@@ -811,7 +856,8 @@ class Facturalo{
 
                 if($extService->getCustomStatusCode() === 0){
 
-                    if($this->document->summary_status_type_id === '1') {
+                    // if($this->document->summary_status_type_id === '1') {
+                    if(in_array($this->document->summary_status_type_id, ['1', '2'])) {
                         $this->updateStateDocuments(self::ACCEPTED);
                     } else {
                         $this->updateStateDocuments(self::VOIDED);
@@ -830,7 +876,9 @@ class Facturalo{
         }
     }
 
-    public function validationStatusCodeResponse($status_code){
+    public function validationStatusCodeResponse($status_code)
+    {
+
         switch ($status_code) {
             case 0:
                 $this->updateState(self::ACCEPTED);
@@ -844,11 +892,13 @@ class Facturalo{
 
     }
 
-    public function consultCdr(){
+    public function consultCdr()
+    {
         $consultCdrService = new ConsultCdrService();
         $consultCdrService->setClient($this->wsClient);
         $consultCdrService->setCodeProvider(new XmlErrorCodeProvider());
-        $res = $consultCdrService->getStatusCdr($this->company->number, $this->document->document_type_id, $this->document->series, $this->document->number);
+        $res = $consultCdrService->getStatusCdr($this->company->number, $this->document->document_type_id,
+                                                $this->document->series, $this->document->number);
 
         if(!$res->isSuccess()) {
             throw new Exception("Code: {$res->getError()->getCode()}; Description: {$res->getError()->getMessage()}");
@@ -865,17 +915,20 @@ class Facturalo{
         }
     }
 
-    public function uploadFile($file_content, $file_type){
+    public function uploadFile($file_content, $file_type)
+    {
         $this->uploadStorage($this->document->filename, $file_content, $file_type);
     }
 
-    private function setDataSoapType(){
+    private function setDataSoapType()
+    {
         $this->setSoapCredentials();
         $this->wsClient->setCredentials($this->soapUsername, $this->soapPassword);
         $this->wsClient->setService($this->endpoint);
     }
 
-    private function setPathCertificate(){
+    private function setPathCertificate()
+    {
         if($this->isOse) {
             $this->pathCertificate = storage_path('app'.DIRECTORY_SEPARATOR.
                 'certificates'.DIRECTORY_SEPARATOR.$this->company->certificate);
@@ -904,12 +957,16 @@ class Facturalo{
 //        }
     }
 
-    private function setSoapCredentials(){
+    private function setSoapCredentials()
+    {
+
         if($this->isOse) {
+
             $this->soapUsername = $this->company->soap_username;
             $this->soapPassword = $this->company->soap_password;
 
         }else{
+
             if($this->isDemo) {
                 $this->soapUsername = $this->company->number.'MODDATOS';
                 $this->soapPassword = 'moddatos';
@@ -942,10 +999,12 @@ class Facturalo{
                     break;
             }
         }
+
     }
 
     private function updatePrepaymentDocuments($inputs){
         // dd($inputs);
+
         if(isset($inputs['prepayments'])) {
 
             foreach ($inputs['prepayments'] as $row) {
@@ -1005,6 +1064,7 @@ class Facturalo{
                     $change = abs($balance);
                     $payment = $row['payment'] - abs($balance);
                     $this->apply_change = true;
+
                 }
 
                 return [
@@ -1043,7 +1103,8 @@ class Facturalo{
      * @param array $inputs
      * @param int   $id
      */
-    public function update($inputs,$id){
+    public function update($inputs,$id)
+    {
 
         $this->actions = array_key_exists('actions', $inputs)?$inputs['actions']:[];
         $this->type = @$inputs['type'];
@@ -1066,7 +1127,7 @@ class Facturalo{
                 $document->payments()->delete();
                 $this->savePayments($document, $inputs['payments']);
 
-                $document->fees()->delete();
+                $document->fee()->delete();
                 $this->saveFee($document, $inputs['fee']);
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
@@ -1149,7 +1210,8 @@ class Facturalo{
         return $this;
     }
 
-    private function saveFee($document, $fee){
+    private function saveFee($document, $fee)
+    {
         foreach ($fee as $row) {
             $document->fees()->create($row);
         }

@@ -1,7 +1,8 @@
 @php
 
 $establishment = $cash->user->establishment;
-
+$title = "Reporte POS - ".$cash->user->name." - ".$cash->date_opening." ".$cash->time_opening;
+\App\CoreFacturalo\Helpers\Template\ReportHelper::getTitleToExcel ($title);
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +11,7 @@ $establishment = $cash->user->establishment;
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Content-Type" content="application/pdf; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Reporte POS - {{$cash->user->name}} - {{$cash->date_opening}} {{$cash->time_opening}}</title>
+        <title>{{ $title }}</title>
         <style>
             html {
                 font-family: sans-serif;
@@ -110,6 +111,10 @@ $establishment = $cash->user->establishment;
             </table>
         </div>
         @if($documents->count())
+            @php
+                $total = 0;
+                $subTotal = 0;
+            @endphp
             <div class="">
                 <div class=" ">
                     <table class="">
@@ -118,6 +123,8 @@ $establishment = $cash->user->establishment;
                                 <th>#</th>
                                 <th>Producto</th>
                                 <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Sub Total</th>
                                 <th>Comprobante</th>
                             </tr>
                         </thead>
@@ -128,9 +135,27 @@ $establishment = $cash->user->establishment;
                                     <td class="celda">{{ $loop->iteration }}</td>
                                     <td class="celda">{{ $item['description'] }}</td>
                                     <td class="celda">{{ $item['quantity'] }}</td>
+                                    <td class="celda" style="text-align: right">{{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($item['unit_value']) }}</td>
+                                    <td class="celda" style="text-align: right">{{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($item['sub_total']) }}</td>
                                     <td class="celda">{{ $item['number_full'] }}</td>
                                 </tr>
+                                @php
+                                    $total+=$item['unit_value'];
+                                    $subTotal+=$item['sub_total']
+                                @endphp
                             @endforeach
+
+                            <tr>
+                                <td class="celda"></td>
+                                <td class="celda"></td>
+                                <td class="celda"></td>
+                                <td class="celda"> Totales </td>
+                                <td class="celda" style="text-align: right">
+                                    {{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($subTotal) }}
+                                </td>
+                                <td class="celda"></td>
+
+                            </tr>
                         </tbody>
                     </table>
                 </div>

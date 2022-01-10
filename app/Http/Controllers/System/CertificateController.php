@@ -9,10 +9,13 @@ use App\Models\System\Configuration;
 
 
 
-class CertificateController extends Controller{
+class CertificateController extends Controller
+{
+    public function record()
+    {
 
-    public function record(){
         $configuration = Configuration::first();
+
         return [
             'certificate' => $configuration->certificate,
             'soap_username' => $configuration->soap_username,
@@ -20,7 +23,8 @@ class CertificateController extends Controller{
         ];
     }
 
-    public function uploadFile(Request $request){
+    public function uploadFile(Request $request)
+    {
         if ($request->hasFile('file')) {
             try {
                 //$company = Company::active();
@@ -55,7 +59,8 @@ class CertificateController extends Controller{
         ];
     }
 
-    public function destroy(){
+    public function destroy()
+    {
         $company = Configuration::first();
         $company->certificate = null;
         $company->save();
@@ -66,7 +71,8 @@ class CertificateController extends Controller{
         ];
     }
 
-    public function saveSoapUser(Request $request){
+    public function saveSoapUser(Request $request)
+    {
         $configuration = Configuration::first();
         $configuration->soap_username = $request->soap_username;
         $configuration->soap_password = $request->soap_password;
@@ -76,6 +82,7 @@ class CertificateController extends Controller{
             'success' => true,
             'message' => 'Cambios guardados.'
         ];
+
 
     }
 }

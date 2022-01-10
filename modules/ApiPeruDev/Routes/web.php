@@ -10,6 +10,7 @@ if($current_hostname) {
             Route::prefix('apiperudev')->group(function () {
                 Route::get('massive_validate_cpe/tables', 'MassiveValidateController@tables');
                 Route::post('massive_validate_cpe', 'MassiveValidateController@validate');
+                Route::post('massive_validate_cpe_2', 'MassiveValidateV2Controller@validate');
             });
             //ruta distinta a la version actual
             Route::prefix('service')->group(function () {

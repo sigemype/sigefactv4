@@ -11,10 +11,10 @@
                 <template v-if="typeUser === 'admin'">
                     <div class="btn-group flex-wrap">
                         <button
-                            type="button"
+                            aria-expanded="false"
                             class="btn btn-custom btn-sm mt-2 mr-2 dropdown-toggle"
                             data-toggle="dropdown"
-                            aria-expanded="false"
+                            type="button"
                         >
                             <i class="fa fa-download"></i> Exportar
                             <span class="caret"></span>
@@ -22,7 +22,6 @@
                         <div
                             class="dropdown-menu"
                             role="menu"
-                            x-placement="bottom-start"
                             style="
                                 position: absolute;
                                 will-change: transform;
@@ -30,33 +29,43 @@
                                 left: 0px;
                                 transform: translate3d(0px, 42px, 0px);
                             "
+                            x-placement="bottom-start"
                         >
                             <a
                                 class="dropdown-item text-1"
                                 href="#"
                                 @click.prevent="clickExport()"
-                                >Listado</a
+                            >Listado</a
                             >
                             <a
                                 class="dropdown-item text-1"
                                 href="#"
                                 @click.prevent="clickExportWp()"
-                                >Woocommerce</a
+                            >Woocommerce</a
                             >
                             <a
                                 class="dropdown-item text-1"
                                 href="#"
                                 @click.prevent="clickExportBarcode()"
-                                >Etiquetas</a
+                            >Etiquetas</a
                             >
+                            <template v-if="config.show_extra_info_to_item">
+                            <a
+                                class="dropdown-item text-1"
+                                href="#"
+                                @click.prevent="clickExportExtra()"
+                            >
+                                Atributos Extra
+                            </a>
+                            </template>
                         </div>
                     </div>
                     <div class="btn-group flex-wrap">
                         <button
-                            type="button"
+                            aria-expanded="false"
                             class="btn btn-custom btn-sm mt-2 mr-2 dropdown-toggle"
                             data-toggle="dropdown"
-                            aria-expanded="false"
+                            type="button"
                         >
                             <i class="fa fa-upload"></i> Importar
                             <span class="caret"></span>
@@ -64,7 +73,6 @@
                         <div
                             class="dropdown-menu"
                             role="menu"
-                            x-placement="bottom-start"
                             style="
                                 position: absolute;
                                 will-change: transform;
@@ -72,27 +80,36 @@
                                 left: 0px;
                                 transform: translate3d(0px, 42px, 0px);
                             "
+                            x-placement="bottom-start"
                         >
                             <a
                                 class="dropdown-item text-1"
                                 href="#"
                                 @click.prevent="clickImport()"
-                                >Productos</a
+                            >Productos</a
                             >
                             <a
                                 class="dropdown-item text-1"
                                 href="#"
                                 @click.prevent="clickImportListPrice()"
-                                >L. Precios</a
+                            >L. Precios</a
                             >
+                            <template v-if="config.show_extra_info_to_item">
+                                <a
+                                    class="dropdown-item text-1"
+                                    href="#"
+                                    @click.prevent="clickImportExtraWithExtraInfo()"
+                                >L. Atributos</a
+                                >
+                            </template>
                         </div>
                     </div>
                 </template>
                 <button
-                    type="button"
-                    class="btn btn-custom btn-sm mt-2 mr-2"
-                    @click.prevent="clickCreate()"
                     v-if="can_add_new_product"
+                    class="btn btn-custom btn-sm mt-2 mr-2"
+                    type="button"
+                    @click.prevent="clickCreate()"
                 >
                     <i class="fa fa-plus-circle"></i> Nuevo
                 </button>
@@ -108,18 +125,22 @@
                         Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item v-for="(column, index) in columnsComputed" :key="index">
+                        <el-dropdown-item v-for="(column, index) in columnsComputed"
+                                          :key="index">
                             <el-checkbox
                                 v-if="column.title !== undefined && column.visible !== undefined"
                                 v-model="column.visible"
-                            >{{ column.title }}</el-checkbox>
+                            >{{ column.title }}
+                            </el-checkbox>
                         </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
             <div class="card-body">
-                <data-table :resource="resource" :productType="type">
-                    <tr slot="heading" width="100%">
+                <data-table :productType="type"
+                            :resource="resource">
+                    <tr slot="heading"
+                        width="100%">
                         <th>#</th>
                         <th>Cód. Interno</th>
                         <th>Unidad</th>
@@ -129,19 +150,27 @@
                         <th v-if="columns.brand.visible">Marca</th>
                         <th v-if="columns.item_code.visible">Cód. SUNAT</th>
                         <th v-if="(columns.sanitary!== undefined && columns.sanitary.visible===true )">R.S.</th>
-                        <th v-if="(columns.cod_digemid!== undefined && columns.cod_digemid.visible===true )">DIGEMID</th>
+                        <th v-if="(columns.cod_digemid!== undefined && columns.cod_digemid.visible===true )">DIGEMID
+                        </th>
                         <template v-if="typeUser == 'admin'">
                             <th class="text-center">Historial</th>
                         </template>
                         <th class="text-left">Stock</th>
-                        <th v-if="(columns.extra_data!== undefined && columns.extra_data.visible===true )" class="text-center">Stock por datos extra</th>
+                        <th v-if="(columns.extra_data!== undefined && columns.extra_data.visible===true )"
+                            class="text-center">Stock por datos extra
+                        </th>
                         <th class="text-right">P.Unitario (Venta)</th>
-                        <th v-if="typeUser != 'seller' && columns.purchase_unit_price.visible" class="text-right">
+                        <th v-if="typeUser != 'seller' && columns.purchase_unit_price.visible"
+                            class="text-right">
                             P.Unitario (Compra)
                         </th>
-                        <th class="text-center" v-if="columns.real_unit_price.visible">P. venta</th>
+                        <th v-if="columns.real_unit_price.visible"
+                            class="text-center">P. venta
+                        </th>
                         <th class="text-center">Tiene Igv (Venta)</th>
-                        <th class="text-center" v-if="columns.purchase_has_igv_description.visible">Tiene Igv (Compra)</th>
+                        <th v-if="columns.purchase_has_igv_description.visible"
+                            class="text-center">Tiene Igv (Compra)
+                        </th>
                         <th class="text-right"></th>
                     </tr>
 
@@ -158,14 +187,19 @@
                         <td v-if="columns.brand.visible">{{ row.brand }}</td>
                         <td v-if="columns.description.visible">{{ row.name }}</td>
                         <td v-if="columns.item_code.visible">{{ row.item_code }}</td>
-                        <td v-if="(columns.sanitary!== undefined && columns.sanitary.visible===true )">{{ row.sanitary }}</td>
-                        <td v-if="(columns.cod_digemid!== undefined && columns.cod_digemid.visible===true )">{{ row.cod_digemid }}</td>
+                        <td v-if="(columns.sanitary!== undefined && columns.sanitary.visible===true )">{{
+                                row.sanitary
+                                                                                                       }}
+                        </td>
+                        <td v-if="(columns.cod_digemid!== undefined && columns.cod_digemid.visible===true )">
+                            {{ row.cod_digemid }}
+                        </td>
 
                         <template v-if="typeUser == 'admin'">
                             <td class="text-center">
                                 <button
-                                    type="button"
                                     class="btn waves-effect waves-light btn-xs btn-primary"
+                                    type="button"
                                     @click.prevent="clickHistory(row.id)"
                                 >
                                     <i class="fa fa-history"></i>
@@ -183,7 +217,8 @@
                                         typeUser == 'seller' &&
                                         row.unit_type_id != 'ZZ'
                                     "
-                                    >{{ row.stock }}</template
+                                >{{ row.stock }}
+                                </template
                                 >
                                 <template
                                     v-else-if="
@@ -192,8 +227,8 @@
                                     "
                                 >
                                     <button
-                                        type="button"
                                         class="btn waves-effect waves-light btn-xs btn-info"
+                                        type="button"
                                         @click.prevent="
                                             clickWarehouseDetail(row.warehouses, row.item_unit_types)
                                         "
@@ -227,8 +262,8 @@
                             )
                                 ">
                                 <button
-                                    type="button"
                                     class="btn waves-effect waves-light btn-xs btn-primary"
+                                    type="button"
                                     @click.prevent="clickStockItems(row)"
                                 >
                                     <i class="fa fa-database"></i>
@@ -236,24 +271,33 @@
                             </template>
                         </td>
                         <td class="text-right">{{ row.sale_unit_price }}</td>
-                        <td v-if="typeUser != 'seller' && columns.purchase_unit_price.visible" class="text-right">
+                        <td v-if="typeUser != 'seller' && columns.purchase_unit_price.visible"
+                            class="text-right">
                             {{ row.purchase_unit_price }}
                         </td>
-                        <td class="text-center" v-if="columns.real_unit_price.visible">
+                        <td v-if="columns.real_unit_price.visible"
+                            class="text-center">
                             {{ row.sale_unit_price_with_igv }}
                         </td>
                         <td class="text-center">
                             {{ row.has_igv_description }}
                         </td>
-                        <td class="text-center" v-if="columns.purchase_has_igv_description.visible">
+                        <td v-if="columns.purchase_has_igv_description.visible"
+                            class="text-center">
                             {{ row.purchase_has_igv_description }}
                         </td>
                         <td class="text-right">
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button id="dropdownMenuButton"
+                                        aria-expanded="false"
+                                        aria-haspopup="true"
+                                        class="btn btn-default btn-sm"
+                                        data-toggle="dropdown"
+                                        type="button">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <div aria-labelledby="dropdownMenuButton"
+                                     class="dropdown-menu">
 
                                     <template v-if="typeUser === 'admin'">
                                         <button
@@ -276,16 +320,16 @@
                                         </button>
 
                                         <button
+                                            v-if="row.active"
                                             class="dropdown-item"
                                             @click.prevent="clickDisable(row.id)"
-                                            v-if="row.active"
                                         >
                                             Inhabilitar
                                         </button>
                                         <button
+                                            v-else
                                             class="dropdown-item"
                                             @click.prevent="clickEnable(row.id)"
-                                            v-else
                                         >
                                             Habilitar
                                         </button>
@@ -312,8 +356,8 @@
             </div>
 
             <items-form
-                :showDialog.sync="showDialog"
                 :recordId="recordId"
+                :showDialog.sync="showDialog"
                 :type="type"
             ></items-form>
 
@@ -322,27 +366,41 @@
             <items-export-wp
                 :showDialog.sync="showExportWpDialog"
             ></items-export-wp>
+
             <items-export-barcode
                 :showDialog.sync="showExportBarcodeDialog"
             ></items-export-barcode>
 
+            <items-export-extra
+                :showDialog.sync="showExportExtraDialog"
+            ></items-export-extra>
             <warehouses-detail
+                :item_unit_types="item_unit_types"
                 :showDialog.sync="showWarehousesDetail"
                 :warehouses="warehousesDetail"
-                :item_unit_types="item_unit_types"
             >
             </warehouses-detail>
 
             <items-import-list-price
                 :showDialog.sync="showImportListPriceDialog"
             ></items-import-list-price>
+
+            <items-import-extra-info
+                :showDialog.sync="showImportExtraWithExtraInfo"
+            ></items-import-extra-info>
+
+
+            <!--
+            : false,
+            show_extra_info_to_item
+            -->
             <tenant-item-aditional-info-modal
-                :showDialog.sync="showDialogItemStock"
                 :item="recordItem"
+                :showDialog.sync="showDialogItemStock"
             ></tenant-item-aditional-info-modal>
             <items-history
-                :showDialog.sync="showDialogHistory"
                 :recordId="recordId"
+                :showDialog.sync="showDialogHistory"
             >
             </items-history>
         </div>
@@ -354,9 +412,12 @@ import ItemsForm from "./form.vue";
 import WarehousesDetail from "./partials/warehouses.vue";
 import ItemsImport from "./import.vue";
 import ItemsImportListPrice from "./partials/import_list_price.vue";
+import ItemsImportExtraInfo from "./partials/import_list_extra_info.vue";
+// resources/js/views/tenant/items/partials/import_list_extra_info.vue
 import ItemsExport from "./partials/export.vue";
 import ItemsExportWp from "./partials/export_wp.vue";
 import ItemsExportBarcode from "./partials/export_barcode.vue";
+import ItemsExportExtra from "./partials/export_extra.vue";
 import DataTable from "../../../components/DataTable.vue";
 import {deletable} from "../../../mixins/deletable";
 import ItemsHistory from "@viewsModuleItem/items/history.vue";
@@ -374,9 +435,11 @@ export default {
         ItemsExport,
         ItemsExportWp,
         ItemsExportBarcode,
+        ItemsExportExtra,
         DataTable,
         WarehousesDetail,
         ItemsImportListPrice,
+        ItemsImportExtraInfo,
         ItemsHistory,
     },
     data() {
@@ -387,7 +450,9 @@ export default {
             showExportDialog: false,
             showExportWpDialog: false,
             showExportBarcodeDialog: false,
+            showExportExtraDialog: false,
             showImportListPriceDialog: false,
+            showImportExtraWithExtraInfo: false,
             showWarehousesDetail: false,
             resource: "items",
             recordId: null,
@@ -446,14 +511,14 @@ export default {
         this.$store.commit('setConfiguration', this.configuration);
         this.loadConfiguration()
 
-        if(this.config.is_pharmacy !== true){
+        if (this.config.is_pharmacy !== true) {
             delete this.columns.sanitary;
             delete this.columns.cod_digemid;
-         }
-         if(this.config.show_extra_info_to_item !== true){
-             delete this.columns.extra_data;
+        }
+        if (this.config.show_extra_info_to_item !== true) {
+            delete this.columns.extra_data;
 
-         }
+        }
         if (this.type === 'ZZ') {
             this.titleTopBar = 'Servicios';
             this.title = 'Listado de servicios';
@@ -462,16 +527,26 @@ export default {
             this.title = 'Listado de productos';
         }
         this.$http.get(`/configurations/record`).then((response) => {
-            this.$store.commit('setConfiguration',response.data.data);
+            this.$store.commit('setConfiguration', response.data.data);
             //this.config = response.data.data;
         });
         this.canCreateProduct();
+        this.getItems()
     },
-    computed:{
+    computed: {
         ...mapState([
             'config',
+            'colors',
+            'CatItemSize',
+            'CatItemMoldCavity',
+            'CatItemMoldProperty',
+            'CatItemUnitBusiness',
+            'CatItemStatus',
+            'CatItemPackageMeasurement',
+            'CatItemProductFamily',
+            'CatItemUnitsPerPackage'
         ]),
-        columnsComputed:function(){
+        columnsComputed: function () {
             return this.columns;
         }
     },
@@ -480,16 +555,15 @@ export default {
         ...mapActions([
             'loadConfiguration',
         ]),
-        clickHistory(recordId){
+        clickHistory(recordId) {
             this.recordId = recordId
             this.showDialogHistory = true
         },
-        clickStockItems(row){
+        clickStockItems(row) {
             this.recordItem = row
             this.showDialogItemStock = true
         },
-        canCreateProduct()
-        {
+        canCreateProduct() {
             if (this.typeUser === 'admin') {
                 this.can_add_new_product = true
             } else if (this.typeUser === 'seller') {
@@ -501,7 +575,7 @@ export default {
         },
         duplicate(id) {
             this.$http
-                .post(`${this.resource}/duplicate`, { id })
+                .post(`${this.resource}/duplicate`, {id})
                 .then((response) => {
                     if (response.data.success) {
                         this.$message.success(
@@ -512,7 +586,8 @@ export default {
                         this.$message.error("No se guardaron los cambios");
                     }
                 })
-                .catch((error) => {});
+                .catch((error) => {
+                });
             this.$eventHub.$emit("reloadData");
         },
         clickWarehouseDetail(warehouses, item_unit_types) {
@@ -536,8 +611,14 @@ export default {
         clickExportBarcode() {
             this.showExportBarcodeDialog = true;
         },
+        clickExportExtra() {
+            this.showExportExtraDialog = true;
+        },
         clickImportListPrice() {
             this.showImportListPriceDialog = true;
+        },
+        clickImportExtraWithExtraInfo() {
+            this.showImportExtraWithExtraInfo = true;
         },
         clickDelete(id) {
             this.destroy(`/${this.resource}/${id}`).then(() =>
@@ -571,6 +652,22 @@ export default {
             }
 
             window.open(`/${this.resource}/export/barcode/print?id=${row.id}`);
+        },
+        getItems() {
+            this.$http.get(`/${this.resource}/item/tables`).then(response => {
+                let data = response.data
+                    if(this.config.show_extra_info_to_item) {
+                        this.$store.commit('setColors', data.colors)
+                        this.$store.commit('setCatItemSize', data.CatItemSize)
+                        this.$store.commit('setCatItemMoldCavity', data.CatItemMoldCavity);
+                        this.$store.commit('setCatItemMoldProperty', data.CatItemMoldProperty);
+                        this.$store.commit('setCatItemUnitBusiness', data.CatItemUnitBusiness);
+                        this.$store.commit('setCatItemStatus', data.CatItemStatus);
+                        this.$store.commit('setCatItemPackageMeasurement', data.CatItemPackageMeasurement);
+                        this.$store.commit('setCatItemProductFamily', data.CatItemProductFamily);
+                        this.$store.commit('setCatItemUnitsPerPackage', data.CatItemUnitsPerPackage);
+                    }
+            })
         },
     },
 };

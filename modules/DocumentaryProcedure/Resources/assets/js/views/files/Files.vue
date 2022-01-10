@@ -155,25 +155,6 @@
                                         </div>
                                     </el-tooltip>
                                 </div>
-                                <!--
-                                <div
-                                    v-for="(stage,i) in item.documentary_file_offices"
-                                    v-if="item !== undefined && item.documentary_file_offices !== undefined"
-                                    :key="i"
-                                >
-                                    <el-tooltip
-                                        class="item"
-                                        effect="dark" placement="top-start"
-
-                                    >
-                                        <div slot="content">
-                                            {{ stage.office_name }}<br>Inicia {{ stage.start_date }}<br>Finaliza
-                                            {{ stage.end_date }}
-                                        </div>
-                                        <div :class="stage.class">{{ stage.office_name }}</div>
-                                    </el-tooltip>
-                                </div>
-                                -->
 
                             </td>
                             <td>

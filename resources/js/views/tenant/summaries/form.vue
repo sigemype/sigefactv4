@@ -10,6 +10,21 @@
                             <small class="form-control-feedback" v-if="errors.date_of_reference" v-text="errors.date_of_reference[0]"></small>
                         </div>
                     </div>
+
+                    <div class="col-md-4" v-if="show_summary_status_type">
+                        <div class="form-group" :class="{'has-danger': errors.summary_status_type_id}">
+                            <label class="control-label">Tipo de estado</label>
+                            <el-select v-model="form.summary_status_type_id"
+                                        filterable>
+                                <el-option v-for="option in summary_status_types"
+                                            :key="option.id"
+                                            :label="option.description"
+                                            :value="option.id"></el-option>
+                            </el-select>
+                            <small class="form-control-feedback" v-if="errors.summary_status_type_id" v-text="errors.summary_status_type_id[0]"></small>
+                        </div>
+                    </div>
+
                     <div class="col-md-4 d-flex align-items-end justify-content-end pt-2">
                         <div class="form-group">
                             <button type="button" class="btn waves-effect waves-light btn-info" @click.prevent="clickSearchDocuments" dusk="search-documents">Buscar comprobantes</button>
@@ -79,12 +94,24 @@
                 resource: 'summaries',
                 errors: {},
                 form: {},
+                summary_status_types: [],
+                show_summary_status_type: false,
             }
         },
         created() {
+            this.getTables()
             this.initForm()
         },
         methods: {
+            async getTables(){
+
+                await this.$http.get(`/${this.resource}/tables`)
+                    .then(response => {
+                        this.summary_status_types = response.data.summary_status_types
+                        this.show_summary_status_type = response.data.show_summary_status_type
+                    })
+
+            },
             initForm() {
                 this.loading_submit = false,
                 this.loading_search = false,
@@ -146,7 +173,7 @@
                     })
                     .catch(error => {
                         if (error.response.status === 422) {
-                            this.errors = error.response.data.errors
+                            this.errors = error.response.data
                         } else {
                             this.$message.error(error.response.data.message)
                         }

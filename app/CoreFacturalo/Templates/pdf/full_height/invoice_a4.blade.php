@@ -22,10 +22,16 @@
 
     $document->load('reference_guides');
 
+    $height = !is_null($document_base) ? 50 : 54;
+
+    if (count($accounts)) {
+        $height = $height-(4 * (count($accounts)>1 ? count($accounts)/1.5 : count($accounts)) );
+    }
+
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
 
-// Condicion de pago
+    // Condicion de pago
     $condition = TemplateHelper::getDocumentPaymentCondition($document);
 	// Pago/Coutas detalladas
     $paymentDetailed = TemplateHelper::getDetailedPayment($document)
@@ -122,10 +128,10 @@
                         <strong>MONEDA: </strong>
                         <span class="text-upp">{{ $document->currency_type->description }}</span>
                     </td>
-                    <td colspan=""  class="font-xlg">
+                    {{-- <td colspan=""  class="font-xlg">
                         <strong>CONDICIÓN DE PAGO: </strong>
                         <span class="text-upp">{{ $condition }}</span>
-                    </td>
+                    </td> --}}
                 </tr>
                 <tr>
                     <td  class="font-xlg">
@@ -150,7 +156,7 @@
     <tr>
         <td width="16.6%" class="desc">UBIGEO</td>
         <td width="16.6%" class="desc">O/C</td>
-        <td width="16.6%" class="desc">CONDICIONES DE PAGO</td>
+        <td width="16.6%" class="desc">CONDICIÓN DE PAGO</td>
         <td width="16.6%" class="desc">VENDEDOR</td>
         <td width="16.6%" class="desc">GUIA DE REMISIÓN</td>
         <td width="16.6%" class="desc">AGENCIA DE TRANSPORTE</td>
@@ -159,6 +165,7 @@
         <td class="desc"></td>
         <td class="desc">{{$document->purchase_order}}</td>
         <td class="desc">
+            {{ $condition }}
             @php
                 $payment = 0;
             @endphp
@@ -183,20 +190,21 @@
         <td class="desc"></td>
     </tr>
 </table>
-<div style="border: 1px solid #000;height: 48%;padding-left: -1px;width:95.1%;position: absolute;display: table;">
+<div style="border: 1px solid #000;height: {{$height}}%;padding-left: -1px;width:95.1%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:11.4%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: {{$height}}.1%;padding-left: -1px;width:11.4%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:49.5%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: {{$height}}.1%;padding-left: -1px;width:49.5%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:57.2%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: {{$height}}.1%;padding-left: -1px;width:57.2%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:64.8%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: {{$height}}.1%;padding-left: -1px;width:64.8%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:76.3%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: {{$height}}.1%;padding-left: -1px;width:76.3%;position: absolute;display: table;">
 </div>
-<div style="border-right: 1px solid #000;height: 48.1%;padding-left: -1px;width:83.7%;position: absolute;display: table;">
+<div style="border-right: 1px solid #000;height: {{$height}}.1%;padding-left: -1px;width:83.7%;position: absolute;display: table;">
 </div>
+
 
 
 <table class="full-width mt-0 mb-0">
@@ -264,6 +272,7 @@
                 <td class="p-1 text-right align-top desc">{{ number_format($row->total, 2) }}</td>
             </tr>
         @endforeach
+
     </tbody>
 </table>
 

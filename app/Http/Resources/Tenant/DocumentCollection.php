@@ -14,8 +14,7 @@ class DocumentCollection extends ResourceCollection
      * @return mixed
      */
     public function toArray($request) {
-        return $this->collection->transform(function($row, $key) {
-            /** @var \App\Models\Tenant\Document $row */
+        return $this->collection->transform(function(\App\Models\Tenant\Document $row, $key) {
             $has_xml = true;
             $has_pdf = true;
             $has_cdr = false;
@@ -188,7 +187,9 @@ class DocumentCollection extends ResourceCollection
                 'purchase_order' => $row->purchase_order,
                 'is_editable' => $row->is_editable,
                 'dispatches' => $this->getDispatches($row),
+               'soap_type' => $row->soap_type,
             ];
+
         });
     }
 

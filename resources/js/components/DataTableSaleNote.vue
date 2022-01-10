@@ -14,7 +14,7 @@
                             </el-select>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-4 col-sm-12 pb-2">
+                    <div class="col-lg-2 col-md-2 col-sm-12 pb-2">
                         <template v-if="search.column=='date_of_issue' || search.column=='date_of_due' || search.column=='date_of_payment'">
                             <el-date-picker
                                 v-model="search.value"
@@ -36,6 +36,12 @@
                             <el-option v-for="option in series" :key="option.number" :value="option.number" :label="option.number"></el-option>
                         </el-select>
                     </div>
+                    <div class="col-lg-2 col-md-2 form-group"  >
+                            <el-input placeholder="Número"
+                                      v-model="search.number">
+                            </el-input>
+                    </div>
+
                     <div class="col-lg-2 col-md-3 form-group">
                         <el-select placeholder="Estado de pago" v-model="search.total_canceled" clearable>
                             <el-option :value="1" label="Pagado"></el-option>

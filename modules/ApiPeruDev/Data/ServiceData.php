@@ -170,4 +170,12 @@ class ServiceData
             'sale' => 1,
         ];
     }
+
+    public function printer_ticket($data)
+    {
+        $this->parameters['form_params'] = $data;
+        $res = $this->client->request('POST', '/api/printer_ticket', $this->parameters);
+
+        return json_decode($res->getBody()->getContents(), true);
+    }
 }

@@ -14,9 +14,6 @@
          * @return \Symfony\Component\HttpFoundation\StreamedResponse
          */
         public function download(DocumentaryFilesArchives $id) {
-            //getPublicName
-            // $path = config('filesystems.disks.public.root')
-
             $e = Storage::exists($id->getAttachedFile());
             if ($e) {
                 return Storage::download($id->getAttachedFile(), $id->getPublicName());

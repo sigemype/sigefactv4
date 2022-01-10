@@ -164,8 +164,7 @@
                 index_file: null,
                 fileList: [],
                 showAddButton: true,
-                document: {},
-                form_cash_document: {},
+                document: {}
             }
         },
         async created() {
@@ -218,11 +217,6 @@
                 this.records = [];
                 this.fileList = [];
                 this.showAddButton = true;
-
-                this.form_cash_document = {
-                    document_id: null,
-                    sale_note_id: null
-                }
             },
             async getData() {
                 this.initForm();
@@ -270,6 +264,7 @@
                     paid = true
                 }
 
+
                 let form = {
                     id: this.records[index].id,
                     sale_note_id: this.documentId,
@@ -282,7 +277,6 @@
                     payment: this.records[index].payment,
                     paid: paid
                 };
-
                 this.$http.post(`/${this.resource}`, form)
                     .then(response => {
                         if (response.data.success) {
@@ -301,11 +295,7 @@
                         } else {
                             console.log(error);
                         }
-                    });
-
-                    this.form_cash_document.sale_note_id = this.documentId;
-                    this.saveCashDocument();
-
+                    })
             },
             // filterDocumentType(row){
             //
@@ -332,20 +322,7 @@
                     }
                     // this.initDocumentTypes()
                 )
-            },
-            saveCashDocument() {
-                this.$http.post(`/cash/cash_document`, this.form_cash_document)
-                    .then(response => {
-                        if (response.data.success) {
-                            // console.log(response)
-                        } else {
-                            this.$message.error(response.data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    })
-            },
+            }
         }
     }
 </script>

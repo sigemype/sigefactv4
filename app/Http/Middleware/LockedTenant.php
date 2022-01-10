@@ -17,8 +17,11 @@ class LockedTenant
     public function handle($request, Closure $next)
     {
         $configuration = Configuration::first();
+        if(null === $configuration) {
+            $configuration = new Configuration();
+        }
 
-        if($configuration->locked_tenant){
+        if($configuration->isLockedTenant()){
             abort(403);
         }
 

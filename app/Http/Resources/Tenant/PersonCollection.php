@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Models\Tenant\Person;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PersonCollection extends ResourceCollection
@@ -14,8 +15,8 @@ class PersonCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return $this->collection->transform(function($row, $key) {
-            /** @var \App\Models\Tenant\Person $row */
+        return $this->collection->transform(function(Person $row, $key) {
+
             return  $row->getCollectionData();
             /** Pasado al modelo  */
             return [

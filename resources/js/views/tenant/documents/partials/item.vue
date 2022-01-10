@@ -6,6 +6,11 @@
                top="7vh"
                @close="close"
                @open="create">
+        <Keypress
+            key-event="keyup"
+            @success="checkKey"
+        />
+
         <form autocomplete="off"
               @submit.prevent="clickAddItem">
             <div class="form-body">
@@ -38,6 +43,7 @@
                                         placeholder="Buscar"
                                         popper-class="el-select-items"
                                         remote
+                                        :tabindex="'1'"
                                         @change="changeItem"
                                         @focus="focusSelectItem"
                                         @visible-change="focusTotalItem">
@@ -157,6 +163,7 @@
 
                             <label class="control-label">Cantidad</label>
                             <el-input
+                                :tabindex="'2'"
                                 ref="inputQuantity"
                                 v-model="form.quantity"
                                 :disabled="form.item.calculate_quantity"
@@ -185,6 +192,7 @@
                              class="form-group">
                             <label class="control-label">Precio Unitario</label>
                             <el-input v-model="form.unit_price_value"
+                                      :tabindex="'3'"
                                       :readonly="!edit_unit_price"
                                       @input="calculateQuantity">
                                 <template v-if="form.item.currency_type_symbol"
@@ -465,10 +473,22 @@
                 <div class="col-12">
                     &nbsp;
                 </div>
+
+
+
+
                 <div class="col-6">
-                    <el-button class="form-control"
-                               @click.prevent="close()">Cerrar
-                    </el-button>
+                    <el-popover
+                        placement="top-start"
+                        :open-delay="1000"
+                        width="145"
+                        trigger="hover"
+                        content="Presiona ESC">
+                        <el-button slot="reference"
+                                   @click.prevent="close()">
+                            Cerrar
+                        </el-button>
+                    </el-popover>
                 </div>
                 <div class="col-6">
                     <el-button v-if="form.item_id"
@@ -544,6 +564,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import VueCkeditor from 'vue-ckeditor5'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import {ItemOptionDescription, ItemSlotTooltip} from "../../../../helpers/modal_item";
+import Keypress from "vue-keypress";
 
 export default {
     props: [
@@ -562,6 +583,7 @@ export default {
     components: {
         ItemForm,
         WarehousesDetail,
+        Keypress,
         LotsGroup,
         SelectLotsForm,
         'vue-ckeditor': VueCkeditor.component
@@ -945,7 +967,7 @@ export default {
             this.titleAction = (this.recordItem) ? ' Editar' : ' Agregar';
             let operation_type = await _.find(this.operation_types, {id: this.operationTypeId})
             this.affectation_igv_types = await _.filter(this.all_affectation_igv_types, {exportation: operation_type.exportation})
-
+//
 
             if (this.recordItem) {
                 if (this.recordItem.item !== undefined && this.recordItem.item.extra !== undefined) {
@@ -1003,6 +1025,7 @@ export default {
             } else {
                 this.isUpdateWarehouseId = null
             }
+            this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
 
         },
         setPresentationEditItem() {
@@ -1510,6 +1533,12 @@ export default {
                 }
             }
         },
+        checkKey(e){
+            let code = e.event.code;
+            if(code === 'Escape'){
+                this.close()
+            }
+        }
     }
 }
 

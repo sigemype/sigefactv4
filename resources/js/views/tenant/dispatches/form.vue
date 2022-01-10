@@ -476,6 +476,7 @@ import {mapActions, mapState} from "vuex";
 export default {
     props: [
         'document',
+        'documentItems',
         'typeDocument',
         'dispatch',
         'configuration',
@@ -566,6 +567,9 @@ export default {
             this.form.transfer_reason_type_id = '01'
             this.form.transport_mode_type_id = '02'
             this.form.items = this.document.items
+            if(this.documentItems !== undefined){
+                this.form.items = this.documentItems
+            }
             this.form.origin.country_id = this.document.establishment.country_id
 
             if(this.configuration.set_address_by_establishment)
@@ -644,9 +648,9 @@ export default {
             if(this.configuration.set_address_by_establishment){
 
                 let establishment = _.find(this.establishments, { id : this.form.establishment_id})
-    
+
                 if(this.form.origin && establishment){
-    
+
                     this.form.origin.address = establishment.address
                     this.form.origin.location_id = [
                         establishment.department_id,

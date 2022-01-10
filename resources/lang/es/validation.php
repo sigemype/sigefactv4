@@ -289,6 +289,8 @@ return [
 		'has_isc'           => 'incluye ISC',
 		'percentage_isc'           => 'porcentaje ISC',
 		'movement_type'           => 'tipo movimiento',
+		'affectation_igv_type_id'           => 'tipo de afectación',
+		'summary_status_type_id' => 'tipo de estado',
 
 	],
 ];

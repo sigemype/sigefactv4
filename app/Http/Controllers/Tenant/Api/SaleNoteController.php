@@ -100,6 +100,8 @@ class SaleNoteController extends Controller
             /*foreach ($data['payments'] as $row) {
                 $this->sale_note->payments()->create($row);
             }*/
+            $payments = new \App\Http\Controllers\Tenant\SaleNoteController;
+            $payments->savePayments($this->sale_note, $data['payments']);
 
             $this->setFilename();
             $this->createPdf($this->sale_note, 'a4', $this->sale_note->filename);

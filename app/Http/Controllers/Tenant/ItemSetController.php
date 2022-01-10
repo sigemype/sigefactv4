@@ -25,6 +25,8 @@ use App\Models\Tenant\ItemTag;
 use App\Models\Tenant\Catalogs\Tag;
 use Illuminate\Support\Facades\DB;
 use Modules\Finance\Helpers\UploadFileHelper;
+use Modules\Item\Models\Brand;
+use Modules\Item\Models\Category;
 use Modules\Item\Models\WebPlatform;
 
 
@@ -68,16 +70,25 @@ class ItemSetController extends Controller
         $system_isc_types = SystemIscType::whereActive()->orderByDescription()->get();
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $web_platforms = WebPlatform::get();
+        $categories = Category::all();
+        $brands = Brand::all();
         // $warehouses = Warehouse::all();
         // $accounts = Account::all();
-        // $tags = Tag::all(); 
+        // $tags = Tag::all();
 
-        return compact('unit_types', 'currency_types', 'attribute_types', 'system_isc_types', 'affectation_igv_types', 'web_platforms');
+        return compact('unit_types',
+            'currency_types',
+            'brands',
+            'categories',
+            'attribute_types',
+            'system_isc_types',
+            'affectation_igv_types',
+            'web_platforms');
     }
 
 
     public function item_tables()
-    { 
+    {
 
         $individual_items = Item::whereWarehouse()->whereTypeUser()->whereNotIsSet()->whereIsActive()->get()->transform(function($row) {
             $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
@@ -133,14 +144,14 @@ class ItemSetController extends Controller
             $item->sets()->delete();
 
             foreach ($request->individual_items as $row) {
-                
+
                 $item->sets()->create([
                     'individual_item_id' => $row['individual_item_id'],
                     'quantity' => $row['quantity'],
                 ]);
 
             }
-            
+
             $item->update();
 
             return $item;
@@ -215,9 +226,9 @@ class ItemSetController extends Controller
 
     public function upload(Request $request)
     {
-        
+
         $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg');
-        
+
         if(!$validate_upload['success']){
             return $validate_upload;
         }

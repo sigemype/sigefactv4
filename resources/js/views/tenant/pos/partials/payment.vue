@@ -502,7 +502,7 @@ export default {
 
         await this.getFormPosLocalStorage()
         // console.log(this.form.payments, this.payments)
-        console.log(this.isPrint);
+        // console.log(this.isPrint);
         if (!qz.websocket.isActive() && this.isPrint) {
             startConnection();
         }
@@ -1003,7 +1003,7 @@ export default {
                 route = `/sale-notes/ticket/${this.documentNewId}/ticket`;
             }
 
-            console.log(route);
+            // console.log(route);
 
             this.$http.get(route)
             .then(response => {

@@ -125,6 +125,7 @@
                 <div class=" ">
                     @php
                         $acum_total=0;
+                        $acu_total_sale = 0;
                     @endphp
                     <table class="">
                         <thead>
@@ -133,30 +134,59 @@
                                 <th  class="text-center">Documento</th>
                                 <th  class="text-center">Cod. Interno</th>
                                 <th  class="text-center">Unidad</th>
+                                <th  class="text-center">Categoria</th>
                                 <th  class="text-left">Producto</th>
                                 <th  class="text-center">Cantidad</th>
+                                <th  class="text-center">Total de venta</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($records as $key => $value)
+                                <?php
+                                $unit_type_id = 'ZZ';
+
+                                $brand = "";
+                                $category = "";
+                                $unit_price = 1;
+                                if ($value->item->presentation) {
+                                    $unit_type_id = $value->item->presentation->unit_type_id;
+                                }
+                                if($unit_type_id !== 'ZZ'){
+                                    $item = \App\Models\Tenant\Item::select('brand_id')->where('internal_id',$value->item->internal_id)->first();
+                                    if(!empty($item)){
+                                        $brand = $item->brand;
+                                        $brand = $brand['name'];
+                                        $category = $item->category;
+                                        $category = $category['name'];
+                                    }
+                                }
+                                if (property_exists($value->item,'unit_price')) {
+                                    $unit_price = $value->item->unit_price;
+                                }
+                                $total_sale = $unit_price * $value->quantity;
+                                    ?>
                                 <tr>
                                     <td class="celda">{{$loop->iteration}}</td>
                                     <td class="celda">{{$value->series}}-{{$value->number}}</td>
                                     <td class="celda">{{$value->relation_item->internal_id}}</td>
                                     <td class="celda">{{ ($value->item->presentation) ? $value->item->presentation->unit_type_id : $value->relation_item->unit_type_id}}</td>
+                                     <td class="celda">{{$category}}</td>
                                     {{-- <td class="celda">{{$value->relation_item->unit_type_id}}</td> --}}
                                     <td class="celda">{{$value->item->description}}</td>
                                     <td class="celda">{{$value->quantity}}</td>
+                                    <td class="celda">{{$total_sale}}</td>
                                 </tr>
 
                                 @php
                                     $acum_total += $value->quantity;
+                                    $acu_total_sale+=$total_sale;
                                 @endphp
                             @endforeach
                             <tr>
-                                <td class="celda" colspan="4"></td>
+                                <td class="celda" colspan="5"></td>
                                 <td class="celda" ><strong>Total</strong></td>
                                 <td class="celda">{{$acum_total}}</td>
+                                <td class="celda">{{$acu_total_sale}}</td>
                             </tr>
                         </tbody>
                     </table>

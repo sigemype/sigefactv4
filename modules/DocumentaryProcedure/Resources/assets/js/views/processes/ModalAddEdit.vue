@@ -5,10 +5,12 @@
         @close="onClose"
         @open="onCreate"
     >
-        <form autocomplete="off" @submit.prevent="onSubmit">
+        <form autocomplete="off"
+              @submit.prevent="onSubmit">
 
             <el-tabs v-model="activeName">
-                <el-tab-pane class name="first">
+                <el-tab-pane class
+                             name="first">
                     <span slot="label">Datos del tramite</span>
                     <div class="form-body row">
                         <div class="col-md-12 form-group">
@@ -20,7 +22,8 @@
                                 class="form-control"
                                 type="text"
                             />
-                            <div v-if="errors.name" class="invalid-feedback">
+                            <div v-if="errors.name"
+                                 class="invalid-feedback">
                                 {{ errors.name[0] }}
                             </div>
                         </div>
@@ -33,31 +36,71 @@
                                 class="form-control"
                                 type="text"
                             />
-                            <div v-if="errors.description" class="invalid-feedback">
+                            <div v-if="errors.description"
+                                 class="invalid-feedback">
                                 {{ errors.description[0] }}
                             </div>
                         </div>
-                        <div class="col-md-6  form-group">
-                            <label for="price">Precio</label>
-                            <input
-                                id="price"
-                                v-model="form.price"
-                                :class="{ 'is-invalid': errors.price }"
-                                class="form-control"
-                                min="0"
-                                type="number"
-                            />
-                            <div v-if="errors.description" class="invalid-feedback">
-                                {{ errors.description[0] }}
+                        <div class="col-md-6">
+                            <div :class="{'has-danger': errors.total_interest}"
+                                 class="form-group">
+                                <label class="control-label">
+
+                                    Precio
+                                </label>
+
+                                <el-input-number
+                                    v-model="form.price"
+                                    :class="{ 'is-invalid': errors.price }"
+                                    :controls="false"
+                                    :min="0"
+                                    :precision="2"
+                                />
+                                <div v-if="errors.description"
+                                     class="invalid-feedback">
+                                    {{ errors.description[0] }}
+                                </div>
                             </div>
                         </div>
 
                         <div class="col-md-12 form-group">
-                            <label>Mostrar trámite</label>
+                            <label>Activo</label>
                             <el-switch v-model="form.active"></el-switch>
                         </div>
                     </div>
                 </el-tab-pane>
+
+                <el-tab-pane class name="second">
+                    <span slot="label">
+                        Requisitos
+                    </span>
+                    <div class="form-body row">
+                        <div
+                            :class="{ 'has-danger': errors.created_at }"
+                            class="form-group col-sm-12 col-md-12 ">
+                            <label>
+                                Requisitos
+                            </label>
+
+                            <el-select
+                                       v-model="form.requirements_id"
+                                       clearable
+                                       filterable
+                                       :multiple="true"
+                                       placeholder="Requisitos"
+                            >
+                                <el-option
+                                    v-for="of in requirements"
+                                    :key="of.id"
+                                    :label="of.name"
+                                    :value="of.id"
+                                ></el-option>
+                            </el-select>
+                        </div>
+
+                    </div>
+                </el-tab-pane>
+                <!--
                 <el-tab-pane class name="second">
                     <span slot="label">Seleccion de etapas</span>
 
@@ -99,6 +142,7 @@
                         </div>
                     </div>
                 </el-tab-pane>
+                -->
             </el-tabs>
 
             <div class="col-md-12 row text-center p-t-20">
@@ -114,7 +158,9 @@
                     >
                 </div>
                 <div class="col-6">
-                    <el-button class="btn-block" @click="onClose">Cancelar</el-button>
+                    <el-button class="btn-block"
+                               @click="onClose">Cancelar
+                    </el-button>
                 </div>
             </div>
         </form>
@@ -149,7 +195,7 @@ export default {
         return {
             activeName: 'first',
             titles: ['Etapas', 'Seleccionadas'],
-            titles_requirements: ['Requerimientos', 'Seleccionadas'],
+            titles_requirements: ['Requisitos', 'Seleccionadas'],
             form: {},
             title: "",
             errors: {},
@@ -210,6 +256,8 @@ export default {
             this.$emit("update:visible", false);
         },
         onCreate() {
+            this.tabActive = 'first';
+
             if (this.process) {
                 this.form = this.process;
                 this.title = "Editar trámite";
@@ -225,8 +273,6 @@ export default {
         stagesData: function () {
             let data = [];
             this.stages.forEach((val, index) => {
-                    console.error(val)
-                    console.dir(index)
                     data.push({
                         value: val.id,
                         desc: val.selector_name,

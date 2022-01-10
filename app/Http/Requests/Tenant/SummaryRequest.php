@@ -19,7 +19,10 @@ class SummaryRequest extends FormRequest
             ],
             'documents' => [
                 'required'
-            ]
+            ],
+            'summary_status_type_id' => [
+                'required'
+            ],
         ];
     }
 }

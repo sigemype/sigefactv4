@@ -3,8 +3,12 @@
     namespace Modules\DocumentaryProcedure\Http\Controllers;
 
     use App\Models\Tenant\User;
+    use Illuminate\Contracts\View\Factory;
+    use Illuminate\Foundation\Application;
+    use Illuminate\Http\JsonResponse;
     use Illuminate\Http\Request;
     use Illuminate\Routing\Controller;
+    use Illuminate\View\View;
     use Modules\DocumentaryProcedure\Http\Requests\OfficeRequest;
     use Modules\DocumentaryProcedure\Models\DocumentaryOffice as Stage;
     use Modules\DocumentaryProcedure\Models\RelUserToDocumentaryOffices as UserRelStages;
@@ -16,17 +20,19 @@
      *
      * @package Modules\DocumentaryProcedure\Http\Controllers
      */
-    class DocumentaryOfficeController extends Controller {
+    class DocumentaryOfficeController extends Controller
+    {
         /**
-         * @param \Illuminate\Http\Request $request
+         * @param Request $request
          *
-         * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+         * @return Factory|Application|JsonResponse|View
          */
-        public function index(Request $request) {
+        public function index(Request $request)
+        {
             $stages = Stage::orderBy('id');
             // $parents = $stages;
             if ($request->has('name')) {
-                $stages->where('name', 'like', "%".$request->name."%");
+                $stages->where('name', 'like', "%" . $request->name . "%");
             }
 
             $stages = $stages->get()->transform(function ($row) {
@@ -51,31 +57,35 @@
          *
          * @param OfficeRequest $request
          *
-         * @return \Illuminate\Http\JsonResponse
+         * @return JsonResponse
          */
-        public function store(OfficeRequest $request) {
+        public function store(OfficeRequest $request)
+        {
             $office = new Stage();
 
             $office
                 ->setDescription($request->description)
                 ->setName($request->name)
-                ->setParentId($request->parent_id)
-                ->setOrder($request->order);
+                // ->setParentId($request->parent_id)
+                // ->setOrder($request->order)
+            ;
             $office->fill($request->only('active'));
             $office->push();
 
-            foreach ($request->users as $user) {
-                $e = UserRelStages::firstOrCreate([
-                                                      'documentary_office_id' => $office->id,
-                                                      'user_id'               => $user,
-                                                  ]);
-                $e->setActive(true)->push();
+            if ($request->has('users') && !empty($request->users)) {
+                foreach ($request->users as $user) {
+                    $e = UserRelStages::firstOrCreate([
+                        'documentary_office_id' => $office->id,
+                        'user_id' => $user,
+                    ]);
+                    $e->setActive(true)->push();
+                }
             }
             return response()->json([
-                                        'data'    => $office,
-                                        'message' => 'Oficina guardada de forma correcta.',
-                                        'succes'  => true,
-                                    ], 200);
+                'data' => $office,
+                'message' => 'Oficina guardada de forma correcta.',
+                'succes' => true,
+            ], 200);
         }
 
         /**
@@ -84,9 +94,10 @@
          * @param Request $request
          * @param int     $id
          *
-         * @return \Illuminate\Http\JsonResponse
+         * @return JsonResponse
          */
-        public function update(OfficeRequest $request, $id) {
+        public function update(OfficeRequest $request, $id)
+        {
 
 
             $stage = Stage::findOrFail($id);
@@ -95,32 +106,31 @@
                 ->setDescription($request->description)
                 ->setName($request->name)
                 ->setDays($request->days)
-                // ->setParentId($request->parent_id)
-                // ->setOrder($request->order)
             ;
+            $stage->color = $request->color;
             $stage->fill($request->only('active'));
 
 
             $stage->push();
+            if ($request->has('users') && !empty($request->users)) {
 
-            $stages = UserRelStages::where('documentary_office_id', $stage->id)
-                                   ->wherenotin('user_id', $request->users)
-                                   ->delete();
+                $stages = UserRelStages::where('documentary_office_id', $stage->id)
+                    ->wherenotin('user_id', $request->users)
+                    ->delete();
 
-
-            foreach ($request->users as $user) {
-                $e = UserRelStages::firstOrCreate([
-                                                      'documentary_office_id' => $stage->id,
-                                                      'user_id'               => $user,
-                                                  ]);
-                $e->setActive(true)->push();
+                foreach ($request->users as $user) {
+                    $e = UserRelStages::firstOrCreate([
+                        'documentary_office_id' => $stage->id,
+                        'user_id' => $user,
+                    ]);
+                    $e->setActive(true)->push();
+                }
             }
-
             return response()->json([
-                                        'data'    => $stage->getCollectionData(),
-                                        'message' => 'Oficina actualizada de forma correcta.',
-                                        'succes'  => true,
-                                    ], 200);
+                'data' => $stage->getCollectionData(),
+                'message' => 'Oficina actualizada de forma correcta.',
+                'succes' => true,
+            ], 200);
         }
 
         /**
@@ -128,9 +138,10 @@
          *
          * @param int $id
          *
-         * @return \Illuminate\Http\JsonResponse
+         * @return JsonResponse
          */
-        public function destroy($id) {
+        public function destroy($id)
+        {
             try {
                 $office = Stage::findOrFail($id);
                 $relations = UserRelStages::where('documentary_office_id', $office->id)->get();
@@ -140,15 +151,15 @@
                 }
 
                 return response()->json([
-                                            'data'    => null,
-                                            'message' => 'Oficina eliminada de forma correcta.',
-                                            'succes'  => true,
-                                        ], 200);
+                    'data' => null,
+                    'message' => 'Oficina eliminada de forma correcta.',
+                    'succes' => true,
+                ], 200);
             } catch (Throwable $th) {
                 return response()->json([
-                                            'success' => false,
-                                            'data'    => 'Ocurrió un error al procesar su petición. Detalles: '.$th->getMessage(),
-                                        ], 500);
+                    'success' => false,
+                    'data' => 'Ocurrió un error al procesar su petición. Detalles: ' . $th->getMessage(),
+                ], 500);
             }
         }
     }

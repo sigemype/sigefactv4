@@ -208,12 +208,8 @@
     <tbody>
     @foreach($document->items as $row)
         @php
-            $brand = (!empty($row->item) &&
-                     !empty($row->item->brand) &&
-                     !empty($row->item->brand->name)
-                     ) ?
-                $row->item->brand->name :
-                    '';
+            $brand =  \App\CoreFacturalo\Helpers\Template\TemplateHelper::getBrandFormItem($row);;
+
         @endphp
         <tr>
             <td class="text-center align-top">
@@ -248,7 +244,7 @@
                         {{$item}}<br>
                     @endforeach
                 @endif
-                @if($row->item->extra_attr_value != '')
+                  @if($row->item !== null && property_exists($row->item,'extra_attr_value') && $row->item->extra_attr_value != '')
                     <br/><span style="font-size: 9px">{{$row->item->extra_attr_name}}: {{ $row->item->extra_attr_value }}</span>
                 @endif
             </td>

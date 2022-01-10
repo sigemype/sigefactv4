@@ -132,7 +132,7 @@
                         <br/><small>{{ $dtos->factor * 100 }}% {{$dtos->description }}</small>
                     @endforeach
                 @endif
-                @if($row->item->extra_attr_value != '')
+                  @if($row->item !== null && property_exists($row->item,'extra_attr_value') && $row->item->extra_attr_value != '')
                     <br/><span style="font-size: 9px">{{$row->item->extra_attr_name}}: {{ $row->item->extra_attr_value }}</span>
                 @endif
             </td>

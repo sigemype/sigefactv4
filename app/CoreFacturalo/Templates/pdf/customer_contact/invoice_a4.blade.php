@@ -173,6 +173,14 @@
             <td>{{$document->person->contact->full_name}}, telf.: {{$document->person->contact->phone}} </td>
         </tr>
     @endif
+    @if($document->person->zone_id != null)
+        <tr>
+            <td>ZONA</td>
+            <td width="8px">:</td>
+            <td>{{\App\CoreFacturalo\Helpers\Template\TemplateHelper::getZoneById($document->person->zone_id) }}</td>
+        </tr>
+    @endif
+
 </table>
 
 {{--<table class="full-width mt-3">--}}

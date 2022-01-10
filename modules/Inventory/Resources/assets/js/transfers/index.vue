@@ -102,7 +102,8 @@
                 </data-table>
             </div>
 
-            <inventories-form :recordId="recordId" :showDialog.sync="showDialog"></inventories-form>
+            <inventories-form :recordId="recordId"
+                              :showDialog.sync="showDialog"></inventories-form>
             <report-transfers-complete :showDialog.sync="showDialogReportTransfersComplete"></report-transfers-complete>
         </div>
     </div>

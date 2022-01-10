@@ -4,6 +4,7 @@ $type = $type ?? 'sale';
 $plus = $plus ?? 4;
 ?>
 <th style="width:{{$plus+2}}%;">FECHA DE EMISIÓN</th>
+<th style="width:{{$plus+2}}%;">USUARIO/VENDEDOR</th>
 @if($document_type_id != '80' && $type == 'sale')
     <th style="width:3%;">DIST</th>
     <th style="width:3%;">DPTO</th>

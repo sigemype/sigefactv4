@@ -774,6 +774,9 @@ export default {
         onGotoBack() {
             window.location.href = "/hotels/reception";
         },
+        clickCancel(index) {
+            this.document.payments.splice(index, 1);
+        },
         onCalculateTotals() {
             let total_exportation = 0;
             let total_taxed = 0;
@@ -793,15 +796,22 @@ export default {
                 if (row.affectation_igv_type_id === "10") {
                     total_taxed += parseFloat(row.total_value);
                 }
+                
+                if (row.affectation_igv_type_id === '20') {
+                    total_exonerated += parseFloat(row.total_value)
+                }
+
                 if (["10", "20", "30", "40"].indexOf(row.affectation_igv_type_id) < 0) {
                     total_free += parseFloat(row.total_value);
                 }
+
                 if (
                     ["10", "20", "30", "40"].indexOf(row.affectation_igv_type_id) > -1
                 ) {
                     total_igv += parseFloat(row.total_igv);
                     total += parseFloat(row.total);
                 }
+
                 total_value += parseFloat(row.total_value);
                 total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes);
 

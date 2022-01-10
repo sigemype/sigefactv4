@@ -199,6 +199,13 @@
             <td><p class="desc-9">{{$document->person->contact->full_name}}, telf.: {{$document->person->contact->phone}} </p></td>
         </tr>
     @endif
+
+    @if($document->person->zone_id != null)
+        <tr>
+            <td><p class="desc-9">Zona:</p></td>
+            <td><p class="desc-9">{{\App\CoreFacturalo\Helpers\Template\TemplateHelper::getZoneById($document->person->zone_id) }}</td>
+        </tr>
+    @endif
 </table>
 
 @if ($document->guides)

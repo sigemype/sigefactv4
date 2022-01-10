@@ -21,7 +21,7 @@
         </div>
         <div class="card mb-0">
             <div class="card-header bg-info">
-                <h3 class="my-0">Listado de requerimientos</h3>
+                <h3 class="my-0">Listado de requisitos</h3>
             </div>
             <div class="card-body">
                 <div class="row">

@@ -110,20 +110,39 @@
                     Route::get('cash/filter', 'ReportCashController@filter')->name('tenant.reports.cash.filter');
                     Route::get('cash/records', 'ReportCashController@records')->name('tenant.reports.cash.records');
 
+                   /**
+                    * reports/document-hotels
+                    * reports/document-hotels/pdf
+                    * reports/document-hotels/excel
+                    * reports/document-hotels/filter
+                    * reports/document-hotels/records
+                    */
+                   Route::prefix('document-hotels')->group(function () {
 
-                    Route::get('document-hotels', 'ReportDocumentHotelController@index')
-                         ->name('tenant.reports.document_hotels.index');
-                    Route::get('document-hotels/pdf', 'ReportDocumentHotelController@pdf')
-                         ->name('tenant.reports.document_hotels.pdf');
-                    Route::get('document-hotels/excel', 'ReportDocumentHotelController@excel')
-                         ->name('tenant.reports.document_hotels.excel');
-                    Route::get('document-hotels/filter', 'ReportDocumentHotelController@filter')
-                         ->name('tenant.reports.document_hotels.filter');
-                    Route::get('document-hotels/records', 'ReportDocumentHotelController@records')
-                         ->name('tenant.reports.document_hotels.records');
+                       Route::get('', 'ReportDocumentHotelController@index')->name('tenant.reports.document_hotels.index');
+                       Route::get('/pdf', 'ReportDocumentHotelController@pdf')->name('tenant.reports.document_hotels.pdf');
+                       Route::get('/excel', 'ReportDocumentHotelController@excel')->name('tenant.reports.document_hotels.excel');
+                       Route::get('/filter', 'ReportDocumentHotelController@filter')->name('tenant.reports.document_hotels.filter');
+                       Route::get('/records', 'ReportDocumentHotelController@records')->name('tenant.reports.document_hotels.records');
+                   });
+                   /**
+                    * reports/report_hotels
+                    * reports/report_hotels/pdf
+                    * reports/report_hotels/excel
+                    * reports/report_hotels/filter
+                    * reports/report_hotels/records
+                    */
+                   Route::prefix('report_hotels')->group(function () {
+
+                       Route::get('', 'ReportHotelController@index')->name('tenant.reports.report_hotel.index');
+                       Route::get('/pdf', 'ReportHotelController@pdf')->name('tenant.reports.report_hotel.pdf');
+                       Route::get('/excel', 'ReportHotelController@excel')->name('tenant.reports.report_hotel.excel');
+                       Route::get('/filter', 'ReportHotelController@filter')->name('tenant.reports.report_hotel.filter');
+                       Route::get('/records', 'ReportHotelController@records')->name('tenant.reports.report_hotel.records');
+                   });
 
 
-                    Route::get('commercial-analysis', 'ReportCommercialAnalysisController@index')
+                   Route::get('commercial-analysis', 'ReportCommercialAnalysisController@index')
                          ->name('tenant.reports.commercial_analysis.index');
                     Route::get('commercial-analysis/pdf', 'ReportCommercialAnalysisController@pdf')
                          ->name('tenant.reports.commercial_analysis.pdf');
@@ -242,6 +261,8 @@
                     Route::get('sales-consolidated', 'ReportSaleConsolidatedController@index')
                          ->name('tenant.reports.sales_consolidated.index');
                     Route::get('sales-consolidated/pdf', 'ReportSaleConsolidatedController@pdf');
+                    Route::get('sales-consolidated/ticket-totals', 'ReportSaleConsolidatedController@pdfTicketsTotal');
+                    Route::get('sales-consolidated/ticket80-totals', 'ReportSaleConsolidatedController@pdfTicketsTotal80');
                     Route::get('sales-consolidated/excel', 'ReportSaleConsolidatedController@excel');
                     Route::get('sales-consolidated/filter', 'ReportSaleConsolidatedController@filter');
                     Route::get('sales-consolidated/records', 'ReportSaleConsolidatedController@records');

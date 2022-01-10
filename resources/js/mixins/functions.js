@@ -162,10 +162,10 @@ export const serviceNumber = {
 // purchases
 export const fnPaymentsFee = {
     data() {
-        return { 
+        return {
         }
     },
-    methods: { 
+    methods: {
         initDataPaymentCondition(){
 
             this.readonly_date_of_due = false

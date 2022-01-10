@@ -28,7 +28,9 @@
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item v-for="(column, index) in columns" :key="index">
-                            <el-checkbox v-model="column.visible">{{ column.title }}</el-checkbox>
+                            <el-checkbox
+                                @change="getColumnsToShow(1)"
+                                v-model="column.visible">{{ column.title }}</el-checkbox>
                         </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -46,6 +48,12 @@
                         <th v-if="columns.zone.visible === true" class="text-center">Zona</th>
                         <th v-if="columns.website.visible === true" class="text-center">WebSite</th>
                         <th v-if="columns.credit_days.visible === true" class="text-center">Días de crédito</th>
+                        <th v-if="columns.seller.visible === true" class="text-center">Vendedor asignado</th>
+                        <th v-if="columns.email.visible === true" class="text-center">Correo</th>
+                        <th v-if="columns.telephone.visible === true" class="text-center">Telefono</th>
+                        <th v-if="columns.department.visible === true" class="text-center">Departamento</th>
+                        <th v-if="columns.province.visible === true" class="text-center">Provincia</th>
+                        <th v-if="columns.district.visible === true" class="text-center">Distrito</th>
                         <th class="text-right">Acciones</th>
                     <tr>
                     <tr slot-scope="{ index, row }" :class="{ disable_color : !row.enabled}">
@@ -56,9 +64,15 @@
                         <td class="text-right">{{ row.number }}</td>
                         <td v-if="columns.person_type.visible === true" class="text-left">{{ row.person_type }}</td>
                         <td v-if="columns.observation.visible === true" class="text-left">{{ row.observation }}</td>
-                        <td v-if="columns.zone.visible === true" class="text-left">{{ row.zone }}</td>
+                        <td v-if="columns.zone.visible === true" class="text-left">{{ (row.zone)?row.zone.name:'' }}</td>
                         <td v-if="columns.website.visible === true" class="text-left">{{ row.website }}</td>
                         <td v-if="columns.credit_days.visible === true" class="text-center">{{ row.credit_days }}</td>
+                        <td v-if="columns.seller.visible === true " class="text-center">{{ (row.seller && row.seller.name)?row.seller.name:'' }}</td>
+                        <td v-if="columns.email.visible === true " class="text-center">{{ row.email }}</td>
+                        <td v-if="columns.telephone.visible === true " class="text-center">{{ row.telephone?row.telephone:'' }}</td>
+                        <td v-if="columns.department.visible === true " class="text-center">{{ (row.department)?row.department.description:'' }}</td>
+                        <td v-if="columns.province.visible === true " class="text-center">{{ (row.province)?row.province.description:'' }}</td>
+                        <td v-if="columns.district.visible === true " class="text-center">{{ (row.district)?row.district.description:'' }}</td>
                         <td class="text-right">
                             <div class="dropdown">
                                 <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -146,13 +160,60 @@ export default {
                     title: 'Días de crédito',
                     visible: false
                 },
+                seller: {
+                    title: 'Vendedor asignado',
+                    visible: false
+                },
+                email: {
+                    title: 'Correo electrónico',
+                    visible: false
+                },
+                telephone: {
+                    title: 'Teléfono',
+                    visible: false
+                },
+                department: {
+                    title: 'Departamento',
+                    visible: false
+                },
+                province: {
+                    title: 'Provincia',
+                    visible: false
+                },
+                district: {
+                    title: 'Distrito',
+                    visible: false
+                },
+
+
             }
         }
     },
     created() {
         this.title = (this.type === 'customers') ? 'Clientes' : 'Proveedores'
+        this.getColumnsToShow();
     },
     methods: {
+        getColumnsToShow(updated){
+
+            this.$http.post('/validate_columns',{
+                columns : this.columns,
+                report : 'client_index', // Nombre del reporte.
+                updated : (updated !== undefined),
+            })
+                .then((response)=>{
+                    if(updated === undefined){
+                        let currentCols = response.data.columns;
+                        if(currentCols !== undefined) {
+                            this.columns = currentCols
+                        }
+                    }
+                })
+                .catch((error)=>{
+                    console.error(error)
+                })
+        },
+
         clickCreate(recordId = null) {
             this.recordId = recordId
             this.showDialog = true

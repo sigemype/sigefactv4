@@ -152,7 +152,7 @@
           <div class="card-body">
             <div class="row">
               <div
-                class="col-12 col-md-4 form-group"
+                class="col-12 col-md-3 form-group"
                 :class="{ 'has-danger': errors.hotel_rate_id }"
               >
                 <label for="rate">Tarifa</label>
@@ -173,8 +173,35 @@
                   v-text="errors.hotel_rate_id[0]"
                 ></small>
               </div>
+
+              <!-- afectación igv -->
               <div
-                class="col-12 col-md-4 form-group"
+                class="col-12 col-md-3 form-group"
+                :class="{ 'has-danger': errors.affectation_igv_type_id }"
+              >
+                <label for="rate">Tipo de afectación</label>
+                
+                <el-select
+                  v-model="form.affectation_igv_type_id"
+                >
+                  <el-option
+                    v-for="option in getAllowedAffectationIgvTypes"
+                    :key="option.id"
+                    :value="option.id"
+                    :label="option.description"
+                  ></el-option>
+                </el-select>
+
+                <small
+                  class="form-control-feedback"
+                  v-if="errors.affectation_igv_type_id"
+                  v-text="errors.affectation_igv_type_id[0]"
+                ></small>
+              </div>
+              <!-- afectación igv -->
+
+              <div
+                class="col-12 col-md-2 form-group"
                 :class="{ 'has-danger': errors.rate_price }"
                 v-if="rate"
               >
@@ -191,6 +218,8 @@
                   v-text="errors.rate_price[0]"
                 ></small>
               </div>
+
+
               <div
                 class="col-12 col-md-2 form-group"
                 :class="{ 'has-danger': errors.duration }"
@@ -344,11 +373,13 @@ export default {
         output_date: null,
         payment_status: 'PAID',
         quantity_persons: 2,
+        affectation_igv_type_id: null,
       },
       rate: null,
       loading: false,
       showDialogNewPerson: false,
       input_person: {},
+      configuration: {},
       errors: {
         customer: {},
       },
@@ -363,14 +394,23 @@ export default {
       this.reloadDataCustomers(customerId);
     });
   },
+  computed: { 
+      getAllowedAffectationIgvTypes: function () {
+          return this.affectationIgvTypes.filter((item)=>{
+            return ['10', '20'].includes(item.id)
+          })
+      },
+  },
   methods: {
     async onSubmit() {
       this.loading = true;
       await this.$http
         .get(`/documents/search/item/${this.room.item_id}`)
         .then((response) => {
+
           const payload = {};
           const item = response.data.items[0];
+
           payload.item = item;
           payload.discounts = [];
           payload.charges = [];
@@ -379,7 +419,15 @@ export default {
           payload.unit_price_value = this.form.rate_price;
           payload.has_igv = item.has_igv;
           payload.has_plastic_bag_taxes = item.has_plastic_bag_taxes;
-          payload.affectation_igv_type_id = item.sale_affectation_igv_type_id;
+
+          // payload.affectation_igv_type_id = item.sale_affectation_igv_type_id;
+          
+          payload.affectation_igv_type_id = this.form.affectation_igv_type_id
+          payload.affectation_igv_type = _.find(this.affectationIgvTypes, {
+            id: payload.affectation_igv_type_id,
+          });
+
+
           payload.quantity = this.form.duration;
           const unit_price = item.has_igv
             ? payload.unit_price_value
@@ -387,9 +435,6 @@ export default {
           payload.input_unit_price_value = payload.unit_price_value;
           payload.unit_price = unit_price;
           payload.item.unit_price = unit_price;
-          payload.affectation_igv_type = _.find(this.affectationIgvTypes, {
-            id: payload.affectation_igv_type_id,
-          });
           const currencyTypeIdActive = "PEN";
           const exchangeRateSale = 0;
           const product = calculateRowItem(
@@ -477,10 +522,18 @@ export default {
         .get("/hotels/reception/tables")
         .then((response) => {
           this.customers = response.data.customers;
+          this.configuration = response.data.configuration
+          this.setAffectationIgvType()
         })
         .finally(() => {
           this.loading = false;
         });
+    },
+    setAffectationIgvType(){
+
+      let affectation_igv_type = _.find(this.getAllowedAffectationIgvTypes, { id : this.configuration.affectation_igv_type_id})
+      this.form.affectation_igv_type_id = (affectation_igv_type) ? affectation_igv_type.id : '10'
+      
     },
     searchRemoteCustomers(input) {
       if (input.length > 0) {

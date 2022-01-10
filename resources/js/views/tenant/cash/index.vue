@@ -54,6 +54,7 @@
                                 <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'a4')">PDF A4</a>
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'ticket')">PDF Ticket</a>
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'ticket', '58')">PDF Ticket 58</a>
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'excel')">Excel</a>
                                     <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'excel')">Excel</a> -->
                                 </div>
@@ -134,8 +135,13 @@
                 this.showDialogOptions = true
                 this.recordId = recordId
             },
-            clickDownloadReport(id, template){
-                window.open(`/${this.resource}/report-${template}/${id}`, '_blank');
+            clickDownloadReport(id, template, mm = 80){
+                if(template == 'ticket') {
+                    window.open(`/${this.resource}/report-${template}/${id}/${mm}`, '_blank');
+                } else {
+                    window.open(`/${this.resource}/report-${template}/${id}`, '_blank');
+
+                }
             },
             clickDownload(id) {
                 window.open(`/${this.resource}/report/${id}`, '_blank');

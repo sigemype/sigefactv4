@@ -4,12 +4,14 @@
 
     use App\Models\Tenant\Configuration;
     use App\Models\Tenant\Item;
+    use App\Models\Tenant\ItemSupply;
     use App\Models\Tenant\ItemUnitType;
     use App\Models\Tenant\ItemWarehouse;
     use App\Models\Tenant\Warehouse;
     use Illuminate\Database\Query\Builder;
     use Illuminate\Http\Request;
     use Illuminate\Support\Collection;
+    use Modules\Inventory\Traits\InventoryTrait;
 
     /**
      * Tener en cuenta como base modules/Document/Traits/SearchTrait.php
@@ -21,6 +23,7 @@
     class SearchItemController extends Controller
     {
 
+        // use InventoryTrait;
 
         /**
          * Devuelve una lista de items unido entre service y no service.
@@ -105,6 +108,7 @@
 
             self::validateRequest($request);
             $search_item_by_series = Configuration::first()->isSearchItemBySeries();
+            $production = (bool)($request->production ??false);
 
             $items_id = ($request->has('items_id')) ? $request->items_id : null;
             $id = (int)$id;
@@ -126,8 +130,13 @@
             }
 
 
-            $item->with('warehousePrices');
-            $ItemToSearchBySeries->with('warehousePrices');
+            if($production !== false) {
+                // busqueda de insumos, no se lista por codigo de barra o por series
+                $search_item_by_series = false;
+            } else {
+                $item->with('warehousePrices');
+                $ItemToSearchBySeries->with('warehousePrices');
+            }
 
             $alt_item = $item;
 
@@ -433,6 +442,37 @@
          *
          * @return \Illuminate\Database\Eloquent\Collection|Collection
          */
+        public static function getItemsToSupply(Request $request = null, $id = 0)
+        {
+
+            self::validateRequest($request);
+            $search_by_barcode = $request->has('search_by_barcode') && (bool)$request->search_by_barcode;
+            $input = self::setInputByRequest($request);
+            $item = self::getAllItemBase($request, false, $id);
+
+            /*
+            if ($search_by_barcode === false && $input != null) {
+                self::SetWarehouseToUser($item);
+            }
+            */
+             $item->ForProductionSupply();
+             // $item->wherein('id',ItemSupply::select('individual_item_id')->pluck('individual_item_id'));
+            return self::TransformToModalAndSupply($item->orderBy('description')->get());
+
+        }
+
+
+        /**
+         * Retorna la coleccion de items par Documento y Boleta.
+         *  Usado en app/Http/Controllers/Tenant/DocumentController.php::250
+         *  Usado en app/Http/Controllers/Tenant/DocumentController.php::370
+         *  Usado en modules/Document/Http/Controllers/DocumentController.php::297
+         *
+         * @param Request| null $request
+         * @param int           $id
+         *
+         * @return \Illuminate\Database\Eloquent\Collection|Collection
+         */
         public static function getItemsToDocuments(Request $request = null, $id = 0)
         {
             $items_not_services = self::getNotServiceItem($request, $id);
@@ -475,6 +515,26 @@
                 ->transform(function ($row) use ($warehouse) {
                     /** @var Item $row */
                     return $row->getDataToItemModal($warehouse);
+                });
+
+        }
+        /**
+         * @param Item[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Builder[]|Collection|mixed $items
+         * @param Warehouse|null                                                                                                     $warehouse
+         *
+         * @return \Illuminate\Database\Eloquent\Collection|Collection
+         */
+        public static function TransformToModalAndSupply($items, Warehouse $warehouse = null)
+        {
+            /** @var Item[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Builder[]|Collection|mixed $items */
+            return $items
+                ->transform(function (Item $row) use ($warehouse) {
+                    $data= $row->getDataToItemModal($warehouse);
+                    $suppl = $row->supplies;
+
+
+                    $data['supplies'] = $row->supplies;
+                    return  $data;
                 });
 
         }

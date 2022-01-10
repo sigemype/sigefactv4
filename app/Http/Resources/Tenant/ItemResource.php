@@ -3,6 +3,7 @@
     namespace App\Http\Resources\Tenant;
 
     use App\Models\Tenant\Configuration;
+    use App\Models\Tenant\ItemSupply;
     use Illuminate\Http\Request;
     use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -64,8 +65,15 @@
             }
 
 
+            $itemSupply = $this->supplies;
+            if(!emptY($itemSupply)){
+                $itemSupply = $itemSupply->transform(function (ItemSupply $row ){
+                    return $row-> getCollectionData();
+                });
+            }
             return [
                 'id' => $this->id,
+                'is_for_production'=>$this->isIsForProduction(),
                 'description' => $this->description,
                 'technical_specifications' => $this->technical_specifications,
                 'colors' => $currentColors,
@@ -171,6 +179,7 @@
                 }),
                 'sanitary' => $this->sanitary,
                 'cod_digemid' => $this->cod_digemid,
+                'supplies' => $itemSupply,
             ];
         }
     }

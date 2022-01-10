@@ -1,6 +1,12 @@
 <template>
     <el-dialog :close-on-click-modal="false" :title="titleDialog" :visible="showDialog" top="7vh" @close="close"
                @open="create">
+
+        <Keypress
+            key-event="keyup"
+            @success="checkKey"
+        />
+
         <form autocomplete="off" @submit.prevent="clickAddItem">
             <div class="form-body">
                 <div class="row">
@@ -20,6 +26,7 @@
                                         id="select-width"
                                         ref="selectSearchNormal"
                                         slot="prepend"
+                                        tabindex="1"
                                         v-model="form.item_id"
                                         :disabled="recordItem != null"
                                         :loading="loading_search"
@@ -139,6 +146,7 @@
 
                             <label class="control-label">Cantidad</label>
                             <el-input
+                                tabindex="2"
                                 ref="inputQuantity"
                                 v-model="form.quantity"
                                       :disabled="form.item.calculate_quantity"
@@ -161,7 +169,7 @@
                     <div class="col-md-4 col-sm-4">
                         <div :class="{'has-danger': errors.unit_price_value}" class="form-group">
                             <label class="control-label">Precio Unitario</label>
-                            <el-input v-model="form.unit_price_value" :readonly="!edit_unit_price"
+                            <el-input tabindex="3" v-model="form.unit_price_value" :readonly="!edit_unit_price"
                                       @input="calculateQuantity">
                                 <template v-if="form.item.currency_type_symbol" slot="prepend">
                                     {{ form.item.currency_type_symbol }}
@@ -251,7 +259,8 @@
                                         <td class="text-center">{{ row.price3 }}</td>
                                         <td class="text-center">Precio {{ row.price_default }}</td>
                                         <td class="series-table-actions text-right">
-                                            <button class="btn waves-effect waves-light btn-xs btn-success"
+                                            <button :class="getSelectedClass(row)"
+                                                    class="btn waves-effect waves-light btn-xs"
                                                     type="button"
                                                     @click.prevent="selectedPrice(row)">
                                                 <i class="el-icon-check"></i>
@@ -400,7 +409,18 @@
                 &nbsp;
                 </div>
                 <div class="col-6">
-                    <el-button class="form-control" @click.prevent="close()">Cerrar</el-button>
+
+                    <el-popover
+                        placement="top-start"
+                        :open-delay="1000"
+                        width="135"
+                        trigger="hover"
+                        content="Presiona ESC">
+                        <el-button slot="reference"
+                                    @click.prevent="close()">
+                        Cerrar
+                    </el-button>
+                    </el-popover>
                 </div>
                 <div class="col-6">
                     <el-button v-if="form.item_id" class="add form-control btn btn-primary" native-type="submit" type="primary">
@@ -414,7 +434,17 @@
             <!-- Ocultar en cel -->
 
             <div class="form-actions text-right pt-2  hidden-sm-down">
-                <el-button @click.prevent="close()">Cerrar</el-button>
+                <el-popover
+                    placement="top-start"
+                    title="Acceso directo"
+                    width="145"
+                    trigger="hover"
+                    content="Presiona ESC">
+                    <el-button slot="reference"
+                                @click.prevent="close()">
+                        Cerrar
+                    </el-button>
+                </el-popover>
                 <el-button v-if="form.item_id" class="add" native-type="submit" type="primary">
                     Agregar
                 </el-button>
@@ -468,6 +498,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import VueCkeditor from 'vue-ckeditor5'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import {ItemOptionDescription, ItemSlotTooltip} from "../../../../helpers/modal_item";
+import Keypress from "vue-keypress";
 
 export default {
     props: [
@@ -486,6 +517,7 @@ export default {
         ItemForm,
         WarehousesDetail,
         LotsGroup,
+        Keypress,
         SelectLotsForm,
         'vue-ckeditor': VueCkeditor.component
     },
@@ -874,6 +906,7 @@ export default {
                 this.isUpdateWarehouseId = null
             }
 
+            this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
         },
         async regularizeLots() {
 
@@ -1171,24 +1204,32 @@ export default {
             this.form.item.unit_type_id = this.item_unit_type.unit_type_id;
         },
         selectedPrice(row) {
-            let valor = 0
-            switch (row.price_default) {
-                case 1:
-                    valor = row.price1
-                    break
-                case 2:
-                    valor = row.price2
-                    break
-                case 3:
-                    valor = row.price3
-                    break
+            if (this.isSelectedPrice(row)) {
+                this.form.item_unit_type_id = null
+                this.item_unit_type = {}
+                this.form.unit_price = this.form.item.sale_unit_price
+                this.form.unit_price_value = this.form.item.sale_unit_price
+                this.form.item.unit_type_id = this.form.item.original_unit_type_id
+            } else {
+                let valor = 0
+                switch (row.price_default) {
+                    case 1:
+                        valor = row.price1
+                        break
+                    case 2:
+                        valor = row.price2
+                        break
+                    case 3:
+                        valor = row.price3
+                        break
 
+                }
+                this.form.item_unit_type_id = row.id
+                this.item_unit_type = row
+                this.form.unit_price = valor
+                this.form.unit_price_value = valor
+                this.form.item.unit_type_id = row.unit_type_id
             }
-            this.form.item_unit_type_id = row.id
-            this.item_unit_type = row
-            this.form.unit_price = valor
-            this.form.unit_price_value = valor
-            this.form.item.unit_type_id = row.unit_type_id
             this.calculateQuantity()
             this.getTables()
         },
@@ -1212,7 +1253,28 @@ export default {
             this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
 
         },
-    }
+        isSelectedPrice(item_unit_type) {
+            if (!_.isEmpty(this.item_unit_type)) {
+                return (this.item_unit_type.id === item_unit_type.id)
+            }
+            return false
+        },
+        getSelectedClass(row) {
+            if (this.isSelectedPrice(row)) return 'btn-success'
+            return 'btn-secondary'
+
+        },
+        checkKey(e){
+            let code = e.event.code;
+            if(code === 'Escape'){
+                this.close()
+
+            }
+
+
+        }
+
+    },
 }
 
 </script>

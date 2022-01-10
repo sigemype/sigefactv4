@@ -276,9 +276,6 @@
                     <template v-if="isCreditNoteAndType13 || isCreditNoteAndType03">
                         <el-button type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0">Generar</el-button>
                     </template>
-                    <template v-if="this.form.note_credit_or_debit_type_id === '03'">
-                        <el-button type="primary" native-type="submit" :loading="loading_submit">Generar</el-button>
-                    </template>
                     <template v-else>
                         <el-button type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0 && form.total > 0">Generar</el-button>
                     </template>

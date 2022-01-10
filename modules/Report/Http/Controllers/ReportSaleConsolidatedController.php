@@ -67,14 +67,40 @@ class ReportSaleConsolidatedController extends Controller
 
         $records = $this->getRecordsSalesConsolidated($request->all())->get()->groupBy('item_id');
 
-        return $records->map(function($row, $key){
+        return $records->map(function(\Illuminate\Database\Eloquent\Collection $row, $key){
+            $unit_type_id = 'ZZ';
+            $first =$row->first();
+            $quantity = $row->sum('quantity');
+            $brand = "";
+            $category = "";
+            $unit_price = 1;
 
+
+            if ($first->item->presentation) {
+                $unit_type_id = $first->item->presentation->unit_type_id;
+            }
+            if($unit_type_id !== 'ZZ'){
+                $item = \App\Models\Tenant\Item::select('brand_id')->where('internal_id',$first->item->internal_id)->first();
+                if(!empty($item)){
+                    $brand = $item->brand;
+                    $brand = $brand['name'];
+                    $category = $item->category;
+                    $category = $category['name'];
+                }
+            }
+            if (property_exists($first->item,'unit_price')) {
+                $unit_price = $first->item->unit_price;
+            }
+            $total_sale = $unit_price * $row->sum('quantity');
             return [
                 'item_id' => $key,
-                'item_internal_id' => $row->first()->relation_item->internal_id,
-                'item_unit_type_id' => $row->first()->relation_item->unit_type_id,
-                'item_description' => $row->first()->item->description,
-                'quantity' => number_format($row->sum('quantity'), 4, ".", ""),
+                'brand' => $brand,
+                'total_sale' => $total_sale,
+                'category' => $category,
+                'item_internal_id' => $first->relation_item->internal_id,
+                'item_unit_type_id' => $first->relation_item->unit_type_id,
+                'item_description' => $first->item->description,
+                'quantity' => number_format($quantity, 4, ".", ""),
             ];
         });
 
@@ -145,11 +171,13 @@ class ReportSaleConsolidatedController extends Controller
         $records = $this->getRecordsSalesConsolidated($request->all())->get();
         $params = $request->all();
 
+         // return View('report::sales_consolidated.report_pdf', compact("records", "company", "establishment", "params"));;
+        /** @var \Barryvdh\DomPDF\PDF $pdf */
         $pdf = PDF::loadView('report::sales_consolidated.report_pdf', compact("records", "company", "establishment", "params"));
 
         $filename = 'Reporte_Consolidado_Items_Ventas_'.date('YmdHis');
 
-        return $pdf->download($filename.'.pdf');
+        return $pdf->stream($filename.'.pdf');
     }
 
 
@@ -180,12 +208,48 @@ class ReportSaleConsolidatedController extends Controller
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
         $records = $this->totalsByItem($request)->sortBy('item_id');
         $params = $request->all();
+        /** @var \Barryvdh\DomPDF\PDF $pdf */
 
         $pdf = PDF::loadView('report::sales_consolidated.report_pdf_totals', compact("records", "company", "establishment", "params"));
 
         $filename = 'Reporte_Consolidado_Items_Ventas_Totales_'.date('YmdHis');
 
-        return $pdf->download($filename.'.pdf');
+        return $pdf->stream($filename.'.pdf');
+    }
+
+
+    public function pdfTicketsTotal(Request $request) {
+
+        $company = Company::first();
+        $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
+        $records = $this->totalsByItem($request)->sortBy('item_id');
+        $params = $request->all();
+        /** @var \Barryvdh\DomPDF\PDF $pdf */
+        $height =( 5.8 / 2.54) * 72; // Cm a inches
+        $customPaper = [0,0,$height,1440];
+        $pdf = PDF::loadView('report::sales_consolidated.report_pdf_totals_ticket', compact("records", "company", "establishment", "params"))
+            ->setPaper($customPaper);
+
+        $filename = 'Reporte_Consolidado_Items_Ventas_Totales_'.date('YmdHis');
+
+        return $pdf->stream($filename.'.pdf');
+    }
+    public function pdfTicketsTotal80(Request $request) {
+
+        $company = Company::first();
+        $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
+        $records = $this->totalsByItem($request)->sortBy('item_id');
+        $params = $request->all();
+        /** @var \Barryvdh\DomPDF\PDF $pdf */
+        $height =( 8 / 2.54) * 72; // Cm a inches
+        $customPaper = [0,0,$height,1440];
+        $pdf = PDF::loadView('report::sales_consolidated.report_pdf_totals_ticket_80', compact("records", "company", "establishment", "params"))
+            ->setPaper($customPaper);
+
+
+        $filename = 'Reporte_Consolidado_Items_Ventas_Totales_'.date('YmdHis');
+
+        return $pdf->stream($filename.'.pdf');
     }
 
 

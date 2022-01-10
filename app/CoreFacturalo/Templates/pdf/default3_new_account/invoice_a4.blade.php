@@ -25,7 +25,7 @@
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
 
     //calculate items
-    $allowed_items = 94 - (\App\Models\Tenant\BankAccount::all()->count())*2;
+    $allowed_items = 94 - (\App\Models\Tenant\BankAccount::all()->count())*2 - $document->fee()->count();
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 3);
     $total_weight = 0;
@@ -457,6 +457,74 @@
                 <td class="text-center">{{$account->number}}</td>
             </tr>
         @endforeach
+    </table>
+@endif
+
+
+{{-- pago crédito --}}
+@if($document->payment_condition_id === '02' && $document->fee()->count() > 0)
+
+    <table class="full-width border-box my-2">
+        <body>
+            <tr>
+                @foreach ($document->fee as $key => $quote)
+                <td>
+                    @php
+                        $payment_method_type_description = $quote->getStringPaymentMethodType();
+                    @endphp
+
+                    @if (empty($payment_method_type_description))
+                    <span>
+                        <p>
+                            <strong>N° Cuota</strong>
+                        </p>
+                        <center>
+                            <p>
+                                {{ $key + 1 }}
+                            </p>
+                        </center>
+                    </span>
+                    @else
+                    <span>
+                        <p>
+                            <strong>Método de pago</strong>
+                        </p>
+                        <center>
+                            <p>
+                                {{ $payment_method_type_description }}
+                            </p>
+                        </center>
+                    </span>
+                    @endif
+
+                </td>
+                <td>
+                    <span>
+                        <p>
+                            <strong>Fec. Venc.</strong>
+                        </p>
+                        <p>
+                            {{ $quote->date->format('d-m-Y') }}
+                        </p>
+                    </span>
+                </td>
+                <td>
+                    <span>
+                        <p>
+                            <strong>Monto</strong>
+                        </p>
+                        <p>
+                            {{ $quote->amount }}
+                        </p>
+                    </span>
+                </td>
+                {{-- espacio --}}
+                @if ($document->fee()->count() > 1)
+                    <td width="30px"></td>
+                @endif
+                @endforeach
+            </tr>
+        </body>
     </table>
 @endif
 </body>

@@ -23,7 +23,7 @@ if($current_hostname) {
                  * cash/email
                  */
                 Route::get('report-a4/{cash}', 'CashController@reportA4');
-                Route::get('report-ticket/{cash}', 'CashController@reportTicket');
+                Route::get('report-ticket/{cash}/{format?}', 'CashController@reportTicket');
                 Route::get('report-excel/{cash}', 'CashController@reportExcel');
                 Route::post('email', 'CashController@email');
 

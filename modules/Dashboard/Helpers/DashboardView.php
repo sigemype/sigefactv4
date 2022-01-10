@@ -250,8 +250,14 @@ class DashboardView
         $web_platform_id = $request['web_platform_id']??0;
         $purchase_order = $request['purchase_order']??null;
         $payment_method_type_id = $request['payment_method_type_id']??null;
-        $user_type = auth()->user()->type;
-        $user_id_session = auth()->user()->id;
+        // Obtendrá todos los establecimientos
+        $stablishmentUnpaidAll = $request['stablishmentUnpaidAll']??0;
+        $user = auth()->user();
+        if(null === $user){
+            $user = new \App\Models\Tenant\User();
+        }
+        $user_type = $user->type;
+        $user_id_session = $user->id;
         $d_start = null;
         $d_end = null;
 
@@ -325,8 +331,10 @@ class DashboardView
             })
             ->whereIn('state_type_id', ['01', '03', '05', '07', '13'])
             ->whereIn('document_type_id', ['01', '03', '08'])
-            ->select(DB::raw($document_select))
-            ->where('documents.establishment_id', $establishment_id);
+            ->select(DB::raw($document_select));
+        if($stablishmentUnpaidAll !== 1) {
+            $documents-> where('documents.establishment_id', $establishment_id);
+        }
 
         if ($payment_method_type_id) {
             $documents->where('payment_method_type_id', $payment_method_type_id);
@@ -349,9 +357,14 @@ class DashboardView
             })
             ->whereIn('state_type_id', ['01', '03', '05', '07', '13'])
             ->select(DB::raw($sale_note_select))
-            ->where('sale_notes.establishment_id', $establishment_id)
             ->where('sale_notes.changed', false)
             ->where('sale_notes.total_canceled', false);
+
+        if($stablishmentUnpaidAll !== 1) {
+            $sale_notes
+                ->where('sale_notes.establishment_id', $establishment_id)
+            ;
+        }
 
         if ($user_type == 'seller') {
             $sale_notes->where('user_id', $user_id_session);

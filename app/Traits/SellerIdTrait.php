@@ -1,27 +1,32 @@
 <?php
 
-namespace App\Traits;
+    namespace App\Traits;
 
-use App\Models\Tenant\Document;
-use App\Models\Tenant\Quotation;
-use App\Models\Tenant\SaleNote;
-use Log;
-use Modules\Sale\Models\Contract;
-use Modules\Sale\Models\TechnicalService;
-
-/**
- *Se encarga de colocar el seller_id cuando no exista.
-    */
-trait SellerIdTrait{
+    use App\Models\Tenant\Document;
+    use App\Models\Tenant\Quotation;
+    use App\Models\Tenant\SaleNote;
+    use Log;
+    use Modules\Sale\Models\Contract;
+    use Modules\Sale\Models\TechnicalService;
 
     /**
-     * si seller_id esta vacio, ajusta el seller id al usuario.
-     *
-     * @param Document|Quotation|SaleNote|TechnicalService|Contract $model
+     *Se encarga de colocar el seller_id cuando no exista.
      */
-    public static function adjustSellerIdField(&$model): void{
-        if (empty($model->seller_id)) {
-            $model->seller_id = $model->user_id;
+    trait SellerIdTrait
+    {
+
+
+        /**
+         * si seller_id esta vacio, ajusta el seler id al usuario.
+         *
+         * @param Document|Quotation|SaleNote|TechnicalService|Contract $model
+         */
+        public static function adjustSellerIdField(&$model): void
+        {
+            if (empty($model->seller_id)) {
+                $model->seller_id = $model->user_id;
+            }
+
         }
+
     }
-}

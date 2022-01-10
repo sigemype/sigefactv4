@@ -16,7 +16,7 @@
      	:soap-company="{{ json_encode($soap_company) }}"
       :business-turns="{{ $business_turns }}"
       :type-user="{{json_encode(Auth::user()->type)}}"
-      :is-print="{{json_encode(config('tenant.auto_print'))}}">
+      :is-print="{{json_encode($configuration->auto_print)}}">
     </tenant-pos-index>
 @endsection
 

@@ -339,7 +339,7 @@
                                                 </button>
                                             </el-tooltip>
                                         </el-col>
-                                        <el-col :span="6">
+                                        <el-col :span="6" v-if="canSeeHistoryPurchase">
                                             <el-tooltip
                                                 class="item"
                                                 effect="dark"
@@ -360,7 +360,7 @@
                                                 </button>
                                             </el-tooltip>
                                         </el-col>
-                                        <el-col :span="6">
+                                        <el-col :span="6" v-if="canSeePriceCost">
                                             <el-tooltip
                                                 class="item"
                                                 effect="dark"
@@ -1028,6 +1028,18 @@ export default {
     },
 
     computed: {
+        canSeeHistoryPurchase: function () {
+            if(this.typeUser !=='admin'){
+                return this.configuration.pos_history
+            }
+            return false;
+        },
+        canSeePriceCost: function () {
+            if(this.typeUser !=='admin'){
+                return this.configuration.pos_cost_price
+            }
+            return true;
+        },
         classObjectCol() {
             let cols = this.configuration.colums_grid_item;
 

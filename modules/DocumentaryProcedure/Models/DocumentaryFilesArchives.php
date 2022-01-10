@@ -26,13 +26,14 @@
             'documentary_file_id',
             'documentary_office_id',
             'observation',
+            'documentary_guides_number_id',
             'attached_file',
         ];
 
         protected static function boot() {
             parent::boot();
             static::creating(function (DocumentaryFilesArchives $model) {
-                if (auth() and auth()->user() and auth()->user()->id) {
+                if (auth() && auth()->user() && auth()->user()->id) {
                     $model->user_id = auth()->user()->id;
                 } else {
                     $model->user_id = 0;
@@ -167,5 +168,12 @@
             $file->storeAs($path, $name);
             return $fullpath;
 
+        }
+
+
+
+        public function documentary_guides_number()
+        {
+            return $this->belongsTo(DocumentaryGuidesNumber::class);;
         }
     }

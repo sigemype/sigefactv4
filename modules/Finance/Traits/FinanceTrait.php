@@ -3,13 +3,14 @@
     namespace Modules\Finance\Traits;
 
     use App\Models\Tenant\{DocumentPayment, PurchasePayment, SaleNotePayment};
-    use App\Models\Tenant\TransferAccountPayment;
     use App\Models\Tenant\BankAccount;
     use App\Models\Tenant\Cash;
     use App\Models\Tenant\Company;
+    use App\Models\Tenant\TransferAccountPayment;
     use Carbon\Carbon;
     use ErrorException;
     use Illuminate\Database\Eloquent\Collection;
+    use Modules\Expense\Models\BankLoanPayment;
     use Modules\Expense\Models\ExpensePayment;
     use Modules\Finance\Models\IncomePayment;
     use Modules\Pos\Models\CashTransaction;
@@ -272,15 +273,32 @@
                 'quotation_payment' => self::FormatNumber($quotation_payment),
                 'contract_payment' => self::FormatNumber($contract_payment),
                 'income_payment' => self::FormatNumber($income_payment_return),
+               'debs' => self::FormatNumber( (($transfer_beween_account < 0)?(abs($transfer_beween_account)):0) +$egress),
+                'credits' => self::FormatNumber((($transfer_beween_account > 0)?(abs($transfer_beween_account)):0) +$entry),
                 'technical_service_payment' => self::FormatNumber($technical_service_payment),
                 'balance' => self::FormatNumber($balance),
                 'transfer_beween_account' => self::FormatNumber($transfer_beween_account),
             ];
         }
 
+        /**
+         * Ajusta el resultado de la coleccion de items para prestamos bancarios
+         *
+         * @param $bankLoanItems
+         * @param $loans
+         */
+        public static function getBankLoan($bankLoanItems, &$loans)
+        {
+            if (!empty($bankLoanItems)) {
+                $loans = $bankLoanItems->sum('total_ingress');
+            }
+
+        }
+
         public function getSumPayment($record, $model)
         {
-            return $record->where('payment_type', $model)->sum(function ($row) {
+            return $record->where('payment_type', $model)->sum(function ($row) use($model) {
+
 
                 // se dispara un error cuando no hay relacion de paymeny y associated_record_payment
                 try{
@@ -432,6 +450,8 @@
                 'purchase_payment' => self::FormatNumber($purchase_payment),
                 'income_payment' => self::FormatNumber($income_payment),
                 'initial_balance' => self::FormatNumber($initial_balance),
+                'debs' => self::FormatNumber($egress),
+                'credits' => self::FormatNumber($entry),
                 'technical_service_payment' => self::FormatNumber($technical_service_payment),
                 'balance' => self::FormatNumber($balance),
 
@@ -446,8 +466,7 @@
          */
         public function getBalanceByBankAcounts($bank_accounts)
         {
-            $records = $bank_accounts->map(function ($row) {
-
+            $records = $bank_accounts->map(function (\App\Models\Tenant\BankAccount  $row) {
                 $document_payment = $this->getSumPayment($row->global_destination, DocumentPayment::class);
                 $expense_payment = $this->getSumPayment($row->global_destination, ExpensePayment::class);
                 $sale_note_payment = $this->getSumPayment($row->global_destination, SaleNotePayment::class);
@@ -459,15 +478,27 @@
                 $technical_service_payment = $this->getSumPayment($row->global_destination, TechnicalServicePayment::class);
                 $transfer_beween_account = $this->getTransferAccountPayment($row);
 
+                // BankLoan es el total otorgado, se suma
+                $bankLoan = 0;
+                // los pagos a credito bancario, restan banco
+                $bankLoanItems = $row->bank_loan_items ??null;
+                if($row->bank_loan_items) {
+                     self::getBankLoan($bankLoanItems, $bankLoan);
+                }
+                $bankLoanPayment = $this->getSumPayment($row->global_destination, BankLoanPayment::class);
+
 
                 $entry = $document_payment +
                     $sale_note_payment +
                     $quotation_payment +
                     $contract_payment +
+                    $bankLoan +
                     $income_payment +
                     $technical_service_payment;
                 $egress = $expense_payment +
-                    $purchase_payment;
+                    $purchase_payment +
+                    $bankLoanPayment
+                ;
                 $balance = $row->initial_balance +
                     $entry -
                     $egress +
@@ -484,8 +515,12 @@
                     'document_payment' => self::FormatNumber($document_payment),
                     'purchase_payment' => self::FormatNumber($purchase_payment),
                     'income_payment' => self::FormatNumber($income_payment),
+                    'bank_loan' => self::FormatNumber($bankLoan),
+                    'bank_loan_payment' => self::FormatNumber($bankLoanPayment),
                     'initial_balance' => self::FormatNumber($row->initial_balance),
                     'technical_service_payment' => self::FormatNumber($technical_service_payment),
+                    'debs' => self::FormatNumber( (($transfer_beween_account < 0)?(abs($transfer_beween_account)):0) +$egress),
+                    'credits' => self::FormatNumber((($transfer_beween_account > 0)?(abs($transfer_beween_account)):0) +$entry),
                     'balance' => self::FormatNumber($balance),
                     'transfer_beween_account' => self::FormatNumber($transfer_beween_account),
 
@@ -505,8 +540,7 @@
         public function getRecordsByPaymentMethodTypes($payment_method_types)
         {
 
-            $records = $payment_method_types->map(function ($row) {
-                /** @var \App\Models\Tenant\PaymentMethodType $row */
+            $records = $payment_method_types->map(function (\App\Models\Tenant\PaymentMethodType $row) {
                 $document_payment = $this->getSumByPMT($row->document_payments, true);
                 $sale_note_payment = $this->getSumByPMT($row->sale_note_payments);
                 $purchase_payment = $this->getSumByPMT($row->purchase_payments) ;
@@ -516,13 +550,18 @@
                 $cash_transaction = $row->cash_transactions->sum('payment');
                 $income_payment = $this->getSumByPMT($row->income_payments) + $cash_transaction;
                 $technical_service_payment = $this->getSumByPMT($row->technical_service_payments);
-                $balance = $sale_note_payment +
-                    $document_payment -
-                    $purchase_payment +
+
+                $egress = $purchase_payment;
+                $entry = $document_payment +
+                    $sale_note_payment +
                     $quotation_payment +
                     $contract_payment +
                     $income_payment +
                     $technical_service_payment;
+                $balance =
+                    $entry -
+                    $egress;
+
 
                 return [
 
@@ -532,11 +571,15 @@
                     'sale_note_payment' => self::FormatNumber($sale_note_payment),
 
                     'document_payment' => self::FormatNumber($document_payment),
-                    'purchase_payment' => self::FormatNumber($purchase_payment ),
+                    'purchase_payment' => self::FormatNumber($purchase_payment),
                     'quotation_payment' => self::FormatNumber($quotation_payment),
                     'contract_payment' => self::FormatNumber($contract_payment),
                     'income_payment' => self::FormatNumber($income_payment),
                     'technical_service_payment' => self::FormatNumber($technical_service_payment),
+
+                    'debs' => self::FormatNumber($egress),
+                    'credits' => self::FormatNumber($entry),
+
                     'balance' => self::FormatNumber($balance),
                 ];
 
@@ -625,6 +668,9 @@
             $t_technical_services = $records_by_pmt->sum('technical_service_payment');
             $t_balance = $records_by_pmt->sum('balance') - $records_by_emt->sum('balance');
             $t_expenses = $records_by_emt->sum('expense_payment');
+            $t_bank_loan_payment = $records_by_pmt->sum('bankLoanPayment') ;
+            $t_bank_loan = $records_by_pmt->sum('$bankLoan') ;
+
             /*
             foreach ($records_by_pmt as $value) {
 
@@ -655,6 +701,8 @@
                 't_income' => self::FormatNumber($t_income),
                 't_technical_services' => self::FormatNumber($t_technical_services),
                 't_balance' => self::FormatNumber($t_balance),
+                't_bank_loan' => self::FormatNumber($t_bank_loan),
+                't_bank_loan_payment' => self::FormatNumber($t_bank_loan_payment),
             ];
 
         }

@@ -6,16 +6,16 @@
 </head>
 <body>
 
-<table class="full-width pt-5">
+<table class="full-width pt-5" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td class="text-bold font-bold">OBSERVACIONES</td>
         <td class="text-bold font-bold">N° DE BULTOS: {{ $document->packages_number != null ? $document->packages_number : '' }}</td>
     </tr>
-    <tr colspan="2">
-        <td style="line-height: 20px;">{{ $document->observations ? $document->observations : '-' }}</td>
+    <tr colspan="2" class="text-bold font-bold">
+        <td style="line-height: 20px; font-size:13px; ">{{ $document->observations ? $document->observations : '-' }}</td>
     </tr>
 </table>
-<table class="full-width">
+<table class="full-width" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td width="26%"></td>
         <td width="44%" class="text-bold font-bold">
@@ -30,7 +30,7 @@
         </td>
     </tr>
 </table>
-<table class="full-width mb-3 mt-3">
+<table class="full-width mb-3 mt-3" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td width="6.5%"><br></td>
         <td width="2%">{{ $document->transfer_reason_type->description == 'Venta' ? 'X' : '' }}</td>

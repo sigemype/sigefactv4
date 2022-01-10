@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Models\Tenant\Document;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SearchResource extends JsonResource
@@ -20,7 +21,8 @@ class SearchResource extends JsonResource
             'number' => $this->series.'-'.$this->number,
             'total' => (float) $this->total,
             'download_xml' => $this->download_external_xml,
-            'download_pdf' => $this->download_external_pdf
+            'download_pdf' => $this->download_external_pdf,
+            'download_cdr' => $this->download_external_cdr
         ];
     }
 }

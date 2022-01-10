@@ -34,6 +34,9 @@ export default {
     setCustomers(state, customers) {
         state.customers = (customers === undefined) ?[]:customers
     },
+    setPaymentDestinations(state, payment_destinations) {
+        state.payment_destinations = (payment_destinations === undefined) ?[]:payment_destinations
+    },
     setCustomer(state, customer) {
         state.customer = (customer === undefined) ? {} :customer
     },
@@ -55,7 +58,7 @@ export default {
     setExchangeRate(state, exchange_rate) {
         state.exchange_rate = exchange_rate
     },
-    setExchangeRateSale(state, exchange_rate) {
+    setExchangeRateSale(state, exchange_rate_sale) {
         state.exchange_rate_sale = exchange_rate_sale
     },
     setCurrencys(state, currencys) {
@@ -272,8 +275,8 @@ export default {
     setSeries(state,series){ state.series = (series === undefined) ?[]: series },
     setAllSeries(state,all_series){ state.all_series = (all_series === undefined) ?[]: all_series },
 
-
-
+    setSellers(state,sellers){ state.sellers = (sellers === undefined) ?[]: sellers },
+    setStatusDocumentary(state,statusDocumentary){ state.statusDocumentary = (statusDocumentary === undefined) ?[]: statusDocumentary },
 
 
 

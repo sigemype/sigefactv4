@@ -1,5 +1,12 @@
 <template>
     <div>
+        <Keypress
+            key-event="keyup"
+
+            @success="checkKey"
+        />
+        <Keypress key-event="keyup" :multiple-keys="multiple" @success="checkKeyWithAlt" />
+
         <div v-if="loading_form">
             <form autocomplete="off"
                   class="row no-gutters"
@@ -191,6 +198,9 @@
                                            class="border-left rounded-left border-info"
                                            dusk="customer_id"
                                            filterable
+
+                                           @focus="focus_on_client = true"
+                                           @blur="focus_on_client = false"
                                            placeholder="Escriba el nombre o número de documento del cliente"
                                            popper-class="el-select-customers"
                                            remote
@@ -290,11 +300,20 @@
 
                                     <td class="text-center pt-3"
                                         colspan="2">
-                                        <button class="btn waves-effect waves-light btn-primary btn-sm hidden-sm-down"
-                                                style="width: 180px;"
-                                                type="button"
-                                                @click.prevent="clickAddItemInvoice">+ Agregar Producto
-                                        </button>
+                                        <el-popover
+                                            placement="top-start"
+                                            :open-delay="1000"
+                                            width="145"
+                                            trigger="hover"
+                                            content="Presiona F2">
+                                            <el-button slot="reference"
+                                                       class="btn waves-effect waves-light btn-primary btn-sm hidden-sm-down"
+                                                       style="width: 180px;"
+                                                       type="button"
+                                                       @click.prevent="clickAddItemInvoice">
+                                                + Agregar Producto
+                                            </el-button>
+                                        </el-popover>
                                     </td>
                                     <td colspan="2"></td>
                                     <td class="p-0"
@@ -382,6 +401,16 @@
                                                     </td>
                                                 </tr>
 
+                                                <tr v-if="form.subtotal > 0 && form.total_discount > 0">
+                                                    <td>SUBTOTAL:</td>
+                                                    <td>{{ currency_type.symbol }} {{ form.subtotal }}</td>
+                                                </tr>
+
+                                                <tr v-if="form.total_discount > 0">
+                                                    <td>DESCUENTOS TOTALES:</td>
+                                                    <td>{{ currency_type.symbol }} {{ form.total_discount }}</td>
+                                                </tr>
+
                                                 <tr v-if="form.total > 0">
                                                     <td>OTROS CARGOS:</td>
                                                     <td>{{ currency_type.symbol }}
@@ -441,9 +470,9 @@
                                                     <td class="p-0"
                                                         colspan="2">
                                                         <!-- Crédito con cuotas -->
-                                                        <div v-if="form.payment_condition_id === '03'">
+                                                        <div v-if="form.payment_condition_id === '03'" class="table-responsive">
                                                             <table v-if="form.fee.length>0"
-                                                                   class="text-left"
+                                                                   class="text-left table"
                                                                    width="100%">
                                                                 <thead>
                                                                 <tr>
@@ -493,9 +522,9 @@
                                                             </table>
                                                         </div>
                                                         <!-- Credito -->
-                                                        <div v-if="form.payment_condition_id === '02'">
+                                                        <div v-if="form.payment_condition_id === '02'"  class="table-responsive">
                                                             <table v-if="form.fee.length>0"
-                                                                   class="text-left"
+                                                                   class="text-left table"
                                                                    width="100%">
                                                                 <thead>
                                                                 <tr>
@@ -543,8 +572,8 @@
                                                             </table>
                                                         </div>
                                                         <!-- Contado -->
-                                                        <div v-if="!is_receivable && form.payment_condition_id === '01'">
-                                                            <table class="text-left">
+                                                        <div v-if="!is_receivable && form.payment_condition_id === '01'"  class="table-responsive">
+                                                            <table class="text-left table">
                                                                 <thead>
                                                                 <tr>
                                                                     <th v-if="form.payments.length>0"
@@ -723,6 +752,16 @@
                                     <tr v-if="form.total_plastic_bag_taxes > 0">
                                         <td>ICBPER:</td>
                                         <td>{{ currency_type.symbol }} {{ form.total_plastic_bag_taxes }}</td>
+                                    </tr>
+
+                                    <tr v-if="form.subtotal > 0 && form.total_discount > 0">
+                                        <td>SUBTOTAL:</td>
+                                        <td>{{ currency_type.symbol }} {{ form.subtotal }}</td>
+                                    </tr>
+
+                                    <tr v-if="form.total_discount > 0">
+                                        <td>DESCUENTOS TOTALES:</td>
+                                        <td>{{ currency_type.symbol }} {{ form.total_discount }}</td>
                                     </tr>
 
                                     <tr v-if="form.total > 0">
@@ -978,12 +1017,21 @@
                                 style="min-width: 180px"
                                 @click.prevent="close()">Cancelar
                         </button>
-                        <el-button v-if="form.items.length > 0 && this.dateValid"
-                                   :loading="loading_submit"
-                                   class="submit btn btn-primary"
-                                   native-type="submit"
-                                   style="min-width: 180px">{{ btnText }}
-                        </el-button>
+                        <el-popover
+                            placement="top-start"
+                            :open-delay="1000"
+                            width="145"
+                            trigger="hover"
+                            content="Presiona ALT + G">
+                            <el-button slot="reference"
+                                v-if="form.items.length > 0 && this.dateValid"
+                                :loading="loading_submit"
+                                class="submit btn btn-primary"
+                                native-type="submit"
+                                style="min-width: 180px">
+                                    {{ btnText }}
+                            </el-button>
+                        </el-popover>
                     </div>
                     <!-- @todo: Mejorar evitando duplicar codigo -->
                     <!-- Ocultar en cel -->
@@ -1399,6 +1447,7 @@ import DocumentTransportForm from '../../../../../modules/BusinessTurn/Resources
 import DocumentDetraction from './partials/detraction.vue'
 import moment from 'moment'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+import Keypress from "vue-keypress";
 
 export default {
     props: [
@@ -1414,6 +1463,7 @@ export default {
         DocumentOptions,
         Logo,
         DocumentHotelForm,
+        Keypress,
         DocumentDetraction,
         DocumentTransportForm
     },
@@ -1425,8 +1475,21 @@ export default {
                     return time.getTime() > moment();
                 }
             },
+             multiple: [
+                {
+                    keyCode: 78, // N
+                    modifiers: ['altKey'],
+                    preventDefault: true,
+                },
+                {
+                    keyCode: 71, // g
+                    modifiers: ['altKey'],
+                    preventDefault: true,
+                },
+            ],
             // default_document_type: null,
             // default_series_type: null,
+            focus_on_client: false,
             dateValid: false,
             input_person: {},
             showDialogDocumentDetraction: false,
@@ -2676,7 +2739,7 @@ export default {
                 let detraction = this.form.detraction
 
                 let tot = (this.form.currency_type_id == 'PEN') ? this.form.total : (this.form.total * this.form.exchange_rate_sale)
-                let total_restriction = (this.form.operation_type_id == '1001') ? 400 : 400
+                let total_restriction = (detraction.detraction_type_id !== '027') ? 700 : 400
 
                 if (tot <= total_restriction)
                     return {
@@ -2737,7 +2800,13 @@ export default {
                 if (alt !== undefined) {
                     this.form.customer_id = this.establishment.customer_id
                     this.validateCustomerRetention(alt.identity_document_type_id)
+                    let seller = this.sellers.find(element => element.id == alt.seller_id)
+                    if(seller !== undefined){
+                        this.form.seller_id = seller.id
+                    }
                 }
+
+
             }
         },
         changeDocumentType() {
@@ -2752,7 +2821,7 @@ export default {
         },
         dateValidError() {
 
-            this.$message.error('No puede seleccionar una fecha menor a 3 días.');
+            this.$message.error('No puede seleccionar una fecha menor a 4 días.');
             this.dateValid = false
 
         },
@@ -2893,11 +2962,19 @@ export default {
             // let total_free_igv = 0
 
             this.form.items.forEach((row) => {
+
+                // console.log(row)
+
                 total_discount += parseFloat(row.total_discount)
                 total_charge += parseFloat(row.total_charge)
 
                 if (row.affectation_igv_type_id === '10') {
-                    total_taxed += parseFloat(row.total_value)
+                    // total_taxed += parseFloat(row.total_value)
+                    if(row.total_value_without_rounding) {
+                        total_taxed += parseFloat(row.total_value_without_rounding)
+                    } else {
+                        total_taxed += parseFloat(row.total_value)
+                    }
                 }
 
                 if (
@@ -2936,14 +3013,38 @@ export default {
                     '20', '21',
                     '30', '31', '32', '33', '34', '35', '36',
                     '40'].indexOf(row.affectation_igv_type_id) > -1) {
-                    total_igv += parseFloat(row.total_igv)
-                    total += parseFloat(row.total)
+                    // total_igv += parseFloat(row.total_igv)
+                    // total += parseFloat(row.total)
+                    if(row.total_igv_without_rounding) {
+                        total_igv += parseFloat(row.total_igv_without_rounding)
+                    } else {
+                        total_igv += parseFloat(row.total_igv)
+                    }
+
+                    // row.total_value_without_rounding = total_value
+                    // row.total_base_igv_without_rounding = total_base_igv
+                    // row.total_igv_without_rounding = total_igv
+                    // row.total_taxes_without_rounding = total_taxes
+                    // row.total_without_rounding = total
+
+                    if(row.total_without_rounding) {
+                        total += parseFloat(row.total_without_rounding)
+                    } else {
+                        total += parseFloat(row.total)
+                    }
+
+
                 }
 
                 // console.log(row.total_value)
 
                 if (!['21', '37'].includes(row.affectation_igv_type_id)) {
-                    total_value += parseFloat(row.total_value)
+                    // total_value += parseFloat(row.total_value)
+                    if(row.total_value_without_rounding) {
+                        total_value += parseFloat(row.total_value_without_rounding)
+                    } else {
+                        total_value += parseFloat(row.total_value)
+                    }
                 }
 
                 total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
@@ -3347,6 +3448,13 @@ export default {
                 })
             }
 
+
+            let seller = this.sellers.find(element => element.id == customer.seller_id)
+            if(seller !== undefined){
+                this.form.seller_id = seller.id
+
+            }
+
             // retencion para clientes con ruc
             this.validateCustomerRetention(customer.identity_document_type_id)
 
@@ -3496,6 +3604,36 @@ export default {
         },
         setDescriptionOfItem(item) {
             return showNamePdfOfDescription(item, this.config.show_pdf_name)
+        },
+        checkKeyWithAlt(e){
+            let code = e.event.code;
+            if(
+                this.showDialogOptions === true &&
+                code === 'KeyN'
+            ){
+                this.showDialogOptions = false
+            }
+
+            if(
+                code === 'KeyG'  // key G
+                && !this.showDialogAddItem   // Modal hidden
+                && this.form.items.length > 0  // with items
+                && this.focus_on_client  === false // not client search
+            )
+            {
+                this.submit()
+            }
+        },
+        checkKey(e){
+            let code = e.event.code;
+            if(code === 'F2'){
+                //abrir el modal de agergar producto
+                if(!this.showDialogAddItem ) this.showDialogAddItem = true
+            }
+            if(code === 'Escape'){
+                if(this.showDialogAddItem ) this.showDialogAddItem = false
+            }
+
         }
     }
 }

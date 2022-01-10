@@ -4,8 +4,8 @@
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
 
-                <div class="row">
-                    <div class="col-lg-8 col-md-8 mb-2">
+                <div class="row col-12">
+                    <div class="col-lg-9 col-md-8 col-sm-12 mb-2">
                         <div class="form-group">
                             <label class="control-label font-custom"><strong>Filtros de busqueda</strong></label>
                             <template v-if="!see_more">
@@ -15,6 +15,9 @@
                                 <a class="control-label font-weight-bold text-info font-custom" href="#" @click="clickSeeMore"><strong> [- Ver menos]</strong></a>
                             </template>
                         </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-12 text-right">
+                        <slot name="showhide"></slot>
                     </div>
                 </div>
                 <div class="row mt-2" v-if="see_more">
@@ -152,6 +155,21 @@
                 <div class="row mt-1 mb-3">
 
                 </div>
+
+                <!-- Totales -->
+                <div class="row col-md-12 mt-1 mb-3 " v-if="totals !== undefined && totals!== null && totals.length>0">
+                    <div class="col-md-6 col-sm-12 row"
+                     v-for="(row, index) in totals" :row="row"
+                     >
+                    <div class="col-md-6">
+                        {{row.name}}
+                    </div>
+                    <div class="col-md-6 text-right">
+                        {{row.total}}
+                    </div>
+                </div>
+                </div>
+
             </div>
 
 
@@ -190,11 +208,12 @@
 </style>
 <script>
 
-    import moment from 'moment'
-    import queryString from 'query-string'
-    import $ from 'jquery'
+import moment from 'moment'
+import queryString from 'query-string'
+import $ from 'jquery'
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
-    export default {
+export default {
         props: {
             resource: String,
         },
@@ -202,6 +221,7 @@
             return {
                 loading_submit:false,
                 columns: [],
+                totals: [],
                 records: [],
                 customers: [],
                 all_customers: [],
@@ -229,8 +249,12 @@
             }
         },
         computed: {
+            ...mapState([
+                'config',
+            ]),
         },
         created() {
+            this.loadConfiguration();
             this.initForm()
             this.$eventHub.$on('reloadData', () => {
                 this.getRecords()
@@ -256,6 +280,7 @@
             await this.cargalo()
         },
         methods: {
+            ...mapActions(['loadConfiguration']),
 
             searchRemoteItems(input) {
 
@@ -341,6 +366,7 @@
                 this.loading_submit = await true
                 await this.getRecords()
                 this.loading_submit = await false
+                this.getTotalRecords()
 
             },
             getRecords() {
@@ -349,6 +375,18 @@
                     this.pagination = response.data.meta
                     this.pagination.per_page = parseInt(response.data.meta.per_page)
                     this.loading_submit = false
+                });
+
+            },
+            getTotalRecords() {
+                if(this.config.show_totals_on_cpe_list !== true) return null;
+                if(this.config.typeUser !== 'admin') return null;
+                return this.$http.get(`/${this.resource}/recordsTotal?${this.getQueryParameters()}`).then((response) => {
+                    this.totals = response.data;
+                    // this.records = response.data.data
+                    // this.pagination = response.data.meta
+                    // this.pagination.per_page = parseInt(response.data.meta.per_page)
+                    // this.loading_submit = false
                 });
 
             },

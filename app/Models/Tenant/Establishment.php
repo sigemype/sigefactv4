@@ -65,4 +65,16 @@ class Establishment extends ModelTenant
         return $this->hasOne(Warehouse::class);
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithMyEstablishment(\Illuminate\Database\Eloquent\Builder $query){
+        $user = \Auth::user();
+        if(null === $user) {
+            $user = new User();
+        }
+        return $query->where('id',$user->establishment_id);
+    }
 }

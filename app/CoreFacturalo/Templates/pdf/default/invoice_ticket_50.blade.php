@@ -389,6 +389,10 @@
                     {!!$row->item->description!!}
                 @endif
 
+                @if($row->total_isc > 0)
+                    <br/>ISC : {{ $row->total_isc }} ({{ $row->percentage_isc }}%)
+                @endif
+
                 @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
                 @foreach($row->additional_information as $information)
@@ -452,16 +456,18 @@
                 <td class="text-right font-bold desc-9">{{ number_format($document->total_exonerated, 2) }}</td>
             </tr>
         @endif
-        @if($document->total_taxed > 0)
+        
+        @if ($document->document_type_id === '07')
+            @if($document->total_taxed >= 0)
             <tr>
                 <td colspan="4" class="text-right font-bold desc-9">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_taxed, 2) }}</td>
             </tr>
-        @endif
-         @if($document->total_discount > 0)
+            @endif
+        @elseif($document->total_taxed > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc-9">{{(($document->total_prepayment > 0) ? 'ANTICIPO':'DESCUENTO TOTAL')}}: {{ $document->currency_type->symbol }}</td>
-                <td class="text-right font-bold desc">{{ number_format($document->total_discount, 2) }}</td>
+                <td colspan="4" class="text-right font-bold desc-9">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
+                <td class="text-right font-bold desc">{{ number_format($document->total_taxed, 2) }}</td>
             </tr>
         @endif
         @if($document->total_plastic_bag_taxes > 0)
@@ -475,6 +481,27 @@
             <td class="text-right font-bold desc">{{ number_format($document->total_igv, 2) }}</td>
         </tr>
         
+        @if($document->total_isc > 0)
+        <tr>
+            <td colspan="4" class="text-right font-bold desc">ISC: {{ $document->currency_type->symbol }}</td>
+            <td class="text-right font-bold desc">{{ number_format($document->total_isc, 2) }}</td>
+        </tr>
+        @endif
+
+        @if($document->total_discount > 0 && $document->subtotal > 0)
+        <tr>
+            <td colspan="4" class="text-right font-bold desc-9">SUBTOTAL: {{ $document->currency_type->symbol }}</td>
+            <td class="text-right font-bold desc">{{ number_format($document->subtotal, 2) }}</td>
+        </tr>
+        @endif
+        
+        @if($document->total_discount > 0)
+        <tr>
+            <td colspan="4" class="text-right font-bold desc-9">{{(($document->total_prepayment > 0) ? 'ANTICIPO':'DESCUENTO TOTAL')}}: {{ $document->currency_type->symbol }}</td>
+            <td class="text-right font-bold desc">{{ number_format($document->total_discount, 2) }}</td>
+        </tr>
+        @endif
+
         @if($document->total_charge > 0)
             @php
                 $total_factor = 0;
@@ -496,8 +523,8 @@
 
         @if($balance < 0)
            <tr>
-               <td colspan="5" class="text-right font-bold">VUELTO: {{ $document->currency_type->symbol }}</td>
-               <td class="text-right font-bold">{{ number_format(abs($balance),2, ".", "") }}</td>
+               <td colspan="4" class="text-right font-bold desc">VUELTO: {{ $document->currency_type->symbol }}</td>
+               <td class="text-right font-bold desc">{{ number_format(abs($balance),2, ".", "") }}</td>
            </tr>
         @endif
     </tbody>
@@ -582,7 +609,7 @@
                     <strong>PAGOS: {{ $paymentMethod->description }}</strong>
                 </td>
             </tr>
-                @foreach($document->fees as $key => $quote)
+                @foreach($document->fee as $key => $quote)
                     <tr>
                         <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
                     </tr>

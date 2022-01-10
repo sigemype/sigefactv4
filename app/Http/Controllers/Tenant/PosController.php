@@ -182,55 +182,63 @@ class PosController extends Controller
 
         if ($table === 'items') {
 
+            $items = Item::whereWarehouse()
+                ->whereIsActive();
             $configuration =  Configuration::first();
 
-            $items = Item::whereWarehouse()->whereIsActive()->where('unit_type_id', '!=', 'ZZ')->where('series_enabled', 0)->orderBy('description')->take(100)
-                            ->get()->transform(function($row) use ($configuration) {
-                                $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
-                                return [
-                                    'id' => $row->id,
-                                    'item_id' => $row->id,
-                                    'full_description' => $full_description,
-                                    'description' => ($row->brand->name) ? $row->description.' - '.$row->brand->name : $row->description,
-                                    'currency_type_id' => $row->currency_type_id,
-                                    'internal_id' => $row->internal_id,
-                                    'currency_type_symbol' => $row->currency_type->symbol,
-                                    'sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".",""),
-                                    'purchase_unit_price' => $row->purchase_unit_price,
-                                    'unit_type_id' => $row->unit_type_id,
-                                    'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
-                                    'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
-                                    'calculate_quantity' => (bool) $row->calculate_quantity,
-                                    'has_igv' => (bool) $row->has_igv,
-                                    'is_set' => (bool) $row->is_set,
-                                    'edit_unit_price' => false,
-                                    'aux_quantity' => 1,
-                                    'edit_sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".",""),
-                                    'aux_sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".",""),
-                                    'image_url' => ($row->image !== 'imagen-no-disponible.jpg') ? asset('storage'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR.$row->image) : asset("/logo/{$row->image}"),
-                                    'warehouses' => collect($row->warehouses)->transform(function($row) {
-                                        return [
-                                            'warehouse_description' => $row->warehouse->description,
-                                            'stock' => $row->stock,
-                                        ];
-                                    }),
-                                    'category_id' => ($row->category) ? $row->category->id : null,
-                                    'sets' => collect($row->sets)->transform(function($r){
-                                        return [
-                                            $r->individual_item->description
-                                        ];
-                                    }),
-                                    'unit_type' => $row->item_unit_types,
-                                    'category' => ($row->category) ? $row->category->name : null,
-                                    'brand' => ($row->brand) ? $row->brand->name : null,
-                                    'has_plastic_bag_taxes' => (bool) $row->has_plastic_bag_taxes,
-                                    'amount_plastic_bag_taxes' => $row->amount_plastic_bag_taxes,
+            if ($configuration->isShowServiceOnPos() !== true) {
+                $items->where('unit_type_id', '!=', 'ZZ');
+            }
+            $items = $items->where('series_enabled', 0)
+                ->orderBy('description')
+                ->take(100)
+                ->get()
+                ->transform(function (Item $row) use ($configuration) {
+                    $full_description = ($row->internal_id) ? $row->internal_id . ' - ' . $row->description : $row->description;
+                    return [
+                        'id' => $row->id,
+                        'item_id' => $row->id,
+                        'full_description' => $full_description,
+                        'description' => ($row->brand->name) ? $row->description . ' - ' . $row->brand->name : $row->description,
+                        'currency_type_id' => $row->currency_type_id,
+                        'internal_id' => $row->internal_id,
+                        'currency_type_symbol' => $row->currency_type->symbol,
+                        'sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
+                        'purchase_unit_price' => $row->purchase_unit_price,
+                        'unit_type_id' => $row->unit_type_id,
+                        'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                        'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
+                        'calculate_quantity' => (bool)$row->calculate_quantity,
+                        'has_igv' => (bool)$row->has_igv,
+                        'is_set' => (bool)$row->is_set,
+                        'edit_unit_price' => false,
+                        'aux_quantity' => 1,
+                        'edit_sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
+                        'aux_sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
+                        'image_url' => ($row->image !== 'imagen-no-disponible.jpg') ? asset('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'items' . DIRECTORY_SEPARATOR . $row->image) : asset("/logo/{$row->image}"),
+                        'warehouses' => collect($row->warehouses)->transform(function ($row) {
+                            return [
+                                'warehouse_description' => $row->warehouse->description,
+                                'stock' => $row->stock,
+                            ];
+                        }),
+                        'category_id' => ($row->category) ? $row->category->id : null,
+                        'sets' => collect($row->sets)->transform(function ($r) {
+                            return [
+                                $r->individual_item->description
+                            ];
+                        }),
+                        'unit_type' => $row->item_unit_types,
+                        'category' => ($row->category) ? $row->category->name : null,
+                        'brand' => ($row->brand) ? $row->brand->name : null,
+                        'has_plastic_bag_taxes' => (bool)$row->has_plastic_bag_taxes,
+                        'amount_plastic_bag_taxes' => $row->amount_plastic_bag_taxes,
 
-                                    'has_isc' => (bool)$row->has_isc,
-                                    'system_isc_type_id' => $row->system_isc_type_id,
-                                    'percentage_isc' => $row->percentage_isc,
-                                ];
-                            });
+                        'has_isc' => (bool)$row->has_isc,
+                        'system_isc_type_id' => $row->system_isc_type_id,
+                        'percentage_isc' => $row->percentage_isc,
+                    ];
+                });
             return $items;
         }
 
@@ -343,8 +351,12 @@ class PosController extends Controller
         $items = Item::whereWarehouse()
             ->whereIsActive()
             ->where('series_enabled', 0)
-            ->orderBy('description')
-            ->where('unit_type_id', '!=', 'ZZ');
+            ->orderBy('description');
+        $config = Configuration::first();
+        if($config->isShowServiceOnPos() !== true) {
+            $items->where('unit_type_id', '!=', 'ZZ');
+        }
+
         self::FilterItem($items, $request);
 
         return new PosCollection($items->paginate(50));
@@ -395,7 +407,7 @@ class PosController extends Controller
         }
 
         $item->whereIsActive();
-        
+
     }
 
     /**
@@ -414,5 +426,27 @@ class PosController extends Controller
         self::FilterItem($item, $request);
         return new PosCollection($item->paginate(50));
 
+    }
+
+    /**
+     * vista de venta rapida para POS
+     *
+     * @param
+     *
+     * @return view
+     */
+    public function fast()
+    {
+        $cash = Cash::where([['user_id', auth()->user()->id],['state', true]])->first();
+
+        if(!$cash) return redirect()->route('tenant.cash.index');
+
+        $configuration = Configuration::first();
+
+        $company = Company::select('soap_type_id')->first();
+        $soap_company  = $company->soap_type_id;
+        $business_turns = BusinessTurn::select('active')->where('id', 4)->first();
+
+        return view('tenant.pos.fast', compact('configuration', 'soap_company', 'business_turns'));
     }
 }

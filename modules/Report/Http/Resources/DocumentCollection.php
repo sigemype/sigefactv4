@@ -11,10 +11,9 @@ class DocumentCollection extends ResourceCollection
     public function toArray($request) {
 
 
-        return $this->collection->transform(function($row, $key){
+        return $this->collection->transform(function(\App\Models\Tenant\Document $row, $key){
 
 
-            /** @var \App\Models\Tenant\Document $row */
             $affected_document = null;
             if(in_array($row->document_type_id,['07','08']) && $row->note){
 
@@ -76,6 +75,7 @@ class DocumentCollection extends ResourceCollection
                 'quotation_number_full' => ($row->quotation) ? $row->quotation->number_full : '',
                 'sale_opportunity_number_full' => isset($row->quotation->sale_opportunity) ? $row->quotation->sale_opportunity->number_full : '',
                 'web_platforms' => $web_platforms,
+                'plate_number' => $row->plate_number,
 
             ];
         });

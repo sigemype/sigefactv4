@@ -20,10 +20,13 @@ use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 // use App\Models\System\Configuration;
+use App\Http\Controllers\System\ClientController;
 
-class ResellerController extends Controller{
+class ResellerController extends Controller
+{
 
-    public function resellerDetail(){
+    public function resellerDetail()
+    {
 
         $records = Client::latest()->get();
 
@@ -37,7 +40,8 @@ class ResellerController extends Controller{
         return new ClientCollection($records);
     }
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $credentials = request(['email', 'password']);
         if (!Auth::attempt($credentials)) {
             return [
@@ -55,24 +59,43 @@ class ResellerController extends Controller{
         ];
     }
 
-    public function lockedAdmin(Request $request){
+    public function lockedAdmin(Request $request)
+    {
         // dd($request->locked_admin);
-        
+
         $configuration = Configuration::first();
         $configuration->locked_admin = $request->locked_admin;
-        $configuration->save();        
+        $configuration->save();
+
+
         $clients = Client::get();
+
         foreach ($clients as $client) {
+
             $client->locked_tenant = $configuration->locked_admin;
             $client->save();
+
             $tenancy = app(Environment::class);
             $tenancy->tenant($client->hostname->website);
             DB::connection('tenant')->table('configurations')->where('id', 1)->update(['locked_tenant' => $client->locked_tenant]);
-        } 
+
+        }
+
         return [
             'success' => true,
             'message' => ($configuration->locked_admin) ? 'Cuenta bloqueada' : 'Cuenta desbloqueada'
         ];
+
+    }
+
+    /**
+     * cambio de acceso a clientes mediante url y json api
+     */
+    function lockedTenant(Request $request)
+    {
+        // App\Http\Controllers\System\ClientController;
+        $response = (new ClientController)->lockedTenant($request);
+        return $response;
     }
 
 

@@ -176,8 +176,15 @@
                         >
                         </el-table-column>
                         <el-table-column
+                            label="Destino"
+                            prop="destination_name"
+                            v-if="showDestination!== true"
+                            sortable>
+                        </el-table-column>
+                        <el-table-column
                             label="Tipo"
                             prop="instance_type_description"
+                            v-if="showDestination!== false"
                             sortable>
                         </el-table-column>
                         <el-table-column
@@ -271,6 +278,11 @@ export default {
             required: false,
             default: false
         },
+        ismovements: {
+            type: Number,
+            required: false,
+            default: 1
+        },
         applyCustomer: {
             type: Boolean,
             required: false,
@@ -332,6 +344,9 @@ export default {
                 return this.records.length
             }
             return this.per_page
+        },
+        showDestination:function(){
+            return !(this.ismovements !== undefined && this.ismovements === 0);
         },
     },
     created() {
@@ -443,6 +458,7 @@ export default {
                     data: this.records,
                     column: this.filterdata.column,
                     order: this.filterdata.order,
+                    ismovements: this.ismovements,
                 },
                 method: 'post',
                 responseType: 'blob', // important
@@ -459,10 +475,10 @@ export default {
                 link.setAttribute('download', fileName);
                 document.body.appendChild(link);
                 link.click();
+            }).catch((error) => {
+                console.error(error)
+            }).finally(() => {
                 this.loading_submit = false;
-
-            }).catch(() => {
-                this.loading_submit = true;
             });
 
 
@@ -519,9 +535,9 @@ export default {
                 )
                 this.getTotals(response.data.data)
                 this.currentTableData = this.records.slice(0, this.itemsPerPage)
-                // this.loading_submit = false
             }).finally(() => {
                 this.getOtherData()
+                this.loading_submit = false
             });
         },
         reindex_array_keys(array, start) {
@@ -545,10 +561,10 @@ export default {
                     }).catch(() => {
                         // Si existe el error, habilita la busqueda
                         this.pagination.current_page = 0;
-                        this.loading_submit = false;
                         this.currentTableData = this.records.slice(0, this.itemsPerPage)
                     })
                     .finally(() => {
+                        this.loading_submit = false;
                         this.getOtherData()
                     });
             } else {
@@ -581,6 +597,7 @@ export default {
                 limit: this.limit,
                 column: this.filterdata.column,
                 order: this.filterdata.order,
+                ismovements: this.ismovements,
                 paginate: 1,
                 ...this.form
             })

@@ -503,15 +503,20 @@ class CashController extends Controller
      *
      * @param        $cash
      * @param string $format
+     * @param integer $mm
      *
      * @return string
      * @throws \Mpdf\MpdfException
      * @throws \Throwable
      */
-    private function getPdf($cash, $format = 'ticket') {
+    private function getPdf($cash, $format = 'ticket', $mm = null) {
         $data = $this->setDataToReport($cash);
         $quantity_rows = 30;//$cash->cash_documents()->count();
 
+        $width = 78;
+        if($mm != null) {
+            $width = $mm - 2;
+        }
 
         $view = view('pos::cash.report_pdf_'.$format, compact('data'));
         $html = $view->render();
@@ -519,7 +524,6 @@ class CashController extends Controller
         $html = view('pos::cash.report_pdf_' . $format,
             compact('cash', 'company', 'methods_payment','status_type_id'))->render();
         */
-        $width = 78;
         if ($format === 'ticket') {
             $pdf = new Mpdf([
                                 'mode'          => 'utf-8',
@@ -528,10 +532,10 @@ class CashController extends Controller
                                     190 +
                                     ($quantity_rows * 8),
                                 ],
-                                'margin_top'    => 5,
-                                'margin_right'  => 5,
-                                'margin_bottom' => 5,
-                                'margin_left'   => 5,
+                                'margin_top'    => 3,
+                                'margin_right'  => 3,
+                                'margin_bottom' => 3,
+                                'margin_left'   => 3,
                             ]);
         } else {
             $pdf = new Mpdf([
@@ -548,14 +552,16 @@ class CashController extends Controller
      * Reporte en Ticket formato cash_pdf_ticket
      *
      * @param $cash
+     * @param integer $mm
      *
      * @return mixed
      * @throws \Mpdf\MpdfException
      * @throws \Throwable
      */
-    public function reportTicket($cash) {
-        $temp = tempnam(sys_get_temp_dir(), 'cash_pdf_ticket');
-        file_put_contents($temp, $this->getPdf($cash, 'ticket'));
+    public function reportTicket($cash, $mm) {
+        $temp = tempnam(sys_get_temp_dir(), 'cash_pdf_ticket_'.$mm);
+
+        file_put_contents($temp, $this->getPdf($cash, 'ticket', $mm));
 
         return response()->file($temp);
     }

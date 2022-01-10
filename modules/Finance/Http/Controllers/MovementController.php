@@ -22,7 +22,14 @@ class MovementController extends Controller
 
     public function index(){
 
-        return view('finance::movements.index');
+        $isMovements = 1;
+        return view('finance::movements.index',compact('isMovements'));
+    }
+
+    public function indexTransactions(){
+
+        $isMovements = 0;
+        return view('finance::movements.index',compact('isMovements'));
     }
 
 
@@ -92,7 +99,7 @@ class MovementController extends Controller
 
         $pdf = PDF::loadView('finance::movements.report_pdf', compact("records", "company", "establishment"))->setPaper('a4', 'landscape');;
 
-        $filename = 'Reporte_Movimientos_'.date('YmdHis');
+                $filename = 'Reporte_Movimientos_'.date('YmdHis');
 
         return $pdf->download($filename.'.pdf');
     }
@@ -135,11 +142,13 @@ class MovementController extends Controller
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
         $records = $this->getRecords($request->all(), GlobalPayment::class)->get();
 
-        return (new MovementExport)
-                ->records($records)
-                ->company($company)
-                ->establishment($establishment)
-                ->download('Reporte_Movimientos_'.Carbon::now().'.xlsx');
+        $movementExport  = new MovementExport();
+        $movementExport
+            ->records($records)
+            ->company($company)
+            ->establishment($establishment);
+        return $movementExport->view();
+        return $movementExport->download('Reporte_Movimientos_'.Carbon::now().'.xlsx');
 
     }
 

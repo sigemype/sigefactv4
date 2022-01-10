@@ -3,6 +3,7 @@ $document_type_id = isset($document_type_id) ? $document_type_id : null;
 $type = $type ?? 'sale';
 ?>
 <th>FECHA DE EMISIÓN</th>
+<th class="">USUARIO/VENDEDOR</th>
 @if($document_type_id != '80' && $type == 'sale')
     <th>DIST</th>
     <th>DPTO</th>

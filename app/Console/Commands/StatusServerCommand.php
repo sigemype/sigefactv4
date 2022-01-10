@@ -7,7 +7,8 @@ use App\Models\System\HistoryResource;
 use App\Http\Controllers\System\StatusController;
 use Carbon\Carbon;
 
-class StatusServerCommand extends Command{
+class StatusServerCommand extends Command
+{
     /**
      * The name and signature of the console command.
      *

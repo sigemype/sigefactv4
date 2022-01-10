@@ -20,6 +20,7 @@
                         <th>#</th>
                         <th class="text-center">Fecha Emisión</th>
                         <th class="text-center">Fecha Referencia</th>
+                        <th class="text-center" v-if="show_summary_status_type">Tipo de estado</th>
                         <th>Identificador</th>
                         <th>Estado</th>
                         <th>Ticket</th>
@@ -30,6 +31,7 @@
                         <td>{{ index  }}</td>
                         <td class="text-center">{{ row.date_of_issue }}</td>
                         <td class="text-center">{{ row.date_of_reference }}</td>
+                        <td class="text-center"  v-if="show_summary_status_type">{{ row.summary_status_type_description }}</td>
                         <td>{{ row.identifier }}</td>
                         <td>
                             <!-- {{ row.state_type_description }} -->
@@ -94,6 +96,7 @@
     import {deletable} from '../../../mixins/deletable'
 
     export default {
+        props: ['show_summary_status_type'],
         mixins: [deletable],
         components: {DataTable, SummaryForm, SummaryOptions, SummaryRegularize},
         data () {

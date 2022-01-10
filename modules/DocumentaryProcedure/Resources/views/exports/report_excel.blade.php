@@ -1,16 +1,22 @@
-<!DOCTYPE html>
+<?php
+
+use Modules\DocumentaryProcedure\Models\DocumentaryGuidesNumber;
+?><!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type"
           content="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
     <title>Document</title>
 </head>
 <body>
 <div>
-    <h3 align="center" class="title"><strong>Reporte Tramite</strong></h3>
+    <h3 align="center"
+        class="title"><strong>Reporte Tramite</strong></h3>
 </div>
 <br>
 <div style="margin-top:20px; margin-bottom:15px;">
@@ -37,7 +43,8 @@
             <td>
                 <p><strong>Establecimiento: </strong></p>
             </td>
-            <td align="center">{{$establishment->address}} - {{$establishment->department->description}} - {{$establishment->district->description}}</td>
+            <td align="center">{{$establishment->address}} - {{$establishment->department->description}}
+                                                           - {{$establishment->district->description}}</td>
         </tr>
     </table>
 </div>
@@ -52,42 +59,83 @@
                     <th>#</th>
                     <th>Numero de expediente</th>
                     <th>Fecha/Hora registro</th>
-                    <th>Remitente</th>
-                    <th>Proceso</th>
+                    <th>Datos del cliente</th>
+                    <th>Trámite</th>
+
+                    <th>Secuencia</th>
                     <th>Etapa</th>
-                    <th>Fecha de fin</th>
+                    <th>Observación</th>
+                    <th>Fecha de registro</th>
+                    <th>
+                        Fecha que se toma el tramite
+                    </th>
+                    <th>Fecha de Finalización
+                    </th>
+                    <th>Estado</th>
+                    <th>Responsable</th>
+<!--
+                    <th>Descripcion Trámite</th>
+                    <th>Número Etapa</th>
+                    <th>Número de seguimiento</th>
+                    <th>Etapa</th>
+                    <th>Status de Etapa</th>
+                    <th>Fecha de fin</th>-->
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($records as $key => $value)
-                    <tr>
-                        <td class="text-right">{{ $key + 1 }}</td>
-                        <td>{{ $value['invoice'] }}</td>
-                        <td>{{ $value['date_register'] }} - {{ $value['time_register'] }}</td>
-                        <td>{{ $value['sender']->name }}</td>
-                        <td>
+                    <?php
+                    $sender = $value['sender'] ?? null;
+                    $documentary_process = $value['documentary_process'] ?? null;
+                    $guides = $value['guides'] ?? null;
+                    $totalGuides = count($guides);
+                    ?>
+                    @foreach($guides as $key2 => $guide)
+                        <?php
+                        /** @var DocumentaryGuidesNumber $guide */
+
+                        $status = $guide->documentary_guides_number_status;
+                        $office = $guide->doc_office;
+                                $senderName = $sender->number ." - ". $sender->name;
+                        ?>
+
+                        <tr>
+                            <td
+                                class="text-right">{{ $key + 1 }}</td>
+
+
+                            <td>{{ $value['invoice'] }}</td>
+                            <td>{{ $value['date_register'] }}
+                                - {{ $value['time_register'] }}</td>
+                            <td>{{ $senderName }}</td>
+                            <td>
                                 <span
                                 >
-                                     {{ $value['documentary_process']['name'] }}
+                                     {{ $documentary_process['name']??'' }}
                                 </span>
-                        </td>
-                        @php($last_complete = isset($value['last_complete'])?$value['last_complete']:[])
-                        <td>
-                            @if(!empty($last_complete))
-                                <div class="{{$last_complete['class']}}">
-                                    {{ $last_complete['office_name'] }}
-                                </div>
-                            @endif
+                            </td>
 
-
-                        </td>
-                        <td>
-                            @if(!empty($last_complete))
-                                <div class="{{$last_complete['class']}}">
-                                    {{ $last_complete['end_date'] }}
-                                </div>
-                            @endif
-                        </td>
+                            <td>{{$guide->guide}}</td>
+                            <td>{{($guide->doc_office_id!== null)?$guide->office->name:'-'}}</td>
+                            <td>{{$guide->observation}}</td>
+                            <td>{{ $guide->created_at }} </td>
+                            <td>{{ $guide->date_take }} </td>
+                            <td>{{ $guide->date_end }} </td>
+                            <td>{{($guide->documentary_guides_number_status_id!== null)?$guide->documentary_guides_number_status->name:'-'}}</td>
+                            <td>{{ $guide->user->name }}  </td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 @endforeach
 

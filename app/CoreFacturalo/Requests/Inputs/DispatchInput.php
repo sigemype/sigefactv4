@@ -149,7 +149,9 @@ class DispatchInput
             $items = [];
             foreach ($inputs['items'] as $row) {
                 $item = Item::find($row['item_id']);
-                $items[] = [
+                $itemDispatch = $row['item']??[];
+                $row['IdLoteSelected'] =  $row['IdLoteSelected']??$itemDispatch['IdLoteSelected']??null;
+                $temp = [
                     'item_id' => $item->id,
                     'item' => [
                         'description' => $item->description,
@@ -164,6 +166,12 @@ class DispatchInput
                     ],
                     'quantity' => $row['quantity'],
                 ];
+                if(isset($temp['item']['lot_group']['date_of_due'])){
+                    $temp['item']['date_of_due']=$temp['item']['lot_group']['date_of_due'];
+                }else{
+                    $temp['item']['date_of_due']= $itemDispatch['date_of_due'] ??null;
+                }
+                $items[] = $temp;
             }
 
             return $items;

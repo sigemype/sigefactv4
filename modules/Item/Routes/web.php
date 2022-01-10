@@ -21,6 +21,19 @@ if($hostname) {
             Route::get('brands/columns', 'BrandController@columns');
             Route::delete('brands/{brand}', 'BrandController@destroy');
 
+
+
+            Route::prefix('zones')->group(function () {
+
+                Route::get('', 'ZoneController@index')->name('tenant.zone.index');
+                Route::post('', 'ZoneController@store');
+                Route::get('/records', 'ZoneController@records');
+                Route::get('/record/{brand}', 'ZoneController@record');
+                Route::get('/columns', 'ZoneController@columns');
+                Route::delete('/{brand}', 'ZoneController@destroy');
+            });
+
+
             Route::get('incentives', 'IncentiveController@index')->name('tenant.incentives.index')->middleware('redirect.level');
             Route::get('incentives/records', 'IncentiveController@records');
             Route::get('incentives/record/{incentive}', 'IncentiveController@record');
@@ -31,6 +44,7 @@ if($hostname) {
             Route::get('items/barcode/{item}', 'ItemController@generateBarcode');
 
             Route::post('items/import/item-price-lists', 'ItemController@importItemPriceLists');
+            Route::post('items/import/item-with-extra-data', 'ItemController@importItemWithExtraData');
 
             //history
             Route::get('items/data-history/{item}', 'ItemController@getDataHistory');
@@ -40,7 +54,7 @@ if($hostname) {
             //history
 
             Route::prefix('item-lots')->group(function () {
-                
+
                 Route::get('', 'ItemLotController@index')->name('tenant.item-lots.index');
                 Route::get('/records', 'ItemLotController@records');
                 Route::get('/record/{record}', 'ItemLotController@record');
@@ -55,7 +69,7 @@ if($hostname) {
 
 
             Route::prefix('web-platforms')->group(function () {
-                
+
                 Route::get('', 'WebPlatformController@index');
                 Route::get('/records', 'WebPlatformController@records');
                 Route::get('/record/{brand}', 'WebPlatformController@record');

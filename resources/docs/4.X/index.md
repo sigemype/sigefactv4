@@ -5,6 +5,7 @@
     - [Servidor con docker](/{{route}}/{{version}}/migracion-server-docker)
 - ## PDF
     - [Plantilla personalizada](/{{route}}/{{version}}/plantilla-pdf-personalizada)
+    - [Impresión automática](/{{route}}/{{version}}/impresion-automatica)
 - ## Validador
     - [Configuración SUNAT](/{{route}}/{{version}}/configuracion-nuevo-validador)
 - ## Atributos para items

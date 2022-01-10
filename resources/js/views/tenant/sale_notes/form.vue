@@ -1,5 +1,14 @@
 <template>
-    <div class="card mb-0 pt-2 pt-md-0">
+    <div class="card mb-0 pt-2 pt-md-0"
+    >
+        <Keypress
+            key-event="keyup"
+
+            @success="checkKey"
+        />
+        <Keypress key-event="keyup" :multiple-keys="multiple" @success="checkKeyWithAlt" />
+
+
         <div class="tab-content"  v-if="company && establishment">
             <div class="invoice">
                 <header class="clearfix">
@@ -33,7 +42,10 @@
                                         dusk="customer_id"
                                         placeholder="Escriba el nombre o número de documento del cliente"
                                         :remote-method="searchRemoteCustomers"
-                                        :loading="loading_search">
+                                               @change="changeCustomer"
+                                               @focus="focus_on_client = true"
+                                               @blur="focus_on_client = false"
+                                               :loading="loading_search">
 
                                         <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
 
@@ -176,7 +188,10 @@
                                                 </th>
                                                 <th v-if="form.payments.length>0">Referencia</th>
                                                 <th v-if="form.payments.length>0">Monto</th>
-                                                <th width="15%"><a href="#" @click.prevent="clickAddPayment" class="text-center font-weight-bold text-info">[+ Agregar]</a></th>
+                                                <th width="15%">
+                                                    <a href="#"
+                                                       @click.prevent="clickAddPayment" class="text-center font-weight-bold text-info">[+ Agregar]</a>
+                                                </th>
                                             </template>
                                         </tr>
                                     </thead>
@@ -286,7 +301,20 @@
                             </div>
                             <div class="col-lg-12 col-md-6 d-flex align-items-end">
                                 <div class="form-group">
-                                    <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="showDialogAddItem = true">+ Agregar Producto</button>
+                                    <el-popover
+                                        placement="top-start"
+                                        :open-delay="1000"
+
+                                        width="145"
+                                        trigger="hover"
+                                        content="Presiona F2">
+                                        <el-button slot="reference"
+                                                   type="button" class="btn waves-effect waves-light btn-primary"
+                                                   @click.prevent="showDialogAddItem = true"
+                                        >
+                                            + Agregar Producto
+                                            </el-button>
+                                    </el-popover>
                                 </div>
                             </div>
 
@@ -312,7 +340,22 @@
 
                     <div class="form-actions text-right mt-4">
                         <el-button @click.prevent="close()">Cancelar</el-button>
-                        <el-button class="submit" type="primary" native-type="submit" :loading="loading_submit" v-if="form.items.length > 0">Generar</el-button>
+
+                        <el-popover
+                            placement="top-start"
+                            width="145"
+                            trigger="hover"
+                            content="Presiona ALT + G">
+                            <el-button slot="reference"
+                                       class="submit"
+                                       type="primary"
+                                       native-type="submit"
+                                       :loading="loading_submit"
+                                       v-if="form.items.length > 0"
+                            >
+                                Generar
+                            </el-button>
+                        </el-popover>
                     </div>
                 </form>
             </div>
@@ -344,6 +387,7 @@
     import {calculateRowItem, sumAmountDiscountsNoBaseByItem} from '../../../helpers/functions'
     import Logo from '../companies/logo.vue'
     import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+    import Keypress from "vue-keypress";
 
     export default {
         props: [
@@ -351,7 +395,13 @@
             'typeUser',
             'configuration',
         ],
-        components: {SaleNotesFormItem, PersonForm, SaleNotesOptions, Logo},
+        components: {
+            SaleNotesFormItem,
+            PersonForm,
+            SaleNotesOptions,
+            Logo,
+            Keypress
+        },
         mixins: [functions, exchangeRate],
         computed:{
             ...mapState([
@@ -384,6 +434,19 @@
                         return date.getTime() < (now.getTime());
                     },
                 },
+                multiple: [
+                    {
+                        keyCode: 78, // N
+                        modifiers: ['altKey'],
+                        preventDefault: true,
+                    },
+                    {
+                        keyCode: 71, // g
+                        modifiers: ['altKey'],
+                        preventDefault: true,
+                    },
+                ],
+                focus_on_client :false,
                 sellers: [],
                 resource: 'sale-notes',
                 showDialogAddItem: false,
@@ -589,6 +652,15 @@
             clickCancel(index) {
                 this.form.payments.splice(index, 1);
             },
+            changeCustomer() {
+                let customer = _.find(this.customers, {'id': this.form.customer_id});
+                let seller = this.sellers.find(element => element.id == customer.seller_id)
+                if(seller !== undefined){
+                    this.form.seller_id = seller.id
+
+                }
+
+            },
             searchRemoteCustomers(input) {
 
                 if (input.length > 0) {
@@ -681,6 +753,8 @@
             changeEstablishment() {
                 this.establishment = _.find(this.establishments, {'id': this.form.establishment_id})
                 this.filterSeries()
+                this.selectDefaultCustomer()
+
             },
             cleanCustomer(){
                 this.form.customer_id = null
@@ -718,7 +792,7 @@
                 this.calculateTotal()
             },
             calculateTotal() {
-                
+
                 let total_discount = 0
                 let total_charge = 0
                 let total_exportation = 0
@@ -924,6 +998,76 @@
                     this.form.customer_id = customer_id
                 })
             },
+            async selectDefaultCustomer() {
+
+                if (this.config.establishment.customer_id) {
+
+                    let temp_all_customers = this.all_customers;
+                    let temp_customers = this.customers;
+                    await this.$http.get(`/${this.resource}/search/customer/${this.config.establishment.customer_id}`)
+                        .then((response) => {
+                        let data_customer = response.data.customers
+                        temp_all_customers = temp_all_customers.push(...data_customer)
+                        temp_customers = temp_customers.push(...data_customer)
+                    })
+                    temp_all_customers = this.all_customers.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    )
+                    temp_customers = this.customers.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    )
+                    this.all_customers = temp_all_customers;
+                    this.customers = temp_customers;
+                    let alt = _.find(this.customers, {'id': this.config.establishment.customer_id});
+
+                    if (alt !== undefined) {
+                        this.form.customer_id = this.config.establishment.customer_id
+                        let seller = this.sellers.find(element => element.id == alt.seller_id)
+                        if(seller !== undefined){
+                            this.form.seller_id = seller.id
+                        }
+                    }
+                }
+            },
+            checkKeyWithAlt(e){
+                let code = e.event.code;
+                if(
+                    this.showDialogOptions === true &&
+                    code === 'KeyN'
+                ){
+                    this.showDialogOptions = false
+                }
+
+                if(
+                    code === 'KeyG'  // key G
+                    && !this.showDialogAddItem   // Modal hidden
+                    && this.form.items.length > 0  // with items
+                    && this.focus_on_client  === false // not client search
+                )
+                {
+                     this.submit()
+                }
+            },
+            checkKey(e){
+                let code = e.event.code;
+                if(code === 'F2'){
+                    //abrir el modal de agergar producto
+                    if(!this.showDialogAddItem ) this.showDialogAddItem = true
+                }
+                if(code === 'Escape'){
+                    if(this.showDialogAddItem ) {
+                        this.showDialogAddItem = false;
+                    }
+
+                }
+
+
+            }
+
         }
     }
 </script>

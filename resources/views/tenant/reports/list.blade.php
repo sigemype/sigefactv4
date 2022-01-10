@@ -45,6 +45,11 @@
                                     Giro negocio hoteles
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{route('tenant.reports.report_hotel.index')}}">
+                                    Reporte de Habitaciones
+                                </a>
+                            </li>
                         @endif
                         <li>
                             <a href="{{route('tenant.reports.commercial_analysis.index')}}">

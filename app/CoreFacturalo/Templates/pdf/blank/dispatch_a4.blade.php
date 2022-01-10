@@ -16,13 +16,16 @@
 <head>
     {{--<title>{{ $document_number }}</title>--}}
     {{--<link href="{{ $path_style }}" rel="stylesheet" />--}}
+	<link href="https://allfont.es/allfont.css?fonts=lucida-console" rel="stylesheet" type="text/css" />
+	
 </head>
 <body>
 
 {{-- <div class="" style="position: absolute; z-index: 0; width:100%; top: 0; left: 0;">
     <img src="data:{{mime_content_type($background)}};base64, {{base64_encode(file_get_contents($background))}}" alt="anulado" class="" style="width: 100%; opacity: 0.3">
 </div> --}}
-<table class="full-width p-0 mt-20">
+<table class="full-width p-0 mt-20 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
+	<tr>&nbsp;</tr>
     @foreach($document->items as $row)
     <tr>
         <td width="13%" class="align-top">

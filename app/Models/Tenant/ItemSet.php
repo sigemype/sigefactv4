@@ -29,6 +29,7 @@
             'item_id',
             'individual_item_id',
             'quantity',
+            'unit_price'
         ];
 
         /**

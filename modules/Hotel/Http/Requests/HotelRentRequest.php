@@ -27,6 +27,7 @@ class HotelRentRequest extends FormRequest
 			'output_time'              => 'required|date_format:H:i',
 			'product'                  => 'required',
 			'hotel_rate_id'              => 'required|numeric',
+			'affectation_igv_type_id' => 'required',
 		];
 	}
 }

@@ -644,7 +644,7 @@ export default {
         },
         getQueryParameters() {
             if(this.users.length  > 0){
-                delete(this.form.type_person)
+                // delete(this.form.type_person)
             }
             let parameters = queryString.stringify({
                 page: this.pagination.current_page,

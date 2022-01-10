@@ -9,7 +9,9 @@
         <form autocomplete="off" @submit.prevent="onSubmit">
             <div class="form-body row">
                 <div class="form-group col-md-12">
-                    <label for="name">Nombre de la etapa</label>
+                    <label for="name">
+                        Nombre de la etapa
+                    </label>
                     <input
                         id="name"
                         v-model="form.name"
@@ -21,8 +23,8 @@
                         {{ errors.name[0] }}
                     </div>
                 </div>
-                <div class="form-group col-md-6">
-                    <label for="description">Descripción</label>
+                <div class="form-group col-md-12">
+                <label for="description">Descripción</label>
                     <input
                         id="description"
                         v-model="form.description"
@@ -34,60 +36,43 @@
                         {{ errors.description[0] }}
                     </div>
                 </div>
+
+
+
+
+
+                <div class="form-group col-md-3">
+                    <label for="color">
+                        Color de fondo<br>
+                    </label>
+                    <el-color-picker
+                        id="color"
+                        v-model="form.color"
+                        :color-format="'true'"
+                        :predefine="predefineColors"
+                        :size="'medium'"
+                        show-alpha
+                    >
+                    </el-color-picker>
+
+                    <div v-if="errors.color"
+                         class="invalid-feedback">
+                        {{ errors.name[0] }}
+                    </div>
+
+                </div>
+                <div class="form-group col-md-3">
+
+                    <label
+                        class=" badge"
+                        :style="'background-color:'+ form.color+
+                                             ';font-size: 12px;'"
+                    > Texto de prueba</label>
+                </div>
+
+
                 <div class="form-group col-md-6">
-                    <div :class="{'has-danger': errors.days}" class="form-group">
-                        <label class="control-label">Dias de tramite</label>
-                        <el-input-number
-                            v-model="form.days"
-                        >
-
-                        </el-input-number>
-
-                        <small v-if="errors.days" class="form-control-feedback"
-                               v-text="errors.days[0]"></small>
-                    </div>
-                </div>
-                <!-- v-if="hasParent"  -->
-                <!--
-                <div  :class="{'has-danger': errors.type}" class="form-group">
-                    <label class="control-label">Etapa principal</label>
-                    <el-select
-                        v-model="form.parent_id"
-                        :clearable="true">
-                        <el-option
-                            v-for="item in parent_offices"
-                            :key="item.id"
-                            :label="item.name"
-                            :value="item.id"
-                        ></el-option>
-                    </el-select>
-                    <small v-if="errors.parent_id" class="form-control-feedback"
-                           v-text="errors.parent_id[0]"></small>
-
-
-                </div>
-                -->
-
-                <div v-if="office!==undefined" class="form-group col-md-12">
-                    <div :class="{'has-danger': errors.type}" class="form-group">
-                        <label class="control-label">Responsable</label>
-                        <el-select
-                            v-model="form.users"
-                            :clearable="true"
-                        :multiple="true"
-                        >
-                            <el-option v-for="option in workers"
-                                       :key="option.id"
-                                       :label="option.name"
-                                       :value="option.id"></el-option>
-                        </el-select>
-                        <small v-if="errors.rel_user_to_documentary_offices" class="form-control-feedback"
-                               v-text="errors.rel_user_to_documentary_offices[0]"></small>
-                    </div>
-                </div>
-
-                <div class="form-group col-md-12">
-                    <label>Mostrar etapa</label>
+                    <label>Activo</label>
                     <el-switch v-model="form.active"></el-switch>
                 </div>
                 <div class="row text-center col-md-12">
@@ -141,18 +126,15 @@ export default {
             'workers',
         ]),
         OfficeNotNull: function () {
-            if (this.office !== null) return true
-            return false;
+            return this.office !== null;
+
         },
         hasParent: function () {
-            if (
-                this.office !== undefined &&
+            return this.office !== undefined &&
                 this.office.parent !== undefined &&
-                this.office.parent.id > 0) {
-                return true;
-            }
+                this.office.parent.id > 0;
 
-            return false;
+
         },
     },
     created() {
@@ -164,11 +146,22 @@ export default {
     },
     data() {
         return {
-            form: {},
+            form: {
+                color: "#fff",
+            },
             title: "",
             errors: {},
             loading: false,
             basePath: "/documentary-procedure/offices",
+            predefineColors: [
+                '#ff4500',
+                '#ff8c00',
+                '#ffd700',
+                '#90ee90',
+                '#00ced1',
+                '#1e90ff',
+                '#c71585',
+            ],
         };
     },
     methods: {
@@ -216,7 +209,8 @@ export default {
                 });
         },
         onSubmit() {
-            if (this.office) {
+            if (this.office && this.office.id) {
+
                 this.onUpdate();
             } else {
                 this.onStore();
@@ -227,7 +221,8 @@ export default {
             this.$store.commit('setOffice', {})
         },
         onCreate() {
-            if (this.office) {
+            this.color = null;
+            if (this.office && this.office.id) {
                 this.form = this.office;
                 this.title = "Editar Etapa";
             } else {

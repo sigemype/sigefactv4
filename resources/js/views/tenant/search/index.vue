@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
                 <div class="form-actions text-right pt-2 mt-2">
                     <el-button type="primary" native-type="submit" :loading="loading_submit">Buscar</el-button>
@@ -82,6 +82,7 @@
                         <td class="text-right">
                             <a :href="record.download_xml">XML</a>
                             <a :href="record.download_pdf">PDF</a>
+                            <a :href="record.download_cdr">CDR</a>
                             <!--<button type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="clickCreate(row.id)">Editar</button>-->
                             <!--<button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>-->
                         </td>

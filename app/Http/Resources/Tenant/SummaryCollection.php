@@ -44,6 +44,7 @@ class SummaryCollection extends ResourceCollection
                 'created_at' => $row->created_at->format('Y-m-d H:i:s'),
                 'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),
                 'unknown_error_status_response' => $row->unknown_error_status_response,
+                'summary_status_type_description' => $row->summary_status_type->description,
 
             ];
         });

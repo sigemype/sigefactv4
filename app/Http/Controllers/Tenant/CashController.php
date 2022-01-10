@@ -1,32 +1,24 @@
 <?php
 namespace App\Http\Controllers\Tenant;
 
-use App\Imports\ItemsImport;
-use App\Models\Tenant\Catalogs\AffectationIgvType;
-use App\Models\Tenant\Catalogs\AttributeType;
-use App\Models\Tenant\Catalogs\CurrencyType;
-use App\Models\Tenant\Catalogs\SystemIscType;
-use App\Models\Tenant\Catalogs\UnitType;
-use App\Models\Tenant\User;
-use App\Models\Tenant\Company;
+use App\Exports\CashProductExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\CashRequest;
 use App\Http\Resources\Tenant\CashCollection;
 use App\Http\Resources\Tenant\CashResource;
 use App\Models\Tenant\Cash;
 use App\Models\Tenant\CashDocument;
-use Exception;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Excel;
-use Barryvdh\DomPDF\Facade as PDF;
+use App\Models\Tenant\Company;
 use App\Models\Tenant\DocumentItem;
 use App\Models\Tenant\PaymentMethodType;
-use Modules\Pos\Models\CashTransaction;
-use Modules\Finance\Traits\FinanceTrait;
-use Illuminate\Support\Facades\DB;
-use App\Models\Tenant\SaleNoteItem;
-use App\Exports\CashProductExport;
 use App\Models\Tenant\PurchaseItem;
+use App\Models\Tenant\SaleNoteItem;
+use App\Models\Tenant\User;
+use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Modules\Finance\Traits\FinanceTrait;
+use Modules\Pos\Models\CashTransaction;
 
 /**
  * Class CashController
@@ -329,7 +321,6 @@ class CashController extends Controller
 
         $data = $this->getDataReport($id);
         $pdf = PDF::loadView('tenant.cash.report_product_pdf', $data);
-
         $filename = "Reporte_POS_PRODUCTOS - {$data['cash']->user->name} - {$data['cash']->date_opening} {$data['cash']->time_opening}";
 
         return $pdf->stream($filename.'.pdf');
@@ -344,10 +335,13 @@ class CashController extends Controller
         $data = $this->getDataReport($id);
         $filename = "Reporte_POS_PRODUCTOS - {$data['cash']->user->name} - {$data['cash']->date_opening} {$data['cash']->time_opening}";
 
-        return (new CashProductExport)
-                ->documents($data['documents'])
-                ->company($data['company'])
-                ->cash($data['cash'])
+        $cashProductExport = new CashProductExport();
+        $cashProductExport
+            ->documents($data['documents'])
+            ->company($data['company'])
+            ->cash($data['cash']);
+        // return $cashProductExport->view();
+        return $cashProductExport
                 ->download($filename.'.xlsx');
 
     }
@@ -361,22 +355,25 @@ class CashController extends Controller
 
         $source = DocumentItem::with('document')->whereIn('document_id', $cash_documents)->get();
 
-        $documents = collect($source)->transform(function($row){
-            return [
-                'id' => $row->id,
-                'number_full' => $row->document->number_full,
-                'description' => $row->item->description,
-                'quantity' => $row->quantity,
-            ];
+        $documents = collect($source)->transform(function(DocumentItem $row){
+            $item = $row->item;
+            $data = $row->toArray();
+            $data['item'] =$item;
+            $data['unit_value']=$data['unit_value']??0;
+            $data['sub_total'] =$data['unit_value'] * $data['quantity'];
+            $data['number_full'] = $row->document->number_full;
+            $data['description'] = $row->item->description;
+            return $data;
         });
 
         $documents = $documents->merge($this->getSaleNotesReportProducts($cash));
-        
+
         $documents = $documents->merge($this->getPurchasesReportProducts($cash));
 
         return compact("cash", "company", "documents");
 
     }
+
 
 
     public function getSaleNotesReportProducts($cash){
@@ -385,13 +382,15 @@ class CashController extends Controller
 
         $sale_note_items = SaleNoteItem::with('sale_note')->whereIn('sale_note_id', $cd_sale_notes)->get();
 
-        return collect($sale_note_items)->transform(function($row){
-            return [
-                'id' => $row->id,
-                'number_full' => $row->sale_note->number_full,
-                'description' => $row->item->description,
-                'quantity' => $row->quantity,
-            ];
+        return collect($sale_note_items)->transform(function(SaleNoteItem $row){
+            $item = $row->item;
+            $data = $row->toArray();
+            $data['item'] =$item;
+            $data['unit_value']=$data['unit_value']??0;
+            $data['sub_total'] =$data['unit_value'] * $data['quantity'];
+            $data['number_full'] = $row->sale_note->number_full;
+            $data['description'] = $row->item->description;
+            return $data;
         });
 
     }
@@ -402,13 +401,16 @@ class CashController extends Controller
         $cd_purchases =  CashDocument::select('purchase_id')->where('cash_id', $cash->id)->get();
         $purchase_items = PurchaseItem::with('purchase')->whereIn('purchase_id', $cd_purchases)->get();
 
-        return collect($purchase_items)->transform(function($row){
-            return [
-                'id' => $row->id,
-                'number_full' => $row->purchase->number_full,
-                'description' => $row->item->description,
-                'quantity' => $row->quantity,
-            ];
+        return collect($purchase_items)->transform(function(PurchaseItem $row){
+
+            $item = $row->item;
+            $data = $row->toArray();
+            $data['item'] =$item;
+            $data['unit_value']=$data['unit_value']??0;
+            $data['sub_total'] =$data['unit_value'] * $data['quantity'];
+            $data['number_full'] = $row->purchase->number_full;
+            $data['description'] = $row->item->description;
+            return $data;
         });
 
     }

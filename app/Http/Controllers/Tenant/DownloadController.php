@@ -70,7 +70,9 @@ class DownloadController extends Controller
         $document_type = $model;
 
         $model = "App\\Models\\Tenant\\".ucfirst($model);
+
         $document = $model::where('external_id', $external_id)->first();
+
         if (!$document) {
             throw new Exception("El código {$external_id} es inválido, no se encontro documento relacionado");
         }
@@ -80,6 +82,9 @@ class DownloadController extends Controller
             // Las cotizaciones tienen su propio controlador, si se generan por este medio, dará error
             $quotation = new QuotationController();
             return $quotation->toPrint($external_id,$format);
+        }elseif($document_type =='salenote'){
+            $saleNote = new SaleNoteController();
+            return $saleNote->toPrint($external_id,$format);
         }
         $type = 'invoice';
         if ($document_type == 'dispatch') {
