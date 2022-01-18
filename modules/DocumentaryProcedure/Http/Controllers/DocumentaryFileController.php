@@ -887,6 +887,28 @@
          *
          * @return JsonResponse
          */
+        public function complete($id)
+        {
+            try {
+                $file = Expediente::findOrFail($id);
+                $file->setComplete(true)->push();
+                return response()->json([
+                    'data' => null,
+                    'message' => 'Expediente finalizado de forma correcta.',
+                    'succes' => true,
+                ], 200);
+            } catch (Throwable $th) {
+                return response()->json([
+                    'success' => false,
+                    'data' => 'Ocurrió un error al procesar su petición. Detalles: ' . $th->getMessage(),
+                ], 500);
+            }
+        }
+        /**
+         * @param $id
+         *
+         * @return JsonResponse
+         */
         public function reactive($id)
         {
             try {

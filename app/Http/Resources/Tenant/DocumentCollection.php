@@ -187,7 +187,8 @@ class DocumentCollection extends ResourceCollection
                 'purchase_order' => $row->purchase_order,
                 'is_editable' => $row->is_editable,
                 'dispatches' => $this->getDispatches($row),
-               'soap_type' => $row->soap_type,
+                'soap_type' => $row->soap_type,
+                'plate_numbers' => $row->getPlateNumbers(),
             ];
 
         });

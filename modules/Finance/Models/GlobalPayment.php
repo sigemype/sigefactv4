@@ -647,7 +647,16 @@
 
                 });
             /** Transferencias entre cuentas/caja */
-            $query->OrWhereHas('transfers_accounts');
+            $query->OrWhereHas('transfers_accounts', function (Builder $q) use ($params) {
+                if ($params->date_start) {
+                    $date_start = Carbon::createFromFormat('Y-m-d',$params->date_start );
+                    $q->where('created_at', '>=', $date_start->setTime(0,0,0));
+                }
+                if ($params->date_end) {
+                    $date_end = Carbon::createFromFormat('Y-m-d',$params->date_end );
+                    $q->where('created_at', '<=', $date_end->setTime(23,59,59));
+                }
+            });
 
             return $query;
         }

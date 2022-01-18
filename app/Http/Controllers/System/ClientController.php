@@ -21,6 +21,8 @@
     use Illuminate\Http\Request;
     use Illuminate\Support\Collection;
     use Illuminate\Support\Facades\DB;
+    use Modules\Document\Helpers\DocumentHelper;
+
 
     class ClientController extends Controller
     {
@@ -105,26 +107,23 @@
                 $row->document_regularize_shipping = $quantity_pending_documents['document_regularize_shipping'];
                 $row->document_not_sent = $quantity_pending_documents['document_not_sent'];
                 $row->document_to_be_canceled = $quantity_pending_documents['document_to_be_canceled'];
+
                 if ($row->start_billing_cycle) {
-                    $day_start_billing = date_format($row->start_billing_cycle, 'j');
-                    $day_now = (int)date('j');
-                    if ($day_now <= $day_start_billing) {
-                        $init = Carbon::parse(date('Y') . '-' . ((int)date('n') - 1) . '-' . $day_start_billing);
-                        $end = Carbon::parse(date('Y-m-d'));
-                        $row->count_doc_month = DB::connection('tenant')
-                            ->table('documents')
-                            ->whereBetween('date_of_issue', [$init, $end])
-                            ->count();
-                    } else {
-                        $init = Carbon::parse(date('Y') . '-' . ((int)date('n')) . '-' . $day_start_billing);
-                        $end = Carbon::parse(date('Y-m-d'));
-                        $row->count_doc_month = DB::connection('tenant')
-                            ->table('documents')
-                            ->whereBetween('date_of_issue', [$init, $end])
-                            ->count();
-                    }
+
+                    $start_end_date = DocumentHelper::getStartEndDateForFilterDocument($row->start_billing_cycle);
+                    $init = $start_end_date['start_date'];
+                    $end = $start_end_date['end_date'];
+
+                    // $row->init_cycle = $init;
+                    // $row->end_cycle = $end;
+                    // dd($start_end_date);
+
+                    $row->count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [$init, $end])->count();
+
                 }
+
             }
+
             return new ClientCollection($records);
         }
 

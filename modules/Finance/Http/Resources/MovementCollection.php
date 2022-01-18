@@ -2,13 +2,13 @@
 
     namespace Modules\Finance\Http\Resources;
 
+    use App\Models\Tenant\TransferAccountPayment;
     use Carbon\Carbon;
     use Illuminate\Http\Request;
     use Illuminate\Http\Resources\Json\ResourceCollection;
     use Illuminate\Support\Collection;
     use Modules\Finance\Http\Controllers\MovementController;
     use Modules\Finance\Models\GlobalPayment;
-    use phpDocumentor\Reflection\DocBlock\Description;
 
 
     class MovementCollection extends ResourceCollection
@@ -32,30 +32,45 @@
             /** @var Collection $data */
 
             $data = $this->collection->transform(function (GlobalPayment $row, $key) use ($request) {
+                $index = $key + 1;
                 $data_person = $row->data_person;
-                $amount = $row->payment->payment;
+                $timedate = null;
+                $type_movement = $row->type_movement;
+                $payment = $row->payment;
+                $amount = $row->payment->payment * 1;
+                $instance_type_description = $row->instance_type_description;
+                if (get_class($payment) == TransferAccountPayment::class) {
+                    $amount = $payment->amount * 1;
+                }
                 $document = $row->payment->document;
+                $document_type = '';
+                $payments = $payment->payment;
+
                 // Convirtiendo el documento que esta hecho en dolares a soles
                 if ($document) {
                     if ($document->currency_type_id === 'USD') {
-                        $amount = $amount * $document->exchange_rate_sale;
+                        $amount *= $document->exchange_rate_sale;
                     }
                 }
-                self::$balance = ($row->type_movement == 'input') ? self::$balance + $amount : self::$balance - $amount;
+                if (get_class($payment) == TransferAccountPayment::class) {
+                    // para que transferencias bancarias. refleje el numero correctamente.
+                    if ($type_movement == 'input') {
+                        self::$balance -= $amount;
+                    } else {
+                        self::$balance += $amount;
+                    }
+                } else {
+                    self::$balance = ($row->type_movement == 'input') ? self::$balance + $amount : self::$balance - $amount;
+                }
 
-                $index = $key + 1;
-                $payment = $row->payment;
                 // $timedate = $payment->date_of_payment->format('Y-m-d');
-                $timedate = null;
-                if( $payment->date_of_payment &&  $payment->date_of_payment != null){
+                if ($payment->date_of_payment && $payment->date_of_payment != null) {
                     $timedate = $payment->date_of_payment->toDateTimeString();
 
                 }
-                $document_type = '';
-                $type_movement = $row->type_movement;
-                $payments = $payment->payment;
 
-                if($payment->associated_record_payment ) {
+
+                if ($payment->associated_record_payment) {
                     if ($payment->associated_record_payment->date_of_issue) {
                         $timedate = $payment->associated_record_payment->date_of_issue->format('Y-m-d') . " " . $payment->associated_record_payment->time_of_issue;
                         $timedate = Carbon::createFromFormat('Y-m-d H:i:s', $timedate)->toDateTimeString();
@@ -72,19 +87,45 @@
 
                 $person_name = $data_person->name;
                 $person_number = $data_person->number;
-                $numberFull =$payment->associated_record_payment->number_full??null;
-                if($row->instance_type == 'bank_loan_payment'){
-                    /** @var \Modules\Finance\Models\GlobalPayment $row */
+                $numberFull = $payment->associated_record_payment->number_full ?? null;
+                if ($row->instance_type == 'bank_loan_payment') {
                     $person_name = $person_name->description;
                     $document_type = $row->instance_type_description;
                     // $person_name = $person_name->description;
-                    $person_number= '';
+                    $person_number = '';
                     // dd($row->payment->associated_record_payment);
                     $numberFull = $row->payment->associated_record_payment->getNumberFull();
                 }
 
+                $input = '-';
+                $output = $input;
+
+                if ($type_movement == 'input') {
+                    $input = number_format($amount, 2, ".", "");
+                } else {
+                    $output = number_format($amount, 2, ".", "");
+                }
+                if (get_class($payment) == TransferAccountPayment::class) {
+                    // transferencia bancaria
+                    $person_name = $destinationArray['name'] ?? '-';
+                    $person_number = $destinationArray['cci'] ?? '-';
+                    if ($amount < 0) {
+                        // banco destino
+                        $output = number_format(abs($amount), 2, ".", "");
+                        $input = '-';
+                    } else {
+                        // banco de origen
+
+                        $input = number_format(abs($amount), 2, ".", "");
+                        $output = '-'; }
+                    $timedate = $row->payment->date_of_movement->format('Y-m-d H:i:s');
+                    $instance_type_description = 'Transferencia Bancaria';
+                }
+
+
                 return [
                     'index' => $index,
+                    'data' => $row,
                     'payments' => $payments,
                     'document_type' => $document_type,
                     'id' => $row->id,
@@ -97,7 +138,7 @@
                     'reference' => $payment->reference,
                     'total' => $amount,
                     'number_full' => $numberFull,
-                    'currency_type_id' => $payment->associated_record_payment->currency_type_id??'PEN',
+                    'currency_type_id' => $payment->associated_record_payment->currency_type_id ?? 'PEN',
                     // 'document_type_description' => ($payment->associated_record_payment->document_type) ? $payment->associated_record_payment->document_type->description:'NV',
                     'document_type_description' => $this->getDocumentTypeDescription($row),
                     'person_name' => $person_name,
@@ -105,13 +146,12 @@
                     // 'payment' => $row->payment,
                     // 'payment_type' => $row->payment_type,
                     'instance_type' => $row->instance_type,
-                    'instance_type_description' => $row->instance_type_description,
+                    'instance_type_description' => $instance_type_description,
                     'user_id' => $row->user_id,
                     'user_name' => optional($row->user)->name,
-
-                    'type_movement' => $row->type_movement,
-                    'input' => ($row->type_movement == 'input') ? number_format($amount, 2, ".", "") : '-',
-                    'output' => ($row->type_movement == 'output') ? number_format($amount, 2, ".", "") : '-',
+                    'type_movement' => $type_movement,
+                    'input' => $input,
+                    'output' => $output,
                     'balance' => number_format(self::$balance, 2, ".", ""),
                     'items' => $this->getItems($row),
 
@@ -140,7 +180,7 @@
 
         }
 
-        public function getPaymentMethodTypeDescription($row)
+        public function getPaymentMethodTypeDescription(GlobalPayment $row)
         {
 
             $payment_method_type_description = '';
@@ -149,19 +189,19 @@
 
                 $payment_method_type_description = $row->payment->payment_method_type->description;
 
-            } elseif($row->payment->expense_method_type){
+            } elseif ($row->payment->expense_method_type) {
                 $payment_method_type_description = $row->payment->expense_method_type->description;
             }
 
             return $payment_method_type_description;
         }
 
-        public function getDocumentTypeDescription($row)
+        public function getDocumentTypeDescription(GlobalPayment $row)
         {
 
             $document_type = '';
 
-            if($row->payment->associated_record_payment) {
+            if ($row->payment->associated_record_payment) {
                 if ($row->payment->associated_record_payment->document_type) {
 
                     $document_type = $row->payment->associated_record_payment->document_type->description;
@@ -176,10 +216,10 @@
 
         }
 
-        public function getItems($row)
+        public function getItems(GlobalPayment $row)
         {
-
-            if (in_array($row->instance_type, ['expense', 'income', 'bank_loan_payment'])) {
+            $instanceType = $row->instance_type;
+            if (in_array($instanceType, ['expense', 'income', 'bank_loan_payment'])) {
 
                 return $row->payment->associated_record_payment->items->transform(function ($row, $key) {
                     return [

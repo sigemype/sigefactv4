@@ -32,7 +32,7 @@
         ];
 
         protected $casts = [
-            'id' => 'int',
+            'id' => 'string',
             'days' => 'int',
             'is_locked' => 'bool',
             'is_active' => 'bool',

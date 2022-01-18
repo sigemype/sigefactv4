@@ -212,9 +212,9 @@
                             <td>{{ item.invoice }}</td>
                             <td>
 
-                                <el-tooltip placement="right-start"
-                                            v-if="item.documentary_process.requirements && item.documentary_process.requirements.length > 0"
-                                            >
+                                <el-tooltip v-if="item.documentary_process.requirements && item.documentary_process.requirements.length > 0"
+                                            placement="right-start"
+                                >
                                     <div slot="content">
                                         Requisitos:
                                         <ul v-for="(requirement) in item.documentary_process.requirements">
@@ -284,27 +284,34 @@
                                     <div aria-labelledby="dropdownMenuButton"
                                          class="dropdown-menu">
                                         <template v-if="!item.is_archive">
+                                                <button
+                                                    class="dropdown-item"
+                                                    type="button"
+                                                    @click.prevent="editItem(item.id)">
+                                                    Editar/Ver
 
-                                            <button
-                                                class="dropdown-item"
-                                                type="button"
-                                                @click.prevent="editItem(item.id)">
-                                                Editar/Ver
+                                                </button>
+                                                <button
 
-                                            </button>
-                                            <button
-                                                class="dropdown-item"
-                                                type="button"
-                                                @click.prevent="printFile(item.id)">
-                                                Imprimir
-                                            </button>
-                                            <button
-                                                class="dropdown-item"
-                                                type="button"
-                                                @click.prevent="removeItem(item.id)">
-                                                Eliminar
-                                            </button>
-
+                                                    class="dropdown-item"
+                                                    type="button"
+                                                    @click.prevent="printFile(item.id)">
+                                                    Imprimir
+                                                </button>
+                                                <button
+                                                    v-if="!item.is_completed"
+                                                    class="dropdown-item"
+                                                    type="button"
+                                                    @click.prevent="removeItem(item.id)">
+                                                    Eliminar
+                                                </button>
+                                                <button
+                                                    v-if="!item.is_completed"
+                                                    class="dropdown-item"
+                                                    type="button"
+                                                    @click.prevent="completeItem(item.id)">
+                                                    Finalizar
+                                                </button>
                                             <button
                                                 class="dropdown-item"
                                                 type="button"
@@ -642,6 +649,23 @@ export default {
         },
         printFile(id) {
             window.open(`/documentary-procedure/files_simplify/export_current/` + id, '_blank');
+        },
+        completeItem(id) {
+            this.$http
+                .post(`/documentary-procedure/files_simplify/complete/` + id)
+                .then((response) => {
+                    this.$message({
+                        type: "success",
+                        message: response.data.message,
+                    });
+
+                })
+                .catch((error) => {
+                    this.axiosError(error)
+                })
+                .finally(() => {
+                    this.updateFiles();
+                });
         },
         archiveFile(id) {
             this.$http

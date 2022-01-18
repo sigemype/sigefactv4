@@ -47,6 +47,11 @@ class CompanyResource extends JsonResource
             'integrated_query_client_id' => $this->integrated_query_client_id,
             'integrated_query_client_secret' => $this->integrated_query_client_secret,
 
+            'send_document_to_pse' => $this->send_document_to_pse,
+            'url_send_cdr_pse' => $this->url_send_cdr_pse,
+            'url_signature_pse' => $this->url_signature_pse,
+            'client_id_pse' => $this->client_id_pse,
+
         ];
     }
 }

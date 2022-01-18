@@ -41,6 +41,8 @@ use Modules\Order\Mail\DispatchEmail;
 use Modules\Order\Models\Dispatcher;
 use Modules\Order\Models\Driver;
 use Modules\Order\Models\OrderNote;
+use App\Models\Tenant\PaymentCondition;
+
 
 /**
  * Class DispatchController
@@ -544,7 +546,8 @@ class DispatchController extends Controller
         $payment_method_types = PaymentMethodType::all();
         $payment_destinations = $this->getPaymentDestinations();
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
-
+        $payment_conditions = PaymentCondition::get();
+        
         return response()->json([
             'dispatch'               => $dispatch,
             'document_types_invoice' => $document_types_invoice,
@@ -554,7 +557,8 @@ class DispatchController extends Controller
             'success'                => true,
             'payment_method_types'   => $payment_method_types,
             'items'                  => $items,
-            'affectation_igv_types'                  => $affectation_igv_types,
+            'affectation_igv_types' => $affectation_igv_types,
+            'payment_conditions' => $payment_conditions,
         ], 200);
     }
 

@@ -433,4 +433,19 @@
             return $this->belongsTo(Warehouse::class);
         }
 
+        /**
+         * Retornar placas registradas desde atributos (codigos: 7000 - 5010)
+         *
+         * @return array
+         */
+        public function getPlateNumberByItems()
+        {
+            $attributes = $this->getAttributesAttribute($this->attributes['attributes']);
+
+            if($attributes) return collect($attributes)->whereIn('attribute_type_id', ['7000', '5010']);
+
+            return collect();
+
+        }
+
     }

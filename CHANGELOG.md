@@ -1,3 +1,46 @@
+## 4.1.8
+
+### docs
+2021-11-23 : docs | update changelog<br>
+
+
+### fixed
+2021-12-10 : fixed | #1100 | Se agrega configuracion para seleccionar tipo de afectacion al rentar habitacion<br>
+2021-12-10 : fixed | #1263 | no puede generar orden de pedido<br>
+2021-12-10 : fixed | #1119 | Ajustes visuales campo subtotal - descuento que no afecta a la bi<br>
+2021-12-09 : fixed | #1278 | CcK | no carga el medoto de pago al editar<br>
+2021-12-02 : fixed | #1203 | margen reducido, fuente cambiada en ticket de reporte de caja<br>
+2021-11-29 : fixed | #1200 | Ajuste cantidad allowed_items<br>
+2021-11-29 : fixed | #1200 | Agregar cuotas formato pdf default3_new_account<br>
+2021-11-25 : fixed | #612 | Ajustes para calculos totales a nivel global / se agregan variables para controlar valores sin redondeo - form invoice<br>
+2021-11-24 : fixed | #196 | Ajuste para recalcular montos a 0 cuando se usa tipo nc 03<br>
+2021-11-24 : fixed | #1136 | Ajuste texto periodo - validacion error nv recurrente al generar cpe<br>
+2021-11-23 : fixed | #1212 | Mostrar op. gravada para nota credito tipo 13<br>
+
+
+### feature
+2021-12-19 : feature | app-42 | metodo de pago en nota de venta<br>
+2021-12-14 : feature | #1262 | nueva plantilla para mostrar serie y marca en guias de remision - la serie se muestra si hay relacion con una factura o boleta<br>
+2021-12-13 : feature | #1234 | Ajuste envio resumen estado 2 - pruebas<br>
+2021-12-13 : feature | #1274 | ampliacion de vista de ventas por producto a vista independiente<br>
+2021-12-12 : feature | #1234 | Agregando resumenes con estado 2 (avance2)<br>
+2021-12-12 : feature | #1234 | Agregando resumenes con estado 2 (avance)<br>
+2021-12-10 : feature | #1100 | Se agrega funcionalidad para generar cpe con op. exoneradas en modulo hotel<br>
+2021-12-10 : feature | #1254 | ajuste template blank<br>
+2021-12-10 : feature | #1279 | plantilla items_desc - agregado metodos de pago y cuotas<br>
+2021-12-05 : feature | buho | accion api para reseller<br>
+2021-12-03 : feature | #929 | plantilla para guia en template default3_929<br>
+2021-11-29 : feature | #1203 | habilitando boton para descarga de reporte de caja chica en formato de 58mm<br>
+2021-11-29 : feature | #1203 | habilitando url para permitir formatos de ticket mas reducidos o amplios en reporte de caja chica<br>
+2021-11-29 : feature | #1207 | ampliacion de logo en pdf para ticket<br>
+2021-11-29 : feature | #730 | enlace para descargar qz e implementar impresion automatica en pos<br>
+2021-11-26 : feature | #1192 | plantilla distpach_farmacy con lote y vencimiento en el detalle - no existe qr para guias de remision<br>
+2021-11-26 : feature | #1225 | Se agrega json ejemplo factura exonerada/inafecta - descuento global<br>
+2021-11-25 : feature | autoprint | configuracion independiente por empresa para activar o desactivar la impresion automatica en POS<br>
+2021-11-25 : feature | 929 | qr agregado a la plantilla pdf default3_929<br>
+2021-11-24 : feature | autoprint | integracion de librerias y variables para impresion automatica desde el modulo de pos<br>
+
+
 ## 4.1.7
 
 ### docs

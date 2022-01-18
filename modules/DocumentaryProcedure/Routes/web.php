@@ -93,6 +93,7 @@
                             Route::get('/edit/{id?}', 'DocumentaryFileController@index_simplify_new');
                             Route::post('/ask/{id?}', 'DocumentaryFileController@getDocumentary');
                             Route::post('/destroy/{id?}', 'DocumentaryFileController@destroy');
+                            Route::post('/complete/{id?}', 'DocumentaryFileController@complete');
                             Route::post('/archive/{id?}', 'DocumentaryFileController@archive');
                             Route::post('/reactive/{id?}', 'DocumentaryFileController@reactive');
                             Route::get('/tables', 'DocumentaryFileController@tables');
@@ -108,6 +109,18 @@
                             Route::post('/upload/{id}/update', 'DocumentaryFileController@uploadFile');
                             Route::post('/upload/store', 'DocumentaryFileController@uploadFile');
                             Route::get('/search/customers/{id?}', 'DocumentaryFileController@searchCustomerById');
+                        });
+
+
+
+                    Route::
+                    prefix('stadistic')
+                        ->group(function () {
+                            Route::get('/', 'DocumentaryStatisticController@index')
+                                ->name('documentary.stadistic');
+                            Route::post('/', 'DocumentaryStatisticController@records');
+
+                            Route::get('/{type}', 'DocumentaryStatisticController@export');
                         });
 
 

@@ -157,7 +157,7 @@
                                 <th>Fecha/Hora De Registro</th>
                                 <th>Etapa</th>
                                 <th>Descripcion</th>
-                                <th>Tiempo Que Toma El Tramite</th>
+                                <th>Tiempo Que Toma El Tramite/Dias Restantes</th>
                                 <th>Fecha Concluida</th>
                                 <th style="    min-width: 300px;">Estado</th>
                                 <th>Responsable</th>
@@ -192,7 +192,12 @@
                                         {{ getStageDescription(row.doc_office_id) }}
                                     </td>
                                     <td>
-                                        {{ row.total_day }} {{ getDiffDay(row.date_end) }}
+                                        Días que toma {{ row.total_day }} <br>
+                                        <strong>
+                                            <small>
+                                                {{ getDiffDay(row.date_end) }}
+                                            </small>
+                                        </strong>
                                     </td>
                                     <td>
                                         <span :class="row.class">
@@ -276,6 +281,7 @@
                                                     Editar/Ver
                                                 </button>
                                                 <button
+                                                    v-if="!form.is_completed"
                                                     class="dropdown-item"
                                                     type="button"
                                                     @click.prevent="clickRemoveItem(index, row)">
@@ -303,6 +309,7 @@
 
                     </div>
                     <div v-show="data_load"
+                         v-if="!form.is_completed"
                          class="col-12 text-center">
                         <label class="control-label">
                             <a class="btn"
@@ -327,14 +334,17 @@
                 <div class="row text-center col-6 p-t-20">
 
                     <div class="col-6">
-                        <el-button class="btn-block"
-                                   @click="onClose">Cancelar
+                        <el-button
+                            class="btn-block"
+                            @click="onClose">
+                            Cancelar
                         </el-button>
                     </div>
                     <div v-if="form.guides.length > 0"
                          class="col-6">
                         <el-button
                             :disabled="canSubmit"
+                            v-if="!form.is_completed"
                             :loading="loading"
                             class="btn-block"
                             native-type="submit"
@@ -356,7 +366,9 @@
                 :visible.sync="showDialogNewProcess"
                 @addrow="addStep"
                 @closeElement="clearStep"
+                :editable="!form.is_completed"
             >
+
             </add-process-modal>
 
             <person-form
@@ -589,20 +601,19 @@ export default {
 
         },
         getDiffDay(dateEnd) {
-            if (dateEnd === undefined) return ' -';
-            if (dateEnd === null) return ' -';
+            let str = '';
+            if (dateEnd === undefined) return str;
+            if (dateEnd === null) return str;
 
             let now = moment().startOf('day');
             dateEnd = moment(dateEnd, "YYYY-MM-DD HH:mm:ss").startOf('day');
-
             let total = (dateEnd.diff(now, 'days')+1);
-            let str = '';
             if (total > 0) {
-                str = '-  Falta(n) ' + total + ' día(s)';
+                str = 'Falta(n) ' + total + ' día(s)';
             } else if (total < 0) {
-                str = '-  Finalizó hace ' + total + ' día(s)';
+                // str = 'Finalizó hace ' + total + ' día(s)';
             } else {
-                str = '-  Hoy finaliza'
+                str = 'Hoy finaliza'
             }
             return str
         },

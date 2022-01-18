@@ -19,11 +19,28 @@
          */
         public static function setDateInPeriod(&$array, &$d_start, &$d_end)
         {
-            $month_start = $array['month_start'];
-            $month_end = $array['month_end'];
             $period = $array['period'];
-            $date_start = $array['date_start'];
-            $date_end = $array['date_end'];
+            $month_start = $array['month_start']??null;
+            $month_end = $array['month_end']??null;
+            $date_start = $array['date_start']??null;
+            $date_end = $array['date_end']??null;
+            if($period == 'month' && empty($month_end)) {
+                $month_end = $month_start;
+            }
+            if($period == 'between_dates' ) {
+                if (empty($month_end)) {
+                    $month_end = $month_start;
+                }
+                if (empty($month_end) && empty($month_start)) {
+                    if(!empty($date_start)) {
+                        $month_start = $date_start;
+                    }
+                    if(!empty($date_end)) {
+                        $month_end = $date_end;
+                    }
+                }
+
+            }
 
             switch ($period) {
                 case 'month':

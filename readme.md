@@ -48,6 +48,7 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 
 ## API
 
+[Documentación API REST PRO4](https://docs.google.com/document/d/1e3-tMzQfG1sKQDl1zFlWicpvHVy7LwGP/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 [Descargar colección para Postman](https://drive.google.com/file/d/1eTAJseghS4NW-lc2UnZnxZhfG-eMycCl/view?usp=sharing "Clic")<br>
 [Documentación - json con respuestas](https://drive.google.com/file/d/14G4RcT9yTz83WdrBTO0dmGPjwWGMDdCe/view?usp=sharing "Clic")<br>
 [Documentación - Ejemplos para Lenguajes](https://documenter.getpostman.com/view/1431398/TzJx8bqc#f910e6f8-6a3f-41cf-8a5f-ec1e1f842637 "Clic")<br>
@@ -90,6 +91,7 @@ Manual de configuración offline: [Guía](https://drive.google.com/file/d/1MZlOr
 Habilitar puertos en Google Cloud: [Manual](https://drive.google.com/file/d/1fGuW4iSlXjUhn00p4K1vqxEy4rMRupjg/view?usp=sharing "clic")<br>
 
 ### Funcionalidades
+Impresión automática: [Guía](https://docs.google.com/document/d/1PVe62AiuuuR-kC8KCBFuvOWj0Ag_YdRA/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 ICBPER en POS: [Guía](https://drive.google.com/file/d/1P_2tIUPIwNCOXeo2R0A_ego-zEBP6O-H/view?usp=sharing "Clic")<br>
 
 ### Laragon

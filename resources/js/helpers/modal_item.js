@@ -16,7 +16,6 @@ function ItemOptionDescription(item) {
         data += item.stock;
     }
     */
-
     return data;
 }
 
@@ -61,12 +60,16 @@ function ItemOptionDescription(item) {
     ) {
         data += "Precio: " + item.currency_type_symbol + " " + item.sale_unit_price + "<br>";
     }
+     if (item !== undefined
+        && item.unit_type_id !== undefined
+        // && item.warehouse_description !== null
+    ) {
+        data += "Und Medida: " + item.unit_type_id +"<br>";
+    }
     return data;
-
 }
 
 export {
     ItemOptionDescription,
     ItemSlotTooltip,
-
 }

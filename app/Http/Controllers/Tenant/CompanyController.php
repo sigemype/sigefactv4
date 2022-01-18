@@ -103,4 +103,55 @@ class CompanyController extends Controller
             'message' =>  __('app.actions.upload.error'),
         ];
     }
+
+    
+    /**
+     * Registrar datos de configuracion para enviar xml/cdr a PSE
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function storeSendPse(Request $request)
+    {
+
+        $request->validate([
+            'url_signature_pse' => 'required_if:send_document_to_pse, "true"',
+            'url_send_cdr_pse' => 'required_if:send_document_to_pse, "true"',
+            'client_id_pse' => 'required_if:send_document_to_pse, "true"',
+        ]);
+
+        $company = Company::firstOrFail();
+        $company->send_document_to_pse = $request->send_document_to_pse;
+        $company->url_signature_pse = $request->url_signature_pse;
+        $company->url_send_cdr_pse = $request->url_send_cdr_pse;
+        $company->client_id_pse = $request->client_id_pse;
+        $company->save();
+
+        return [
+            'success' => true,
+            'message' => 'Datos guardados correctamente'
+        ];
+    }
+
+
+    /**
+     * Obtener datos de configuracion de PSE
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function recordSendPse()
+    {
+
+        $company = Company::firstOrFail();
+
+        return [
+            'send_document_to_pse' => $company->send_document_to_pse,
+            'url_signature_pse' => $company->url_signature_pse,
+            'url_send_cdr_pse' => $company->url_send_cdr_pse,
+            'client_id_pse' => $company->client_id_pse,
+        ];
+        
+    }
+
 }

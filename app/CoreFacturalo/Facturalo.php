@@ -38,6 +38,8 @@ use App\CoreFacturalo\WS\Validator\XmlErrorCodeProvider;
 use Modules\Inventory\Models\Warehouse;
 use App\CoreFacturalo\Requests\Inputs\Functions;
 use App\Models\Tenant\PurchaseSettlement;
+use App\CoreFacturalo\Services\Helpers\SendDocumentPse;
+
 
 /**
  * Class Facturalo
@@ -73,6 +75,7 @@ class Facturalo
     protected $endpoint;
     protected $response;
     protected $apply_change;
+    protected $sendDocumentPse;
 
     public function __construct()
     {
@@ -82,6 +85,7 @@ class Facturalo
         $this->isOse = ($this->company->soap_send_id === '02')?true:false;
         $this->signer = new XmlSigned();
         $this->wsClient = new WsClient();
+        $this->sendDocumentPse = new SendDocumentPse($this->company);
         $this->setDataSoapType();
     }
 
@@ -222,12 +226,27 @@ class Facturalo
         return $this;
     }
 
+    
+    /**
+     * Firma digital xml
+     */
     public function signXmlUnsigned()
     {
-        $this->setPathCertificate();
-        $this->signer->setCertificateFromFile($this->pathCertificate);
-        $this->xmlSigned = $this->signer->signXml($this->xmlUnsigned);
+
+        //validar si es que el documento se enviara al pse para la agregar la firma
+        if($this->sendToPse()){
+
+            $this->xmlSigned = $this->sendDocumentPse->signXml($this->xmlUnsigned, $this->document);
+
+        }else{
+
+            $this->setPathCertificate();
+            $this->signer->setCertificateFromFile($this->pathCertificate);
+            $this->xmlSigned = $this->signer->signXml($this->xmlUnsigned);
+        }
+
         $this->uploadFile($this->xmlSigned, 'signed');
+
         return $this;
     }
 
@@ -348,15 +367,15 @@ class Facturalo
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
             if($format_pdf === 'ticket_50') $width = 45;
 
-            $company_name      = (strlen($this->company->name) / 25) * 10;
-            $company_address   = (strlen($this->document->establishment->address) / 35) * 10;
-            $company_number    = $this->document->establishment->telephone != '' ? '15' : '0';
-            $customer_name     = strlen($this->document->customer->name) > '25' ? '15' : '0';
+            $company_name      = (strlen($this->company->name) / 20) * 10;
+            $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
+            $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
+            $customer_name     = strlen($this->document->customer->name) > '25' ? '10' : '0';
             $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
             $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
             $p_order           = $this->document->purchase_order != '' ? '10' : '0';
 
-            $total_prepayment = $this->document->total_prepayment != '' ? '20' : '0';
+            $total_prepayment = $this->document->total_prepayment != '' ? '10' : '0';
             $total_discount = $this->document->total_discount != '' ? '10' : '0';
             $was_deducted_prepayment = $this->document->was_deducted_prepayment ? '10' : '0';
 
@@ -369,15 +388,11 @@ class Facturalo
             $detraction       = $this->document->detraction != '' ? '50' : '0';
             $detraction       += ($this->document->detraction && $this->document->invoice->operation_type_id == '1004') ? 45 : 0;
 
-            $company_logo = $this->company->logo != '' ? '30' : '0';
             $total_plastic_bag_taxes       = $this->document->total_plastic_bag_taxes != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items) + $was_deducted_prepayment;
-            // $document_payments     = count($this->document->payments);
-            $document_payments      = $document->payments()->count();
+            $document_payments     = count($this->document->payments);
             $document_transport     = ($this->document->transport) ? 30 : 0;
             $document_retention     = ($this->document->retention) ? 10 : 0;
-
-            $seller                 = ($this->document->seller) ? 10 : 0;
 
             $extra_by_item_additional_information = 0;
             $extra_by_item_description = 0;
@@ -406,13 +421,7 @@ class Facturalo
             } elseif($this->configuration->legend_footer AND $format_pdf === 'ticket_50') {
                 $height_legend = 50;
             } else {
-                $height_legend = 30;
-            }
-
-            if (count($this->document->items) <= 2) {
-                $factor = 4;
-            }else{
-                $factor = 2;
+                $height_legend = 10;
             }
 
             $pdf = new Mpdf([
@@ -428,13 +437,6 @@ class Facturalo
                     $company_number +
                     $customer_name +
                     $customer_address +
-                    $customer_department_id +
-                    ($quantity_rows + $extra_by_item_description) +
-                    (($quantity_rows * $factor) + $extra_by_item_description) +
-                    ($document_payments * 8) +
-                    ($discount_global * 8) +
-                    ($document_payments * $factor) +
-                    ($discount_global * $factor) +
                     $p_order +
                     $legends +
                     $total_exportation +
@@ -446,14 +448,13 @@ class Facturalo
                     $total_prepayment +
                     $total_discount +
                     $was_deducted_prepayment +
-                    $detraction +
-                    $total_plastic_bag_taxes +
-                    $quotation_id +
-                    $seller +
-                    // $extra_by_item_additional_information+
-                    $height_legend +
-                    $document_transport +
                     $customer_department_id+
+                    $detraction+
+                    $total_plastic_bag_taxes+
+                    $quotation_id+
+                    $extra_by_item_additional_information+
+                    $height_legend+
+                    $document_transport+
                     $document_retention
                 ],
                 'margin_top' => 0,
@@ -585,16 +586,13 @@ class Facturalo
             if(config('tenant.pdf_template_footer')) {
                 $html_footer = '';
                 if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
-                if (in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
                     $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
-                }
-
                     $html_footer_legend = "";
                 }
                 // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
                 // se quiere visuzalizar ahora la legenda amazona en todos los formatos
                 $html_footer_legend = '';
-                if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03', '07', '08'])){
+                if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
                     $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
                 }
 
@@ -692,13 +690,39 @@ class Facturalo
         $this->onlySenderXmlSignedBill();
 
     }
+    
+    /**
+     * 
+     * Evaluar si se debe firmar el xml y enviar cdr al PSE
+     * Disponible para facturas y boletas
+     * 
+     * @return bool
+     */
+    public function sendToPse()
+    {
+        return ($this->company->send_document_to_pse && $this->type === 'invoice');
+    }
+
+    public function sendCdrToPse($cdr_zip, $document)
+    {
+        if($this->sendToPse())
+        {
+            $this->sendDocumentPse->sendCdr($cdr_zip, $document);
+        }
+    }
 
     public function onlySenderXmlSignedBill()
     {
         $res = $this->senderXmlSigned();
+
         if($res->isSuccess()) {
+
             $cdrResponse = $res->getCdrResponse();
             $this->uploadFile($res->getCdrZip(), 'cdr');
+
+            //enviar cdr a pse
+            $this->sendCdrToPse($res->getCdrZip(), $this->document);
+            //enviar cdr a pse
 
             $code = $cdrResponse->getCode();
             $description = $cdrResponse->getDescription();
@@ -1213,7 +1237,7 @@ class Facturalo
     private function saveFee($document, $fee)
     {
         foreach ($fee as $row) {
-            $document->fees()->create($row);
+            $document->fee()->create($row);
         }
     }
 }

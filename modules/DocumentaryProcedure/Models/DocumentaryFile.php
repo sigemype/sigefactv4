@@ -32,10 +32,12 @@
      * @property string|null                             $observation
      * @property string                                  $status
      * @property int                                     $documentary_office_id
+     * @property int                                     $establishment_id
      * @property Carbon|null                             $created_at
      * @property Carbon|null                             $updated_at
      * @property string|null                             $requirements
      * @property bool                                    $is_simplify
+     * @property bool                                    $is_completed
      * @property bool                                    $is_archive
      * @property DocumentaryProcess                      $documentary_process
      * @property Person                                  $person
@@ -74,17 +76,21 @@
             'documentary_office_id',
             'requirements',
             'is_simplify',
+            'establishment_id',
             'is_archive',
+            'is_completed',
         ];
         protected $casts = [
             'user_id' => 'int',
             'documentary_document_id' => 'int',
             'documentary_process_id' => 'int',
+            'establishment_id' => 'int',
             'year' => 'int',
             'person_id' => 'int',
             'documentary_office_id' => 'int',
             'is_simplify' => 'bool',
             'is_archive' => 'bool',
+            'is_completed' => 'bool',
         ];
 
         protected static function boot()
@@ -108,6 +114,12 @@
                             "identity_document_type_id" => $person->identity_document_type_id,
                         ];
                     }
+                }
+
+            });
+            static::creating(function(self$model){
+                if(empty($model->establishment_id) && !empty(\Auth::user())){
+                    $model->establishment_id = \Auth::user()->establishment_id;
                 }
             });
 
@@ -162,6 +174,7 @@
         public function getCollectionData($holiday = [])
         {
             $data = $this->toArray();
+            $data['is_completed']= (bool)$this->is_completed;
             $person = Person::find($this->person_id);
             $documentary_file_office = DocumentaryOffice::find($this->documentary_office_id);
             if (empty($documentary_file_office)) $documentary_file_office = new DocumentaryOffice();
@@ -598,6 +611,10 @@
 
         public function  setArchive( ?bool $archive = false){
             $this->is_archive = (bool)$archive;
+            return $this;
+        }
+        public function  setComplete( ?bool $complete = false){
+            $this->is_completed = (bool)$complete;
             return $this;
         }
 

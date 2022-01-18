@@ -212,6 +212,7 @@
             'show_service_on_pos',
             'visual',
             'show_totals_on_cpe_list',
+            'detraction_amount_rounded_int',
 
         ];
 
@@ -275,7 +276,8 @@
             'pos_history' => 'bool',
             'pos_cost_price' => 'bool',
             'show_totals_on_cpe_list' => 'bool',
-            'auto_print' => 'bool'
+            'auto_print' => 'bool',
+            'detraction_amount_rounded_int' => 'bool',
         ];
 
         protected $hidden = [
@@ -448,6 +450,7 @@
                 'pos_history' => $this->isPosHistory(),
                 'pos_cost_price' => $this->isPosCostPrice(),
                 'show_totals_on_cpe_list' => $this->isShowTotalsOnCpeList(),
+                'detraction_amount_rounded_int' => $this->detraction_amount_rounded_int,
 
             ];
         }

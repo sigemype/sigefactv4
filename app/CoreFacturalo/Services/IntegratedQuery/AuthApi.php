@@ -18,28 +18,24 @@ class AuthApi
 
             $company = Company::active();
 
-            // if(!$company->integrated_query_client_id || !$company->integrated_query_client_secret){
-            //     return [
-            //         'success' => false,
-            //         'message' => 'No ha configurado correctamente el campo client_id o client_secret',
-            //     ];
-            // }
+            if(!$company->integrated_query_client_id || !$company->integrated_query_client_secret){
+                return [
+                    'success' => false,
+                    'message' => 'No ha configurado correctamente el campo client_id o client_secret',
+                ];
+            }
 
             $curl = curl_init();
             
             $form_params = [
                 'grant_type' => self::GRANT_TYPE,
                 'scope' => self::SCOPE,
-                // 'client_id' => $company->integrated_query_client_id,
-                // 'client_secret' => $company->integrated_query_client_secret, 
-                
-                'client_secret' => "LnhRnq6GhhL5jcL3F/r51A==", 
-                'client_id' => "7a58f5f1-8648-4cc8-8b89-0cb8f069e743",
+                'client_id' => $company->integrated_query_client_id,
+                'client_secret' => $company->integrated_query_client_secret, 
             ];
 
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api-seguridad.sunat.gob.pe/v1/clientesextranet/7a58f5f1-8648-4cc8-8b89-0cb8f069e743/oauth2/token",
-                // CURLOPT_URL => "https://api-seguridad.sunat.gob.pe/v1/clientesextranet/{$company->integrated_query_client_id}/oauth2/token",
+                CURLOPT_URL => "https://api-seguridad.sunat.gob.pe/v1/clientesextranet/{$company->integrated_query_client_id}/oauth2/token",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,

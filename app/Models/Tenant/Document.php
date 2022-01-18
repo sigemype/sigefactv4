@@ -243,13 +243,19 @@
             'quantity_period',
             'enabled_concurrency',
             'apply_concurrency',
+
+            'send_to_pse',
+            'response_signature_pse',
+            'response_send_cdr_pse',
         ];
+
         protected $casts = [
             'date_of_issue' => 'date',
             'user_rel_suscription_plan_id' => 'int',
             'quantity_period' => 'int',
             'enabled_concurrency' => 'bool',
             'apply_concurrency' => 'bool',
+            'send_to_pse' => 'bool',
         ];
 
         public static function boot()
@@ -1035,6 +1041,82 @@
          */
         public function  isHasCdr(){
             return (bool)$this->has_cdr;
+        }
+
+        /**
+         * Retornar placas registradas
+         *
+         * @return array
+         */
+        public function getPlateNumbers()
+        {
+            $plate_numbers = collect();
+
+            if(in_array($this->document_type_id, ['01', '03'])) 
+            {
+                
+                if($this->plate_number) return $plate_numbers->push(['description' => $this->plate_number]);
+
+                //obtener las placas registradas por cada item
+                $this->items->each(function($item) use($plate_numbers){
+
+                    $item->getPlateNumberByItems()->each(function($row) use($plate_numbers){
+                        $plate_numbers->push(['description' => $row->value]);
+                    });
+
+                });
+
+            }
+
+            return $plate_numbers;
+
+        }
+
+        
+        /**
+         * Obtener tipo de documento válido para enviar el xml a firmar al pse
+         *
+         * Usado en:
+         * App\CoreFacturalo\Services\Helpers\SendDocumentPse
+         * 
+         * @return string
+         */
+        public function getDocumentTypeForPse()
+        {
+
+            $allowed_document_types = [
+                '01' => 'FACT',
+                '03' => 'BOLE',
+                // '07' => 'NOCR',
+                // '08' => 'NODB',
+                // '09' => 'GUIA',
+                // 'RC' => 'RESU',
+                // 'RA' => 'ANUL',
+                // 'RR' => 'REAN', //por validar
+            ];
+
+            return $allowed_document_types[$this->document_type_id];
+
+        }
+        
+        public function getResponseSendCdrPseAttribute($value)
+        {
+            return (is_null($value)) ? null : (object)json_decode($value);
+        }
+
+        public function setResponseSendCdrPseAttribute($value)
+        {
+            $this->attributes['response_send_cdr_pse'] = (is_null($value)) ? null : json_encode($value);
+        }
+
+        public function getResponseSignaturePseAttribute($value)
+        {
+            return (is_null($value)) ? null : (object)json_decode($value);
+        }
+
+        public function setResponseSignaturePseAttribute($value)
+        {
+            $this->attributes['response_signature_pse'] = (is_null($value)) ? null : json_encode($value);
         }
 
     }

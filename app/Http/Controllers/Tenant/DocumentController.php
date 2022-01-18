@@ -64,6 +64,7 @@ use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
 use Barryvdh\DomPDF\Facade as PDF;
+use Modules\Document\Helpers\DocumentHelper;
 
 class DocumentController extends Controller
 {
@@ -1044,15 +1045,25 @@ class DocumentController extends Controller
 
     public function messageLockedEmission(){
 
-        $configuration = Configuration::first();
-        // $quantity_documents = Document::count();
-        $quantity_documents = $configuration->quantity_documents;
-
-        if($configuration->limit_documents !== 0 && ($quantity_documents > $configuration->limit_documents))
+        $exceed_limit = DocumentHelper::exceedLimitDocuments();
+        
+        if($exceed_limit['success'])
+        {
             return [
                 'success' => false,
-                'message' => 'Alcanzó el límite permitido para la emisión de comprobantes',
+                'message' => $exceed_limit['message'],
             ];
+        }
+
+        // $configuration = Configuration::first();
+        // $quantity_documents = Document::count();
+        // $quantity_documents = $configuration->quantity_documents;
+
+        // if($configuration->limit_documents !== 0 && ($quantity_documents > $configuration->limit_documents))
+        //     return [
+        //         'success' => false,
+        //         'message' => 'Alcanzó el límite permitido para la emisión de comprobantes',
+        //     ];
 
 
         return [

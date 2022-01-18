@@ -2,8 +2,8 @@
 
     namespace Modules\Inventory\Http\Controllers;
 
-use App\Exports\TransfersExport;
-use App\Http\Controllers\Controller;
+    use App\Exports\TransfersExport;
+    use App\Http\Controllers\Controller;
     use App\Http\Controllers\SearchItemController;
     use Barryvdh\DomPDF\Facade as PDF;
     use Carbon\Carbon;
@@ -129,6 +129,7 @@ use App\Http\Controllers\Controller;
             });
             return $records;
         }
+
 
 
         public function tables()

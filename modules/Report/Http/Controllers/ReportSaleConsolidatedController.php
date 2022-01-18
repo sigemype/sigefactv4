@@ -89,9 +89,12 @@ class ReportSaleConsolidatedController extends Controller
                 }
             }
             if (property_exists($first->item,'unit_price')) {
-                $unit_price = $first->item->unit_price;
+                $unit_price = $first->item->unit_price * 1;
+                if(!is_numeric($unit_price)){
+                    $unit_price = 1;
+                }
             }
-            $total_sale = $unit_price * $row->sum('quantity');
+            $total_sale = $unit_price * ($row->sum('quantity') * 1);
             return [
                 'item_id' => $key,
                 'brand' => $brand,

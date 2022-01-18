@@ -75,6 +75,10 @@ if ($hostname) {
             Route::post('companies', 'Tenant\CompanyController@store');
             Route::post('companies/uploads', 'Tenant\CompanyController@uploadFile');
 
+            //configuracion envio documento a pse
+            Route::post('companies/store-send-pse', 'Tenant\CompanyController@storeSendPse');
+            Route::get('companies/record-send-pse', 'Tenant\CompanyController@recordSendPse');
+
             //Card Brands
             Route::get('card_brands/records', 'Tenant\CardBrandController@records');
             Route::get('card_brands/record/{card_brand}', 'Tenant\CardBrandController@record');

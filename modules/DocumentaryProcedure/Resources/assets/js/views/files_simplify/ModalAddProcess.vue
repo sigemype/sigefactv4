@@ -231,6 +231,7 @@
                     <div
                         class="col-6">
                         <el-button
+                            v-if="editable"
                             :disabled="disableWhileData"
                             :loading="loading"
                             class="btn-block"
@@ -310,6 +311,11 @@ export default {
             type: Boolean,
             required: true,
             default: false,
+        },
+        editable: {
+            type: Boolean,
+            required: false,
+            default: true,
         },
         guides: {
             type: Object,
