@@ -10,21 +10,19 @@
 
     if($document_base) {
         $affected_document_number = ($document_base->affected_document) ? $document_base->affected_document->series.'-'.str_pad($document_base->affected_document->number, 8, '0', STR_PAD_LEFT) : $document_base->data_affected_document->series.'-'.str_pad($document_base->data_affected_document->number, 8, '0', STR_PAD_LEFT);
+
     } else {
         $affected_document_number = null;
     }
-    $document->load('reference_guides');
 
+    $document->load('reference_guides');
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
 
 @endphp
 <html>
-<head>
-    {{--<title>{{ $document_number }}</title>--}}
-    {{--<link href="{{ $path_style }}" rel="stylesheet" />--}}
-</head>
-<body class="ticket">
+<head></head>
+<body>
 
 @if($company->logo)
     <div class="text-center company_logo_box pt-5">
@@ -35,19 +33,10 @@
         {{--<img src="{{ asset('logo/logo.jpg') }}" class="company_logo_ticket contain">--}}
     {{--</div>--}}
 @endif
-
-@if($document->state_type->id == '11')
-    <div class="company_logo_box" style="position: absolute; text-align: center; top:500px">
-        <img src="data:{{mime_content_type(public_path("status_images".DIRECTORY_SEPARATOR."anulado.png"))}};base64, {{base64_encode(file_get_contents(public_path("status_images".DIRECTORY_SEPARATOR."anulado.png")))}}" alt="anulado" class="" style="opacity: 0.6;">
-    </div>
-@endif
 <table class="full-width">
     <tr>
         <td class="text-center"><h4>{{ $company->name }}</h4></td>
     </tr>
-    {{--<tr>
-        <td class="text-center"><h5>{{ $company->trade_name }}</h5></td>
-    </tr>--}}
     <tr>
         <td class="text-center"><h5>{{ 'RUC '.$company->number }}</h5></td>
     </tr>
@@ -59,6 +48,7 @@
             {{ ($establishment->department_id !== '-')? '- '.$establishment->department->description : '' }}
         </td>
     </tr>
+
 
     @isset($establishment->trade_address)
     <tr>
@@ -84,21 +74,18 @@
     @endisset
 
     <tr>
-        <td class="text-center pt-3 border-top"><h4>{{ $document->document_type->description }}</h4></td>
+        <td class="text-center pt-3 border-top"><h5>{{ $document->document_type->description }}</h5></td>
     </tr>
     <tr>
-        <td class="text-center pb-3 border-bottom"><h3>{{ $document_number }}</h3></td>
+        <td class="text-center pb-3 border-bottom"><h5>{{ $document_number }}</h5></td>
     </tr>
 </table>
 <table class="full-width">
-    <tr >
+    <tr>
         <td width="" class="pt-3"><p class="desc">F. Emisión:</p></td>
         <td width="" class="pt-3"><p class="desc">{{ $document->date_of_issue->format('Y-m-d') }}</p></td>
     </tr>
-    <tr>
-        <td width="" ><p class="desc">H. Emisión:</p></td>
-        <td width="" ><p class="desc">{{ $document->time_of_issue }}</p></td>
-    </tr>
+
     @isset($invoice->date_of_due)
     <tr>
         <td><p class="desc">F. Vencimiento:</p></td>
@@ -140,7 +127,6 @@
     @endif
 
     @if ($document->detraction)
-    {{--<strong>Operación sujeta a detracción</strong>--}}
         <tr>
             <td  class="align-top"><p class="desc">N. Cta Detracciones:</p></td>
             <td><p class="desc">{{ $document->detraction->bank_account}}</p></td>
@@ -171,10 +157,10 @@
 
 
         @if($invoice->operation_type_id == '1004')
-        <tr class="mt-2">
+        <tr>
             <td colspan="2"></td>
         </tr>
-        <tr class="mt-2">
+        <tr>
             <td colspan="2">DETALLE - SERVICIOS DE TRANSPORTE DE CARGA</td>
         </tr>
         <tr>
@@ -215,9 +201,8 @@
 
     @endif
 
-
     @if ($document->retention)
-        <br>
+        <br>    
         <tr>
             <td colspan="2">
                 <p class="desc"><strong>Información de la retención</strong></p>
@@ -237,15 +222,6 @@
         </tr>
     @endif
 
-
-    @if ($document->prepayments)
-        @foreach($document->prepayments as $p)
-        <tr>
-            <td><p class="desc">Anticipo :</p></td>
-            <td><p class="desc">{{$p->number}}</p></td>
-        </tr>
-        @endforeach
-    @endif
     @if ($document->purchase_order)
         <tr>
             <td><p class="desc">Orden de Compra:</p></td>
@@ -278,81 +254,16 @@
     @foreach($document->guides as $guide)
         <tr>
             @if(isset($guide->document_type_description))
-                <td class="desc">{{ $guide->document_type_description }}</td>
+                <td>{{ $guide->document_type_description }}</td>
             @else
-                <td class="desc">{{ $guide->document_type_id }}</td>
+                <td>{{ $guide->document_type_id }}</td>
             @endif
-            <td class="desc">:</td>
-            <td class="desc">{{ $guide->number }}</td>
+            <td>:</td>
+            <td>{{ $guide->number }}</td>
         </tr>
     @endforeach
 </table>
 @endif
-
-
-@if ($document->transport)
-<p class="desc"><strong>Transporte de pasajeros</strong></p>
-
-@php
-    $transport = $document->transport;
-    $origin_district_id = (array)$transport->origin_district_id;
-    $destinatation_district_id = (array)$transport->destinatation_district_id;
-    $origin_district = Modules\Order\Services\AddressFullService::getDescription($origin_district_id[2]);
-    $destinatation_district = Modules\Order\Services\AddressFullService::getDescription($destinatation_district_id[2]);
-@endphp
-
-
-<table class="full-width mt-3">
-    <tr>
-        <td><p class="desc">{{ $transport->identity_document_type->description }}:</p></td>
-        <td><p class="desc">{{ $transport->number_identity_document }}</p></td>
-    </tr>
-    <tr>
-        <td><p class="desc">Nombre:</p></td>
-        <td><p class="desc">{{ $transport->passenger_fullname }}</p></td>
-    </tr>
-
-
-    <tr>
-        <td><p class="desc">N° Asiento:</p></td>
-        <td><p class="desc">{{ $transport->seat_number }}</p></td>
-    </tr>
-    <tr>
-        <td><p class="desc">M. Pasajero:</p></td>
-        <td><p class="desc">{{ $transport->passenger_manifest }}</p></td>
-    </tr>
-
-    <tr>
-        <td><p class="desc">F. Inicio:</p></td>
-        <td><p class="desc">{{ $transport->start_date }}</p></td>
-    </tr>
-    <tr>
-        <td><p class="desc">H. Inicio:</p></td>
-        <td><p class="desc">{{ $transport->start_time }}</p></td>
-    </tr>
-
-
-    <tr>
-        <td><p class="desc">U. Origen:</p></td>
-        <td><p class="desc">{{ $origin_district }}</p></td>
-    </tr>
-    <tr>
-        <td><p class="desc">D. Origen:</p></td>
-        <td><p class="desc">{{ $transport->origin_address }}</p></td>
-    </tr>
-
-    <tr>
-        <td><p class="desc">U. Destino:</p></td>
-        <td><p class="desc">{{ $destinatation_district }}</p></td>
-    </tr>
-    <tr>
-        <td><p class="desc">D. Destino:</p></td>
-        <td><p class="desc">{{ $transport->destinatation_address }}</p></td>
-    </tr>
-
-</table>
-@endif
-
 
 @if (count($document->reference_guides) > 0)
 <br/>
@@ -387,18 +298,18 @@
 
 <table class="full-width mt-10 mb-10">
     <thead class="">
-        <tr>
-            <th class="border-top-bottom desc-9 text-left">CANT.</th>
-            <th class="border-top-bottom desc-9 text-left">UNIDAD</th>
-            <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
-            <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
-            <th class="border-top-bottom desc-9 text-left">TOTAL</th>
-        </tr>
+    <tr>
+        <th class="border-top-bottom desc-9 text-left">CANT.</th>
+        <th class="border-top-bottom desc-9 text-left">UdM</th>
+        <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
+        <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
+        <th class="border-top-bottom desc-9 text-left">TOTAL</th>
+    </tr>
     </thead>
     <tbody>
     @foreach($document->items as $row)
         <tr>
-            <td class="text-center desc-9 align-top font-bold">
+            <td class="text-center desc-9 align-top">
                 @if(((int)$row->quantity != $row->quantity))
                     {{ $row->quantity }}
                 @else
@@ -435,55 +346,25 @@
                         <br/><small>{{ $dtos->factor * 100 }}% {{$dtos->description }}</small>
                     @endforeach
                 @endif
-
+                
                 @if($row->charges)
                     @foreach($row->charges as $charge)
                         <br/><small>{{ $document->currency_type->symbol}} {{ $charge->amount}} ({{ $charge->factor * 100 }}%) {{$charge->description }}</small>
                     @endforeach
                 @endif
                 
-                @if($row->item->is_set == 1)
-
-                 <br>
-                 @inject('itemSet', 'App\Services\ItemSetService')
-                 @foreach ($itemSet->getItemsSet($row->item_id) as $item)
-                     {{$item}}<br>
-                 @endforeach
-                 {{-- {{join( "-", $itemSet->getItemsSet($row->item_id) )}} --}}
-                @endif
-
                 @if($document->has_prepayment)
                     <br>
                     *** Pago Anticipado ***
                 @endif
             </td>
             <td class="text-right desc-9 align-top">{{ number_format($row->unit_price, 2) }}</td>
-            <td class="text-right desc-9 align-top font-bold">{{ number_format($row->total, 2) }}</td>
+            <td class="text-right desc-9 align-top">{{ number_format($row->total, 2) }}</td>
         </tr>
         <tr>
             <td colspan="5" class="border-bottom"></td>
         </tr>
     @endforeach
-
-    @if ($document->prepayments)
-        @foreach($document->prepayments as $p)
-        <tr>
-            <td class="text-center desc-9 align-top">
-                1
-            </td>
-            <td class="text-center desc-9 align-top">NIU</td>
-            <td class="text-left desc-9 align-top">
-                ANTICIPO: {{($p->document_type_id == '02')? 'FACTURA':'BOLETA'}} NRO. {{$p->number}}
-            </td>
-            <td class="text-right  desc-9 align-top">-{{ number_format($p->total, 2) }}</td>
-            <td class="text-right  desc-9 align-top">-{{ number_format($p->total, 2) }}</td>
-        </tr>
-        <tr>
-            <td colspan="5" class="border-bottom"></td>
-        </tr>
-        @endforeach
-    @endif
-
         @if($document->total_exportation > 0)
             <tr>
                 <td colspan="4" class="text-right font-bold desc">OP. EXPORTACIÓN: {{ $document->currency_type->symbol }}</td>
@@ -508,21 +389,12 @@
                 <td class="text-right font-bold desc">{{ number_format($document->total_exonerated, 2) }}</td>
             </tr>
         @endif
-
-        @if ($document->document_type_id === '07')
-            @if($document->total_taxed >= 0)
-            <tr>
-                <td colspan="4" class="text-right font-bold desc">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
-                <td class="text-right font-bold desc">{{ number_format($document->total_taxed, 2) }}</td>
-            </tr>
-            @endif
-        @elseif($document->total_taxed > 0)
+        @if($document->total_taxed > 0)
             <tr>
                 <td colspan="4" class="text-right font-bold desc">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_taxed, 2) }}</td>
             </tr>
         @endif
-
         @if($document->total_plastic_bag_taxes > 0)
             <tr>
                 <td colspan="4" class="text-right font-bold desc">ICBPER: {{ $document->currency_type->symbol }}</td>
@@ -533,7 +405,7 @@
             <td colspan="4" class="text-right font-bold desc">IGV: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total_igv, 2) }}</td>
         </tr>
-
+        
         @if($document->total_isc > 0)
         <tr>
             <td colspan="4" class="text-right font-bold desc">ISC: {{ $document->currency_type->symbol }}</td>
@@ -547,10 +419,10 @@
                 <td class="text-right font-bold desc">{{ number_format($document->subtotal, 2) }}</td>
             </tr>
         @endif
-
+        
         @if($document->total_discount > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">DESCUENTO TOTAL: {{ $document->currency_type->symbol }}</td>
+                <td colspan="4" class="text-right font-bold desc">{{(($document->total_prepayment > 0) ? 'ANTICIPO':'DESCUENTO TOTAL')}}: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_discount, 2) }}</td>
             </tr>
         @endif
@@ -579,7 +451,7 @@
             <td colspan="4" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total, 2) }}</td>
         </tr>
-        
+
         @if(($document->retention || $document->detraction) && $document->total_pending_payment > 0)
             <tr>
                 <td colspan="4" class="text-right font-bold desc">M. PENDIENTE: {{ $document->currency_type->symbol }}</td>
@@ -612,82 +484,49 @@
         @endforeach
     </tr>
 
-    @if ($document->detraction)
-        <tr>
-            <td class="desc pt-2 font-bold">
-                Operación sujeta al Sistema de Pago de Obligaciones Tributarias
-            </td>
-        </tr>
-    @endif
 
     <tr>
-        <td class="desc pt-2">
+        <td class="desc pt-3">
             @foreach($document->additional_information as $information)
                 @if ($information)
                     @if ($loop->first)
                         <strong>Información adicional</strong>
                     @endif
-                    <p class="desc">{{ $information }}</p>
+                    <p>{{ $information }}</p>
                 @endif
             @endforeach
             <br>
             @if(in_array($document->document_type->id,['01','03']))
                 @foreach($accounts as $account)
-                    <p class="desc">
-                        <small>
-                            <span class="desc">{{$account->bank->description}}</span> {{$account->currency_type->description}}
-                            <span class="font-bold desc">N°:</span> {{$account->number}}
-                            @if($account->cci)
-                            <span class="font-bold desc">CCI:</span> {{$account->cci}}
-                            @endif
-                        </small>
+                    <p>
+                    <span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}}
+                    <span class="font-bold">N°:</span> {{$account->number}}
+                    @if($account->cci)
+                    <span class="font-bold">CCI:</span> {{$account->cci}}
+                    @endif
                     </p>
                 @endforeach
             @endif
+
         </td>
     </tr>
     <tr>
-        <td class="text-center pt-2"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
+        <td class="text-center pt-3"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
     </tr>
     <tr>
         <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
     </tr>
-
-    @if ($customer->department_id == 16)
-        <tr>
-            <td class="text-center desc pt-5">
-                Representación impresa del Comprobante de Pago Electrónico.
-                <br/>Esta puede ser consultada en:
-                <br/> <b>{!! url('/buscar') !!}</b>
-                <br/> "Bienes transferidos en la Amazonía
-                <br/>para ser consumidos en la misma
-            </td>
-        </tr>
-    @endif
-    @php
-        $paymentCondition = \App\CoreFacturalo\Helpers\Template\TemplateHelper::getDocumentPaymentCondition($document);
-
-    @endphp
-    {{-- Condicion de pago  Crédito / Contado --}}
-    <tr>
-        <td class="desc pt-2">
-            <strong>CONDICIÓN DE PAGO: {{ $paymentCondition }} </strong>
-        </td>
-    </tr>
-
-    @if($document->payment_method_type_id)
-        <tr>
-            <td class="desc pt-2">
-                <strong>MÉTODO DE PAGO: </strong>{{ $document->payment_method_type->description }}
-            </td>
-        </tr>
-    @endif
-
     @if ($document->payment_condition_id === '01')
-
+        @if($document->payment_method_type_id)
+        <tr>
+            <td class="desc pt-5">
+                <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
+            </td>
+        </tr>
+        @endif
         @if($payments->count())
             <tr>
-                <td class="desc pt-2">
+                <td class="desc pt-5">
                     <strong>PAGOS:</strong>
                 </td>
             </tr>
@@ -698,13 +537,23 @@
             @endforeach
         @endif
     @else
-        @foreach($document->fees as $key => $quote)
+        @php
+            $paymentMethod = \App\Models\Tenant\PaymentMethodType::where('id', '09')->first();
+        @endphp
+        <table class="full-width">
             <tr>
-                <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
+                <td class="desc pt-5">
+                    <strong>PAGOS: {{ $paymentMethod->description }}</strong>
+                </td>
             </tr>
-        @endforeach
+                @foreach($document->fee as $key => $quote)
+                    <tr>
+                        <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
+                    </tr>
+                @endforeach
+            </tr>
+        </table>
     @endif
-
     <tr>
         <td class="desc">
             <strong>Vendedor:</strong>
@@ -717,21 +566,18 @@
             <td class="desc">{{ $document->user->name }}</td>
         @endif
     </tr>
-
     @if ($document->terms_condition)
         <tr>
             <td class="desc">
                 <br>
-                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
                 {!! $document->terms_condition !!}
             </td>
         </tr>
     @endif
 
-    </tr>
-
     <tr>
-        <td class="text-center desc pt-2">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
+        <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>
 </table>
 
