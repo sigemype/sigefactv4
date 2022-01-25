@@ -122,13 +122,13 @@ class Facturalo
                     $document->items()->create($row);
                 }
                 $document->note()->create($inputs['note']);
-                if($this->type === 'credit') $this->saveFee($document, $inputs['fee']);
+                if($this->type === 'credit') $this->saveFee($document, $inputs['fees']);
                 $this->document = Document::find($document->id);
                 break;
             case 'invoice':
                 $document = Document::create($inputs);
                 $this->savePayments($document, $inputs['payments']);
-                $this->saveFee($document, $inputs['fee']);
+                $this->saveFee($document, $inputs['fees']);
                 foreach ($inputs['items'] as $row) {
                     $document->items()->create($row);
                     // $row['document_id']=  $document->id;
@@ -1237,7 +1237,7 @@ class Facturalo
     private function saveFee($document, $fee)
     {
         foreach ($fee as $row) {
-            $document->fee()->create($row);
+            $document->fees()->create($row);
         }
     }
 }
