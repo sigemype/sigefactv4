@@ -392,7 +392,7 @@
         <th class="border-top-bottom desc-9 text-left">CANT.</th>
         <th class="border-top-bottom desc-9 text-left">UND.</th>
         <th class="border-top-bottom desc-9 text-center">COD.</th>
-        <th class="border-top-bottom desc-9 text-left">DESCRIP.</th>
+        <th class="border-top-bottom desc-9 text-left">DESCRIPIÓN</th>
         <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
         <th class="border-top-bottom desc-9 text-left">TOTAL</th>
     </tr>

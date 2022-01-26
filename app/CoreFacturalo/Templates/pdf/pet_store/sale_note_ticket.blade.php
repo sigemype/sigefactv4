@@ -13,10 +13,10 @@
     {{--<title>{{ $tittle }}</title>--}}
     {{-- <link href="{{ $path_style }}" rel="stylesheet" /> --}}
 </head>
-<body>
+<body class="ticket">
 
 @if($company->logo)
-    <div class="text-center company_logo_box pt-5">
+    <div class="text-center company_logo_box pt-3">
         <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo_ticket contain">
     </div>
 {{--@else--}}
@@ -57,8 +57,6 @@
         <td width="" class="pt-3"><p class="desc">F. Emisión:</p></td>
         <td width="" class="pt-3"><p class="desc">{{ $document->date_of_issue->format('Y-m-d') }}</p></td>
     </tr>
-
-
     <tr>
         <td class="align-top"><p class="desc">Cliente:</p></td>
         <td><p class="desc">{{ $customer->name }}</p></td>
@@ -81,10 +79,10 @@
         </tr>
     @endif
     @if ($document->plate_number !== null)
-    <tr>
-        <td class="align-top"><p class="desc">N° Placa:</p></td>
-        <td><p class="desc">{{ $document->plate_number }}</p></td>
-    </tr>
+        <tr>
+            <td class="align-top"><p class="desc">N° Placa:</p></td>
+            <td><p class="desc">{{ $document->plate_number }}</p></td>
+        </tr>
     @endif
     @if ($document->purchase_order)
         <tr>
@@ -117,15 +115,15 @@
             <th class="border-top-bottom desc-9 text-left">CANT.</th>
             <th class="border-top-bottom desc-9 text-left">UND.</th>
             <th class="border-top-bottom desc-9 text-center">COD.</th>
-            <th class="border-top-bottom desc-9 text-left">DESCRIP.</th>
+            <th class="border-top-bottom desc-9 text-left">DESCRIPIÓN</th>
             <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
-            <th class="border-top-bottom desc-9 text-right">TOTAL</th>
+            <th class="border-top-bottom desc-9 text-left">TOTAL</th>
         </tr>
     </thead>
     <tbody>
     @foreach($document->items as $row)
         <tr>
-            <td class="text-center desc-9 align-top font-bold">
+            <td class="text-center desc-9 align-top">
                 @if(((int)$row->quantity != $row->quantity))
                     {{ $row->quantity }}
                 @else
@@ -170,64 +168,64 @@
     @endforeach
         @if($document->total_exportation > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">OP. EXPORTACIÓN: {{ $document->currency_type->symbol }}</td>
+                <td colspan="5" class="text-right font-bold desc">OP. EXPORTACIÓN: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_exportation, 2) }}</td>
             </tr>
         @endif
         @if($document->total_free > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">OP. GRATUITAS: {{ $document->currency_type->symbol }}</td>
+                <td colspan="5" class="text-right font-bold desc">OP. GRATUITAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_free, 2) }}</td>
             </tr>
         @endif
         @if($document->total_unaffected > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">OP. INAFECTAS: {{ $document->currency_type->symbol }}</td>
+                <td colspan="5" class="text-right font-bold desc">OP. INAFECTAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_unaffected, 2) }}</td>
             </tr>
         @endif
         @if($document->total_exonerated > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">OP. EXONERADAS: {{ $document->currency_type->symbol }}</td>
+                <td colspan="5" class="text-right font-bold desc">OP. EXONERADAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_exonerated, 2) }}</td>
             </tr>
         @endif
         {{-- @if($document->total_taxed > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
+                <td colspan="5" class="text-right font-bold desc">OP. GRAVADAS: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_taxed, 2) }}</td>
             </tr>
         @endif --}}
-         @if($document->total_discount > 0)
+        @if($document->total_discount > 0)
             <tr>
-                <td colspan="4" class="text-right font-bold desc">{{(($document->total_prepayment > 0) ? 'ANTICIPO':'DESCUENTO TOTAL')}}: {{ $document->currency_type->symbol }}</td>
+                <td colspan="5" class="text-right font-bold desc">{{(($document->total_prepayment > 0) ? 'ANTICIPO':'DESCUENTO TOTAL')}}: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_discount, 2) }}</td>
             </tr>
         @endif
         {{--<tr>
-            <td colspan="4" class="text-right font-bold desc">IGV: {{ $document->currency_type->symbol }}</td>
+            <td colspan="5" class="text-right font-bold desc">IGV: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total_igv, 2) }}</td>
         </tr>--}}
         <tr>
-            <td colspan="4" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
+            <td colspan="5" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total, 2) }}</td>
-        </tr>
-        {{-- Vendedor --}}
-        <tr>
-            <td class="desc pt-5">
-                <strong>Vendedor:</strong>
-            </td>
-        </tr>
-        <tr>
-            @if ($document->seller)
-                <td class="desc" colspan="4">{{ $document->seller->name }}</td>
-            @else
-                <td class="desc" colspan="4">{{ $document->user->name }}</td>
-            @endif
         </tr>
     </tbody>
 </table>
 <table class="full-width">
+    {{-- Vendedor --}}
+    <tr>
+        <td class="desc pt-2">
+            <strong>Vendedor:</strong>
+        </td>
+    </tr>
+    <tr>
+        @if ($document->seller)
+            <td class="desc" colspan="5">{{ $document->seller->name }}</td>
+        @else
+            <td class="desc" colspan="5">{{ $document->user->name }}</td>
+        @endif
+    </tr>
     <tr>
         @foreach(array_reverse((array) $document->legends) as $row)
             <tr>
@@ -255,7 +253,6 @@
                 @endif
                 <br>
             @endforeach
-
         </td>
     </tr> --}}
 
