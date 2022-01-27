@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Api;
 
+use App\Http\Controllers\Tenant\EmailController;
 use Exception;
 use Carbon\Carbon;
 use App\Models\Tenant\Item;
@@ -42,7 +43,6 @@ use App\Models\Tenant\DocumentItem;
 use App\Models\Tenant\SaleNoteItem;
 use App\Models\Tenant\PurchaseItem;
 use Modules\Pos\Mail\CashEmail;
-
 
 class MobileController extends Controller
 {
@@ -120,6 +120,7 @@ class MobileController extends Controller
         ];
 
     }
+    
     public function customers_details($id)
     {
         $customers = Person::whereType('customers')->where('id', $id)->orderBy('name')->take(1)->get()->transform(function($row) {
@@ -172,10 +173,9 @@ class MobileController extends Controller
                     'internal_id' => $row->internal_id,
                     'item_code' => $row->item_code,
                     'currency_type_symbol' => $row->currency_type->symbol,
-                    'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                    'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                     'purchase_unit_price' => $row->purchase_unit_price,
                     'unit_type_id' => $row->unit_type_id,
-                    'item_unit_types' => $row->item_unit_types,
                     'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
                     'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
                     'calculate_quantity' => (bool) $row->calculate_quantity,
@@ -186,9 +186,9 @@ class MobileController extends Controller
                     'category' => $row->brand->name,
                     'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
                     'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
+                ];
+            });
 
-                        ];
-                    });
 
         return [
             'success' => true,
@@ -197,7 +197,6 @@ class MobileController extends Controller
 
     }
 
- 
 
     public function getSeries(){
 
@@ -215,11 +214,11 @@ class MobileController extends Controller
     }
 
     public function getPaymentmethod(){
+
         $payment_method_type = PaymentMethodType::all();
-        $payment_destinations = $this->getPaymentDestinations(); 
+        $payment_destinations = $this->getPaymentDestinations();
         return compact( 'payment_method_type','payment_destinations');
     }
-
 
     public function document_email(Request $request)
     {
@@ -227,8 +226,10 @@ class MobileController extends Controller
         $document = Document::find($request->id);
         $customer_email = $request->email;
 
-        Configuration::setConfigSmtpMail();
-        Mail::to($customer_email)->send(new DocumentEmail($company, $document));
+        $email = $customer_email;
+        $mailable =new DocumentEmail($company, $document);
+        $id =  $request->id;
+        $sendIt = EmailController::SendMail($email, $mailable, $id, 1);
 
         return [
             'success' => true,
@@ -239,7 +240,7 @@ class MobileController extends Controller
 
     public function item(ItemRequest $request)
     {
-        // $row = new Item();
+        // dd($request->id);
         $row = Item::firstOrNew(['id' => $request->id]);
         $row->item_type_id = '01';
         $row->amount_plastic_bag_taxes = Configuration::firstOrFail()->amount_plastic_bag_taxes;
@@ -287,7 +288,7 @@ class MobileController extends Controller
         $row->save();
 
         $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
-// dd($row);
+
         return [
             'success' => true,
             'msg' => 'Producto registrado con éxito',
@@ -301,7 +302,7 @@ class MobileController extends Controller
                 'internal_id' => $row->internal_id,
                 'item_code' => $row->item_code,
                 'currency_type_symbol' => $row->currency_type->symbol,
-                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                 'purchase_unit_price' => $row->purchase_unit_price,
                 'unit_type_id' => $row->unit_type_id,
                 'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -317,7 +318,6 @@ class MobileController extends Controller
 
     public function person(PersonRequest $request)
     {
-        // dd($request->type);
         $row = Person::firstOrNew(['id' => $request->id]);
         if ($request->department_id === '-') {
             $request->merge([
@@ -348,7 +348,7 @@ class MobileController extends Controller
             ]
         ];
     }
- 
+
     public function searchItems(Request $request)
     {
         $establishment_id = auth()->user()->establishment_id;
@@ -367,35 +367,47 @@ class MobileController extends Controller
 
                         $full_description = ($row->internal_id)?$row->internal_id.' - '.$row->description:$row->description;
 
-                return [
-                    'id' => $row->id,
-                    'item_id' => $row->id,
-                    'name' => $row->name,
-                    'full_description' => $full_description,
-                    'description' => $row->description,
-                    'currency_type_id' => $row->currency_type_id,
-                    'internal_id' => $row->internal_id,
-                    'item_code' => $row->item_code,
-                    'currency_type_symbol' => $row->currency_type->symbol,
-                    'sale_unit_price' => number_format( $row->sale_unit_price, 2),
-                    'purchase_unit_price' => $row->purchase_unit_price,
-                    'unit_type_id' => $row->unit_type_id,
-                    'item_unit_types' => $row->item_unit_types,
-                    'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
-                    'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
-                    'calculate_quantity' => (bool) $row->calculate_quantity,
-                    'has_igv' => (bool) $row->has_igv,
-                    'is_set' => (bool) $row->is_set,
-                    'aux_quantity' => 1,
-                    'brand' => $row->brand->name,
-                    'category' => $row->brand->name,
-                    'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
-                    'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
+                        return [
+                            'id' => $row->id,
+                            'item_id' => $row->id,
+                            'name' => $row->name,
+                            'full_description' => $full_description,
+                            'description' => $row->description,
+                            'currency_type_id' => $row->currency_type_id,
+                            'internal_id' => $row->internal_id,
+                            'item_code' => $row->item_code ?? '',
+                            'currency_type_symbol' => $row->currency_type->symbol,
+                            'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
+                            'purchase_unit_price' => $row->purchase_unit_price,
+                            'unit_type_id' => $row->unit_type_id,
+                            'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                            'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
+                            'calculate_quantity' => (bool) $row->calculate_quantity,
+                            'has_igv' => (bool) $row->has_igv,
+                            'is_set' => (bool) $row->is_set,
+                            'aux_quantity' => 1,
+                            'barcode' => $row->barcode ?? '',
+                            'brand' => optional($row->brand)->name,
+                            'category' => optional($row->category)->name,
+                            'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
+                            'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
                             'warehouses' => collect($row->warehouses)->transform(function($row) {
                                 return [
                                     'warehouse_description' => $row->warehouse->description,
                                     'stock' => $row->stock,
                                     'warehouse_id' => $row->warehouse_id,
+                                ];
+                            }),
+                            'item_unit_types' => $row->item_unit_types->transform(function($row) {
+                                return [
+                                    'id' => $row->id,
+                                    'description' => $row->description,
+                                    'unit_type_id' => $row->unit_type_id,
+                                    'quantity_unit' => $row->quantity_unit,
+                                    'price1' => $row->price1,
+                                    'price2' => $row->price2,
+                                    'price3' => $row->price3,
+                                    'price_default' => $row->price_default,
                                 ];
                             }),
                         ];
@@ -435,7 +447,7 @@ class MobileController extends Controller
                     'internal_id' => $row->internal_id,
                     'item_code' => $row->item_code,
                     'currency_type_symbol' => $row->currency_type->symbol,
-                    'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                    'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                     'purchase_unit_price' => $row->purchase_unit_price,
                     'unit_type_id' => $row->unit_type_id,
                     'stock_min' => $row->stock_min,
@@ -515,15 +527,15 @@ class MobileController extends Controller
             'success' => true
         ];
     }
+
     public function getIdentityDocumentTypeId($document_type_id){
 
         return ($document_type_id == '01') ? [6] : [1,4,6,7,0];
 
     }
- 
+
     public function report($year,$month,$day)
     {
-        // dd($day);
         $request = [
             'customer_id' => null,
             'date_end' => "".$year."-".$month."-".$day."",
@@ -565,7 +577,7 @@ class MobileController extends Controller
                 'internal_id' => $row->internal_id,
                 'item_code' => $row->item_code,
                 'currency_type_symbol' => $row->currency_type->symbol,
-                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                 'purchase_unit_price' => $row->purchase_unit_price,
                 'unit_type_id' => $row->unit_type_id,
                 'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,

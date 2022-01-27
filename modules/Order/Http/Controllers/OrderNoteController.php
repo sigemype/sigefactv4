@@ -2,8 +2,6 @@
 
 namespace Modules\Order\Http\Controllers;
 
-use App\Http\Controllers\SearchItemController;
-use App\Http\Controllers\Tenant\EmailController;
 use App\Models\Tenant\Catalogs\OperationType;
 use App\Models\Tenant\Quotation;
 use App\Traits\OfflineTrait;
@@ -197,8 +195,7 @@ class OrderNoteController extends Controller
                                     'name' => $row->name,
                                     'number' => $row->number,
                                     'identity_document_type_id' => $row->identity_document_type_id,
-                                    'identity_document_type_code' => $row->identity_document_type->code,
-                                    'address' => $row->address,
+                                    'identity_document_type_code' => $row->identity_document_type->code
                                 ];
                             });
 
@@ -230,20 +227,9 @@ class OrderNoteController extends Controller
 
         return compact('series', 'document_types_invoice', 'payment_method_types', 'payment_destinations');
     }
-    public function searchItemById($id)
-    {
-        $items =  SearchItemController::getItemsToOrderNote(null,$id);
-        return compact('items');
 
-    }
-    public function searchItems(Request $request)
-    {
-        $items = SearchItemController::getItemsToOrderNote($request);
-        return compact('items');
-    }
     public function item_tables() {
-        // $items = $this->table('items');
-        $items = SearchItemController::getItemsToOrderNote();
+        $items = $this->table('items');
         $categories = [];
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $system_isc_types = SystemIscType::whereActive()->get();
@@ -330,11 +316,9 @@ class OrderNoteController extends Controller
 
         DB::connection('tenant')->transaction(function () use ($request) {
 
+            $data = $this->mergeData($request);
 
             $this->order_note = OrderNote::firstOrNew(['id' => $request['id']]);
-
-            $data = $this->mergeData($request, $this->order_note);
-
             $this->order_note->fill($data);
             //$this->order_note->items()->delete();
 
@@ -420,13 +404,13 @@ class OrderNoteController extends Controller
         ];
     }
 
-    public function mergeData($inputs, $order_note = null)
+    public function mergeData($inputs)
     {
 
         $this->company = Company::active();
 
         $values = [
-            'user_id' => ($order_note) ? $order_note->user_id : auth()->id(),
+            'user_id' => auth()->id(),
             'external_id' => Str::uuid()->toString(),
             'customer' => PersonInput::set($inputs['customer_id']),
             'establishment' => EstablishmentInput::set($inputs['establishment_id']),
@@ -462,8 +446,7 @@ class OrderNoteController extends Controller
                         'name' => $row->name,
                         'number' => $row->number,
                         'identity_document_type_id' => $row->identity_document_type_id,
-                        'identity_document_type_code' => $row->identity_document_type->code,
-                        'address' => $row->address,
+                        'identity_document_type_code' => $row->identity_document_type->code
                     ];
                 });
                 return $customers;
@@ -547,15 +530,23 @@ class OrderNoteController extends Controller
         }
     }
 
-    /**
-     * @param $id
-     *
-     * @return array
-     */
     public function searchCustomerById($id)
     {
 
-        return $this->searchClientById($id);
+        $customers = Person::whereType('customers')
+                    ->where('id',$id)
+                    ->get()->transform(function($row) {
+                        return [
+                            'id' => $row->id,
+                            'description' => $row->number.' - '.$row->name,
+                            'name' => $row->name,
+                            'number' => $row->number,
+                            'identity_document_type_id' => $row->identity_document_type_id,
+                            'identity_document_type_code' => $row->identity_document_type->code
+                        ];
+                    });
+
+        return compact('customers');
     }
 
     public function download($external_id, $format) {
@@ -788,24 +779,9 @@ class OrderNoteController extends Controller
         $customer_email = $request->input('customer_email');
 
         // $this->reloadPDF($order_note, "a4", $order_note->filename);
-        $email = $customer_email;
-        $mailable = new OrderNoteEmail($client, $order_note);
-        $id = (int) $order_note->id;
-        $model = __FILE__.";;".__LINE__;
-        $sendIt = EmailController::SendMail($email, $mailable, $id, $model);
-        /*
+
         Configuration::setConfigSmtpMail();
-        $array_email = explode(',', $customer_email);
-        if (count($array_email) > 1) {
-            foreach ($array_email as $email_to) {
-                $email_to = trim($email_to);
-                if(!empty($email_to)) {
-                    Mail::to($email_to)->send(new OrderNoteEmail($client, $order_note));
-                }
-            }
-        } else {
-            Mail::to($customer_email)->send(new OrderNoteEmail($client, $order_note));
-        }*/
+        Mail::to($customer_email)->send(new OrderNoteEmail($client, $order_note));
         return [
             'success' => true
         ];

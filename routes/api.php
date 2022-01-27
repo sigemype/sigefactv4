@@ -5,8 +5,8 @@ if ($hostname) {
     Route::domain($hostname->fqdn)->group(function () {
 
         Route::post('login', 'Tenant\Api\MobileController@login');
-
-        //reportes caja
+        
+        //reportes caja 
         Route::get('cash/report/products/{cash}', 'Tenant\Api\MobileController@report_products');
         Route::get('cash/report/report-ticket/{cash}', 'Tenant\Api\MobileController@reportTicket');
         Route::get('cash/report/report-a4/{cash}', 'Tenant\Api\MobileController@reportA4');
@@ -23,10 +23,6 @@ if ($hostname) {
 
         
         Route::post('cash/report/email', 'Tenant\Api\MobileController@email');
-
-
-
-
 
             //MOBILE 
             Route::get('document/series', 'Tenant\Api\MobileController@getSeries');
@@ -70,6 +66,13 @@ if ($hostname) {
 
             Route::post('documents_server', 'Tenant\Api\DocumentController@storeServer');
             Route::get('document_check_server/{external_id}', 'Tenant\Api\DocumentController@documentCheckServer');
+
+            //liquidacion de compra
+            Route::post('purchase-settlements', 'Tenant\Api\PurchaseSettlementController@store');
+
+            //Pedidos
+            Route::get('orders', 'Tenant\Api\OrderController@records');
+
         });
         Route::get('documents/search/customers', 'Tenant\DocumentController@searchCustomers');
 
@@ -85,6 +88,7 @@ if ($hostname) {
         //reseller
         Route::post('reseller/detail', 'System\Api\ResellerController@resellerDetail');
         Route::post('reseller/lockedAdmin', 'System\Api\ResellerController@lockedAdmin');
+        Route::post('reseller/lockedTenant', 'System\Api\ResellerController@lockedTenant');
 
     });
 

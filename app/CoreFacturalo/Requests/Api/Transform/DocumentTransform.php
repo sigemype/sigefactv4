@@ -12,12 +12,8 @@ class DocumentTransform
     public static function transform($inputs)
     {
 
-        $totals = $inputs['totales'];
 
-        // foreach ($inputs['items'] as $key => $value) {
-        //     $inputs['items'][$key]['codigo_interno'] = ($inputs['items'][$key]['codigo_interno']) ? $inputs['items'][$key]['codigo_interno']:'';
-        //     $inputs['items'][$key]['codigo_producto_sunat'] = ($inputs['items'][$key]['codigo_producto_sunat']) ? $inputs['items'][$key]['codigo_producto_sunat']:'';
-        // }
+        $totals = $inputs['totales'];
 
         $inputs_transform = [
             'series' => Functions::valueKeyInArray($inputs, 'serie_documento'),
@@ -361,6 +357,7 @@ class DocumentTransform
     {
         if(in_array($inputs['codigo_tipo_documento'], ['01', '03'])) {
 
+if (in_array($inputs['codigo_condicion_de_pago'], ['01'])) {
             $payments = [];
 
             if(key_exists('pagos', $inputs)) {
@@ -371,14 +368,17 @@ class DocumentTransform
                         'payment_method_type_id' => $row['codigo_metodo_pago'],
                         'payment_destination_id' => $row['codigo_destino_pago'],
                         'reference' => Functions::valueKeyInArray($row, 'referencia'),
+                        'change' => Functions::valueKeyInArray($row, 'cambio'),
                         'payment' => Functions::valueKeyInArray($row, 'monto', 0),
                     ];
                 }
+
 
             }
 
             return $payments;
 
+}
         }
 
         return [];
@@ -386,8 +386,10 @@ class DocumentTransform
 
     private static function fee($inputs)
     {
+if (in_array($inputs['codigo_condicion_de_pago'], ['02'])) {
         $fee = [];
         if (key_exists('cuotas', $inputs)) {
+
             foreach ($inputs['cuotas'] as $row) {
                 $fee[] = [
                     'date' => $row['fecha'],
@@ -398,5 +400,6 @@ class DocumentTransform
         }
 
         return $fee;
+}
     }
 }

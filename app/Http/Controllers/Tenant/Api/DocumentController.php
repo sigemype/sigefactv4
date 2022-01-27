@@ -22,25 +22,6 @@ class DocumentController extends Controller
         $this->middleware('input.request:document,api', ['only' => ['store', 'storeServer']]);
     }
 
-    // /**
-    //  * @param \Illuminate\Http\Request $request
-    //  *
-    //  * @return array
-    //  */ 
-    // public function cash_document(Request $request) {
-
-    //     $cash = Cash::where([
-    //                             ['user_id', auth()->user()->id],
-    //                             ['state', true],
-    //                         ])->first();
-
-    //     $cash->cash_documents()->updateOrCreate($request->all());
-
-    //     return [
-    //         'success' => true,
-    //         'message' => 'Venta con éxito', 
-    //     ];
-    // }
     public function store(Request $request)
     {
         $fact = DB::connection('tenant')->transaction(function () use ($request) {
@@ -177,19 +158,24 @@ if ($cash!=null) {
 
     public function lists($startDate = null, $endDate = null)
     {
-        if ($startDate == null) {
-            $record = Document::orderBy('date_of_issue', 'desc')
-                ->take(50)
-                ->get();
-        } else {
-            $record = Document::whereBetween('date_of_issue', [$startDate, $endDate])
-                ->orderBy('date_of_issue', 'desc')
-                ->get();
-        }
-        $records = new DocumentCollection($record);
-        return $records;
+        $records = $this->getRecords($startDate,$endDate);
+
+        return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
+
     }
 
+    public function getRecords($startDate,$endDate){
+
+        $records = Document::query();
+
+        if ($startDate && $endDate) {
+             $records->whereBetween('date_of_issue', [$startDate, $endDate]);
+        }
+
+        $records->whereTypeUser()->latest();
+
+        return $records;
+    }
     public function updatestatus(Request $request)
     {
         $record = Document::whereExternal_id($request->externail_id)->first();
