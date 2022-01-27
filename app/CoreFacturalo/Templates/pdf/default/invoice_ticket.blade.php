@@ -27,7 +27,7 @@
 <body class="ticket">
 
 @if($company->logo)
-    <div class="text-center company_logo_box pt-5">
+    <div class="text-center company_logo_box pt-3">
         <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo_ticket contain">
     </div>
 {{--@else--}}
