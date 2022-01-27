@@ -10,7 +10,6 @@
 
     if($document_base) {
         $affected_document_number = ($document_base->affected_document) ? $document_base->affected_document->series.'-'.str_pad($document_base->affected_document->number, 8, '0', STR_PAD_LEFT) : $document_base->data_affected_document->series.'-'.str_pad($document_base->data_affected_document->number, 8, '0', STR_PAD_LEFT);
-
     } else {
         $affected_document_number = null;
     }
@@ -388,13 +387,13 @@
 
 <table class="full-width mt-10 mb-10">
     <thead class="">
-    <tr>
-        <th class="border-top-bottom desc-9 text-left">CANT.</th>
-        <th class="border-top-bottom desc-9 text-left">UNIDAD</th>
-        <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
-        <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
-        <th class="border-top-bottom desc-9 text-left">TOTAL</th>
-    </tr>
+        <tr>
+            <th class="border-top-bottom desc-9 text-left">CANT.</th>
+            <th class="border-top-bottom desc-9 text-left">UNIDAD</th>
+            <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
+            <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
+            <th class="border-top-bottom desc-9 text-left">TOTAL</th>
+        </tr>
     </thead>
     <tbody>
     @foreach($document->items as $row)
@@ -407,7 +406,7 @@
                 @endif
             </td>
             <td class="text-center desc-9 align-top">{{ $row->item->unit_type_id }}</td>
-            <td class="text-left desc-9 align-top font-bold">
+            <td class="text-left desc-9 align-top">
                 @if($row->name_product_pdf)
                     {!!$row->name_product_pdf!!}
                 @else
@@ -613,17 +612,16 @@
         @endforeach
     </tr>
 
-
     @if ($document->detraction)
         <tr>
-            <td class="desc pt-3 font-bold">
+            <td class="desc pt-2 font-bold">
                 Operación sujeta al Sistema de Pago de Obligaciones Tributarias
             </td>
         </tr>
     @endif
 
     <tr>
-        <td class="desc pt-3">
+        <td class="desc pt-2">
             @foreach($document->additional_information as $information)
                 @if ($information)
                     @if ($loop->first)
@@ -637,7 +635,7 @@
                 @foreach($accounts as $account)
                     <p class="desc">
                         <small>
-                            <span class="font-bold desc">{{$account->bank->description}}</span> {{$account->currency_type->description}}
+                            <span class="desc">{{$account->bank->description}}</span> {{$account->currency_type->description}}
                             <span class="font-bold desc">N°:</span> {{$account->number}}
                             @if($account->cci)
                             <span class="font-bold desc">CCI:</span> {{$account->cci}}
@@ -649,7 +647,7 @@
         </td>
     </tr>
     <tr>
-        <td class="text-center pt-3"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
+        <td class="text-center pt-2"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
     </tr>
     <tr>
         <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
@@ -672,14 +670,14 @@
     @endphp
     {{-- Condicion de pago  Crédito / Contado --}}
     <tr>
-        <td class="desc pt-5">
+        <td class="desc pt-2">
             <strong>CONDICIÓN DE PAGO: {{ $paymentCondition }} </strong>
         </td>
     </tr>
 
     @if($document->payment_method_type_id)
         <tr>
-            <td class="desc pt-5">
+            <td class="desc pt-2">
                 <strong>MÉTODO DE PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
         </tr>
@@ -689,7 +687,7 @@
 
         @if($payments->count())
             <tr>
-                <td class="desc pt-5">
+                <td class="desc pt-2">
                     <strong>PAGOS:</strong>
                 </td>
             </tr>
@@ -700,7 +698,7 @@
             @endforeach
         @endif
     @else
-        @foreach($document->fee as $key => $quote)
+        @foreach($document->fees as $key => $quote)
             <tr>
                 <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
             </tr>
@@ -733,7 +731,7 @@
     </tr>
 
     <tr>
-        <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
+        <td class="text-center desc pt-2">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>
 </table>
 

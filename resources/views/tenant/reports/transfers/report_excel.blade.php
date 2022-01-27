@@ -24,12 +24,13 @@
                             <th align="center" style="background-color:powderblue;" width="80" colspan="1" rowspan="2">Descripción</th>
                             <th align="center" style="background-color:powderblue;" width="30" colspan="1" rowspan="2">Almacen de origen</th>
                             <th align="center" style="background-color:powderblue;" width="30" colspan="1" rowspan="2">Almacen de destino</th>
-                            <th align="center" style="background-color:powderblue;" colspan="3">Detalle de productos</th>
+                            <th align="center" style="background-color:powderblue;" colspan="4">Detalle de productos</th>
                         </tr>
                         <tr>
                             <th align="center" style="background-color:cornflowerblue;">Código</th>
                             <th align="center" style="background-color:cornflowerblue;">Descripción</th>
                             <th align="center" style="background-color:cornflowerblue;">Cantidad</th>
+                            <th align="center" style="background-color:cornflowerblue;">P. Compra</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,6 +52,7 @@
                                 <td class="celda" width="10">{{$item['code']}}</td>
                                 <td class="celda" width="50">{{$item['description']}}</td>
                                 <td class="celda" width="8">{{$item['quantity']}}</td>
+                                <td class="celda" width="10">{{$item['purchase_unit_price']}}</td>
                             </tr>
                             @endforeach
                         @endforeach

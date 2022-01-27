@@ -428,8 +428,8 @@ class Facturalo
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    130 +
-                    (($quantity_rows * 8) + $extra_by_item_description) +
+                    95 +
+                    (($quantity_rows) + $extra_by_item_description) +
                     ($document_payments * 8) +
                     ($discount_global * 8) +
                     $company_name +
@@ -1151,7 +1151,7 @@ class Facturalo
                 $document->payments()->delete();
                 $this->savePayments($document, $inputs['payments']);
 
-                $document->fee()->delete();
+                $document->fees()->delete();
                 $this->saveFee($document, $inputs['fee']);
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
