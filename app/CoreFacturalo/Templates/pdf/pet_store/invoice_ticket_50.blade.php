@@ -367,14 +367,14 @@
         <th class="border-top-bottom desc-9 text-left">CANT.</th>
         <th class="border-top-bottom desc-9 text-left">UNIDAD</th>
         <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
-        <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
-        <th class="border-top-bottom desc-9 text-left">TOTAL</th>
+        <th class="border-top-bottom desc-9 text-center">P.UNIT</th>
+        <th class="border-top-bottom desc-9 text-right">TOTAL</th>
     </tr>
     </thead>
     <tbody>
     @foreach($document->items as $row)
         <tr>
-            <td class="text-center desc-9 align-top font-bold">
+            <td class="text-center desc-9 align-top">
                 @if(((int)$row->quantity != $row->quantity))
                     {{ $row->quantity }}
                 @else
@@ -581,7 +581,7 @@
             <br>
             @if(in_array($document->document_type->id,['01','03']))
                 @foreach($accounts as $account)
-                    <p class="desc">
+                    <p class="desc-9">
                     <span class="font-bold">{{$account->bank->description}}</span> {{$account->currency_type->description}}
                     <span class="font-bold">N°:</span> {{$account->number}}
                     @if($account->cci)
@@ -602,7 +602,7 @@
 
     @if($document->payment_method_type_id)
         <tr>
-            <td class="desc pt-5">
+            <td class="desc pt-2">
                 <strong>PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
         </tr>

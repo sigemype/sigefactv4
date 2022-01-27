@@ -2821,22 +2821,26 @@ export default {
         },
         dateValidError() {
 
-            this.$message.error('No puede seleccionar una fecha menor a 4 días.');
+            if (this.form.document_type_id === '01'){
+                this.$message.error('No puede seleccionar una fecha menor a 4 días.');
+            }else{
+                this.$message.error('No puede seleccionar una fecha menor a 7 días.');
+            }
             this.dateValid = false
 
         },
         validateDateOfIssue() {
-
-            let minDate = moment().subtract(4, 'days')
-
+            let minDateFact = moment().subtract(5, 'days')
+            let minDateBol = moment().subtract(8, 'days')
             // validar fecha de factura sin considerar configuracion
-            if (moment(this.form.date_of_issue) < minDate && this.form.document_type_id === '01') {
-
+            if (moment(this.form.date_of_issue) < minDateFact && this.form.document_type_id === '01') {
                 this.dateValidError()
-            } else if (moment(this.form.date_of_issue) < minDate && this.config.restrict_receipt_date) {
-
+            } else if (moment(this.form.date_of_issue) < minDateBol && this.form.document_type_id === '03'){
                 this.dateValidError()
-
+            // } else if (moment(this.form.date_of_issue) < minDateFact && this.config.restrict_receipt_date) {
+            //     this.dateValidError()
+            // } else if (moment(this.form.date_of_issue) < minDateBol && this.config.restrict_receipt_date) {
+            //     this.dateValidError()
             } else {
                 this.dateValid = true
             }
@@ -3481,7 +3485,7 @@ export default {
         },
         initDataPaymentCondition01() {
 
-            this.readonly_date_of_due = false
+            this.readonly_date_of_due = true
             this.enabled_payments = true
             this.form.date_of_due = this.form.date_of_issue
             this.form.payment_method_type_id = null
@@ -3494,6 +3498,7 @@ export default {
 
                 this.clickAddPayment();
                 this.initDataPaymentCondition01()
+                this.readonly_date_of_due = true
 
             }
             if (this.form.payment_condition_id === '02') {
