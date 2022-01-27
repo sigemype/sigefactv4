@@ -1151,7 +1151,7 @@ class Facturalo
                 $document->payments()->delete();
                 $this->savePayments($document, $inputs['payments']);
 
-                $document->fee()->delete();
+                $document->fees()->delete();
                 $this->saveFee($document, $inputs['fee']);
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
