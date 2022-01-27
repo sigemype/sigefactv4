@@ -428,7 +428,7 @@ class Facturalo
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    95 +
+                    110 +
                     (($quantity_rows) + $extra_by_item_description) +
                     ($document_payments * 8) +
                     ($discount_global * 8) +
