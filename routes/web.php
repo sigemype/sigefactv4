@@ -666,12 +666,13 @@ if ($hostname) {
         Route::post('login', 'System\LoginController@login');
         Route::post('logout', 'System\LoginController@logout')->name('logout');
         Route::get('phone', 'System\UserController@getPhone');
+        Route::get('/', 'WebController@index')->name('web.index');
 
         Route::middleware('auth:admin')->group(function () {
             Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
-            Route::get('/', function () {
-                return redirect()->route('system.dashboard');
-            });
+            // Route::get('/', function () {
+            //     return redirect()->route('system.dashboard');
+            // });
             Route::get('dashboard', 'System\HomeController@index')->name('system.dashboard');
 
             //Clients

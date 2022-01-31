@@ -150,8 +150,11 @@
                     </td>
                     <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
                     <td class="text-left align-top">
+                        {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
+                        {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
                         @if($row->name_product_pdf)
                             {!!$row->item->description!!} <br>
+
                             {!!html_entity_decode($row->name_product_pdf)!!}
                         @else
                             {!!$row->item->description!!}
