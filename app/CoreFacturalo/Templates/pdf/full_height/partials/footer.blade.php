@@ -144,26 +144,28 @@
             </td>
         </tr>
     </table>
+    @if ($accounts != "[]")
     <table class="full-width border-box my-2">
-                <tr>
-                    <th class="p-1 border-box">Banco</th>
-                    <th class="p-1 border-box">Moneda</th>
-                    <th class="p-1 border-box">N° Cuenta</th>
-                    <th class="p-1 border-box">N° Cuenta Interbancaria</th>
-                </tr>
-                @foreach($accounts as $account)
-                <tr>
-                    <td class="text-center border-box">{{$account->bank->description}}</td>
-                    <td class="text-center border-box">{{$account->currency_type->description}}</td>
-                    <td class="text-center border-box">{{$account->number}}</td>
-                    <td class="text-center border-box">
-                        @if($account->cci)
-                            {{$account->cci}}
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
+        <tr>
+            <th class="p-1 border-box">Banco</th>
+            <th class="p-1 border-box">Moneda</th>
+            <th class="p-1 border-box">N° Cuenta</th>
+            <th class="p-1 border-box">N° Cuenta Interbancaria</th>
+        </tr>
+        @foreach($accounts as $account)
+        <tr>
+            <td class="text-center border-box">{{$account->bank->description}}</td>
+            <td class="text-center border-box">{{$account->currency_type->description}}</td>
+            <td class="text-center border-box">{{$account->number}}</td>
+            <td class="text-center border-box">
+                @if($account->cci)
+                    {{$account->cci}}
+                @endif
+            </td>
+        </tr>
+        @endforeach
     </table>
+    @endif
 @endif
 <table class="full-width">
     <tr>

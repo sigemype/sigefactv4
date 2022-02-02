@@ -38,43 +38,43 @@
     <table class="full-width">
         <tr>
             <td class="text-center desc font-bold">
-                        @if ($accounts != "[]")
-                            <table class="full-width desc">
-                                <thead>
-                                    <tr>
-                                        <th colspan="4" class="desc">
-                                            <strong>Cuentas Bancarias</strong>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="border-box">
-                                        <th class="text-center desc">Banco</th>
-                                        <th class="text-center desc">Moneda</th>
-                                        <th class="text-center desc">Cuenta</th>
-                                        <th class="text-center desc">Cci</th>
-                                    </tr>
-                                    @foreach($accounts as $account)
-                                    <tr>
-                                        <td width="25%" class="text-center desc">
-                                            {{$account->bank->description}}
-                                        </td>
-                                        <td width="25%" class="text-center desc">
-                                            {{$account->currency_type->description}}
-                                        </td>
-                                        <td width="25%" class="text-center desc">
-                                            {{$account->number}}
-                                        </td>
-                                        <td width="25%" class="text-center desc">
-                                            @if($account->cci)
-                                                {{$account->cci}}
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @endif
+                @if ($accounts != "[]")
+                    <table class="full-width desc">
+                        <thead>
+                            <tr>
+                                <th colspan="4" class="desc">
+                                    <strong>Cuentas Bancarias</strong>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-box">
+                                <th class="text-center desc">Banco</th>
+                                <th class="text-center desc">Moneda</th>
+                                <th class="text-center desc">Cuenta</th>
+                                <th class="text-center desc">Cci</th>
+                            </tr>
+                            @foreach($accounts as $account)
+                            <tr>
+                                <td width="25%" class="text-center desc">
+                                    {{$account->bank->description}}
+                                </td>
+                                <td width="25%" class="text-center desc">
+                                    {{$account->currency_type->description}}
+                                </td>
+                                <td width="25%" class="text-center desc">
+                                    {{$account->number}}
+                                </td>
+                                <td width="25%" class="text-center desc">
+                                    @if($account->cci)
+                                        {{$account->cci}}
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
                     {{-- @endif --}}
                 {{-- @endif --}}
             </td>
