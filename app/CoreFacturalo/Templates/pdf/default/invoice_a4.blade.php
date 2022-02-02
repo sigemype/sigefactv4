@@ -194,7 +194,7 @@
                     @endif
                 @endforeach
                 @if (count($document->items) >=20)
-                    @for ($i = 0; $i < 23; $i++)
+                    @for ($i = 0; $i < 24; $i++)
                         <tr>
                             <td colspan="5" class=""> </td>
                         </tr>
