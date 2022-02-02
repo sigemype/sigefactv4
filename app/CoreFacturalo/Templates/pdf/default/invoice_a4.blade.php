@@ -32,7 +32,6 @@
     </div>
 @endif
 
-
 {{-- inicio encabezado de la factura --}}
     <table class="full-width">
         <tr>
@@ -140,61 +139,123 @@
         <tbody>
         {{-- inicio de items --}}
             @foreach($document->items as $row)
-                <tr class="border-box">
-                    <td class="text-center align-top">
-                        @if(((int)$row->quantity != $row->quantity))
-                            {{ $row->quantity }}
-                        @else
-                            {{ number_format($row->quantity, 0) }}
-                        @endif
-                    </td>
-                    <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-                    <td class="text-left align-top">
-                        {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
-                        {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
-                        @if($row->name_product_pdf)
-                            {!!$row->item->description!!} <br>
+                @if($loop->index < 20)
+                    <tr class="border-box">
+                        <td class="text-center align-top">
+                            @if(((int)$row->quantity != $row->quantity))
+                                {{ $row->quantity }}
+                            @else
+                                {{ number_format($row->quantity, 0) }}
+                            @endif
+                        </td>
+                        <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+                        <td class="text-left align-top">
+                            {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
+                            {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
+                            @if($row->name_product_pdf)
+                                {!!$row->item->description!!} <br>
+                                {!!html_entity_decode($row->name_product_pdf)!!}
+                            @else
+                                {!!$row->item->description!!}
+                            @endif
 
-                            {!!html_entity_decode($row->name_product_pdf)!!}
-                        @else
-                            {!!$row->item->description!!}
-                        @endif
+                            @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
-                        @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                            @if($row->attributes)
+                                @foreach($row->attributes as $attr)
+                                    <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
+                                @endforeach
+                            @endif
+                            @if($row->discounts)
+                                @foreach($row->discounts as $dtos)
+                                    <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
+                                @endforeach
+                            @endif
 
-                        @if($row->attributes)
-                            @foreach($row->attributes as $attr)
-                                <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
-                            @endforeach
-                        @endif
-                        @if($row->discounts)
-                            @foreach($row->discounts as $dtos)
-                                <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
-                            @endforeach
-                        @endif
-
-                        @if($row->item->is_set == 1)
-                        <br>
-                        @inject('itemSet', 'App\Services\ItemSetService')
-                            @foreach ($itemSet->getItemsSet($row->item_id) as $item)
-                                {{$item}}<br>
-                            @endforeach
-                        @endif
-
-                        @if($document->has_prepayment)
+                            @if($row->item->is_set == 1)
                             <br>
-                            *** Pago Anticipado ***
-                        @endif
-                    </td>
-                    <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
-                    <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
-                </tr>
+                            @inject('itemSet', 'App\Services\ItemSetService')
+                                @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                                    {{$item}}<br>
+                                @endforeach
+                            @endif
+
+                            @if($document->has_prepayment)
+                                <br>
+                                *** Pago Anticipado ***
+                            @endif
+                        </td>
+                        <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+                        <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
+                    </tr>
                     <tr>
                         <td colspan="5" class=""></td>
                     </tr>
-            @endforeach
-        {{-- fin de items --}}
+                    @endif
+                @endforeach
+                @if (count($document->items) >=20)
+                    @for ($i = 0; $i < 23; $i++)
+                        <tr>
+                            <td colspan="5" class=""> </td>
+                        </tr>
+                    @endfor
+                @endif
+                @foreach($document->items as $row)
+                    @if ($loop->index >= 20)
+                    <tr class="border-box">
+                        <td class="text-center align-top">
+                            @if(((int)$row->quantity != $row->quantity))
+                                {{ $row->quantity }}
+                            @else
+                                {{ number_format($row->quantity, 0) }}
+                            @endif
+                        </td>
+                        <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+                        <td class="text-left align-top">
+                            {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
+                            {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
+                            @if($row->name_product_pdf)
+                                {!!$row->item->description!!} <br>
+                                {!!html_entity_decode($row->name_product_pdf)!!}
+                            @else
+                                {!!$row->item->description!!}
+                            @endif
 
+                            @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+
+                            @if($row->attributes)
+                                @foreach($row->attributes as $attr)
+                                    <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
+                                @endforeach
+                            @endif
+                            @if($row->discounts)
+                                @foreach($row->discounts as $dtos)
+                                    <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
+                                @endforeach
+                            @endif
+
+                            @if($row->item->is_set == 1)
+                            <br>
+                            @inject('itemSet', 'App\Services\ItemSetService')
+                                @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                                    {{$item}}<br>
+                                @endforeach
+                            @endif
+
+                            @if($document->has_prepayment)
+                                <br>
+                                *** Pago Anticipado ***
+                            @endif
+                        </td>
+                        <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+                        <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class=""></td>
+                    </tr>
+                    @endif
+                @endforeach
+        {{-- fin de items --}}
 
         {{-- incio tipos de operacion --}}
             @if ($document->prepayments)
