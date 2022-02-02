@@ -119,142 +119,130 @@
                     <th class="text-center py-2" width="8%">CANT.</th>
                     <th class="text-center py-2" width="8%">U/M</th>
                     <th class="text-left py-2">DESCRIPCIÓN</th>
-                    {{-- @isset ($row->item->model)
-                        <th class="border-top-bottom text-left py-2">MODELO</th>
-                    @endisset
-                    @isset ($row->item->IdLoteSelected)
-                        <th class="border-top-bottom text-center py-2" width="8%">LOTE</th>
-                    @endisset --}}
-                    {{-- @isset($row->item->lots)
-                        <th class="border-top-bottom text-center py-2" width="8%">SERIE</th>
-                    @endisset --}}
                     <th class="text-right py-2" width="12%">P.UNIT</th>
-                    {{-- @isset($row->discounts)
-                        <th class="text-right py-2" width="8%">DTO.</th>
-                    @endisset --}}
                     <th class="text-right py-2" width="12%">TOTAL</th>
                 </tr>
             </thead>
         {{-- fin encabezado --}}
         <tbody>
         {{-- inicio de items --}}
-            @foreach($document->items as $row)
-                @if($loop->index < 20)
-                    <tr class="border-box">
-                        <td class="text-center align-top">
-                            @if(((int)$row->quantity != $row->quantity))
-                                {{ $row->quantity }}
-                            @else
-                                {{ number_format($row->quantity, 0) }}
-                            @endif
-                        </td>
-                        <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-                        <td class="text-left align-top">
-                            {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
-                            {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
-                            @if($row->name_product_pdf)
-                                {!!$row->item->description!!} <br>
-                                {!!html_entity_decode($row->name_product_pdf)!!}
-                            @else
-                                {!!$row->item->description!!}
-                            @endif
+        @foreach($document->items as $row)
+            @if($loop->index < 20)
+                <tr class="border-box">
+                    <td class="text-center align-top">
+                        @if(((int)$row->quantity != $row->quantity))
+                            {{ $row->quantity }}
+                        @else
+                            {{ number_format($row->quantity, 0) }}
+                        @endif
+                    </td>
+                    <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+                    <td class="text-left align-top">
+                        {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
+                        {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
+                        @if($row->name_product_pdf)
+                            {!!$row->item->description!!} <br>
+                            {!!html_entity_decode($row->name_product_pdf)!!}
+                        @else
+                            {!!$row->item->description!!}
+                        @endif
 
-                            @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                        @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
-                            @if($row->attributes)
-                                @foreach($row->attributes as $attr)
-                                    <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
-                                @endforeach
-                            @endif
-                            @if($row->discounts)
-                                @foreach($row->discounts as $dtos)
-                                    <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
-                                @endforeach
-                            @endif
+                        @if($row->attributes)
+                            @foreach($row->attributes as $attr)
+                                <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
+                            @endforeach
+                        @endif
+                        @if($row->discounts)
+                            @foreach($row->discounts as $dtos)
+                                <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
+                            @endforeach
+                        @endif
 
-                            @if($row->item->is_set == 1)
+                        @if($row->item->is_set == 1)
+                        <br>
+                        @inject('itemSet', 'App\Services\ItemSetService')
+                            @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                                {{$item}}<br>
+                            @endforeach
+                        @endif
+
+                        @if($document->has_prepayment)
                             <br>
-                            @inject('itemSet', 'App\Services\ItemSetService')
-                                @foreach ($itemSet->getItemsSet($row->item_id) as $item)
-                                    {{$item}}<br>
-                                @endforeach
-                            @endif
+                            *** Pago Anticipado ***
+                        @endif
+                    </td>
+                    <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+                    <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class=""></td>
+                </tr>
+            @endif
+        @endforeach
+        @if (count($document->items) >=20)
+            @for ($i = 0; $i < 25; $i++)
+                <tr>
+                    <td colspan="5" class=""> </td>
+                </tr>
+            @endfor
+        @endif
+        @foreach($document->items as $row)
+            @if ($loop->index >= 20)
+                <tr class="border-box">
+                    <td class="text-center align-top">
+                        @if(((int)$row->quantity != $row->quantity))
+                            {{ $row->quantity }}
+                        @else
+                            {{ number_format($row->quantity, 0) }}
+                        @endif
+                    </td>
+                    <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
+                    <td class="text-left align-top">
+                        {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
+                        {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
+                        @if($row->name_product_pdf)
+                            {!!$row->item->description!!} <br>
+                            {!!html_entity_decode($row->name_product_pdf)!!}
+                        @else
+                            {!!$row->item->description!!}
+                        @endif
 
-                            @if($document->has_prepayment)
-                                <br>
-                                *** Pago Anticipado ***
-                            @endif
-                        </td>
-                        <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
-                        <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="5" class=""></td>
-                    </tr>
-                    @endif
-                @endforeach
-                @if (count($document->items) >=20)
-                    @for ($i = 0; $i < 24; $i++)
-                        <tr>
-                            <td colspan="5" class=""> </td>
-                        </tr>
-                    @endfor
-                @endif
-                @foreach($document->items as $row)
-                    @if ($loop->index >= 20)
-                    <tr class="border-box">
-                        <td class="text-center align-top">
-                            @if(((int)$row->quantity != $row->quantity))
-                                {{ $row->quantity }}
-                            @else
-                                {{ number_format($row->quantity, 0) }}
-                            @endif
-                        </td>
-                        <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-                        <td class="text-left align-top">
-                            {{ $row->m_item->category != null ? $row->m_item->category->name : '' }}
-                            {{ $row->m_item->brand != null ? $row->m_item->brand->name : '' }}
-                            @if($row->name_product_pdf)
-                                {!!$row->item->description!!} <br>
-                                {!!html_entity_decode($row->name_product_pdf)!!}
-                            @else
-                                {!!$row->item->description!!}
-                            @endif
+                        @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
-                            @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                        @if($row->attributes)
+                            @foreach($row->attributes as $attr)
+                                <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
+                            @endforeach
+                        @endif
+                        @if($row->discounts)
+                            @foreach($row->discounts as $dtos)
+                                <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
+                            @endforeach
+                        @endif
 
-                            @if($row->attributes)
-                                @foreach($row->attributes as $attr)
-                                    <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
-                                @endforeach
-                            @endif
-                            @if($row->discounts)
-                                @foreach($row->discounts as $dtos)
-                                    <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
-                                @endforeach
-                            @endif
+                        @if($row->item->is_set == 1)
+                        <br>
+                        @inject('itemSet', 'App\Services\ItemSetService')
+                            @foreach ($itemSet->getItemsSet($row->item_id) as $item)
+                                {{$item}}<br>
+                            @endforeach
+                        @endif
 
-                            @if($row->item->is_set == 1)
+                        @if($document->has_prepayment)
                             <br>
-                            @inject('itemSet', 'App\Services\ItemSetService')
-                                @foreach ($itemSet->getItemsSet($row->item_id) as $item)
-                                    {{$item}}<br>
-                                @endforeach
-                            @endif
-
-                            @if($document->has_prepayment)
-                                <br>
-                                *** Pago Anticipado ***
-                            @endif
-                        </td>
-                        <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
-                        <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="5" class=""></td>
-                    </tr>
-                    @endif
-                @endforeach
+                            *** Pago Anticipado ***
+                        @endif
+                    </td>
+                    <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+                    <td class="text-right align-top">{{ number_format($row->total, 2) }}</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class=""></td>
+                </tr>
+            @endif
+        @endforeach
         {{-- fin de items --}}
 
         {{-- incio tipos de operacion --}}
@@ -498,9 +486,9 @@
             <td>{{ $document->quotation->identifier }}</td>
 
             @isset($document->quotation->delivery_date)
-                    <td width="120px">F. ENTREGA</td>
-                    <td width="8px">:</td>
-                    <td>{{ $document->date_of_issue->addDays($document->quotation->delivery_date)->format('d-m-Y') }}</td>
+                <td width="120px">F. ENTREGA</td>
+                <td width="8px">:</td>
+                <td>{{ $document->date_of_issue->addDays($document->quotation->delivery_date)->format('d-m-Y') }}</td>
             @endisset
         </tr>
 
