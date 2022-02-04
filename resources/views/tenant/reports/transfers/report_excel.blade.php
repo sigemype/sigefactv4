@@ -55,7 +55,7 @@
                                 <td class="celda" width="50">{{$item['description']}}</td>
                                 <td class="celda" width="8">{{$item['quantity']}}</td>
                                 <td class="celda" width="10">{{number_format($item['purchase_unit_price'],2)}}</td>
-                                <td class="celda" width="10">{{number_format($item['quantity'],2) * number_format($item['purchase_unit_price'],2)}}</td>
+                                {{-- <td class="celda" width="10">{{number_format($item['quantity'],2) * number_format($item['purchase_unit_price'],2)}}</td> --}}
                             </tr>
                             @endforeach
                         @endforeach
