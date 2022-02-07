@@ -6,6 +6,9 @@
     $tittle = $document->series.'-'.str_pad($document->number, 8, '0', STR_PAD_LEFT);
     $payments = $document->payments;
     $accounts = \App\Models\Tenant\BankAccount::all();
+    
+    $total_payment = $document->payments->sum('payment');
+    $balance = ($document->total - $total_payment) - $document->payments->sum('change');
 
 @endphp
 <html>
@@ -210,6 +213,12 @@
             <td colspan="4" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total, 2) }}</td>
         </tr>
+        @if($balance < 0)
+           <tr>
+               <td colspan="4" class="text-right font-bold desc">VUELTO: {{ $document->currency_type->symbol }}</td>
+               <td class="text-right font-bold desc">{{ number_format(abs($balance),2, ".", "") }}</td>
+           </tr>
+        @endif
         {{-- Vendedor --}}
         <tr>
             <td class="desc pt-5">
