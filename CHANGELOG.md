@@ -1,3 +1,156 @@
+## 4.2.0
+
+### docs
+2022-03-15 : docs | wiki para instalacion de supervisor<br>
+2021-12-20 : docs | update changelog<br>
+
+
+### fixed
+2022-03-21 : fixed | r30 | response data - habilitando servicio api<br>
+2022-03-18 : fixed | #1518 | Ajuste para op. gravadas gratuitas - convertir nv a cpe<br>
+2022-03-17 : fixed | restaurant | validacion<br>
+2022-03-17 : fixed | restaurante | object to array<br>
+2022-03-16 : fixed | #1471 | Mostrar guia - ajustes retencion, formato default3 new unit value<br>
+2022-03-16 : fixed | #1468 | configuracion no se enviaba desde pedidos a notas de venta - no mostraba condiciones para tickets<br>
+2022-03-15 : fixed | #1499 | visualizacion responsive<br>
+2022-03-15 : fixed | #1499 | arreglos de url en botones, visualizacion condicionada de botones segun pantalla y segun configuracion avanzada en PDF<br>
+2022-03-13 : fixed | #1499 | alternativas de botones de impresion en pos<br>
+2022-03-10 : fixed | #1461 | Ajustes para validar fecha emision - se agrega configuracion de dias<br>
+2022-03-08 : fixed | #1466 | Ajuste para acumulacion de pagos - pos<br>
+2022-03-01 : fixed | #1469 | Ajuste para montos en nc anulada - reporte documentos<br>
+2022-03-01 : fixed | #1477 | menu sidebar pos activo cuando corresponde<br>
+2022-02-25 : fixed | #1460 | Se modifica condicion para tag LineExtensionAmount nota credito tipo 13<br>
+2022-02-18 : fixed | #1454 | Ajustes icbper op gratuitas - pos<br>
+2022-02-17 : fixed | #1454 | Ajuste icbper op. gravadas gratuitas - form nuevo cpe<br>
+2022-02-15 : fixed | #1454 | Ajustes para icbper en POS<br>
+2022-02-14 : fixed | #1382 | Ajustes para ICBPER formulario nuevo cpe<br>
+2022-02-14 : fixed | #1442 | dependencia de modulo restaurante con farmacia eliminada<br>
+2022-02-14 : fixed | #1427 | observacion de compras en A4<br>
+2022-02-09 : fixed | ticket 1 mozo| slug categorias restaurate<br>
+2022-02-09 : fixed | #1306 | se agrega promociones pack a tienda virtual<br>
+2022-02-08 : fixed | #1357 | validacion de fechas en pagos a creditos - error fecha de pago o cuotas no puede ser anterior a fecha de emision<br>
+2022-02-05 : git commit -m " fixed | #1344 | se valida placa en factura"<br>
+2022-01-28 : fixed | #1378 | Se agrega campos adicionales para guia exportacion<br>
+2022-01-25 : fixed | css para nueva vista de restaurante<br>
+2022-01-20 : fixed | #1331 | Ajuste para evitar duplicidad (campo unique)<br>
+2022-01-17 : fixed | #1338 | pos - buscador de productos queda debajo del encabezado<br>
+2022-01-17 : fixed | #1335 | Ajuste para error al seleccionar multiples direcciones<br>
+2022-01-17 : fixed | #1260 | Regulariza anticipo cuando se genera nc tipo 01<br>
+2022-01-14 : fixed | #1345 | Se agrega codigo interno a n venta - default3<br>
+2022-01-14 : fixed | #1311 | Ajuste al editar cpe - detraccion<br>
+2022-01-14 : fixed | #1335 | Ajuste para error al guardar multiples direcciones del cliente | editar cpe (75%)<br>
+2022-01-14 : fixed | #1295 | Ajuste al redondear total exonerado - invoice<br>
+2022-01-14 : fixed | #1259 | Ajuste al mostrar n venta en kardex (generar cpe multiples nv), filtro por item<br>
+2022-01-13 : fixed | #1259 | Ajustes inventario, doble descuento al generar cpe desde multiples n venta<br>
+2022-01-13 : fixed | #1330 | Ajustes decimales json cargo por item<br>
+2022-01-12 : fixed | #1322 | Se agrega condicion de pago al generar cpe desde guia - ajustes en flujo<br>
+2022-01-12 : fixed | #1330 | Se agrega json ejemplo - factura con cargo por item<br>
+2022-01-12 : fixed | #1330 | Ajustes template default - cargos por item api<br>
+2022-01-10 : fixed | #1311 | Ajuste de error al editar cpe generado desde nv - tipo op. detracciones<br>
+2022-01-07 : fixed | #1241 | Se agrega monto pendiente de pago en template default<br>
+2022-01-07 : fixed | - | Ajuste comentario<br>
+2022-01-07 : fixed | #1069 | Ajuste limitacion de documentos en base a los planes<br>
+2022-01-06 : fixed | #1069 | Ajustes limitacion documentos (avance)<br>
+2021-12-30 : fixed | diseño header<br>
+2021-12-22 : fixed | #1310 | error de numero de referencia<br>
+2021-12-22 : fixed | #1310 | error de numero de referencia<br>
+
+
+### feature
+2022-03-22 : feature | #1422  | reporte excel cuenta con cargos y total<br>
+2022-03-22 : feature | #1422 | cargos en excel reportes/ventas/documentos<br>
+2022-03-21 : feature | #1355 | job reporte movimiebtos ingresos egresos<br>
+2022-03-21 : feature | restaurant | config visual<br>
+2022-03-18 : feature | #1491 | reporte ventas con direccion de cliente - username<br>
+2022-03-18 : feature | #1457 | balance por moneda<br>
+2022-03-17 : feature | restaurant | registro de notas de venta relacionadas con caja<br>
+2022-03-16 : feature | #1531 | Se agrega funcion para añadir retencion al generar cpe desde cotizaciones<br>
+2022-03-16 : feature | #1474 | notificaciones agrupadas<br>
+2022-03-15 : feature | orden de cajas en restaurante<br>
+2022-03-15 : feature | orden de cajas en restaurante<br>
+2022-03-15 : feature | #1455 | Pruebas dscto - se agrega opcion para actualizar dscto desde admin<br>
+2022-03-14 : feature | #1455 | Agregando descuento global configurable - ventas/nuevo cpe<br>
+2022-03-13 : feature | restaurate | estructura de menu<br>
+2022-03-11 : feature | mozo#26 | partners<br>
+2022-03-11 : feature | #1491 | reporte ventas con direccion de cliente - username<br>
+2022-03-09 : feature | mozo#24 | caja vista restaurant<br>
+2022-03-08 : feature | #1485 | guia de remision - reporte exportable<br>
+2022-03-08 : feature | #1492 | Se agrega guias para flujo pse<br>
+2022-03-08 : feature | mozo#22 | endpoint cash document<br>
+2022-03-08 : feature | mozo#22 | endpoint cash restaurant<br>
+2022-03-07 : feature | #1491 | reporte ventas con direccion de cliente<br>
+2022-03-06 : feature | mozo | data customers api<br>
+2022-03-04 : feature | #1458 | mantener numeracion de categorias - hotel<br>
+2022-03-04 : feature | #1455 | Se agrega descuento global que afecta la bi en pos<br>
+2022-03-04 : feature | #1372 | se agrega cotizaciona documentos pagos caja pos<br>
+2022-03-03 : feature | #1455 | Agregando configuracion tipo dscto pos<br>
+2022-03-03 : feature | #1370 | salidas form<br>
+2022-03-03 : feature | #1437 | paginate reporte inventory, jobs create report pdf excel<br>
+2022-03-02 : feature | #1437 | paginate reporte job<br>
+2022-03-02 : feature | #1437 | paginate reporte vista<br>
+2022-03-02 : feature | #1102 | mejora de letra y seleccion en modulo POS<br>
+2022-03-02 : feature | #1437 | jjobs pruebas<br>
+2022-03-02 : feature | #1437 | jobs chunks eloquent<br>
+2022-03-02 : feature | #1437 | jobs chunks eloquent<br>
+2022-03-01 : feature | #1437 | jobs cursor eloquent<br>
+2022-03-01 : feature | #1437 | jobs<br>
+2022-03-01 : feature | #1437 | jobs debug pruebas<br>
+2022-03-01 : feature | #1437 | jobs debug pruebas<br>
+2022-03-01 : feature | #1477 | cambios visuales en nueva venta rapida<br>
+2022-02-28 : feature | #1471 | Se agrega nueo formato pdf default3_new_unit_value - ajustes<br>
+2022-02-28 : feature | #1437 | jobs queue prueba memory<br>
+2022-02-28 : feature | #1474 | rediseño de notificaciones en header<br>
+2022-02-27 : feature  | #1370 | movimientos inventario, filtros y campos adcionales<br>
+2022-02-26 : feature  | #1437 | jobs asincronos para procesos de reportes<br>
+2022-02-24 : feature | #1392 | Se agrega isc a compras - reporte general de productos/compras<br>
+2022-02-23 : feature | #1102 | mejora de letra y seleccion en modulo POS<br>
+2022-02-22 : feature | #1419 | Se agrega flujo de anulacion de facturas pse gior<br>
+2022-02-21 : feature | #1445 | Se agregan datos al reporte general de products compras/ventas<br>
+2022-02-20 : feature  | #129 | avance en pedf logo por sucursal<br>
+2022-02-19 : feature | #1282 | eliminacion de nombre comercial en ticket_b<br>
+2022-02-17 : feature | #1422 | muestra de cargos en resumen - modal ampliado y tabla con arreglos en responsive - seleccion de campos para mostrar<br>
+2022-02-16 : feature  | #129 | templates pdf render logo sede<br>
+2022-02-12 : feature  | #1412 | reporte documentos pdf simple<br>
+2022-02-11 : feature | #1329 | mostrar precio ultima venta<br>
+2022-02-11 : feature | #1446 | informacion de retencion en plantilla font_swz<br>
+2022-02-11 : feature | #1434 | filtros fecha expense table<br>
+2022-02-10 : feature | restaurante | se trabajo en vista carrito e item detalle, funcionalidad compra<br>
+2022-02-10 : feature  | #1422 | avance - mostrando cargos en listado de comprobantes y reporte de ventas<br>
+2022-02-10 : feature | restaurant | promociones<br>
+2022-02-09 : feature | #1306 | se agrega promociones pack en restaurante<br>
+2022-02-09 : feature | #1282 | aumento de tamaño de fuente en ticket_b<br>
+2022-02-09 : feature | #1421 | nuevo icono wsapp para el icommerce, se agrega si es configurado el numero previamente<br>
+2022-02-08 : feature | se agrega vista pedidos restaurante<br>
+2022-02-08 : feature | #1226 | api cotizaciones permite listar y registrar<br>
+2022-02-07 : feature | #1358 | pedidos, lista precios color seleccionable<br>
+2022-02-07 : feature | issue mozo #1 | se agrega avance views y data viewcomposer restaurant<br>
+2022-02-05 : feature | #1301 | se agrega manejo de lotes en pedido venta<br>
+2022-02-02 : feature | #1368 | switch de retencion al generar un documento a partir de una guia de remision<br>
+2022-01-30 : feature | api restaurant partners<br>
+2022-01-29 : feature | #1342 | default3_new implementa retencion,detraccion,condicion de pago,guia de remision,texto 18%,altura de items,descripcion de unidades en vez de codigo<br>
+2022-01-28 : feature: collecion items restaurant<br>
+2022-01-28 : feature | restaurante | unificada vista de index con filtro de categoria - estilo a categoria activa<br>
+2022-01-27 : feature | restaurante - categorias listada y filtrada en nueva vista<br>
+2022-01-27 : feature : se agrega api restaurant<br>
+2022-01-25 : feature | añadiendo vista para habilitar productos a restaurante, vista publica para ver productos de restaurantes<br>
+2022-01-25 : feature | avance vistas restaurant<br>
+2022-01-20 : feature | #1332 | plantilla custom_gasolucion - factura,boleta,nota,guia y cotizacion con marca de agua y pie de pagina<br>
+2022-01-18 : feature | #1309 | permitir mostrar terminos y condiciones desde pos mediante configuracion avanzada<br>
+2022-01-13 : feature | #1304 | Se agrega configuracion para redondear monto de detraccion a entero<br>
+2022-01-12 : feature | - | pruebas pse<br>
+2022-01-11 : feature | - | Se agrega funcionalidad para enviar xml a servicio externo y agregar firma digital - envio de cdr (PSE) - Configuracion en empresa<br>
+2022-01-10 : feature | #1315 | Se agrega atributo placa al listado de documentos (global/items)<br>
+2021-12-30 : feature | cambios visuales en configuracion avanzada<br>
+2021-12-23 : feature | modulo apiperudev | cambios y nueva validacion en modulo<br>
+2021-12-23 : feature | #417 | cambio de posicion en menu para pos y venta rapida<br>
+2021-12-20 : feature | permitir migraciones en menu de auto-update<br>
+2021-10-30 : feature | #417 | vista funcional de pagos y acoplada a lado derecho del pos - falta llevar montos a cero, mostrar validaciones y mejoras visuales minimas<br>
+2021-08-26 : feature | #417 | optimizacion de vista rapida de pos (falta funcionalidad)<br>
+2021-08-25 : feature | #417 | avances visuales en unificacion de vistas de pago con lista en pos<br>
+2021-06-24 : feature | #417 | en proceso... nueva vista para venta rápida, arreglos en sidebar (no compilado)<br>
+2021-06-07 : feature | #417 | submenu venta rapida<br>
+
+
 ## 4.1.8
 
 ### docs

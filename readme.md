@@ -93,10 +93,12 @@ Habilitar puertos en Google Cloud: [Manual](https://drive.google.com/file/d/1fGu
 ### Funcionalidades
 Impresión automática: [Guía](https://docs.google.com/document/d/1PVe62AiuuuR-kC8KCBFuvOWj0Ag_YdRA/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 ICBPER en POS: [Guía](https://drive.google.com/file/d/1P_2tIUPIwNCOXeo2R0A_ego-zEBP6O-H/view?usp=sharing "Clic")<br>
+Módulo Farmacia: [Guía](https://docs.google.com/document/d/1Cy4dnpxRNdVFWL2R3jlZ2qQW-p_wf2p8/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
+Plantilla personalizada: [Guía](https://docs.google.com/document/d/1CykI1Njg6FpLd6Jyx-ojdleNjkwtP_2W/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 
-### Laragon
+### Instalación Local
 Acceso red local - laragon: [Guía](https://drive.google.com/file/d/1gRU4DuksFjLjVZYpuPkRaLv4iZ49SDgg/view?usp=sharing "Clic")<br>
-YouTube Tutorial Instalación Local: [YouTube](https://youtu.be/NFfRO9uBhbE "Clic")<br>
+YouTube Tutorial Instalación Local: [YouTube](https://youtu.be/kWdb86reI00 "Clic")<br>
 
 ### Errores comunes
 Procedimiento para solucionar error 1033 SUNAT: [Guía](https://drive.google.com/file/d/1_h1CHvB9J2EKY-kFaXV-LVPGm9Oy7FF-/view?usp=sharing "Clic")<br>
@@ -123,7 +125,7 @@ Cuenta Pro gratis contactar al WhatsApp: 936051451<b>
 
 ### Panel de cliente
 
-URL: [https://demo.e.facturaperu.com.pe](https://demo.e.facturaperu.com.pe "Clic")
+URL: [https://demo.facturaperu.com.pe](https://demo.facturaperu.com.pe "Clic")
 <br>
 Usuario: demo@facturaperu.com.pe<br>
 Contraseña: 123456
