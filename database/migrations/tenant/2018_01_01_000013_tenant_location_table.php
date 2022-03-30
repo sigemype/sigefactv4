@@ -2393,9 +2393,6 @@ class TenantLocationTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('districts');
-        Schema::dropIfExists('provinces');
-        Schema::dropIfExists('departments');
-        Schema::dropIfExists('countries');
+         
     }
 }
