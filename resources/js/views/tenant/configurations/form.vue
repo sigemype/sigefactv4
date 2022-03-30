@@ -422,6 +422,53 @@
                                             v-text="errors.show_totals_on_cpe_list[0]"></small>
                                 </div>
                             </div>
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Mostrar precio de última venta
+                                    <el-tooltip class="item"
+                                                content="Muestra el último precio de una venta en formulario producto"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                 <div :class="{'has-danger': errors.show_last_price_sale}"
+                                        class="form-group">
+                                    <el-switch v-model="form.show_last_price_sale"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.show_last_price_sale"
+                                            class="form-control-feedback"
+                                            v-text="errors.show_last_price_sale[0]"></small>
+                                </div>
+                            </div>
+
+                            <template>
+                                <div v-if="typeUser != 'integrator'" class="col-md-4 mt-4">
+                                    <label class="control-label">
+                                        Días de plazo de envío
+                                        <el-tooltip class="item"
+                                                    content="Validar fecha de emisión en Ventas/Comprobante electrónico"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.shipping_time_days}"
+                                            class="form-group">
+                                        <el-input-number v-model="form.shipping_time_days"
+                                                            :min="1"
+                                                            :precision="0"
+                                                            :step="1"
+                                                            @change="submit"></el-input-number>
+                                        <small v-if="errors.shipping_time_days"
+                                                class="form-control-feedback"
+                                                v-text="errors.shipping_time_days[0]"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2"></div>
+                            </template>
 
                             <!--
                             <div class="col-md-6 mt-4">
@@ -446,13 +493,33 @@
                                 </div>
                             </div>
                             -->
-
+                            <div  class="col-md-4 mt-4">
+                                <label class="control-label">
+                                    Cantidad de elementos en el validador
+                                    <el-tooltip class="item"
+                                                content="Aplica en el nuevo validador ./reports/validate-documents"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.new_validator_pagination}"
+                                     class="form-group">
+                                    <el-input-number v-model="form.new_validator_pagination"
+                                                     :min="1"
+                                                     :precision="0"
+                                                     :step="1"
+                                                     @change="submit"></el-input-number>
+                                    <small v-if="errors.new_validator_pagination"
+                                           class="form-control-feedback"
+                                           v-text="errors.new_validator_pagination[0]"></small>
+                                </div>
+                            </div>
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="third">
                         <span slot="label">Contable</span>
                         <div class="row">
-                            <div class="col-md-2"></div>
                             <div v-if="typeUser != 'integrator'"
                                     class="col-md-4 mt-4">
                                 <label class="control-label">Impuesto bolsa plástica</label>
@@ -469,6 +536,9 @@
                                             v-text="errors.amount_plastic_bag_taxes[0]"></small>
                                 </div>
                             </div>
+
+                            <div class="col-md-2"></div>
+
                             <!-- <div class="col-md-4" v-if="typeUser != 'integrator'"> <br>
                                 <label class="control-label">Cantidad de columnas en productos</label>
                                 <div class="form-group" :class="{'has-danger': errors.amount_plastic_bag_taxes}">
@@ -639,11 +709,135 @@
                                 </div>
                             </div>
 
+
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Redondear monto de detracción a valor entero
+                                    <el-tooltip
+                                        class="item"
+                                        content="Disponible Nuevo CPE (Facturas/Boletas)"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.detraction_amount_rounded_int}"
+                                        class="form-group">
+                                    <el-switch v-model="form.detraction_amount_rounded_int"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.detraction_amount_rounded_int"
+                                            class="form-control-feedback"
+                                            v-text="errors.detraction_amount_rounded_int[0]"></small>
+                                </div>
+                            </div>
+
+                            
+                            <div class="col-md-6 mt-4">
+                                <div :class="{'has-danger': errors.global_discount_type_id}"
+                                        class="form-group">
+                                    <label class="control-label">Tipo de descuento global
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <i class="fa fa-info-circle"></i>
+ 
+                                            <div slot="content">
+                                                <strong>Tipo de descuento predeterminado en POS - Ventas/Comprobante electrónico</strong><br/><br/>
+                                                Sugerencias:<br/>
+                                                Si la venta tiene op. gravadas utilice el descuento que afecta a la base imponible del IGV/IVAP.<br/>
+                                                Si la venta no tiene op. gravadas utilice el descuento que no afecta a la base imponible del IGV/IVAP.<br/>
+                                            </div>
+                                        </el-tooltip>
+                                    </label>
+                                    <el-select v-model="form.global_discount_type_id"
+                                                filterable
+                                                @change="submit">
+                                        <el-option v-for="option in global_discount_types"
+                                                    :key="option.id"
+                                                    :label="option.description"
+                                                    :value="option.id"></el-option>
+                                    </el-select>
+                                    <small v-if="errors.global_discount_type_id"
+                                            class="form-control-feedback"
+                                            v-text="errors.global_discount_type_id[0]"></small>
+                                </div>
+                            </div>
+
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="fourth">
                         <span slot="label">PDF</span>
                         <div class="row">
+                            <div class="col-md-4 mt-4">
+                                <div class="form-group">
+                                    <label class="control-label">Mostrar ticket 80mm
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">Disponible para Ventas (Facturas/Boletas/Notas de Crédito-Débito)
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_ticket_80}"
+                                            class="form-group">
+                                        <el-switch v-model="form.show_ticket_80"
+                                                    active-text="Si"
+                                                    inactive-text="No"
+                                                    @change="submit"></el-switch>
+                                        <small v-if="errors.show_ticket_80"
+                                                class="form-control-feedback"
+                                                v-text="errors.show_ticket_80[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-4">
+                                <div class="form-group">
+                                    <label class="control-label">Mostrar ticket 58mm
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">Disponible para Ventas (Facturas/Boletas/Notas de Crédito-Débito)
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_ticket_58}"
+                                            class="form-group">
+                                        <el-switch v-model="form.show_ticket_58"
+                                                    active-text="Si"
+                                                    inactive-text="No"
+                                                    @change="submit"></el-switch>
+                                        <small v-if="errors.show_ticket_58"
+                                                class="form-control-feedback"
+                                                v-text="errors.show_ticket_58[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-4">
+                                <div class="form-group">
+                                    <label class="control-label">Mostrar ticket 50mm
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">Disponible para Ventas (Facturas/Boletas/Notas de Crédito-Débito)
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_ticket_50}"
+                                            class="form-group">
+                                        <el-switch v-model="form.show_ticket_50"
+                                                    active-text="Si"
+                                                    inactive-text="No"
+                                                    @change="submit"></el-switch>
+                                        <small v-if="errors.show_ticket_50"
+                                                class="form-control-feedback"
+                                                v-text="errors.show_ticket_50[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">Editar nombre de productos</label>
                                 <div :class="{'has-danger': errors.edit_name_product}"
@@ -728,30 +922,6 @@
                                     </el-input>
                                 </div>
                             </div>
-                            <div class="col-md-6 mt-4">
-                                <div class="form-group">
-                                    <label class="control-label">Mostrar ticket 58mm
-                                        <el-tooltip class="item"
-                                                    effect="dark"
-                                                    placement="top-start">
-                                            <div slot="content">Disponible para Ventas (Facturas/Boletas/Notas
-                                                                de Crédito-Débito)
-                                            </div>
-                                            <i class="fa fa-info-circle"></i>
-                                        </el-tooltip>
-                                    </label>
-                                    <div :class="{'has-danger': errors.ticket_58}"
-                                            class="form-group">
-                                        <el-switch v-model="form.ticket_58"
-                                                    active-text="Si"
-                                                    inactive-text="No"
-                                                    @change="submit"></el-switch>
-                                        <small v-if="errors.ticket_58"
-                                                class="form-control-feedback"
-                                                v-text="errors.ticket_58[0]"></small>
-                                    </div>
-                                </div>
-                            </div>
                             <!-- update_document_on_dispaches -->
                             <div class="col-md-6 mt-4">
                                 <div class="form-group">
@@ -801,6 +971,57 @@
                                         <small v-if="errors.item_name_pdf_description"
                                                 class="form-control-feedback"
                                                 v-text="errors.item_name_pdf_description[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-4">
+                                <div class="form-group">
+                                    <label class="control-label">
+                                        Mostrar Logo por sucursal
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                En los documentos PDF(CPE, Notas de venta, Cotizaciones), muestra en la cabecera el logo de la sucusal.
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_logo_by_establishment}"
+                                            class="form-group">
+                                        <el-switch v-model="form.show_logo_by_establishment"
+                                                    active-text="Si"
+                                                    inactive-text="No"
+                                                    @change="submit"></el-switch>
+                                        <small v-if="errors.show_logo_by_establishment"
+                                                class="form-control-feedback"
+                                                v-text="errors.show_logo_by_establishment[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-4">
+                                <div class="form-group">
+                                    <label class="control-label">
+                                        Permite imprimir linea en el campo de observación
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                En los documentos que tengan observación, permite ajustar salto de linea.<br>
+                                                No aplica a tickets
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.print_new_line_to_observation}"
+                                            class="form-group">
+                                        <el-switch v-model="form.print_new_line_to_observation"
+                                                    active-text="Si"
+                                                    inactive-text="No"
+                                                    @change="submit"></el-switch>
+                                        <small v-if="errors.print_new_line_to_observation"
+                                                class="form-control-feedback"
+                                                v-text="errors.print_new_line_to_observation[0]"></small>
                                     </div>
                                 </div>
                             </div>
@@ -1000,7 +1221,8 @@
                                             class="form-control-feedback"
                                             v-text="errors.decimal_quantity[0]"></small>
                                 </div>
-                            </div><!-- impresion automatica en pos -->
+                            </div>
+                            <!-- impresion automatica en pos -->
                             <div class="col-md-6 mt-4">
                                 <div class="form-group">
                                     <label class="control-label">
@@ -1024,6 +1246,58 @@
                                                 class="form-control-feedback"
                                                 v-text="errors.auto_print[0]"></small>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Mostrar términos y condiciones
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Añadir texto en el campo de términos y condiciones  (ventas) de la pestaña "PDF"
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_terms_condition_pos}"
+                                        class="form-group">
+                                        <el-switch v-model="form.show_terms_condition_pos"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.show_terms_condition_pos"
+                                            class="form-control-feedback"
+                                            v-text="errors.show_terms_condition_pos[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </el-tab-pane>
+                    <el-tab-pane class="mb-3"  name="nine">
+                        <span slot="label">Pedidos</span>
+                        <div class="row">
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Habilitar importación de MiTienda.Pe
+                                    <el-tooltip
+                                        class="item"
+                                        content="Requiere modificaciones en configuracion -> avanzado -> pedidos"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.mi_tienda_pe}"
+                                     class="form-group">
+                                    <el-switch v-model="form.mi_tienda_pe"
+                                               active-text="Si"
+                                               inactive-text="No"
+                                               @change="submit"></el-switch>
+                                    <small v-if="errors.mi_tienda_pe"
+                                           class="form-control-feedback"
+                                           v-text="errors.mi_tienda_pe[0]"></small>
                                 </div>
                             </div>
                         </div>
@@ -1089,6 +1363,7 @@ export default {
                 dispatches_address_text:false,
             },
             affectation_igv_types: [],
+            global_discount_types: [],
             placeholder: '',
             activeName: 'first'
         }
@@ -1148,6 +1423,7 @@ export default {
 
             await this.$http.get(`/${this.resource}/tables`).then(response => {
                 this.affectation_igv_types = response.data.affectation_igv_types
+                this.global_discount_types = response.data.global_discount_types
             })
 
         },
@@ -1164,6 +1440,7 @@ export default {
                 amount_plastic_bag_taxes: 0.1,
                 colums_grid_item: 4,
                 affectation_igv_type_id: '10',
+                global_discount_type_id: '03',
                 terms_condition: null,
                 header_image: null,
                 legend_footer: false,
@@ -1178,7 +1455,9 @@ export default {
                 seller_can_view_balance: true,
                 finances: {},
                 visual: {},
-                ticket_58: false,
+                show_ticket_80: true,
+                show_ticket_58: false,
+                show_ticket_50: false,
                 update_document_on_dispaches: false,
                 auto_send_dispatchs_to_sunat: true,
                 is_pharmacy: false,
@@ -1193,6 +1472,9 @@ export default {
                 set_address_by_establishment: false,
                 permission_to_edit_cpe: false,
                 name_product_pdf_to_xml:false,
+                detraction_amount_rounded_int:false,
+                show_logo_by_establishment: false,
+                shipping_time_days: 0
             };
         },
         UpdateFormPurchase(e) {

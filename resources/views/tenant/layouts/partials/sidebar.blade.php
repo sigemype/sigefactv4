@@ -317,15 +317,13 @@
                                 </a>
                                 <ul class="nav nav-children">
                                     @if(in_array('pos', $vc_module_levels))
-                                        <li class="{{ ($firstLevel === 'pos'  )?'nav-active':'' }}">
+                                        <li class="{{ ($firstLevel === 'pos' && !$secondLevel )?'nav-active':'' }}">
                                             <a class="nav-link"
                                                href="{{route('tenant.pos.index')}}">Punto de venta</a>
                                         </li>
-                                    @endif
-                                    @if(in_array('pos', $vc_module_levels))
-                                        <li class="{{ ($firstLevel === 'pos' && $secondLevel === 'fast')?'nav-active':'' }}">
-                                            <a class="nav-link"
-                                               href="{{route('tenant.pos.fast')}}">Venta rápida</a>
+                                        <li class="{{ ($firstLevel === 'pos' && $secondLevel === 'garage')?'nav-active':'' }}">
+                                                <a class="nav-link"
+                                                href="{{route('tenant.pos.garage')}}">Venta rápida <span style="font-size:.65rem;">(Grifos y Markets)</span></a>
                                         </li>
                                     @endif
                                     @if(in_array('cash', $vc_module_levels))
@@ -380,6 +378,12 @@
                                            href="{{route('tenant.items_ecommerce.index')}}">Productos Tienda Virtual</a>
                                     </li>
                                 @endif
+
+                                <li class="{{ ( $secondLevel === 'item-sets')?'nav-active':'' }}">
+                                        <a class="nav-link"
+                                           href="{{route('tenant.ecommerce.item_sets.index')}}">Conjuntos/Packs/Promociones</a>
+                                </li>
+
                                 @if(in_array('ecommerce_tags', $vc_module_levels))
                                     <li class="{{ ($firstLevel === 'tags')?'nav-active':'' }}">
                                         <a class="nav-link"
@@ -691,7 +695,7 @@
                                     @if(in_array('inventory_devolutions', $vc_module_levels))
                                         <li class="{{ ($firstLevel === 'devolutions')?'nav-active':'' }}">
                                             <a class="nav-link"
-                                               href="{{route('devolutions.index')}}">Devoluciones</a>
+                                               href="{{route('devolutions.index')}}">Devolucion a proveedor</a>
                                         </li>
                                     @endif
                                     @if(in_array('inventory_report_kardex', $vc_module_levels))
@@ -715,7 +719,7 @@
                                                href="{{route('reports.valued_kardex.index')}}">Kardex valorizado</a>
                                         </li>
                                     @endif
-                                    @if(in_array('inventory_item_extra_data', $vc_module_levels) && $configuration->isShowExtraInfoToItem())
+                                        @if(in_array('production_app', $vc_modules) && $configuration->isShowExtraInfoToItem())
                                         <li class="{{($firstLevel === 'extra_info_items') ? 'nav-active' : ''}}">
                                             <a class="nav-link"
                                                href="{{route('extra_info_items.index')}}">Datos extra de items</a>
@@ -1138,7 +1142,7 @@
 
                                     <li class="{{ (($firstLevel === 'documentary-procedure') && ($secondLevel === 'processes')) ? 'nav-active' : '' }}">
                                         <a class="nav-link"
-                                           href="{{ route('documentary.processes') }}">Tipos de tramites</a>
+                                           href="{{ route('documentary.processes') }}">Tipos de Trámites</a>
                                     </li>
                                 @endif
                                 {{--
@@ -1157,12 +1161,16 @@
                                     {{--
                                     <li class="{{ (($firstLevel === 'documentary-procedure') && ($secondLevel === 'files')) ? 'nav-active' : '' }}">
                                         <a class="nav-link"
-                                           href="{{ route('documentary.files') }}">Listado de tramites</a>
+                                           href="{{ route('documentary.files') }}">Listado de Trámites</a>
                                     </li>
                                     --}}
                                     <li class="{{ (($firstLevel === 'documentary-procedure') &&( ($secondLevel === 'files_simplify')||($secondLevel === 'files'))) ? 'nav-active' : '' }}">
                                         <a class="nav-link"
-                                           href="{{ route('documentary.files_simplify') }}">Listado de tramites</a>
+                                           href="{{ route('documentary.files_simplify') }}">Listado de Trámites</a>
+                                    </li>
+                                    <li class="{{ (($firstLevel === 'documentary-procedure') &&( ($secondLevel === 'stadistic'))) ? 'nav-active' : '' }}">
+                                        <a class="nav-link"
+                                           href="{{ route('documentary.stadistic') }}">Estadisticas de Trámites</a>
                                     </li>
                                 @endif
                             </ul>
@@ -1266,10 +1274,18 @@
                         </li>
                     @endif
 
+
+
                     {{-- Produccion --}}
                     @if(in_array('production_app', $vc_modules) )
 
-                        <li class=" nav-parent {{ (($firstLevel === 'production') || ($firstLevel === 'mill-production') ) ? 'nav-active nav-expanded' : '' }}">
+                        <li class=" nav-parent {{ (
+                                                    ($firstLevel === 'production') ||
+                                                    ($firstLevel === 'machine-production') ||
+                                                    ($firstLevel === 'packaging') ||
+                                                    ($firstLevel === 'machine-type-production') ||
+                                                    ($firstLevel === 'mill-production')
+                                                ) ? 'nav-active nav-expanded' : '' }}">
                             <a class="nav-link"
                                 href="#">
                                 <i class="fa fas fa-calendar-check"
@@ -1296,16 +1312,108 @@
                                         Tipos de maquinaria
                                     </a>
                                 </li>
+
+
                                 <li class="{{ (($firstLevel === 'machine-production')) ? 'nav-active' : '' }}">
                                     <a class="nav-link"
                                         href="{{ route('tenant.machine_production.index') }}">
                                         Maquinaria
                                     </a>
                                 </li>
+                                <li class="{{ (($firstLevel === 'packaging')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                        href="{{ route('tenant.packaging.index') }}">
+                                        Zona de embalaje
+                                    </a>
+                                </li>
 
                             </ul>
                         </li>
                     @endif
+
+                    {{-- Restaurante --}}
+                    @if(in_array('restaurant_app', $vc_modules))
+                        <li class=" nav-parent {{ ($firstLevel === 'restaurant') ? 'nav-active nav-expanded' : '' }}">
+                            <a class="nav-link"
+                               href="#">
+                                <i class="fas fa-utensils"
+                                   aria-hidden="true"></i>
+                                <span>Restaurante</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li class="nav-parent
+                                {{ ($secondLevel != null && $secondLevel == 'cash' && $thridLevel == 'pos')?'nav-active nav-expanded':'' }}">
+                                    <a class="nav-link"
+                                        href="#">
+                                        POS
+                                    </a>
+                                    <ul class="nav nav-children">
+                                        <li class="{{ ($secondLevel != null && $secondLevel == 'cash' && $thridLevel == 'pos')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                                href="{{route('tenant.restaurant.cash.filter-pos')}}">
+                                                Caja Chica
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-parent {{ ($secondLevel != null && $secondLevel == 'cash' && $thridLevel == '')?'nav-active nav-expanded':'' }}">
+                                    <a class="nav-link"
+                                        href="#">
+                                        Mesas
+                                    </a>
+                                    <ul class="nav nav-children">
+                                        <li class="{{ ($secondLevel != null && $secondLevel == 'cash' && $thridLevel == '')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                                href="{{route('tenant.restaurant.cash.index')}}">
+                                                Caja Chica
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-parent
+                                {{ ( $secondLevel != null && $secondLevel == 'promotions') || ( $secondLevel != null && $secondLevel == 'orders') ?'nav-active nav-expanded':'' }}">
+                                    <a class="nav-link"
+                                        href="#">
+                                        Pedidos
+                                    </a>
+                                    <ul class="nav nav-children">
+                                        <li class="">
+                                            <a class="nav-link"
+                                                href="{{ route('tenant.restaurant.menu') }}"
+                                                target="blank">
+                                                Ver Menu
+                                            </a>
+                                        </li>
+                                        <li class="{{ ( $secondLevel != null && $secondLevel == 'promotions')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                                href="{{route('tenant.restaurant.promotion.index')}}">
+                                                Promociones(Banners)
+                                            </a>
+                                        </li>
+                                        <li class="{{ ( $secondLevel != null && $secondLevel == 'orders')?'nav-active':'' }}">
+                                            <a class="nav-link"
+                                                href="{{route('tenant.restaurant.order.index')}}">
+                                                Pedidos
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="{{ ( $secondLevel != null && $secondLevel == 'list' && $firstLevel === 'restaurant' ) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                        href="{{ route('tenant.restaurant.list_items') }}">
+                                        Productos
+                                    </a>
+                                </li>
+                                <li class="{{ ( $secondLevel != null && $secondLevel == 'configuration' && $firstLevel === 'restaurant' ) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                        href="{{ route('tenant.restaurant.configuration') }}">
+                                        Configuración
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+
                     {{-- APP --}}
                     @if(in_array('apps', $vc_modules))
                         <li class="">

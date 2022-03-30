@@ -1,11 +1,11 @@
 <template>
-    <el-dialog :title="titleDialog" :visible="showDialog" @close="close" @open="create">
+    <el-dialog :title="titleDialog" width="70%" :visible="showDialog" @close="close" @open="create">
         <form autocomplete="off" @submit.prevent="submit">
             <div class="form-body">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group" :class="{'has-danger': errors.date_of_reference}">
-                            <label class="control-label">Fecha de emisión de comprobantes</label>
+                            <label class="control-label white-space">Fecha de emisión de comprobantes</label>
                             <el-date-picker v-model="form.date_of_reference" type="date" :clearable="false" value-format="yyyy-MM-dd" @change="changeDateOfReference"></el-date-picker>
                             <small class="form-control-feedback" v-if="errors.date_of_reference" v-text="errors.date_of_reference[0]"></small>
                         </div>
@@ -27,8 +27,30 @@
 
                     <div class="col-md-4 d-flex align-items-end justify-content-end pt-2">
                         <div class="form-group">
-                            <button type="button" class="btn waves-effect waves-light btn-info" @click.prevent="clickSearchDocuments" dusk="search-documents">Buscar comprobantes</button>
+                            <el-button  type="primary"
+                                        @click.prevent="clickSearchDocuments"
+                                        dusk="search-documents"
+                            >
+                                Buscar comprobantes
+                            </el-button>
                         </div>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end justify-content-end pt-2"
+                         v-if="form.documents.length > 0"
+                    >
+                        <el-dropdown :hide-on-click="false" slot="showhide">
+                            <el-button type="primary">
+                                Mostrar/Ocultar columnas<i class="el-icon-arrow-down el-icon--right"></i>
+                            </el-button>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item v-for="(column, index) in columns"
+                                                  :key="index">
+                                    <el-checkbox
+                                        v-model="column.visible">{{ column.title }}</el-checkbox>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
                     </div>
                 </div>
                 <div class="row" v-if="form.documents.length > 0">
@@ -40,10 +62,11 @@
                                     <th>#</th>
                                     <th>Número</th>
                                     <th class="text-center">Moneda</th>
-                                    <th class="text-right">T.Exportación</th>
-                                    <th class="text-right">T.Gratuita</th>
-                                    <th class="text-right">T.Inafecta</th>
-                                    <th class="text-right">T.Exonerado</th>
+                                    <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
+                                    <th class="text-right" v-if="columns.total_free.visible">T.Gratuita</th>
+                                    <th class="text-right" v-if="columns.total_unaffected.visible">T.Inafecta</th>
+                                    <th class="text-right" v-if="columns.total_exonerated.visible">T.Exonerado</th>
+                                    <th class="text-right" v-if="columns.total_charge.visible">T.Cargos</th>
                                     <th class="text-right">T.Gravado</th>
                                     <th class="text-right">T.Igv</th>
                                     <th class="text-right">Total</th>
@@ -58,13 +81,39 @@
                                         <small v-if="row.affected_document" v-text="row.affected_document"></small>
                                     </td>
                                     <td class="text-center">{{ row.currency_type_id }}</td>
-                                    <td class="text-right">{{ row.total_exportation }}</td>
-                                    <td class="text-right">{{ row.total_free }}</td>
-                                    <td class="text-right">{{ row.total_unaffected }}</td>
-                                    <td class="text-right">{{ row.total_exonerated }}</td>
+                                    <td
+                                        class="text-right"
+                                        v-if="columns.total_exportation.visible"
+                                    >
+                                        {{ row.total_exportation }}
+                                    </td>
+                                    <td
+                                        class="text-right"
+                                        v-if="columns.total_free.visible"
+                                    >
+                                        {{ row.total_free }}
+                                    </td>
+                                    <td
+                                        class="text-right"
+                                        v-if="columns.total_unaffected.visible"
+                                    >
+                                        {{ row.total_unaffected }}
+                                    </td>
+                                    <td
+                                        class="text-right"
+                                        v-if="columns.total_exonerated.visible"
+                                    >
+                                        {{ row.total_exonerated }}
+                                    </td>
+                                    <td
+                                        class="text-right"
+                                        v-if="columns.total_charge.visible"
+                                    >
+                                        {{ row.total_charge }}
+                                    </td>
                                     <td class="text-right">{{ row.total_taxed }}</td>
                                     <td class="text-right">{{ row.total_igv }}</td>
-                                    <td class="text-right">{{ row.total }}</td>
+                                    <td class="text-right white-space">{{ row.total }}</td>
                                     <td class="text-right">
                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemoveDocument(index)">x</button>
                                     </td>
@@ -96,6 +145,28 @@
                 form: {},
                 summary_status_types: [],
                 show_summary_status_type: false,
+                columns: {
+                    total_exportation: {
+                        title: 'T.Exportación',
+                        visible: false
+                    },
+                    total_free: {
+                        title: 'T.Gratuito',
+                        visible: false
+                    },
+                    total_unaffected: {
+                        title: 'T.Inafecto',
+                        visible: false
+                    },
+                    total_exonerated: {
+                        title: 'T.Exonerado',
+                        visible: false
+                    },
+                    total_charge: {
+                        title: 'T.Cargos',
+                        visible: false
+                    },
+                }
             }
         },
         created() {
@@ -138,7 +209,7 @@
                         if(response.data.success){
 
                             this.form.documents = response.data.data
-                        
+
                         }else{
 
                             this.$message.error(response.data.message)
@@ -189,3 +260,15 @@
         }
     }
 </script>
+
+<style>
+    .table thead th {
+        white-space: nowrap;
+    }
+    .white-space {
+        white-space: nowrap;
+    }
+    .el-button--primary:focus {
+        outline: 5px auto #66b1ff;
+    }
+</style>

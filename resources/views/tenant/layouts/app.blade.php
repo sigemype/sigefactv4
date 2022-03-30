@@ -193,6 +193,18 @@
             return transform
         }
 
+        $('#dropdown-notifications').click(function(e) {
+            $('#dropdown-notifications').toggleClass('showed');
+            $('#dn-toggle').toggleClass('show');
+            $('#dn-menu').toggleClass('show');
+            e.stopPropagation();
+        });
+        $(document).click(function(){
+            $('#dropdown-notifications').removeClass('showed');
+            $('#dn-toggle').removeClass('show');
+            $('#dn-menu').removeClass('show');
+        });
+
     </script>
     <!-- <script src="//code.tidio.co/1vliqewz9v7tfosw5wxiktpkgblrws5w.js"></script> -->
 </body>

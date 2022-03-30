@@ -4,11 +4,18 @@
             <div class="form-body">
                 <div class="row">
                     <div :class="{'has-danger': errors.catalog_id}" class="col-12 form-group">
-                        <label>Importa desde un catálogo</label>
+
+                        <p>
+                            La selección de productos para exportar, se realiza desde el catalogo de DIGEMID
+                        <br>
+                        <!--
                         <el-select v-model="form.catalog_id">
                             <el-option v-for="w in catalogs" :key="w.id" :label="w.description"
                                        :value="w.id"></el-option>
                         </el-select>
+                        -->
+                            Para mayor información, consulte el manual  <a :href="'/docs/4.X/modulo-farmacia#section-5'" class="label label-light-danger" target="_blank">aqui</a>
+                        </p>
                         <small v-if="errors.catalog_id" class="form-control-feedback"
                                v-text="errors.catalog_id[0]"></small>
                     </div>
@@ -94,11 +101,11 @@ export default {
         initForm() {
             this.errors = {}
             this.form = {
-                catalog_id: null
+                catalog_id: 1
             }
         },
         create() {
-            this.titleDialog = 'Importar Productos'
+            this.titleDialog = 'Selección de productos DIGEMID'
         },
         async submit() {
             if (!this.form.catalog_id) {

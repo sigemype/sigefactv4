@@ -107,6 +107,9 @@
                         <th class="text-right"
                             v-if="columns.guides.visible">Guia
                         </th>
+
+                        <th class="text-center" v-if="columns.plate_numbers.visible">Placa</th>
+
                         <th class="text-right"
                             v-if="columns.total_exportation.visible">T.Exportación
                         </th>
@@ -119,8 +122,9 @@
                         <th class="text-right"
                             v-if="columns.total_exonerated.visible">T.Exonerado
                         </th>
-
-
+                        <th class="text-right"
+                            v-if="columns.total_charge.visible">{{columns.total_charge.title}}
+                        </th>
                         <th class="text-right">T.Gravado</th>
                         <th class="text-right">T.Igv</th>
                         <th class="text-right" v-if="columns.total.visible" >Total</th>
@@ -129,7 +133,7 @@
                         <th class="text-center"></th>
                         <th class="text-right" v-if="typeUser != 'integrator'">
                         </th>
-                    <tr>
+                    </tr>
                     <tr slot-scope="{ index, row }"
                         :class="{'text-danger': (row.state_type_id === '11'),
                             'text-warning': (row.state_type_id === '13'),
@@ -245,6 +249,13 @@
                             {{ item.number }} <br>
                         </span>
                         </td>
+
+                        <td class="text-center" v-if="columns.plate_numbers.visible">
+                            <span v-for="(item, i) in row.plate_numbers" :key="i">
+                                {{ item.description }} <br>
+                            </span>
+                        </td>
+
                         <td class="text-right"
                             v-if="columns.total_exportation.visible">{{ row.total_exportation }}
                         </td>
@@ -258,6 +269,9 @@
                         </td>
                         <td class="text-right"
                             v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}
+                        </td>
+                        <td class="text-right"
+                            v-if="columns.total_charge.visible">{{ row.total_charge }}
                         </td>
                         <td class="text-right">{{ row.total_taxed }}</td>
                         <td class="text-right">{{ row.total_igv }}</td>
@@ -552,6 +566,10 @@ export default {
                     title: 'Guía de Remisión',
                     visible: false
                 },
+                plate_numbers: {
+                    title: 'Placa',
+                    visible: false
+                },
                 user_name: {
                     title: 'Usuario',
                     visible: false
@@ -611,6 +629,10 @@ export default {
                 balance: {
                     title: 'Saldo',
                     visible: true
+                },
+                total_charge: {
+                    title: 'T.Cargos',
+                    visible: false
                 },
 
             }

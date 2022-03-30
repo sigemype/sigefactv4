@@ -319,7 +319,7 @@
                              :typeUser="typeUser"
                              :recordItem="recordItem"
                              :configuration="config"
-
+                             :customer-id="form.customer_id"
                            @add="addRow"></quotation-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
@@ -821,13 +821,14 @@
                     if (response.data.success) {
                         this.resetForm();
                         this.quotationNewId = response.data.data.id;
-
+                        this.saveCashDocument(this.quotationNewId)
                         if(this.saleOpportunityId){
                             this.$message.success(`La cotización ${response.data.data.number_full} fue generada`)
                             this.close()
                         }else{
                             this.showDialogOptions = true;
                         }
+
                     }
                     else {
                         this.$message.error(response.data.message);
@@ -854,7 +855,21 @@
             },
             setDescriptionOfItem(item){
                 return showNamePdfOfDescription(item,this.config.show_pdf_name)
-            }
+            },
+            async saveCashDocument(id){
+                await this.$http.post(`/cash/cash_document`, {
+                        quotation_id: id,
+                    })
+                    .then(response => {
+                        if (response.data.success) {
+                        } else {
+                            this.$message.error(response.data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+            },
         }
     }
 </script>

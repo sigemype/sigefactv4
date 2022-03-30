@@ -108,7 +108,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-12" v-show="document.payment_condition_id === '02'">
+                <div class="col-lg-12 pt-2" v-show="document.payment_condition_id === '02'">
                     <table v-if="document.fee.length>0" width="100%">
                         <thead>
                         <tr>
@@ -398,6 +398,7 @@
                     total_taxes: 0,
                     total_value: 0,
                     subtotal: 0,
+                    total_igv_free: 0,
                     total: 0,
                     operation_type_id: null,
                     date_of_due: null,
@@ -428,15 +429,40 @@
             validatePaymentDestination(){
 
                 let error_by_item = 0
+                let message = ""
 
                 this.document.payments.forEach((item)=>{
-                    if(item.payment_destination_id == null) error_by_item++;
+                    if(item.payment_destination_id == null){
+                        error_by_item++;
+                        message = "El destino del pago es obligatorio";
+                    }
                 })
 
                 return  {
                     error_by_item : error_by_item,
+                    message: message
                 }
 
+            },
+            validatePaymentDate() {
+
+                let error_by_item = 0
+                let message = ""
+
+                this.document.fee.forEach((item)=>{
+                    console.error(item)
+                    var date_issue = moment(this.document.date_of_issue).format('YYYY-MM-DD')
+                    var date_payment = moment(item.date).format('YYYY-MM-DD')
+                    if(date_issue > date_payment){
+                        error_by_item++;
+                        message = "Verificar fechas de pago, no pueden ser anteriores a la fecha de emisión";
+                    }
+                })
+
+                return  {
+                    error_by_item : error_by_item,
+                    message: message
+                }
             },
             async submit() {
 
@@ -449,7 +475,13 @@
                 let validate_payment_destination = await this.validatePaymentDestination()
 
                 if(validate_payment_destination.error_by_item > 0) {
-                    return this.$message.error('El destino del pago es obligatorio');
+                    return this.$message.error(validate_payment_destination.message);
+                }
+
+                let validate_payment_date = await this.validatePaymentDate()
+
+                if(validate_payment_date.error_by_item > 0) {
+                    return this.$message.error(validate_payment_date.message);
                 }
 
                 this.loading_submit = true;
@@ -485,6 +517,14 @@
                         })
                     });
             },
+            validatePaymentDates(){
+
+                var valid = _.filter(this.document.payments, (item) => {
+                    return true
+                })
+
+                return valid
+            },
             assignDocument(){
                 let q = this.form.sale_note;
                 // console.log(q);
@@ -506,6 +546,7 @@
                 this.document.total_unaffected = q.total_unaffected
                 this.document.total_exonerated = q.total_exonerated
                 this.document.total_igv = q.total_igv
+                this.document.total_igv_free = q.total_igv_free
                 this.document.total_base_isc = q.total_base_isc
                 this.document.total_isc = q.total_isc
                 this.document.total_base_other_taxes = q.total_base_other_taxes
@@ -551,7 +592,7 @@
 
                             item.attributes = []
                             let attribute = _.find(item.attributes, {'attribute_type_id': '7000'})
-    
+
                             if(!attribute){
                                 item.attributes.push({
                                     attribute_type_id: '7000',

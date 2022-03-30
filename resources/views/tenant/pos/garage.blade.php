@@ -11,14 +11,13 @@
     </div>
   </div>-->
 
-    <tenant-pos-index
-        :configuration2="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
-        :configuration="{{ $configuration}}"
-     	:soap-company="{{ json_encode($soap_company) }}"
+    <tenant-pos-garage
+      :configuration="{{ $configuration}}"
+      :soap-company="{{ json_encode($soap_company) }}"
       :business-turns="{{ $business_turns }}"
       :type-user="{{json_encode(Auth::user()->type)}}"
       :is-print="{{json_encode($configuration->auto_print)}}">
-    </tenant-pos-index>
+    </tenant-pos-garage>
 @endsection
 
 @push('scripts')

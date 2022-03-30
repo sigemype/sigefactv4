@@ -118,6 +118,16 @@
                                 </div>
                             </div>
 
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="form-group col-6 col-md-2">
+                                        <label>Vendedor</label>
+                                        <el-select v-model="form.seller_id" clearable>
+                                            <el-option v-for="sel in sellers" :key="sel.id" :value="sel.id" :label="sel.name">{{ sel.name }}</el-option>
+                                        </el-select>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="col-lg-8 mt-2" >
 
@@ -372,6 +382,7 @@ export default {
                 configuration: {},
                 loading_search:false,
                 recordItem: null,
+                sellers: [],
                 total_discount_no_base: 0,
             }
         },
@@ -390,6 +401,7 @@ export default {
                     this.payment_method_types = response.data.payment_method_types
                     this.payment_destinations = response.data.payment_destinations
                     this.configuration = response.data.configuration
+                    this.sellers = response.data.sellers
 
                     this.changeEstablishment()
                     this.changeDateOfIssue()
@@ -546,6 +558,7 @@ export default {
                     this.form.shipping_address = dato.shipping_address
                     this.form.account_number = dato.account_number
                     this.form.terms_condition = dato.terms_condition
+                    this.form.seller_id = dato.seller_id
                     this.form.active_terms_condition = dato.terms_condition ? true:false
                     this.form.items = this.onPrepareItems(dato.items)
                     // this.form.items = dato.items
@@ -635,6 +648,7 @@ export default {
                     },
                     contact:null,
                     phone:null,
+                    seller_id: null
                 }
 
                 this.total_discount_no_base = 0

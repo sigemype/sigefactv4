@@ -114,7 +114,7 @@
                                  class="form-group">
                                 <label class="control-label">Motivo de
                                                              traslado<span class="text-danger"> *</span></label>
-                                <el-select v-model="form.transfer_reason_type_id">
+                                <el-select v-model="form.transfer_reason_type_id" @change="changeTransferReasonType">
                                     <el-option v-for="option in transferReasonTypes"
                                                :key="option.id"
                                                :label="option.description"
@@ -125,6 +125,43 @@
                                        v-text="errors.transfer_reason_type_id[0]"></small>
                             </div>
                         </div>
+
+                        <!-- numero de DAM -->
+                        <template v-if="form.transfer_reason_type_id === '09'">
+
+                            <div class="col-lg-3">
+                                <div :class="{'has-danger': errors['related.number']}"
+                                    class="form-group">
+                                    <label class="control-label">Número de documento (DAM)
+                                        <el-tooltip class="item"
+                                                    content="Formato del campo: XXXX-XX-XXX-XXXXXX, Ejemplo: 0001-01-002-001234"
+                                                    effect="dark"
+                                                    placement="top">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                        <span class="text-danger"> *</span>
+                                    </label>
+                                    <el-input v-model="form.related.number" placeholder="0001-01-002-001234"></el-input>
+                                    <small v-if="errors['related.number']" class="form-control-feedback" v-text="errors['related.number'][0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <div :class="{'has-danger': errors['related.document_type_id']}"
+                                    class="form-group">
+                                    <label class="control-label">Tipo documento relacionado<span class="text-danger"> *</span></label>
+                                    <el-select v-model="form.related.document_type_id" disabled>
+                                        <el-option v-for="option in related_document_types"
+                                                :key="option.id"
+                                                :label="option.description"
+                                                :value="option.id"></el-option>
+                                    </el-select> 
+                                    <small v-if="errors['related.document_type_id']" class="form-control-feedback" v-text="errors['related.document_type_id'][0]"></small>
+                                </div>
+                            </div>
+                        </template>
+                        <!-- numero de DAM -->
+
                         <!-- <div class="col-lg-2">
                             <div class="form-group" :class="{'has-danger': errors.port_code}">
                                 <label class="control-label">Codigo del Puerto</label>
@@ -143,7 +180,7 @@
                             </div>
                         </div> -->
 
-                        <div class="col-lg-6">
+                        <div :class="form.transfer_reason_type_id === '09' ? 'col-lg-12' : 'col-lg-6'">
                             <div :class="{'has-danger': errors.transfer_reason_description}"
                                  class="form-group">
                                 <label class="control-label">Descripción de motivo de traslado</label>
@@ -739,6 +776,7 @@ export default {
             identityDocumentTypes: [],
             showDialogAddItems: false,
             transferReasonTypes: [],
+            related_document_types: [],
             transportModeTypes: [],
             resource: 'dispatches',
             loading_submit: false,
@@ -840,6 +878,8 @@ export default {
             this.company = response.data.company;
             this.identityDocumentTypes = response.data.identityDocumentTypes;
             this.transferReasonTypes = response.data.transferReasonTypes;
+            this.related_document_types = response.data.related_document_types
+            
             this.transportModeTypes = response.data.transportModeTypes;
             this.establishments = response.data.establishments;
             this.departments = response.data.departments;
@@ -868,6 +908,22 @@ export default {
         })
     },
     methods: {
+        changeTransferReasonType(){
+
+            // exportacion
+            if(this.form.transfer_reason_type_id === '09')
+            {
+                this.form.related = {
+                    number: null,
+                    document_type_id: '01'
+                }
+
+            }else
+            {
+                this.form.related = {}
+            }
+
+        },
         getFormatQuantity(quantity){
             return _.round(quantity, 4)
         },
@@ -1165,11 +1221,13 @@ export default {
             }
         },
         initForm() {
+
             this.errors = {}
             let customer_id = parseInt(this.config.establishment.customer_id);
             let establishment_id = parseInt(this.config.establishment.id);
             if (isNaN(customer_id)) customer_id = null;
             if (isNaN(establishment_id)) establishment_id = null;
+
             this.form = {
                 establishment_id: establishment_id,
                 document_type_id: '09',
@@ -1214,9 +1272,10 @@ export default {
                 license_plate: null,
                 secondary_license_plates: {
                     semitrailer: null
-                }
-
+                },
+                related: {},
             }
+
             this.changeEstablishment();
 
 
@@ -1409,6 +1468,32 @@ export default {
         clickRemoveItem(index) {
             this.decrementValueAttr(this.form.items[index])
             this.form.items.splice(index, 1);
+        },
+        validateRelatedNumber(){
+
+            // if(this.form.transfer_reason_type_id === "09")
+            // {
+            //     if(_.isEmpty(this.form.related.number)){
+            //         return {
+            //             success: false,
+            //             message: 'El campo Número de documento (DAM) es obligatorio'
+            //         }
+            //     }
+
+            //     const pattern = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{3}-[0-9]{6}$', 'i');
+
+            //     if (!pattern.test(this.form.related.number)) {
+            //         return {
+            //             success: false,
+            //             message: 'El campo Número de documento (DAM) no cumple con el formato establecido - XXXX-XX-XXX-XXXXXX'
+            //         }
+            //     } 
+
+            // }
+
+            // return {
+            //     success: true
+            // }
         },
         async submit() {
 

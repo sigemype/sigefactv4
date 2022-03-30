@@ -184,7 +184,15 @@
                     <div class="col-md-4 col-sm-4">
                         <div :class="{'has-danger': errors.unit_price}"
                              class="form-group">
-                            <label class="control-label">Precio Unitario</label>
+                            <label class="control-label">
+                                Precio Unitario
+                                <el-tooltip v-if="itemLastPrice" class="item" :content="itemLastPrice"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+
+                            </label>
                             <el-input v-model="form.unit_price"
                                       @input="calculateQuantity">
                                 <template v-if="form.item.currency_type_symbol"
@@ -538,6 +546,7 @@ export default {
         'typeUser',
         'configuration',
         'displayDiscount',
+        'customerId'
     ],
     components: {
         itemForm,
@@ -588,7 +597,8 @@ export default {
                 classic: ClassicEditor
             },
             value1: 'hello',
-            readonly_total: 0
+            readonly_total: 0,
+            itemLastPrice: null
             //item_unit_type: {}
         }
     },
@@ -1071,6 +1081,8 @@ export default {
             if(this.form.item.name_product_pdf && this.config.item_name_pdf_description){
                 this.form.name_product_pdf = this.form.item.name_product_pdf;
             }
+
+            this.getLastPriceItem()
         },
         focusTotalItem(change) {
             if (!change && this.form.item.calculate_quantity) {
@@ -1283,6 +1295,25 @@ export default {
             this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
 
         },
+        async getLastPriceItem() {
+            this.itemLastPrice =null
+            if(this.configuration.show_last_price_sale) {
+                if(this.customerId && this.form.item_id) {
+                    const params = {
+                        'type_document': 'QUOTATION',
+                        'customer_id': this.customerId,
+                        'item_id': this.form.item_id
+                    }
+                    await this.$http.get(`/items/last-sale`, {params}).then((response) => {
+                        if(response.data.unit_price) {
+                            this.itemLastPrice = `Último precio de venta: ${response.data.unit_price}`
+                        }
+                        
+                    })
+                }
+            }
+           
+        }
     },
 }
 

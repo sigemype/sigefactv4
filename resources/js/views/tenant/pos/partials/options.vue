@@ -25,9 +25,9 @@
         <div class="form-body el-dialog__body_custom">
             <div class="row">
                 <div class="col-md-12 m-bottom">
-                    <el-tabs v-model="activeName"  >
-                        <el-tab-pane label="Imprimir Ticket" name="first">
-                            <embed id="nemo" :src="form.print_ticket" type="application/pdf" width="100%" height="450px"/>
+                    <el-tabs v-model="activeName">
+                        <el-tab-pane label="Imprimir Ticket" name="first" v-if="config !== null  && config.show_ticket_80">
+                            <embed v-if="config !== null  && config.show_ticket_80" id="nemo" :src="form.print_ticket" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
                         <el-tab-pane label="Imprimir A4" name="second">
                             <embed :src="form.print_a4" type="application/pdf" width="100%" height="450px"/>
@@ -36,6 +36,36 @@
                             <embed :src="form.print_a5" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
                     </el-tabs>
+                </div>
+                <div class="col-md-12 d-sm-block d-md-block d-lg-none">
+                    <div class="row">
+                        <div class="col text-center font-weight-bold mt-3">
+                            <button class="btn btn-lg btn-info waves-effect waves-light"
+                                        type="button"
+                                        @click="clickPrint(form.print_a4)">
+                                    <i class="fa fa-file-alt"></i>
+                            </button>
+                            <p>A4</p>
+                        </div>
+                        <div
+                            v-if="config !== null  && config.show_ticket_80"
+                            class="col text-center font-weight-bold mt-3">
+                            <button class="btn btn-lg btn-info waves-effect waves-light"
+                                    type="button"
+                                    @click="clickPrint(form.print_ticket)">
+                                <i class="fa fa-receipt"></i>
+                            </button>
+                            <p>Ticket</p>
+                        </div>
+                        <div class="col text-center font-weight-bold mt-3">
+                            <button class="btn btn-lg btn-info waves-effect waves-light"
+                                    type="button"
+                                    @click="clickPrint(form.print_a5)">
+                                <i class="fa fa-file-alt"></i>
+                            </button>
+                            <p>A5</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="row col-md-12">
                     <div class="col-md-6">
@@ -70,6 +100,7 @@
 </template>
 
 <script>
+    import {mapState, mapActions} from "vuex/dist/vuex.mjs";
     import Keypress from 'vue-keypress'
     export default {
         props: ['showDialog', 'recordId', 'statusDocument','resource'],
@@ -88,12 +119,24 @@
 
             }
         },
-        async created() {
+        created() {
             this.initForm()
+            this.loadConfiguration();
+            /*
+            this.$http.get(`/pos/status_configuration`).then(response => {
+                this.$store.commit('setConfiguration', response.data)
+            });
+            */
         },
         mounted(){
         },
+        computed: {
+            ...mapState([
+                'config',
+            ]),
+        },
         methods: {
+            ...mapActions(['loadConfiguration']),
             clickSendWhatsapp() {
 
                 if(!this.form.customer_telephone){
@@ -117,10 +160,10 @@
                 switch(this.activeName)
                 {
                     case 'first':
-                       format = 'ticket'
+                        format = 'ticket'
                         break;
                     case 'second':
-                       format = 'a4'
+                        format = 'a4'
                         break;
                     case 'third':
                         format= 'a5'
@@ -151,6 +194,7 @@
 
                 await this.initForm()
                 await this.$eventHub.$emit('cancelSale')
+                await this.$eventHub.$emit('cancelSaleGarage')
                 this.$emit('update:showDialog', false)
 
             },
@@ -169,6 +213,8 @@
                     message_text:null,
                     id: null
                 }
+
+                this.changeActiveName();
             },
             create() {
                 this.$http.get(`/${this.resource}/record/${this.recordId}`).then(response => {
@@ -211,6 +257,13 @@
                         this.loading = false
                     })
             },
+            clickPrint(url) {
+                window.open(`${url}`, '_blank');
+            },
+            changeActiveName() {
+                this.loadConfiguration();
+                this.activeName =( this.config!== null && this.config.show_ticket_80) ? 'first' : 'second';
+            }
             // clickConsultCdr(document_id) {
             //     this.$http.get(`/${this.resource}/consult_cdr/${document_id}`)
             //         .then(response => {

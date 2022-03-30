@@ -160,6 +160,7 @@
                 <div class="row col-md-12 mt-1 mb-3 " v-if="totals !== undefined && totals!== null && totals.length>0">
                     <div class="col-md-6 col-sm-12 row"
                      v-for="(row, index) in totals" :row="row"
+                     :key="index"
                      >
                     <div class="col-md-6">
                         {{row.name}}

@@ -880,6 +880,11 @@ export default {
             this.setExtraElements(this.form.item);
             this.setGlobalIgvToItem()
 
+            //asignar variables isc
+            this.form.has_isc = this.form.item.purchase_has_isc
+            this.form.percentage_isc = this.form.item.purchase_percentage_isc
+            this.form.system_isc_type_id = this.form.item.purchase_system_isc_type_id
+            
         },
         setGlobalIgvToItem() {
             if (this.config.enabled_global_igv_to_purchase === true) {

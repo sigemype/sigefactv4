@@ -150,6 +150,10 @@ export default {
         if (periods === undefined) periods = [];
         state.periods = periods
     },
+    setFilter(state, filter) {
+        if (filter === undefined) filter = [];
+        state.filter = filter
+    },
     setFromPos(state, form_pos) {
         if (form_pos === undefined) form_pos = {};
         writeLocal('form_pos', JSON.stringify(form_pos))
@@ -212,6 +216,14 @@ export default {
     },
     setItem(state, item) {
         state.item = (item === undefined)?{}:item;
+    },
+    setMiTiendaPe(state, mi_tienda_pe) {
+        state.mi_tienda_pe = (mi_tienda_pe === undefined)?{ establishment_id:null,
+            series_order_note_id:null,
+            series_document_id:null,
+            user_id:null,
+            payment_destination_id:null,
+            currency_type_id:null,}:mi_tienda_pe;
     },
     setTableData(state, table_data) {
         state.table_data = (table_data === undefined) ? [] : table_data;

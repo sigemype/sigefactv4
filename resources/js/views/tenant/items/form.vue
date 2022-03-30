@@ -866,6 +866,57 @@
                                        v-text="errors.percentage_of_profit[0]"></small>
                             </div>
                         </div>
+
+                        <!-- isc compras -->
+                        <div class="col-md-4">
+                            <div :class="{'has-danger': errors.purchase_has_isc}"
+                                 class="form-group">
+                                <el-checkbox v-model="form.purchase_has_isc"
+                                             @change="purchaseChangeIsc">Incluye ISC
+                                </el-checkbox>
+                                <br>
+                                <small v-if="errors.purchase_has_isc"
+                                       class="form-control-feedback"
+                                       v-text="errors.purchase_has_isc[0]"></small>
+                            </div>
+                        </div>
+
+                        <template v-if="form.purchase_has_isc">
+                            <div class="col-md-4">
+                                <div :class="{'has-danger': errors.purchase_system_isc_type_id}"
+                                     class="form-group">
+                                    <label class="control-label">Tipo de sistema ISC</label>
+                                    <el-select
+                                        v-model="form.purchase_system_isc_type_id"
+                                        filterable>
+                                        <el-option
+                                            v-for="option in system_isc_types"
+                                            :key="option.id"
+                                            :label="option.description"
+                                            :value="option.id"
+                                        ></el-option>
+                                    </el-select>
+                                    <small
+                                        v-if="errors.purchase_system_isc_type_id"
+                                        class="form-control-feedback"
+                                        v-text="errors.purchase_system_isc_type_id[0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div :class="{'has-danger': errors.purchase_percentage_isc}"
+                                     class="form-group">
+                                    <label class="control-label">Porcentaje ISC</label>
+                                    <el-input v-model="form.purchase_percentage_isc"></el-input>
+                                    <small
+                                        v-if="errors.purchase_percentage_isc"
+                                        class="form-control-feedback"
+                                        v-text="errors.purchase_percentage_isc[0]"></small>
+                                </div>
+                            </div>
+                        </template>
+                        <!-- isc compras -->
+
                     </div>
                 </el-tab-pane>
 
@@ -1240,6 +1291,14 @@ export default {
                 this.loadConfiguration()
             })
         },
+        purchaseChangeIsc() {
+
+            if (!this.form.purchase_has_isc) {
+                this.form.purchase_system_isc_type_id = null
+                this.form.purchase_percentage_isc = 0
+            }
+
+        },
         changeIsc() {
 
             if (!this.form.has_isc) {
@@ -1337,7 +1396,8 @@ export default {
         },
         initForm() {
             this.loading_submit = false,
-                this.errors = {}
+            this.errors = {}
+
             this.form = {
                 id: null,
                 colors: [],
@@ -1385,7 +1445,12 @@ export default {
                 has_plastic_bag_taxes: false,
                 item_warehouse_prices: [],
                 item_supplies:[],
+
+                purchase_has_isc: false,
+                purchase_system_isc_type_id: null,
+                purchase_percentage_isc: 0,
             }
+
             this.show_has_igv = true
             this.purchase_show_has_igv = true
             this.enabled_percentage_of_profit = false
@@ -1553,6 +1618,11 @@ this.activeName =  'first'
         },
         async submit() {
 
+            const stock = parseInt(this.form.stock);
+            if(isNaN(stock)){
+                 return this.$message.error('Stock Inicial debe ser un número entero.');
+            }
+
             if (this.validateItemUnitTypes() > 0) return this.$message.error('El campo factor no puede ser menor a 0.0001');
 
             if (this.fromPharmacy === true) {
@@ -1565,7 +1635,7 @@ this.activeName =  'first'
             }
             if (this.form.has_perception && !this.form.percentage_perception) return this.$message.error('Ingrese un porcentaje');
 
-            if (this.form.lots_enabled) {
+            if (this.form.lots_enabled && stock > 0) {
 
                 if (!this.form.lot_code)
                     return this.$message.error('Código de lote es requerido');
@@ -1588,7 +1658,12 @@ this.activeName =  'first'
                     return this.$message.error('El porcentaje isc debe ser mayor a 0');
             }
 
-            //this.loading_submit = true
+            if (this.form.purchase_has_isc) {
+                if (this.form.purchase_percentage_isc <= 0)
+                    return this.$message.error('El porcentaje isc debe ser mayor a 0 (Compras)');
+            }
+
+            this.loading_submit = true
 
 
             await this.$http.post(`/${this.resource}`, this.form)

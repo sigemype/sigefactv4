@@ -33,7 +33,7 @@
                             <span class="badge bg-secondary text-white" :class="{'bg-secondary': (row.state_type_id === '01'), 'bg-info': (row.state_type_id === '03'), 'bg-success': (row.state_type_id === '05'), 'bg-secondary': (row.state_type_id === '07'), 'bg-dark': (row.state_type_id === '09')}">{{row.state_type_description}}</span>
                         </td>
                         <td class="text-center">{{ row.date_of_shipping }}</td>
-                        
+
                         <td class="text-center">
                             <template v-for="(row,index) in row.documents">
                                 <label class="d-block" :key="index">{{ row.description }}</label>
@@ -64,6 +64,7 @@
             :recordId="recordId"
             :showClose="true"
             :showGenerate="true"
+            :configuration="configuration"
         ></FormGenerateDocument>
         <ModalGenerateCPE :show.sync="showModalGenerateCPE"></ModalGenerateCPE>
     </div>

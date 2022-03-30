@@ -225,7 +225,24 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         total_igv = 0
     }
 
-    let total_taxes = total_igv + total_isc + total_other_taxes
+
+    //impuesto bolsa - icbper
+    
+    let total_plastic_bag_taxes = 0
+
+    if (row_old.has_plastic_bag_taxes) {
+
+        total_plastic_bag_taxes = _.round(row.quantity * row.item.amount_plastic_bag_taxes, 1)
+        row.total_plastic_bag_taxes = total_plastic_bag_taxes
+
+    }
+
+    // icbper
+
+
+    // let total_taxes = total_igv + total_isc + total_other_taxes
+    let total_taxes = total_igv + total_isc + total_other_taxes + total_plastic_bag_taxes
+
     let total = total_value + total_taxes
 
     row.total_charge = _.round(total_charge, 2)
@@ -253,7 +270,8 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         row.total_igv = _.round(total_igv, 2)
 
         //asignar nuevo total impuestos, si tiene descuentos se usa total_taxes para calcular el precio unitario
-        total_taxes = total_igv + row.total_isc 
+        total_taxes = total_igv + row.total_isc + total_plastic_bag_taxes
+        // total_taxes = total_igv + row.total_isc 
         row.total_taxes = _.round(total_taxes, 2)
 
         total = total_value + total_taxes
@@ -325,16 +343,17 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         row.price_type_id = '02'
         row.unit_value = 0
         // row.total_value = 0
-        row.total = 0
+        // row.total = 0
+        row.total = 0 + total_plastic_bag_taxes
 
         //valor sin redondeo
         row.total_without_rounding = 0
     }
 
     //impuesto bolsa
-    if (row_old.has_plastic_bag_taxes) {
-        row.total_plastic_bag_taxes = _.round(row.quantity * row.item.amount_plastic_bag_taxes, 1)
-    }
+    // if (row_old.has_plastic_bag_taxes) {
+    //     row.total_plastic_bag_taxes = total_plastic_bag_taxes
+    // }
 
     // console.log(row)
     return row

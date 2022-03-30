@@ -9,19 +9,20 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 container-tabs">
                     <el-tabs v-model="activeName">
-                        <el-tab-pane label="Imprimir Ticket" name="fourth">
-                            <embed :src="form.print_ticket" type="application/pdf" width="100%" height="400px"/>
-                        </el-tab-pane>
                         <el-tab-pane label="Imprimir A4" name="first">
-                            <embed :src="form.print_a4" type="application/pdf" width="100%" height="400px"/>
+                            <iframe :src="form.print_a4" type="application/pdf" width="100%" height="400px"/>
+                        </el-tab-pane>
+                        <el-tab-pane label="Imprimir Ticket" name="fourth" v-if="ShowTicket80">
+                            <iframe :src="form.print_ticket" type="application/pdf" width="100%" height="400px"/>
+                        </el-tab-pane>
+                        <el-tab-pane label="Imprimir Ticket 58MM" name="third" v-if="ShowTicket58">
+                            <iframe :src="form.print_ticket_58" type="application/pdf" width="100%" height="400px"/>
                         </el-tab-pane>
                         <el-tab-pane label="Imprimir A5" name="second">
-                            <embed :src="form.print_a5" type="application/pdf" width="100%" height="400px"/>
-                        </el-tab-pane>
-                        <el-tab-pane label="Imprimir Ticket 58MM" name="third" v-if="Ticket58">
-                            <embed :src="form.print_ticket_58" type="application/pdf" width="100%" height="400px"/>
+                            <iframe :src="form.print_a5" type="application/pdf" width="100%" height="400px"/>
                         </el-tab-pane>
                     </el-tabs>
+
                 </div>
                 <div class="col-12 container-btns text-center">
                     <br><br>
@@ -118,21 +119,54 @@ export default {
             loading_submit:false,
             showDialogOptions: false,
             documentNewId: null,
-            activeName: 'fourth',
+            activeName: 'first',
+            isSafari: false
         }
     },
     created() {
         this.initForm()
     },
+    mounted() {
+        if(navigator.userAgent.indexOf("Safari") != -1) {
+            this.isSafari = true
+        }
+    },
     computed: {
-      Ticket58: function(){
-          if(
-              this.configuration !== undefined &&
-              this.configuration.ticket_58 !== undefined &&
-              this.configuration.ticket_58){
-              return this.configuration.ticket_58;
-          }
-          return false;
+        ShowTicket58: function () {
+            if (this.configuration === undefined) return false;
+            if (this.configuration == null) return false;
+            if (this.configuration.show_ticket_58 === undefined) return false;
+            if (this.configuration.show_ticket_58 == null) return false;
+            if (
+                this.configuration.show_ticket_58 !== undefined &&
+                this.configuration.show_ticket_58 !== null) {
+                return this.configuration.show_ticket_58;
+            }
+            return false;
+        },
+        ShowTicket80: function () {
+            if (this.configuration === undefined) return false;
+            if (this.configuration == null) return false;
+            if (this.configuration.show_ticket_80 === undefined) return false;
+            if (this.configuration.show_ticket_80 == null) return false;
+            if (
+                this.configuration.show_ticket_80 !== undefined &&
+                this.configuration.show_ticket_80 !== null) {
+                return this.configuration.show_ticket_80;
+            }
+            return false;
+        },
+        ShowTicket50: function () {
+            if (this.configuration === undefined) return false;
+            if (this.configuration == null) return false;
+            if (this.configuration.show_ticket_50 === undefined) return false;
+            if (this.configuration.show_ticket_50 == null) return false;
+            if (
+                this.configuration.show_ticket_50 !== undefined &&
+                this.configuration.show_ticket_50 !== null) {
+                return this.configuration.show_ticket_50;
+            }
+            return false;
         }
     },
     methods: {

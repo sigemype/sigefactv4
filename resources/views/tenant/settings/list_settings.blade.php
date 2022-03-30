@@ -1,6 +1,10 @@
 @extends('tenant.layouts.app')
 
 @section('content')
+    <?php
+    use App\Models\Tenant\Configuration;
+    $configuration = Configuration::first();
+    ?>
 <div class="page-header pr-0">
     <h2>
         <a href="/dashboard">
@@ -120,9 +124,9 @@
                     <li>
                         <a href="{{route('tenant.advanced.pdf_templates')}}">PDF</a>
                     </li>
-                    {{-- <li>
-                        <a href="{{route('tenant.advanced.pdf_guide_templates')}}">Guía de remisión</a>
-                    </li> --}}
+                    <li>
+                        <a href="{{route('tenant.advanced.pdf_ticket_templates')}}">PDF - Ticket</a>
+                    </li>
                     <li>
                         <a href="{{route('tenant.advanced.pdf_preprinted_templates')}}">Pre Impresos</a>
                     </li>
@@ -162,6 +166,14 @@
                                 <a href="{{route('tenant.sale_notes.configuration')}}">Nota de ventas</a>
                             </li>
                         @endif
+                                @if($configuration->isMiTiendaPe()== true)
+                                    <li>
+                                        <a href="{{route('tenant.mi_tienda_pe.configuration.index')}}">
+                                            MiTienda.PE
+                                        </a>
+                                    </li>
+                                @endif
+
                 </ul>
             </div>
         </div>

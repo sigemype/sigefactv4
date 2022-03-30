@@ -6,19 +6,11 @@
                 :key-code="112"
                 @success="handleFn112"
             />
-            <!-- <Keypress key-event="keyup" :key-code="113" @success="handleFn113" /> -->
-
-            <!-- <h2 class="text-sm">POS</h2>
-      <div class="right-wrapper pull-right">
-        <h2 class="text-sm pr-5">T/C 3.321</h2>
-        <h2 class="text-sm">{{user.name}}</h2>
-      </div> -->
             <div class="col-md-4">
-                <!-- <h2 class="text-sm">POS</h2> -->
                 <h2>
                     <el-switch
                         v-model="search_item_by_barcode"
-                        active-text="Buscar con escáner de código de barras"
+                        active-text="Buscar con escaner de código de barras"
                         @change="changeSearchItemBarcode"
                     ></el-switch>
                 </h2>
@@ -107,7 +99,7 @@
             class="row col-lg-12 m-0 p-0"
             v-loading="loading"
         >
-            <div class="col-lg-8 col-md-6 px-4 hyo">
+            <div class="col-lg-7 col-md-6 px-4 hyo">
                 <template v-if="!search_item_by_barcode">
                     <el-input
                         v-show="
@@ -339,7 +331,7 @@
                                                 </button>
                                             </el-tooltip>
                                         </el-col>
-                                        <el-col :span="6" v-if="canSeeHistoryPurchase">
+                                        <el-col :span="6">
                                             <el-tooltip
                                                 class="item"
                                                 effect="dark"
@@ -360,7 +352,7 @@
                                                 </button>
                                             </el-tooltip>
                                         </el-col>
-                                        <el-col :span="6" v-if="canSeePriceCost">
+                                        <el-col :span="6">
                                             <el-tooltip
                                                 class="item"
                                                 effect="dark"
@@ -524,10 +516,10 @@
                 </div>
             </div>
             <div
-                class="col-lg-4 col-md-6 bg-white m-0 p-0"
+                class="col-lg-5 col-md-6 bg-white m-0 p-0"
                 style="height: calc(100vh - 110px)"
             >
-                <div class="h-75 bg-light" style="overflow-y: auto">
+                <div class="h-50 bg-light" style="overflow-y: auto">
                     <div class="row py-3 border-bottom m-0 p-0">
                         <div class="col-8">
                             <el-select
@@ -585,77 +577,43 @@
                             <table class="table table-sm table-borderless mb-0 pos-list-items">
                                 <template v-for="(item, index) in form.items">
                                     <tr :key="index">
-                                        <td style="width: 10px; text-align: center; vertical-align: top" class="pos-list-label font-weight-semibold">
+                                        <td style="width: 10px; text-align: center; vertical-align: top" class="pos-list-label">
                                             {{ item.unit_type_id }}
                                         </td>
-                                        <td class="font-weight-semibold" style="width: 80px; vertical-align: top">
+                                        <td style="width: 80px; vertical-align: top">
                                             <el-input v-model="item.item.aux_quantity"
                                                       @input="clickAddItem(item, index, true)"
                                                       @keyup.enter.native="keyupEnterQuantity"></el-input>
-                                            <!-- <el-input
-                                                v-model="item.item.aux_quantity"
-                                                :readonly="
-                                                    item.item.calculate_quantity
-                                                "
-                                                class
-                                                @input="
-                                                    clickAddItem(
-                                                        item,
-                                                        index,
-                                                        true
-                                                    )
-                                                "
-                                                @keyup.enter.native="
-                                                    keyupEnterQuantity
-                                                "
-                                            ></el-input> -->
-                                            <!-- <el-input-number v-model="item.item.aux_quantity" @change="clickAddItem(item,index,true)" :min="1" :max="10"></el-input-number> -->
                                         </td>
-                                        <td class="font-weight-semibold">
+                                        <td>
                                             <p class="item-description">
                                                 {{ item.item.description }}
                                             </p>
                                             <small>
                                                 {{ nameSets(item.item_id) }}
                                             </small>
-                                            <!-- <p class="text-muted m-b-0"><small>Descuento 2%</small></p> -->
-                                        </td>
-                                        <!-- <td>
-                      <p class="font-weight-semibold m-0 text-center">{{currency_type.symbol}}</p>
-                    </td>
-                    <td width="30%">
-                      <p class="font-weight-semibold m-0 text-center">
-                        <el-input
-                          v-model="item.item.unit_price"
-                          @blur="blurCalculateQuantity2(index)"
-                        >
-                        </el-input>
-                      </p>
-                    </td> -->
 
-                                        <td style="width: 10px; text-align: center; vertical-align: top" class="pos-list-label font-weight-semibold">
-<!--                                            <p-->
-<!--                                                class="font-weight-semibold m-0 text-center"-->
-<!--                                            >-->
-                                                {{ currency_type.symbol }}
-<!--                                            </p>-->
                                         </td>
-                                        <td class="font-weight-semibold" style="width: 80px; vertical-align: top">
-<!--                                            <p class="font-weight-semibold m-0 text-center">-->
-                                                <!-- {{currency_type.symbol}} {{item.total}} -->
+
+
+                                        <td style="width: 10px; text-align: center; vertical-align: top" class="pos-list-label">
+                                            {{ currency_type.symbol }}
+                                        </td>
+                                        <td style="width: 80px; vertical-align: top">
+
                                             <template v-if="edit_unit_price">
                                                 <el-input
                                                     v-model="item.total"
                                                     @input="calculateQuantity(index)"
                                                     @blur="blurCalculateQuantity(index)"
                                                     :readonly="!item.item.calculate_quantity">
-                                                    <!--                                                     <template slot="prepend">{{ currency_type.symbol }}</template>-->
+
                                                 </el-input>
                                             </template>
                                             <template v-else>
                                                 {{ item.total }}
                                             </template>
-<!--                                            </p>-->
+
                                         </td>
                                         <td class="text-right" style="width: 36px; padding-left: 0; padding-right: 0; vertical-align: top">
                                             <a class="btn btn-sm btn-default" @click="clickDeleteItem(index)">
@@ -668,157 +626,25 @@
                         </div>
                     </div>
                 </div>
-                <div class="h-25 bg-light" style="overflow-y: auto">
-                    <div
-                        class="row border-top bg-light m-0 p-0 h-50 d-flex align-items-right pr-5 pt-2"
-                    >
-                        <div
-                            class="col-md-12"
-                            style="display: flex; flex-direction: column; align-items: flex-end;"
-                        >
-                            <table>
-                                <tr
-                                    v-if="form.total_exonerated > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">
-                                        OP.EXONERADAS
-                                    </td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_exonerated }}
-                                    </td>
-                                </tr>
-                                <tr
-                                    v-if="form.total_free > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">
-                                        OP.GRATUITAS
-                                    </td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_free }}
-                                    </td>
-                                </tr>
-                                <tr
-                                    v-if="form.total_unaffected > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">
-                                        OP.INAFECTAS
-                                    </td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_unaffected }}
-                                    </td>
-                                </tr>
-                                <tr
-                                    v-if="form.total_taxed > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">
-                                        OP.GRAVADA
-                                    </td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_taxed }}
-                                    </td>
-                                </tr>
-                                <tr
-                                    v-if="form.total_igv > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">IGV</td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_igv }}
-                                    </td>
-                                </tr>
-                                <tr
-                                    v-if="form.total_isc > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">ISC</td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_isc }}
-                                    </td>
-                                </tr>
-                                <tr
-                                    v-if="form.total_plastic_bag_taxes > 0"
-                                    class="font-weight-semibold  m-0"
-                                >
-                                    <td class="font-weight-semibold">ICBPER</td>
-                                    <td class="font-weight-semibold">:</td>
-                                    <td class="text-right text-blue">
-                                        {{ currency_type.symbol }}
-                                        {{ form.total_plastic_bag_taxes }}
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <!-- <div class="col-12 text-right px-0" v-if="form.total_taxed > 0">
-              <h4 class="font-weight-semibold  m-0">
-                <span class="font-weight-semibold">OP.GRAVADA: </span>
-                <span class="text-blue">{{currency_type.symbol}} {{ form.total_taxed }}</span>
-              </h4>
-            </div>
-
-            <div class="col-12 text-right px-0" v-if="form.total_free > 0">
-              <h4 class="font-weight-semibold  m-0">
-                <span class="font-weight-semibold">OP.GRATUITAS: </span>
-                <span class="text-blue">{{currency_type.symbol}} {{ form.total_free }}</span>
-              </h4>
-            </div>
-
-            <div class="col-12 text-right px-0" v-if="form.total_unaffected > 0">
-              <h4 class="font-weight-semibold  m-0">
-                <span class="font-weight-semibold">OP.INAFECTAS: </span>
-                <span class="text-blue">{{currency_type.symbol}} {{ form.total_unaffected }}</span>
-              </h4>
-            </div>
-
-            <div class="col-12 text-right px-0" v-if="form.total_exonerated > 0">
-              <h4 class="font-weight-semibold  m-0">
-                <span class="font-weight-semibold">OP.EXONERADAS: </span>
-                <span class="text-blue">{{currency_type.symbol}} {{ form.total_exonerated }}</span>
-              </h4>
-            </div>
-
-            <div class="col-12 text-right px-0" v-if="form.total_igv > 0">
-              <h4 class="font-weight-semibold  m-0">
-                <span class="font-weight-semibold">IGV: </span>
-                <span class="text-blue">{{currency_type.symbol}} {{form.total_igv}}</span>
-              </h4>
-            </div> -->
-                    </div>
-                    <div
-                        class="row text-white m-0 p-0 h-50 d-flex align-items-center"
-                        @click="clickPayment"
-                        v-bind:class="[
-                            form.total > 0 ? 'bg-info pointer' : 'bg-dark'
-                        ]"
-                    >
-                        <div class="col-6 text-center">
-                            <i class="fas fa-chevron-circle-right fa fw h5"></i>
-                            <span class="font-weight-semibold h5">PAGO</span>
-                        </div>
-                        <div class="col-6 text-center">
-                            <h5 class="font-weight-semibold h5">
-                                {{ currency_type.symbol }} {{ form.total }}
-                            </h5>
-                        </div>
+                <div class="h-50 bg-light" style="overflow-y: auto">
+                    <div class="row m-0 p-0 d-flex align-items-center">
+                        <fast-payment
+                            :is_payment.sync="is_payment"
+                            :form="form"
+                            :currency-type-id-active="form.currency_type_id"
+                            :currency-type-active="currency_type"
+                            :exchange-rate-sale="form.exchange_rate_sale"
+                            :customer="customer"
+                            :soapCompany="soapCompany"
+                            :businessTurns="businessTurns"
+                            :is-print="isPrint"
+                            :rows-items="form.items.length"
+                        ></fast-payment>
                     </div>
                 </div>
             </div>
+
+
 
             <person-form
                 :showDialog.sync="showDialogNewPerson"
@@ -833,20 +659,6 @@
                 :external="true"
             ></item-form>
         </div>
-        <template v-else>
-            <payment-form
-                :is_payment.sync="is_payment"
-                :form="form"
-                :currency-type-id-active="form.currency_type_id"
-                :currency-type-active="currency_type"
-                :exchange-rate-sale="form.exchange_rate_sale"
-                :customer="customer"
-                :soapCompany="soapCompany"
-                :businessTurns="businessTurns"
-                :is-print="isPrint"
-                :globalDiscountTypeId="configuration.global_discount_type_id"
-            ></payment-form>
-        </template>
 
         <history-sales-form
             :showDialog.sync="showDialogHistorySales"
@@ -939,25 +751,15 @@
     padding: 0 10px !important;
 }
 
-@media only screen and (max-width: 767px)
-{
-    #main-wrapper {
-        padding-top: 175px;
-    }
+.ws-flotante {
+    display: none;
 }
-@media (max-width: 767px)
-{
-    .page-header {
-        margin: 0px 0px 5px 0px;
-    }
-}
-
 </style>
 
 <script>
 import Keypress from "vue-keypress";
 import {calculateRowItem} from "../../../helpers/functions";
-import PaymentForm from "./partials/payment.vue";
+import FastPayment from "./partials/fast_payment_garage.vue";
 import ItemForm from "./partials/form.vue";
 import {functions, exchangeRate} from "../../../mixins/functions";
 import HistorySalesForm from "../../../../../modules/Pos/Resources/assets/js/views/history/sales.vue";
@@ -967,19 +769,13 @@ import WarehousesDetail from "../items/partials/warehouses.vue";
 import queryString from "query-string";
 import TableItems from "./partials/table.vue";
 import ItemUnitTypes from "./partials/item_unit_types.vue";
-import {mapState, mapActions} from "vuex/dist/vuex.mjs";
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
 export default {
-    props: [
-        "configuration2",
-        "configuration",
-        "soapCompany",
-        "businessTurns",
-        "typeUser",
-        "isPrint"
-    ],
+    props: ["configuration", "soapCompany", "businessTurns", "typeUser", "isPrint"],
+
     components: {
-        PaymentForm,
+        FastPayment,
         ItemForm,
         HistorySalesForm,
         HistoryPurchasesForm,
@@ -989,10 +785,7 @@ export default {
         Keypress,
         TableItems
     },
-    mixins: [
-        functions,
-        exchangeRate
-    ],
+    mixins: [functions, exchangeRate],
 
     data() {
         return {
@@ -1000,7 +793,6 @@ export default {
             showDialogItemUnitTypes: false,
             history_item_id: null,
             search_item_by_barcode: false,
-            is_print: true,
             warehousesDetail: [],
             unittypeDetail: [],
             input_person: {},
@@ -1032,12 +824,11 @@ export default {
             pagination: {},
             category_selected: "",
             focusClienteSelect: false,
-            itemUnitTypes: [],
+            itemUnitTypes: []
         };
     },
     async created() {
-        this.loadConfiguration();
-        this.$store.commit('setConfiguration', this.configuration2)
+        this.loadConfiguration()
         await this.initForm();
         await this.getTables();
         this.events();
@@ -1046,31 +837,15 @@ export default {
         await this.initCurrencyType();
         this.customer = await this.getLocalStorageIndex("customer");
 
-        // if (document.querySelector(".sidebar-toggle")) {
-        //     document.querySelector(".sidebar-toggle").click();
-        // }
-
         await this.selectDefaultCustomer();
-        await this.enabledSearchItemByBarcode()
 
+        this.form.establishment_id = this.establishment.id;
     },
 
     computed: {
             ...mapState([
                 'config',
             ]),
-        canSeeHistoryPurchase: function () {
-            if(this.typeUser !=='admin'){
-                return this.configuration.pos_history
-            }
-            return false;
-        },
-        canSeePriceCost: function () {
-            if(this.typeUser !=='admin'){
-                return this.configuration.pos_cost_price
-            }
-            return true;
-        },
         classObjectCol() {
             let cols = this.configuration.colums_grid_item;
 
@@ -1114,12 +889,6 @@ export default {
     },
     methods: {
         ...mapActions(['loadConfiguration']),
-        enabledSearchItemByBarcode(){
-
-            if (this.configuration.search_item_by_barcode) {
-                this.search_item_by_barcode = true
-            }
-        },
         keyupEnterQuantity() {
             this.initFocus();
         },
@@ -1188,9 +957,7 @@ export default {
             this.loading = true;
             return this.$http
                 .get(
-                    `/${this.resource}/items?${this.getQueryParameters()}&cat=${
-                        this.category_selected
-                    }`
+                    `/${this.resource}/items?${this.getQueryParameters()}`
                 )
                 .then(response => {
                     this.all_items = response.data.data;
@@ -1210,6 +977,7 @@ export default {
         },
         getQueryParameters() {
             return queryString.stringify({
+                garage:1,
                 page: this.pagination.current_page
                     ? this.pagination.current_page
                     : 1,
@@ -1227,13 +995,14 @@ export default {
             });
         },
         getFormPosLocalStorage() {
-            let form_pos = localStorage.getItem("form_pos");
+            let form_pos = localStorage.getItem("form_pos_garage");
             form_pos = JSON.parse(form_pos);
             if (form_pos) {
                 this.form = form_pos;
                 this.initDateTimeIssue();
                 // this.calculateTotal()
             }
+            let amount = localStorage.setItem('amount_garage', JSON.stringify(this.form.total))
         },
         initDateTimeIssue() {
             this.form.date_of_issue = moment().format("YYYY-MM-DD");
@@ -1242,14 +1011,14 @@ export default {
         },
         setFormPosLocalStorage(form_param = null) {
             if (form_param) {
-                localStorage.setItem("form_pos", JSON.stringify(form_param));
+                localStorage.setItem("form_pos_garage", JSON.stringify(form_param));
             } else {
-                localStorage.setItem("form_pos", JSON.stringify(this.form));
+                localStorage.setItem("form_pos_garage", JSON.stringify(this.form));
             }
         },
         cancelFormPosLocalStorage() {
-            localStorage.setItem("form_pos", JSON.stringify(null));
-            this.setLocalStorageIndex("customer", null);
+            localStorage.setItem("form_pos_garage", JSON.stringify(null));
+            this.setLocalStorageIndex("customer_garage", null);
         },
         clickOpenInputEditUP(index) {
             this.items[index].edit_unit_price = true;
@@ -1409,11 +1178,7 @@ export default {
             });
             this.customer = customer;
 
-            if (this.configuration.default_document_type_80) {
-
-                this.form.document_type_id = "80"
-
-            }else if (this.configuration.default_document_type_03) {
+            if (this.configuration.default_document_type_03) {
                 this.form.document_type_id = "03";
             } else {
                 this.form.document_type_id =
@@ -1443,13 +1208,13 @@ export default {
             });
 
             await this.$eventHub.$on(
-                "eventSetFormPosLocalStorage",
+                "eventSetFormPosLocalStorageGarage",
                 form_param => {
                     this.setFormPosLocalStorage(form_param);
                 }
             );
 
-            await this.$eventHub.$on("cancelSale", () => {
+            await this.$eventHub.$on("cancelSaleGarage", () => {
                 this.is_payment = false;
                 this.initForm();
                 this.changeExchangeRate();
@@ -1458,6 +1223,7 @@ export default {
                 this.$nextTick(() => {
                     this.initFocus();
                 });
+                this.form.establishment_id = this.establishment.id;
             });
 
             // await this.$eventHub.$on("indexInitFocus", () => {
@@ -1484,6 +1250,7 @@ export default {
                 this.selectItemUnitType(unit_type)
             });
 
+            this.form.establishment_id = this.establishment.id;
 
         },
         selectItemUnitType(unit_type){
@@ -1526,7 +1293,6 @@ export default {
                 total_value: 0,
                 total: 0,
                 subtotal: 0,
-                total_igv_free: 0,
                 operation_type_id: "0101",
                 date_of_due: moment().format("YYYY-MM-DD"),
                 items: [],
@@ -1540,14 +1306,8 @@ export default {
                 actions: {
                     format_pdf: "a4"
                 },
-                reference_data: null,
-                is_print: true,
+                reference_data: null
             };
-            // console.log(this.configuration.show_terms_condition_pos);
-            if (this.configuration.show_terms_condition_pos) {
-
-                this.form.terms_condition = this.configuration.terms_condition_sale;
-            }
 
             this.initFormItem();
             this.changeDateOfIssue();
@@ -1617,32 +1377,17 @@ export default {
         async clickAddItem(item, index, input = false) {
             this.loading = true;
             let exchangeRateSale = this.form.exchange_rate_sale;
-            let presentation = item.presentation
 
-            let exist_item = false;
-            if(presentation === undefined) {
-                exist_item = _.find(this.form.items, {
-                    item_id: item.item_id,
-                    unit_type_id: item.unit_type_id
-                });
-            }else{
-                // Se evalua si existe presentation de item
-                    exist_item = _.find(this.form.items, {
-                    item_id: item.item_id,
-                    presentation: presentation,
-                    unit_type_id: item.unit_type_id
-                });
-            }
+            // console.log(item.unit_type_id)
+            // console.log(exist_item)
+            // console.log(item)
 
-            /*
-            console.log(exist_item)
-            console.log(item.unit_type_id)
-            console.log(exist_item)
-            console.log(item)
-            console.log(presentation)
-            console.log(presentation)
-            */
+            let exist_item = _.find(this.form.items, {
+                item_id: item.item_id,
+                unit_type_id: item.unit_type_id
+            });
 
+            // console.log(exist_item)
 
             let pos = this.form.items.indexOf(exist_item);
             let response = null;
@@ -1696,12 +1441,6 @@ export default {
 
                 exist_item.has_plastic_bag_taxes = exist_item.item.has_plastic_bag_taxes;
 
-
-                //asignar variables isc
-                exist_item.has_isc = exist_item.item.has_isc
-                exist_item.percentage_isc = exist_item.item.percentage_isc
-                exist_item.system_isc_type_id = exist_item.item.system_isc_type_id
-
                 this.row = calculateRowItem(
                     exist_item,
                     this.form.currency_type_id,
@@ -1716,8 +1455,8 @@ export default {
 
                 response = await this.getStatusStock(
                     item.item_id,
-                    presentation
-                        ? parseInt(presentation.quantity_unit)
+                    item.presentation
+                        ? parseInt(item.presentation.quantity_unit)
                         : 1
                 );
                 if (!response.success) {
@@ -1739,8 +1478,8 @@ export default {
 
                 this.form_item.unit_price = unit_price;
                 this.form_item.item.unit_price = unit_price;
-                this.form_item.presentation = presentation
-                    ? presentation
+                this.form_item.item.presentation = item.presentation
+                    ? item.presentation
                     : null;
 
                 this.form_item.charges = [];
@@ -1750,11 +1489,6 @@ export default {
                     this.affectation_igv_types,
                     {id: this.form_item.affectation_igv_type_id}
                 );
-
-                //asignar variables isc
-                this.form_item.has_isc = this.form_item.item.has_isc
-                this.form_item.percentage_isc = this.form_item.item.percentage_isc
-                this.form_item.system_isc_type_id = this.form_item.item.system_isc_type_id
 
                 // console.log(this.form_item)
                 this.row = calculateRowItem(
@@ -1766,12 +1500,10 @@ export default {
 
                 // this.row['unit_type_id'] = item.presentation ? item.presentation.unit_type_id : 'NIU';
 
-                this.row["unit_type_id"] = presentation
-                    ? presentation.unit_type_id
+                this.row["unit_type_id"] = item.presentation
+                    ? item.presentation.unit_type_id
                     : this.form_item.item.unit_type_id;
 
-                // Se añade la presentation directamente al item para filtrarlo posteriormente
-                this.row.presentation = presentation;
                 this.form.items.unshift(this.row);
                 item.aux_quantity = 1;
             }
@@ -1829,36 +1561,23 @@ export default {
             let total_value = 0;
             let total = 0;
             let total_plastic_bag_taxes = 0
-            let total_base_isc = 0
-            let total_isc = 0
-            let total_igv_free = 0
-
 
             this.form.items.forEach(row => {
-
                 total_discount += parseFloat(row.total_discount);
                 total_charge += parseFloat(row.total_charge);
 
-                if (row.affectation_igv_type_id === "10") 
-                {
-                    // total_taxed += parseFloat(row.total_value);
-                    total_taxed += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
+                if (row.affectation_igv_type_id === "10") {
+                    total_taxed += parseFloat(row.total_value);
                 }
-
-                if (row.affectation_igv_type_id === "20") 
-                {
-                    // total_exonerated += parseFloat(row.total_value);
-                    total_exonerated += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
+                if (row.affectation_igv_type_id === "20") {
+                    total_exonerated += parseFloat(row.total_value);
                 }
-
                 if (row.affectation_igv_type_id === "30") {
                     total_unaffected += parseFloat(row.total_value);
                 }
-
                 if (row.affectation_igv_type_id === "40") {
                     total_exportation += parseFloat(row.total_value);
                 }
-
                 if (
                     ["10", "20", "30", "40"].indexOf(
                         row.affectation_igv_type_id
@@ -1866,46 +1585,18 @@ export default {
                 ) {
                     total_free += parseFloat(row.total_value);
                 }
-
-                if (["10", "20", "30", "40"].indexOf(row.affectation_igv_type_id) > -1) 
-                {
-                    // total_igv += parseFloat(row.total_igv);
-                    // total += parseFloat(row.total);
-                    total_igv += (row.total_igv_without_rounding) ? parseFloat(row.total_igv_without_rounding) : parseFloat(row.total_igv)
-                    total += (row.total_without_rounding) ? parseFloat(row.total_without_rounding) : parseFloat(row.total)
+                if (
+                    ["10", "20", "30", "40"].indexOf(
+                        row.affectation_igv_type_id
+                    ) > -1
+                ) {
+                    total_igv += parseFloat(row.total_igv);
+                    total += parseFloat(row.total);
                 }
-
-                // total_value += parseFloat(row.total_value);
-                total_value += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
-
+                total_value += parseFloat(row.total_value);
                 total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
 
-                if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
-
-                    let unit_value = row.total_value / row.quantity
-                    let total_value_partial = unit_value * row.quantity
-                    row.total_taxes = row.total_value - total_value_partial + parseFloat(row.total_plastic_bag_taxes) //sumar icbper al total tributos
-
-                    row.total_igv = total_value_partial * (row.percentage_igv / 100)
-                    row.total_base_igv = total_value_partial
-                    total_value -= row.total_value
-
-                    total_igv_free += row.total_igv
-                    total += parseFloat(row.total) //se agrega suma al total para considerar el icbper
-
-                }
-
-                // isc
-                total_isc += parseFloat(row.total_isc)
-                total_base_isc += parseFloat(row.total_base_isc)
-
             });
-
-            // isc
-            this.form.total_base_isc = _.round(total_base_isc, 2)
-            this.form.total_isc = _.round(total_isc, 2)
-
-            this.form.total_igv_free = _.round(total_igv_free, 2)
 
             this.form.total_exportation = _.round(total_exportation, 2);
             this.form.total_exonerated = _.round(total_exonerated, 2);
@@ -1919,17 +1610,10 @@ export default {
             this.form.total_free = _.round(total_free, 2);
             this.form.total_igv = _.round(total_igv, 2);
             this.form.total_value = _.round(total_value, 2);
-            // this.form.total_taxes = _.round(total_igv, 2);
-
-            //impuestos (isc + igv + icbper)
-            this.form.total_taxes = _.round(total_igv + total_isc + total_plastic_bag_taxes, 2);
-            // this.form.total_taxes = _.round(total_igv + total_isc, 2);
-
+            this.form.total_taxes = _.round(total_igv, 2);
             this.form.total_plastic_bag_taxes = _.round(total_plastic_bag_taxes, 2)
-
-            this.form.total = _.round(total, 2)
-            // this.form.total = _.round(total + this.form.total_plastic_bag_taxes, 2)
-
+            // this.form.total = _.round(total, 2);
+            this.form.total = _.round(total + this.form.total_plastic_bag_taxes, 2)
             this.form.subtotal = this.form.total
 
         },
@@ -1991,9 +1675,7 @@ export default {
         async searchItems() {
             if (this.input_item.length > 0) {
                 this.loading = true;
-                let parameters = `input_item=${this.input_item}&cat=${
-                    this.category_selected
-                }`;
+                let parameters = `input_item=${this.input_item}&cat=${this.category_selected}&garage=1`;
 
                 await this.$http
                     .get(`/${this.resource}/search_items_cat?${parameters}`)
@@ -2030,7 +1712,7 @@ export default {
                 await this.$http
                     .get(`/${this.resource}/search_items?${parameters}`)
                     .then(response => {
-                        // console.log("buah");
+                        console.log("buah");
                         this.items = response.data.items;
                         this.enabledSearchItemsBarcode();
                         this.loading = false;

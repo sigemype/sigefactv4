@@ -190,7 +190,15 @@
                     <div class="col-md-4 col-sm-4">
                         <div :class="{'has-danger': errors.unit_price_value}"
                              class="form-group">
-                            <label class="control-label">Precio Unitario</label>
+                            <label class="control-label">
+                                Precio Unitario 
+
+                                <el-tooltip v-if="itemLastPrice" class="item" :content="itemLastPrice"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+                            </label>
                             <el-input v-model="form.unit_price_value"
                                       :tabindex="'3'"
                                       :readonly="!edit_unit_price"
@@ -538,6 +546,7 @@
             :itemId="form.item_id"
             :lots="lots"
             :showDialog.sync="showDialogSelectLots"
+            :quantity="form.quantity"
             @addRowSelectLot="addRowSelectLot">
         </select-lots-form>
 
@@ -579,6 +588,7 @@ export default {
         'documentTypeId',
         'noteCreditOrDebitTypeId',
         'displayDiscount',
+        'customerId'
     ],
     components: {
         ItemForm,
@@ -630,7 +640,8 @@ export default {
                 classic: ClassicEditor
             },
             value1: 'hello',
-            readonly_total: 0
+            readonly_total: 0,
+            itemLastPrice: null
             //item_unit_type: {}
         }
     },
@@ -1189,6 +1200,8 @@ export default {
                 this.form.name_product_pdf = this.form.item.name_product_pdf;
             }
 
+            this.getLastPriceItem()
+
         },
         focusTotalItem(change) {
             if (!change && this.form.item.calculate_quantity) {
@@ -1217,7 +1230,7 @@ export default {
 
             if (this.form.item.lots_enabled) {
                 if (!this.form.IdLoteSelected)
-                    return this.$message.error('Debe seleccionar un lote.');
+                    return this.$message.error('Debe seleccionar lote.');
             }
             let extra = this.form.item.extra
 
@@ -1359,7 +1372,6 @@ export default {
             if (!_.isEmpty(this.item_unit_type)) {
                 return (this.item_unit_type.id === item_unit_type.id)
             }
-
             return false
         },
         selectedPrice(row) {
@@ -1538,6 +1550,25 @@ export default {
             if(code === 'Escape'){
                 this.close()
             }
+        },
+        async getLastPriceItem() {
+            this.itemLastPrice =null
+            if(this.configuration.show_last_price_sale) {
+                if(this.customerId && this.form.item_id) {
+                    const params = {
+                        'type_document': 'CPE',
+                        'customer_id': this.customerId,
+                        'item_id': this.form.item_id
+                    }
+                    await this.$http.get(`/items/last-sale`, {params}).then((response) => {
+                        if(response.data.unit_price) {
+                            this.itemLastPrice = `Último precio de venta: ${response.data.unit_price}`
+                        }
+                        
+                    })
+                }
+            }
+           
         }
     }
 }

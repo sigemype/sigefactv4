@@ -16,7 +16,7 @@
         <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
             <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
         </div>
-        {{-- <div class="d-md-none d-lg-block" style="height: inherit"> --}}
+        <div class="d-md-none d-lg-block" style="height: inherit">
             <a class="topbar-links" href="{{ route('tenant.documents.create') }}" title="Nueva factura" data-toggle="tooltip" data-placement="bottom">
                 <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
                 <span>FA</span>
@@ -33,7 +33,7 @@
                 <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
                 <span>ES</span>
             </a>
-        {{-- </div> --}}
+        </div>
     </div>
     <div class="header-right">
 
@@ -79,27 +79,58 @@
                 </a>
             </li>
         </ul>
-        @if($vc_document > 0)
-        <span class="separator"></span>
-        <ul class="notifications">
-            <li>
-                <a href="{{route('tenant.documents.not_sent')}}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Comprobantes enviados/por enviar">
-                {{-- <a href="{{route('tenant.documents.not_sent')}}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Comprobantes pendientes de envío"> --}}
-                    <i class="far fa-bell text-secondary"></i>
-                    <span class="badge badge-pill badge-danger badge-up cart-item-count">{{ $vc_document }}</span>
-                </a>
-            </li>
-        </ul>
-        @endif
 
-        @if($vc_document_regularize_shipping > 0)
+        @if($vc_document > 0 || $vc_document_regularize_shipping > 0)
         <span class="separator"></span>
         <ul class="notifications">
-            <li>
-                <a href="{{route('tenant.documents.regularize_shipping')}}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Comprobantes pendientes de rectificación">
-                    <i class="fas fa-exclamation-triangle text-secondary"></i>
-                    <span class="badge badge-pill badge-danger badge-up cart-item-count">{{ $vc_document_regularize_shipping }}</span>
+            <li class="showed" id="dropdown-notifications">
+                <a href="#" id="dn-toggle" class="dropdown-toggle notification-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="far fa-bell text-secondary"></i>
+                    <span class="badge">!</span>
                 </a>
+
+                <div id="dn-menu" class="dropdown-menu notification-menu" style="">
+                    <div class="notification-title"></div>
+
+                    <div class="content">
+                        <ul>
+                            @if($vc_document > 0)
+                            <li>
+                                <a href="{{route('tenant.documents.not_sent')}}" class="clearfix">
+                                    <div class="image">
+                                        <div class="badge badge-pill badge-danger text-light">{{ $vc_document }}</div>
+                                    </div>
+                                    <span class="title">Comprobantes enviados/por enviar</span>
+                                </a>
+                            </li>
+                            @endif
+                            @if($vc_document_regularize_shipping > 0)
+                            <li>
+                                <a href="{{route('tenant.documents.regularize_shipping')}}" class="clearfix">
+                                    <div class="image">
+                                        <div class="badge badge-pill badge-warning text-light">
+                                            {{ $vc_document_regularize_shipping }}
+                                        </div>
+                                    </div>
+                                    <span class="title">Comprobantes pendientes de rectificación</span>
+                                </a>
+                            </li>
+                            @endif
+                            @if($vc_finished_downloads > 0)
+                            <li>
+                                <a href="{{route('tenant.reports.download-tray.index')}}" class="clearfix">
+                                    <div class="image">
+                                        <div class="badge badge-pill badge-info text-light">
+                                            {{ $vc_finished_downloads }}
+                                        </div>
+                                    </div>
+                                    <span class="title">Bandeja de descargas</span>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
             </li>
         </ul>
         @endif

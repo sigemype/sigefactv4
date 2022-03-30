@@ -2,7 +2,12 @@
     <el-dialog :title="titleDialog" width="40%"  :visible="showDialog"  @open="create"  :close-on-click-modal="false" :close-on-press-escape="false" append-to-body :show-close="false">
 
         <div class="form-body">
+            <div class="col-md-12 text-right">
+                    <h5>Cant. Pedida: {{quantity}}</h5>
+                    <h5 v-bind:class="{ 'text-danger': (toAttend < 0) }">Por Atender: {{toAttend}}</h5>
+            </div>
             <div class="row" >
+                
 
                 <div class="col-md-6 col-lg-6 col-xl-6 ">
                     <template v-if="search_series_by_barcode">
@@ -92,7 +97,7 @@
     import queryString from 'query-string'
 
     export default {
-        props: ['showDialog', 'lots', 'stock','itemId', 'documentItemId'],
+        props: ['showDialog', 'lots', 'stock','itemId', 'documentItemId', 'quantity'],
         data() {
             return {
                 titleDialog: 'Series',
@@ -109,6 +114,11 @@
                     input: null,
                     item_id: null
                 },
+            }
+        },
+        computed: {
+            toAttend() {
+                return this.quantity - this.lots.length
             }
         },
         async mounted () {

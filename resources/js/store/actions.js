@@ -1,7 +1,10 @@
 import state from './state'
 
-function readStorageData(variable, json = false) {
+function readStorageData(variable, json = false, defaultv = undefined) {
     let w = localStorage.getItem(variable)
+    if (w === 'undefined' && defaultv != undefined) {
+        w =  defaultv
+    }
     if (w === 'undefined') {
         w = null;
     }
@@ -13,11 +16,11 @@ function readStorageData(variable, json = false) {
 
 export default {
     loadConfiguration(store) {
-        state.config = readStorageData('config', true);
-        state.customers = readStorageData('customers', true);
-        state.userType = readStorageData('userType', false);
-        state.company = readStorageData('company', true);
-        state.establishment = readStorageData('establishment', true);
+        state.config = readStorageData('config', true,state.config);
+        state.customers = readStorageData('customers', true,state.customers);
+        state.userType = readStorageData('userType', false,state.userType);
+        state.company = readStorageData('company', true,state.company);
+        state.establishment = readStorageData('establishment', true,state.establishment);
         if (state.deb === undefined) state.deb = {};
         if (state.colors === undefined) state.colors = [];
         if (state.CatItemSize === undefined) state.CatItemSize = [];
@@ -70,13 +73,24 @@ export default {
         if (state.statusDocumentary === undefined) state.statusDocumentary = [];
 
 
-
-
         if (state.parent_customer === undefined) state.parent_customer = {};
         if (state.children_customer === undefined) state.children_customer = {};
 
         if (state.customer_addresses === undefined) state.customer_addresses = [];
         if (state.parentPerson === undefined) state.parentPerson = {};
+
+        if (state.mi_tienda_pe === undefined) {
+            state.mi_tienda_pe = {
+                establishment_id: null,
+                series_order_note_id: null,
+                autogenerate: false,
+                series_document_id: null,
+                user_id: null,
+                payment_destination_id: null,
+                currency_type_id: 'PEN',
+            };
+        }
+
 
         // Previenete limite de almacen exedido
         /*

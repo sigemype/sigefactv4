@@ -11,31 +11,54 @@
     >
         <div class="form-body">
             <div class="row">
+                <div class="col-md-6">
+                    <span>Si al seleccionar lotes la cantidad es mayor, el último lote quedara con la diferencia. </span>
+                </div>
+                <div class="col-md-6 text-right">
+                    <h5>Cant. Pedida: {{quantity}}</h5>
+                    <h5 v-bind:class="{ 'text-danger': (toAttend < 0) }">Por Atender: {{toAttend}}</h5>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 col-md-5 col-sm-12 pb-2">
+                    <el-input placeholder="Buscar código ..."
+                        v-model="search"
+                        style="width: 100%;"
+                        prefix-icon="el-icon-search"
+                        @input="filter">
+                    </el-input>
+                </div>
+
                 <div class="col-lg-12 col-md-12">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Seleccionado</th>
-                                <th>
-                                   codigo
-                                </th>
+                                <!--<th>Seleccionado</th>-->
+                                <th width="145">Comprometer</th>
+                                <th>codigo</th>
                                 <th>Cantidad</th>
-                                <th class="">Fecha vencimiento</th>
+                                <th>Fecha vencimiento  <el-button icon="el-icon-d-caret" @click="orderData()" plain></el-button> </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(row, index) in lots_group" v-show="row.quantity > 0" :key="index">
-                                <th align="center">
+                            <tr
+                                v-for="(row, index) in lotsGroupOrdered"
+                                :key="index"
+                                v-show="row.quantity > 0"
+                            >
+                                <!--<th align="center">
                                     <el-checkbox
-                                        :disabled="row.quantity  < 0"
+                                        :disabled="quantityCompleted && row.checked == false"
                                         v-model="row.checked"
-                                        @change="changeSelect(index, row.id, row.quantity)"
+                                        @change="changeSelect($event, index)"
                                     ></el-checkbox>
+                                </th>-->
+                                <th>
+                                    <el-input-number v-model="row.compromise_quantity" v-bind:class="{ 'text-danger': (row.compromise_quantity > row.quantity) }" ></el-input-number>
                                 </th>
                                 <th>{{ row.code }}</th>
-                                <th class="">{{ row.quantity }}</th>
-                                <th class="">{{ row.date_of_due }}</th>
-
+                                <th class>{{ row.quantity }}</th>
+                                <th class>{{ row.date_of_due }}</th>
                             </tr>
                         </tbody>
                     </table>
@@ -44,6 +67,7 @@
         </div>
 
         <div class="form-actions text-right pt-2">
+            <el-button @click.prevent="close()">Cerrar</el-button>
             <el-button type="primary" @click="submit">Guardar</el-button>
         </div>
     </el-dialog>
@@ -59,36 +83,52 @@ export default {
             errors: {},
             form: {},
             states: ["Activo", "Inactivo", "Desactivado", "Voz", "M2m"],
-            idSelected: null
+            idSelected: null,
+            search: '',
+            lots_group_: [],
+            orderT: 'desc'
         };
     },
     async created() {
-        // await this.$http.get(`/pos/payment_tables`)
-        //     .then(response => {
-        //         this.payment_method_types = response.data.payment_method_types
-        //         this.cards_brand = response.data.cards_brand
-        //         this.clickAddLot()
-        //     })
+      
+    },
+    computed: {
+        lotsGroupOrdered() {
+            return _.orderBy(this.lots_group_, 'date_of_due', this.orderT)
+        },
+        quantityCompleted(){
+            return this.lots_group_.filter(x => x.checked == true).reduce((accum,item) => accum + Number(item.quantity), 0) >= this.quantity 
+        },
+        toAttend() {
+            return this.quantity - this.lots_group_.filter(x => x.compromise_quantity > 0).reduce((accum,item) => accum + Number(item.compromise_quantity), 0)
+        }
     },
     methods: {
-        changeSelect(index, id, quantity_lot)
-        {
-            
-            if (this.quantity > quantity_lot) {
+        orderData() {
+            this.orderT =  this.orderT == 'desc' ? 'asc' : 'desc'
+        },
+        filter(){
 
-                this.$message.error('La cantidad a vender es superior al stock');
-                this.lots_group[index].checked = false;
+            if(this.search)
+            {
+                this.lots_group_ = _.filter(this.lots_group, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
+            }
+            else{
+                this.lots_group_ = this.lots_group
+            }
+        },
+        changeSelect(event, index) {
+            /*if(this.quantityCompleted) {
+                this.$message.warning('La cantidad está completada');
+            }*/
 
-            }else {
+            this.lots_group_[index].checked = event
+            this.idSelected = this.lots_group_.filter(x => x.checked == true).map( x => x.id);
 
-                this.lots_group.forEach(row => {
-                    row.checked  = false
-                })
+            let sum = this.lots_group_.filter(x => x.checked == true).reduce((accum,item) => accum + Number(item.quantity), 0)
 
-                this.lots_group[index].checked = true
-
-                this.idSelected = id
-
+            if (sum >= this.quantity) {
+                this.$message.warning('La cantidad está completada.');
             }
 
         },
@@ -97,10 +137,34 @@ export default {
             let row = val[val.length - 1];
             this.multipleSelection = [row];
         },
-        create() {},
+        create() {
+          this.filter()
+        },
 
         async submit() {
-            await this.$emit("addRowLotGroup", this.idSelected);
+            
+            //validar cantidad comprometida igual a cantidad pedida
+            let compromise_quantity = this.lots_group_.filter(x => x.compromise_quantity > 0).reduce((accum,item) => accum + Number(item.compromise_quantity), 0)
+            if (compromise_quantity != this.quantity) {
+                return this.$message.warning('La suma de cantidades comprometidas de los lotes debe der igual a la cantidad pedida.');
+            }
+
+            //validar cantridad comprometer en lote
+            const successValid = this.lots_group_.filter(x => x.compromise_quantity > 0).filter( x => x.compromise_quantity > x.quantity )
+            if(successValid.length) {
+                return this.$message.warning('La cantidades comprometida de un lote no debe sobrepasar su capacidad.');
+            }
+
+            const lots_selecteds = this.lots_group_.filter(x => x.compromise_quantity > 0).map(item => {
+                return {
+                    id: item.id,
+                    code: item.code,
+                    compromise_quantity: item.compromise_quantity,
+                    date_of_due: item.date_of_due,
+                }
+            })
+
+            await this.$emit("addRowLotGroup", lots_selecteds);
             await this.$emit("update:showDialog", false);
         },
 
@@ -116,7 +180,7 @@ export default {
         },
         close() {
             this.$emit("update:showDialog", false);
-        }
-    }
+        },
+    },
 };
 </script>

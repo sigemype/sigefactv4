@@ -9,7 +9,12 @@
             ref="singleTable"
             :data="records"
             highlight-current-row
+            :cell-style="changeColor"
+            :header-cell-class-name="headerFont"
+            :row-class-name="boldFont"
             @current-change="handleCurrentChange"
+            @cell-mouse-enter="enterChangeColor"
+            @cell-mouse-leave="leaveChangeColor"
             style="width: 100%"
         >
             <el-table-column type="index" width="50"> </el-table-column>
@@ -208,6 +213,9 @@ export default {
             currentIndex: 0,
             showDialogItemUnitTypes: false,
             currentRow: null,
+            selectedIndex:null,
+            hoverIndex:null,
+            changeMouse:false,
             itemUnitTypes: [],
             config: {}
         };
@@ -336,6 +344,7 @@ export default {
         },
         handleCurrentChange(val) {
             this.currentRow = val;
+            this.selectedIndex = val.index;
         },
         clickWarehouseDetail(id) {
             this.$emit("clickWarehouseDetail", id);
@@ -349,7 +358,37 @@ export default {
         reset() {
             this.currentIndex = 0;
             this.setCurrent(this.records[this.currentIndex]);
+        },
+        changeColor({row, rowIndex}){
+            if((this.selectedIndex) === rowIndex){
+                if(this.selectedIndex === this.hoverIndex){
+                    return {"background-color": "#ACE1F6"}
+                }
+                return {"background-color": "#A9E6FF"}
+            }
+            if(this.changeMouse){
+                if((this.hoverIndex) === rowIndex){
+                    return {"background-color": "#ACE1F6"}
+                }
+            }else{
+                return {"background-color": "#ffff"}
+            }
+        },
+        enterChangeColor(val){
+            this.hoverIndex=val.index;
+            this.changeMouse=true;
+        },
+        leaveChangeColor({row, column, cell, event}){
+            this.changeMouse=false;
+        },
+        boldFont({row, rowIndex}){
+            row.index=rowIndex;
+            return 'font-weight-semibold';
+        },
+        headerFont(){
+            return 'font-weight-semibold';
         }
+
     }
 };
 </script>

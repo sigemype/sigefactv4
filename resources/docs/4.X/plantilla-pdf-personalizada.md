@@ -19,10 +19,11 @@ se puede subir N cantidad de carpetas al servidor con nombre de personalizada\[\
 <a name="section-2"></a>
 ## Ruta de carpeta
 
-la ruta a subir la carpeta es:
-`app/CoreFacturalo/Templates/pdf/\[nombre de carpeta\]`
-a su vez deben subir la imagen a:
-`public/templates/pdf/\[nombre de carpeta\]/image.png`
+La ruta a subir la carpeta es: `app/CoreFacturalo/Templates/pdf/[nombre_de_carpeta]`
+<br>
+debe subir la imagen referencial para la hoja A4  a: `public/templates/pdf/[nombre_de_carpeta]/image.png`
+
+> {info} debe subir la imagen referencial para el ticket a: `public/templates/pdf/[nombre_de_carpeta]/ticket.png` para que al actualizar listado se muestre su nuevo formato
 
 <a name="section-3"></a>
 ## Estructura de carpeta

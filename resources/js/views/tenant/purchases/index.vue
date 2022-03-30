@@ -39,9 +39,8 @@
                         <!-- <th>F. Pago</th> -->
                         <!-- <th>Estado</th> -->
                         <th class="text-center">Moneda</th>
-                        <th class="text-right"
-                            v-if="columns.guides.visible">Guía
-                        </th>
+                        <th class="text-right" v-if="columns.guides.visible">Guía </th>
+                        <th class="text-right" v-if="columns.purchase_order.visible">Orden de compra </th>
                         <!-- <th class="text-right">T.Exportación</th> -->
                         <th v-if="columns.total_free.visible"  class="text-right">T.Gratuita</th>
                         <th v-if="columns.total_unaffected.visible" class="text-right">T.Inafecta</th>
@@ -104,6 +103,7 @@
                         </span>
                     </td>
                         <!-- <td class="text-right">{{ row.total_exportation }}</td> -->
+                        <td v-if="columns.purchase_order.visible" class="text-right"> <span v-if="row.purchase_order ">{{ row.purchase_order.prefix }}-{{ row.purchase_order.id }}</span></td>
                         <td v-if="columns.total_free.visible" class="text-right">{{ row.total_free }}</td>
                         <td v-if="columns.total_unaffected.visible" class="text-right">{{ row.total_unaffected }}</td>
                         <td v-if="columns.total_exonerated.visible" class="text-right">{{ row.total_exonerated }}</td>
@@ -236,6 +236,10 @@ import {mapActions, mapState} from 'vuex'
                     },
                     guides: {
                         title: 'Guias',
+                        visible: false
+                    },
+                    purchase_order: {
+                        title: 'Orden de Compra',
                         visible: false
                     },
 

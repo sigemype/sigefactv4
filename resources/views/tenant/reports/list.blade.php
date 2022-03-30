@@ -61,6 +61,11 @@
                                 Descarga masiva - documentos
                             </a>
                         </li>
+                        <li>
+                            <a href="{{route('tenant.reports.download-tray.index')}}">
+                                Bandeja descarga de reportes
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -159,6 +164,9 @@
                         </li>
                         <li>
                             <a href="{{route('tenant.reports.commissions.index')}}">Ventas</a>
+                        </li>
+                        <li>
+                            <a href="{{route('tenant.reports.commissions_detail.index')}}">Utilidad detallado</a>
                         </li>
                     </ul>
                 </div>

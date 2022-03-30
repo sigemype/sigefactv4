@@ -118,7 +118,7 @@
                                     width="700"
                                     trigger="click"> 
                                     
-                                    <div class="table-responsive">
+                                    <div class="table-responsive" style="max-height: 450px;overflow: scroll;max-width: 700px">
                                         <table class="table">
                                             <thead>
                                                 <tr>

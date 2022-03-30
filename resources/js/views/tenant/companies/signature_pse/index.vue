@@ -4,7 +4,7 @@
             <h3 class="my-0">Firma digital PSE
                 <el-tooltip
                     class="item"
-                    content="Solicitar datos al PSE"
+                    content="Solicitar datos al PSE - Disponible para facturas, boletas y anulaciones de facturas"
                     effect="dark"
                     placement="top-start">
                     <i class="fa fa-info-circle"></i>

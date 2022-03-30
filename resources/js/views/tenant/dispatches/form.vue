@@ -80,7 +80,7 @@
                             <div :class="{'has-danger': errors.transfer_reason_type_id}" class="form-group">
                                 <label class="control-label">Motivo de traslado<span
                                     class="text-danger"> *</span></label>
-                                <el-select v-model="form.transfer_reason_type_id">
+                                <el-select v-model="form.transfer_reason_type_id" @change="changeTransferReasonType">
                                     <el-option v-for="option in transferReasonTypes" :key="option.id"
                                                :label="option.description"
                                                :value="option.id"></el-option>
@@ -89,7 +89,47 @@
                                        v-text="errors.transfer_reason_type_id[0]"></small>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+
+                        
+
+                        <!-- numero de DAM -->
+                        <template v-if="form.transfer_reason_type_id === '09'">
+
+                            <div class="col-lg-3">
+                                <div :class="{'has-danger': errors['related.number']}"
+                                    class="form-group">
+                                    <label class="control-label">Número de documento (DAM)
+                                        <el-tooltip class="item"
+                                                    content="Formato del campo: XXXX-XX-XXX-XXXXXX, Ejemplo: 0001-01-002-001234"
+                                                    effect="dark"
+                                                    placement="top">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                        <span class="text-danger"> *</span>
+                                    </label>
+                                    <el-input v-model="form.related.number" placeholder="0001-01-002-001234"></el-input>
+                                    <small v-if="errors['related.number']" class="form-control-feedback" v-text="errors['related.number'][0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <div :class="{'has-danger': errors['related.document_type_id']}"
+                                    class="form-group">
+                                    <label class="control-label">Tipo documento relacionado<span class="text-danger"> *</span></label>
+                                    <el-select v-model="form.related.document_type_id" disabled>
+                                        <el-option v-for="option in related_document_types"
+                                                :key="option.id"
+                                                :label="option.description"
+                                                :value="option.id"></el-option>
+                                    </el-select> 
+                                    <small v-if="errors['related.document_type_id']" class="form-control-feedback" v-text="errors['related.document_type_id'][0]"></small>
+                                </div>
+                            </div>
+                        </template>
+                        <!-- numero de DAM -->
+
+
+                        <div :class="form.transfer_reason_type_id === '09' ? 'col-lg-12' : 'col-lg-6'">
                             <div :class="{'has-danger': errors.transfer_reason_description}" class="form-group">
                                 <label class="control-label">Descripción de motivo de traslado</label>
                                 <el-input v-model="form.transfer_reason_description" :rows="3"
@@ -501,6 +541,7 @@ export default {
             districtsDelivery: [],
             provincesOrigin: [],
             districtsOrigin: [],
+            related_document_types: [],
             establishments: [],
             districtsAll: [],
             provincesAll: [],
@@ -558,6 +599,7 @@ export default {
             this.all_series = response.data.series;
             this.drivers = response.data.drivers;
             this.dispachers = response.data.dispachers;
+            this.related_document_types = response.data.related_document_types
 
         }).then(() => {
             this.form.establishment_id = this.document.establishment_id
@@ -643,6 +685,22 @@ export default {
 
     },
     methods: {
+        changeTransferReasonType(){
+
+            // exportacion
+            if(this.form.transfer_reason_type_id === '09')
+            {
+                this.form.related = {
+                    number: null,
+                    document_type_id: '01'
+                }
+
+            }else
+            {
+                this.form.related = {}
+            }
+
+        },
         setOriginAddressByEstablishment(){
 
             if(this.configuration.set_address_by_establishment){
@@ -729,7 +787,8 @@ export default {
                 items: [],
                 secondary_license_plates: {
                     semitrailer: null
-                }
+                },
+                related: {},
 
             }
         },

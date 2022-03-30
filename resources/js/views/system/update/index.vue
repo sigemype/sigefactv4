@@ -15,6 +15,12 @@
                             <el-checkbox v-model="exec_migration">Ejecutar migraciones</el-checkbox><br>
                         </div>
                     </div>
+                    <div class="card-title text-center" v-if="infostatus">
+                        {{ infotextwait }}
+                    </div>
+                    <div class="card-title text-center" v-if="infostatus">
+                        {{ infotext }}
+                    </div>
                     <div v-if="content.status == true && content.step == 'updating'" id="response-content">
 
                         <div v-if="branch.status == 'success'">
@@ -97,6 +103,9 @@
     export default {
         data() {
             return {
+                infostatus:false,
+                infotextwait:'',
+                infotext:'',
                 headers: null,
                 resource: 'auto-update',
                 errors: {},
@@ -159,8 +168,27 @@
             this.getChangelog()
         },
         methods: {
+            messajeOk(text){
+                this.infostatus = true;
+                this.infotextwait ='Por favor espere'
+                this.infotext = text
+                this.$message.success(this.infotext)
+            },
+            messajeFail(text){
+                this.infostatus = true;
+                this.infotextwait ='Ocurrió un error'
+                this.infotext = text
+                this.$message.error(this.infotext)
+            },
+            hideInfo(){
+                this.infostatus = false;
+                this.infotextwait =''
+                this.infotext = '';
+            },
             async start() {
                 this.loading_submit = true
+                this.infostatus = true;
+                this.messajeOk('Se ha iniciado el proceso de actualización')
                 this.initContent()
                 this.content.status = true
                 this.content.step = 'updating'
@@ -226,11 +254,14 @@
             },
             getBranch() {
                 this.branch.percent = 40
+                this.messajeOk('Obteniendo información de la rama' )
                 this.$http.get(`/${this.resource}/branch`)
                 .then(response => {
+                    this.hideInfo();
                     this.branch.percent = 70
                     if (response.data !== '') {
                         this.branch.name = response.data
+                        this.messajeOk('Se ha Obteniendo la información de la rama ' + this.branch.name)
                         this.branch.percent = 100
                         if (response.status === 200) {
                             this.branch.status = 'success'
@@ -245,11 +276,14 @@
                     } else {
                         console.log(error)
                     }
+                    this.messajeFail('Ocurrió un error, no se puede continuar')
                 })
             },
             execPull() {
+                this.messajeOk('Se están descargando los datos')
                 this.$http.get(`/${this.resource}/pull/${this.branch.name}`)
                 .then(response => {
+                    this.hideInfo();
                     if (response.data !== '') {
                         this.pull.content = response.data
                         this.pull.percent = 100
@@ -257,7 +291,13 @@
                             this.pull.status = 'success'
                         }
                         let pullContent = this.pull.content
-                        if (pullContent.includes('Already up to date.') === true ) {
+
+                        if (
+                            pullContent.includes('Already up to date.') === true |
+                            pullContent.includes('Already up-to-date.') === true
+                        ) {
+                            this.messajeOk('Todo esta correcto')
+                            this.hideInfo()
                             this.loading_submit = false
                             this.pull.updated = true
                         } else {
@@ -269,16 +309,22 @@
                     this.pull.error = 'no ha podido finalizar'
                     this.pull.status = 'false'
                     console.log(error)
+                    this.messajeFail('No se ha podido descargar los datos')
+                }).finally(()=>{
+                    // ejecuta las migraciones al finalziar. sea exitoso o no
+                    // this.execArtisanMigrate()
                 })
             },
             execComposer() {
+                this.messajeOk('Se están instalando dependencias Composer')
                 this.$http.get(`/${this.resource}/composer/install`)
                 .then(response => {
-
+                    this.hideInfo();
                     if (response.data !== '') {
                         this.composer.install.content = response.data
                         this.composer.install.percent = 100
                         if (response.status === 200) {
+                            this.messajeOk('Se ha ejecutado la instalación de dependecias composer')
                             this.composer.install.status = 'success'
                             this.execArtisanMigrate()
                         }
@@ -291,18 +337,34 @@
                     } else {
                         console.log(error)
                     }
+
+                    if (
+                        error !== undefined &&
+                        error.response !== undefined &&
+                        error.response.status !== undefined &&
+                        error.response.status === 504){
+                        // error de tiempo 504 de servidor nginx
+                        this.execArtisanMigrate()
+
+                    }else{
+                        this.messajeFail('Ha ocurrido un error al instalar las dependencias Composer')
+
+                    }
                 })
 
                 this.loading_submit = false
             },
             execArtisanMigrate() {
+                this.messajeOk('Se están ejecutando las migraciones')
                 this.$http.get(`/${this.resource}/artisan/migrate`)
                 .then(response => {
+                    this.hideInfo();
                     if (response.data !== '') {
                         this.artisan.migrate.content = response.data
                         this.artisan.migrate.percent = 100
                         if (response.status === 200) {
                             this.artisan.migrate.status = 'success'
+                            this.messajeOk('Se han ejecutando las migraciones')
                             this.execArtisanMigrateTenant()
                         }
                     }
@@ -314,16 +376,20 @@
                     } else {
                         console.log(error)
                     }
+                    this.messajeFail('Ocurrió un error al ejecutar las migraciones')
                 })
             },
             execArtisanMigrateTenant() {
+                this.messajeOk('Se están ejecutando las migraciones de los tenant')
                 this.$http.get(`/${this.resource}/artisan/migrate/tenant`)
                 .then(response => {
+                    this.hideInfo();
                     if (response.data !== '') {
                         this.artisan.tenancy_migrate.content = response.data
                         this.artisan.tenancy_migrate.percent = 100
                         if (response.status === 200) {
                             this.artisan.tenancy_migrate.status = 'success'
+                            this.messajeOk('Se han ejecutando las migraciones de los tenant')
                             this.execArtisanClear()
                         }
                     }
@@ -332,26 +398,34 @@
                     this.artisan.tenancy_migrate.error = error
                     this.artisan.tenancy_migrate.status = false
                     console.log(error)
+                    this.messajeFail('Ocurrió un error al ejecutar las migraciones de los tenant')
                 })
             },
             execArtisanClear() {
+                this.messajeOk('Se esta limpiando los procesos artisan')
                 this.$http.get(`/${this.resource}/artisan/clear`)
                 .then(response => {
+                    this.hideInfo();
                     if (response.data !== '') {
                         this.artisan.clear.content = response.data
                         this.artisan.clear.percent = 100
                         if (response.status === 200) {
+                            this.messajeOk('Se han limpiado los procesos artisan')
                             this.artisan.clear.status = 'success'
                         }
+                        this.hideInfo()
                     }
                 }).catch(error => {
                     this.artisan.clear.percent = 0
                     this.artisan.clear.error = error
                     this.artisan.clear.status = false
                     console.log(error)
+                    this.messajeFail('Ocurrió un error al limpiar los procesos artisan')
                 })
             },
             execMigrations() {
+                this.infostatus = true;
+                this.infotextwait ='Por favor espere'
                 this.loading_submit_migrations = true
                 this.loading_submit = true
                 this.initContent()

@@ -256,7 +256,13 @@
                                         {{
                                         row.item.presentation.hasOwnProperty('description') ?
                                         row.item.presentation.description : ''
-                                        }}<br/><small>{{ row.affectation_igv_type.description }}</small>
+                                        }}
+
+                                        <template v-if="row.total_plastic_bag_taxes > 0">
+                                            <br/><small>ICBPER: {{ currency_type.symbol }} {{ row.total_plastic_bag_taxes }}</small>
+                                        </template>
+
+                                        <br/><small>{{ row.affectation_igv_type.description }}</small>
                                     </td>
                                     <td class="text-center">{{ row.item.unit_type_id }}</td>
 
@@ -323,6 +329,13 @@
                                                    style="width: 100%;">
                                                 <tr v-if="form.total > 0 && enabled_discount_global">
                                                     <td>
+                                                        <el-tooltip class="item"
+                                                            :content="global_discount_type.description"
+                                                            effect="dark"
+                                                            placement="top">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </el-tooltip>
+
                                                         DESCUENTO
                                                         <template v-if="is_amount"> MONTO</template>
                                                         <template v-else> %</template>
@@ -415,7 +428,7 @@
                                                     <td>OTROS CARGOS:</td>
                                                     <td>{{ currency_type.symbol }}
                                                         <el-input-number v-model="total_global_charge"
-                                                                         :disabled="config.active_allowance_charge == 1 ? true:false"
+                                                                         :disabled="config.active_allowance_charge == true ? true:false"
                                                                          :min="0"
                                                                          class="input-custom"
                                                                          controls-position="right"
@@ -681,6 +694,12 @@
                                        style="width: 100%;">
                                     <tr v-if="form.total > 0 && enabled_discount_global">
                                         <td>
+                                            <el-tooltip class="item"
+                                                :content="global_discount_type.description"
+                                                effect="dark"
+                                                placement="top">
+                                                <i class="fa fa-info-circle"></i>
+                                            </el-tooltip>
                                             DESCUENTO
                                             <template v-if="is_amount"> MONTO</template>
                                             <template v-else> %</template>
@@ -768,7 +787,7 @@
                                         <td>OTROS CARGOS:</td>
                                         <td>{{ currency_type.symbol }}
                                             <el-input-number v-model="total_global_charge"
-                                                             :disabled="config.active_allowance_charge == 1 ? true:false"
+                                                             :disabled="config.active_allowance_charge == true ? true:false"
                                                              :min="0"
                                                              class="input-custom"
                                                              controls-position="right"
@@ -1369,6 +1388,7 @@
             :recordItem="recordItem"
             :showDialog.sync="showDialogAddItem"
             :typeUser="typeUser"
+            :customer-id="form.customer_id"
             @add="addRow"></document-form-item>
 
         <person-form :document_type_id=form.document_type_id
@@ -1405,6 +1425,7 @@
             :showDialog.sync="showDialogDocumentDetraction"
             :total="form.total"
             :isUpdateDocument="isUpdateDocument"
+            :detractionDecimalQuantity="detractionDecimalQuantity"
             @addDocumentDetraction="addDocumentDetraction"></document-detraction>
     </div>
 </template>
@@ -1551,7 +1572,11 @@ export default {
             payment_conditions: [],
             affectation_igv_types: [],
             total_discount_no_base: 0,
-            show_has_retention: true
+            show_has_retention: true,
+            global_discount_types: [],
+            global_discount_type: {},
+            error_global_discount: false,
+
         }
     },
     computed: {
@@ -1574,6 +1599,12 @@ export default {
         },
         isCreditPaymentCondition: function () {
             return ['02', '03'].includes(this.form.payment_condition_id)
+        },
+        detractionDecimalQuantity: function () {
+            return (this.configuration.detraction_amount_rounded_int) ? 0 : 2
+        },
+        isGlobalDiscountBase: function () {
+            return (this.configuration.global_discount_type_id === '02')
         },
     },
     async created() {
@@ -1613,6 +1644,8 @@ export default {
                 this.payment_destinations = response.data.payment_destinations
                 this.payment_conditions = response.data.payment_conditions;
 
+                this.global_discount_types = response.data.global_discount_types
+
                 this.seller_class = (this.user == 'admin') ? 'col-lg-4 pb-2' : 'col-lg-6 pb-2';
 
                 // this.default_document_type = response.data.document_id;
@@ -1625,6 +1658,7 @@ export default {
                 this.changeDestinationSale()
                 this.changeCurrencyType()
                 this.setDefaultDocumentType();
+                this.setConfigGlobalDiscountType()
             })
         this.loading_form = true
         this.$eventHub.$on('reloadDataPersons', (customer_id) => {
@@ -1856,7 +1890,11 @@ export default {
             this.form.payments = data.payments;
             this.form.prepayments = data.prepayments || [];
             this.form.legends = [];
-            this.form.detraction = data.detraction;
+            // this.form.detraction = data.detraction;
+            this.form.detraction = data.detraction ? data.detraction : {}
+
+            this.form.sale_notes_relateds = data.sale_notes_relateds ? data.sale_notes_relateds : null
+
             this.form.affectation_type_prepayment = data.affectation_type_prepayment;
             this.form.purchase_order = data.purchase_order;
             this.form.pending_amount_prepayment = data.pending_amount_prepayment || 0;
@@ -1922,15 +1960,34 @@ export default {
                 this.clickAddInitGuides();
             }
 
-            this.reloadDataCustomers(this.form.customer_id)
+            await this.reloadDataCustomers(this.form.customer_id)
 
             this.establishment = data.establishment;
 
             this.changeDateOfIssue();
-            this.filterCustomers();
+            // await this.filterCustomers();
             this.updateChangeDestinationSale();
+
+            this.prepareDataCustomer()
+
             this.calculateTotal();
             // this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
+        },
+        async prepareDataCustomer(){
+
+            this.customer_addresses = [];
+            let customer = await _.find(this.customers, {'id': this.form.customer_id})
+            this.customer_addresses = customer.addresses
+
+            this.form.customer_address_id = this.form.customer ? this.form.customer.address_id : null
+
+            if (customer.address) {
+                this.customer_addresses.unshift({
+                    id: null,
+                    address: customer.address
+                })
+            }
+
         },
         prepareDataRetention() {
 
@@ -1943,7 +2000,8 @@ export default {
         },
         async prepareDataDetraction() {
 
-            this.has_data_detraction = (this.form.detraction) ? true : false
+            // this.has_data_detraction = (this.form.detraction) ? true : false
+            this.has_data_detraction = !_.isEmpty(this.form.detraction)
 
             if (this.has_data_detraction) {
 
@@ -2683,6 +2741,7 @@ export default {
                 let legend = await _.find(this.form.legends, {'code': '2006'})
                 if (!legend) this.form.legends.push({code: '2006', value: 'Operación sujeta a detracción'})
                 this.form.detraction.bank_account = this.company.detraction_account
+                // this.form.detraction.detraction_type_id = undefined
 
             } else if (this.form.operation_type_id === '1004') {
 
@@ -2706,16 +2765,19 @@ export default {
         async changeDetractionType() {
 
             if (this.form.detraction) {
-                // this.form.detraction.amount = (this.form.currency_type_id == 'PEN') ? _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), 2) : _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage) / 100), 2)
 
                 if (this.form.currency_type_id == 'PEN') {
 
-                    this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), 2)
+                    //this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), 2)
+                    this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), this.detractionDecimalQuantity)
+
                     this.form.total_pending_payment = this.form.total - this.form.detraction.amount
 
                 } else {
 
-                    this.form.detraction.amount = _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage) / 100), 2)
+                    // this.form.detraction.amount = _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage) / 100), 2)
+                    this.form.detraction.amount = _.round((parseFloat(this.form.total) * this.form.exchange_rate_sale) * (parseFloat(this.form.detraction.percentage) / 100), this.detractionDecimalQuantity)
+
                     this.form.total_pending_payment = _.round(this.form.total - (this.form.detraction.amount / this.form.exchange_rate_sale), 2)
 
                 }
@@ -2821,26 +2883,24 @@ export default {
         },
         dateValidError() {
 
-            if (this.form.document_type_id === '01'){
-                this.$message.error('No puede seleccionar una fecha menor a 4 días.');
-            }else{
-                this.$message.error('No puede seleccionar una fecha menor a 7 días.');
-            }
+            this.$message.error(`No puede seleccionar una fecha menor a ${this.configuration.shipping_time_days} día(s).`);
+            // this.$message.error('No puede seleccionar una fecha menor a 6 días.');
             this.dateValid = false
 
         },
         validateDateOfIssue() {
-            let minDateFact = moment().subtract(5, 'days')
-            let minDateBol = moment().subtract(8, 'days')
+
+            let minDate = moment().subtract(this.configuration.shipping_time_days, 'days')
+            // let minDate = moment().subtract(7, 'days')
+
             // validar fecha de factura sin considerar configuracion
-            if (moment(this.form.date_of_issue) < minDateFact && this.form.document_type_id === '01') {
+            if (moment(this.form.date_of_issue) < minDate && this.form.document_type_id === '01') {
+
                 this.dateValidError()
-            } else if (moment(this.form.date_of_issue) < minDateBol && this.form.document_type_id === '03'){
+            } else if (moment(this.form.date_of_issue) < minDate && this.config.restrict_receipt_date) {
+
                 this.dateValidError()
-            // } else if (moment(this.form.date_of_issue) < minDateFact && this.config.restrict_receipt_date) {
-            //     this.dateValidError()
-            // } else if (moment(this.form.date_of_issue) < minDateBol && this.config.restrict_receipt_date) {
-            //     this.dateValidError()
+
             } else {
                 this.dateValid = true
             }
@@ -2985,7 +3045,10 @@ export default {
                     row.affectation_igv_type_id === '20'  // 20,Exonerado - Operación Onerosa
                     // || row.affectation_igv_type_id === '21' // 21,Exonerado – Transferencia Gratuita
                 ) {
-                    total_exonerated += parseFloat(row.total_value)
+
+                    // total_exonerated += parseFloat(row.total_value)
+
+                    total_exonerated += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
                 }
 
                 if (
@@ -3053,16 +3116,20 @@ export default {
 
                 total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
 
+
                 if (['11', '12', '13', '14', '15', '16'].includes(row.affectation_igv_type_id)) {
 
                     let unit_value = row.total_value / row.quantity
                     let total_value_partial = unit_value * row.quantity
-                    row.total_taxes = row.total_value - total_value_partial
+                    // row.total_taxes = row.total_value - total_value_partial
+                    row.total_taxes = row.total_value - total_value_partial + parseFloat(row.total_plastic_bag_taxes) //sumar icbper al total tributos
+
                     row.total_igv = total_value_partial * (row.percentage_igv / 100)
                     row.total_base_igv = total_value_partial
                     total_value -= row.total_value
 
                     total_igv_free += row.total_igv
+                    total += parseFloat(row.total) //se agrega suma al total para considerar el icbper
 
                 }
 
@@ -3090,13 +3157,16 @@ export default {
             this.form.total_value = _.round(total_value, 2)
             // this.form.total_taxes = _.round(total_igv, 2)
 
-            //impuestos (isc + igv)
-            this.form.total_taxes = _.round(total_igv + total_isc, 2);
+            //impuestos (isc + igv + icbper)
+            this.form.total_taxes = _.round(total_igv + total_isc + total_plastic_bag_taxes, 2);
 
             this.form.total_plastic_bag_taxes = _.round(total_plastic_bag_taxes, 2)
-            // this.form.total = _.round(total, 2)
-            this.form.subtotal = _.round(total + this.form.total_plastic_bag_taxes, 2)
-            this.form.total = _.round(total + this.form.total_plastic_bag_taxes - this.total_discount_no_base, 2)
+
+            this.form.subtotal = _.round(total, 2)
+            this.form.total = _.round(total - this.total_discount_no_base, 2)
+
+            // this.form.subtotal = _.round(total + this.form.total_plastic_bag_taxes, 2)
+            // this.form.total = _.round(total + this.form.total_plastic_bag_taxes - this.total_discount_no_base, 2)
 
             if (this.enabled_discount_global)
                 this.discountGlobal()
@@ -3214,7 +3284,8 @@ export default {
         },
         deleteDiscountGlobal() {
 
-            let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
+            let discount = _.find(this.form.discounts, {'discount_type_id': this.configuration.global_discount_type_id})
+            // let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
             let index = this.form.discounts.indexOf(discount)
 
             if (index > -1) {
@@ -3223,6 +3294,20 @@ export default {
             }
 
         },
+        setConfigGlobalDiscountType()
+        {
+            this.global_discount_type = _.find(this.global_discount_types, { id : this.configuration.global_discount_type_id})
+        },
+        setGlobalDiscount(factor, amount, base)
+        {
+            this.form.discounts.push({
+                discount_type_id: this.global_discount_type.id,
+                description: this.global_discount_type.description,
+                factor: factor,
+                amount: amount,
+                base: base
+            })
+        },
         discountGlobal() {
 
             this.deleteDiscountGlobal()
@@ -3230,33 +3315,48 @@ export default {
             //input donde se ingresa monto o porcentaje
             let input_global_discount = parseFloat(this.total_global_discount)
 
-            if (input_global_discount > 0) {
-
-                let base = parseFloat(this.form.total)
+            if (input_global_discount > 0) 
+            {
+                const percentage_igv = 18
+                let base = (this.isGlobalDiscountBase) ? parseFloat(this.form.total_taxed) : parseFloat(this.form.total)
                 let amount = 0
                 let factor = 0
 
-                if (this.is_amount) {
-
+                if (this.is_amount) 
+                {
                     amount = input_global_discount
                     factor = _.round(amount / base, 5)
-
-                } else {
-
+                }
+                else 
+                {
                     factor = _.round(input_global_discount / 100, 5)
                     amount = factor * base
                 }
 
                 this.form.total_discount = _.round(amount, 2)
-                this.form.total = _.round(this.form.total - amount, 2)
 
-                this.form.discounts.push({
-                    discount_type_id: '03',
-                    description: 'Descuentos globales que no afectan la base imponible del IGV/IVAP',
-                    factor: factor,
-                    amount: _.round(amount, 2),
-                    base: base
-                })
+                // descuentos que afectan la bi
+                if(this.isGlobalDiscountBase)
+                {
+                    this.form.total_taxed = _.round(base - this.form.total_discount, 2)
+                    this.form.total_value = this.form.total_taxed
+                    this.form.total_igv = _.round(this.form.total_taxed * (percentage_igv / 100), 2)
+    
+                    //impuestos (isc + igv + icbper)
+                    this.form.total_taxes = _.round(this.form.total_igv + this.form.total_isc + this.form.total_plastic_bag_taxes, 2);
+                    this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
+                    this.form.subtotal = this.form.total
+
+                    if (this.form.total <= 0) this.$message.error("El total debe ser mayor a 0, verifique el tipo de descuento asignado (Configuración/Avanzado/Contable)")
+
+                }
+                // descuentos que no afectan la bi
+                else
+                {
+                    this.form.total = _.round(this.form.total - amount, 2)
+                }
+
+                this.setGlobalDiscount(factor, _.round(amount, 2), base)
 
             }
 
@@ -3431,18 +3531,21 @@ export default {
         close() {
             location.href = (this.is_contingency) ? `/contingencies` : `/${this.resource}`
         },
-        reloadDataCustomers(customer_id) {
+        async reloadDataCustomers(customer_id) {
             // this.$http.get(`/${this.resource}/table/customers`).then((response) => {
             //     this.customers = response.data
             //     this.form.customer_id = customer_id
             // })
-            this.$http.get(`/${this.resource}/search/customer/${customer_id}`).then((response) => {
+            await this.$http.get(`/${this.resource}/search/customer/${customer_id}`).then((response) => {
                 this.customers = response.data.customers
                 this.form.customer_id = customer_id
             })
         },
         changeCustomer() {
+
             this.customer_addresses = [];
+            this.form.customer_address_id = null;
+
             let customer = _.find(this.customers, {'id': this.form.customer_id});
             this.customer_addresses = customer.addresses;
             if (customer.address) {
@@ -3485,7 +3588,7 @@ export default {
         },
         initDataPaymentCondition01() {
 
-            this.readonly_date_of_due = true
+            this.readonly_date_of_due = false
             this.enabled_payments = true
             this.form.date_of_due = this.form.date_of_issue
             this.form.payment_method_type_id = null
@@ -3498,7 +3601,6 @@ export default {
 
                 this.clickAddPayment();
                 this.initDataPaymentCondition01()
-                this.readonly_date_of_due = true
 
             }
             if (this.form.payment_condition_id === '02') {

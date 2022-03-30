@@ -10,3 +10,5 @@
     - [Configuración SUNAT](/{{route}}/{{version}}/configuracion-nuevo-validador)
 - ## Atributos para items
   - [Stock por atributos](/{{route}}/{{version}}/stock-por-atributos)
+- ## Reportes
+  - [Instalación de supervisor](/{{route}}/{{version}}/instalacion-supervisor)

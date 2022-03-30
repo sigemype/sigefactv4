@@ -245,8 +245,16 @@
 </template>
 <script>
 
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+
     export default {
         props: ['showDialog', 'recordId', 'external'],
+
+        computed: {
+            ...mapState([
+                'config',
+            ]),
+        },
         data() {
             return {
                 loading_submit: false,
@@ -276,6 +284,7 @@
             }
         },
         async created() {
+            this.loadConfiguration()
 
             await this.initForm()
             await this.$http.get(`/${this.resource}/tables`)
@@ -289,9 +298,11 @@
 
                     this.form.sale_affectation_igv_type_id = (this.affectation_igv_types.length > 0)?this.affectation_igv_types[0].id:null
                     this.form.purchase_affectation_igv_type_id = (this.affectation_igv_types.length > 0)?this.affectation_igv_types[0].id:null
+                    this.$store.commit('setConfiguration', response.data.configuration)
                 })
         },
         methods: {
+            ...mapActions(['loadConfiguration']),
             onSuccess(response, file, fileList) {
                 if (response.success) {
                     this.form.image = response.data.filename
