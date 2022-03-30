@@ -308,6 +308,7 @@
       :showDialog.sync="showDialogSaleNoteOptions"
       :recordId="documentNewId"
       :showClose="true"
+      :configuration="configuration"
     ></sale-note-options>
   </div>
 </template>

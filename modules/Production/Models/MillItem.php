@@ -23,7 +23,9 @@
      * @property Carbon|null $updated_at
      * @property Item|null   $item
      * @property Mill|null   $mill
+     * @property string|null $item_extra_data
      * @package Modules\Production\Models
+     * @mixin ModelTenant
      */
     class MillItem extends ModelTenant
     {
@@ -45,8 +47,9 @@
             'mill_id',
             'height_to_mill',
             'total_height',
-            'quantity'
-        ];
+            'quantity',
+            'item_extra_data'
+   ];
 
         /**
          * @return BelongsTo
@@ -87,6 +90,51 @@
         public function setItemAttribute($value)
         {
             $this->attributes['item'] = (null === $value) ? null : json_encode($value);
+        }
+
+
+        /**
+         * @param $value
+         *
+         * @return object|null
+         */
+        public function getItemExtraDataAttribute($value)
+        {
+            return (null === $value) ? null : (object) json_decode($value);
+        }
+
+        /**
+         * @param $value
+         */
+        public function setItemExtraDataAttribute($value)
+        {
+            $this->attributes['item_extra_data'] = (null === $value) ? null : json_encode($value);
+        }
+
+        public  function  getColorString(){
+            $color = null;
+            $item_extra_data = $this->item_extra_data;
+            if($item_extra_data){
+                $item_extra_data = (array)$item_extra_data;
+                $data['color'] = null;
+                if(isset($item_extra_data ['color'])) {
+                    $colorId = (int)$item_extra_data ['color'];
+                    $itemColor = \App\Models\Tenant\ItemColor::find($colorId);
+                    $color = $itemColor->getColor()->name;
+                    $data['color'] = $color;
+                }
+            }
+            return $color;
+        }
+        public function getCollectionData(){
+            $data = $this->toArray();
+            $item = $this->item;
+
+            $data['item_name']= $item->description;
+            $data['total_to_mill']= $this->height_to_mill;
+            $data['total_get']= $this->total_height;
+            $data['color']= $this->getColorString();
+            return $data;
         }
     }
 

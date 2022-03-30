@@ -6,7 +6,7 @@
                 <li class="active"><span>Gastos diversos</span></li>
             </ol>
             <div class="right-wrapper pull-right pt-2">
-                <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel"></i> Exportar Excel </el-button>
+                <!--<el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel"></i> Exportar Excel </el-button>-->
                 <a :href="`/${resource}/create`" class="btn btn-custom btn-sm "><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
@@ -23,7 +23,7 @@
                         <th class="text-center">Moneda</th>
                         <th class="text-right">Total</th>
                         <th class="text-center">Dist. Gasto</th>
-                    <tr>
+                    </tr>
                     <tr slot-scope="{ index, row }" :class="{'text-danger': (row.state_type_id === '11'), 'text-warning': (row.state_type_id === '13'), 'border-light': (row.state_type_id === '01'), 'border-left border-info': (row.state_type_id === '03'), 'border-left border-success': (row.state_type_id === '05'), 'border-left border-secondary': (row.state_type_id === '07'), 'border-left border-dark': (row.state_type_id === '09'), 'border-left border-danger': (row.state_type_id === '11'), 'border-left border-warning': (row.state_type_id === '13')}">
                         <td>{{ index }}</td>
                         <td class="text-center">{{ row.date_of_issue }}</td>
@@ -83,7 +83,7 @@
 
 <script>
 
-    import DataTable from '@components/DataTable.vue'
+    import DataTable from '../../components/DataTableExpenses.vue'
     import DocumentPayments from './partials/payments.vue'
     import ExpenseVoided from './partials/voided.vue'
     import ExpensePayments from '@viewsModuleExpense/expense_payments/payments.vue'
@@ -115,7 +115,7 @@
                 this.recordId = recordId;
                 this.showDialogVoided = true;
             },
-            clickDownload(download) {
+            /*clickDownload(download) {
                 let data = this.$root.$refs.DataTable.getSearch();
                 let query = queryString.stringify({
                     'column': data.column,
@@ -123,7 +123,7 @@
                 });
 
                 window.open(`/${this.resource}/report/excel/?${query}`, '_blank');
-            },
+            },*/
             clickOptions(recordId = null) {
                 this.recordId = recordId
                 this.showDialogOptions = true

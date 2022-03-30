@@ -79,7 +79,7 @@
                         </div>
                     </template>
 
-                    <div class="col-3">
+                    <div class="col-2">
                         <label class="control-label" style="width: 100%;">
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </label>
@@ -91,6 +91,20 @@
                             <i class="fa fa-cash-register"></i>
                             Transferir entre cuentas
                         </el-button>
+                    </div>
+                    <div class="col-2">
+                        <label class="control-label">
+                            Moneda
+                        </label>
+                        <el-select v-model="form.currency_type_id"
+                                   @change="changeCurrency">
+                            <el-option key="PEN"
+                                       label="Soles"
+                                       value="PEN"></el-option>
+                            <el-option key="USD"
+                                       label="Dolares"
+                                       value="USD"></el-option>
+                        </el-select>
                     </div>
                     <div class="col-lg-7 col-md-7 col-md-7 col-sm-12"
                          style="margin-top:29px">
@@ -161,9 +175,9 @@
                             <td class="text-center">{{ row.income_payment | DecimalText }}</td>
                             <td class="text-center">{{ row.purchase_payment | DecimalText }}</td>
                             <td class="text-center">{{ row.expense_payment | DecimalText }}</td>
-                            <td class="text-center">S/ {{ row.bank_loan | DecimalText }}</td>
-                            <td class="text-center">S/ {{ row.bank_loan_payment | DecimalText }}</td>
-                            <td class="text-center">S/ {{ row.balance | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ row.bank_loan | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ row.bank_loan_payment | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ row.balance | DecimalText }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
@@ -172,21 +186,21 @@
                                 colspan="2">Totales
                             </td>
                             <td v-if="resource !== 'finances/payment-method-types'"
-                                class="text-center">S/ {{
+                                class="text-center">{{curencySymbol}} {{
                                     totals.t_initial_balance | DecimalText
                                                     }}
                             </td>
-                            <td class="text-center">S/ {{ totals.t_documents | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_sale_notes | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_quotations | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_contracts | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_technical_services | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_income | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_purchases | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_expenses | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_bank_loan | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_bank_loan_payment | DecimalText }}</td>
-                            <td class="text-center">S/ {{ totals.t_balance | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_documents | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_sale_notes | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_quotations | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_contracts | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_technical_services | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_income | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_purchases | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_expenses | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_bank_loan | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_bank_loan_payment | DecimalText }}</td>
+                            <td class="text-center">{{curencySymbol}} {{ totals.t_balance | DecimalText }}</td>
                         </tr>
                         </tfoot>
                     </table>
@@ -249,6 +263,9 @@ export default {
         ...mapState([
             'config',
         ]),
+        curencySymbol() {
+            return this.form.currency_type_id == 'PEN' ? 'S/': '$'
+        }
     },
     created() {
         this.loadConfiguration()
@@ -280,6 +297,7 @@ export default {
                 date_end: moment().format('YYYY-MM-DD'),
                 month_start: moment().format('YYYY-MM'),
                 month_end: moment().format('YYYY-MM'),
+                currency_type_id: 'PEN'
             }
         },
         ShowTransferModal(){
@@ -354,6 +372,10 @@ export default {
             }
             // this.loadAll();
         },
+        changeCurrency() {
+            this.$emit('changeCurrency', this.form.currency_type_id)
+            this.getRecords()
+        }
 
 
     }

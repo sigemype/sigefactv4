@@ -19,6 +19,7 @@
     use InvalidArgumentException;
     use Modules\DocumentaryProcedure\Exports\TramiteExport;
     use Modules\DocumentaryProcedure\Http\Requests\DocumentarySimplifyRequest;
+    use Modules\DocumentaryProcedure\Http\Resources\DocumentaryFileCollection;
     use Modules\DocumentaryProcedure\Models\DocumentaryAction;
     use Modules\DocumentaryProcedure\Models\DocumentaryDocument;
     use Modules\DocumentaryProcedure\Models\DocumentaryFile as Expediente;
@@ -68,23 +69,14 @@
             ];
         }
 
-        /**
-         * Return Collection to json
-         *
-         * @param Request $request
-         *
-         * @return mixed
-         */
         public function getData(Request $request)
         {
 
             $holiday = $this->holidays;
-            $record = $this
+            $records = $this
                 ->getRecords($request)
-                ->get()
-                ->transform(function (Expediente $row) use ($holiday) {
-                    return $row->getCollectionData($holiday);
-                });
+                ;
+            return new DocumentaryFileCollection($records->paginate(config('tenant.items_per_page')));
             return json_decode($record);
         }
 
@@ -97,19 +89,26 @@
         public function getRecords(Request $request, $id = 0)
         {
             $files = Expediente::with('offices')
-                ->orderBy('id', 'DESC')
+                ->orderBy('documentary_files.id', 'DESC')
             ;
             if($request->has('archived') && $request->archived === true){
                 $files->WithArchive();
             }else{
                 $files->WithOutArchive();
-
             }
+
+
+
+            $guides = DocumentaryGuidesNumber::query();
             $dateStart = ($request->has('date_start')) ? $request->date_start : Carbon::now()->format('Y-m-d');
             $dateEnd = ($request->has('date_end')) ? $request->date_end : Carbon::now()->format('Y-m-d');
 
             $files->whereBetween('date_register', [$dateStart, $dateEnd]);
-            $userType = auth()->user()->type;
+            $documentary_office_id = 0;
+            if ($request->has('documentary_office_id') && !empty($request->documentary_office_id)) {
+                $documentary_office_id = (int)$request->documentary_office_id;
+            }
+                $userType = auth()->user()->type;
             if ($userType !== 'admin') {
                 $etapas = UserRelStages::where([
                     'user_id' => auth()->user()->id,
@@ -130,34 +129,24 @@
             }
             if ($request->has('guide')) {
                 $guide = $request->guide;
-
-                $d = DocumentaryGuidesNumber::where('guide','like',"%$guide%")->distinct()->get()->pluck('doc_file_id');
-
-                $files->wherein('id',$d);
-
-
+                $guides->where('guide','like',"%$guide%");
+                $files->wherein('id',$guides->distinct()->get()->pluck('doc_file_id'));
             }
-            if ($request->has('documentary_office_id') && !empty($request->documentary_office_id)) {
-                $files->where('documentary_office_id', $request->documentary_office_id);
 
-                /*
-                $files->whereHas('offices', function ($query) use ($request) {
-                    $query->where('documentary_office_id', $request->documentary_office_id);
-                });
-                */
+
+            if ($documentary_office_id != 0) {
+                $files->where('documentary_guides_number_status_id',$documentary_office_id);
             }
+
+
+            if($request->has('expired') && $request->expired === true){
+
+                 $files->Expired();
+            }
+
             if ($id != 0) {
                 $files->where('id', $id);
             }
-            /*
-            if ($request->has('simplify') && $request->simplify == 1) {
-                // Tramite documentario simplificado
-                $files->withSimplify();
-            } else {
-                $files->withOutSimplify();
-            }
-            */
-
             return $files;
         }
 
@@ -402,7 +391,7 @@
 
             $id = $request->has('id')?$request->id:null;
             $guides = $request->guides;
-   $date_register = Carbon::createFromFormat('Y-m-d H:i:s',$request->date_register." ".$request->time_register);
+            $date_register = Carbon::createFromFormat('Y-m-d H:i:s',$request->date_register." ".$request->time_register);
 
 
             /*    'user_id',
@@ -860,16 +849,22 @@
                 ], 500);
             }
         }
+
         /**
-         * @param $id
+         * @param Request $request
+         * @param         $id
          *
          * @return JsonResponse
          */
-        public function archive($id)
+        public function archive(Request $request, $id)
         {
             try {
                 $file = Expediente::findOrFail($id);
-                $file->setArchive(true)->push();
+                $reason = $request->reason;
+                if(!empty($reason)){
+                    $file->setObservation($reason);
+                }
+                 $file->setArchive(true)->push();
                 return response()->json([
                     'data' => null,
                     'message' => 'Expediente archivado de forma correcta.',
@@ -1185,60 +1180,46 @@
         public function calculateEndDays(Request $request){
 
             $date = (!$request->has('date_take'))?Carbon::now()->format('Y-m-d H:i'):$request->date_take;
-            $endDate = (!$request->has('date_end'))?Carbon::now()->format('Y-m-d H:i'):$request->date_end;
+            $totalDays = (!$request->has('total_day'))?1:(int)$request->total_day;
             $byDay =  ($request->has('by_day'))?$request->by_day:true;
-            if(empty($endDate)){
-                $endDate = Carbon::now()->addDay();
-            }
+
             try {
                 $date = Carbon::createFromFormat('Y-m-d H:i:s',$date);
             }catch (InvalidArgumentException $e){
                 $date = Carbon::createFromFormat('Y-m-d H:i',$date);
             }
-            try {
-                $endDate = Carbon::createFromFormat('Y-m-d H:i:s',$endDate);
-            }catch (InvalidArgumentException $e){
-                $endDate = Carbon::createFromFormat('Y-m-d H:i',$endDate);
-            }
-             if($byDay === false){
-
-                 $totalDays = 0;
-                 while ($date <= $endDate) {
-                     if ($date->isWeekend()) {
-                         $days[]="Fin de semana ".$date->format('Y-m-d');
-                     } elseif (in_array($date->format('d-m-Y'),$this->holidays)) {
-                         $days[] = 'Feriado '.$date->format('Y-m-d');
-                     } else {
-                         ++$totalDays;
-                         $days[] = 'Normal '.$date->format('Y-m-d');
-
-                     }
-                     $date = $date->addDay();
-                 }
 
 
-                return [
-                    'date_end'=>$endDate->format('Y-m-d H:i:s'),
-                    'total_day'=>$totalDays,
-                ];
-             }
-            $totalDays = (!$request->has('total_day'))?1:(int)$request->total_day;
-            $currentDay = 1;
+
+            $currentDay = 0;
             $days = [];
-            while ($currentDay <= $totalDays) {
+            while ($currentDay < $totalDays) {
+                $date->addDay();
+                $notWork = in_array($date->format('d-m-Y'), $this->holidays);
                 if ($date->isWeekend()) {
-                    $days[]="Fin de semana ".$date->format('Y-m-d');
-                } elseif (in_array($date->format('d-m-Y'),$this->holidays)) {
-                    $days[] = 'Feriado '.$date->format('Y-m-d');
+                    $days["($currentDay/$totalDays) ".$date->format('d-m-Y') . " FIN"] = "Fin de semana " . $date->format('Y-m-d');
+                    if($currentDay == 0) $currentDay = -1;// si lo inicia fin de semana, se contabiliza el ingreso el lunes siguiente
+                } elseif ($notWork) {
+                    if ($byDay == false) {
+                        // dias normales
+                        ++$currentDay;
+                    }
+                    $days["($currentDay/$totalDays) ".$date->format('d-m-Y') . " FER"] = 'Feriado ' . $date->format('Y-m-d');
                 } else {
                     ++$currentDay;
-                    $days[] = 'Normal '.$date->format('Y-m-d');
-
+                    $days["($currentDay/$totalDays) ".$date->format('d-m-Y') . " NOR"] = 'Normal ' . $date->format('Y-m-d');
                 }
-                $date = $date->addDay();
+
+                // $date = $date->addDay();
             }
             return [
                 'date_end'=>$date->format('Y-m-d H:i:s'),
+                'total_day'=>$totalDays,
+                'current_day'=>$currentDay,
+                'byDay'=>$byDay,
+                'days'=>$days,
+                'date_take'=>$request->date_take,
+                'holidays'=>$this->holidays,
             ];
         }
 

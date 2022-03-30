@@ -217,6 +217,15 @@
                                     </tr>
                                     </tfoot>
                                 </table>
+                                <div>
+                                    <el-pagination
+                                            @current-change="getRecords"
+                                            layout="total, prev, pager, next"
+                                            :total="pagination.total"
+                                            :current-page.sync="pagination.current_page"
+                                            :page-size="pagination.per_page">
+                                    </el-pagination>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -239,7 +248,7 @@
 <script>
 
 import moment from "moment";
-
+import queryString from "query-string";
 export default {
     props: [],
     data() {
@@ -271,6 +280,7 @@ export default {
                     return this.form.date_start > time
                 }
             },
+            pagination: {},
         }
     },
     created() {
@@ -360,12 +370,18 @@ export default {
                     this.categories = response.data.categories;
                 });
         },
+        getQueryParameters() {
+            return queryString.stringify({
+                page: this.pagination.current_page,
+                limit: this.limit,
+                ...this.form
+            });
+        },
         async getRecords() {
             if (_.isNull(this.form.warehouse_id)) {
                 this.$message.error('Seleccionar un almacén ');
                 return false;
             }
-            // this.loading = true;
             this.records = [];
             this.total_profit = 0;
             this.total_all_profit = 0;
@@ -375,12 +391,12 @@ export default {
                 delete this.form.date_start
                 delete this.form.date_end
             }
-            // Remover filtro de fecha
 
-            await this.$http.post(`/${this.resource}/records`, this.form)
+            await this.$http.get(`/${this.resource}/records?${this.getQueryParameters()}`)
                 .then(response => {
-
-                    this.records = response.data;
+                    this.records = response.data.data;
+                    this.pagination = response.data.meta
+                    this.pagination.per_page = parseInt(response.data.meta.per_page)
                     this.calculeTotalProfit()
                 })
             this.loading = false;
@@ -400,24 +416,24 @@ export default {
             await this.$http({
                 url: `/${this.resource}/export`,
                 method: 'POST',
-                responseType: 'blob',
                 data: {
-                    'records': this.records,
-                    'totals': this.totals,
                     'format': format,
-                }
+                    'filter': this.form.filter,
+                    'warehouse_id': this.form.warehouse_id,
+                },
             })
                 .then(response => {
                     let res = response.data;
-                    if (res.type === 'application/json') {
-                        this.$message.error('Error al exportar');
+                    if (res.success) {
+                        this.$message.success(res.message);
                     } else {
-                        const url = window.URL.createObjectURL(new Blob([res]));
+                        this.$message.error('Error al exportar');
+                        /*const url = window.URL.createObjectURL(new Blob([res]));
                         const link = document.createElement('a');
                         link.href = url;
                         link.setAttribute('download', 'ReporteInv_' + moment().format('HHmmss') + '.' + format);
                         document.body.appendChild(link);
-                        link.click();
+                        link.click();*/
                     }
                 })
                 .catch(error => {

@@ -4,10 +4,11 @@
             <div class="form-body">
                 <div class="row">
 
-                    <!-- <div class="col-md-6">
+                    <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.item_id}">
                             <label class="control-label">Producto</label>
                             <el-select v-model="form.item_id"
+                                      :clearable="true"
                                        filterable
                                        remote
                                        :remote-method="searchRemoteItems"
@@ -20,7 +21,7 @@
                             <small class="form-control-feedback" v-if="errors.item_id"
                                    v-text="errors.item_id[0]"></small>
                         </div>
-                    </div>  -->
+                    </div>
 
 
                     <div class="col-md-3">

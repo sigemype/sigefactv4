@@ -51,8 +51,25 @@ Route::middleware(['locked.tenant'])->prefix('ecommerce')->group(function() {
     Route::get('record', 'ConfigurationController@record');
 
     Route::post('uploads', 'ConfigurationController@uploadFile');
+    
 
+    //Item Sets
+    Route::prefix('item-sets')->group(function() {
 
+        Route::get('', 'ItemSetController@index')->name('tenant.ecommerce.item_sets.index')->middleware('redirect.level');
+        Route::get('columns', 'ItemSetController@columns');
+        Route::get('records', 'ItemSetController@records');
+        Route::get('tables', 'ItemSetController@tables');
+        Route::get('record/{item}', 'ItemSetController@record');
+        Route::post('', 'ItemSetController@store');
+        Route::delete('{item}', 'ItemSetController@destroy');
+        Route::delete('item-unit-type/{item}', 'ItemSetController@destroyItemUnitType');
+        Route::post('import', 'ItemSetController@import');
+        Route::post('upload', 'ItemSetController@upload');
+        Route::post('visible_store', 'ItemSetController@visibleStore');
+        Route::get('item/tables', 'ItemSetController@item_tables');
+
+    });
 
 
 });

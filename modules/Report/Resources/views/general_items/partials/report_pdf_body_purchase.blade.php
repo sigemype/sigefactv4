@@ -2,6 +2,8 @@
 ?>
 <tr>
     <td class="celda">{{$document->date_of_issue->format('Y-m-d')}}</td>
+    <td class="celda">{{ optional($document->user)->name}}</td>
+
     {{--
     @if($isSaleNote)
         <td class="celda">{{ $stablihsment['district'] }}</td>
@@ -33,7 +35,11 @@
     <td class="celda">{{$value->item->description}}</td>
     <td class="celda">{{$value->relation_item->category->name}}</td>
     <td class="celda">{{number_format($value->quantity, 2)}}</td>
+    
     <td class="celda">{{number_format($value->unit_price, 2)}}</td>
+    <td class="celda">{{optional($value->system_isc_type)->description}}</td>
+    <td class="celda"> {{$value->total_isc > 0 ? $value->total_isc : ''}}</td>
+
     <td class="celda">{{number_format($value->total, 2)}}</td>
     {{-- <td class="celda"></td> --}}
 

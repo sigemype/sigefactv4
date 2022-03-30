@@ -22,6 +22,7 @@
     use App\Traits\OfflineTrait;
     use Barryvdh\DomPDF\Facade as PDF;
     use Carbon\Carbon;
+    use Illuminate\Database\Query\Builder;
     use Illuminate\Http\Request;
     use Illuminate\Http\Response;
     use Illuminate\Routing\Controller;
@@ -41,7 +42,7 @@
     use Modules\Production\Models\MillItem;
     use Modules\Inventory\Models\InventoryTransaction;
     use Modules\Inventory\Models\Inventory;
-
+    use Modules\Production\Models\Production;
 
 
     class MillController extends Controller
@@ -306,11 +307,73 @@
         });
     }
 
-        public function records()
+        public function records(Request $request)
         {
-            $records = Mill::query();
+
+            $records = $this->getRecords($request);
             return new MillCollection($records->paginate(config('tenant.items_per_page')));
 
+        }
+        /**
+         * @param Request $request
+         *
+         * @return \Illuminate\Database\Eloquent\Builder|Builder|Production
+         */
+        public function getDatesOfPeriod($request)
+        {
+
+            if ($request->has('form')) {
+                $request = json_decode($request->form, true);
+            }
+            $period = $request['period'];
+            $date_start = $request['date_start'];
+            $date_end = $request['date_end'];
+            $month_start = $request['month_start'];
+            $month_end = $request['month_end'];
+
+            $d_start = Carbon::now()->startOfMonth()->format('Y-m-d');
+            $d_end = Carbon::now()->endOfMonth()->format('Y-m-d');
+            /** @todo: Eliminar periodo, fechas y cambiar por
+             * $date_start = $request['date_start'];
+             * $date_end = $request['date_end'];
+             * \App\CoreFacturalo\Helpers\Functions\FunctionsHelper\FunctionsHelper::setDateInPeriod($request, $date_start, $date_end);
+             */
+            switch ($period) {
+                case 'month':
+                    $d_start = Carbon::parse($month_start . '-01')->format('Y-m-d');
+                    $d_end = Carbon::parse($month_start . '-01')->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'between_months':
+                    $d_start = Carbon::parse($month_start . '-01')->format('Y-m-d');
+                    $d_end = Carbon::parse($month_end . '-01')->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'date':
+                    $d_start = $date_start;
+                    $d_end = $date_start;
+                    break;
+                case 'between_dates':
+                    $d_start = $date_start;
+                    $d_end = $date_end;
+                    break;
+            }
+
+
+            return [
+                'd_start' => $d_start,
+                'd_end' => $d_end
+            ];
+        }   public function getRecords(Request $request)
+        {
+            $data_of_period = $this->getDatesOfPeriod($request);
+
+            $data = Mill::query();
+            if (!empty($data_of_period['d_start'])) {
+                $data->where('date_start', '>=', $data_of_period['d_start']);
+            }
+            if (!empty($data_of_period['d_end'])) {
+                $data->where('date_end', '<=', $data_of_period['d_end']);
+            }
+            return $data;
         }
 
         public function record($id)
@@ -388,7 +451,7 @@
         public function excel(Request $request)
         {
             // $records = $this->getData($request);
-            $records = Mill::query()->get()->transform(function (Mill $row) {
+            $records = $this->getRecords($request)->get()->transform(function (Mill $row) {
                 return $row->getCollectionData();
             });
 
@@ -404,7 +467,8 @@
 
         public function pdf(Request $request) {
             // $records = $this->getData($request);
-            $records = Mill::query()->get()->transform(function (Mill $row) {
+
+            $records = $this->getRecords($request)->get()->transform(function (Mill $row) {
                 return $row->getCollectionData();
             });
 

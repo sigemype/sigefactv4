@@ -333,7 +333,6 @@ class CashController extends Controller
                     'tipo' => 'expense_payment',
                 ];
             }
-
             /** Documentos de Tipo compras */
             else if ($cash_document->purchase) {
 
@@ -378,8 +377,40 @@ class CashController extends Controller
                     'tipo'                      => 'purchase',
                 ];
             }
-
-
+            else if ($cash_document->quotation) {
+                $quotation = $cash_document->quotation;
+                if (in_array($quotation->state_type_id, $status_type_id)) {
+                    $record_total = 0;
+                    $total = self::CalculeTotalOfCurency(
+                        $quotation->total,
+                        $quotation->currency_type_id,
+                        $quotation->exchange_rate_sale
+                    );
+                    $cash_income += $total;
+                    $final_balance += $total;
+                    if (count($quotation->payments) > 0) {
+                        $pays = $quotation->payments;
+                        foreach ($methods_payment as $record) {
+                            $record_total = $pays->where('payment_method_type_id', $record->id)->sum('payment');
+                            $record->sum = ($record->sum + $record_total);
+                        }
+                    }
+                }
+                $temp = [
+                    'type_transaction'          => 'Venta (Pago a cuenta)',
+                    'document_type_description' => 'COTIZACION  ',
+                    'number'                    => $quotation->number_full,
+                    'date_of_issue'             => $quotation->date_of_issue->format('Y-m-d'),
+                    'date_sort'                 => $quotation->date_of_issue,
+                    'customer_name'             => $quotation->customer->name,
+                    'customer_number'           => $quotation->customer->number,
+                    'total'                     => ((!in_array($quotation->state_type_id, $status_type_id)) ? 0
+                        : $quotation->total),
+                    'currency_type_id'          => $quotation->currency_type_id,
+                    'usado'                     => $usado." ".__LINE__,
+                    'tipo'                      => 'sale_note',
+                ];
+            }
 
 
             if (!empty($temp)) {

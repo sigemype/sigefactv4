@@ -23,12 +23,19 @@ $plus = $plus ?? 4;
 <th style="width:{{$plus+1}}%;">UNIDAD DE MEDIDA</th>
 <th style="width:{{$plus+1}}%;">MARCA</th>
 <th style="width:{{$plus+8}}%;">DESCRIPCIÓN</th>
-@if($type == 'sale')
+{{-- @if($type == 'sale')
+    se comenta porque genera inconsistencia en columnas
     <th style="width:{{$plus+1}}%;">MODELO</th>
-@endif
+@endif --}}
 <th style="width:{{$plus+1}}%;">CATEGORÍA</th>
 <th style="width:{{$plus+1}}%;">CANTIDAD</th>
 <th style="width:5%;">PRECIO UNITARIO</th>
+
+@if($type == 'purchase')
+<th> TIPO DE ISC</th>
+<th> ISC</th>
+@endif
+
 <th style="width:5%;">TOTAL</th>
 @if($type == 'sale')
     <th style="width:6%;">TOTAL COMPRA</th>

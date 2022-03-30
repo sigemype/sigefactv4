@@ -4,9 +4,13 @@
 
     use \Exception;
     use App\Models\Tenant\DocumentItem;
+    use App\Models\Tenant\Document;
+    use App\Models\Tenant\SaleNote;
+    use App\Models\Tenant\Quotation;
     use App\Models\Tenant\Item;
     use App\Models\Tenant\PurchaseItem;
     use App\Models\Tenant\SaleNoteItem;
+    use App\Models\Tenant\QuotationItem;
     use Illuminate\Http\Request;
     use Illuminate\Routing\Controller;
     use Illuminate\Support\Facades\DB;
@@ -18,6 +22,7 @@
     use Modules\Item\Imports\ItemListWithExtraData;
     use Modules\Item\Models\ItemLot;
     use Picqer\Barcode\BarcodeGeneratorPNG;
+    use Illuminate\Support\Carbon;
 
 
     class ItemController extends Controller
@@ -176,6 +181,63 @@
 
 
             return new ItemHistoryPurchasesCollection($purchases->orderBy('created_at', 'desc')->paginate(config('tenant.items_per_page_simple_d_table_params')));
+
+        }
+
+        public function itemtLastSale(Request $request) {
+            
+            $type_document = $request->type_document;
+            $customer_id = $request->customer_id;
+            $item_id = $request->item_id;
+
+            $item = null;
+            if($type_document == 'CPE') {
+
+                $item = DocumentItem::whereHas('document', function ($query) use ($customer_id) {
+                    $query->where('customer_id', $customer_id);
+                })->orderBy('id', 'desc')->where('item_id', $item_id)->first();
+
+            }
+            else if($type_document == 'NV') {
+
+                $item = SaleNoteItem::whereHas('sale_note', function ($query) use ($customer_id) {
+                    $query->where('customer_id', $customer_id);
+                })->orderBy('id', 'desc')->where('item_id', $item_id)->first();
+
+            }
+            else  if($type_document == 'QUOTATION') {
+
+                $document_cpe_item = DocumentItem::whereHas('document', function ($query) use ($customer_id) {
+                    $query->where('customer_id', $customer_id);
+                })->orderBy('id', 'desc')->where('item_id', $item_id)->first();
+                
+
+                $sale_note_item = SaleNoteItem::whereHas('sale_note', function ($query) use ($customer_id) {
+                    $query->where('customer_id', $customer_id);
+                })->orderBy('id', 'desc')->where('item_id', $item_id)->first();
+
+                if($document_cpe_item && $sale_note_item) {
+
+                    if(Carbon::parse($document_cpe_item->document->created_at)->gte(Carbon::parse($sale_note_item->sale_note->created_at)) ){
+                        $item = $document_cpe_item;
+                    }
+                    else {
+                        $item = $sale_note_item;
+                    }
+                }
+                else {
+                    if ($document_cpe_item) {
+                        $item = $document_cpe_item;
+                    }elseif($sale_note_item){
+                        $item = $sale_note_item;
+                    }
+                }
+            }
+
+            return [
+                'unit_price' => $item ? $item->unit_price: null,
+                'item_id' => $item ? $item->id: null,
+            ];
 
         }
 

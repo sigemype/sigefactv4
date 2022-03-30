@@ -70,6 +70,35 @@
             'total_day',
         ];
 
+        protected static function boot()
+        {
+            parent::boot();
+            static::saved(function (self $model) {
+                self::updateDocumentary($model);
+
+            });
+            static::updated(function(self$model){
+                self::updateDocumentary($model);
+            });
+
+        }
+
+        public  static  function  updateDocumentary(self $model){
+
+            $doc_file_id = (int)$model->doc_file_id;
+            // $files =DocumentaryFile::where('id',$doc_file_id)->last();
+            $steps =self::where('doc_file_id',$doc_file_id)->orderBy('created_at','desc')->first();
+            $doc_file_id = DocumentaryFile::find($doc_file_id);
+            if(!empty($doc_file_id) && !empty($steps)) {
+                $doc_file_id->documentary_guides_number_status_id = $steps->doc_office_id;
+                $doc_file_id->date_end = $steps->date_end;
+                $doc_file_id->push();
+            }
+
+            return $model;
+        }
+
+
         /**
          * @return BelongsTo
          */
@@ -141,7 +170,7 @@
                 return $row->getCollectionData();
             });
             $this->office = $this->doc_office ;
-            $class = 'badge bg-secondary text-white ';
+            $class = 'badge bg-secondary text-white font-14 ';
 
 
             if(!empty( $this->date_end )){

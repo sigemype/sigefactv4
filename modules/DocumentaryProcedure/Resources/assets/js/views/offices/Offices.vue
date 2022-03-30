@@ -26,7 +26,8 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 col-md-4 mb-3">
-                        <form class="form-group" @submit.prevent="onFilter">
+                        <form class="form-group"
+                              @submit.prevent="onFilter">
                             <div class="input-group mb-3">
                                 <input
                                     v-model="filter.name"
@@ -37,7 +38,7 @@
                                 <div class="input-group-append">
                                     <button
                                         class="btn btn-outline-secondary"
-                                        style="border-color: #ced4da"
+                                        style="border-color: #CED4DA"
                                         type="submit"
                                     >
                                         <i class="fa fa-search"></i>
@@ -95,6 +96,7 @@
                                 >
                                     <i class="fa fa-edit"></i>
                                 </el-button>
+                                <!--
                                 <el-button
                                     :disabled="loading"
                                     type="danger"
@@ -102,6 +104,7 @@
                                 >
                                     <i class="fa fa-trash"></i>
                                 </el-button>
+                                -->
                             </td>
                         </tr>
                         </tbody>

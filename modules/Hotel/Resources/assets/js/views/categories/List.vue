@@ -35,8 +35,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in items" :key="item.id">
-                <td class="text-right">{{ item.id }}</td>
+              <tr v-for="(item, index) in items" :key="item.id">
+                <td class="text-right">{{ (index+1) }}</td>
                 <td>{{ item.description }}</td>
                 <td class="text-center">
                   <span v-if="item.active">Si</span>

@@ -194,6 +194,30 @@
             });
         }
 
+        /**
+         * obtiene la fecha en ingles y la devuelve en español
+         * @param string $date
+         *
+         * @return string
+         */
+        protected static  function  setSpanishDate($date = ''){
+            $dates = [
+                'january'=>'Enero',
+                'february'=>'Febrero',
+                'march'=>'Marzo',
+                'april'=>'Abril',
+                'may'=>'Mayo',
+                'june'=>'Junio',
+                'july'=>'Julio',
+                'august'=>'Agosto',
+                'september'=>'Septiembre',
+                'october'=>'Octubre',
+                'november'=>'Noviembre',
+                'december'=>'Diciembre',
+            ];
+            $date = strtolower($date);
+            return $dates[$date] ?? ucfirst($date);
+        }
         public static function setSaleNote(self $plan)
         {
             $qtyPeriods = (int)$plan->getQuantityPeriod();
@@ -229,20 +253,15 @@
             ])->first();
             $ids = [];
             $time_of_issue = Carbon::now()->format('H:m:s');
-            for ($i = 1; $i <= $qtyPeriods; $i++) {
+            for ($i = 0; $i < $qtyPeriods; $i++) {
                 $date_of_issue = $start_date;
-                if ($typerPeriod->period == 'Y') {
-                    $date = $start_date->addYear();
-                } else {
-                    $date = $start_date->addMonth();
-
-                }
+                $date = $start_date;
                 $due_date = $date;
                 $payments = [];
                 $items = json_decode(json_encode($plan->items), true);
                 $item = [];
                 foreach ($items as $it) {
-                    $time = $date->formatLocalized('%B');
+                    $time = self::setSpanishDate($date->formatLocalized('%B'));
                     if (isset($it['name_product_pdf'])) {
                         if ( !empty($item['name_product_pdf'])) {
                             $it['name_product_pdf'] .= " - $time";
@@ -330,6 +349,12 @@
                     'id' => $this->sale_note->id,
                 ],
             ];*/
+                if ($typerPeriod->period == 'Y') {
+                    $start_date->addYear();
+                } else {
+                    $start_date->addMonth();
+
+                }
             }
             return $ids;
 

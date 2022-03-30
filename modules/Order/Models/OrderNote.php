@@ -23,7 +23,9 @@
     use Illuminate\Database\Eloquent\Relations\MorphMany;
     use Illuminate\Support\Collection;
     use Modules\Inventory\Models\InventoryKardex;
+    use App\Models\Tenant\Item;
     use Modules\Item\Models\ItemLot;
+    use Modules\Item\Models\ItemLotsGroup;
 
 
     /**
@@ -115,7 +117,7 @@
             'soap_type',
             'state_type',
             'currency_type',
-            'items'
+            'items',
         ];
 
         protected $fillable = [
@@ -415,6 +417,14 @@
             return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
         }
 
+        public function scopeSearchByDate(Builder $query, $params)
+        {
+            if ($params['date_start'] !== null && $params['date_end'] !== null) {
+                $query->where([['date_of_issue', '>=', $params['date_start']], ['date_of_due', '<=', $params['date_end']]]);
+            }
+
+            return $query;
+        }
 
         /**
          * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
@@ -519,6 +529,20 @@
                         }
                     }
                 }
+
+                if (isset($item->lots_group)) {
+                    if(is_array($item->lots_group) && count($item->lots_group) > 0) {
+                            $lots_group = $item->lots_group;
+    
+                            foreach ($lots_group as $ltg) {
+                                $lot = ItemLotsGroup::query()->find($ltg->id);
+                                $lot->quantity = $lot->quantity + $ltg->compromise_quantity;
+                                $lot->save();
+                            }
+                    }
+                }
+
+
             }
             $this->state_type_id = '11';
             return $this;
@@ -547,6 +571,16 @@
                 $state_type_description = 'Despachado';
                 // #596
             }
+            $miTiendaPe = MiTiendaPe::where('order_note_id',$this->id)->first();
+            if(empty($miTiendaPe)){
+                $miTiendaPe =[
+                    'order_number'=>null,
+                ];
+            }else{
+                $miTiendaPe=[
+                'order_number'=>$miTiendaPe->order_number,
+                    ];
+            }
 
             return [
                 'id' => $this->id,
@@ -573,18 +607,28 @@
                 'documents' => $this->documents->transform(function ($row) {
                     /** @var Document $row */
                     return [
+                        'id' => $row->id,
                         'number_full' => $row->number_full,
                         'state_type_id' => $row->state_type_id,
+                        'order_note_id' => $row->order_note_id,
+                        'series' => $row->series,
                     ];
                 }),
-                'sale_notes' => $this->sale_notes->transform(function ($row) {
-                    /** @var SaleNote $row */
+                'sale_notes' => $this->sale_notes,
+                'items_details' => $this->items->transform(function ($row) {
+                    /** @var Document $row */
                     return [
-                        'identifier' => $row->identifier,
-                        'state_type_id' => $row->state_type_id,
+                        'item_details' => Item::where('id',$row->item_id)->get(),
+                        'item' => $row->item,
+                        'discounts' => $row->discounts,
+                        'quantity' => $row->quantity,
+                        'unit_price' => $row->unit_price,
+                        'total_discount' => $row->total_discount,
+
                     ];
                 }),
                 'btn_generate' => $btn_generate,
+                'mi_tienda_pe' => $miTiendaPe,
                 'dispatches' => $dispatches,
                 'created_at' => $this->created_at->format('Y-m-d H:i:s'),
                 'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),

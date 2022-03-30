@@ -28,6 +28,12 @@ class GeneralItemCollection extends ResourceCollection
             if($platform !== null){
                 $platform = $platform->name;
             }
+            $observation=null;
+            if(get_class($row)== \App\Models\Tenant\PurchaseItem::class){
+                /** @var \App\Models\Tenant\PurchaseItem $row */
+                $purchase = $row->purchase;
+                $observation=$purchase->observation;
+            }
             return [
                 'id' => $row->id,
                 'unit_type_id' => $row->item->unit_type_id,
@@ -56,7 +62,8 @@ class GeneralItemCollection extends ResourceCollection
                 'model' => $model,
                 'platform' => $platform,
                 // 'resource'=>$resource,
-                 'purchase_item'=>$purchase_item,
+                'purchase_item'=>$purchase_item,
+                'observation'=>$observation,
             ];
         });
     }

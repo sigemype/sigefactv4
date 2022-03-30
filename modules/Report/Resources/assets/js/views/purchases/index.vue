@@ -5,7 +5,7 @@
         </div>
         <div class="card mb-0">
                 <div class="card-body">
-                    <data-table :resource="resource"  :applyCustomer="true">
+                    <data-table :resource="resource"  :applyCustomer="true" :colspanFootPurchase="9">
                         <tr slot="heading">
                             <th class="">#</th>
                             <th class="">F. Emisión</th>
@@ -17,13 +17,14 @@
                             <th class="">F. Pago</th>
                             <th class="text-center">Moneda</th>
                             <th>Percepcion</th>
+
+                            <th class="">T. ISC</th>
                             <th class="" >T. Exonerado</th>
 
                             <th class="" >T. Inafecta</th>
                             <th class="" >T. Gratuito</th>
                             <th class="">T. Gravado</th>
                             <th class="">T. IGV</th>
-
                             <th class="">Total</th>
                         <tr>
                         <tr slot-scope="{ index, row }">
@@ -41,6 +42,7 @@
                             </td>
                             <td class="text-center">{{ row.currency_type_id }}</td>
                             <td class="text-right">{{ (row.total_perception && row.state_type_id != '11') ? row.total_perception : '0.00' }}</td>
+                            <td>{{ row.state_type_id == '11' ? '0.00' : row.total_isc}}</td>
 
                             <td>{{ row.state_type_id == '11' ? '0.00' : row.total_exonerated}}</td>
 

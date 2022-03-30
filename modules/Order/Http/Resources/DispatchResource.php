@@ -57,7 +57,12 @@ class DispatchResource extends JsonResource
             'has_cdr' => $has_cdr,
             'response_type' => $response_type,
             'download_cdr' => $this->download_external_cdr,
-            'message_text' => "Su guía {$this->number_full} ha sido generada correctamente, puede revisarla en el siguiente enlace: ".url('')."/downloads/dispatch/pdf/{$this->external_id}".""
+            'message_text' => "Su guía {$this->number_full} ha sido generada correctamente, puede revisarla en el siguiente enlace: ".url('')."/downloads/dispatch/pdf/{$this->external_id}"."",
+            
+            'send_to_pse' => $this->send_to_pse,
+            'response_signature_pse' => optional($this->response_signature_pse)->message,
+            'response_send_cdr_pse' => optional($this->response_send_cdr_pse)->message,
+
         ];
     }
 }

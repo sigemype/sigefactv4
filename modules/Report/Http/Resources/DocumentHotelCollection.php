@@ -14,6 +14,8 @@ class DocumentHotelCollection extends ResourceCollection
 
         return $this->collection->transform(function(DocumentHotel $row, $key){
 
+            $document = $row->document;
+            $items = $document->items;
 
 
             return [
@@ -33,6 +35,7 @@ class DocumentHotelCollection extends ResourceCollection
                 'date_exit' => $row->date_exit,
                 'time_exit' => $row->time_exit,
                 'document' => $row->document->number_full,
+                'items' => $items,
 
 
             ];

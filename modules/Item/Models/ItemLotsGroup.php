@@ -25,6 +25,7 @@ class ItemLotsGroup extends ModelTenant
         'quantity',
         'date_of_due',
         'item_id',
+        'old_quantity'
     ];
 
     public function item()

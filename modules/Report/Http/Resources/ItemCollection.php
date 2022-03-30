@@ -15,12 +15,16 @@ class ItemCollection extends ResourceCollection
         return $this->collection->transform(function ($row, $key) {
 
 
+            $observation = null;
             $class = get_class($row);
             if ($class == PurchaseItem::class) {
                 /** @var \App\Models\Tenant\PurchaseItem $row */
                 $document = $row->purchase;
                 $customer_name = $document->supplier->name;
                 $customer_number = $document->supplier->number;
+                /** @var \App\Models\Tenant\PurchaseItem $row */
+                $purchase = $row->purchase;
+                $observation=$purchase->observation;
             } else {
                 /** @var \App\Models\Tenant\DocumentItem $row */
                 $document = $row->document;
@@ -42,7 +46,7 @@ class ItemCollection extends ResourceCollection
                 'document_type_description' => $document->document_type->description,
                 'document_type_id'          => $document->document_type->id,
                 'web_platform_name'         => optional($row->relation_item->web_platform)->name,
-
+                'observation'=>$observation,
 
             ];
         });

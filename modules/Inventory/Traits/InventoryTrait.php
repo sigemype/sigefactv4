@@ -477,9 +477,24 @@ trait InventoryTrait
         // dd($document_item);
         if (isset($document_item->item->IdLoteSelected)) {
             if ($document_item->item->IdLoteSelected != null) {
-                $lot = ItemLotsGroup::find($document_item->item->IdLoteSelected);
-                $lot->quantity = $lot->quantity + $document_item->quantity;
-                $lot->save();
+
+                if(is_array($document_item->item->IdLoteSelected)) { 
+
+                    $lotesSelecteds = $document_item->item->IdLoteSelected;
+
+                    foreach ($lotesSelecteds as $item) {
+                        $lot = ItemLotsGroup::query()->find($item->id);
+                        $lot->quantity = $lot->quantity + $item->compromise_quantity;
+                        $lot->save();
+                    }
+                    
+                }else {
+                    $lot = ItemLotsGroup::find($document_item->item->IdLoteSelected);
+                    $lot->quantity = $lot->quantity + $document_item->quantity;
+                    $lot->save();
+                }
+
+              
             }
         }
         if (isset($document_item->item->lots)) {
@@ -500,13 +515,15 @@ trait InventoryTrait
     private function deleteItemLots($item)
     {
         $i_lots_group = isset($item->item->lots_group) ? $item->item->lots_group : [];
-        $lot_group_selected = collect($i_lots_group)->first(function ($row) {
-            return $row->checked;
-        });
-        if ($lot_group_selected) {
-            $lot = ItemLotsGroup::find($lot_group_selected->id);
-            $lot->quantity = $lot->quantity + $item->quantity;
-            $lot->save();
+        $lot_group_selecteds_filter = collect($i_lots_group)->where('compromise_quantity', '>', 0);
+        $lot_group_selecteds =  $lot_group_selecteds_filter->all();
+
+        if (count($lot_group_selecteds) > 0) {
+            foreach ($lot_group_selecteds as $lt) {
+                $lot = ItemLotsGroup::find($lt->id);
+                $lot->quantity = $lot->quantity + $lt->compromise_quantity;
+                $lot->save();
+            }
         }
         if (isset($item->item->lots)) {
             foreach ($item->item->lots as $it) {
@@ -537,7 +554,7 @@ trait InventoryTrait
             $factor = 1;
             $warehouse = $this->findWarehouse();
             $this->createInventoryKardex($document_item->document, $ind_item->id, ($factor * ($document_item->quantity * $presentationQuantity * $item_set_quantity)), $warehouse->id);
-            if (!$document_item->document->sale_note_id && !$document_item->document->order_note_id) $this->updateStock($ind_item->id, ($factor * ($document_item->quantity * $presentationQuantity * $item_set_quantity)), $warehouse->id);
+            if (!$document_item->document->sale_note_id && !$document_item->document->order_note_id && !$document_item->document->sale_notes_relateds) $this->updateStock($ind_item->id, ($factor * ($document_item->quantity * $presentationQuantity * $item_set_quantity)), $warehouse->id);
         }
     }
     /**
@@ -643,6 +660,7 @@ trait InventoryTrait
         $item_warehouse->stock = $item_warehouse->stock + $quantity;
         $item_warehouse->save();
     }
+
     /**
      * Al borrar item, se descuenta el stock
      * @param DocumentItem $document_item
@@ -655,16 +673,21 @@ trait InventoryTrait
         $presentationQuantity = (!empty($document_item->item->presentation)) ? $document_item->item->presentation->quantity_unit : 1;
         $document = $document_item->document;
         $warehouse = ($document_item->warehouse_id) ? $this->findWarehouse($this->findWarehouseById($document_item->warehouse_id)->establishment_id) : $this->findWarehouse();
+
         $this->createInventoryKardex($document_item->document, $document_item->item_id, ($factor * ($document_item->quantity * $presentationQuantity)), $warehouse->id);
-        if (!$document_item->document->sale_note_id && !$document_item->document->order_note_id && !$document_item->document->dispatch_id) {
+
+        if (!$document_item->document->sale_note_id && !$document_item->document->order_note_id && !$document_item->document->dispatch_id && !$document_item->document->sale_notes_relateds) 
+        {
             $this->updateStock($document_item->item_id, ($factor * ($document_item->quantity * $presentationQuantity)), $warehouse->id);
-        } else {
+        } else
+        {
             if ($document_item->document->dispatch) {
                 if (!$document_item->document->dispatch->transfer_reason_type->discount_stock) {
                     $this->updateStock($document_item->item_id, ($factor * ($document_item->quantity * $presentationQuantity)), $warehouse->id);
                 }
             }
         }
+
     }
 
 

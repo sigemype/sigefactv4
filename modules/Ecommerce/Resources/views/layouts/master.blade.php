@@ -128,15 +128,14 @@
                    <div class="widget-banners-slider owl-carousel owl-theme">
                      @forelse($records as $data)
                             @if($data->apply_store === 1)
-
-                    <figure class="product-image-container boxing">
-                        <a href="/ecommerce/item/{{ $data->id }}" class="product-image">
-                            <img src="{{ asset('storage/uploads/items/'.$data->image) }}" alt="product" class="image">
-                        </a>
-                        <a href="{{route('item_partial', ['id' => $data->id])}}" class="btn-quickview">Vista Rápida</a>
-                     <span class="product-label label-hot">New Sales Recent</span>
-                                <span class="product-label">{{$data->description}}</span>
-                    </figure>
+                                <figure class="product-image-container boxing">
+                                    <a href="/ecommerce/item/{{ $data->id }}" class="product-image">
+                                        <img src="{{ asset('storage/uploads/items/'.$data->image) }}" alt="product" class="image">
+                                    </a>
+                                    <a href="{{route('item_partial', ['id' => $data->id])}}" class="btn-quickview">Vista Rápida</a>
+                                    <span class="product-label label-hot">New Sales Recent</span>
+                                    <span class="product-label">{{$data->description}}</span>
+                                </figure>
                             @endif
                         @empty
                             <div class="widget widget-banner">
@@ -145,12 +144,10 @@
                                         <img src="{{ asset('porto-ecommerce/assets/images/banners/banner-sidebar.jpg') }}"
                                             alt="Banner Desc">
                                     </a>
-                            </div><!-- End .banner -->
+                            </div>
                         </div>
                     @endforelse
-                            <!-- End .banner -->
-                 </div><!-- End .banner-slider -->
-                       <!-- End .widget or  SlideShow-->
+                 </div>
                 </div>
 
 

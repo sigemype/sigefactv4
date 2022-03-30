@@ -8,6 +8,8 @@ use App\Models\Tenant\PurchaseItem;
 use App\Models\Tenant\SaleNoteItem;
 use Carbon\Carbon;
 use Modules\Expense\Models\Expense;
+use App\Models\Tenant\SaleNote;
+
 
 class DashboardUtility
 {
@@ -116,9 +118,10 @@ class DashboardUtility
         $getTotalSaleNoteItems = $this->getTotalSaleNoteItems($sale_note_items);
         $getTotalExpenses = $this->getTotalExpenses($expenses);
 
-        // dd($getTotalDocumentItems, $getTotalSaleNoteItems, $getTotalExpenses);
+        // $total_global_discount_sale_note = $this->getTotalGlobalDiscountSaleNote($establishment_id, $d_start, $d_end, $item_id);
 
         $total_income = $getTotalDocumentItems['document_sale_total'] + $getTotalSaleNoteItems['sale_note_sale_total'];
+
         $total_egress = $getTotalDocumentItems['document_purchase_total'] + $getTotalSaleNoteItems['sale_note_purchase_total'] + $getTotalExpenses;
         $utility = $total_income - $total_egress;
 
@@ -169,15 +172,16 @@ class DashboardUtility
 
         if($record->item->unit_type_id != 'ZZ'){
 
-            if($record->relation_item->purchase_unit_price > 0){
+            if(isset($record->item->purchase_unit_price)) {
+                $purchase_unit_price = (float)$record->item->purchase_unit_price;
+            }
+            else if($record->relation_item->purchase_unit_price > 0){ //cambiar por ->item
 
                 $purchase_unit_price = $record->relation_item->purchase_unit_price;
-
             }else{
 
                 $purchase_item = PurchaseItem::select('unit_price')->where('item_id', $record->item_id)->latest('id')->first();
                 $purchase_unit_price = ($purchase_item) ? $purchase_item->unit_price : $record->unit_price;
-
             }
 
         }
@@ -185,7 +189,44 @@ class DashboardUtility
         return $purchase_unit_price;
     }
 
-    private function getTotalSaleNoteItems($sale_note_items){
+
+    /**
+     * 
+     * Obtener total de descuentos globales de nota de venta
+     * @TODO revisar total descuento cuando afecta a la BI
+     * 
+     * @param $establishment_id
+     * @param $d_start
+     * @param $d_end
+     * @param $item_id
+     * @return float
+     */
+    // private function getTotalGlobalDiscountSaleNote($establishment_id, $d_start, $d_end, $item_id)
+    // {
+    //     return SaleNote::whereFilterDashboardUtility($establishment_id, $d_start, $d_end, $item_id)->sum('total_discount');
+    // }
+
+
+    
+    /**
+     * 
+     * Obtener totales de nota de venta basado en los items filtrados
+     *
+     * @param  $sale_note_items
+     * @return float
+     */
+    private function getTotalSaleNotesByItems($sale_note_items)
+    {
+        return SaleNote::whereRecordsByItems($sale_note_items->pluck('sale_note_id')->toArray())
+                                ->get()
+                                ->sum(function($sale_note){
+                                    return $sale_note->getTransformTotal();
+                                });
+    }
+    
+
+    private function getTotalSaleNoteItems($sale_note_items)
+    {
 
         $purchase_unit_price = 0;
 
@@ -199,7 +240,11 @@ class DashboardUtility
         $sale_note_purchase_total_usd = 0;
         $sale_note_utility_total_usd = 0;
 
-        foreach ($sale_note_items as $sln) {
+        //obtener total globales de nv
+        $total_global_sale_notes = $this->getTotalSaleNotesByItems($sale_note_items);
+
+        foreach ($sale_note_items as $sln) 
+        {
 
             $purchase_unit_price = $this->getPurchaseUnitPrice($sln);
 
@@ -207,38 +252,26 @@ class DashboardUtility
 
             if($sln->sale_note->currency_type_id === 'PEN'){
 
-                    $sale_note_purchase_total_pen += $sln_total_purchase;
-                    $sale_note_sale_total_pen += $sln->total;
+                $sale_note_purchase_total_pen += $sln_total_purchase;
+                // $sale_note_sale_total_pen += $sln->total;
 
             }else{
 
                 $sale_note_purchase_total_usd += $sln_total_purchase;
-                $sale_note_sale_total_usd += $sln->total * $sln->sale_note->exchange_rate_sale;
+                // $sale_note_sale_total_usd += $sln->total * $sln->sale_note->exchange_rate_sale;
 
             }
 
         }
 
-        $sale_note_utility_total_pen = $sale_note_sale_total_pen - $sale_note_purchase_total_pen;
-        $sale_note_utility_total_usd = $sale_note_sale_total_usd - $sale_note_purchase_total_usd;
-
-
         return [
-
-            // 'sale_note_sale_total_pen' => round($sale_note_sale_total_pen, 2),
-            // 'sale_note_purchase_total_pen' => round($sale_note_purchase_total_pen, 2),
-
-            // 'sale_note_purchase_total_usd' => round($sale_note_purchase_total_usd, 2),
-            // 'sale_note_sale_total_usd' => round($sale_note_sale_total_usd, 2),
-
-            // 'sale_note_utility_total_pen' => round($sale_note_utility_total_pen, 2),
-            // 'sale_note_utility_total_usd' => round($sale_note_utility_total_usd, 2),
-
-            'sale_note_sale_total' => $sale_note_sale_total_usd + $sale_note_sale_total_pen,
+            'sale_note_sale_total' => $total_global_sale_notes,
+            // 'sale_note_sale_total' => $sale_note_sale_total_usd + $sale_note_sale_total_pen,
             'sale_note_purchase_total' => $sale_note_purchase_total_usd + $sale_note_purchase_total_pen,
-
         ];
+
     }
+
 
     private function getTotalDocumentItems($document_items) {
         $purchase_unit_price = 0;

@@ -8,6 +8,40 @@
             <div class="right-wrapper pull-right">
                 <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
+
+            <div class="btn-group flex-wrap pull-right" v-if="config.mi_tienda_pe === true">
+                <button
+                    aria-expanded="false"
+                    class="btn btn-custom btn-sm mt-2 mr-2 dropdown-toggle"
+                    data-toggle="dropdown"
+                    type="button"
+                >
+                    <i class="fa fa-upload"></i>
+                    Importar
+                    <span class="caret"></span>
+                </button>
+                <div
+                    class="dropdown-menu"
+                    role="menu"
+                    style="
+                                position: absolute;
+                                will-change: transform;
+                                top: 0px;
+                                left: 0px;
+                                transform: translate3d(0px, 42px, 0px);
+                            "
+                    x-placement="bottom-start"
+                >
+                    <a
+                        class="dropdown-item text-1"
+                        href="#"
+                        @click.prevent="clickImport()"
+                    >
+                        MiTienda.Pe
+                    </a
+                    >
+                </div>
+            </div>
         </div>
         <div class="card mb-0">
             <div class="data-table-visible-columns">
@@ -36,6 +70,7 @@
                         <th v-if="columns.sale_notes.visible">Notas de venta</th>
                         <th v-if="columns.quotation.visible">Cotizacion</th>
                         <th v-if="columns.dispatches.visible">Guías</th>
+                        <th v-if="columns.mi_tienda_pe.visible">#Pedido MiTienda.Pe</th>
                         <!-- <th>Estado</th> -->
                         <th class="text-center">Moneda</th>
                         <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
@@ -80,6 +115,14 @@
                             <label :key="i" v-text="dispach.number" class="d-block"></label>
                         </template>
                     </td>
+
+                    <td v-if="columns.mi_tienda_pe.visible">
+                        <!-- Codigo mi tienda -->
+                        <template v-if="row.mi_tienda_pe && row.mi_tienda_pe.order_number">
+                        {{row.mi_tienda_pe.order_number}}
+                        </template>
+                    </td>
+
                         <!-- <td>{{ row.state_type_description }}</td> -->
                         <td class="text-center">{{ row.currency_type_id }}</td>
                         <td class="text-right"  v-if="columns.total_exportation.visible" >{{ row.total_exportation }}</td>
@@ -129,7 +172,12 @@
                               :recordId="recordId"
                               :showClose="true"
                               :configuration="configuration"></quotation-options-pdf>
+
+            <mi-tienda-pe
+                :showDialog.sync="showMiTiendaPeDialog"
+            ></mi-tienda-pe>
         </div>
+
     </div>
 </template>
 <style scoped>
@@ -141,8 +189,10 @@
 
     import QuotationOptions from './partials/options.vue'
     import QuotationOptionsPdf from './partials/options_pdf.vue'
+    import MiTiendaPe from './mi_tienda_pe.vue'
     import DataTable from '../../components/DataTable.vue'
     import {deletable} from '@mixins/deletable'
+    import {mapActions, mapState} from "vuex";
 
     export default {
         props:[
@@ -150,12 +200,27 @@
             'soapCompany',
             'configuration'
         ],
-        mixins: [deletable],
-        components: {DataTable,QuotationOptions, QuotationOptionsPdf},
+        mixins: [
+            deletable
+        ],
+        components: {
+            DataTable,
+            QuotationOptions,
+            MiTiendaPe,
+            QuotationOptionsPdf
+        },
+        created() {
+            this.$store.commit('setConfiguration',this.configuration)
+            this.loadConfiguration()
+            if(this.config.mi_tienda_pe === true){
+                this.getMiTiendaDataData()
+            }
+        },
         data() {
             return {
                 resource: 'order-notes',
                 recordId: null,
+                showMiTiendaPeDialog: false,
                 showDialogOptions: false,
                 showDialogOptionsPdf: false,
                 columns: {
@@ -186,6 +251,7 @@
                     sale_notes: {
                         title: 'Notas de venta',
                         visible: true
+
                     },
                     quotation: {
                         title: 'Cotizacion',
@@ -195,10 +261,18 @@
                         title: 'Guías de Remisión',
                         visible: false,
                     },
+                    mi_tienda_pe: {
+                        title: 'Pedido MiTienda.Pe',
+                        visible: false,
+                    },
                 }
             }
         },
         computed:{
+                ...mapState([
+                    'config',
+                    'mi_tienda_pe',
+                ]),
             seller_can_generate_cpe(){
                 if(
                     (this.typeUser === 'admin') ||
@@ -214,6 +288,13 @@
             },
         },
         methods: {
+            ...mapActions([
+                'loadConfiguration',
+            ]),
+
+            clickImport() {
+                this.showMiTiendaPeDialog = true;
+            },
             cantEdited(row){
                 if(row &&
                     row.documents &&
@@ -261,14 +342,12 @@
                 this.recordId = recordId
                 this.showDialogOptionsPdf = true
             },
-            clickAnulate(id)
-            {
+            clickAnulate(id){
                 this.voided(`/${this.resource}/voided/${id}`).then(() =>
                     this.$eventHub.$emit('reloadData')
                 )
             },
-            duplicate(id)
-            {
+            duplicate(id){
                 this.$http.post(`${this.resource}/duplicate`, {id})
                 .then(response => {
                     if (response.data.success) {
@@ -282,7 +361,17 @@
 
                 })
                 this.$eventHub.$emit('reloadData')
-            }
+            },
+
+            getMiTiendaDataData(){
+                this.$http.post(`/mi_tienda_pe/getdata`)
+                    .then((response) => {
+                        let data = response.data
+                        this.$store.commit('setMiTiendaPe', data.configurationMiTienda)
+
+                    });
+
+            },
         }
     }
 </script>

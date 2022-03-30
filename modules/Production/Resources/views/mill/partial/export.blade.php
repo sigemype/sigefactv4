@@ -101,13 +101,16 @@ $half = 50;
     <thead>
     <tr>
         <th>#</th>
-        <th>Número de registro</th>
+        <th>Número de Ficha</th>
         <th>Cód. Interno</th>
         <th>Fecha de inicio</th>
         <th>Fecha de fin</th>
         <th>Insumo</th>
+        <th>Color</th>
         <th>Cantidad Molida</th>
         <th>Cantidad Obtenida</th>
+        <th>Molino</th>
+        <th>Lote</th>
         <th>Usuario</th>
         <th>Comentario</th>
 
@@ -119,9 +122,9 @@ $half = 50;
         @if($row['mill_items']->count()>0)
             @foreach($row['mill_items'] as $millItem)
                 <?php
-                /** @var MillItem $millItem */
-                $item = $millItem->item;
-
+                    $millItemModel = MillItem::find($millItem['id']);
+                    $itemCollection = $millItemModel->getCollectionData();
+                $item = $millItemModel->item;
 
                 ?>
                 <tr>
@@ -130,17 +133,20 @@ $half = 50;
                     <td class="celda">000{{ $row['id']??null }}</td>
                     <td class="celda">{{ $row['date_start']??null }} - {{$row['time_start']??null}}</td>
                     <td class="celda">{{ $row['date_end']??null }} - {{$row['time_end']??null}}</td>
-
                     <td class="celda">
-
                         @if(!empty($item->internal_id)) {{$item->internal_id}} - @endif
                         {{$item->description}}
 
                     </td>
+                    <td class="celda">
+                         {{isset($itemCollection['color'])?$itemCollection['color']:'-'}}
 
-                    <td class="celda">{{ $millItem['height_to_mill']??"-" }}</td>
-                    <td class="celda">{{ $millItem['total_height']??"-" }}</td>
-                    <td class="celda">{{ $row['user']??null }}</td>
+                    </td>
+                    <td class="celda">{{$itemCollection['total_to_mill']}} </td>
+                    <td class="celda">{{$itemCollection['total_get']}} </td>
+                    <td class="celda">{{ $row['mill_name']??"-" }} </td>
+                    <td class="celda">{{ $row['lot_code']??"-" }} </td>
+                    <td class="celda">{{ $row['user']??null }} </td>
                     <td class="celda">{{ $row['comment']??null }} </td>
 
 
@@ -157,11 +163,20 @@ $half = 50;
                 <td class="celda">
                     -
                 </td>
+                <td class="celda">
+                    -
+                </td>
 
                 <td class="celda">-</td>
                 <td class="celda">-</td>
+                <td class="celda">{{ $row['mill_name']??"-" }} </td>
+                <td class="celda">{{ $row['lot_code']??"-" }} </td>
+
                 <td class="celda">{{ $row['user']??null }}</td>
                 <td class="celda">{{ $row['comment']??null }} </td>
+
+
+
 
 
             </tr>

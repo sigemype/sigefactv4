@@ -12,8 +12,6 @@
     use Illuminate\Database\Eloquent\Collection;
     use Illuminate\Database\Eloquent\Relations\BelongsTo;
     use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-    use Illuminate\Database\Eloquent\Relations\MorphMany;
-    use Modules\Inventory\Models\InventoryKardex;
 
 
     /**
@@ -30,8 +28,12 @@
      * @property Carbon|null       $created_at
      * @property Carbon|null       $updated_at
      * @property User|null         $user
-     * @property Collection|Item[] $items
+     * @property Collection|Item[]   $items
+     * @property string|null     $mill_name
+     * @property string|null     $lot_code
      * @package Modules\Production\Models
+     * @mixin ModelTenant
+     *
      */
     class Mill extends ModelTenant
     {
@@ -53,6 +55,8 @@
             'time_end',
             'user_id',
             'comment',
+            'mill_name',
+            'lot_code',
         ];
 
         /**
@@ -76,9 +80,10 @@
         public function getCollectionData(){
             $data = $this->toArray();
 
-
             $data['items'] = $this->items;
-            $data['mill_items'] = MillItem::where('mill_id',$this->id)->get();
+            $data['mill_items'] = MillItem::where('mill_id', $this->id)->get()->transform(function (MillItem $row) {
+                return $row->getCollectionData();
+            });
             $data['user'] = (!empty($this->user))?$this->user->name:'';
             $data['created_at'] = $this->created_at->format('Y-m-d H:i:s');
             return $data;

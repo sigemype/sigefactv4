@@ -146,7 +146,13 @@ trait ReportTrait
         }
         /** @var \Illuminate\Database\Eloquent\Builder  $data */
         if ($document_type_id && $establishment_id) {
-            $data->where([['establishment_id', $establishment_id], ['document_type_id', $document_type_id]]);
+            if($document_type_id == '80') {
+                $data->where([['establishment_id', $establishment_id]]);
+            }
+            else {
+                $data->where([['establishment_id', $establishment_id], ['document_type_id', $document_type_id]]);
+            }
+            
         } elseif ($document_type_id) {
             if (in_array($document_type_id, [
                 '01',
@@ -163,7 +169,8 @@ trait ReportTrait
                 }
             }
         } elseif ($establishment_id) {
-            $data->where('establishment_id', 'like', '%'.$establishment_id.'%');
+            // $data->where('establishment_id', 'like', '%'.$establishment_id.'%');
+            $data->where('establishment_id', $establishment_id);
         }
 
 

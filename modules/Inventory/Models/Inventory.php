@@ -75,7 +75,9 @@
             'inventory_transaction_id',
             'lot_code',
             'detail',
-            'inventories_transfer_id'
+            'inventories_transfer_id',
+            'comments',
+            'created_at'
         ];
 
         /**
@@ -166,15 +168,16 @@
      * @param  $date_start
      * @param  $date_end
      */
-    public function scopeWhereFilterReportMovement($query, $warehouse_id, $inventory_transaction_id, $date_start, $date_end)
+    public function scopeWhereFilterReportMovement($query, $warehouse_id, $inventory_transaction_id, $date_start, $date_end, $item_id)
     {
         return $query->with(['inventory_kardex'])
                     ->where('warehouse_id', $warehouse_id)
                     ->where('inventory_transaction_id', $inventory_transaction_id)
-                    ->whereHas('inventory_kardex', function($query) use($date_start, $date_end){
+                    ->whereHas('inventory_kardex', function($query) use($date_start, $date_end, $item_id){
 
                         if ($date_start) $query->where('date_of_issue', '>=', $date_start);
                         if ($date_end) $query->where('date_of_issue', '<=', $date_end);
+                        if ($item_id) $query->where('item_id', $item_id);
 
                     });
     }

@@ -55,6 +55,7 @@
                             <th>#</th>
                             <th>Trámite</th>
                             <th>Descripción</th>
+                            <th>Terminos y condiciones</th>
                             <th>Activo</th>
                             <th>Precio</th>
                             <th></th>
@@ -84,6 +85,34 @@
                                 {{ item.name }}
                             </td>
                             <td>{{ item.description }}</td>
+                            <td>
+
+                                <!--
+                                <el-tooltip v-if="item.documentary_terms && item.documentary_terms.length > 0"
+                                            placement="right-start">
+                                    <div slot="content">
+                                        Requisitos:
+                                        <ul v-for="(requirement) in item.documentary_terms">
+                                            <li>
+                                                {{ requirement.term_name }}
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+                                {{ item.name }}
+                                -->
+
+                                <ul v-for="(requirement) in item.documentary_terms">
+                                    <li>
+                                        {{ requirement.term_name }}
+                                    </li>
+                                </ul>
+
+
+                            </td>
+
                             <td class="text-center">
                                 <span v-if="item.active">Si</span>
                                 <span v-else>No</span>

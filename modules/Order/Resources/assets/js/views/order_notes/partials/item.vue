@@ -142,6 +142,11 @@
                                    v-text="errors.unit_price[0]"></small>
                         </div>
                     </div>
+                     <div v-if="showLots" class="col-md-3 col-sm-3" style="padding-top: 1%;">
+                        <a class="text-center font-weight-bold text-info" href="#" @click.prevent="clickLotGroup">[&#10004;
+                                                                                                                  Seleccionar
+                                                                                                                  lote]</a>
+                    </div>
 
                     <div v-if="showSeries"
                          class="col-md-3 col-sm-3"
@@ -220,7 +225,7 @@
                                         <td class="text-center">{{ row.price3 }}</td>
                                         <td class="text-center">Precio {{ row.price_default }}</td>
                                         <td class="series-table-actions text-right">
-                                            <button class="btn waves-effect waves-light btn-xs btn-success"
+                                            <button :class="getSelectedClass(row)" class="btn waves-effect waves-light btn-xs"
                                                     type="button"
                                                     @click.prevent="selectedPrice(row)">
                                                 <i class="el-icon-check"></i>
@@ -436,8 +441,18 @@
         <select-lots-form
             :lots="lots"
             :showDialog.sync="showDialogSelectLots"
+            :itemId="form.item_id"
+             :quantity="form.quantity"
+            @addRowSelectLot="addRowSelectLot"
         >
         </select-lots-form>
+
+        <lots-group
+            :lots_group="form.lots_group"
+            :quantity="form.quantity"
+            :showDialog.sync="showDialogLots"
+            @addRowLotGroup="addRowLotGroup">
+        </lots-group>
 
     </el-dialog>
 </template>
@@ -451,7 +466,7 @@
 
 // import WarehousesDetail from './warehouses.vue'
 import ItemForm from "../../../../../../../../resources/js/views/tenant/items/form";
-import LotsGroup from "../../../../../../../../resources/js/views/tenant/documents/partials/lots_group";
+import LotsGroup from "../../../../../../../../resources/js/views/tenant/sale_notes/partials/lots_group";
 
 import {calculateRowItem} from '@helpers/functions'
 import WarehousesDetail from '@views/documents/partials/select_warehouses.vue'
@@ -542,11 +557,6 @@ export default {
         ]),
 
         showLots() {
-            // if (
-            //     this.form.item_id &&
-            //     this.form.item.lots_enabled &&
-            //     this.form.lots_group.length > 0
-            // )
 
             if (this.form.item_id && this.form.item.lots_enabled) {
                 return true;
@@ -983,6 +993,8 @@ export default {
 
             (this.item_unit_types.length > 0) ? this.has_list_prices = true : this.has_list_prices = false;
 
+            this.form.lots_group = this.form.item.lots_group
+
             this.cleanTotalItem();
         },
 
@@ -1017,6 +1029,13 @@ export default {
         },
         async clickAddItem() {
 
+            this.validateQuantity()
+
+            if (this.form.item.lots_enabled) {
+                if (!this.form.IdLoteSelected)
+                    return this.$message.error('Debe seleccionar un lote.');
+            }
+
             let select_lots = await _.filter(this.form.item.lots, {'has_sale': true})
 
             if (this.form.item.series_enabled) {
@@ -1035,8 +1054,9 @@ export default {
 
             this.form.item.presentation = this.item_unit_type;
             this.form.affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.affectation_igv_type_id});
+            let IdLoteSelected = this.form.IdLoteSelected
             this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
-
+            this.row.IdLoteSelected = IdLoteSelected
             this.initForm();
 
             // this.initializeFields()
@@ -1080,33 +1100,43 @@ export default {
             this.form.item.unit_type_id = this.item_unit_type.unit_type_id;
         },
         selectedPrice(row) {
-            let valor = 0
-            switch (row.price_default) {
-                case 1:
-                    valor = row.price1
-                    break
-                case 2:
-                    valor = row.price2
-                    break
-                case 3:
-                    valor = row.price3
-                    break
+            if (this.isSelectedPrice(row)) {
 
+                this.form.item_unit_type_id = null
+                this.item_unit_type = {}
+                this.form.unit_price = this.form.item.sale_unit_price
+                this.form.unit_price_value = this.form.item.sale_unit_price
+                this.form.item.unit_type_id = this.form.item.original_unit_type_id
+
+            } else {
+
+                let valor = 0
+                switch (row.price_default) {
+                    case 1:
+                        valor = row.price1
+                        break
+                    case 2:
+                        valor = row.price2
+                        break
+                    case 3:
+                        valor = row.price3
+                        break
+
+                }
+                this.form.item_unit_type_id = row.id
+                this.item_unit_type = row
+                this.form.unit_price = valor
+                this.form.unit_price_value = valor
+                this.form.item.unit_type_id = row.unit_type_id
             }
 
-
-            this.item_unit_type = row
-            this.form.unit_price = valor
-            this.form.item.unit_type_id = row.unit_type_id
-            this.form.item_unit_type_id = row.id
+            this.calculateQuantity()
         },
         getItems() {
             this.$http.get(`/${this.resource}/item/tables`).then(response => {
                 this.items = response.data.items
             })
         },
-
-
         addRowLotGroup(id) {
             this.form.IdLoteSelected = id
         },
@@ -1126,6 +1156,42 @@ export default {
 
             this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
 
+        },
+        validateQuantity() {
+
+            if (!this.form.quantity) {
+                this.setMinQuantity()
+            }
+
+            if (isNaN(Number(this.form.quantity))) {
+                this.setMinQuantity()
+            }
+
+            if (typeof parseFloat(this.form.quantity) !== 'number') {
+                this.setMinQuantity()
+            }
+
+            if (this.form.quantity <= this.getMinQuantity()) {
+                this.setMinQuantity()
+            }
+
+            this.calculateTotal()
+        },
+        setMinQuantity() {
+            this.form.quantity = this.getMinQuantity()
+        },
+        getMinQuantity() {
+            return 0.01
+        },
+        getSelectedClass(row) {
+            if (this.isSelectedPrice(row)) return 'btn-success'
+            return 'btn-secondary'
+        },
+        isSelectedPrice(item_unit_type) {
+            if (!_.isEmpty(this.item_unit_type)) {
+                return (this.item_unit_type.id === item_unit_type.id)
+            }
+            return false
         },
     }
 }

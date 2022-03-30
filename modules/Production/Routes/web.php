@@ -51,7 +51,7 @@
 
                 Route::prefix('mill-production')->group(function () {
 
-                    // @todo Pasar al modulo de produccion
+                    // modulo de insumos
                     Route::get('', 'MillController@index')->name('tenant.mill_production.index'); // ->middleware('redirect.level');
                     Route::get('/create/{id?}', 'MillController@create');
                     Route::post('/create', 'MillController@create');
@@ -107,7 +107,19 @@
                     Route::get('/records', 'ProductionController@records');
                     Route::get('/tables', 'ProductionController@tables');
                     Route::get('/excel', 'ProductionController@excel');
+                    Route::get('/excel2', 'ProductionController@excel2');
                     Route::get('/pdf', 'ProductionController@pdf');
+
+                });
+                Route::prefix('packaging')->group(function () {
+                    Route::get('', 'PackagingController@index')->name('tenant.packaging.index'); // ->middleware('redirect.level');
+                    Route::get('create', 'PackagingController@create')->name('tenant.packaging.new');
+                    Route::post('create', 'PackagingController@store');
+                    Route::post('search_items', 'PackagingController@searchItems');
+                    Route::get('/records', 'PackagingController@records');
+                    Route::get('/tables', 'PackagingController@tables');
+                    Route::get('/excel', 'PackagingController@excel');
+                    Route::get('/pdf', 'PackagingController@pdf');
 
                 });
             });

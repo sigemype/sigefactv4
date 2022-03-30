@@ -31,10 +31,12 @@
                             <th>Cotización</th>
                             <th>Caso</th>
                             <th>Cliente</th>
+                            <th>Productos</th>
                             <th>Estado</th>
                             <th>Moneda</th>
                             <th class="text-center" v-if="columns.web_platforms.visible">Plataforma</th>
                             <th>Orden de compra</th>
+                            <th v-if="columns.total_charge.visible">Total Cargos</th>
                             <th>Total Exonerado</th>
                             <th>Total Inafecto</th>
                             <th>Total Gratuito</th>
@@ -43,7 +45,7 @@
                             <th class="">Total IGV</th>
                             <th class="" v-if="columns.total_isc.visible">Total ISC</th>
                             <th class="">Total</th>
-                        <tr>
+                        </tr>
                         <tr slot-scope="{ index, row }">
                             <td>{{ index }}</td>
                             <td>{{ row.user_name }}</td>
@@ -65,17 +67,30 @@
                             <td>{{ row.quotation_number_full }}</td>
                             <td>{{ row.sale_opportunity_number_full }}</td>
                             <td>{{ row.customer_name }}<br/><small v-text="row.customer_number"></small></td>
+                            <td class="text-center">
+                                <button
+                                    class="btn waves-effect waves-light btn-xs btn-primary"
+                                    type="button"
+                                    @click.prevent="clickViewProducts(row.items)"
+                                >
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </td>
                             <td>{{ row.state_type_description }}</td>
 
                             <td>{{ row.currency_type_id }}</td>
 
-
-                        <td  v-if="columns.web_platforms.visible">
-                            <template v-for="(platform,i) in row.web_platforms" v-if="row.web_platforms !== undefined">
-                                <label class="d-block"  :key="i">{{platform.name}}</label>
-                            </template>
-                        </td>
+                            <td  v-if="columns.web_platforms.visible">
+                                <template v-for="(platform,i) in row.web_platforms" v-if="row.web_platforms !== undefined">
+                                    <label class="d-block"  :key="i">{{platform.name}}</label>
+                                </template>
+                            </td>
                             <td>{{ row.purchase_order }}</td>
+                            <td v-if="columns.total_charge.visible">
+                                {{
+                                    (row.document_type_id == '07') ? ((row.total_charge == 0) ? '0.00' : '-' + row.total_charge) : ((row.document_type_id != '07' && (row.state_type_id == '11' || row.state_type_id == '09')) ? '0.00' : row.total_charge)
+                                }}
+                            </td>
 
 
                             <td>{{
@@ -128,6 +143,9 @@
                           :showClose="true"
                           :configuration="configuration"
         ></document-options>
+        <product-sale :records="recordsItems" :showDialog.sync="showDialogProducts">
+
+        </product-sale>
     </div>
 </template>
 
@@ -135,10 +153,11 @@
 
     import DataTable from '../../components/DataTableReports.vue'
     import DocumentOptions from '../../../../../../../resources/js/views/tenant/documents/partials/options'
+    import ProductSale from './partials/product_sale.vue'
 
     export default {
         props: ['configuration'],
-        components: {DataTable,DocumentOptions},
+        components: {DataTable,DocumentOptions, ProductSale},
         data() {
             return {
                 showDialogOptions: false,
@@ -162,7 +181,13 @@
                         title: 'Total ISC',
                         visible: false
                     },
-                }
+                    total_charge: {
+                        title: 'Total Cargos',
+                        visible: false
+                    },
+                },
+                showDialogProducts: false,
+                recordsItems:[]
 
             }
         },
@@ -173,6 +198,10 @@
                 this.recordId = recordId
                 this.showDialogOptions = true
             },
+            clickViewProducts(items = []) {
+                this.recordsItems = items;
+                this.showDialogProducts = true;
+            }
 
         }
     }

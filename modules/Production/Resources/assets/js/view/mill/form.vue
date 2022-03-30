@@ -31,7 +31,7 @@
                         <div class="col-sm-12 col-md-6 col-lg-3 ">
                             <div :class="{'has-danger': errors.time_start}"
                                  class="form-group">
-                                <label class="control-label">Hora de finalizacion</label>
+                                <label class="control-label">Hora de inicio</label>
                                 <el-time-picker v-model="form.time_start"
                                                 dusk="time_start"
                                                 value-format="HH:mm:ss"
@@ -76,7 +76,7 @@
                         <div class="col-sm-12 col-md-6 col-lg-3 ">
                             <div :class="{'has-danger': errors.name}"
                                  class="form-group">
-                                <label class="control-label">Número de registro</label>
+                                <label class="control-label">Número de Ficha</label>
                                 <el-input v-model="form.name"></el-input>
                                 <small v-if="errors.name"
                                        class="form-control-feedback"
@@ -93,6 +93,52 @@
                                        v-text="errors.comment[0]"></small>
                             </div>
                         </div>
+                        <div class="col-sm-12 col-md-6 col-lg-3 ">
+                            <div :class="{'has-danger': errors.mill_name}"
+                                 class="form-group">
+                                <label class="control-label">Molino</label>
+                                <el-input v-model="form.mill_name"></el-input>
+                                <small v-if="errors.mill_name"
+                                       class="form-control-feedback"
+                                       v-text="errors.mill_name[0]"></small>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-3 ">
+                            <div :class="{'has-danger': errors.lot_code}"
+                                 class="form-group">
+                                <label class="control-label">Lote</label>
+                                <el-input v-model="form.lot_code"></el-input>
+                                <small v-if="errors.lot_code"
+                                       class="form-control-feedback"
+                                       v-text="errors.lot_code[0]"></small>
+                            </div>
+                        </div>
+                        <!--
+
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <div :class="{'has-danger': errors.item_extra_data}"
+                                 class="form-group">
+                                <label class="control-label">
+                                    Color <<< pasarlo a item
+                                </label>
+                                <el-select v-model="form.item_extra_data.color"
+                                           :disable="item === undefined || item.colors === undefined ||item.colors.length < 1"
+                                           filterable>
+                                    <el-option
+                                        v-for="option in item.colors"
+
+                                        :key="option.id"
+                                        :label="option.color_name"
+                                        :value="option.id"
+                                    ></el-option>
+                                </el-select>
+                                <small v-if="errors.item_extra_data"
+                                       class="form-control-feedback"
+                                       v-text="errors.item_extra_data[0]"></small>
+                            </div>
+                        </div>
+                        -->
+
 
 
                         <!--
@@ -233,7 +279,10 @@ export default {
             loading_submit: false,
             errors: {},
             form: {
-                items:[]
+                items:[],
+                item_extra_data: {
+                    color:null
+                },
             },
             aux_supplier_id: null,
             mill_types: [],
@@ -320,7 +369,10 @@ export default {
                 time_start: moment().format('HH:mm'),
                 date_end: moment().format('YYYY-MM-DD'),
                 time_end: moment().format('HH:mm'),
-                items:[]
+                items:[],
+                item_extra_data: {
+                    color:null
+                },
 
                 /*
                 establishment_id: null,

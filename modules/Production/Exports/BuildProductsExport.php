@@ -17,6 +17,8 @@
     class BuildProductsExport implements FromView, ShouldAutoSize
     {
         use Exportable;
+        /** @var ?bool */
+        protected $in_proccess;
 
         /** @var Collection */
         protected $collection;
@@ -24,12 +26,34 @@
         public function view(): View
         {
             $records = $this->getCollection();
+            $inProcess = $this->getInProccess();
             return view('production::production.partial.export',
                 compact(
-                    'records'
+                    'records',
+                    'inProcess'
                 ));
 
         }
+
+        /**
+         * @return bool|null
+         */
+        public function getInProccess(): ?bool
+        {
+            return (bool)$this->in_proccess;
+        }
+
+        /**
+         * @param bool|null $in_proccess
+         *
+         * @return BuildProductsExport
+         */
+        public function setInProccess(?bool $in_proccess = false): BuildProductsExport
+        {
+            $this->in_proccess = $in_proccess;
+            return $this;
+        }
+
 
         /**
          * @return Collection

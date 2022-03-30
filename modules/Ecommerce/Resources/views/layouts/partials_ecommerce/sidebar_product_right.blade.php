@@ -32,7 +32,7 @@
 <!-- Carousel a Editar-->
        <div class="widget widget-banners box-carousel">
          <div class="widget-banners-slider owl-carousel owl-theme">
-             @forelse($records as $data)
+             {{-- @forelse($records as $data)
                             @if($data->apply_store === 1)
                             
                     <figure class="product-image-container boxing">
@@ -53,7 +53,7 @@
                                     </a>
                             </div><!-- End .banner -->
                         </div>
-                    @endforelse
+                    @endforelse --}}
                             <!-- End .banner -->
             </div><!-- End .banner-->
         </div>

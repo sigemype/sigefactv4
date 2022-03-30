@@ -51,6 +51,8 @@ if($hostname) {
             Route::get('items/available-series/records', 'ItemController@availableSeriesRecords');
             Route::get('items/history-sales/records', 'ItemController@itemHistorySales');
             Route::get('items/history-purchases/records', 'ItemController@itemHistoryPurchases');
+            Route::get('items/last-sale', 'ItemController@itemtLastSale');
+
             //history
 
             Route::prefix('item-lots')->group(function () {

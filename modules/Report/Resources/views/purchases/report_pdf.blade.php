@@ -118,6 +118,7 @@
                                 <th class="" >T.Inafecta</th>
                                 <th class="" >T.Gratuito</th> -->
                                 <th>Moneda</th>
+                                <th>Total ISC</th>
                                 <th>Total Gravado</th>
                                 <th>Total IGV</th>
                                 <th>Total</th>
@@ -151,6 +152,7 @@
                                     <td class="celda">{{$value->total_free}}</td> -->
 
                                     <td class="celda">{{$value->currency_type_id}}</td>
+                                    <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_isc}}</td>
                                     <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_taxed}}</td>
                                     <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_igv}}</td>
                                     <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total}}</td>
@@ -204,14 +206,14 @@
 
                             @endforeach
                             <tr>
-                                <td class="celda" colspan="9"></td>
+                                <td class="celda" colspan="10"></td>
                                 <td class="celda" >Totales PEN</td>
                                 <td class="celda">{{$acum_total_taxed}}</td>
                                 <td class="celda">{{$acum_total_igv}}</td>
                                 <td class="celda">{{$acum_total}}</td>
                             </tr>
                             <tr>
-                                <td class="celda" colspan="9"></td>
+                                <td class="celda" colspan="10"></td>
                                 <td class="celda" >Totales USD</td>
                                 <td class="celda">{{$acum_total_taxed_usd}}</td>
                                 <td class="celda">{{$acum_total_igv_usd}}</td>

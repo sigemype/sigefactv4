@@ -117,6 +117,13 @@ class DashboardSalePurchase
             $transaction_quantity = $transaction_quantity_sale - $transaction_quantity_credit_note;
 
             $customer = Person::where('type','customers')->find($customers[0]->customer_id);
+            if(empty($customer)){
+                // Cuando es eliminado un cliente, dara error en el dashboard, por eso se coloca uno nuevo
+                $customer = new Person([
+                    'name'=>'',
+                    'number'=>'',
+                ]);
+            }
 
             $totals = $customers->whereIn('document_type_id', ['01','03','08'])->sum(function ($row) {
                 return $this->calculateTotalCurrency($row->currency_type_id, $row->exchange_rate_sale, $row->total);//count($product['colors']);
@@ -176,7 +183,17 @@ class DashboardSalePurchase
         }
         $purchases_total_perception = round($purchases->sum('total_perception'),2);
         */
-        $purchases = Purchase::DasboardSalePurchase($establishment_id)->OnlyDateOfIssueByYear()->get();
+         $purchases = Purchase::DasboardSalePurchase($establishment_id)->OnlyDateOfIssueByYear()->get();
+         /*
+         if(!empty($d_start)){
+             $purchases->where('date_of_issue','>=',$d_start);
+         }
+         if(!empty($d_end)){
+             $purchases->where('date_of_issue','<=',$d_end);
+         }
+         $purchases = $purchases->get();
+         */
+
         $purchases_total = $purchases->sum('total_purchase');
         $purchases_total_perception = $purchases->sum('total_perception_purchase');
 
@@ -192,6 +209,10 @@ class DashboardSalePurchase
                 'purchases_total_perception' => number_format($purchases_total_perception,2),
                 'purchases_total' => number_format( round($purchases_total, 2),2),
                 'total' => number_format($purchases_total + $purchases_total_perception,2),
+                'date_of_issue'=>[
+                    'start'=>$d_start,
+                    'end'=>$d_end,
+                ]
             ],
             'graph' => [
                 'labels' => $data_array,
@@ -231,7 +252,8 @@ class DashboardSalePurchase
 
 
 
-    private function items_by_sales($establishment_id, $d_start, $d_end, $enabled_move_item, $no_take = false, $page) {
+    private function items_by_sales($establishment_id, $d_start, $d_end, $enabled_move_item, $no_take = false, $page) 
+    {
         if ($d_start && $d_end) {
 
             $documents = Document::without(['user', 'soap_type', 'state_type', 'document_type', 'currency_type', 'group', 'items', 'invoice', 'note', 'payments'])
@@ -281,6 +303,7 @@ class DashboardSalePurchase
         $group_items = $all_items->groupBy('item_id');
 
         $items_by_sales = collect([]);
+        // dd($group_items);
 
         foreach ($group_items as $items) {
             $item = Item::without(['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags'])
@@ -297,23 +320,26 @@ class DashboardSalePurchase
                     if(in_array($it->document->document_type_id,['01','03','08'])){
 
 
-                        $totals += $this->calculateTotalCurrency($it->document->currency_type_id, $it->document->exchange_rate_sale, $it->document->total);
+                        $totals += $this->calculateTotalCurrency($it->document->currency_type_id, $it->document->exchange_rate_sale, $it->total);
+                        // $totals += $this->calculateTotalCurrency($it->document->currency_type_id, $it->document->exchange_rate_sale, $it->document->total);
                         $move_quantity += $it->quantity;
 
                     }else{
 
-                        $total_credit_note += $this->calculateTotalCurrency($it->document->currency_type_id, $it->document->exchange_rate_sale, $it->document->total);
+                        $total_credit_note += $this->calculateTotalCurrency($it->document->currency_type_id, $it->document->exchange_rate_sale, $it->total);
+                        // $total_credit_note += $this->calculateTotalCurrency($it->document->currency_type_id, $it->document->exchange_rate_sale, $it->document->total);
                         $move_quantity -= $it->quantity;
 
                     }
 
                 }else{
 
-                    $totals += $this->calculateTotalCurrency($it->sale_note->currency_type_id, $it->sale_note->exchange_rate_sale, $it->sale_note->total);
+                    $totals += $this->calculateTotalCurrency($it->sale_note->currency_type_id, $it->sale_note->exchange_rate_sale, $it->total);
+                    // $totals += $this->calculateTotalCurrency($it->sale_note->currency_type_id, $it->sale_note->exchange_rate_sale, $it->sale_note->total);
                     $move_quantity += $it->quantity;
 
                 }
-
+                
             }
 
             $difference = $totals - $total_credit_note;

@@ -70,6 +70,42 @@ class InventoryKardex extends ModelTenant
     {
         return Warehouse::find($this->warehouse_id);
     }
+    
+    /**
+     * Obtener notas de venta asociadas a documento
+     *
+     * @return string
+     */
+    public function getSaleNoteAsoc($inventory_kardexable)
+    {
+        $sale_note_asoc = "-";
+
+        if(isset($inventory_kardexable->sale_note_id))
+        {
+            $sale_note_asoc = optional($inventory_kardexable)->sale_note->number_full;
+        }
+
+        if(isset($inventory_kardexable->sale_notes_relateds))
+        {
+            $data = [];
+
+            foreach ($inventory_kardexable->sale_notes_relateds as $sale_note) 
+            {
+                if(isset($sale_note->items)){
+                    
+                    $exist_sale_note = collect($sale_note->items)->where('item_id', $this->item_id)->first();
+    
+                    if($exist_sale_note) $data [] = $sale_note->number_full;
+                }
+            }
+
+            // $sale_note_asoc = collect($inventory_kardexable->sale_notes_relateds)->implode('number_full', ', ');
+            $sale_note_asoc = count($data) > 0 ? implode(', ', $data) : '-';
+
+        }
+
+        return $sale_note_asoc;
+    }
 
     /**
      * @param $balance
@@ -119,11 +155,16 @@ class InventoryKardex extends ModelTenant
         $data['input'] = $input_set;
         $data['output'] = $output_set;
         switch ($this->inventory_kardexable_type) {
+
             case $models[0]: //venta
-                $cpe_input = ($qty > 0) ? (isset($inventory_kardexable->sale_note_id) || isset($inventory_kardexable->order_note_id) ? "-" : $qty) : "-";
-                $cpe_output = ($qty < 0) ? (isset($inventory_kardexable->sale_note_id) || isset($inventory_kardexable->order_note_id) ? "-" : $qty) : "-";
+
+                $cpe_input = ($qty > 0) ? (isset($inventory_kardexable->sale_note_id) || isset($inventory_kardexable->order_note_id) || isset($inventory_kardexable->sale_notes_relateds) ? "-" : $qty) : "-";
+                
+                $cpe_output = ($qty < 0) ? (isset($inventory_kardexable->sale_note_id) || isset($inventory_kardexable->order_note_id) || isset($inventory_kardexable->sale_notes_relateds) ? "-" : $qty) : "-";
+
                 $cpe_discounted_stock = false;
                 $cpe_doc_asoc = isset($inventory_kardexable->note) ? $inventory_kardexable->note->affected_document->getNumberFullAttribute() : '-';
+
                 if (isset($inventory_kardexable->dispatch)) {
                     if ($inventory_kardexable->dispatch->transfer_reason_type->discount_stock) {
                         $cpe_output = '-';
@@ -131,17 +172,21 @@ class InventoryKardex extends ModelTenant
                     }
                     $cpe_doc_asoc = ($cpe_doc_asoc == '-') ? $inventory_kardexable->dispatch->number_full : $cpe_doc_asoc . ' | ' . $inventory_kardexable->dispatch->number_full;
                 }
-                $doc_balance = (isset($inventory_kardexable->sale_note_id) || isset($inventory_kardexable->order_note_id) || $cpe_discounted_stock) ? $balance += 0 : $balance += $qty;
+
+                $doc_balance = (isset($inventory_kardexable->sale_note_id) || isset($inventory_kardexable->order_note_id) || $cpe_discounted_stock || isset($inventory_kardexable->sale_notes_relateds)) ? $balance += 0 : $balance += $qty;
+
                 $data['input'] = $cpe_input;
                 $data['output'] = $cpe_output;
                 $data['balance'] = $doc_balance;
                 $data['number'] = optional($inventory_kardexable)->series . '-' . optional($inventory_kardexable)->number;
                 $data['type_transaction'] = ($qty < 0) ? "Venta" : "Anulación Venta";
                 $data['date_of_issue'] = isset($inventory_kardexable->date_of_issue) ? $inventory_kardexable->date_of_issue->format('Y-m-d') : '';
-                $data['sale_note_asoc'] = isset($inventory_kardexable->sale_note_id) ? optional($inventory_kardexable)->sale_note->number_full : "-";
+                // $data['sale_note_asoc'] = isset($inventory_kardexable->sale_note_id) ? optional($inventory_kardexable)->sale_note->number_full : "-";
+                $data['sale_note_asoc'] = $this->getSaleNoteAsoc($inventory_kardexable);
                 $data['doc_asoc'] = $cpe_doc_asoc;
                 $data['order_note_asoc'] = isset($inventory_kardexable->order_note_id) ? optional($inventory_kardexable)->order_note->number_full : "-";
                 break;
+
             case $models[1]:
                 $data['balance'] = $balance += $qty;
                 $data['number'] = optional($inventory_kardexable)->series . '-' . optional($inventory_kardexable)->number;

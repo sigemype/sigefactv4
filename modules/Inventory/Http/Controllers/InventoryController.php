@@ -158,6 +158,10 @@ class InventoryController extends Controller
 			$inventory_transaction_id = $request->input('inventory_transaction_id');
 			$quantity = $request->input('quantity');
 			$lot_code = $request->input('lot_code');
+			$comments = $request->input('comments');
+			$created_at = $request->input('created_at');
+
+
 			$lots = ($request->has('lots')) ? $request->input('lots') : [];
 
 			$item_warehouse = ItemWarehouse::firstOrNew(['item_id' => $item_id,
@@ -180,6 +184,12 @@ class InventoryController extends Controller
 			$inventory->quantity = $quantity;
 			$inventory->inventory_transaction_id = $inventory_transaction_id;
 			$inventory->lot_code = $lot_code;
+			$inventory->comments = $comments;
+
+			if($created_at) {
+			  $inventory->created_at = $created_at;
+			}
+			
 			$inventory->save();
 
 			$lots_enabled = isset($request->lots_enabled) ? $request->lots_enabled : false;

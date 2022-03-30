@@ -2,6 +2,7 @@
 
 namespace Modules\Document\Http\Controllers;
 
+use App\Models\Tenant\Configuration;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -22,7 +23,7 @@ use App\CoreFacturalo\Services\IntegratedQuery\{
 
 class ValidateDocumentController extends Controller
 {
-    
+
     protected $access_token;
 
     public function index()
@@ -33,11 +34,12 @@ class ValidateDocumentController extends Controller
 
     public function records(ValidateDocumentsRequest $request)
     {
-        
+
+
         $auth_api = (new AuthApi())->getToken();
         if(!$auth_api['success']) return $auth_api;
         $this->access_token = $auth_api['data']['access_token'];
-        
+
         $records = $this->getRecords($request);
         $validate_documents = $this->validateDocuments($records);
 
@@ -45,13 +47,17 @@ class ValidateDocumentController extends Controller
 
     }
 
-    
+
     public function validateDocuments($records){
 
-        $records_paginate = $records->paginate(config('tenant.items_per_page'));
+        $config = Configuration::first();
+        if (empty($config)) {
+            $config = new Configuration();
+        }
+        $records_paginate = $records->paginate($config->getNewValidatorPagination());
 
         // dd($this->access_token, $records_paginate->getCollection());
-        
+
         foreach ($records_paginate->getCollection() as $document)
         {
 
@@ -71,17 +77,17 @@ class ValidateDocumentController extends Controller
 
             if ($response['success']) {
 
-                $document->message = $response['message']; 
-                $document->sunat_state_type_id = $response['data']['state_type_id']; 
-                $document->code = $response['data']['estadoCp']; 
-                $document->response = $response; 
+                $document->message = $response['message'];
+                $document->sunat_state_type_id = $response['data']['state_type_id'];
+                $document->code = $response['data']['estadoCp'];
+                $document->response = $response;
 
             } else{
 
-                $document->message = $response['message']; 
-                $document->sunat_state_type_id = null; 
+                $document->message = $response['message'];
+                $document->sunat_state_type_id = null;
                 $document->code = '-2';  //custom code
-                $document->response = $response; 
+                $document->response = $response;
 
             }
 
@@ -98,7 +104,7 @@ class ValidateDocumentController extends Controller
         $end_number = $request->end_number;
         $document_type_id = $request->document_type_id;
         $series = $request->series;
-        
+
         if($end_number){
 
             $records = Document::where('document_type_id',$document_type_id)
@@ -112,7 +118,7 @@ class ValidateDocumentController extends Controller
                             ->where('series',$series)
                             ->where('number',$start_number)
                             ->latest();
-        }        
+        }
 
         return $records;
 
@@ -121,17 +127,17 @@ class ValidateDocumentController extends Controller
 
     public function data_table()
     {
-        
+
         $document_types = DocumentType::whereIn('id', ['01', '03','07', '08'])->get();
         $series = Series::whereIn('document_type_id', ['01', '03','07', '08'])->get();
-                       
+
         return compact('document_types','series');
     }
 
 
     public function regularize(ValidateDocumentsRequest $request)
     {
-        
+
         $auth_api = (new AuthApi())->getToken();
         if(!$auth_api['success']) return $auth_api;
         $this->access_token = $auth_api['data']['access_token'];
@@ -159,37 +165,37 @@ class ValidateDocumentController extends Controller
 
                 if ($response['success']) {
 
-                    $sunat_state_type_id = $response['data']['state_type_id']; 
+                    $sunat_state_type_id = $response['data']['state_type_id'];
 
                     if($document->state_type_id !== $sunat_state_type_id){
 
                         $state_type = $state_types->first(function($state) use($sunat_state_type_id){
                             return $state->id === $sunat_state_type_id;
                         });
-    
+
                         if($state_type){
-    
+
                             //cpe existe - actualizando estado
                             $results [] = $this->getResult($document, 'El estado del CPE fue actualizado', true, $sunat_state_type_id);
-    
+
                             $document->update([
                                 'state_type_id' => $state_type->id
                             ]);
-    
+
                         }else{
-                            
+
                             $results [] = $this->getResult($document, 'No existe en Sunat', false, $sunat_state_type_id);
                         }
 
                     }else{
-                        
+
                         $results [] = $this->getResult($document, 'Estado de sunat igual al del sistema', false, $sunat_state_type_id);
                     }
-                    
+
 
                 } else{
 
-                    //error en la busqueda 
+                    //error en la busqueda
                     $results [] = $this->getResult($document, 'Error en la busqueda: '.$response['message'], false, $sunat_state_type_id);
 
                 }
@@ -209,25 +215,25 @@ class ValidateDocumentController extends Controller
 
     private function getResult($document, $description, $updated, $sunat_state_type_id)
     {
-        
+
         return [
             'number_full' => $document->number_full,
             'description' => $description,
             'updated' => $updated,
             'initial_state' => $document->state_type_id,
-            'final_state' => $sunat_state_type_id,  
+            'final_state' => $sunat_state_type_id,
         ];
 
     }
 
-    
+
     // public function validateDocuments($records){
 
     //     $records_paginate = $records->paginate(config('tenant.items_per_page'));
     //     // $documents = $records_paginate->getCollection();
 
     //     // dd($records_paginate->getCollection());
-        
+
     //     foreach ($records_paginate->getCollection() as $document)
     //     {
     //         // evitado el buble de consulta
@@ -241,16 +247,16 @@ class ValidateDocumentController extends Controller
     //                                             $document->total
     //                                         );
     //         if ($response['success']) {
-                
+
     //             $response_code = $response['data']['comprobante_estado_codigo'];
     //             $response_description = $response['data']['comprobante_estado_descripcion'];
 
     //             $message = $document->number_full.'|Código: '.$response_code.'|Mensaje: '.$response_description;
 
-    //             $document->message = $message; 
-    //             $document->state_type_sunat_description = $response_description; 
-    //             $document->code = $response_code; 
- 
+    //             $document->message = $message;
+    //             $document->state_type_sunat_description = $response_description;
+    //             $document->code = $response_code;
+
     //         } //else {
 
     //             // goto reValidate;

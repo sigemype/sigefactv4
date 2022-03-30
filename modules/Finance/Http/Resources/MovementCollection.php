@@ -125,7 +125,7 @@
 
                 return [
                     'index' => $index,
-                    'data' => $row,
+                    //'data' => $row,
                     'payments' => $payments,
                     'document_type' => $document_type,
                     'id' => $row->id,

@@ -30,6 +30,7 @@
      * @property Carbon|null                          $created_at
      * @property Carbon|null                          $updated_at
      * @property Collection|Item[]                    $items
+     * @property Collection|Item[]                    $products
      * @method static Builder|HotelRent newModelQuery()
      * @method static Builder|HotelRent newQuery()
      * @method static Builder|HotelRent query()
@@ -37,6 +38,7 @@
      * @mixin ModelTenant
      * @mixin \Eloquent
      * @property-read int|null                        $items_count
+     * @property-read int|null                        $products_count
      * @property-read \Modules\Hotel\Models\HotelRoom $room
      */
     class HotelRent extends ModelTenant
@@ -95,6 +97,15 @@
         {
             return $this->hasMany(HotelRentItem::class, 'hotel_rent_id');
         }
+
+        /**
+         * @return \Illuminate\Database\Eloquent\Relations\HasMany
+         */
+        public function products()
+        {
+            return $this->hasMany(HotelRentItem::class, 'hotel_rent_id')->where('type','PRO');
+        }
+
 
         /**
          * @param Builder $query

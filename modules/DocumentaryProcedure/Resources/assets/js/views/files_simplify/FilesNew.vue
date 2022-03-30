@@ -156,7 +156,7 @@
                                 <th>Num. De Seguimiento</th>
                                 <th>Fecha/Hora De Registro</th>
                                 <th>Etapa</th>
-                                <th>Descripcion</th>
+<!--                                <th>Descripcion</th>-->
                                 <th>Tiempo Que Toma El Tramite/Dias Restantes</th>
                                 <th>Fecha Concluida</th>
                                 <th style="    min-width: 300px;">Estado</th>
@@ -188,9 +188,9 @@
                                             {{ getStage(row.doc_office_id) }}
                                         </div>
                                     </td>
-                                    <td>
+<!--                                    <td>
                                         {{ getStageDescription(row.doc_office_id) }}
-                                    </td>
+                                    </td>-->
                                     <td>
                                         Días que toma {{ row.total_day }} <br>
                                         <strong>

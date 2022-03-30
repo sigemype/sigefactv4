@@ -15,7 +15,7 @@
                             <th class="text-center">Cantidad transacciones</th>
                             <th class="text-center">Ventas acumuladas</th>
                             <th class="text-center">Total comisiones</th>
-                        <tr>
+                        </tr>
                         <tr slot-scope="{ index, row }">
                             <td>{{ index }}</td>
                             <!-- <td>{{row.user_name}}</td> -->

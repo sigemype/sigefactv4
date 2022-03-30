@@ -40,6 +40,7 @@
 
         @include('ecommerce::layouts.partials_ecommerce.header')
         @include('ecommerce::layouts.partials_ecommerce.header_bottom_sticky')
+        
 
 
         <main class="main">

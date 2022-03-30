@@ -56,7 +56,7 @@
          * @return array
          */
         public function records(Request $request)
-        {
+        {   
             return $this->setTotals([], $this->getRecords($request->all()));
         }
 
@@ -100,8 +100,8 @@
                 'date_end' => $data_of_period['d_end'],
             ];
 
-            $bank_accounts = BankAccount::
-            with(['global_destination' => function ($query) use ($params) {
+            $bank_accounts = BankAccount::where('currency_type_id', $request['currency_type_id'])
+            ->with(['global_destination' => function ($query) use ($params) {
                 $query->whereFilterPaymentType($params);
             }])
                 ->get();
@@ -110,8 +110,8 @@
                 ->with(['payment'])
                 ->whereDestinationType(Cash::class)
                 ->get();
-            $balance_by_bank_acounts = $this->getBalanceByBankAcounts($bank_accounts);
-            $balance_by_cash = $this->getBalanceByCash($all_cash);
+            $balance_by_bank_acounts = $this->getBalanceByBankAcounts($bank_accounts, $request['currency_type_id']);
+            $balance_by_cash = $this->getBalanceByCash($all_cash, $request['currency_type_id']);
 
             return $balance_by_bank_acounts->push($balance_by_cash);
 

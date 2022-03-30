@@ -56,7 +56,7 @@
                                    v-text="errors.item_id[0]"></small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div :class="{'has-danger': errors.height_to_mill}"
                              class="form-group">
                             <label class="control-label">
@@ -69,7 +69,7 @@
                                    v-text="errors.height_to_mill[0]"></small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div :class="{'has-danger': errors.total_height}"
                              class="form-group">
                             <label class="control-label">
@@ -82,7 +82,7 @@
                                    v-text="errors.total_height[0]"></small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div :class="{'has-danger': errors.unit_types}"
                              class="form-group">
                             <label class="control-label">
@@ -114,6 +114,29 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6">
+                        <div :class="{'has-danger': errors.item_extra_data}"
+                             class="form-group">
+                            <label class="control-label">
+                                Color
+                            </label>
+                            <el-select v-model="form.item_extra_data.color"
+                                       :disable="item === undefined || item.colors === undefined ||item.colors.length < 1"
+                                       filterable>
+                                <el-option
+                                    v-for="option in item.colors"
+
+                                    :key="option.id"
+                                    :label="option.color_name"
+                                    :value="option.id"
+                                ></el-option>
+                            </el-select>
+                            <small v-if="errors.item_extra_data"
+                                   class="form-control-feedback"
+                                   v-text="errors.item_extra_data[0]"></small>
+                        </div>
+                    </div>
+
 
                     <!-- item_unit_types -->
                 </div>
@@ -122,7 +145,8 @@
                 <el-button @click.prevent="close()">Cerrar</el-button>
                 <el-button v-if="form.item_id"
                            native-type="submit"
-                           type="primary">Agregar
+                           type="primary">
+                    Agregar
                 </el-button>
             </div>
         </form>
@@ -180,6 +204,9 @@ export default {
                 total_height: 0,
                 unit_type_id: null,
                 unit_id: 0,
+                item_extra_data: {
+                    color:null
+                },
             },
             all_items: [],
             items: [],
@@ -336,6 +363,9 @@ export default {
                 item: {},
                 height_to_mill: 0,
                 total_height: 0,
+                item_extra_data: {
+                    color:null
+                },
             };
             this.form.unit_type_id = null;
             this.form.unit_id = 0;
@@ -352,7 +382,15 @@ export default {
             let item = _.find(this.items, {'id': this.form.item_id});
 
             this.form.item = item;
+
+            /*
+            this.form.item_extra_data= {}
+            this.form.item_extra_data.color = null
             this.item = item
+            */
+            this.item = item
+
+
             if (item !== undefined) {
                 this.form.unit_type_id= this.item.unit_type_id;
                 this.updateUnitTypes()

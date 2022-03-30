@@ -154,6 +154,20 @@
                             ></el-switch>
                         </div>
                     </div>
+                    <div
+                        class="col-6 col-md-4 mb-3">
+                        <label class="control-label">
+                            Vencidos
+                        </label>
+                        <div
+                            class="form-group">
+                            <el-switch v-model="filter.expired"
+                                       active-text="Si"
+                                       inactive-text="No"
+                                       @change="onFilter"
+                            ></el-switch>
+                        </div>
+                    </div>
                     <!--
                     <div class="col-6 col-md-4 mb-3">
                         <el-button native-type="submit">
@@ -209,16 +223,25 @@
                         <tr v-for="(item,index) in items"
                             :key="item.id">
                             <td class="text-right">{{ index + 1 }}</td>
-                            <td>{{ item.invoice }}</td>
+                            <td>{{ item.invoice }}
+                                <template v-if="item.is_archive && item.observation ">
+                                    <br>
+                                    Motivo: {{item.observation}}
+                                </template>
+
+
+                            </td>
                             <td>
 
-                                <el-tooltip v-if="item.documentary_process.requirements && item.documentary_process.requirements.length > 0"
+
+                                <!-- requisitos -->
+                                <el-tooltip v-if="item && item.documentary_process && item.documentary_process.requirements && item.documentary_process.requirements.length > 0"
                                             placement="right-start"
                                 >
                                     <div slot="content">
                                         Requisitos:
                                         <ul v-for="(requirement) in item.documentary_process.requirements">
-                                            <li>
+                                            <li v-if="requirement.requirement_name.length > 0">
                                                 {{ requirement.requirement_name }}
                                             </li>
                                         </ul>
@@ -226,10 +249,27 @@
                                     </div>
                                     <i class="fa fa-info-circle"></i>
                                 </el-tooltip>
+
                                 <span
                                     v-if=" item.documentary_process !== undefined && item.documentary_process.name !== undefined ">
                                     {{ item.documentary_process.name }}
                                 </span>
+
+
+                                <!-- terminos y condiciones -->
+                                <el-tooltip v-if="item && item.documentary_process && item.documentary_process.documentary_terms && item.documentary_process.documentary_terms.length > 0"
+                                            placement="right-start">
+                                    <div slot="content">
+                                        Términos y condiciones:
+                                        <ul v-for="(requirement) in item.documentary_process.documentary_terms">
+                                            <li>
+                                                {{ requirement.term_name }}
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <i class="fa fa-text-width "></i>
+                                </el-tooltip>
 
                             </td>
                             <td>
@@ -264,11 +304,18 @@
                                 </div>
                             </td>
                             <td>
-                                <div v-if="item.last_guide.date_end"
+                                <div v-if="item &&
+                                item.last_guide &&
+                                item.last_guide.date_end"
                                      :class="item.last_guide.class">
 
                                     {{ item.last_guide.date_end }}
+                                    <br>
+                                    <strong>
+                                            {{ getDiffDay(  item.last_guide.date_end) }}
+                                    </strong>
                                 </div>
+
                             </td>
                             <td class="text-center td-btns">
 
@@ -283,6 +330,7 @@
                                     </button>
                                     <div aria-labelledby="dropdownMenuButton"
                                          class="dropdown-menu">
+
                                         <template v-if="!item.is_archive">
                                                 <button
                                                     class="dropdown-item"
@@ -344,7 +392,13 @@
                     </table>
                 </div>
             </div>
-        </div>        <!--
+        </div>
+        <ModalAddReason
+            :visible.sync="openModalReason"
+            :id="temp_id"
+            @addArchive="onArchive"
+        ></ModalAddReason>
+        <!--
 
         <ModalAddEdit
             :visible.sync="openModalAddEdit"
@@ -371,6 +425,8 @@
 </template>
 
 <script>
+import ModalAddReason from "./ModalAddReason";
+
 /*
 import ModalAddEdit from "./ModalAddEdit";
 import ModalDerive from "./ModalDerive";
@@ -426,6 +482,7 @@ export default {
         ]),
     },
     components: {
+        ModalAddReason
         /*
         ModalAddEdit,
         ModalDerive,
@@ -440,9 +497,12 @@ export default {
             showStageModalObservationStage: false,
             items: [],
             openModalAddEdit: false,
+            temp_id: 0,
+            openModalReason: false,
             loading: false,
             filter: {
                 archived: 0,
+                expired: 0,
                 name: "",
                 register_date: "Hoy",
             },
@@ -503,6 +563,7 @@ export default {
             this.$store.commit('setFile', item)
             this.$store.commit('setOffices', this.offices)
             this.openModalAddEdit = true;
+
         },
         onShowExtraButtons(file) {
             if (file.offices) {
@@ -523,7 +584,7 @@ export default {
             this.$http
                 .post(`/documentary-procedure/file/reload`, this.filter)
                 .then((result) => {
-                    let files = result.data;
+                    let files = result.data.data;
                     this.$store.commit('setFiles', files)
                     this.items = this.files
                     this.loading = false;
@@ -668,21 +729,18 @@ export default {
                 });
         },
         archiveFile(id) {
-            this.$http
-                .post(`/documentary-procedure/files_simplify/archive/` + id)
-                .then((response) => {
-                    this.$message({
-                        type: "success",
-                        message: response.data.message,
-                    });
 
-                })
-                .catch((error) => {
-                    this.axiosError(error)
-                })
-                .finally(() => {
-                    this.updateFiles();
-                });
+            this.temp_id = id;
+            this.openModalReason = true;
+
+            return null;
+
+        },
+
+        onArchive() {
+            this.temp_id=0
+            this.openModalReason = false;
+            this.updateFiles()
         },
         reactiveFile(id) {
             this.$http
@@ -767,6 +825,23 @@ export default {
                 number: customer.number,
                 identity_document_type_id: customer.identity_document_type_id,
             };
+        },
+        getDiffDay(dateEnd) {
+            let str = '';
+            if (dateEnd === undefined) return str;
+            if (dateEnd === null) return str;
+
+            let now = moment().startOf('day');
+            dateEnd = moment(dateEnd, "YYYY-MM-DD HH:mm:ss").startOf('day');
+            let total = (dateEnd.diff(now, 'days')+1);
+            if (total > 0) {
+                str = 'Falta(n) ' + total + ' día(s)';
+            } else if (total < 0) {
+                // str = 'Finalizó hace ' + total + ' día(s)';
+            } else {
+                str = 'Hoy finaliza'
+            }
+            return str
         },
     },
 };

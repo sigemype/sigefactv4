@@ -87,9 +87,11 @@ $isSaleNote = ($document_type_id != '80' && $type == 'sale') ? true : false;
         $user = '';
     }
 
+    $warehouse_description = \App\CoreFacturalo\Helpers\Template\ReportHelper::getWarehouseDescription($value, $document);
 
 ?>
 <tr>
+    <td class="celda">{{ $loop->iteration }}</td>
     <td class="celda">{{ $document->date_of_issue->format('Y-m-d') }}</td>
     <td class="celda">{{ $user}}</td>
     @if($isSaleNote)
@@ -178,4 +180,8 @@ $isSaleNote = ($document_type_id != '80' && $type == 'sale') ? true : false;
     <td class="celda">{{ $utility_item }}</td>
     <td class="celda">{{ $brand }}</td>
     <td class="celda">{{ $category }}</td>
+
+    <td class="celda">{{ $document->exchange_rate_sale }}</td>
+    <td class="celda">{{ $warehouse_description }}</td>
+
 </tr>

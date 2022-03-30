@@ -119,7 +119,8 @@ export default {
         deletable
     ],
     props: [
-        'typeUser'
+        'typeUser',
+        'configuration',
     ],
     computed: {
         ...mapState([
@@ -146,6 +147,7 @@ export default {
     },
     created() {
         this.loadConfiguration();
+        this.$store.commit('setConfiguration', this.configuration)
         this.loadCurrencyTypes();
         this.loadExchangeRate();
         this.title = 'Servicios de soporte técnico'

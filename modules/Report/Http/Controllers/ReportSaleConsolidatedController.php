@@ -76,7 +76,7 @@ class ReportSaleConsolidatedController extends Controller
             $unit_price = 1;
 
 
-            if ($first->item->presentation) {
+            if (property_exists($first->item, 'presentation') && $first->item->presentation) {
                 $unit_type_id = $first->item->presentation->unit_type_id;
             }
             if($unit_type_id !== 'ZZ'){

@@ -50,7 +50,7 @@ if ($hostname) {
                     hotels/reception/{id}/rent/checkout
                     hotels/reception/{id}/rent/finalized
                      */
-                    Route::get('', 'HotelReceptionController@index');
+                    Route::get('', 'HotelReceptionController@index')->name('tenant.hotels.index');
                     Route::post('/search', 'HotelReceptionController@searchRooms');
                     Route::get('/tables', 'HotelRentController@tables');
                     Route::get('/tables/customers', 'HotelRentController@searchCustomers');

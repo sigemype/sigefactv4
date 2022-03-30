@@ -496,8 +496,8 @@
                     $q->where('date_of_payment', '<=', $params->date_end);
                 }
                 // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                $q->whereHas('associated_record_payment', function ($p) {
-                    $p->whereStateTypeAccepted()->whereTypeUser();
+                $q->whereHas('associated_record_payment', function ($p) use ( $params ) {
+                    $p->whereStateTypeAccepted()->whereTypeUser((array)$params);
                 });
             });
             $query->OrWhereHas('exp_payment', function ($q) use ($params) {
@@ -508,8 +508,8 @@
                     $q->where('date_of_payment', '<=', $params->date_end);
                 }
                 // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                $q->whereHas('associated_record_payment', function ($p) {
-                    $p->whereStateTypeAccepted()->whereTypeUser();
+                $q->whereHas('associated_record_payment', function ($p) use ($params) {
+                    $p->whereStateTypeAccepted()->whereTypeUser((array)$params);
                 });
             });
             /*SaleNotePayment*/
@@ -521,8 +521,8 @@
                     $q->where('date_of_payment', '<=', $params->date_end);
                 }
                 // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                $q->whereHas('associated_record_payment', function ($p) {
-                    $p->whereStateTypeAccepted()->whereTypeUser()
+                $q->whereHas('associated_record_payment', function ($p) use ($params) {
+                    $p->whereStateTypeAccepted()->whereTypeUser((array)$params)
                         ->whereNotChanged();
                 });
             });
@@ -535,8 +535,8 @@
                     $q->where('date_of_payment', '<=', $params->date_end);
                 }
                 // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                $q->whereHas('associated_record_payment', function ($p) {
-                    $p->whereStateTypeAccepted()->whereTypeUser();
+                $q->whereHas('associated_record_payment', function ($p) use ($params){
+                    $p->whereStateTypeAccepted()->whereTypeUser((array)$params);
                 });
 
             });
@@ -550,8 +550,8 @@
                         $q->where('date_of_payment', '<=', $params->date_end);
                     }
                     // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                    $q->whereHas('associated_record_payment', function ($p) {
-                        $p->whereStateTypeAccepted()->whereTypeUser()
+                    $q->whereHas('associated_record_payment', function ($p) use ($params) {
+                        $p->whereStateTypeAccepted()->whereTypeUser((array)$params)
                             ->whereNotChanged();
                     });
 
@@ -566,8 +566,8 @@
                         $q->where('date_of_payment', '<=', $params->date_end);
                     }
                     // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                    $q->whereHas('associated_record_payment', function ($p) {
-                        $p->whereStateTypeAccepted()->whereTypeUser()
+                    $q->whereHas('associated_record_payment', function ($p) use ($params){
+                        $p->whereStateTypeAccepted()->whereTypeUser((array)$params)
                             ->whereNotChanged();
                     });
 
@@ -582,8 +582,8 @@
                         $q->where('date_of_payment', '<=', $params->date_end);
                     }
                     // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                    $q->whereHas('associated_record_payment', function ($p) {
-                        $p->whereStateTypeAccepted()->whereTypeUser();
+                    $q->whereHas('associated_record_payment', function ($p) use ($params){
+                        $p->whereStateTypeAccepted()->whereTypeUser((array)$params);
                     });
 
                 });
@@ -597,9 +597,9 @@
                         $q->where('date_of_payment', '<=', $params->date_end);
                     }
                     // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                    $q->whereHas('associated_record_payment', function ($p) {
+                    $q->whereHas('associated_record_payment', function ($p) use ($params) {
                           $p->whereStateTypeAccepted()
-                            ->whereTypeUser()
+                            ->whereTypeUser((array)$params)
                         ;
                     });
 
@@ -641,8 +641,8 @@
                         $q->where('date_of_payment', '<=', $params->date_end);
                     }
                     // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
-                    $q->whereHas('associated_record_payment', function ($p) {
-                        $p->whereTypeUser();
+                    $q->whereHas('associated_record_payment', function ($p) use ($params) {
+                        $p->whereTypeUser((array)$params);
                     });
 
                 });
@@ -660,6 +660,7 @@
 
             return $query;
         }
+
 
         /**
          * @return BelongsTo

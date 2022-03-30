@@ -148,7 +148,7 @@
                                 $brand = "";
                                 $category = "";
                                 $unit_price = 1;
-                                if ($value->item->presentation) {
+                                if (property_exists( $value->item,'presentation') &&  $value->item->presentation) {
                                     $unit_type_id = $value->item->presentation->unit_type_id;
                                 }
                                 if($unit_type_id !== 'ZZ'){
@@ -169,7 +169,7 @@
                                     <td class="celda">{{$loop->iteration}}</td>
                                     <td class="celda">{{$value->series}}-{{$value->number}}</td>
                                     <td class="celda">{{$value->relation_item->internal_id}}</td>
-                                    <td class="celda">{{ ($value->item->presentation) ? $value->item->presentation->unit_type_id : $value->relation_item->unit_type_id}}</td>
+                                    <td class="celda">{{ (property_exists( $value->item,'presentation') && $value->item->presentation) ? $value->item->presentation->unit_type_id : $value->relation_item->unit_type_id}}</td>
                                      <td class="celda">{{$category}}</td>
                                     {{-- <td class="celda">{{$value->relation_item->unit_type_id}}</td> --}}
                                     <td class="celda">{{$value->item->description}}</td>

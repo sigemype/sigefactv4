@@ -5,7 +5,7 @@
         </div>
         <div class="card mb-0">
             <div class="card-body">
-                <data-table :resource="resource">
+                <data-table :resource="resource" @changeCurrency="changeCurrency" >
                     <tr slot="heading">
                         <th class="">#</th>
                         <th class=""><strong>Nombre de la cuenta / Total pagos</strong></th>
@@ -25,18 +25,18 @@
                     <tr slot-scope="{ index, row }">
                         <td>{{ index }}</td>
                         <td>{{ row.description }}</td>
-                        <td class="text-center">S/ {{ row.document_payment }}</td>
-                        <td class="text-center">S/ {{ row.sale_note_payment }}</td>
-                        <td class="text-center">S/ {{ row.quotation_payment }}</td>
-                        <td class="text-center">S/ {{ row.contract_payment }}</td>
-                        <td class="text-center">S/ {{ row.technical_service_payment }}</td>
-                        <td class="text-center">S/ {{ row.income_payment }}</td>
-                        <td class="text-center">S/ {{ row.purchase_payment }}</td>
-                        <td class="text-center">S/ {{ row.expense_payment }}</td>
-                        <td class="text-center">S/ {{ row.bank_loan }}</td>
-                        <td class="text-center">S/ {{ row.bank_loan_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.document_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.sale_note_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.quotation_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.contract_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.technical_service_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.income_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.purchase_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.expense_payment }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.bank_loan }}</td>
+                        <td class="text-center">{{cuurencySymbol}} {{ row.bank_loan_payment }}</td>
                         <td v-show="seller_can_view_balance"
-                            class="text-center">S/ {{ row.balance }}
+                            class="text-center">{{cuurencySymbol}} {{ row.balance }}
                         </td>
                     </tr>
                 </data-table>
@@ -67,8 +67,10 @@ export default {
             resource: 'finances/balance',
             form: {},
             seller_can_view_balance: false,
+            currency: 'PEN'
         }
     },
+
     created() {
         this.loadConfiguration()
         this.$store.commit('setConfiguration', this.configuration)
@@ -81,6 +83,9 @@ export default {
             'exchange_rate_sale',
             'config',
         ]),
+        cuurencySymbol() {
+            return this.currency == 'PEN' ? 'S/': '$'
+        }
     },
     methods: {
         ...mapActions([
@@ -102,6 +107,9 @@ export default {
                 });
 
         },
+        changeCurrency(value) {
+            this.currency = value
+        }
 
     }
 }

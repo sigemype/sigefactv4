@@ -95,12 +95,18 @@
 
 <div class="container">
     <div class="footer-bottom">
-        <p class="footer-copyright">Facturador Pro 3. &copy; 2019. Todos los Derechos Reservados</p>
+        <p class="footer-copyright">Facturador Pro 4. &copy; {{ now()->year }}. Todos los Derechos Reservados</p>
 
         <img src="{{ asset('porto-ecommerce/assets/images/payments.png') }}" alt="payment methods"
             class="footer-payments">
     </div><!-- End .footer-bottom -->
 </div><!-- End .container -->
+
+@if($information->phone_whatsapp)
+    @if(strlen($information->phone_whatsapp) > 0)
+    <a class='ws-flotante' href='https://wa.me/{{$information->phone_whatsapp}}' target="BLANK" style="background-image: url('{{asset('logo/ws.png')}}'); background-size: 70px; background-repeat: no-repeat;" ></a>
+    @endif
+@endif
 
 <div class="modal fade" id="moda-succes-add-product" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">

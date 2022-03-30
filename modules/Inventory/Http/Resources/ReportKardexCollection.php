@@ -282,7 +282,7 @@ class ReportKardexCollection extends ResourceCollection
                     ->whereBetween('date_of_issue', [$request->date_start, $request->date_end])
                     ->limit(($request->page * 20) - 20)->get();
                 for ($i = 0; $i <= count($data) - 1; $i++) {
-                    self::$restante += (isset($data[$i]->inventory_kardexable->sale_note_id) || isset($data[$i]->inventory_kardexable->order_note_id)) ? 0 : $data[$i]->quantity;
+                    self::$restante += (isset($data[$i]->inventory_kardexable->sale_note_id) || isset($data[$i]->inventory_kardexable->order_note_id) || isset($data[$i]->inventory_kardexable->sale_notes_relateds)) ? 0 : $data[$i]->quantity;
                     // self::$restante += $data[$i]->quantity;
                 }
                 self::$restante += $quantityOld->quantity;
@@ -304,7 +304,7 @@ class ReportKardexCollection extends ResourceCollection
                     }
                     //view quantity by document
                     // $cpe_and_quantity_discount [] ="{$data[$i]->inventory_kardexable->number_full} - ".( (isset($data[$i]->inventory_kardexable->sale_note_id) || isset($data[$i]->inventory_kardexable->order_note_id) || $cpe_discounted_stock) ? 0 : $data[$i]->quantity);
-                    self::$restante += (isset($data[$i]->inventory_kardexable->sale_note_id) || isset($data[$i]->inventory_kardexable->order_note_id) || $cpe_discounted_stock) ? 0 : $data[$i]->quantity;
+                    self::$restante += (isset($data[$i]->inventory_kardexable->sale_note_id) || isset($data[$i]->inventory_kardexable->order_note_id) || $cpe_discounted_stock || isset($data[$i]->inventory_kardexable->sale_notes_relateds)) ? 0 : $data[$i]->quantity;
                 }
             }
             return self::$balance = self::$restante;

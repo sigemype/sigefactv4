@@ -192,7 +192,7 @@
                             <!--                            Fecha de inicio-->
                             <div class="col-md-3">
                                 <label class="control-label">
-                                    Fecha de inicio
+                                    Fecha de primer pago
                                 </label>
                                 <el-date-picker v-model="form.start_date"
                                                 :clearable="false"
@@ -206,7 +206,7 @@
                             <!--                            Fecha de fin-->
                             <div class="col-md-3">
                                 <label class="control-label">
-                                    Fecha de fin
+                                    Fecha de último pago
                                 </label>
                                 <el-date-picker v-model="end_date"
                                                 :disabled="true"
@@ -316,7 +316,7 @@
 
                                 >
                                     <!-- # -->
-                                    <td>{{ index }}</td>
+                                    <td>{{ index + 1}}</td>
                                     <!-- Fecha Emisión -->
                                     <td class="text-center">{{ row.date_of_issue }}</td>
                                     <!-- Cliente -->
@@ -798,6 +798,7 @@ export default {
                             this.hasFac = true;
                         }
 
+                        this.changeStartDate()
                         /*
                         hasNv
                         hasFac
@@ -1261,10 +1262,12 @@ export default {
             if (plan !== undefined) {
                 if (plan.quantity_period !== undefined)
                     qty = parseInt(plan.quantity_period)
+                if(qty > 0){
+                    qty = qty - 1;
+                }
                 if (plan.periods !== undefined)
                     period = plan.periods
             }
-
             this.end_date = moment(date, 'YYYY-MM-DD').add(qty, period).format('YYYY-MM-DD');
 
         },

@@ -74,6 +74,8 @@
                             ->name('tenant.reports.sales.filter');
                        Route::get('/records', 'ReportDocumentController@records')
                             ->name('tenant.reports.sales.records');
+                       Route::get('/pdf-simple', 'ReportDocumentController@pdfSimple')
+                            ->name('tenant.reports.sales.pdfSimple');
                    });
                    /**
                     * /reports/sale-notes
@@ -194,6 +196,12 @@
                     Route::get('customers/records', 'ReportCustomerController@records')
                          ->name('tenant.reports.customers.records');
 
+                    /**
+                     * reports/items
+                     * reports/items/excel
+                     * reports/items/filter
+                     * reports/items/records
+                     * */
                     Route::get('items', 'ReportItemController@index')->name('tenant.reports.items.index');
                     Route::get('items/excel', 'ReportItemController@excel')->name('tenant.reports.items.excel');
                     Route::get('items/filter', 'ReportItemController@filter')->name('tenant.reports.items.filter');
@@ -254,6 +262,7 @@
 
                    Route::get('order-notes-general', 'ReportOrderNoteGeneralController@index')
                          ->name('tenant.reports.order_notes_general.index');
+                    Route::get('order-notes-general/excel', 'ReportOrderNoteGeneralController@excel');
                     Route::get('order-notes-general/pdf', 'ReportOrderNoteGeneralController@pdf');
                     Route::get('order-notes-general/filter', 'ReportOrderNoteGeneralController@filter');
                     Route::get('order-notes-general/records', 'ReportOrderNoteGeneralController@records');
@@ -286,6 +295,21 @@
 
                     });
 
+                    Route::prefix('commissions-detail')->group(function () {
+
+                         Route::get('', 'ReportCommissionDetailController@index')
+                              ->name('tenant.reports.commissions_detail.index');
+                         Route::get('/pdf', 'ReportCommissionDetailController@pdf')
+                              ->name('tenant.reports.commissions_detail.pdf');
+                         Route::get('/excel', 'ReportCommissionDetailController@excel')
+                              ->name('tenant.reports.commissions_detail.excel');
+                         Route::get('/filter', 'ReportCommissionDetailController@filter')
+                              ->name('tenant.reports.commissions_detail.filter');
+                         Route::get('/records', 'ReportCommissionDetailController@records')
+                              ->name('tenant.reports.commissions_detail.records');
+ 
+                     });
+
 
                     Route::prefix('fixed-asset-purchases')->group(function () {
 
@@ -313,6 +337,17 @@
                         Route::get('records', 'ReportMassiveDownloadController@records');
 
                     });
+
+
+                    Route::prefix('download-tray')->group(function () {
+
+                         Route::get('', 'DownloadTrayController@index')->name('tenant.reports.download-tray.index');
+                         Route::get('records', 'DownloadTrayController@records');
+                         Route::get('download/{id}', 'DownloadTrayController@download');
+                         
+
+                     });
+
 
                 });
 

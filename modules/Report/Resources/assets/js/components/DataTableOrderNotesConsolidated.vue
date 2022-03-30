@@ -91,10 +91,13 @@
                         <el-button :loading="loading_submit" class="submit" icon="el-icon-search"
                                    type="primary" @click.prevent="getRecordsByFilter">Buscar
                         </el-button>
+                        <template v-if="resource == 'reports/order-notes-general'">
+                        <el-button class="submit" type="success" @click.prevent="clickDownload('excel')">
+                        <i class="fa fa-file-excel" >
+                        </i>  Exportal Excel</el-button>
+                        </template>
                         <template v-if="records.length>0">
-                            <!-- <el-button class="submit" type="success" @click.prevent="clickDownload('excel')">
-                            <i class="fa fa-file-excel" >
-                            </i>  Exportal Excel</el-button> -->
+                            
                             <el-button class="submit" icon="el-icon-tickets" type="danger"
                                        @click.prevent="clickDownload('pdf')">Exportar PDF
                             </el-button>

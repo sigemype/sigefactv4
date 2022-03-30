@@ -17,9 +17,11 @@ class RentHotelCollection extends ResourceCollection
             $data = $row->toArray();
             $customer = $row->customer;
             $room = $row->room;
+            $items = $row->products;
             $data['status'] = ucfirst(strtolower($data['status']));
             $data['customer'] = $customer;
             $data['room'] = $room;
+            $data['items'] = $items;
             return  $data;
 
         });

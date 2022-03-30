@@ -108,10 +108,12 @@
 
                     <label>
                         Dias que toma el etapa
+                        <small>
+                            {{type_calc}}
+                        </small>
                     </label>
                     <el-input v-model="guide.total_day"
                               type="number"
-                              :disabled="!guide.by_day"
                               @keyup="calculateDays"
                               @change="calculateDays">
                     </el-input>
@@ -126,7 +128,7 @@
                     </label>
                     <el-date-picker
                         v-model="guide.date_end "
-                        :disabled="guide.by_day"
+                        :disabled="true"
                         format="yyyy/MM/dd HH:mm"
                         placeholder="Fecha de finalizacion"
                         type="datetime"
@@ -209,10 +211,9 @@
 
                 <div
                     :class="{ 'has-danger': errors.total_day }"
-                    class="form-group col-sm-6 col-md-3 col-lg-2 ">
-
+                    class="form-group col-sm-12 col-md-6 col-lg-4 ">
                     <label>
-                        Calculo por dias
+                        Calculo por dias Hábiles
                     </label>
                     <el-checkbox
                         v-model="guide.by_day"
@@ -349,6 +350,7 @@ export default {
                 add: false,
                 name: '',
             },
+            type_calc:' (Días hábiles)',
             tabActive: "first",
             tempAttachments: [],
             fileList: [],
@@ -488,13 +490,21 @@ export default {
             this.$emit("update:visible", false);
         },
         calculateDays() {
+            if(this.guide.by_day){
+                this.type_calc= '(Días hábiles)';
+            }else{
+                this.type_calc= '(Días calendario)';
+
+            }
             this.$http
                 .post(`${this.basePath}/calculateDays`, this.guide)
                 .then((response) => {
                     let data = response.data;
+                    /*
                     if(data.total_day){
                         this.guide.total_day = data.total_day
                     }
+                    */
                     if (data.date_end) {
                         this.guide.date_end = data.date_end;
                     }

@@ -3,6 +3,7 @@
 namespace Modules\Document\Http\Controllers;
 
 use App\Http\Controllers\SearchItemController;
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -51,8 +52,11 @@ class DocumentController extends Controller
 
     }
 
-    public function getRecords($request){
+    public function getRecords($request)
+    {
 
+        /** @var User $user */
+        $user = \Auth::user();
 
         $d_end = $request->d_end;
         $d_start = $request->d_start;
@@ -61,38 +65,29 @@ class DocumentController extends Controller
         $number = $request->number;
         $series = $request->series;
         $state_type_id = $request->state_type_id;
-        $pending_payment = ($request->pending_payment == "true") ? true:false;
+        $pending_payment = ($request->pending_payment == "true") ? true : false;
         $customer_id = $request->customer_id;
 
+        $records = Document::
+        where('series', 'like', '%' . $series . '%')
+            ->where('number', 'like', '%' . $number . '%')
+            ->where('state_type_id', 'like', '%' . $state_type_id . '%')
+            ->where('document_type_id', 'like', '%' . $document_type_id . '%')
+            ->whereNotSent()
+            //->whereTypeUser()
+        ;
 
-        if($d_start && $d_end){
-
-            $records = Document::where('document_type_id', 'like', '%' . $document_type_id . '%')
-                            ->where('series', 'like', '%' . $series . '%')
-                            ->where('number', 'like', '%' . $number . '%')
-                            ->where('state_type_id', 'like', '%' . $state_type_id . '%')
-                            ->whereBetween('date_of_issue', [$d_start , $d_end])
-                            ->whereNotSent()
-                            ->whereTypeUser()
-                            ->latest();
-
-        }else{
-
-            $records = Document::where('date_of_issue', 'like', '%' . $date_of_issue . '%')
-                            ->where('document_type_id', 'like', '%' . $document_type_id . '%')
-                            ->where('state_type_id', 'like', '%' . $state_type_id . '%')
-                            ->where('series', 'like', '%' . $series . '%')
-                            ->where('number', 'like', '%' . $number . '%')
-                            ->whereNotSent()
-                            ->whereTypeUser()
-                            ->latest();
+        if ($d_start && $d_end) {
+            $records->whereBetween('date_of_issue', [$d_start, $d_end]);
+        } else {
+            $records->where('date_of_issue', 'like', '%' . $date_of_issue . '%');
         }
-
-        if($pending_payment){
+        $records->latest();
+        if ($pending_payment) {
             $records = $records->where('total_canceled', false);
         }
 
-        if($customer_id){
+        if ($customer_id) {
             $records = $records->where('customer_id', $customer_id);
         }
 

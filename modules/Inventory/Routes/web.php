@@ -160,7 +160,7 @@
                      */
                     Route::prefix('report')->group(function () {
                         Route::get('tables', 'ReportInventoryController@tables');
-                        Route::post('records', 'ReportInventoryController@records');
+                        Route::get('records', 'ReportInventoryController@records');
                         Route::post('export', 'ReportInventoryController@export');
                     });
 
@@ -272,7 +272,6 @@
                     Route::get('stock/{item_id}/{warehouse_id}', 'TransferController@stock');
                     Route::get('items/{warehouse_id}', 'TransferController@items');
                     Route::post('search-items', 'TransferController@searchItems');
-                    Route::get('download', 'TransferController@transfers_download');
 
                      Route::get('/download/pdf/{inventoryTransfer}', 'TransferController@getPdf');
                      // Route::get('info/{inventoryTransfer}', 'TransferController@getInventoryTransferData');

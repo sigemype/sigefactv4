@@ -26,6 +26,7 @@
      * @property string                                  $date_register
      * @property string                                  $time_register
      * @property int                                     $person_id
+     * @property int                                     $documentary_guides_number_status_id
      * @property string|null                             $sender
      * @property string|null                             $subject
      * @property string|null                             $attached_file
@@ -41,6 +42,7 @@
      * @property bool                                    $is_archive
      * @property DocumentaryProcess                      $documentary_process
      * @property Person                                  $person
+     * @property Carbon|null            $date_end
      * @property User|null                               $user
      * @method static Builder|DocumentaryFile newModelQuery()
      * @method static Builder|DocumentaryFile newQuery()
@@ -61,6 +63,7 @@
         protected $fillable = [
             'user_id',
             'documentary_document_id',
+            'documentary_guides_number_status_id',
             'documentary_process_id',
             'number',
             'year',
@@ -75,6 +78,7 @@
             'status',
             'documentary_office_id',
             'requirements',
+            'date_end',
             'is_simplify',
             'establishment_id',
             'is_archive',
@@ -82,6 +86,7 @@
         ];
         protected $casts = [
             'user_id' => 'int',
+            'documentary_guides_number_status_id' => 'int',
             'documentary_document_id' => 'int',
             'documentary_process_id' => 'int',
             'establishment_id' => 'int',
@@ -115,6 +120,15 @@
                         ];
                     }
                 }
+
+                /*
+                $guides =  $model->documentary_guide_number;
+                if(!empty($guides)){
+                    $last = $guides->last();
+                    $model->documentary_guides_number_status_id = $last->doc_office_id;
+                }
+                */
+
 
             });
             static::creating(function(self$model){
@@ -203,6 +217,7 @@
             $data['documentary_office'] = $documentary_file_office->getCollectionData();
             $data['documentary_process'] = $documentary_process->getCollectionData($holiday);
             $data['documentary_process_id'] = (int)$this->documentary_process_id;
+
             /*
 
 
@@ -624,4 +639,8 @@
         public function scopeWithOutArchive(Builder $query){
             return $query->where('is_archive',0);
         }
+        public function  scopeExpired($query){
+            return $query->where('date_end',"<",Carbon::now());
+        }
+
     }

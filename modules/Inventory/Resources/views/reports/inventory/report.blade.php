@@ -13,49 +13,9 @@
     @endif
     <meta http-equiv="X-UA-Compatible"
           content="ie=edge">
-    <title>Inventario</title>
-    <style>
-        html {
-            font-family: sans-serif;
-            font-size: 12px;
-        }
-
-        table {
-            border-spacing: 0;
-            border-collapse: collapse;
-        }
-
-        .title {
-            font-weight: 500;
-            text-align: center;
-            font-size: 24px;
-        }
-
-        .label {
-            width: 120px;
-            font-weight: 500;
-            font-family: sans-serif;
-        }
-
-        .table-records {
-            margin-top: 24px;
-        }
-
-        .table-records tr th {
-            font-weight: bold;
-            background: #0088cc;
-            color: white;
-        }
-
-        .table-records tr th,
-        .table-records tr td {
-            border: 1px solid #000;
-            font-size: 9px;
-        }
-    </style>
 </head>
 <body>
-<table style="width: 100%">
+<table class="full-width">
     <tr>
         <td colspan="13"
             class="title"><strong>Reporte Inventario</strong></td>
@@ -86,30 +46,34 @@
         <td>{{ date('d/m/Y')}}</td>
     </tr>
 </table>
-<table style="width: 100%"
-       class="table-records">
+<table class="full-width mt-10 mb-10">
     <thead>
-    <tr>
-        <th><strong>#</strong></th>
-        <th><strong>Cod. de barras</strong></th>
-        <th><strong>Cod. Interno</strong></th>
-        <th><strong>Descripción</strong></th>
-        <th><strong>Categoria</strong></th>
-        <th align="right"><strong>Stock mínimo</strong></th>
-        <th align="right"><strong>Stock actual</strong></th>
-        <th align="right"><strong>Costo</strong></th>
-        <th align="right"><strong>Costo Total</strong></th>
-        <th align="right"><strong>Precio de venta</strong></th>
-        <th align="right"><strong>Ganancia</strong></th>
-        <th align="right"><strong>Ganancia Total</strong></th>
-        <th><strong>Marca</strong></th>
-        <th><strong>Modelo</strong></th>
-        <th><strong>F. vencimiento</strong></th>
-        <th><strong>Almacén</strong></th>
+    <tr class="bg-grey">
+        <th  class="border-top-bottom text-center py-2 text-left" width="3%"><strong>#</strong></th>
+        <!-- <th class="border-top-bottom text-center py-2" width="8%"><strong>Cod. de barras</strong></th>-->
+        <th class="border-top-bottom text-center py-2 text-left" width="8%"><strong>Cod. Interno</strong></th>
+        <th class="border-top-bottom text-center py-2 text-left" width="8%"><strong>Descripción</strong></th>
+        <th class="border-top-bottom text-center py-2" width="8%"><strong>Categoria</strong></th>
+        <th class="border-top-bottom text-center py-2" width="6%"><strong>Stock mínimo</strong></th>
+
+        <th class="border-top-bottom text-center py-2" width="6%"><strong>Stock actual</strong></th>
+        <th class="border-top-bottom text-center py-2" width="6%"><strong>Costo</strong></th>
+        <th class="border-top-bottom text-center py-2" width="6%"><strong>Costo Total</strong></th>
+        <th class="border-top-bottom text-center py-2" width="7%"><strong>Precio de venta</strong></th>
+        <th class="border-top-bottom text-center py-2" width="7%"><strong>Ganancia</strong></th>
+
+        <th class="border-top-bottom text-center py-2" width="7%"><strong>Ganancia Total</strong></th>
+        <th class="border-top-bottom text-center py-2 text-right" width="8%" ><strong>Marca</strong></th>
+        <th class="border-top-bottom text-center py-2" width="8%"><strong>Modelo</strong></th>
+        <th class="border-top-bottom text-center py-2" width="8%"><strong>F. vencimiento</strong></th>
+        <th class="border-top-bottom text-center py-2 text-right" width="8%"><strong>Almacén</strong></th>
+        
     </tr>
     </thead>
     <tbody>
     @php
+        $total_purchase_unit_price = 0;
+        $total_sale_unit_price = 0;
         $total = 0;
         $total_profit = 0;
         $total_all_profit = 0
@@ -121,21 +85,25 @@
             $total += $total_line;
             $total_profit += $profit;
             $total_all_profit+= ($profit * $row['stock']);
-            $profit = number_format($profit,2,'.','')
+            $profit = number_format($profit,2,'.','');
+
+            $total_purchase_unit_price += $row['purchase_unit_price'];
+            $total_sale_unit_price += $row['sale_unit_price'];
+
         @endphp
         <tr>
             <td>{{ $loop->iteration}}</td>
-            <td>{{ $row['barcode'] }}</td>
+            <!--<td>{{ $row['barcode'] }}</td> -->
             <td>{{ $row['internal_id'] }}</td>
             <td>{{ $row['name'] }}</td>
             <td>{{ $row['item_category_name'] }}</td>
-            <td align="right">{{ $row['stock_min'] }}</td>
-            <td align="right">{{ $row['stock'] }}</td>
-            <td align="right">{{ $row['purchase_unit_price'] }}</td>
-            <td align="right">{{ $total_line }}</td>
-            <td align="right">{{ $row['sale_unit_price'] }}</td>
-            <td align="right">{{ $profit }}</td>
-            <td align="right">{{ number_format(abs($profit * $row['stock']),2,'.','')}}</td>
+            <td>{{ $row['stock_min'] }}</td>
+            <td >{{ $row['stock'] }}</td>
+            <td >{{ number_format($row['purchase_unit_price'],2,'.','')}} </td>
+            <td >{{ number_format($total_line,2,'.','')}}</td>
+            <td >{{ number_format($row['sale_unit_price'],2,'.','')}} </td>
+            <td >{{ $profit }}</td>
+            <td >{{ number_format(abs($profit * $row['stock']),2,'.','')}}</td>
             <td>{{ $row['brand_name'] }}</td>
             <td>{{ $row['model'] }}</td>
             <td>{{ $row['date_of_due'] }}</td>
@@ -150,22 +118,22 @@
         <th></th>
         <th></th>
         <th></th>
-        <th align="right"></th>
-        <th align="right"></th>
-        <th align="right"><strong>Costo</strong></th>
-        <th align="right"><strong>Costo Total de Inventario</strong></th>
-        <th align="right"><strong>Precio de venta</strong></th>
-        <th align="right"><strong>Ganancia</strong></th>
-        <th align="right"><strong>Ganancia Total</strong></th>
+        <th></th>
+        <th ></th>
+        <th><strong>Costo</strong></th>
+        <th><strong>Costo Total de Inventario</strong></th>
+        <th ><strong>Precio de venta</strong></th>
+        <th ><strong>Ganancia</strong></th>
+        <th><strong>Ganancia Total</strong></th>
         <th colspan="4"></th>
     </tr>
     <tr>
         <td colspan="7"
             class="celda"></td>
-        <td class="celda">{{$totals['purchase_unit_price']}}</td>
-        <td class="celda">{{$total}}</td>
-        <td class="celda">{{$totals['sale_unit_price']}}</td>
-        <td class="celda">S/ {{number_format($total_profit,2,'.','')}}</td>
+        <td class="celda">{{ number_format($total_purchase_unit_price, 2, '.','') }}</td>
+        <td class="celda">{{ $total}}</td>
+        <td class="celda">{{ number_format($total_sale_unit_price, 2, '.','') }}</td>
+        <td class="celda">S/ {{ number_format($total_profit,2,'.','') }} </td>
         <td class="celda">S/ {{number_format($total_all_profit,2,'.','')}}</td>
         <td colspan="4"
             class="celda"></td>

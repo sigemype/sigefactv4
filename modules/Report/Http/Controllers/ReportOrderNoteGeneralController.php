@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Modules\Report\Http\Resources\OrderNoteGeneralCollection;
 use Modules\Report\Traits\ReportTrait;
 use Modules\Order\Models\OrderNote;
+use Modules\Report\Exports\ReportOrderGeneralExport;
 
 
 class ReportOrderNoteGeneralController extends Controller
@@ -51,6 +52,13 @@ class ReportOrderNoteGeneralController extends Controller
         $records = $this->dataOrderNotes($request, $model);
 
         return $records;
+
+    }
+
+    private function dataGeneral($request)
+    {
+
+        return OrderNote::SearchByDate($request)->latest();
 
     }
 
@@ -94,6 +102,17 @@ class ReportOrderNoteGeneralController extends Controller
         return $pdf->download($filename.'.pdf');
     }
 
- 
+    public function excel(Request $request) {
+
+        $company = Company::first();
+        $records = $this->dataGeneral($request->all())->get();
+        /* dd($records); */
+        $documentHotelExport = new ReportOrderGeneralExport();
+        $documentHotelExport
+            ->records($records)
+            ->company($company);
+
+        return $documentHotelExport->download('Reporte_General_Pedidos' . Carbon::now() . '.xlsx');
+    }
 
 }

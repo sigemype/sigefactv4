@@ -3,7 +3,9 @@
 $establishment = $cash->user->establishment;
  
 $cash_documents = $cash->cash_documents;
- 
+
+$cash_documents_credit = $cash->cash_documents_credit;
+
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -138,10 +140,11 @@ $cash_documents = $cash->cash_documents;
  
                                     @foreach($value->sale_note->payments as $payment)
                                     <tr>
+                                        
                                         @php
                                             $type_transaction =  'Venta';
                                             $document_type_description =  'NOTA DE VENTA';
-                                            $number = $value->sale_note->identifier;
+                                            $number = $value->sale_note->number_full;
                                             $date_time_of_issue = "{$value->sale_note->date_of_issue->format('Y-m-d')} {$value->sale_note->time_of_issue}";
                                             $payment_method_description = $payment->payment_method_type->description;
                                             $total = $payment->payment;
@@ -201,6 +204,89 @@ $cash_documents = $cash->cash_documents;
 
                                     </tr>
                                     @endforeach
+                                @endif
+                            @endforeach
+
+
+
+                            @foreach($cash_documents_credit as $value)
+                            
+                                @php
+                                    
+                                    $type_transaction =  null;
+                                    $document_type_description = null;
+                                    $number = null;
+                                    $date_time_of_issue = null;
+                                   
+                                    $total = null;  
+                                    $currency_type_id = null;
+
+                                @endphp
+
+                                @if($value->sale_note)
+ 
+                                   
+                                    <tr>
+                                        
+                                        @php
+                                            $document = $value->sale_note;
+                                            $type_transaction =  'Venta';
+                                            $document_type_description =  'NOTA DE VENTA';
+                                            $number = $document->number_full;
+                                            $date_time_of_issue = "{$document->date_of_issue->format('Y-m-d')} {$document->time_of_issue}";
+                                            $payment_method_description = 'Crédito';
+                                            $total = 0;
+                                            
+                                            $currency_type_id = $document->currency_type_id;
+
+                                        @endphp
+
+
+                                        <td class="celda">{{ $loop->iteration }}</td>
+                                        <td class="celda">{{ $date_time_of_issue}}</td>
+                                        <td class="celda">{{ $document_type_description }}</td>
+                                        <td class="celda">{{ $number }}</td>
+                                        <td class="celda">{{$payment_method_description }}</td>  
+                                        <td class="celda">{{$currency_type_id }}</td>  
+                                        <td class="celda">{{ number_format($document->total,2) }}</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+
+                                    </tr>
+                                    
+
+                                @elseif($value->document)
+                                 
+                                   
+                                    <tr>
+                                        @php
+                                            $document = $value->document;
+                                            $type_transaction =  'Venta';
+                                            $document_type_description =  $document->document_type->description;
+                                            $number = $document->number_full;
+                                            $date_time_of_issue = "{$document->date_of_issue->format('Y-m-d')} {$document->time_of_issue}";
+                                            $payment_method_description = 'Crédito';
+                                           
+                                            
+                                          
+                                            
+                                            $currency_type_id = $document->currency_type_id;
+
+                                        @endphp
+
+
+                                        <td class="celda">{{ $loop->iteration }}</td>
+                                        <td class="celda">{{ $date_time_of_issue}}</td>
+                                        <td class="celda">{{ $document_type_description }}</td>
+                                        <td class="celda">{{ $number }}</td>
+                                        <td class="celda">{{$payment_method_description }}</td>  
+                                        <td class="celda">{{$currency_type_id }}</td>  
+                                        <td class="celda">{{ number_format($document->total,2) }}</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+
+                                    </tr>
+                                    
                                 @endif
                             @endforeach
                         </tbody>

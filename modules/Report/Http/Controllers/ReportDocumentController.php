@@ -105,9 +105,36 @@ class ReportDocumentController extends Controller
         return $pdf->download($filename.'.pdf');
     }
 
+    public function pdfSimple(Request $request) {
+        set_time_limit (1800); // Maximo 30 minutos
+        $company = Company::first();
+        $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
+        $documentTypeId = "01";
+        if ($request->has('document_type_id')) {
+            $documentTypeId = str_replace('"', '', $request->document_type_id);
+        }
+        $documentType = DocumentType::find($documentTypeId);
+        if (null === $documentType) {
+            $documentType = new DocumentType();
+        }
+
+        $classType = $documentType->getCurrentRelatiomClass();
+        $records = $this->getRecords($request->all(), $classType);
+        $records= $records->get();
+
+        $filters = $request->all();
+
+        $pdf = PDF::loadView('report::documents.report_pdf_simple', compact("records", "company", "establishment", "filters"))
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'Reporte_Ventas_Simple'.date('YmdHis');
+
+        return $pdf->download($filename.'.pdf');
+    }
+
 
     public function excel(Request $request) {
-
+        
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
 

@@ -9,7 +9,7 @@
 </style>
 @php
     $col_span = 25;
-    $add_state_type = $params['add_state_type'] === 'true';
+    $add_state_type = $params['add_state_type']??'false' === 'true';
 @endphp
 <table>
     <tr>

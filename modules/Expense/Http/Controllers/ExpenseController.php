@@ -52,12 +52,60 @@ class ExpenseController extends Controller
 
     public function records(Request $request)
     {
-        $records = Expense::where($request->column, 'like', "%{$request->value}%")
+        $records = $this->getRecords($request->all(), Expense::class);
+
+        return new ExpenseCollection($records->paginate(config('tenant.items_per_page')));
+
+        /*$records = Expense::where($request->column, 'like', "%{$request->value}%")
                             ->whereTypeUser()
                             ->latest();
 
-        return new ExpenseCollection($records->paginate(config('tenant.items_per_page')));
+        return new ExpenseCollection($records->paginate(config('tenant.items_per_page')));*/
     }
+
+    public function getRecords($request, $model){
+
+        $period = $request['period'];
+        $date_start = $request['date_start'];
+        $date_end = $request['date_end'];
+        $month_start = $request['month_start'];
+        $month_end = $request['month_end'];
+
+        $d_start = null;
+        $d_end = null;
+    
+
+        switch ($period) {
+            case 'month':
+                $d_start = Carbon::parse($month_start.'-01')->format('Y-m-d');
+                $d_end = Carbon::parse($month_start.'-01')->endOfMonth()->format('Y-m-d');
+                break;
+            case 'between_months':
+                $d_start = Carbon::parse($month_start.'-01')->format('Y-m-d');
+                $d_end = Carbon::parse($month_end.'-01')->endOfMonth()->format('Y-m-d');
+                break;
+            case 'date':
+                $d_start = $date_start;
+                $d_end = $date_start;
+                break;
+            case 'between_dates':
+                $d_start = $date_start;
+                $d_end = $date_end;
+                break;
+        }
+
+        $records = $this->data($d_start, $d_end, $model);
+
+        return $records;
+
+    }
+
+    private function data($date_start, $date_end, $model)
+    {
+        $data = $model::whereBetween('date_of_issue', [$date_start, $date_end])->whereTypeUser()->latest();
+        return $data;
+    }
+
 
     public function tables()
     {
@@ -193,11 +241,12 @@ class ExpenseController extends Controller
 
     public function excel(Request $request) {
 
-        $records = Expense::where($request->column, 'like', "%{$request->value}%")
+        /*$records = Expense::where($request->column, 'like', "%{$request->value}%")
                             ->whereTypeUser()
                             ->latest()
-                            ->get();
-        // dd($records);
+                            ->get();*/
+
+        $records = $this->getRecords($request->all(), Expense::class)->get();
 
         $establishment = auth()->user()->establishment;
         $balance = new ExpenseExport();
@@ -205,7 +254,6 @@ class ExpenseController extends Controller
             ->records($records)
             ->establishment($establishment);
 
-        // return $balance->View();
         return $balance->download('Expense_'.Carbon::now().'.xlsx');
 
     }

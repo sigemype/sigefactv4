@@ -112,6 +112,12 @@
                     return $row->getCollectionData();
                 });
             $data['requirements_id'] = $req->pluck('requirement_id');
+
+            $data['documentary_terms']=[];
+            $data['documentary_terms'][]=['term_name'=>'Capital hasta S/5,000.00'];
+            $data['documentary_terms'][]=['term_name'=>'2 Socios'];
+            $data['documentary_terms'][]=['term_name'=>'Hasta 4 rubros o actividades'];
+            $data['documentary_terms'][]=['term_name'=>'1 Gerente'];
             return $data;
         }
 
