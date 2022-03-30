@@ -187,6 +187,7 @@ return [
 
         ZanySoft\Zip\ZipServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
+
     ],
 
     /*
