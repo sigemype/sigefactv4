@@ -129,7 +129,7 @@
   font-size: 0.7rem;
   line-height: 24px;
   line-height: 1.5rem;
-  padding: 8px 6px 8px 12px;
+  padding: 0px 6px 5px 12px;
   text-transform: uppercase;
 }
 
@@ -148,20 +148,12 @@
   width: 100%;
 }
 
-#custom-select {
-
-}
-
 #custom-select .el-input-group__prepend {
   width: 100%;
   padding-left: 0px;
   padding-right: 0px;
   background: #fff;
   color: #606266;
-}
-
-#custom-select .el-input-group__append {
-  /* background: #fff;   */
 }
 
 #custom-select .el-input-group__prepend .el-select {
@@ -274,9 +266,9 @@
 .notifications .notification-menu {
     width: 280px;
 }
-.notifications .notification-menu .notification-title {
+/* .notifications .notification-menu .notification-title {
     border-radius: 3px;
-}
+} */
 
 .widget-summary .summary {
     word-break: break-word;
@@ -290,8 +282,8 @@ html.dark .table > thead > tr > th, html.dark .table > tbody > tr > th, html.dar
     color: #f5f5f5;
     background-color: #283046;
 }
-html.dark .el-switch__label *,
- {
+
+html.dark .el-switch__label * {
   color: #fff;
 }
 
@@ -394,10 +386,6 @@ html.dark .el-switch__label *,
   }
 }
 
-html.dashboard-system .content-body {
-  /*margin-top: 60px;*/
-}
-
 html.dark .el-switch__label:not(.is-active) {
   color: #FFF;
 }
@@ -409,6 +397,10 @@ html.dark .card.card-dashboard small.text-muted  {
 
 html.dark .card.card-reports .card-report-links li a {
   color: #808697;
+}
+
+.sidebar-left-collapsed ul.nav-main li.nav-description {
+  margin-left: -25px;
 }
 
 /* Rediseño sidebar */
@@ -432,11 +424,6 @@ ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a::before {
 html:not(.sidebar-light) ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a::before {
   border-color: #fff;
   background: #fff;
-}
-
-
-ul.nav-main li .nav-children li a:before {
-  /* background: #4b4b4b; */
 }
 
 ul.nav-main li .nav-children li a {
@@ -516,4 +503,22 @@ html.fixed.sidebar-ligth-blue .sidebar-left a:hover {
 
 .custom-mt-button{
   margin-top: 1.9rem !important;
+}
+
+/* header notificacion */
+.notifications .notification-menu .content {
+  padding: 0px;
+}
+.notification-menu li {
+  padding: 10px;
+  margin-bottom: 0px;
+}
+.notification-menu li:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+@media only screen and (max-width: 767px){
+  .notifications > li .notification-menu {
+    -webkit-transform: translate3d(-50%, 10px, 0px) !important;
+    transform: translate3d(-50%, 10px, 0px) !important;
+  }
 }

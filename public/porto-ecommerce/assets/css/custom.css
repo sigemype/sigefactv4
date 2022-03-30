@@ -49,3 +49,15 @@
 .logo img {
     max-height: 60px;
 }
+
+.ws-flotante {
+    position:fixed;
+    width:70px;
+    height:70px;
+    bottom:30px;
+    right:1px;
+    color:#FFF;
+    border-radius:50px;
+    text-align:center;
+    z-index:100;
+  }
