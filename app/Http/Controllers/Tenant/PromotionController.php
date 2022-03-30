@@ -40,7 +40,7 @@ class PromotionController extends Controller
 
     public function records(Request $request)
     {
-        $records = Promotion::orderBy('description');
+        $records = Promotion::where('apply_restaurant', 0)->orderBy('description');
         
         return new PromotionCollection($records->paginate(config('tenant.items_per_page')));
     }
@@ -64,7 +64,7 @@ class PromotionController extends Controller
 
         if(!$id)
         {
-            $count = Promotion::count();
+            $count = Promotion::where('apply_restaurant', 0)->count();
             if($count > 2)
             {
                 return [

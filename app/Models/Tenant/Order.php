@@ -20,7 +20,8 @@
             'document_external_id',
             'number_document',
             'status_order_id',
-            'purchase'
+            'purchase',
+            'apply_restaurant'
         ];
 
         protected $casts = [

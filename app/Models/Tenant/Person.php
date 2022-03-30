@@ -499,6 +499,49 @@
                     $optional_mail_send[] = $temp;
                 }
             }
+            /** @var \App\Models\Tenant\Catalogs\Department  $department */
+            $department = \App\Models\Tenant\Catalogs\Department::find($this->department_id);
+            if(!empty($department)){
+                $department = [
+                "id" => $department->id,
+                "description" => $department->description,
+                "active" => $department->active,
+                ];
+            }
+
+            /** @var \App\Models\Tenant\Catalogs\Department  $department */
+            $department = \App\Models\Tenant\Catalogs\Department::find($this->department_id);
+            if(!empty($department)){
+                $department = [
+                "id" => $department->id,
+                "description" => $department->description,
+                "active" => $department->active,
+                ];
+            }
+            $province = \App\Models\Tenant\Catalogs\Province::find($this->province_id);
+
+            if(!empty($province)){
+                $province = [
+                    "id" => $province->id,
+                    "description" => $province->description,
+                    "active" => $province->active,
+                ];
+            }
+            $district = \App\Models\Tenant\Catalogs\District::find($this->district_id);
+
+            if(!empty($district)){
+                $district = [
+                    "id" => $district->id,
+                    "description" => $district->description,
+                    "active" => $district->active,
+                ];
+            }
+            $seller = User::find($this->seller_id);
+            if(!empty($seller)){
+                $seller = $seller->getCollectionData();
+            }
+
+
             $data = [
                 'id' => $this->id,
                 'description' => $this->number . ' - ' . $this->name,
@@ -509,7 +552,7 @@
                 'address' => $this->address,
                 'internal_code' => $this->internal_code,
                 'observation' => $this->observation,
-                'seller' => $this->seller,
+                'seller' => $seller,
                 'zone' => $this->getZone(),
                 'zone_id' => $this->zone_id,
                 'seller_id' => $this->seller_id,
@@ -521,12 +564,14 @@
                 'type' => $this->type,
                 'trade_name' => $this->trade_name,
                 'country_id' => $this->country_id,
-                'department_id' => $this->department_id,
-                'department' => $this->department,
-                'province_id' => $this->province_id,
-                'province' => $this->province,
-                'district_id' => $this->district_id,
-                'district' => $this->district,
+                'department_id' => $department['id']??null,
+                'department' => $department,
+
+                'province_id' => $province['id']??null,
+                'province' => $province,
+                'district_id' => $district['id']??null,
+                'district' => $district,
+
                 'telephone' => $this->telephone,
                 'email' => $this->email,
                 'perception_agent' => (bool)$this->perception_agent,
@@ -680,5 +725,19 @@
         public function seller()
         {
             return $this->belongsTo(User::class, 'seller_id');
+        }
+
+        public function scopeSearchCustomer(Builder $query,$dni_ruc,$name=null,$email=null){
+            $query->where('type','customers');
+            $query->where('number',$dni_ruc);
+            if(!empty($name)) {
+                $query->where('name', 'like', "%$name%");
+            }
+            if(!empty($email)) {
+                $query->where('email', 'like', "%$email%");
+            }
+
+            return $query;
+
         }
     }

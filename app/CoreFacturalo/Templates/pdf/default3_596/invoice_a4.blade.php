@@ -164,7 +164,13 @@ $company_number = $company->number;
 $company_logo = null;
 if ($company->logo) {
     $company_logo = $company->logo;
+    
 }
+
+$logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
 
 
 $array_chunk = array_chunk($array_items, $cantidad_linea);
@@ -208,7 +214,7 @@ $total_array_chunk = count($array_chunk);
                 width="25%"
             >
                 <img @if($company_logo!=null)
-                     src="data:{{mime_content_type(public_path("storage/uploads/logos/".$company_logo)) }};base64,{{base64_encode(file_get_contents(public_path("storage/uploads/logos/".$company_logo))) }}"
+                     src="data:{{mime_content_type(public_path("{$company_logo}")) }};base64,{{base64_encode(file_get_contents(public_path("{$logo"))) }}"
                      @endif alt="{{ $company_name }}"
                      class="company_logo"
                      style="max-height: 50px; max-width: 200px;">

@@ -12,7 +12,8 @@ class FormatTemplate extends ModelTenant
     protected $fillable = [
     	'id',
     	'formats',
-        'urls'
+        'urls',
+        'is_custom_ticket'
     ];
 
     public function getUrlAttribute($value)

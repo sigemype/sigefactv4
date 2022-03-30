@@ -211,4 +211,31 @@
             return $model->user;
 
         }
+
+
+        /**
+         * 
+         * Obtener la descripción del almacén que se realizó la venta/compra
+         * Usado en:
+         * Reporte general de productos
+         * 
+         * @param $value
+         * @param $document
+         * @return string
+         */
+        public static function getWarehouseDescription($value, $document){
+            
+            $warehouse_description = null;
+            
+            if(!is_null($value->warehouse_id))
+            {
+                $warehouse_description = $value->warehouse->description;
+            
+            }else{
+                $warehouse_description = $document->relation_establishment->warehouse->description;
+            }
+
+            return $warehouse_description;
+        }
+
     }

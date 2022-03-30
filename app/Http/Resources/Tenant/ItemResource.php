@@ -180,6 +180,11 @@
                 'sanitary' => $this->sanitary,
                 'cod_digemid' => $this->cod_digemid,
                 'supplies' => $itemSupply,
+                
+                'purchase_has_isc' => $this->purchase_has_isc,
+                'purchase_system_isc_type_id' => $this->purchase_system_isc_type_id,
+                'purchase_percentage_isc' => $this->purchase_percentage_isc,
+
             ];
         }
     }

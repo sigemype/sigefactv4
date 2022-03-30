@@ -86,6 +86,13 @@ class ItemRequest extends FormRequest
                 'min:0',
             ],
 
+            'purchase_system_isc_type_id' => [
+                'required_if:purchase_has_isc, 1',
+            ],
+            'purchase_percentage_isc' => [
+                'required_if:purchase_has_isc, 1',
+                'numeric',
+            ],
         ];
     }
 

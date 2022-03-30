@@ -3,6 +3,7 @@
     namespace App\CoreFacturalo\Helpers\Template;
 
 
+    use App\Models\Tenant\Configuration;
     use App\Models\Tenant\SaleNote;
     use App\Models\Tenant\Dispatch;
     use App\Models\Tenant\Document;
@@ -231,5 +232,39 @@
                 return  $zone->getName();
             }
             return '';
+        }
+
+        /**
+         * Devuelve un string con solo etiquetas <br>
+         * @param string $str
+         *
+         * @return array|string|string[]
+         */
+        public static function SetHtmlTag($str = ''){
+            $str = str_replace("\n","<br>",$str);
+            $str = preg_replace('~\$\$[0-9]+~', '', $str);
+            $placeholders = [];
+            $i = 0;
+            $str = preg_replace_callback('~(<br[^>]*>)~', function ($matches) use (&$placeholders, &$i) {
+                $key = '$$'.$i++;
+                $placeholders[$key] = $matches[0];
+                return $key;
+            }, $str);
+            $str = htmlentities($str);
+            foreach ($placeholders as $key => $placeholder) {
+                $str = str_replace($key, $placeholder, $str);
+            }
+            return $str;
+        }
+
+        /**
+         * @return bool
+         */
+        public static function canShowNewLineOnObservation(){
+            $config = Configuration::first();
+            if(empty($config)) $config = new Configuration();
+            return (bool)$config->print_new_line_to_observation;
+
+
         }
     }

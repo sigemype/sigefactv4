@@ -29,9 +29,7 @@
     @if($document->related)
     <cac:AdditionalDocumentReference>
         <cbc:ID>{{ $document->related->number }}</cbc:ID>
-        <cbc:DocumentTypeCode listAgencyName="PE:SUNAT"
-                              listName="SUNAT:Identificador de documento relacionado"
-                              listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo21">{{ $document->related->document_type_id }}</cbc:DocumentTypeCode>
+        <cbc:DocumentTypeCode listAgencyName="PE:SUNAT" listName="SUNAT:Identificador de documento relacionado" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo21">{{ $document->related->document_type_id }}</cbc:DocumentTypeCode>
     </cac:AdditionalDocumentReference>
     @endif
     <cac:Signature>

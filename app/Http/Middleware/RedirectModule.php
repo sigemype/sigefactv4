@@ -234,7 +234,7 @@
 
                 case 'documentary-procedure':
                 case 'hotels':
-                    return redirect()->url('/');
+                    return redirect()->route('tenant.hotels.index');
                 case 'digemid':
                     return redirect()->route('tenant.digemid.index');
                 case 'suscription_app':

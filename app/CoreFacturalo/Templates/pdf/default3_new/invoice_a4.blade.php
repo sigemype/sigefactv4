@@ -25,10 +25,15 @@
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
 
     //calculate items
-    $allowed_items = 100;
+    $allowed_items = 80;
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 3);
     $total_weight = 0;
+
+    $logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
 
 @endphp
 <html>
@@ -48,7 +53,7 @@
         @if($company->logo)
             <td width="20%">
                 <div class="company_logo_box">
-                    <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
+                    <img src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
                 </div>
             </td>
         @else
@@ -226,9 +231,83 @@
                         @endforeach
                     </td>
                     @endif
+
+                    @if ($document->reference_guides)
+                        @if (count($document->reference_guides) > 0)
+                        <td class="font-sm" width="100px">
+                            <strong>Guías de Remisión</strong>
+                        </td>
+                        <td class="font-sm" width="8px">:</td>
+                        <td class="font-sm" colspan="4">
+                            @foreach($document->reference_guides as $guide)
+                                <span>
+                                    {{ $guide->series }}-{{ $guide->number }}
+                                </span>
+                            @endforeach
+                        </td>
+                        @endif
+                    @endif
+                </tr>
+                <tr>
+                    @if ($document->detraction)
+                        <td class="font-sm" width="100px"  style="vertical-align: top">
+                            <strong>N. Cta. Detracciones</strong>
+                        </td>
+                        <td width="8px" style="vertical-align: top">:</td>
+                        <td class="font-sm" style="vertical-align: top">{{ $document->detraction->bank_account}}</td>
+
+                        <td class="font-sm" width="70px"  style="vertical-align: top">
+                            <strong>P. Detracción</strong>
+                        </td>
+                        <td width="8px" style="vertical-align: top">:</td>
+                        <td class="font-sm" style="vertical-align: top">{{ $document->detraction->percentage}}%</td>
+                    @endif
+                </tr>
+                <tr>
+                    @if ($document->detraction)
+                        <td class="font-sm" width="100px"  style="vertical-align: top">
+                            <strong>Monto Detracción</strong>
+                        </td>
+                        <td width="8px" style="vertical-align: top">:</td>
+                        <td class="font-sm" style="vertical-align: top">S/ {{ $document->detraction->amount}}</td>
+                    @endif
                 </tr>
 
+                <tr>
+                    @if ($document->retention)
+                    <td class="font-sm" colspan="6">
+                        <strong>Información de la retención</strong>
+                    </td>
+                    @endif
+                </tr>
+                @if ($document->retention)
+                    <tr>
+                        <td class="font-sm" width="100px" style="vertical-align: top">
+                            <strong>Base imponible</strong>
+                        </td>
+                        <td class="font-sm" width="8px" style="vertical-align: top">:</td>
+                        <td class="font-sm" style="vertical-align: top">
+                            {{ $document->currency_type->symbol}} {{ $document->retention->base }}
+                        </td>
 
+                        <td class="font-sm" width="70px"  style="vertical-align: top">
+                            <strong>Porcentaje</strong>
+                        </td>
+                        <td class="font-sm" width="8px" style="vertical-align: top">:</td>
+                        <td class="font-sm" style="vertical-align: top">
+                            {{ $document->retention->percentage * 100 }}%
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-sm" width="100px" style="vertical-align: top">
+                            <strong>Monto</strong>
+                        </td>
+                        <td class="font-sm" width="8px" style="vertical-align: top">:</td>
+                        <td class="font-sm" style="vertical-align: top">
+                            {{ $document->currency_type->symbol}} {{ $document->retention->amount }}
+                        </td>
+                    </tr>
+                @endif
             </table>
         </td>
         {{-- <td width="5%" class="p-0 m-0">
@@ -266,7 +345,9 @@
                         {{ number_format($row->quantity, 0) }}
                     @endif
                 </td>
-                <td class="p-1 text-center align-top desc cell-solid-rl">{{ $row->item->unit_type_id }}</td>
+                <td class="p-1 text-center align-top desc cell-solid-rl">
+                    {{ $row->m_item->unit_type->description }}
+                </td>
                 <td class="p-1 text-left align-top desc text-upp cell-solid-rl">
                     @if($row->name_product_pdf)
                         {!!$row->name_product_pdf!!}
@@ -349,38 +430,74 @@
         </tr>
 
         <tr>
-            <td class="p-1 text-left align-top desc cell-solid" colspan="3" rowspan="6">
+            <td class="p-1 text-left align-top desc cell-solid" colspan="3" rowspan="{{($document->retention || $document->detraction) ? '7' : '6'}}">
+
+                @php
+                    $paymentCondition = \App\CoreFacturalo\Helpers\Template\TemplateHelper::getDocumentPaymentCondition($document);
+                @endphp
+                {{-- Condicion de pago  Crédito / Contado --}}
+                <strong>Condición de pago: {{ $paymentCondition }} </strong><br>
+
+                @if($document->payment_method_type_id)
+                    <strong>Método de pago: {{ $document->payment_method_type->description }} </strong><br>
+                @endif
+
+                @if ($document->payment_condition_id === '01')
+                    @if($payments->count())
+                        <strong>Pagos:</strong>
+                        @php $payment = 0; @endphp
+                        <ul>
+                            @foreach($payments as $row)
+                            <li>
+                                <span >
+                                    {{ $row->payment_method_type->description }} -
+                                    {{ $row->reference ? $row->reference.' - ':'' }}
+                                    {{ $document->currency_type->symbol }}
+                                    {{ $row->payment + $row->change }}
+                                </span>
+                            </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                @else
+                    <ul>
+                        @foreach($document->fee as $key => $quote)
+                        <li>
+                            <span >
+                            {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }}
+                            / Fecha: {{ $quote->date->format('d-m-Y') }}
+                            / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}
+                            </span>
+                        </li>
+                        @endforeach
+                    </ul>
+                @endif
+                <br>
+
                 @php
                     $total_packages = $document->items()->sum('quantity');
-
                 @endphp
 
                 <strong> Total bultos:</strong>
-                    @if(((int)$total_packages != $total_packages))
-                        {{ $total_packages }}
-                    @else
-                        {{ number_format($total_packages, 0) }}
-                    @endif
+                @if(((int)$total_packages != $total_packages))
+                    {{ $total_packages }}
+                @else
+                    {{ number_format($total_packages, 0) }}
+                @endif
                 <br>
-
                 <strong> Total Peso:</strong>
                     {{$total_weight}} KG
                 <br>
-
                 <strong> Observación:</strong>
                 @foreach($document->additional_information as $information)
                     @if ($information)
                         {{ $information }} <br>
                     @endif
                 @endforeach
-
-                <br>
             </td>
-            <td class="p-1 text-center align-top desc cell-solid " rowspan="6">
-
+            <td class="p-1 text-center align-top desc cell-solid " rowspan="{{($document->retention || $document->detraction) ? '7' : '6'}}">
                 <img src="data:image/png;base64, {{ $document->qr }}" class="p-0 m-0" style="width: 120px;" /><br>
                 Código Hash: {{ $document->hash }}
-
             </td>
 
             <td class="p-1 text-right align-top desc cell-solid font-bold" colspan="2">
@@ -412,7 +529,7 @@
         <tr>
 
             <td class="p-1 text-right align-top desc cell-solid font-bold" colspan="2">
-                I.G.V. {{$document->currency_type->symbol}}
+                I.G.V. (18%) {{$document->currency_type->symbol}}
             </td>
             <td class="p-1 text-right align-top desc cell-solid font-bold">{{ number_format($document->total_igv, 2) }}</td>
         </tr>
@@ -422,6 +539,12 @@
             </td>
             <td class="p-1 text-right align-top desc cell-solid font-bold">{{ number_format($document->total, 2) }}</td>
         </tr>
+        @if(($document->retention || $document->detraction) && $document->total_pending_payment > 0)
+            <tr>
+                <td class="p-1 text-right align-top desc cell-solid font-bold" colspan="2">M. PENDIENTE: {{ $document->currency_type->symbol }}</td>
+                <td class="p-1 text-right align-top desc cell-solid font-bold">{{ number_format($document->total_pending_payment, 2) }}</td>
+            </tr>
+        @endif
     </tbody>
 
 </table>

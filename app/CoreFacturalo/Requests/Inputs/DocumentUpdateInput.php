@@ -31,7 +31,8 @@ class DocumentUpdateInput
 		$offline_configuration = OfflineConfiguration::firstOrFail();
 
 		$establishment = EstablishmentInput::set($inputs['establishment_id']);
-		$customer = PersonInput::set($inputs['customer_id']);
+		// $customer = PersonInput::set($inputs['customer_id']);
+		$customer = PersonInput::set($inputs['customer_id'], isset($inputs['customer_address_id']) ? $inputs['customer_address_id'] : null);
 
 		if (in_array($document_type_id, ['01', '03'])) {
 			$array_partial = self::invoice($inputs);
@@ -133,9 +134,14 @@ class DocumentUpdateInput
 			'show_weight'               => $inputs['show_weight'] ?? false,
 			'weight'                    => $inputs['weight'] ?? 0.00,
 			'filename'                  => Functions::valueKeyInArray($inputs, 'filename'),
+			'unique_filename'           => Functions::valueKeyInArray($inputs, 'filename'),
             'payment_condition_id'		=> key_exists('payment_condition_id', $inputs) ? $inputs['payment_condition_id'] : '01',
             'fee' 						=> Functions::valueKeyInArray($inputs, 'fee', []),
             'pending_amount_detraction' => Functions::valueKeyInArray($inputs, 'pending_amount_detraction', 0),
+
+            'sale_notes_relateds'       => Functions::valueKeyInArray($inputs, 'sale_notes_relateds'),
+            'seller_id' 				=> Functions::valueKeyInArray($inputs, 'seller_id'),
+
 		];
 	}
 

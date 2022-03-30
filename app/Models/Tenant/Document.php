@@ -247,6 +247,9 @@
             'send_to_pse',
             'response_signature_pse',
             'response_send_cdr_pse',
+
+            'sale_notes_relateds', //generar cpe desde multiples notas de venta
+            'unique_filename', //registra nombre de archivo unico (campo validador para evitar duplicidad)
         ];
 
         protected $casts = [
@@ -427,6 +430,14 @@
         {
             $arr = explode('|', $value);
             return $arr;
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function relation_establishment()
+        {
+            return $this->belongsTo(Establishment::class, 'establishment_id');
         }
 
         /**
@@ -645,10 +656,22 @@
          *
          * @return null
          */
-        public function scopeWhereTypeUser($query)
+        public function scopeWhereTypeUser($query, $params = [])
         {
             /** @var User $user */
-            $user = auth()->user();
+            //$user_id = null;
+
+            if(isset($params['user_id'])) {
+                $user_id = (int)$params['user_id'];
+                $user = User::find($user_id);
+                if(!$user) {
+                    $user = new User();
+                }
+            }
+            else { 
+                $user = auth()->user();
+            }
+           
             return ($user->type === 'admin') ? null : $query->where('user_id', $user->id)->orWhere('seller_id', $user->id)->latest();
             // return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
         }
@@ -1117,6 +1140,50 @@
         public function setResponseSignaturePseAttribute($value)
         {
             $this->attributes['response_signature_pse'] = (is_null($value)) ? null : json_encode($value);
+        }
+        
+        /**
+         * registros asociados cuando se genera cpe desde multiples notas de venta
+         *
+         * @param $value
+         */
+        public function getSaleNotesRelatedsAttribute($value)
+        {
+            return (is_null($value)) ? null : (object)json_decode($value);
+        }
+
+        /**
+         * registros asociados cuando se genera cpe desde multiples notas de venta
+         *
+         * @param $value
+         */
+        public function setSaleNotesRelatedsAttribute($value)
+        {
+            $this->attributes['sale_notes_relateds'] = (is_null($value)) ? null : json_encode($value);
+        }
+        
+        /**
+         * 
+         * Filtro para no incluir relaciones en consulta
+         *
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @return \Illuminate\Database\Eloquent\Builder
+         */  
+        public function scopeWhereFilterWithOutRelations($query)
+        {
+            return $query->withOut([
+                'user',
+                'soap_type',
+                'state_type',
+                'document_type',
+                'currency_type',
+                'group',
+                'items',
+                'invoice',
+                'note',
+                'payments',
+                'fee'
+            ]);
         }
 
     }

@@ -401,7 +401,9 @@ class ItemController extends Controller
                 ]);
             }
             $lots_enabled = isset($request->lots_enabled) ? $request->lots_enabled:false;
-            if ($lots_enabled) {
+            $stock = (int)$request->stock;
+
+            if ($lots_enabled && $stock > 0) {
                 ItemLotsGroup::create([
                     'code'  => $request->lot_code,
                     'quantity'  => $request->stock,

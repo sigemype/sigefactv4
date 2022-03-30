@@ -10,7 +10,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Tenant\Catalogs\AffectationIgvType;
+use App\Models\Tenant\Catalogs\{
+    AffectationIgvType,
+    ChargeDiscountType
+};
 use GuzzleHttp\Client;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
@@ -146,12 +149,16 @@ class ConfigurationController extends Controller
             $urls = [
                 'guide' => \File::exists(public_path('templates/pdf/'.$insertar[2].'/image_guide.png')) ? 'templates/pdf/'.$insertar[2].'/image_guide.png' : '',
                 'invoice' => \File::exists(public_path('templates/pdf/'.$insertar[2].'/image.png')) ? 'templates/pdf/'.$insertar[2].'/image.png' : 'templates/pdf/default/image.png',
+                'ticket' => \File::exists(public_path('templates/pdf/'.$insertar[2].'/ticket.png')) ? 'templates/pdf/'.$insertar[2].'/ticket.png' : '',
             ];
 
             $insertar = DB::connection('tenant')
             ->table('format_templates')
             ->insert([
-                ['formats' => $insertar[2], 'urls' => json_encode($urls)]
+                [
+                    'formats' => $insertar[2],
+                    'urls' => json_encode($urls),
+                    'is_custom_ticket' => \File::exists(public_path('templates/pdf/'.$insertar[2].'/ticket.png')) ? 1 : 0 ]
             ]);
         }
 
@@ -167,6 +174,25 @@ class ConfigurationController extends Controller
             'success' => true,
             'message' => 'Configuración actualizada'
         ];
+    }
+
+    public function refreshTickets()
+    {
+        $lists = FormatTemplate::where('is_custom_ticket', true)->get();
+
+        return [
+            'success' => true,
+            'message' => 'Configuración actualizada'
+        ];
+    }
+
+    public function getTicketFormats()
+    {
+        $formats = FormatTemplate::where('is_custom_ticket', true)->get()->transform(function($row) {
+                return $row->getCollectionData();
+        });
+
+        return compact('formats');
     }
 
     public function addPreprintedSeeder()
@@ -220,6 +246,18 @@ class ConfigurationController extends Controller
         ];
     }
 
+    public function changeTicketFormat(Request $request)
+    {
+        $establishment = Establishment::find($request->establishment);
+        $establishment->template_ticket_pdf = $request->formats;
+        $establishment->save();
+
+        return [
+            'success' => true,
+            'message' => 'Configuración actualizada'
+        ];
+    }
+
     public function getFormats()
     {
         $formats = FormatTemplate::get()->transform(function($row) {
@@ -242,6 +280,12 @@ class ConfigurationController extends Controller
     {
         $establishments = Establishment::select(['id','description','template_pdf'])->get();
         return view('tenant.advanced.pdf_templates')->with('establishments', $establishments);
+    }
+
+    public function pdfTicketTemplates()
+    {
+        $establishments = Establishment::select(['id','description','template_ticket_pdf'])->get();
+        return view('tenant.advanced.pdf_ticket_templates')->with('establishments', $establishments);
     }
 
     public function pdfGuideTemplates()
@@ -303,8 +347,9 @@ class ConfigurationController extends Controller
     public function tables()
     {
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
+        $global_discount_types = ChargeDiscountType::whereIn('id', ['02', '03'])->whereActive()->get();
 
-        return compact('affectation_igv_types');
+        return compact('affectation_igv_types', 'global_discount_types');
     }
 
     public function visualDefaults()
@@ -410,5 +455,16 @@ class ConfigurationController extends Controller
         $configuration->save();
 
         return redirect()->back();
+    }
+
+
+    public function apiruc()
+    {
+        $configuration = Configuration::first();
+        return [
+            'url_apiruc' => $configuration->url_apiruc,
+            'token_apiruc' => $configuration->token_apiruc,
+            'token_false' => !$configuration->UseCustomApiPeruToken(),
+        ];
     }
 }

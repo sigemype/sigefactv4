@@ -72,12 +72,35 @@ class DispatchInput
             'reference_order_form_id' => Functions::valueKeyInArray($inputs, 'reference_order_form_id'),
             'reference_sale_note_id' => Functions::valueKeyInArray($inputs, 'reference_sale_note_id'),
             'secondary_license_plates' => self::secondary_license_plates($inputs),
+            'related' => self::related($inputs),
         ];
+
         if(isset($inputs['data_affected_document'])){
             $data['data_affected_document'] =$inputs['data_affected_document'];
         }
         return $data;
     }
+
+        
+    /**
+     * 
+     * Documento relacionado (DAM), usado para exportación
+     *
+     * @param  $inputs
+     * @return array|null
+     */
+    private static function related($inputs)
+    {
+        if(array_key_exists('related', $inputs)) 
+        {
+            $related = $inputs['related'];
+
+            if(!empty($related)) return $related;
+        }
+        
+        return null;
+    }
+
 
     private static function origin($inputs)
     {

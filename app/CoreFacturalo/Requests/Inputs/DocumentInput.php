@@ -174,6 +174,7 @@ class DocumentInput
                         'date_of_due' => (!empty($item->date_of_due)) ? $item->date_of_due->format('Y-m-d') : null,
                         'has_igv' => $row['item']['has_igv'] ?? true,
                         'unit_price' => $row['unit_price'] ?? 0,
+                        'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,  
                     ],
                     'quantity' => $row['quantity'],
                     'unit_value' => $row['unit_value'],

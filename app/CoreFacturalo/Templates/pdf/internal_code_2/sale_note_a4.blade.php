@@ -125,6 +125,34 @@
             </td>
             <td class="text-left">
                 {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+
+
+
+                @inject('itemLotGroup', 'App\Services\ItemLotsGroupService')
+                <?php
+                $lot_code = null;
+                $endDate = ($row->relation_item->date_of_due) ? $row->relation_item->date_of_due->format('Y-m-d') :null ;
+
+                if(isset($row->item->lots_group)) {
+                    $lot_codes_compromise = collect($row->item->lots_group)->where('compromise_quantity', '>', 0);
+                    /*$lot_code =  collect($row->item->lots_group)->first(function ($row) {
+                        return $row->checked == true;
+                    });*/
+                    $lot_code_group = $lot_codes_compromise->all();
+                    $endDate = '';
+
+                    foreach ($lot_code_group as $lt) {
+                       $endDate .= '/'.$lt->date_of_due;
+                    }
+                }
+
+                ?>
+
+                {{--
+                @if(! empty($lot_code))
+                <br/><span style="font-size: 9px">Lote : {{ $lot_code}}</span>
+                @endif
+                --}}
                 @isset($row->item->lots)
                     @foreach($row->item->lots as $lot)
                         <br/><span style="font-size: 9px">Serie : {{ $lot->series }}</span>
@@ -142,7 +170,7 @@
                 @endif
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
-            <td class="text-right align-top">@if($row->relation_item->date_of_due){{ $row->relation_item->date_of_due->format('Y-m-d')  }} @endif</td>
+            <td class="text-right align-top">{{$endDate}}</td>
             <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
             <td class="text-right align-top">
                 @if($row->discounts)

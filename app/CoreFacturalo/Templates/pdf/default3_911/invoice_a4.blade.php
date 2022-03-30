@@ -47,6 +47,11 @@ $waterMark64 .= ";base64, ";
 $waterMark64 .= base64_encode(file_get_contents($brandFile));
 }
 
+$logo = "storage/uploads/logos/{$company->logo}";
+if($establishment->logo) {
+    $logo = "{$establishment->logo}";
+}
+
 
 @endphp
 <html>
@@ -78,7 +83,7 @@ $waterMark64 .= base64_encode(file_get_contents($brandFile));
         @if($company->logo)
             <td width="20%">
                 <div class="company_logo_box">
-                    <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}"
+                    <img src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}"
                          alt="{{$company->name}}"
                          class="company_logo"
                          style="max-width: 150px;">

@@ -19,6 +19,8 @@ use Mpdf\Config\FontVariables;
 use Modules\Finance\Traits\FinanceTrait;
 use Modules\Finance\Traits\FilePaymentTrait;
 use Illuminate\Support\Facades\DB;
+use App\Models\Tenant\CashDocumentCredit;
+use App\Models\Tenant\Cash;
 
 class SaleNotePaymentController extends Controller
 {
@@ -84,6 +86,32 @@ class SaleNotePaymentController extends Controller
             $sale_note = SaleNote::find($request->sale_note_id);
             $sale_note->total_canceled = true;
             $sale_note->save();
+
+            $credit = CashDocumentCredit::where([
+                ['status', 'PENDING'],
+                ['sale_note_id',  $sale_note->id]
+            ])->first();
+
+            if($credit) {
+
+                $cash = Cash::where([
+                    ['user_id', auth()->user()->id],
+                    ['state', true],
+                ])->first();
+
+                $credit->status = 'PROCESSED';
+                $credit->cash_id_processed = $cash->id;
+                $credit->save();
+
+                $req = [
+                    'document_id' => null,
+                    'sale_note_id' => $sale_note->id
+                ];
+    
+                $cash->cash_documents()->updateOrCreate($req);
+
+            }
+
         }
 
         $this->createPdf($request->input('sale_note_id'));

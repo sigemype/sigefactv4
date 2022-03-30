@@ -8,6 +8,6 @@ class RelatedDocumentType extends ModelCatalog
 {
     use UsesTenantConnection;
 
-    protected $table = "cat_related_document_types";
+    protected $table = "cat_related_documents_types";
     public $incrementing = false;
 }

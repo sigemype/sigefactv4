@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenant;
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\CoreFacturalo\Helpers\Template\ReportHelper;
-use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SearchItemController;
@@ -63,8 +62,8 @@ use Modules\Item\Http\Requests\BrandRequest;
 use Modules\Item\Http\Requests\CategoryRequest;
 use Modules\Item\Models\Brand;
 use Modules\Item\Models\Category;
-use Barryvdh\DomPDF\Facade as PDF;
 use Modules\Document\Helpers\DocumentHelper;
+
 
 class DocumentController extends Controller
 {
@@ -235,7 +234,10 @@ class DocumentController extends Controller
         $company = Company::active();
         $document_type_03_filter = config('tenant.document_type_03_filter');
         // $sellers = User::where('establishment_id',$establishment_id)->whereIn('type', ['seller', 'admin'])->orWhere('id', $userId)->get();
-        $sellers = User::getSellersToNvCpe($establishment_id,$userId);
+        $sellers = User::getSellersToNvCpe($establishment_id,$userId)
+            ->transform(function(User $row){
+                return $row->getCollectionData();
+            });
         $payment_method_types = $this->table('payment_method_types');
         $business_turns = BusinessTurn::where('active', true)->get();
         $enabled_discount_global = config('tenant.enabled_discount_global');
@@ -266,6 +268,8 @@ class DocumentController extends Controller
         $payment_destinations = $this->getPaymentDestinations();
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $user = $userType;
+        $global_discount_types = ChargeDiscountType::whereIn('id', ['02', '03'])->whereActive()->get();
+
         return compact(
             'document_id',
             'series_id',
@@ -292,6 +296,7 @@ class DocumentController extends Controller
             'select_first_document_type_03',
             'payment_destinations',
             'payment_conditions',
+            'global_discount_types',
             'affectation_igv_types'
         );
 
@@ -665,20 +670,38 @@ class DocumentController extends Controller
             SaleNote::where('id', $request->sale_note_id)
                 ->update(['document_id' => $documentId]);
         }
+
+        //notas de venta relacionadas cuando se genera cpe desde multiples nv
         $notes = $request->sale_notes_relateds;
+
         if ($notes) {
+
             foreach ($notes as $note) {
-                $noteArray = explode('-', $note);
-                if (count($noteArray) === 2) {
-                    $sale_note = SaleNote::where([
-                                                     'series'=> $noteArray[0],
-                                                     'number'=> $noteArray[1],
-                                                 ])->first();
+
+                $sale_note_id = $note['id'] ?? null;
+
+                if ($sale_note_id) {
+
+                    $sale_note = SaleNote::find($sale_note_id);
+
                     if(!empty($sale_note)) {
                         $sale_note->document_id = $documentId;
                         $sale_note->push();
                     }
+
                 }
+
+                // $noteArray = explode('-', $note);
+                // if (count($noteArray) === 2) {
+                //     $sale_note = SaleNote::where([
+                //                                      'series'=> $noteArray[0],
+                //                                      'number'=> $noteArray[1],
+                //                                  ])->first();
+                //     if(!empty($sale_note)) {
+                //         $sale_note->document_id = $documentId;
+                //         $sale_note->push();
+                //     }
+                // }
             }
         }
     }
@@ -1046,7 +1069,7 @@ class DocumentController extends Controller
     public function messageLockedEmission(){
 
         $exceed_limit = DocumentHelper::exceedLimitDocuments();
-        
+
         if($exceed_limit['success'])
         {
             return [
@@ -1241,25 +1264,6 @@ class DocumentController extends Controller
         });
 
         return $records;
-    }
-
-    public function report_documents($start, $end, $type = 'pdf'){
-        $records = Document::whereBetween('date_of_issue', [$start , $end])->get();
-        $date_now = Carbon::now();
-
-        if ($type == 'pdf') {
-            $pdf = PDF::loadView('tenant.documents.report', compact("records", "date_now"))->setPaper('a4', 'landscape');
-            $filename = "Reporte_Documentos_".Carbon::now();
-            // return $pdf->stream($filename.'.pdf');
-            return $pdf->download($filename.'.pdf');
-
-        } elseif ($type == 'excel') {
-            $filename = "Reporte_Documentos_".Carbon::now();
-            return (new DocumentIndexExport)
-                ->records($records)
-                ->download($filename.Carbon::now().'.xlsx');
-        }
-
     }
 
     public function report_payments(Request $request)

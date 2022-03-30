@@ -24,7 +24,9 @@ use Modules\Finance\Traits\FinanceTrait;
 use App\Models\Tenant\Company;
 use Modules\BusinessTurn\Models\BusinessTurn;
 use App\Http\Resources\Tenant\PosCollection;
-
+use App\Models\Tenant\Catalogs\{
+    ChargeDiscountType
+};
 
 class PosController extends Controller
 {
@@ -158,9 +160,10 @@ class PosController extends Controller
         $payment_method_types = PaymentMethodType::all();
         $cards_brand = CardBrand::all();
         $payment_destinations = $this->getPaymentDestinations();
+        $global_discount_types = ChargeDiscountType::whereIn('id', ['02', '03'])->whereActive()->get();
 
 
-        return compact('series','payment_method_types','cards_brand', 'payment_destinations');
+        return compact('series','payment_method_types','cards_brand', 'payment_destinations', 'global_discount_types');
 
     }
 
@@ -308,8 +311,14 @@ class PosController extends Controller
 
         }else{
 
+            if($item->unit_type_id == 'ZZ') {
+                return [
+                    'success' => true,
+                    'message' => ''
+                ];
+            }
 
-            if(!$item_warehouse)
+            if(!$item_warehouse && $item->unit_type_id !== 'ZZ')
                 return [
                     'success' => false,
                     'message' => "El producto seleccionado no está disponible en su almacén!"
@@ -329,13 +338,10 @@ class PosController extends Controller
 
         }
 
-
-
         return [
             'success' => true,
             'message' => ''
         ];
-
 
     }
 
@@ -355,6 +361,10 @@ class PosController extends Controller
         $config = Configuration::first();
         if($config->isShowServiceOnPos() !== true) {
             $items->where('unit_type_id', '!=', 'ZZ');
+        }
+
+        if($request->garage == 1) {
+            $items->where('calculate_quantity', 1);
         }
 
         self::FilterItem($items, $request);
@@ -448,5 +458,20 @@ class PosController extends Controller
         $business_turns = BusinessTurn::select('active')->where('id', 4)->first();
 
         return view('tenant.pos.fast', compact('configuration', 'soap_company', 'business_turns'));
+    }
+
+    public function garage()
+    {
+        $cash = Cash::where([['user_id', auth()->user()->id],['state', true]])->first();
+
+        if(!$cash) return redirect()->route('tenant.cash.index');
+
+        $configuration = Configuration::first();
+
+        $company = Company::select('soap_type_id')->first();
+        $soap_company  = $company->soap_type_id;
+        $business_turns = BusinessTurn::select('active')->where('id', 4)->first();
+
+        return view('tenant.pos.garage', compact('configuration', 'soap_company', 'business_turns'));
     }
 }

@@ -13,7 +13,8 @@ class Promotion extends ModelTenant
         'name',
         'status',
         'image',
-        'item_id'
+        'item_id',
+        'apply_restaurant'
     ];
 
     protected static function boot()

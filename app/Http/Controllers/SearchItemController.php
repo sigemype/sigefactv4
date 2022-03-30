@@ -2,6 +2,7 @@
 
     namespace App\Http\Controllers;
 
+    use App\Models\Tenant\Catalogs\CatColorsItem;
     use App\Models\Tenant\Configuration;
     use App\Models\Tenant\Item;
     use App\Models\Tenant\ItemSupply;
@@ -613,7 +614,9 @@
                             'code' => $row->code,
                             'quantity' => $row->quantity,
                             'date_of_due' => $row->date_of_due,
-                            'checked' => false
+                            'checked' => false,
+                            'compromise_quantity' => 0
+
                         ];
                     }),
                     'lot_code' => $row->lot_code,
@@ -722,7 +725,8 @@
                             'code' => $row->code,
                             'quantity' => $row->quantity,
                             'date_of_due' => $row->date_of_due,
-                            'checked' => false
+                            'checked' => false,
+                            'compromise_quantity' => 0
                         ];
                     }),
                     'lot_code' => $row->lot_code,
@@ -996,6 +1000,11 @@
                         return $row;
                     }),
                     'series_enabled' => (bool)$row->series_enabled,
+                    
+                    'purchase_has_isc' => $row->purchase_has_isc,
+                    'purchase_system_isc_type_id' => $row->purchase_system_isc_type_id,
+                    'purchase_percentage_isc' => $row->purchase_percentage_isc,
+
                 ];
                 foreach ($temp as $k => $v) {
                     if (!isset($data[$k])) {
@@ -1230,5 +1239,19 @@
                 })
                 ->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']])
                 ->whereNotIsSet();
+        }
+
+        public static function getItemsToPackageZone(Request $request = null, $id = 0)
+        {
+            $items_not_services = self::getNotServiceItem($request, $id);
+            // $items_services = self::getServiceItem($request, $id);
+            // $data = self::TransformToModal($items_not_services->merge($items_services));
+            $data = self::TransformToModal($items_not_services);
+            return $data->transform(function ($row) {
+                $data = $row;
+                $data['color'] = CatColorsItem::wherein('id', $row['colors'])->get();
+                return $data;
+            });
+
         }
     }

@@ -13,12 +13,15 @@ use App\Models\Tenant\DocumentItem;
 use App\Models\Tenant\PaymentMethodType;
 use App\Models\Tenant\PurchaseItem;
 use App\Models\Tenant\SaleNoteItem;
+use App\Models\Tenant\SaleNote;
+use App\Models\Tenant\Document;
 use App\Models\Tenant\User;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Finance\Traits\FinanceTrait;
 use Modules\Pos\Models\CashTransaction;
+use App\Models\Tenant\CashDocumentCredit;
 
 /**
  * Class CashController
@@ -193,7 +196,10 @@ class CashController extends Controller
             }
             else if($cash_document->purchase){
                 if(in_array($cash_document->purchase->state_type_id, ['01','03','05','07','13'])){
-                    $final_balance -= ($cash_document->purchase->currency_type_id == 'PEN') ? $cash_document->purchase->total : ($cash_document->purchase->total * $cash_document->purchase->exchange_rate_sale);
+                    if($cash_document->purchase->total_canceled == 1) {
+                        $final_balance -= ($cash_document->purchase->currency_type_id == 'PEN') ? $cash_document->purchase->total : ($cash_document->purchase->total * $cash_document->purchase->exchange_rate_sale);
+                    }
+                    
                 }
             }
 
@@ -229,9 +235,56 @@ class CashController extends Controller
                                 ['user_id', auth()->user()->id],
                                 ['state', true],
                             ])->first();
+        
+        (int)$payment_credit = 0;
+        
 
-        $cash->cash_documents()->updateOrCreate($request->all());
+        if($request->document_id != null) {
+            $document_id = $request->document_id;
 
+            $document =  Document::find((int)$document_id);
+
+                                            //credito
+            if($document->payment_condition_id == '02')  {
+                CashDocumentCredit::create([
+                    'cash_id' => $cash->id,
+                    'document_id' => $document_id
+                ]);
+
+                $payment_credit += 1;
+            }
+        }
+        else if($request->sale_note_id != null) {
+
+             $document_id = $request->sale_note_id;
+
+             $document =  SaleNote::find((int)$document_id);
+
+                                                //credito
+             if($document->payment_method_type_id == '09')  {
+                CashDocumentCredit::create([
+                    'cash_id' => $cash->id,
+                    'sale_note_id' => $document_id
+                ]);
+
+                $payment_credit += 1;
+            }
+        }
+        else if($request->quotation_id != null) {
+
+        }
+
+        if($payment_credit == 0) {
+
+            $req = [
+                'document_id' => $request->document_id,
+                'sale_note_id' => $request->sale_note_id,
+                'quotation_id' => $request->quotation_id,
+            ];
+
+            $cash->cash_documents()->updateOrCreate($req);
+        }
+        
         return [
             'success' => true,
             'message' => 'Venta con éxito',
@@ -280,6 +333,7 @@ class CashController extends Controller
 
 
     public function report($cash) {
+        
 
         $cash = Cash::query()->findOrFail($cash);
         $company = Company::query()->first();
@@ -326,8 +380,6 @@ class CashController extends Controller
         return $pdf->stream($filename.'.pdf');
 
     }
-
-
 
     public function report_products_excel($id)
     {

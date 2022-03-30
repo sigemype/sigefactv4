@@ -204,4 +204,36 @@ class ConfigurationController extends Controller
 
         });
     }
+
+    
+    /**
+     * 
+     * Actualizar el descuento global a 02 (Afecta la base) en todos los clientes
+     *
+     * @return array
+     */
+    public function updateTenantDiscountTypeBase()
+    {
+
+        DB::connection('system')->transaction(function (){
+
+            $records = Client::get();
+
+            foreach ($records as $row) 
+            {
+                $tenancy = app(Environment::class);
+                $tenancy->tenant($row->hostname->website);
+
+                DB::connection('tenant')->table('configurations')->where('id', 1)->update(['global_discount_type_id' => '02']);
+            }
+
+        });
+
+        return [
+            'success' => true,
+            'message' => 'El proceso se realizó correctamente'
+        ];
+    }
+
+
 }

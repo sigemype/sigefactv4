@@ -10,6 +10,10 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Modules\Item\Models\Category;
 use Modules\Item\Models\Brand;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Modules\Inventory\Models\InventoryTransaction;
+use Modules\Inventory\Models\Inventory;
+use Exception;
+use Modules\Item\Models\ItemLotsGroup;
 
 
 class ItemsImport implements ToCollection
@@ -21,6 +25,7 @@ class ItemsImport implements ToCollection
     public function collection(Collection $rows)
     {
             $total = count($rows);
+            $warehouse_id_de = request('warehouse_id');
             $registered = 0;
             unset($rows[0]);
             foreach ($rows as $row) {
@@ -146,6 +151,13 @@ class ItemsImport implements ToCollection
                     $registered += 1;
 
                 }else{
+
+                    $inventory_transaction = InventoryTransaction::findOrFail('102');
+                    $stock = $row[11];
+                    if (!$stock) {
+                        throw new Exception("Debe ingresar el stock", 500);
+                    }
+
                     $item->update([
                         'description' => $description,
                         'model' => $model,
@@ -165,11 +177,58 @@ class ItemsImport implements ToCollection
                         'barcode' => $barcode,
                     ]);
 
+
+                    $inventory = new Inventory();
+                    $inventory->type = null;
+                    $inventory->description = $inventory_transaction->name;
+                    $inventory->item_id = $item->id;
+                    $inventory->warehouse_id = $warehouse_id;
+                    $inventory->quantity = $stock;
+                    $inventory->inventory_transaction_id = $inventory_transaction->id;
+                    $inventory->lot_code = $lot_code;
+                    $inventory->save();
+
+
+                    $lot_code = $row[17];
+                    if($lot_code){
+
+                        $date_of_due = $row[18];
+                        if(!$date_of_due) {
+                            throw new Exception("Debe ingresar el Fecha de vencimiento para el Lote", 500);
+                        }
+
+
+                        $current_lot = ItemLotsGroup::where([
+                            'code' => $lot_code,
+                            'item_id'=>$item->id
+                        ])->first();
+
+                        if($current_lot) {
+                            $current_lot->quantity = $current_lot->quantity + (int)$stock;
+                            $current_lot->old_quantity = $current_lot->quantity;
+                            $current_lot->save();
+                        }
+                        else {
+                            $_date_of_due = Date::excelToDateTimeObject($date_of_due)->format('Y-m-d');
+
+                            ItemLotsGroup::create([
+                                'code' => $lot_code,
+                                'quantity' => $stock,
+                                'old_quantity' => $stock,
+                                'date_of_due' =>  $_date_of_due,
+                                'item_id' => $item->id
+                            ]);
+                        }
+
+
+                    }
+
+
                     $registered += 1;
 
                 }
             }
-            $this->data = compact('total', 'registered');
+            $this->data = compact('total', 'registered', 'warehouse_id_de');
 
     }
 

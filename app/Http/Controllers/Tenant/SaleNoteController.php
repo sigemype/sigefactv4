@@ -626,13 +626,25 @@ class SaleNoteController extends Controller
 
                 if(isset($row['IdLoteSelected']))
                 {
-                    $quantity_unit = 1;
-                    if(isset($row['item']) && isset($row['item']['presentation'])&&isset($row['item']['presentation']['quantity_unit'])){
-                        $quantity_unit = $row['item']['presentation']['quantity_unit'];
+                    if(is_array($row['IdLoteSelected'])) {
+
+                        foreach ($row['IdLoteSelected'] as $item) {
+                            $lot = ItemLotsGroup::query()->find($item['id']);
+                            $lot->quantity = $lot->quantity - $item['compromise_quantity'];
+                            $lot->save();
+                        }
                     }
-                    $lot = ItemLotsGroup::find($row['IdLoteSelected']);
-                    $lot->quantity = ($lot->quantity - ($row['quantity'] * $quantity_unit));
-                    $lot->save();
+                    else {
+
+                        $quantity_unit = 1;
+                        if(isset($row['item']) && isset($row['item']['presentation'])&&isset($row['item']['presentation']['quantity_unit'])){
+                            $quantity_unit = $row['item']['presentation']['quantity_unit'];
+                        }
+                        $lot = ItemLotsGroup::find($row['IdLoteSelected']);
+                        $lot->quantity = ($lot->quantity - ($row['quantity'] * $quantity_unit));
+                        $lot->save();
+                    }
+
                 }
 
             }
@@ -1538,20 +1550,16 @@ class SaleNoteController extends Controller
     private function voidedLots($item){
 
         $i_lots_group = isset($item->item->lots_group) ? $item->item->lots_group:[];
+        $lot_group_selecteds_filter = collect($i_lots_group)->where('compromise_quantity', '>', 0);
+        $lot_group_selecteds =  $lot_group_selecteds_filter->all();
 
-        $lot_group_selected = collect($i_lots_group)->first(function($row){
-            return $row->checked;
-        });
+        if(count($lot_group_selecteds) > 0){
 
-        if($lot_group_selected){
-            // @todo Posiblemente validar que exista quantity_unit.
-            $quantity_unit = $item->item->presentation->quantity_unit;
-            //$lot = ItemLotsGroup::find($row['IdLoteSelected']);
-//            $lot->quantity = ($lot->quantity - ($row['quantity'] * $quantity_unit));
-
-            $lot = ItemLotsGroup::find($lot_group_selected->id);
-            $lot->quantity =  $lot->quantity + ($item->quantity * $quantity_unit);
-            $lot->save();
+            foreach ($lot_group_selecteds as $lt) {
+                $lot = ItemLotsGroup::find($lt->id);
+                $lot->quantity = $lot->quantity + $lt->compromise_quantity;
+                $lot->save();
+            }
 
         }
 
@@ -1572,12 +1580,12 @@ class SaleNoteController extends Controller
             'client_id' => 'required|numeric|min:1',
         ]);
         $clientId = $request->client_id;
-        $records = SaleNote::without(['user', 'soap_type', 'state_type', 'currency_type', 'items', 'payments'])
-            ->select('series', 'number', 'id', 'date_of_issue')
-            ->where('customer_id', $clientId)
-            ->whereNull('document_id')
-            ->whereIn('state_type_id', ['01', '03', '05'])
-			->orderBy('number', 'desc');
+        $records = SaleNote::without(['user', 'soap_type', 'state_type', 'currency_type', 'payments'])
+                            ->select('series', 'number', 'id', 'date_of_issue')
+                            ->where('customer_id', $clientId)
+                            ->whereNull('document_id')
+                            ->whereIn('state_type_id', ['01', '03', '05'])
+                            ->orderBy('number', 'desc');
 
         $dateOfIssue = $request->date_of_issue;
         if ($dateOfIssue) {

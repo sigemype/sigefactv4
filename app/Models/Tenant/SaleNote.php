@@ -214,6 +214,7 @@
             // 'changed',
             'user_rel_suscription_plan_id',
             'subtotal',
+            'total_igv_free',
         ];
 
         protected $casts = [
@@ -234,6 +235,7 @@
             'total_unaffected' => 'float',
             'total_exonerated' => 'float',
             'total_igv' => 'float',
+            'total_igv_free' => 'float',
             'total_base_isc' => 'float',
             'total_isc' => 'float',
             'total_base_other_taxes' => 'float',
@@ -535,6 +537,14 @@
         {
             return $this->belongsTo(TechnicalService::class);
         }
+        
+        /**
+         * @return BelongsTo
+         */
+        public function relation_establishment()
+        {
+            return $this->belongsTo(Establishment::class, 'establishment_id');
+        }
 
         /**
          * @return mixed
@@ -562,9 +572,18 @@
          *
          * @return null
          */
-        public function scopeWhereTypeUser($query)
+        public function scopeWhereTypeUser($query, $params= [])
         {
-            $user = auth()->user();
+            if(isset($params['user_id'])) {
+                $user_id = (int)$params['user_id'];
+                $user = User::find($user_id);
+                if(!$user) {
+                    $user = new User();
+                }
+            }
+            else { 
+                $user = auth()->user();
+            }
             return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
         }
 
@@ -1134,6 +1153,69 @@
          */
         public function getDocumentType(){
             return DocumentType::find('80');
+        }
+
+
+        /**
+         *
+         * Filtros para reporte utilidades
+         * Usado en:
+         * DashboardUtility - Obtener total descuentos globales
+         *
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param $establishment_id
+         * @param $d_start
+         * @param $d_end
+         * @param $item_id
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public function scopeWhereFilterDashboardUtility($query, $establishment_id, $d_start, $d_end, $item_id)
+        {
+
+            $query->where([['establishment_id', $establishment_id], ['changed', false]])->whereStateTypeAccepted();
+
+            if($d_start && $d_end) $query->whereBetween('date_of_issue', [$d_start, $d_end]);
+
+            if($item_id)
+            {
+                $query->whereHas('items', function($q) use($item_id){
+                    $q->where('item_id', $item_id);
+                });
+            }
+
+            return $query;
+        }
+
+        
+        /**
+         *
+         * Obtener notas de venta filtradas por el id de los items (SaleNoteItem)
+         * 
+         * Usado en:
+         * DashboardUtility - Obtener totales
+         *
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param array $sale_note_ids
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public function scopeWhereRecordsByItems($query, $sale_note_ids)
+        {
+            return$query->withOut(['user', 'soap_type', 'state_type', 'currency_type', 'items', 'payments'])
+                        ->whereIn('id', $sale_note_ids)
+                        ->select('id', 'total', 'currency_type_id', 'exchange_rate_sale');
+
+        }
+
+        
+        /**
+         * 
+         * Obtener total y realizar conversión al tipo de cambio si se requiere
+         *
+         * @return float
+         */
+        public function getTransformTotal()
+        {
+            return ($this->currency_type_id === 'PEN') ? $this->total : ($this->total * $this->exchange_rate_sale);
         }
 
     }

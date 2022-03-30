@@ -40,6 +40,7 @@
     use Modules\Finance\Traits\FinanceTrait;
     use Modules\Inventory\Models\Warehouse;
     use Modules\Item\Models\ItemLotsGroup;
+    use Modules\Purchase\Models\PurchaseOrder;
     use Mpdf\Config\ConfigVariables;
     use Mpdf\Config\FontVariables;
     use Mpdf\HTMLParserMode;
@@ -139,7 +140,7 @@
             $customers = $this->getPersons('customers');
             $configuration = Configuration::first();
             $payment_conditions = GeneralPaymentCondition::get();
-            
+
             return compact('suppliers', 'establishment', 'currency_types', 'discount_types', 'configuration', 'payment_conditions',
                 'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers');
         }
@@ -423,7 +424,7 @@
             }
         }
 
-            
+
         private function savePurchaseFee($purchase, $fee)
         {
             foreach ($fee as $row) {
@@ -1112,5 +1113,23 @@
             return $this->downloadStorage($purchase->filename, 'purchase');
         }
 
+
+        public function searchPurchaseOrder(Request $request){
+            // $input = (string)$request->input;
+            $purchases = Purchase::select('purchase_order_id')->wherenotnull('purchase_order_id')
+                ->get()
+                ->pluck('purchase_order_id');
+            $purchaseOrder = PurchaseOrder::whereNotIn('id',$purchases)
+                // ->where('prefix','like','%'.$input.'%')
+                ->get()
+            ->transform(function(PurchaseOrder $row){
+                $data =[
+                    'id'=>$row->id,
+                    'description'=>$row->getNumberFullAttribute(),
+                ];
+                return $data;
+            });
+            return $purchaseOrder;
+        }
     }
 

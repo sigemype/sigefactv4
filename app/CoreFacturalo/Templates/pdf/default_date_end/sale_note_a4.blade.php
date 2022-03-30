@@ -8,6 +8,11 @@
     $payments = $document->payments;
     $accounts = \App\Models\Tenant\BankAccount::all();
 
+    $logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
+
 @endphp
 <html>
 <head>
@@ -20,7 +25,7 @@
         @if($company->logo)
             <td width="20%">
                 <div class="company_logo_box">
-                    <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
+                    <img src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
                 </div>
             </td>
         @else
@@ -155,7 +160,8 @@
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
             <td class="text-left">
-                {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+                {{$row->item->description}}
+                @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)
@@ -190,7 +196,8 @@
             </td>
             <td class="text-center align-top">
                 @if(isset($row->item) && isset($row->item->date_of_due))
-                    <span style="font-size: 9px"> {{ $row->item->date_of_due }}</span><br>
+                    {{-- estaba genera error especialchart --}}
+                    <span style="font-size: 9px"> {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s.u',$row->item->date_of_due->date)->format('Y-m-d') }}</span><br>
                 @endif
 
             </td>
@@ -213,6 +220,7 @@
         <tr>
             <td colspan="8" class="border-bottom"></td>
         </tr>
+
     @endforeach
         @if($document->total_exportation > 0)
             <tr>

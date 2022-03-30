@@ -27,6 +27,8 @@ $brandFile = public_path("watermark" . DIRECTORY_SEPARATOR . "item_brand.jpg");
     }
     $allowed_items = 80 - (\App\Models\Tenant\BankAccount::all()->count())*3;
 
+    
+
 ?>
 
 <html>

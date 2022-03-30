@@ -24,6 +24,7 @@ class DocumentObserver
         $document->number = $number;
 
         $document->filename = Functions::filename($company, $document->document_type_id, $document->series, $number);
+        $document->unique_filename = $document->filename; //campo único para evitar duplicados
 
     }
 

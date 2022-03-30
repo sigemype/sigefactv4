@@ -151,7 +151,7 @@ class SendDocumentPse
     }
 
 
-    private function throwException($message)
+    public function throwException($message)
     {
         throw new Exception($message);
     }

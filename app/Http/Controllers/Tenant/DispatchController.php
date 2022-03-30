@@ -42,6 +42,7 @@ use Modules\Order\Models\Dispatcher;
 use Modules\Order\Models\Driver;
 use Modules\Order\Models\OrderNote;
 use App\Models\Tenant\PaymentCondition;
+use App\Models\Tenant\Catalogs\RelatedDocumentType;
 
 
 /**
@@ -386,7 +387,8 @@ class DispatchController extends Controller
         $company = Company::select('number')->first();
         $drivers = Driver::all();
         $dispachers = Dispatcher::all();
-
+        $related_document_types = RelatedDocumentType::get();
+        
         // ya se tiene un locations con lo siguiente combinado
         // $departments = Department::whereActive()->get();
         // $provinces = Province::whereActive()->get();
@@ -409,6 +411,7 @@ class DispatchController extends Controller
             'company',
             'drivers',
             'dispachers',
+            'related_document_types',
             'itemsFromSummary'
         );
     }

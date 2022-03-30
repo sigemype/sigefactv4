@@ -27,8 +27,8 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
         // Se ejecutara por hora guardando estado de cpu y memoria (windows/linux)
         $schedule->command('status:server')->hourly();
-        // Llena las tablas para libro mayor
-        $schedule->command('account_ledger:fill')->hourly();
+        // Llena las tablas para libro mayor - Se desactiva CMAR - buscar opcion de url
+        // $schedule->command('account_ledger:fill')->hourly();
     }
 
     /**

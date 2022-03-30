@@ -21,6 +21,8 @@ class CashDocument extends ModelTenant
         // 'expense_id',
         'expense_payment_id',
         'purchase_id',
+        'quotation_id',
+
     ];
 
 
@@ -53,6 +55,11 @@ class CashDocument extends ModelTenant
     public function purchase()
     {
         return $this->belongsTo(Purchase::class);
+    }
+
+    public function quotation()
+    {
+        return $this->belongsTo(Quotation::class);
     }
 
     // public function expense()

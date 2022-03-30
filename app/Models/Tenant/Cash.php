@@ -40,8 +40,8 @@ class Cash extends ModelTenant
         'final_balance',
         'income',
         'state',
-        'reference_number'
-
+        'reference_number',
+        'apply_restaurant'
     ];
 
 
@@ -125,6 +125,11 @@ class Cash extends ModelTenant
             ['user_id', auth()->user()->id],
             ['state', true],
         ]);
+    }
+
+    public function cash_documents_credit()
+    {
+        return $this->hasMany(CashDocumentCredit::class);
     }
 
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\System;
 
+use App\Models\System\TrackApiPeruServices;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ClientCollection extends ResourceCollection
@@ -14,7 +16,14 @@ class ClientCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return $this->collection->transform(function($row, $key) {
+        $currentDay = Carbon::now();
+        return $this->collection->transform(function(\App\Models\System\Client $row, $key) use ($currentDay) {
+            $apiPeruAsk = TrackApiPeruServices::where('client_id',$row->id)
+                ->where('date_of_issue','>=',$currentDay->firstOfMonth()->format('Y-m-d'))
+                ->where('date_of_issue','<=',$currentDay->lastOfMonth()->format('Y-m-d'))
+                // ->whereBetween('date_of_issue',[$currentDay->firstOfMonth(),$currentDay->lastOfMonth()])
+                ->get()
+                ->count();
             return [
                 'id' => $row->id,
                 'hostname' => $row->hostname->fqdn,
@@ -33,7 +42,7 @@ class ClientCollection extends ResourceCollection
                 'max_users' => (int) $row->plan->limit_users,
                 'created_at' => $row->created_at->format('Y-m-d H:i:s'),
                 'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),
-                
+
                 // ciclo facturacion
                 'start_billing_cycle' => ( $row->start_billing_cycle ) ? $row->start_billing_cycle->format('Y-m-d') : '',
                 // 'init_cycle' => optional($row->init_cycle)->format('Y-m-d'),
@@ -45,6 +54,7 @@ class ClientCollection extends ResourceCollection
                 'document_regularize_shipping' => $row->document_regularize_shipping,
                 'document_not_sent' => $row->document_not_sent,
                 'document_to_be_canceled' => $row->document_to_be_canceled,
+                'queries_to_apiperu' => $apiPeruAsk,
 
 
             ];

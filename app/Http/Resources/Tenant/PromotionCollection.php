@@ -21,7 +21,7 @@ class PromotionCollection extends ResourceCollection
                 'name' => $row->name,
                 'status' => $row->status,
                 'type'=> $row->type,
-                'image_url' => ($row->image !== 'imagen-no-disponible.jpg') ? asset('storage'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'promotions'.DIRECTORY_SEPARATOR.$row->image) : asset("/logo/{$row->image}"),
+                'image_url' => ($row->image !== 'imagen-no-disponible.jpg') ? ($row->apply_restaurant ? asset('storage'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'promotions'.DIRECTORY_SEPARATOR.'restaurant'.DIRECTORY_SEPARATOR.$row->image) : asset('storage'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'promotions'.DIRECTORY_SEPARATOR.$row->image)) : asset("/logo/{$row->image}"),
             ];
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\System;
 
+use App\Rules\SubdomainNotLatin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -32,7 +33,8 @@ class ClientRequest extends FormRequest
                 'required',
             ],
             'subdomain' => [
-                'required'
+                'required',
+                new SubdomainNotLatin
             ],
             'plan_id' => [
                 'required',

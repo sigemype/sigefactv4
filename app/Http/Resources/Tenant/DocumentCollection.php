@@ -189,6 +189,7 @@ class DocumentCollection extends ResourceCollection
                 'dispatches' => $this->getDispatches($row),
                 'soap_type' => $row->soap_type,
                 'plate_numbers' => $row->getPlateNumbers(),
+                'total_charge' => $row->total_charge,
             ];
 
         });

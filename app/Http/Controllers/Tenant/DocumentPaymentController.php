@@ -14,6 +14,10 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Modules\Finance\Traits\FinanceTrait;
 use Modules\Finance\Traits\FilePaymentTrait;
 use Carbon\Carbon;
+use App\Models\Tenant\CashDocumentCredit;
+use App\Models\Tenant\Cash;
+
+
 
 class DocumentPaymentController extends Controller
 {
@@ -67,6 +71,40 @@ class DocumentPaymentController extends Controller
             $this->saveFiles($record, $request, 'documents');
 
         });
+
+        $document_balance = (object)$this->document($request->document_id);
+
+        if($document_balance->total_difference < 1) {
+
+            $credit = CashDocumentCredit::where([
+                ['status', 'PENDING'],
+                ['document_id',  $request->document_id]
+            ])->first();
+
+            if($credit) {
+
+                $cash = Cash::where([
+                    ['user_id', auth()->user()->id],
+                    ['state', true],
+                ])->first();
+
+                $credit->status = 'PROCESSED';
+                $credit->cash_id_processed = $cash->id;
+                $credit->save();
+
+                $req = [
+                    'document_id' => $request->document_id,
+                    'sale_note_id' => null
+                ];
+    
+                $cash->cash_documents()->updateOrCreate($req);
+
+            }
+
+        }
+
+
+
 
         return [
             'success' => true,

@@ -30,6 +30,11 @@
     $cycle_items = $allowed_items - ($quantity_items * 3);
     $total_weight = 0;
 
+    $logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
+
 
 @endphp
 <html>
@@ -51,7 +56,7 @@
             <td width="20%">
                 <div class="company_logo_box">
                     <img
-                        src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}"
+                        src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}"
                         alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
                 </div>
             </td>
