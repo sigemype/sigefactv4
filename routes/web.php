@@ -23,6 +23,8 @@ if ($hostname) {
         Route::get('sale-notes/ticket/{external_id}/{format?}', 'Tenant\SaleNoteController@toTicket');
         Route::get('purchases/print/{external_id}/{format?}', 'Tenant\PurchaseController@toPrint');
 
+        Route::get('quotations/print/{external_id}/{format?}', 'Tenant\QuotationController@toPrint');
+
         Route::middleware(['auth', 'redirect.module', 'locked.tenant'])->group(function () {
             // Route::get('catalogs', 'Tenant\CatalogController@index')->name('tenant.catalogs.index');
             Route::get('list-reports', 'Tenant\SettingController@listReports');
@@ -107,6 +109,12 @@ if ($hostname) {
             Route::post('configurations/preprinted/generateDispatch', 'Tenant\ConfigurationController@generateDispatch');
             Route::get('configurations/preprinted/{template}', 'Tenant\ConfigurationController@show');
             Route::get('configurations/change-mode', 'Tenant\ConfigurationController@changeMode')->name('settings.change_mode');
+
+            Route::get('configurations/templates/ticket/refresh', 'Tenant\ConfigurationController@refreshTickets');
+            Route::get('configurations/pdf_templates/ticket', 'Tenant\ConfigurationController@pdfTicketTemplates')->name('tenant.advanced.pdf_ticket_templates');
+            Route::get('configurations/templates/ticket/records', 'Tenant\ConfigurationController@getTicketFormats');
+            Route::post('configurations/templates/ticket/update', 'Tenant\ConfigurationController@changeTicketFormat');
+            Route::get('configurations/apiruc', 'Tenant\ConfigurationController@apiruc');
 
             //Certificates
             Route::get('certificates/record', 'Tenant\CertificateController@record');
@@ -457,6 +465,7 @@ if ($hostname) {
             // Route::get('purchases/print/{external_id}/{format?}', 'Tenant\PurchaseController@toPrint');
             Route::get('purchases/search-items', 'Tenant\PurchaseController@searchItems');
             Route::get('purchases/search/item/{item}', 'Tenant\PurchaseController@searchItemById');
+            Route::post('purchases/search/purchase_order','Tenant\PurchaseController@searchPurchaseOrder');
             // Route::get('purchases/item_resource/{id}', 'Tenant\PurchaseController@itemResource');
 
             // Route::get('documents/send/{document}', 'Tenant\DocumentController@send');
@@ -488,7 +497,7 @@ if ($hostname) {
             Route::get('quotations/search/customers', 'Tenant\QuotationController@searchCustomers');
             Route::get('quotations/search/customer/{id}', 'Tenant\QuotationController@searchCustomerById');
             Route::get('quotations/download/{external_id}/{format?}', 'Tenant\QuotationController@download');
-            Route::get('quotations/print/{external_id}/{format?}', 'Tenant\QuotationController@toPrint');
+            // Route::get('quotations/print/{external_id}/{format?}', 'Tenant\QuotationController@toPrint');
             Route::post('quotations/email', 'Tenant\QuotationController@email');
             Route::post('quotations/duplicate', 'Tenant\QuotationController@duplicate');
             Route::get('quotations/record2/{quotation}', 'Tenant\QuotationController@record2');
@@ -587,6 +596,8 @@ if ($hostname) {
 
             //POS VENTA RAPIDA
             Route::get('pos/fast', 'Tenant\PosController@fast')->name('tenant.pos.fast');
+            Route::get('pos/garage', 'Tenant\PosController@garage')->name('tenant.pos.garage');
+
 
             //Tags
             Route::get('tags', 'Tenant\TagController@index')->name('tenant.tags.index');
@@ -661,7 +672,11 @@ if ($hostname) {
         });
     });
 } else {
-    Route::domain(env('APP_URL_BASE'))->group(function () {
+    $prefix = env('PREFIX_URL',null);
+    $prefix = !empty($prefix)?$prefix.".":'';
+    $app_url = $prefix. env('APP_URL_BASE');
+
+    Route::domain($app_url)->group(function () {
         Route::get('login', 'System\LoginController@showLoginForm')->name('login');
         Route::post('login', 'System\LoginController@login');
         Route::post('logout', 'System\LoginController@logout')->name('logout');
@@ -759,6 +774,8 @@ if ($hostname) {
             Route::get('status/cpu', 'System\StatusController@cpu')->name('system.status.cpu');
             Route::get('configurations/apiruc', 'System\ConfigurationController@apiruc');
             Route::get('configurations/apkurl', 'System\ConfigurationController@apkurl');
+
+            Route::get('configurations/update-tenant-discount-type-base', 'System\ConfigurationController@updateTenantDiscountTypeBase');
 
             // backup
             Route::get('backup', 'System\BackupController@index')->name('system.backup');
