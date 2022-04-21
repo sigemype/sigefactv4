@@ -7,6 +7,8 @@
     $payments = $document->payments;
     $accounts = \App\Models\Tenant\BankAccount::all();
 
+    $terms_condition = \App\Models\Tenant\Configuration::first();
+
 @endphp
 <html>
 <head>
@@ -282,6 +284,17 @@
     @endforeach
     <tr><td class="desc"><strong>SALDO:</strong> {{ $document->currency_type->symbol }} {{ number_format($document->total - $payment, 2) }}</td></tr>
 </table>
+@endif
+@if ($terms_condition->terms_condition_sale)
+    <table class="full-width">
+        <tr>
+            <td class="desc">
+                <br>
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones</h6>
+                {!! $terms_condition->terms_condition_sale !!}
+            </td>
+        </tr>
+    </table>
 @endif
 </body>
 </html>

@@ -91,12 +91,16 @@
         </tr>
     </table>
 
-    <table class="full-width">
-        <tr>
-            <td class="text-center desc">Representación Impresa de {{ isset($document->document_type) ? $document->document_type->description : 'Comprobante Electrónico'  }} {{ isset($document->hash) ? 'Código Hash: '.$document->hash : '' }} <br>Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
-        </tr>
-        <div class="company_logo_box" style="text-align: center; top:30%;">
-            <img src="data:{{mime_content_type(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png"))}};base64, {{base64_encode(file_get_contents(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png")))}}" alt="sigefact_logo" class="" width="12%">
-        </div>
-    </table>
+    @if ($document)
+        @if(in_array($document->document_type_id,['01', '03', '07', '08']))
+            <table class="full-width">
+                <tr>
+                    <td class="text-center desc">Representación Impresa de {{ isset($document->document_type) ? $document->document_type->description : 'Comprobante Electrónico'  }} {{ isset($document->hash) ? 'Código Hash: '.$document->hash : '' }} <br>Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
+                </tr>
+                <div class="company_logo_box" style="text-align: center; top:30%;">
+                    <img src="data:{{mime_content_type(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png"))}};base64, {{base64_encode(file_get_contents(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png")))}}" alt="sigefact_logo" class="" width="12%">
+                </div>
+            </table>
+        @endif
+    @endif
 </body>

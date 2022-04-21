@@ -726,7 +726,7 @@
         <tr>
             <td class="desc">
                 <br>
-                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones</h6>
                 {!! $document->terms_condition !!}
             </td>
         </tr>

@@ -838,6 +838,7 @@ class SaleNoteController extends Controller
 
         $this->configuration = Configuration::first();
         // $configuration = $this->configuration->formats;
+        $terms_condition = $this->configuration->terms_condition_sale;
         $base_template = Establishment::find($this->document->establishment_id)->template_pdf;
 
         $html = $template->pdf($base_template, "sale_note", $this->company, $this->document, $format_pdf);
@@ -848,6 +849,7 @@ class SaleNoteController extends Controller
             if(config('tenant.enabled_template_ticket_80')) $width = 76;
 
             $company_logo      = ($this->company->logo) ? 40 : 0;
+            $terms_condition   = (strlen($terms_condition) / 20) * 3;
             $company_name      = (strlen($this->company->name) / 20) * 10;
             $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
@@ -884,6 +886,7 @@ class SaleNoteController extends Controller
                     (($quantity_rows * 8) + $extra_by_item_description) +
                     ($discount_global * 3) +
                     $company_logo +
+                    $terms_condition +
                     $payments +
                     $company_name +
                     $company_address +
