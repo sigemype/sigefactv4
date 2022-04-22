@@ -272,6 +272,7 @@
                     Route::get('stock/{item_id}/{warehouse_id}', 'TransferController@stock');
                     Route::get('items/{warehouse_id}', 'TransferController@items');
                     Route::post('search-items', 'TransferController@searchItems');
+                    Route::get('download', 'TransferController@transfers_download');
 
                      Route::get('/download/pdf/{inventoryTransfer}', 'TransferController@getPdf');
                      // Route::get('info/{inventoryTransfer}', 'TransferController@getInventoryTransferData');

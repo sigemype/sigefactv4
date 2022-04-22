@@ -17,6 +17,7 @@
                    @click.prevent="clickCreate()">
                     <i class="fa fa-plus-circle"></i> Nuevo
                 </a>
+                <a href="#" @click.prevent="clickDownloadReportTransfers()" class="btn btn-custom btn-sm mt-2 mr-2"><i class="fa fa-money-bill-wave-alt"></i> Generar Reporte</a>
             </div>
         </div>
         <div class="card mb-0">
@@ -103,6 +104,7 @@
 
             <inventories-form :recordId="recordId"
                               :showDialog.sync="showDialog"></inventories-form>
+            <report-transfers-complete :showDialog.sync="showDialogReportTransfersComplete"></report-transfers-complete>
         </div>
     </div>
 </template>
@@ -111,9 +113,10 @@
 import DataTable from "../../../../../../resources/js/components/DataTableTransfers.vue";
 import {deletable} from "../../../../../../resources/js/mixins/deletable";
 import InventoriesForm from "./form.vue";
+import ReportTransfersComplete from './partials/report_transfers_complete.vue'
 
 export default {
-    components: {DataTable, InventoriesForm},
+    components: {DataTable, InventoriesForm, ReportTransfersComplete},
     mixins: [deletable],
     data() {
         return {
@@ -121,7 +124,8 @@ export default {
             showDialog: false,
             resource: "transfers",
             recordId: null,
-            typeTransaction: null
+            typeTransaction: null,
+            showDialogReportTransfersComplete: false,
         };
     },
     created() {
@@ -141,6 +145,9 @@ export default {
         clickDownload(type,id) {
             window.open(`/${this.resource}/download/${type}/${id}`, "_blank");
         },
+        clickDownloadReportTransfers() {
+            this.showDialogReportTransfersComplete = true
+        }
     }
 };
 </script>
