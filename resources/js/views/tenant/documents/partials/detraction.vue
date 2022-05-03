@@ -242,10 +242,10 @@
                         return {success:false, message:'El campo Detalle del viaje es obligatorio'}
 
 
-                }else{
+                // }else{
                     
-                    if(detraction.detraction_type_id == '027')
-                        return {success:false, message:'El campo Bienes y servicios sujetos a detracciones debe ser diferente de: Servicio de transporte de carga'}
+                //     if(detraction.detraction_type_id == '027')
+                //         return {success:false, message:'El campo Bienes y servicios sujetos a detracciones debe ser diferente de: Servicio de transporte de carga'}
                         
                 }
 
