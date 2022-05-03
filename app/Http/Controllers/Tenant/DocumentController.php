@@ -49,7 +49,7 @@ use App\Models\Tenant\Series;
 use App\Models\Tenant\StateType;
 use App\Models\Tenant\User;
 use App\Traits\OfflineTrait;
-use Barryvdh\DomPDF\PDF;
+use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
