@@ -8,7 +8,10 @@
     $accounts = \App\Models\Tenant\BankAccount::all();
 
     $terms_condition = \App\Models\Tenant\Configuration::first();
-
+    $logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
 @endphp
 <html>
 <head>
@@ -19,7 +22,9 @@
 
 @if($company->logo)
     <div class="text-center company_logo_box pt-3">
-        <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo_ticket contain">
+        {{-- <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo_ticket contain"> --}}
+        <img src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
+
     </div>
 {{--@else--}}
     {{--<div class="text-center company_logo_box pt-5">--}}
@@ -56,8 +61,8 @@
 </table>
 <table class="full-width">
     <tr>
-        <td width="" class="pt-3"><p class="desc">F. Emisión:</p></td>
-        <td width="" class="pt-3"><p class="desc">{{ $document->date_of_issue->format('Y-m-d') }}</p></td>
+        <td width="" class="pt-3"><p class="desc">F. H. Emisión:</p></td>
+        <td width="" class="pt-3"><p class="desc">{{ $document->date_of_issue->format('d/m/Y') }} - {{ $document->time_of_issue }}</p></td>
     </tr>
     <tr>
         <td class="align-top"><p class="desc">Cliente:</p></td>
