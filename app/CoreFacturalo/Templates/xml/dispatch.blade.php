@@ -1,4 +1,4 @@
-{!! '<?xml version="1.0" encoding="utf-8" standalone="no"?>' !!}
+{!!  '<'.'?xml version="1.0" encoding="utf-8" standalone="no"?'.'>'  !!}
 <DespatchAdvice xmlns="urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2"
                 xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
                 xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"

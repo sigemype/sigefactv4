@@ -8,7 +8,7 @@
     $number = ($note->affected_document) ? $note->affected_document->number : $note->data_affected_document->number;
 
 @endphp
-{!! '<?xml version="1.0" encoding="utf-8" standalone="no"?>' !!}
+{!!  '<'.'?xml version="1.0" encoding="utf-8" standalone="no"?'.'>'  !!}
 <CreditNote xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
             xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
             xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
