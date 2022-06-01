@@ -34,6 +34,8 @@ mix.webpackConfig({
             '@viewsModuleItem': path.resolve(__dirname, 'modules/Item/Resources/assets/js/views'),
             '@viewsModuleHotel': path.resolve(__dirname, 'modules/Hotel/Resources/assets/js/views'),
             '@viewsModuleDocumentary': path.resolve(__dirname, 'modules/DocumentaryProcedure/Resources/assets/js/views'),
+            '@viewsModulePayment': path.resolve(__dirname, 'modules/Payment/Resources/assets/js/views'),
+            '@viewsModuleMercadoPago': path.resolve(__dirname, 'modules/MercadoPago/Resources/assets/js/views'),
         }
     }
 }).sourceMaps()

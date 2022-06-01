@@ -1,4 +1,4 @@
-# ** Facturador PRO 4 **
+# ** Facturador PRO 5 **
 
 
 ## Manuales de Instalación
@@ -105,6 +105,18 @@ Procedimiento para solucionar error 1033 SUNAT: [Guía](https://drive.google.com
 YouTube Tutorial para solucionar error 1033 SUNAT: [YouTube](https://www.youtube.com/watch?v=CyKYM8iG3QY "Clic")
 <br>
 
+### Términos y condiciones del uso de este repositorio
+
+1.- Este repositorio es de código abierto pero de acceso privado, se permite la distribución y/o modificaciones si se hace referencio a la casa matriz del desarrollo de este es software es [https://facturaloperu.com](https://facturaloperu.com)
+
+2.- Esta sección de términos y condiciones no puede ser removida al compartir o distribuir el repositorio de alguna forma, de hacerlo, [https://facturaloperu.com](https://facturaloperu.com) se reserva el derecho de remover el acceso y limitar el uso a quien lo distribuya de esa forma o a quien se atribuya el desarrollo del mismo.
+
+3.- Si desea distribuir el código fuente como propio, debe tener al menos un 30% de modificaciones en todo el código, y previamente debe validarse dicho % por [https://facturaloperu.com](https://facturaloperu.com)
+
+4.- El uso del software a nivel funcional es marca blanca, sin embargo a nivel de distribución del código fuente, debe contener esta sección de términos y condiciones.
+
+5.- [https://facturaloperu.com](https://facturaloperu.com) no se hace responsable por los daños o perjuicios del uso del código de este software cuando no ha sido distribuido directamente por [https://facturaloperu.com](https://facturaloperu.com)
+
 ### No clasificados
 Recreación de documentos: [Guía](https://drive.google.com/file/d/1fD2-XN4eavBEbEXGJuxEbjbqR_mMGp0K/view?usp=sharing "Clic")<br>
 Manual de cambios privados: [Guía](https://drive.google.com/file/d/1bUFNi6JmOB70MkfkA76lx37skF0b6LDv/view?usp=sharing "Clic")<br>
@@ -129,3 +141,5 @@ URL: [https://demo.facturaperu.com.pe](https://demo.facturaperu.com.pe "Clic")
 <br>
 Usuario: demo@facturaperu.com.pe<br>
 Contraseña: 123456
+
+
