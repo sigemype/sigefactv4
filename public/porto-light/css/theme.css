@@ -456,7 +456,7 @@ a:active {
     justify-content: space-between;
 }
 .header .logo-container .topbar-links {
-    padding: 0 1.15rem;
+    padding: 0 1rem;
     height: 100%;
     font-size: 13px;
     display: inline-flex;
@@ -530,9 +530,9 @@ html.dark .header .logo-container .topbar-links {
 
     .header .header-right {
         background: #fff;
-        /* float: none !important; */
+        float: none !important;
         height: 60px;
-        margin-top: 60px;
+        /* margin-top: 60px; */
         width: 100%;
         display: flex;
         align-items: center;
@@ -1472,8 +1472,8 @@ html.dark .header .logo-container .topbar-links {
 .sidebar-toggle {
     border-right: 1px solid #f3f3f3;
     height: 100%;
-    padding-right: 1.5rem;
-    padding-left: 1.5rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -20837,223 +20837,18 @@ html.fixed .sidebar-left a svg {
     height: 22px;
     margin-right: 0.5rem;
 }
-/* fondo azul */
-html.fixed.sidebar-blue .sidebar-left,
-html.fixed.sidebar-blue .sidebar-header,
-html.fixed.sidebar-blue .sidebar-left .nano {
-    background-color: #7367f0 !important;
-}
-html.fixed.sidebar-blue .sidebar-left a {
-    color: #fff;
-}
-html.fixed.sidebar-blue .sidebar-left a::after {
-    color: #fff;
-}
-html.fixed.sidebar-blue .sidebar-left a::before {
-    border-color: #fff;
-}
-html.fixed.sidebar-blue ul.nav-main li a:hover,
-html.fixed.sidebar-blue ul.nav-main li .nav-children li a:focus {
-    background-color: transparent;
-    color: #fff;
-}
-html.fixed.sidebar-blue .sidebar-left a:hover,
-html.fixed.sidebar-blue .sidebar-left a:active,
-html.fixed.sidebar-blue .sidebar-left a:focus {
-    color: #4b4b4b;
-}
-html.fixed.sidebar-blue .sidebar-left a:hover::before,
-html.fixed.sidebar-blue .sidebar-left a:active::before,
-html.fixed.sidebar-blue .sidebar-left a:focus::before,
-html.fixed.sidebar-blue .sidebar-left a:hover::after,
-html.fixed.sidebar-blue .sidebar-left a:active::after,
-html.fixed.sidebar-blue .sidebar-left a:focus::after {
-    border-color: #fff;
-    color: #fff;
-}
-html.fixed.sidebar-blue ul.nav-main li.nav-expanded > a {
-    color: #fff;
-}
+
 /* html.fixed.sidebar-blue .sidebar-left a:hover::after,
 html.fixed.sidebar-blue .sidebar-left a:active::after,
 html.fixed.sidebar-blue .sidebar-left a:focus::after {
     color: #fff;
 } */
-/* fondo gris */
-html.fixed.sidebar-gray .sidebar-left,
-html.fixed.sidebar-gray .sidebar-header,
-html.fixed.sidebar-gray .sidebar-left .nano {
-    background-color: #82868b !important;
-}
-html.fixed.sidebar-gray .sidebar-left a {
-    color: #fff;
-}
-html.fixed.sidebar-gray .sidebar-left a:hover,
-html.fixed.sidebar-gray .sidebar-left a:active,
-html.fixed.sidebar-gray .sidebar-left a:focus {
-    color: #4b4b4b;
-}
-html.fixed.sidebar-gray .sidebar-left a::after {
-    color: #fff;
-}
-html.fixed.sidebar-gray .sidebar-left a::before {
-    border-color: #fff;
-}
-html.fixed.sidebar-gray .sidebar-left a:hover,
-html.fixed.sidebar-gray .sidebar-left a:active,
-html.fixed.sidebar-gray .sidebar-left a:focus,
-html.fixed.sidebar-gray .sidebar-left a:hover::before,
-html.fixed.sidebar-gray .sidebar-left a:active::before,
-html.fixed.sidebar-gray .sidebar-left a:focus::before {
-    color: #fff;
-    border-color: #fff;
-    background-color: transparent;
-}
 /* html.fixed.sidebar-gray .sidebar-left a:hover::after,
 html.fixed.sidebar-gray .sidebar-left a:active::after,
 html.fixed.sidebar-gray .sidebar-left a:focus::after {
     color: #4b4b4b;
 } */
-/* fondo verde */
-html.fixed.sidebar-green .sidebar-left,
-html.fixed.sidebar-green .sidebar-header,
-html.fixed.sidebar-green .sidebar-left .nano {
-    background-color: #28c76f !important;
-}
-html.fixed.sidebar-green .sidebar-left a {
-    color: #fff;
-}
-html.fixed.sidebar-green .sidebar-left a:hover,
-html.fixed.sidebar-green .sidebar-left a:active,
-html.fixed.sidebar-green .sidebar-left a:focus {
-    color: #4b4b4b;
-}
-html.fixed.sidebar-green .sidebar-left a::after {
-    color: #fff;
-}
-html.fixed.sidebar-green .sidebar-left a::before {
-    border-color: #fff;
-}
-html.fixed.sidebar-green .sidebar-left a:hover,
-html.fixed.sidebar-green .sidebar-left a:active,
-html.fixed.sidebar-green .sidebar-left a:focus,
-html.fixed.sidebar-green .sidebar-left a:hover::before,
-html.fixed.sidebar-green .sidebar-left a:active::before,
-html.fixed.sidebar-green .sidebar-left a:focus::before {
-    color: #fff;
-    border-color: #fff;
-    background-color: transparent;
-}
-html.fixed.sidebar-green .sidebar-left a:hover::after,
-html.fixed.sidebar-green .sidebar-left a:active::after,
-html.fixed.sidebar-green .sidebar-left a:focus::after {
-    color: #4b4b4b;
-}
-/* fondo rojo */
-html.fixed.sidebar-red .sidebar-left,
-html.fixed.sidebar-red .sidebar-header,
-html.fixed.sidebar-red .sidebar-left .nano {
-    background-color: #ea5455 !important;
-}
-html.fixed.sidebar-red .sidebar-left a {
-    color: #fff;
-}
-html.fixed.sidebar-red .sidebar-left a:hover,
-html.fixed.sidebar-red .sidebar-left a:active,
-html.fixed.sidebar-red .sidebar-left a:focus {
-    color: #4b4b4b;
-}
-html.fixed.sidebar-red .sidebar-left a::after {
-    color: #fff;
-}
-html.fixed.sidebar-red .sidebar-left a::before {
-    border-color: #fff;
-}
-html.fixed.sidebar-red .sidebar-left a:hover,
-html.fixed.sidebar-red .sidebar-left a:active,
-html.fixed.sidebar-red .sidebar-left a:focus {
-    color: #fff;
-    background-color: transparent;
-}
-html.sidebar-red .sidebar-left a:hover::before,
-html.sidebar-red .sidebar-left a:active::before,
-html.sidebar-red .sidebar-left a:focus::before,
-html.sidebar-red .sidebar-left a:hover::after,
-html.sidebar-red .sidebar-left a:active::after,
-html.sidebar-red .sidebar-left a:focus::after {
-    border-color: #fff;
-    color: #fff;
-}
-/* fondo naranja */
-html.fixed.sidebar-warning .sidebar-left,
-html.fixed.sidebar-warning .sidebar-header,
-html.fixed.sidebar-warning .sidebar-left .nano {
-    background-color: #ff9f43 !important;
-}
-html.fixed.sidebar-warning .sidebar-left a {
-    color: #fff;
-}
-html.fixed.sidebar-warning .sidebar-left a:hover,
-html.fixed.sidebar-warning .sidebar-left a:active,
-html.fixed.sidebar-warning .sidebar-left a:focus {
-    color: #4b4b4b;
-}
-html.fixed.sidebar-warning .sidebar-left a::after {
-    color: #fff;
-}
-html.fixed.sidebar-warning .sidebar-left a::before {
-    border-color: #fff;
-}
-html.fixed.sidebar-warning .sidebar-left a:hover,
-html.fixed.sidebar-warning .sidebar-left a:active,
-html.fixed.sidebar-warning .sidebar-left a:focus {
-    color: #fff;
-    background-color: transparent;
-}
-html.fixed.sidebar-warning .sidebar-left a:hover::before,
-html.fixed.sidebar-warning .sidebar-left a:active::before,
-html.fixed.sidebar-warning .sidebar-left a:focus::before,
-html.fixed.sidebar-warning .sidebar-left a:hover::after,
-html.fixed.sidebar-warning .sidebar-left a:active::after,
-html.fixed.sidebar-warning .sidebar-left a:focus::after {
-    border-color: #fff;
-    color: #fff;
-}
-/* fondo celeste */
-html.fixed.sidebar-ligth-blue .sidebar-left,
-html.fixed.sidebar-ligth-blue .sidebar-header,
-html.fixed.sidebar-ligth-blue .sidebar-left .nano {
-    background-color: #00cfe8 !important;
-}
-html.fixed.sidebar-ligth-blue .sidebar-left a {
-    color: #fff;
-}
-html.fixed.sidebar-ligth-blue .sidebar-left a:hover,
-html.fixed.sidebar-ligth-blue .sidebar-left a:active,
-html.fixed.sidebar-ligth-blue .sidebar-left a:focus {
-    color: #4b4b4b;
-}
-html.fixed.sidebar-ligth-blue .sidebar-left a::after {
-    color: #fff;
-}
-html.fixed.sidebar-ligth-blue .sidebar-left a::before {
-    border-color: #fff;
-}
-html.fixed.sidebar-ligth-blue .sidebar-left a:hover,
-html.fixed.sidebar-ligth-blue .sidebar-left a:active,
-html.fixed.sidebar-ligth-blue .sidebar-left a:focus {
-    color: #fff;
-    background-color: transparent;
-}
-html.fixed.sidebar-ligth-blue .sidebar-left a:hover::before,
-html.fixed.sidebar-ligth-blue .sidebar-left a:active::before,
-html.fixed.sidebar-ligth-blue .sidebar-left a:focus::before,
-html.fixed.sidebar-ligth-blue .sidebar-left a:hover::after,
-html.fixed.sidebar-ligth-blue .sidebar-left a:active::after,
-html.fixed.sidebar-ligth-blue .sidebar-left a:focus::after {
-    border-color: #fff;
-    color: #fff;
-}
+
 /* fondo blanco */
 html.fixed.sidebar-white .sidebar-left,
 html.fixed.sidebar-white .sidebar-header,
