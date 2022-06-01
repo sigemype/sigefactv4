@@ -53,6 +53,15 @@ class GlobalPaymentServiceProvider extends ServiceProvider
                 $record->payment_file()->delete();
             }
 
+            // eliminar link de pago
+            if($record->payment_links)
+            {
+                if($record->payment_links->count() > 0)
+                {
+                    $record->payment_links()->delete();
+                }
+            }
+
         });
 
     }

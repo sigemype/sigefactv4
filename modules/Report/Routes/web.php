@@ -8,6 +8,12 @@
         Route::domain($current_hostname->fqdn)->group(function () {
             Route::middleware(['auth', 'redirect.module', 'locked.tenant'])->group(function () {
 
+               Route::prefix('report_configurations')->group(function () {
+
+                    Route::get('records', 'ReportConfigurationController@records');
+                    Route::post('', 'ReportConfigurationController@store');
+                });
+
 
                Route::prefix('reports')->group(function () {
 
@@ -348,6 +354,16 @@
 
                      });
 
+
+                    Route::prefix('tips')->group(function () {
+
+                         Route::get('', 'ReportTipController@index')->name('tenant.reports.tips.index');
+                         Route::get('pdf', 'ReportTipController@pdf');
+                         Route::get('excel', 'ReportTipController@excel');
+                         Route::get('records', 'ReportTipController@records');
+
+                    });
+  
 
                 });
 

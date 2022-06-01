@@ -224,42 +224,4 @@ class RestaurantController extends Controller
         }
     }
 
-    /**
-     * muestra vista para utilizar en mozo
-     */
-    public function configuration(){
-        // RestaurantConfiguration::first();
-        return view('restaurant::configuration.index');
-    }
-
-    /**
-     * obtiene configuración para utilizar en mozo
-     */
-    public function record(){
-        $configurations = RestaurantConfiguration::first();
-
-        return [
-            'success' => true,
-            'data' => $configurations->getCollectionData()
-        ];
-    }
-
-    /**
-     * guarda cada nueva configuración para utilizar en mozo
-     */
-    public function setConfiguration(Request $request) {
-        $configuration = RestaurantConfiguration::first();
-        $configuration->fill($request->all());
-        if(!$configuration->menu_pos && !$configuration->menu_order && !$configuration->menu_tables){
-            $configuration->menu_pos = true;
-        }
-        $configuration->save();
-
-        return [
-            'success' => true,
-            'configuration' => $configuration->getCollectionData(),
-            'message' => 'Configuración actualizada',
-        ];
-    }
-
 }

@@ -22,9 +22,9 @@ class ReportMovementRequest extends FormRequest
             'warehouse_id' => [
                 'required',
             ],
-            'inventory_transaction_id' => [
-                'required',
-            ],
+            // 'inventory_transaction_id' => [
+            //     'required',
+            // ],
             'movement_type' => [
                 'required',
             ],

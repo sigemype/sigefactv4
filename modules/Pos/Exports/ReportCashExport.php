@@ -5,8 +5,9 @@ namespace Modules\Pos\Exports;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class ReportCashExport implements  FromView
+class ReportCashExport implements  FromView, ShouldAutoSize
 {
     use Exportable;
 
@@ -59,6 +60,6 @@ class ReportCashExport implements  FromView
 
     public function view(): View
     {
-        return view('pos::cash.report_excel', ['data'=> $this->data,]);
+        return view('pos::cash.report_excel', ['data'=> $this->data]);
     }
 }

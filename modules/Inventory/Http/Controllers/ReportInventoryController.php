@@ -54,7 +54,7 @@ class ReportInventoryController extends Controller
         $filter = $request->input('filter');
         //$date_end = $request->has('date_end') ? $request->date_end : null;
         //$date_start = $request->has('date_start') ? $request->date_start : null;
-        $records = $this->getRecords($warehouse_id, $filter);
+        $records = $this->getRecords($warehouse_id, $filter, $request);
 
         return new ReportInventoryCollection($records->paginate(50), $filter);
 
@@ -65,7 +65,8 @@ class ReportInventoryController extends Controller
      *
      * @return Builder
      */
-    private function getRecords($warehouse_id = 0, $filter) {
+    private function getRecords($warehouse_id = 0, $filter, $request) 
+    {
         $query = ItemWarehouse::with(['warehouse', 'item'=> function ($query){
                                 $query->select('id', 'barcode', 'internal_id', 'description', 'category_id', 'brand_id','stock_min', 'sale_unit_price', 'purchase_unit_price', 'model', 'date_of_due' );
                                 $query->with(['category', 'brand']);
@@ -133,6 +134,11 @@ class ReportInventoryController extends Controller
         if ($warehouse_id != 0) {
             $query->where('item_warehouse.warehouse_id', $warehouse_id);
         }
+
+        if ($request->category_id) $query->whereItemCategory($request->category_id);
+
+        if ($request->brand_id) $query->whereItemBrand($request->brand_id);
+
         return $query;
 
     }
@@ -178,7 +184,7 @@ class ReportInventoryController extends Controller
         }else{
             $website_id = $hostname->website_id;
         }
-        ProcessInventoryReport::dispatch($website_id,$trayId, ($request->warehouse_id == 'all' ? 0 :  $request->warehouse_id), $request->format );
+        ProcessInventoryReport::dispatch($website_id,$trayId, ($request->warehouse_id == 'all' ? 0 :  $request->warehouse_id), $request->format, $request->all() );
 
         return  [
             'success' => true,

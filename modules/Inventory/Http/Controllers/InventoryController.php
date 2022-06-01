@@ -51,17 +51,44 @@ class InventoryController extends Controller
 								$query->where('description', 'like', '%' . $request->value . '%');
 							})
 							->orderBy('item_id');
-		} else {
-			$records = ItemWarehouse::with(['item', 'warehouse'])
-							->whereHas('item', function ($query) use ($request) {
-								$query->where('unit_type_id', '!=', 'ZZ');
-								$query->whereNotIsSet();
-								$query->where($request->column, 'like', '%' . $request->value . '%');
-							})->orderBy('item_id');
+		}
+		else 
+		{
+			$records = $this->getCommonRecords($request);
 		}
 
 		return new InventoryCollection($records->paginate(config('tenant.items_per_page')));
 	}
+
+
+		
+	/**
+	 * 
+	 * Obtener registros
+	 *
+	 * @param  Request $request
+	 * @return ItemWarehouse
+	 */
+	public function getCommonRecords($request)
+	{
+		return ItemWarehouse::with(['item', 'warehouse'])
+							->whereHas('item', function ($query) use ($request) {
+								$query->where('unit_type_id', '!=', 'ZZ');
+								$query->whereNotIsSet();
+
+								if($this->applyAdvancedRecordsSearch() && $request->column === 'description')
+								{
+									if($request->value) $query->whereAdvancedRecordsSearch($request->column, $request->value);
+								}
+								else
+								{
+									$query->where($request->column, 'like', '%' . $request->value . '%');
+								}
+							})
+							->orderBy('item_id');
+	}
+
+
 
 	public function tables()
 	{

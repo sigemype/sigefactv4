@@ -80,6 +80,10 @@
     <p><strong>Por cobrar: </strong>S/. {{$data['credit']}} </p>
     <p><strong>Notas de Débito:</strong>S/. {{$data['nota_debito']}}</p>
     <p><strong>Notas de Crédito: </strong> S/. {{ $data['nota_credito'] }}</p>
+
+    <p><strong>Total propinas: </strong>S/. {{$data['total_tips'] ?? 0}} </p>
+    <p><strong>Total efectivo CPE: </strong>S/. {{$data['total_payment_cash_01_document'] ?? 0}} </p>
+    <p><strong>Total efectivo NOTA DE VENTA: </strong>S/. {{$data['total_payment_cash_01_sale_note'] ?? 0}} </p>
 </div>
 @if($data['cash_documents_total']>0)
     <div class="" style="width:100% !important">

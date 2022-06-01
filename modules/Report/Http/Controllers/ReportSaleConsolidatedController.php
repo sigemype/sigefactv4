@@ -65,7 +65,9 @@ class ReportSaleConsolidatedController extends Controller
     public function totalsByItem(Request $request)
     {
 
-        $records = $this->getRecordsSalesConsolidated($request->all())->get()->groupBy('item_id');
+        // $records = $this->getRecordsSalesConsolidated($request->all())->groupBy('item_id')->get();
+        $records = $this->groupTotalsByItem($this->getRecordsSalesConsolidated($request->all())->get());
+
 
         return $records->map(function(\Illuminate\Database\Eloquent\Collection $row, $key){
             $unit_type_id = 'ZZ';
@@ -95,18 +97,50 @@ class ReportSaleConsolidatedController extends Controller
                 }
             }
             $total_sale = $unit_price * ($row->sum('quantity') * 1);
+
+            // obtener item id y unit_type_id
+            $item_unit_type = explode('-', $key);
+            $row_item_id = $item_unit_type[0] ?? $first->item_id;
+            $row_unit_type_id = $item_unit_type[1] ?? $first->relation_item->unit_type_id;
+            
             return [
-                'item_id' => $key,
+                'item_id' => $row_item_id,
+                // 'item_id' => $key,
                 'brand' => $brand,
                 'total_sale' => $total_sale,
                 'category' => $category,
                 'item_internal_id' => $first->relation_item->internal_id,
-                'item_unit_type_id' => $first->relation_item->unit_type_id,
+                'item_unit_type_id' => $row_unit_type_id,
+                // 'item_unit_type_id' => $first->relation_item->unit_type_id,
                 'item_description' => $first->item->description,
                 'quantity' => number_format($quantity, 4, ".", ""),
             ];
         });
 
+    }
+
+        
+    /**
+     * 
+     * Agrupar items por item_id y unit_type_id, para ventas individuales y por presentaciones
+     *
+     * @param  array $records
+     * @return array
+     */
+    public function groupTotalsByItem($records)
+    {
+        return $records->groupBy(function($row){
+
+                    $item_unit_type_id = $row->item->unit_type_id ?? false;
+                    $group_key = $row->item_id;
+
+                    if($item_unit_type_id)
+                    {
+                        $group_key .= "-".$item_unit_type_id; 
+                    }
+
+                    return $group_key; 
+                });
     }
 
 

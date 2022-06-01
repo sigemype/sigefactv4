@@ -118,9 +118,13 @@
                                         $discount_string = str_contains($discount_description, $discount_format['description']) ? $discount_format['description'] : $discount_string.=$discount_format['description'].' - ';
                                         $discount_description = trim($discount_string,' - ');
                                     }
-                                    $name_string = str_contains($name_items, $itm['item_details'][0]['name']) ? $itm['item_details'][0]['name'].' - ' : $name_string.=$itm['item_details'][0]['name'].' - ';
+                                    /* dd(empty($itm['item_details'][0])); */
+                                    if(!empty($itm['item_details'][0]['name'])&& !is_null($itm['item_details'][0]['name'])){
+                                        $name_string = str_contains($name_items, $itm['item_details'][0]['name']) ? $itm['item_details'][0]['name'].' - ' : $name_string.=$itm['item_details'][0]['name'].' - ';
                                     
-                                    $name_items=trim($name_string,' - ');
+                                        $name_items=trim($name_string,' - ');
+                                    }
+
                                 }
                                 $obs=$value->observation;
                             @endphp

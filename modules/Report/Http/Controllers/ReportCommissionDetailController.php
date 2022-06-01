@@ -170,7 +170,7 @@ class ReportCommissionDetailController extends Controller
         $records = ($sales_notes->get())->merge($documents->get());
 
 
-        $pdf = PDF::loadView('report::commissions_detail.report_pdf', compact("records", "company", "establishment"));
+        $pdf = PDF::loadView('report::commissions_detail.report_pdf', compact("records", "company", "establishment"))->setPaper('a4', 'landscape');
 
         $filename = 'Reporte_Utilidades_Detallado'.date('YmdHis');
 

@@ -12,9 +12,14 @@ use App\Models\Tenant\SaleNotePayment;
 use App\Models\Tenant\Invoice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Modules\Finance\Traits\UnpaidTrait;
+
 
 class UnpaidCollection extends ResourceCollection
 {
+
+    use UnpaidTrait;
+
     /**
      * Transform the resource collection into an array.
      *
@@ -24,7 +29,10 @@ class UnpaidCollection extends ResourceCollection
     public function toArray($request)
     {
         return $this->collection->transform(function ($row, $key) {
-            $total_to_pay = (float)$row->total - (float)$row->total_payment;
+
+            $total_to_pay = $this->getTotalToPay($row);
+            // $total_to_pay = (float)$row->total - (float)$row->total_payment;
+
             $delay_payment = null;
             $date_of_due = null;
             if ($total_to_pay > 0) {
@@ -89,6 +97,7 @@ class UnpaidCollection extends ResourceCollection
                 "user_id" => $row->user_id,
                 "username" => $row->username,
                 "total_subtraction" => $row->total_subtraction,
+                "total_credit_notes" => $this->getTotalCreditNote($row) ,
                 "total_payment" => $row->total_payment,
                 "web_platforms" => $web_platforms,
                 "purchase_order" => $purchase_order,

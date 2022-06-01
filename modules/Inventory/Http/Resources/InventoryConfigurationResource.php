@@ -16,7 +16,9 @@ class InventoryConfigurationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'stock_control' => (bool) $this->stock_control, 
+            'stock_control' => (bool) $this->stock_control,             
+            'generate_internal_id' => (bool) $this->generate_internal_id,
+
         ];
     }
 }

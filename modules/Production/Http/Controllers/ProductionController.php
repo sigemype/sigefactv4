@@ -84,6 +84,7 @@
                 $production->fill($request->all());
                 $production->inventory_id_reference = $inventory->id;
                 $production->user_id = auth()->user()->id;
+                $production->soap_type_id = $this->getCompanySoapTypeId();
                 $production->save();
 
 

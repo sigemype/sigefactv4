@@ -429,6 +429,7 @@
             $income_payment = $this->getSumPayment($bank_account->global_destination, IncomePayment::class);
             $technical_service_payment = $this->getSumPayment($bank_account->global_destination, TechnicalServicePayment::class);
             $transfer_beween_account = $this->getTransferAccountPayment($bank_account);
+            $initial_balance = $bank_account->initial_balance;
 
             $entry = $document_payment +
                 $sale_note_payment +
@@ -437,13 +438,13 @@
                 $income_payment +
                 $cash_pos +
                 $technical_service_payment +
+                $initial_balance +
                 $transfer_beween_account;
             $egress = $expense_payment +
                 $purchase_payment;
 
             $balance = $entry -
                 $egress;
-            $initial_balance = $bank_account->initial_balance;
             $description = "{$bank_account->bank->description} - {$bank_account->currency_type_id} - {$bank_account->description}";
 
 
@@ -784,5 +785,16 @@
 
         }
 
+
+        /**
+         * 
+         * Obtener soap_type_id para registro de entorno
+         *
+         * @return string
+         */
+        public function getCompanySoapTypeId()
+        {
+            return Company::getCompanySoapTypeId();
+        }
 
     }

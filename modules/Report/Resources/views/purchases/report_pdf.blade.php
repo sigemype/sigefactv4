@@ -101,6 +101,8 @@
                         $acum_total_taxed_usd=0;
                         $acum_total_igv_usd=0;
                         $acum_total_usd=0;
+
+                        $apply_conversion_to_pen = $filters['apply_conversion_to_pen'] == 'true';
                     @endphp
                     <table class="">
                         <thead>
@@ -147,15 +149,23 @@
                                         @endforeach
                                     </td>
 
-                                    <!-- <td class="celda">{{$value->total_exonerated}}</td>
-                                    <td class="celda">{{$value->total_unaffected}}</td>
-                                    <td class="celda">{{$value->total_free}}</td> -->
+                                    @if ($apply_conversion_to_pen && $value->isCurrencyTypeUsd())
+                                        
+                                        <td class="celda">{{$value->currency_type_id}} (Conv.)</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->getConvertTotalIscToPen() }}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->getConvertTotalTaxedToPen() }}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->getConvertTotalIgvToPen() }}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->getConvertTotalToPen() }}</td>
 
-                                    <td class="celda">{{$value->currency_type_id}}</td>
-                                    <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_isc}}</td>
-                                    <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_taxed}}</td>
-                                    <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_igv}}</td>
-                                    <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total}}</td>
+                                    @else
+                                        
+                                        <td class="celda">{{$value->currency_type_id}}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_isc}}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_taxed}}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total_igv}}</td>
+                                        <td class="celda">{{ $value->state_type_id == '11' ? 0 : $value->total}}</td>
+                                    @endif
+
 
 
                                     @php
@@ -205,20 +215,23 @@
                                 @endphp
 
                             @endforeach
-                            <tr>
-                                <td class="celda" colspan="10"></td>
-                                <td class="celda" >Totales PEN</td>
-                                <td class="celda">{{$acum_total_taxed}}</td>
-                                <td class="celda">{{$acum_total_igv}}</td>
-                                <td class="celda">{{$acum_total}}</td>
-                            </tr>
-                            <tr>
-                                <td class="celda" colspan="10"></td>
-                                <td class="celda" >Totales USD</td>
-                                <td class="celda">{{$acum_total_taxed_usd}}</td>
-                                <td class="celda">{{$acum_total_igv_usd}}</td>
-                                <td class="celda">{{$acum_total_usd}}</td>
-                            </tr>
+
+                            @if (!$apply_conversion_to_pen)
+                                <tr>
+                                    <td class="celda" colspan="10"></td>
+                                    <td class="celda" >Totales PEN</td>
+                                    <td class="celda">{{$acum_total_taxed}}</td>
+                                    <td class="celda">{{$acum_total_igv}}</td>
+                                    <td class="celda">{{$acum_total}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="celda" colspan="10"></td>
+                                    <td class="celda" >Totales USD</td>
+                                    <td class="celda">{{$acum_total_taxed_usd}}</td>
+                                    <td class="celda">{{$acum_total_igv_usd}}</td>
+                                    <td class="celda">{{$acum_total_usd}}</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

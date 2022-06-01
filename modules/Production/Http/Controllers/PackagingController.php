@@ -21,6 +21,7 @@
     use Modules\Production\Models\Machine;
     use Modules\Production\Models\Packaging;
     use Modules\Production\Models\Production;
+    use App\Models\Tenant\Company;
 
 
     class PackagingController extends Controller
@@ -66,6 +67,7 @@
                 $model->item = $item->toArray();
 
                 $model->user_id = \Auth::user()->id;
+                $model->soap_type_id = Company::getCompanySoapTypeId();
                 $model->push();
 
 

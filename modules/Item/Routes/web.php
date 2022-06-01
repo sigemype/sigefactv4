@@ -80,6 +80,7 @@ if($hostname) {
 
             });
 
+            Route::post('items/import/items-update-prices', 'ItemController@importItemUpdatePrices');
 
         });
     });

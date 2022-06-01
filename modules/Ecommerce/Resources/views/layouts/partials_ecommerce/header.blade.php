@@ -90,7 +90,7 @@
                     @if($information->logo)
                         <img src="{{ asset('storage/uploads/logos/'.$information->logo) }}" alt="Logo" />
                     @else
-                        <img src="{{asset('logo/700x300.jpg')}}" alt="Logo" />
+                        <img src="{{asset('logo/tulogo.png')}}" alt="Logo" />
                     @endif
                  </a>
              </div><!-- End .header-left -->

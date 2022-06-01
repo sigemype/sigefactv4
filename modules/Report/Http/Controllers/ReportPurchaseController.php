@@ -12,7 +12,7 @@ use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Purchase;
 use App\Models\Tenant\Company;
 use Carbon\Carbon;
-use App\Http\Resources\Tenant\PurchaseCollection;
+use Modules\Report\Http\Resources\PurchaseCollection;
 
 class ReportPurchaseController extends Controller
 {
@@ -37,9 +37,11 @@ class ReportPurchaseController extends Controller
     }
 
 
-    public function index() {
+    public function index(Request $request) 
+    {
+        $apply_conversion_to_pen = $this->applyConversiontoPen($request);
 
-        return view('report::purchases.index');
+        return view('report::purchases.index', compact('apply_conversion_to_pen'));
     }
 
     public function records(Request $request)

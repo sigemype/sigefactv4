@@ -254,4 +254,17 @@
         {
             return $this->hasMany(ExpensePayment::class);
         }
+
+        
+        /**
+         * 
+         * Validar si el registro esta rechazado o anulado
+         * 
+         * @return bool
+         */
+        public function isVoidedOrRejected()
+        {
+            return in_array($this->state_type_id, self::VOIDED_REJECTED_IDS);
+        }
+
     }

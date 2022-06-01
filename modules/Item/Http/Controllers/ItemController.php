@@ -23,8 +23,11 @@
     use Modules\Item\Models\ItemLot;
     use Picqer\Barcode\BarcodeGeneratorPNG;
     use Illuminate\Support\Carbon;
+    use Modules\Item\Imports\{
+        ItemUpdatePriceImport
+    };
 
-
+    
     class ItemController extends Controller
     {
 
@@ -240,5 +243,39 @@
             ];
 
         }
+
+        /**
+         * 
+         * Importar excel para actualizar los precios de forma masiva
+         * 
+         * @param Request $request
+         *
+         * @return array
+         */
+        public function importItemUpdatePrices(Request $request)
+        {
+            if ($request->hasFile('file')) {
+                try {
+                    $import = new ItemUpdatePriceImport();
+                    $import->import($request->file('file'), null, Excel::XLSX);
+                    $data = $import->getData();
+                    return [
+                        'success' => true,
+                        'message' => __('app.actions.upload.success'),
+                        'data' => $data
+                    ];
+                } catch (Exception $e) {
+                    return [
+                        'success' => false,
+                        'message' => $e->getMessage()
+                    ];
+                }
+            }
+            return [
+                'success' => false,
+                'message' => __('app.actions.upload.error'),
+            ];
+        }
+
 
     }

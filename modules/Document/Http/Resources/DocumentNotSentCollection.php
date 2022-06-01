@@ -4,6 +4,7 @@ namespace Modules\Document\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Carbon\Carbon;
+use App\Models\Tenant\Configuration;
 
 class DocumentNotSentCollection extends ResourceCollection
 {
@@ -13,8 +14,12 @@ class DocumentNotSentCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
-    public function toArray($request) {
-        return $this->collection->transform(function($row, $key) {
+    public function toArray($request) 
+    {
+
+        $configuration = Configuration::select('shipping_time_days')->firstOrFail();
+
+        return $this->collection->transform(function($row, $key) use($configuration) {
             
             $btn_resend = false; 
             $text_tooltip = '';
@@ -41,8 +46,10 @@ class DocumentNotSentCollection extends ResourceCollection
             }
 
             $now = Carbon::now();
-            $date_document = (new Carbon($row->date_of_issue))->addDay();
-            $difference_days = 7 - $date_document->diffInDays($now);
+            $date_document = new Carbon($row->date_of_issue); //dias contados desde la fecha de emisión
+            // $date_document = (new Carbon($row->date_of_issue))->addDay();
+            $difference_days = $configuration->shipping_time_days - $date_document->diffInDays($now);
+
             $days_send = ($difference_days <= 0) ? 'El plazo de envío caducó' : $difference_days;
 
             return [

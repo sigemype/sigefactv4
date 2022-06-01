@@ -12,7 +12,9 @@
     use Eloquent;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Illuminate\Database\Eloquent\Relations\BelongsTo;
+    use App\Models\Tenant\SoapType;
 
+    
     /**
      * Class Packaging
      *
@@ -67,6 +69,7 @@
             'date_end',
             'time_end',
             'packaging_collaborator',
+            'soap_type_id',
         ];
 
         /**
@@ -75,6 +78,14 @@
         public function item()
         {
             return $this->belongsTo(Item::class);
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function soap_type()
+        {
+            return $this->belongsTo(SoapType::class);
         }
 
         /**

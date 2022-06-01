@@ -26,13 +26,16 @@ class ReportPurchaseItemController extends Controller
 {
     use ReportTrait;
 
-public function general_items(){
-    $typeresource = 'reports/purchases/general_items';
-    $typereport = 'purchase';
-    $configuration = Configuration::getPublicConfig();
-    return view('report::general_items.index',compact('typeresource','typereport','configuration'));
+    public function general_items(Request $request)
+    {
+        $typeresource = 'reports/purchases/general_items';
+        $typereport = 'purchase';
+        $configuration = Configuration::getPublicConfig();
+        $apply_conversion_to_pen = $this->applyConversiontoPen($request);
 
-}
+        return view('report::general_items.index',compact('typeresource','typereport','configuration', 'apply_conversion_to_pen'));
+    }
+
     /**
      * @return array
      */

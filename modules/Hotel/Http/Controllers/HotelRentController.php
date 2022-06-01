@@ -160,10 +160,17 @@ class HotelRentController extends Controller
 	public function finalizeRent($rentId)
 	{
 		$rent = HotelRent::findOrFail($rentId);
+		$items = HotelRentItem::where('hotel_rent_id', $rentId)->get();
 		$rent->update([
 			'arrears' => request('arrears'),
+			'payment_status' => 'PAID',
 			'status'  => 'FINALIZADO'
 		]);
+		foreach ($items as $item) {
+			$item->update([
+				'payment_status' => 'PAID',
+			]);
+		}
 		HotelRoom::where('id', $rent->hotel_room_id)
 			->update([
 				'status' => 'LIMPIEZA'
@@ -181,14 +188,18 @@ class HotelRentController extends Controller
 		$customers = Person::with('addresses')
 			->whereType('customers')
 			->whereIsEnabled()
-			->whereIn('identity_document_type_id', [1, 6])
+			->whereIn('identity_document_type_id', [1, 4, 6])
 			->orderBy('name');
 
 		$query = request('input');
-		if ($query) {
+		$search_by_barcode = (bool)request('search_by_barcode');
+		if ($query && $search_by_barcode) {
+			
+			$customers = $customers->where('barcode', 'like', "%{$query}%");
+		}else{
 			if (is_numeric($query)) {
 				$customers = $customers->where('number', 'like', "%{$query}%");
-			} else {
+			}else {
 				$customers = $customers->where('name', 'like', "%{$query}%");
 			}
 		}
@@ -205,7 +216,8 @@ class HotelRentController extends Controller
 					'identity_document_type_code' => $row->identity_document_type->code,
 					'addresses'                   => $row->addresses,
 					'address'                     => $row->address,
-					'internal_code'               => $row->internal_code
+					'internal_code'               => $row->internal_code,
+					'barcode'					  => $row->barcode
 				];
 			});
 

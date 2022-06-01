@@ -213,6 +213,7 @@
             defaultType: String,
             resource: String,
             configuration: {},
+            applyConversionToPen: Boolean,
         },
         data () {
             return {
@@ -385,7 +386,8 @@
                     month_end: moment().format('YYYY-MM'),
                     category_id: '',
                     user_type: '',
-                    user_id: ''
+                    user_id: '',
+                    apply_conversion_to_pen: this.applyConversionToPen
                 }
 
             },

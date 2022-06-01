@@ -1500,4 +1500,29 @@
         }
 
 
+        /**
+         * 
+         * Obtener descripción del tipo de documento
+         *
+         * @return string
+         */
+        public function getDocumentTypeDescription()
+        {
+            return 'SERVICIO TÉCNICO';
+        }
+
+
+        /**
+         * 
+         * Obtener pagos en efectivo
+         *
+         * @return Collection
+         */
+        public function getCashPayments()
+        {
+            return $this->payments()->whereFilterCashPayment()->get()->transform(function($row){{
+                return $row->getRowResourceCashPayment();
+            }});
+        }
+
     }

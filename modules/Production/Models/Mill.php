@@ -12,6 +12,7 @@
     use Illuminate\Database\Eloquent\Collection;
     use Illuminate\Database\Eloquent\Relations\BelongsTo;
     use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+    use App\Models\Tenant\SoapType;
 
 
     /**
@@ -57,6 +58,7 @@
             'comment',
             'mill_name',
             'lot_code',
+            'soap_type_id',
         ];
 
         /**
@@ -67,6 +69,14 @@
             return $this->belongsTo(User::class);
         }
 
+        /**
+         * @return BelongsTo
+         */
+        public function soap_type()
+        {
+            return $this->belongsTo(SoapType::class);
+        }
+        
         /**
          * @return BelongsToMany
          */
@@ -88,4 +98,11 @@
             $data['created_at'] = $this->created_at->format('Y-m-d H:i:s');
             return $data;
         }
+
+        
+        public function relation_mill_items()
+        {
+            return $this->hasMany(MillItem::class);
+        }
+
     }

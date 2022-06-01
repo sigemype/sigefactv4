@@ -8,7 +8,8 @@ class InventoryConfiguration extends ModelTenant
 {
 
     protected $fillable = [ 
-        'stock_control', 
+        'stock_control',
+        'generate_internal_id'
     ];
   
 }

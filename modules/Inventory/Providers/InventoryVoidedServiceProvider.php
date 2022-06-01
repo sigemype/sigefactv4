@@ -115,25 +115,29 @@ class InventoryVoidedServiceProvider extends ServiceProvider
             {
                 $affected_document = $note->affected_document;
 
-                //si el cpe relacionado tiene anticipos y el total de la nota es igual al del cpe afectado
-                if($affected_document->prepayments && $note->document->total == $affected_document->total)
+                if($affected_document)
                 {
-                    foreach($affected_document->prepayments as $row) {
-
-                        $number_full = explode('-', $row->number);
-                        $find_document = Document::whereFilterWithOutRelations()->where([['series', $number_full[0]],['number', $number_full[1]]])->first();
-
-                        if($find_document)
+                    //si el cpe relacionado tiene anticipos y el total de la nota es igual al del cpe afectado
+                    if($affected_document->prepayments && $note->document->total == $affected_document->total)
+                    {
+                        foreach($affected_document->prepayments as $row) 
                         {
-                            $find_document->pending_amount_prepayment += $row->total;
-
-                            if($find_document->pending_amount_prepayment <= $find_document->total)
+                            $number_full = explode('-', $row->number);
+                            $find_document = Document::whereFilterWithOutRelations()->where([['series', $number_full[0]],['number', $number_full[1]]])->first();
+    
+                            if($find_document)
                             {
-                                $find_document->was_deducted_prepayment = false;
-                                $find_document->save();
+                                $find_document->pending_amount_prepayment += $row->total;
+    
+                                if($find_document->pending_amount_prepayment <= $find_document->total)
+                                {
+                                    $find_document->was_deducted_prepayment = false;
+                                    $find_document->save();
+                                }
                             }
                         }
                     }
+
                 }
             }
 

@@ -125,55 +125,50 @@ class InventoryKardexServiceProvider extends ServiceProvider
             /*
              * Calculando el stock por lote por factor según la unidad
              */
-            if (isset($document_item->item->IdLoteSelected)) {
-                if ($document_item->item->IdLoteSelected != null) {
 
-                    if(is_array($document_item->item->IdLoteSelected)) {
-
-                        try {
-                            $quantity_unit = $document_item->item->presentation->quantity_unit;
-                        } catch (Exception $e) {
-                            $quantity_unit = 1;
-                        }
-
+            if(!$document->isGeneratedFromExternalRecord())
+            {
+                
+                if (isset($document_item->item->IdLoteSelected)) 
+                {
+                    if ($document_item->item->IdLoteSelected != null) 
+                    {
+                        if(is_array($document_item->item->IdLoteSelected)) 
+                        {
+                            // presentacion - factor de lista de precios
+                            $quantity_unit = isset($document_item->item->presentation->quantity_unit) ? $document_item->item->presentation->quantity_unit : 1;
+                            
                             $lotesSelecteds = $document_item->item->IdLoteSelected;
-
-                            foreach ($lotesSelecteds as $item) {
+                            $document_factor = ($document->document_type_id === '07') ? 1 : -1;
+    
+                            foreach ($lotesSelecteds as $item) 
+                            {
                                 $lot = ItemLotsGroup::query()->find($item->id);
-                                $lot->quantity = $lot->quantity - $item->compromise_quantity;
+                                $lot->quantity = $lot->quantity + (($quantity_unit * $item->compromise_quantity) * $document_factor);
+                                $this->validateStockLotGroup($lot, $document_item);
                                 $lot->save();
                             }
-
-                        if ($document->document_type_id === '07') {
-
-                            $lotesSelecteds = $document_item->item->IdLoteSelected;
-
-                            foreach ($lotesSelecteds as $item) {
-                                $lot = ItemLotsGroup::query()->find($item->id);
-                                $lot->quantity = $lot->quantity + $item->compromise_quantity;
-                                $lot->save();
+    
+                        }
+                        else{
+    
+                            $lot = ItemLotsGroup::query()->find($document_item->item->IdLoteSelected);
+                            try {
+                                $quantity_unit = $document_item->item->presentation->quantity_unit;
+                            } catch (Exception $e) {
+                                $quantity_unit = 1;
                             }
+                            if ($document->document_type_id === '07') {
+                                $quantity = $lot->quantity + ($quantity_unit * $document_item->quantity);
+                            } else {
+                                $quantity = $lot->quantity - ($quantity_unit * $document_item->quantity);
+                            }
+    
+                            $lot->quantity = $quantity;
+                            $lot->save();
                         }
-
+    
                     }
-                    else{
-
-                        $lot = ItemLotsGroup::query()->find($document_item->item->IdLoteSelected);
-                        try {
-                            $quantity_unit = $document_item->item->presentation->quantity_unit;
-                        } catch (Exception $e) {
-                            $quantity_unit = 1;
-                        }
-                        if ($document->document_type_id === '07') {
-                            $quantity = $lot->quantity + ($quantity_unit * $document_item->quantity);
-                        } else {
-                            $quantity = $lot->quantity - ($quantity_unit * $document_item->quantity);
-                        }
-
-                        $lot->quantity = $quantity;
-                        $lot->save();
-                    }
-
                 }
             }
 

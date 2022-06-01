@@ -51,9 +51,10 @@ class ReportMovementController extends Controller
         $date_start = $request['date_start'];
         $date_end = $request['date_end'];
         $item_id = $request['item_id'];
+        $order_inventory_transaction_id = $request['order_inventory_transaction_id'];
 
 
-        return Inventory::whereFilterReportMovement($warehouse_id, $inventory_transaction_id, $date_start, $date_end, $item_id);
+        return Inventory::whereFilterReportMovement($warehouse_id, $inventory_transaction_id, $date_start, $date_end, $item_id, $order_inventory_transaction_id);
  
     }
     

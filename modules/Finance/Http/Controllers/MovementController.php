@@ -164,7 +164,8 @@ class MovementController extends Controller
 
         $params = (object)array_merge($request->all(), ['user_id' => auth()->user()->id, 'type' => auth()->user()->type, 'establishment_id' => auth()->user()->establishment_id]);
 
-        ProcessMovementsReport::dispatch($params, $tray->id, $website_id)->onQueue('process_movements_report');
+        ProcessMovementsReport::dispatch($params, $tray->id, $website_id);
+        // ProcessMovementsReport::dispatch($params, $tray->id, $website_id)->onQueue('process_movements_report');
 
         return [
             'success' => true,

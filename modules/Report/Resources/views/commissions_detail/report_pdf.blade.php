@@ -108,7 +108,7 @@
                                 $relation = $row->document_id ? $row->document : $row->sale_note;
 
                                 if($row->document_id) {
-                                    $type_document =  $row->document->document_type_id == '03' ? 'FACTURA' : 'BOLETA';
+                                    $type_document =  $row->document->document_type_id == '01' ? 'FACTURA' : 'BOLETA';
                                 }
                                 else if ($row->sale_note_id) {
                                     $type_document = 'NOTA DE VENTA';
@@ -121,8 +121,8 @@
                                 $unit_gain = ((float)$row->unit_price - (float)$purchase_unit_price);
                                 $overall_profit = (((float)$row->unit_price * $row->quantity ) - ((float)$purchase_unit_price * $row->quantity));
 
-                                $acum_unit_gain += (float)$row->unit_gain;
-                                $acum_overall_profit += (float)$row->overall_profit;
+                                $acum_unit_gain += (float)$unit_gain;
+                                $acum_overall_profit += (float)$overall_profit;
 
                                 @endphp
                                 
@@ -134,7 +134,7 @@
                                     <td class="celda">{{ $relation->customer->number}}</td> 
 
                                     <td class="celda">{{$relation->customer->name}}</td> 
-                                    <td class="celda">{{$row->relation_item->name}}</td> 
+                                    <td class="celda">{{$row->relation_item->description}}</td> 
 
                                     <td class="celda">{{$row->quantity}}</td> 
                                     <td class="celda">{{$purchase_unit_price}}</td> 
@@ -145,14 +145,21 @@
 
                                 </tr>
                             @endforeach
+                            
+                            <tr>
+                                <td class="celda"  style="text-align:right;" colspan="10">TOTAL:</td>
+                                <td class="celda">{{ number_format($acum_unit_gain, 2, ".", "") }}</td>
+                                <td class="celda">{{ number_format($acum_overall_profit, 2, ".", "") }}</td>
+                            </tr>
+
                         </tbody>
-                        <tfoot>
+                        {{-- <tfoot>
                             <tr>
                                 <td style="text-align:right;" colspan="10">TOTAL:</td>
                                 <td class="text-center">{{ $acum_unit_gain }}</td>
                                 <td class="text-center">{{ $acum_overall_profit }}</td>
                             </tr>
-                        </tfoot>
+                        </tfoot> --}}
                     </table>
                 </div>
             </div>

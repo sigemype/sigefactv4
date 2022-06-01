@@ -88,6 +88,11 @@
                   :label="option.description"
                 ></el-option>
               </el-select>
+              <el-checkbox v-model="search_item_by_barcode"
+                                             :disabled="recordItem != null">Buscar por
+                                                                            código de
+                                                                            barras
+                                </el-checkbox>
               <small
                 class="form-control-feedback"
                 v-if="errors.customer_id"
@@ -363,6 +368,7 @@ export default {
       customers: [],
       customer: {},
       customerId: null,
+      customer_barcode: null,
       form: {
         customer: {},
         towels: 1,
@@ -378,6 +384,7 @@ export default {
       rate: null,
       loading: false,
       showDialogNewPerson: false,
+      search_item_by_barcode: false,
       input_person: {},
       configuration: {},
       errors: {
@@ -487,13 +494,14 @@ export default {
       this.onUpdateTotalToPay();
     },
     async reloadDataCustomers(customerId) {
-      await this.$http
-        .get(`/documents/search/customer/${customerId}`)
+        await this.$http
+        .get(`/persons/search/${customerId}`)
         .then((response) => {
           this.customers = response.data.customers;
           this.form.customer_id = customerId;
           this.changeCustomer();
         });
+      
     },
     keyupCustomer() {
       if (this.input_person.number) {
@@ -540,8 +548,9 @@ export default {
         this.loading = true;
 
         const params = {
-          input,
-        };
+            'input': input,
+            'search_by_barcode': this.search_item_by_barcode ? 1 : 0
+        }
         this.$http
           .get(`/hotels/reception/tables/customers`, { params })
           .then((response) => {
@@ -561,7 +570,7 @@ export default {
       }
     },
     changeCustomer() {
-      this.customer = this.customers
+        this.customer = this.customers
         .filter((c) => c.id === this.form.customer_id)
         .reduce((c) => c);
 

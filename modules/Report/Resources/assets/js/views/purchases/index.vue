@@ -5,7 +5,7 @@
         </div>
         <div class="card mb-0">
                 <div class="card-body">
-                    <data-table :resource="resource"  :applyCustomer="true" :colspanFootPurchase="9">
+                    <data-table :resource="resource"  :applyCustomer="true" :colspanFootPurchase="9" :applyConversionToPen="applyConversionToPen">
                         <tr slot="heading">
                             <th class="">#</th>
                             <th class="">F. Emisión</th>
@@ -40,7 +40,18 @@
                             <td>
                                 <span v-for="pay in row.payments">{{pay.payment_method_type_description}}</span>
                             </td>
-                            <td class="text-center">{{ row.currency_type_id }}</td>
+                            <td class="text-center">
+                                {{ row.currency_type_id }}
+                                
+                                <template v-if="row.description_apply_conversion_to_pen">
+                                    <el-tooltip class="item"
+                                                :content="row.description_apply_conversion_to_pen"
+                                                effect="dark"
+                                                placement="top">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </template>
+                            </td>
                             <td class="text-right">{{ (row.total_perception && row.state_type_id != '11') ? row.total_perception : '0.00' }}</td>
                             <td>{{ row.state_type_id == '11' ? '0.00' : row.total_isc}}</td>
 
@@ -69,6 +80,9 @@
 
     export default {
         components: {DataTable},
+        props:[
+            'applyConversionToPen',
+        ],
         data() {
             return {
                 resource: 'reports/purchases',

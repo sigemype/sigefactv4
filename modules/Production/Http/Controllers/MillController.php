@@ -118,6 +118,7 @@
             if(empty($model->user_id)) {
                 $model->user_id = \Auth::user()->id;
             }
+            $model->soap_type_id = $this->getCompanySoapTypeId();
             $model->save();
 
             $userWarehouse = \Auth::user()->establishment;

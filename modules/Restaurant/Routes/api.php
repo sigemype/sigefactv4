@@ -21,7 +21,7 @@ if ($hostname) {
             Route::prefix('restaurant')->group(function () {
                 Route::get('/items', 'RestaurantController@items');
                 Route::get('/categories', 'RestaurantController@categories');
-                Route::get('/configurations', 'RestaurantController@record');
+                Route::get('/configurations', 'RestaurantConfigurationController@record');
             });
 
         });

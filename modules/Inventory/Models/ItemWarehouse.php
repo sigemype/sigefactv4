@@ -76,6 +76,41 @@
             return $query;
         }
 
+        
+        /**
+         * 
+         * Filtrar por categoria del item - reporte inventario
+         * 
+         * @param Builder $query
+         * @param int $category_id
+         *
+         * @return Builder
+         */
+        public function scopeWhereItemCategory(Builder $query, $category_id)
+        {
+            return $query->whereHas('item', function ($q) use($category_id){
+                $q->where('category_id', $category_id);
+            });
+        }
+
+        
+        /**
+         * 
+         * Filtrar por marca del item - reporte inventario
+         * 
+         * @param Builder $query
+         * @param int $brand_id
+         *
+         * @return Builder
+         */
+        public function scopeWhereItemBrand(Builder $query, $brand_id)
+        {
+            return $query->whereHas('item', function ($q) use($brand_id){
+                $q->where('brand_id', $brand_id);
+            });
+        }
+
+
 //    public function scopeWhereFilter($query, $filter, $stock_min)
 //    {
 //        if($filter === '02') {

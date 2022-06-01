@@ -179,7 +179,8 @@
             <td>{{ $total }}</td>
 
             <td>{{ $exchange_rate_sale }}</td>
-            <td>{{ $currency_type_symbol }}</td>
+            <td>{{ $row['format_currency_type_id'] }}</td>
+            {{-- <td>{{ $currency_type_symbol }}</td> --}}
             @if($row['affected_document'])
                 <td>{{ $row['affected_document']['date_of_issue']}}</td>
                 <td>{{ $row['affected_document']['document_type_id']}}</td>

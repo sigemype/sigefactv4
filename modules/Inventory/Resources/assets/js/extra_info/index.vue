@@ -58,6 +58,12 @@
                         <li>
                             <a :href="`./extra_info_items/item-mold-cavities`">Lista de cavidades de molde</a>
                         </li>
+                        <li>
+                            <a :href="`./extra_info_items/item-mold-property`">Propiedades de molde</a>
+                        </li>
+                        <li>
+                            <a :href="`./extra_info_items/item-prodcut-family`">Lista de familia de producto</a>
+                        </li>
 
 
                     </ul>

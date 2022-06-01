@@ -111,6 +111,7 @@
                     <th>Número</th>
                     <th>Estado</th>
                     <th class="text-center">Fecha Envío</th>
+                    <th class="text-center">O.Pedido</th>
                     <th class="text-center">Producto</th>
                     <th class="text-center">Cantidad</th>
                 </tr>
@@ -134,6 +135,8 @@
                         $number = $dispatches['number'];
                         $state_type_description = $dispatches['state_type_description'];
                         $state_type_id = $dispatches['state_type_id'];
+                        $order_form_description = $dispatches['order_form_description'];
+
                         ?>
 
                         <td class="celda">{{$loop->iteration}}</td>
@@ -144,6 +147,7 @@
                         <td class="celda">{{ $number }}</td>
                         <td class="celda"> {{$state_type_description}} </td>
                         <td class="celda">{{ $date_of_shipping }}</td>
+                        <td class="celda">{{ $order_form_description }}</td>
                         <td class="celda"> {{$item_description}} </td>
                         <td class="celda"> {{$value->getQtyFormated()}} </td>
                     @php
@@ -151,7 +155,7 @@
                     @endphp
                 @endforeach
                 <tr>
-                    <td class="celda" colspan="7"></td>
+                    <td class="celda" colspan="8"></td>
                     <td class="celda"><strong>Total</strong></td>
                     <td class="celda">{{number_format($acum_total,2)}}</td>
                 </tr>

@@ -82,6 +82,7 @@
                                     filterable
                                     popper-class="el-select-document_type"
                                     @change="changeItem"
+                                    :disabled="!form.warehouse_id"
 
                                     id="select-width"
                                     ref="selectSearchNormal"
@@ -251,6 +252,7 @@ export default {
     methods: {
         changeWarehouseInit() {
             this.form.warehouse_destination_id = null;
+            this.form_add.item_id = null
             this.form.items = [];
 
             this.$http
@@ -392,7 +394,7 @@ export default {
         },
 
         async searchRemoteItems(input) {
-            console.error(input.length)
+            // console.error(input.length)
                 if (this.form.warehouse_id && this.form.warehouse_id > 0 && input.length > 2) {
                     this.loading_search = true
                     const params = {

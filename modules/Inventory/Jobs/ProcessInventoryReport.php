@@ -35,6 +35,7 @@
         public $tray_id;
         public $warehouse_id;
         public $filter;
+        public $params;
 
 
         /**
@@ -42,12 +43,13 @@
          *
          * @return void
          */
-        public function __construct(int $website_id, int $tray_id, int $warehouse_id, string $filter)
+        public function __construct(int $website_id, int $tray_id, int $warehouse_id, string $filter, array $params)
         {
             $this->website_id = $website_id;
             $this->tray_id = $tray_id;
             $this->warehouse_id = $warehouse_id;
             $this->filter = $filter;
+            $this->params = $params;
         }
 
         /**
@@ -302,6 +304,11 @@
             if ($warehouse_id != 0) {
                 $query->where('item_warehouse.warehouse_id', $warehouse_id);
             }
+
+            if ($this->params['category_id'] ?? null) $query->whereItemCategory($this->params['category_id']);
+
+            if ($this->params['brand_id'] ?? null) $query->whereItemBrand($this->params['brand_id']);
+
             return $query;
 
         }

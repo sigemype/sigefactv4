@@ -337,6 +337,8 @@
 
                             </template>
                             <template v-else>
+                                <!-- mostrar si no se aplica conversion a soles -->
+                                <template v-if="!applyConversionToPen">
                                 <tr>
                                     <td :colspan="colspanFootPurchase"></td>
                                     <td><strong>Totales PEN</strong></td>
@@ -359,6 +361,7 @@
                                     <td>{{ totals.acum_total_igv_usd }}</td>
                                     <td>{{ totals.acum_total_usd }}</td>
                                 </tr>
+                                </template>
                             </template>
                         </tfoot>
                     </table>
@@ -400,6 +403,11 @@ export default {
             type: Number,
             required: false,
             default: 8
+        },
+        applyConversionToPen: {
+            type: Boolean,
+            required: false,
+            default: false
         },
     },
     data() {
@@ -633,7 +641,8 @@ export default {
                 guides: null,
                 user_type: null,
                 user_id: [],
-                item_id: null
+                item_id: null,
+                apply_conversion_to_pen: this.applyConversionToPen
             }
 
         },

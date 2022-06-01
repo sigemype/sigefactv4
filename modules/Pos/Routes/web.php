@@ -27,6 +27,7 @@ if($current_hostname) {
                 Route::get('report-excel/{cash}', 'CashController@reportExcel');
                 Route::post('email', 'CashController@email');
 
+                Route::get('report-cash-income-egress/{cash}', 'CashController@reportCashIncomeEgress');
                 
 
             });

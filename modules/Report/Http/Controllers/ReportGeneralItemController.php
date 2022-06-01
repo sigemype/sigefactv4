@@ -41,9 +41,11 @@ class ReportGeneralItemController extends Controller
     }
 
 
-    public function index() {
-
-        return view('report::general_items.index');
+    public function index(Request $request) 
+    {
+        $apply_conversion_to_pen = $this->applyConversiontoPen($request);
+        
+        return view('report::general_items.index', compact('apply_conversion_to_pen'));
     }
 
 
@@ -51,7 +53,7 @@ class ReportGeneralItemController extends Controller
     {
 
         $records = $this->getRecordsItems($request->all())->latest('id');
-
+        
         return new GeneralItemCollection($records->paginate(config('tenant.items_per_page')));
     }
 
@@ -206,8 +208,9 @@ class ReportGeneralItemController extends Controller
         $type_name = ($request->type == 'sale') ? 'Ventas_':'Compras_';
         $type = $request->type;
         $document_type_id = $request['document_type_id'];
+        $request_apply_conversion_to_pen = $request['apply_conversion_to_pen'];
 
-        $pdf = PDF::loadView('report::general_items.report_pdf', compact("records", "type", "document_type_id"))->setPaper('a4', 'landscape');
+        $pdf = PDF::loadView('report::general_items.report_pdf', compact("records", "type", "document_type_id", "request_apply_conversion_to_pen"))->setPaper('a4', 'landscape');
 
         $filename = 'Reporte_General_Productos_'.$type_name.Carbon::now();
 
@@ -221,11 +224,15 @@ class ReportGeneralItemController extends Controller
         $records = $this->getRecordsItems($request->all())->latest('id')->get();
         $type = ($request->type == 'sale') ? 'Ventas_':'Compras_';
         $document_type_id = $request['document_type_id'];
+        $request_apply_conversion_to_pen = $request['apply_conversion_to_pen'];
+
         $generalItemExport= new GeneralItemExport();
         $generalItemExport
             ->records($records)
             ->type($request->type)
-            ->document_type_id($document_type_id);
+            ->document_type_id($document_type_id)
+            ->request_apply_conversion_to_pen($request_apply_conversion_to_pen);
+            
         return $generalItemExport->download('Reporte_General_Productos_'.$type.Carbon::now().'.xlsx');
 
     }

@@ -4,6 +4,14 @@
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
                 <div class="row mt-2">
+
+                    <template v-if="isEnabledAdvancedRecordsSearch">
+                        <div class="col-md-6">
+                            <advanced-items-search @eventSetItemId="setItemId"></advanced-items-search>
+                        </div>
+                    </template>
+                    <template v-else>
+
                         <div class="col-md-6">
                             <label class="control-label">Producto</label>
                             <el-select  v-model="form.item_id"
@@ -11,29 +19,31 @@
                                 <el-option v-for="option in items"  :key="option.id" :value="option.id" :label="option.full_description"></el-option>
                             </el-select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="control-label">Fecha inicio</label>
-                            <el-date-picker v-model="form.date_start" type="date"
-                                            @change="changeDisabledDates"
-                                            value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="true"></el-date-picker>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="control-label">Fecha término</label>
-                            <el-date-picker v-model="form.date_end" type="date"
-                                            :picker-options="pickerOptionsDates"
-                                            value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="true"></el-date-picker>
-                        </div>
+                    </template>
 
-                        <div class="col-md-6" style="margin-top:29px">
-                            <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
-                            <template v-if="records.length>0">
+                    <div class="col-md-3">
+                        <label class="control-label">Fecha inicio</label>
+                        <el-date-picker v-model="form.date_start" type="date"
+                                        @change="changeDisabledDates"
+                                        value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="true"></el-date-picker>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="control-label">Fecha término</label>
+                        <el-date-picker v-model="form.date_end" type="date"
+                                        :picker-options="pickerOptionsDates"
+                                        value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="true"></el-date-picker>
+                    </div>
 
-                                <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button>
+                    <div class="col-md-6" style="margin-top:29px">
+                        <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
+                        <template v-if="records.length>0">
 
-                                <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportar Excel</el-button>
+                            <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button>
 
-                            </template>
-                        </div>
+                            <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportar Excel</el-button>
+
+                        </template>
+                    </div>
                 </div>
                 <div class="row mt-1 mb-4">
                 </div>
@@ -74,8 +84,11 @@
 
     import moment from 'moment'
     import queryString from 'query-string'
+    import {mapState} from "vuex/dist/vuex.mjs";
+    import AdvancedItemsSearch from './AdvancedItemsSearch.vue'
 
     export default {
+        components: {AdvancedItemsSearch},
         props: {
             resource: String,
         },
@@ -100,31 +113,48 @@
                 },
             }
         },
-        computed: {
-        },
         created() {
-            this.initForm()
-            this.$eventHub.$on('reloadData', () => {
-                this.getRecords()
-            })
+
+            this.initForm() 
+            this.events()
+
+        },
+        computed: {
+            ...mapState([
+                'config',
+            ]),
+            isEnabledAdvancedRecordsSearch: function () {
+
+                return (!_.isEmpty(this.config)) ? this.config.enabled_advanced_records_search : false
+                
+            },
         },
         async mounted () {
 
-            await this.$http.get(`/${this.resource}/filter`)
-                .then(response => {
-                    this.items = response.data.items;
-                });
-
-
-            // await this.getRecords()
+            if(!this.isEnabledAdvancedRecordsSearch)
+            {
+                await this.$http.get(`/${this.resource}/filter`)
+                    .then(response => {
+                        this.items = response.data.items;
+                    });
+            }
 
         },
         methods: {
+            setItemId(item_id){
+                this.form.item_id = item_id
+            },
+            events(){
+
+                this.$eventHub.$on('reloadData', () => {
+                    this.getRecords()
+                })
+
+            },
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {
                     this.form.date_end = this.form.date_start
                 }
-                // this.loadAll();
             },
             clickDownload(type) {
 

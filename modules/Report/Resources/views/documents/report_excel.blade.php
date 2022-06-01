@@ -114,6 +114,10 @@
                     <th class="">Moneda</th>
                     <th>Plataforma</th>
                     <th>Orden de compra</th>
+
+                    <th>Nota de venta</th>
+                    <th>Fecha N. Venta</th>
+
                     <th class="">Forma de pago</th>
                     <th> MÉTODO DE PAGO </th>
                     <th>Total Cargos</th>
@@ -141,21 +145,27 @@
                     <?php
                     /** @var \App\Models\Tenant\Document|App\Models\Tenant\SaleNote  $value */
                     $iteration = $loop->iteration;
-                                    $user = $value->user->name;
+                                    $userCreator = $value->user->name;
                     $document_type = $value->getDocumentType();
-                    /* $seller = \App\CoreFacturalo\Helpers\Template\ReportHelper::getSellerData($value);
+                    $seller = \App\CoreFacturalo\Helpers\Template\ReportHelper::getSellerData($value);
                     try{
                         $user = $seller->name;
                     }catch (ErrorException $e){
                         $user = '';
-                    } */
+                    }
 
                     ?>
 
                     ?>
                     <tr>
                         <td class="celda">{{$iteration}}</td>
-                        <td class="celda">{{$user}}</td>
+                        <td class="celda">
+                            @if($filters['user_type']==='CREADOR')
+                                {{$userCreator}}
+                            @else
+                                {{$user}}
+                            @endif
+                        </td>
                         <td class="celda">{{$document_type->id}}</td>
                         <td class="celda">{{$value->series}}-{{$value->number}}</td>
                         <td class="celda">{{$value->date_of_issue->format('Y-m-d')}}</td>
@@ -204,6 +214,14 @@
                             @endforeach
                         </td>
                         <td class="celda">{{$value->purchase_order}}</td>
+
+                        @if($value->sale_note)
+                            <td class="celda">{{ $value->sale_note->number_full }}</td>
+                            <td class="celda">{{ $value->sale_note->date_of_issue->format('Y-m-d') }}</td>
+                        @else
+                            <td class="celda"></td>
+                            <td class="celda"></td>
+                        @endif
 
                         <td class="celda">
                             {{ ($value->payments()->count() > 0) ? $value->payments()->first()->payment_method_type->description : ''}}
@@ -410,7 +428,7 @@
                     @endphp
                 @endforeach
                 <tr>
-                    <td colspan="21"></td>
+                    <td colspan="23"></td>
                 <!-- <td >Totales</td>
                                 <td>{{$acum_total_exonerado}}</td>
                                 <td>{{$acum_total_inafecto}}</td>
@@ -428,8 +446,9 @@
                     <td>{{$acum_total}}</td>
                 </tr>
                 <tr>
-                    <td colspan="21"></td>
+                    <td colspan="23"></td>
                     <td>Totales USD</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

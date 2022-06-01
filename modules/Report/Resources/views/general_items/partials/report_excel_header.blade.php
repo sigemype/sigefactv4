@@ -26,6 +26,7 @@
 <th> DENOMINACIÓN ENTIDAD</th>
 @if($type == 'sale')
     <th> VENDEDOR</th>
+    <th> OBSERVACIÓN </th>
 @endif
 <th> MONEDA</th>
 <th> TIPO DE CAMBIO</th>

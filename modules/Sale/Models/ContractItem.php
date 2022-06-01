@@ -47,7 +47,8 @@ class ContractItem extends ModelTenant
 
         'attributes',
         'charges',
-        'discounts'
+        'discounts',
+        'name_product_pdf',
     ];
 
     public function getItemAttribute($value)

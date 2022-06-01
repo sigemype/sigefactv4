@@ -39,10 +39,14 @@
                                 <th class="">Moneda</th>
                                 <th class="">Total</th>
                                 <th class="">Saldo</th>
+                                <th class="">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                         @foreach($records as $record)
+                            @php
+                                /* dd($record->state_type['description']); */
+                            @endphp
                             <tr>
                                 <td class="celda">
                                     {{$loop->iteration}}
@@ -73,6 +77,9 @@
                                 </td>
                                 <td class="celda">
                                     {{$record->total - $record->payments->sum('payment')}}
+                                </td>
+                                <td class="celda">
+                                    {{ $record->state_type['description'] }}
                                 </td>
                             </tr>
                         @endforeach

@@ -14,6 +14,7 @@
                         <th>Número</th>
                         <th>Estado</th>
                         <th class="text-center">Fecha Envío</th>
+                        <th class="text-center">Orden de pedido</th>
                         <th class="text-center">Producto</th>
                         <th class="text-center">Cantidad</th>
                     <tr>
@@ -33,6 +34,9 @@
                             {{ row.dispatches.state_type_description }}</span>
                         </td>
                         <td class="text-center">{{ row.dispatches.date_of_shipping }}</td>
+
+                        <td class="text-center">{{ row.dispatches.order_form_description }}</td>
+
                         <td class="text-center">
                             {{ row.item.description }}
                         </td>

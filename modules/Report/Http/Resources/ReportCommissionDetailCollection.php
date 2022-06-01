@@ -21,7 +21,8 @@ class ReportCommissionDetailCollection extends ResourceCollection
             $relation = $row->document_id ? $row->document : $row->sale_note;
 
             if($row->document_id) {
-                $type_document =  $row->document->document_type_id == '03' ? 'FACTURA' : 'BOLETA';
+                $type_document =  $row->document->document_type_id == '01' ? 'FACTURA' : 'BOLETA';
+                // $type_document =  $row->document->document_type_id == '03' ? 'FACTURA' : 'BOLETA';
             }
             else if ($row->sale_note_id) {
                 $type_document = 'NOTA DE VENTA';

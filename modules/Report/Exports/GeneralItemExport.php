@@ -29,11 +29,18 @@ class GeneralItemExport implements  FromView, ShouldAutoSize
         return $this;
     }
 
+    public function request_apply_conversion_to_pen($request_apply_conversion_to_pen) 
+    {
+        $this->request_apply_conversion_to_pen = $request_apply_conversion_to_pen;
+        return $this;
+    }
+
     public function view(): View {
         return view('report::general_items.report_excel', [
             'records'=> $this->records,
             'type'=> $this->type,
-            'document_type_id' => $this->document_type_id
+            'document_type_id' => $this->document_type_id,
+            'request_apply_conversion_to_pen' => $this->request_apply_conversion_to_pen,
         ]);
     }
 }

@@ -486,7 +486,15 @@ export default {
         clickDownload(type) {
 
             return this.$http.get(`/${this.resource}/${type}?${this.getQueryParameters()}`).then((response) => {
-                console.log(response.data.data)
+
+                if(response.data.success)
+                {
+                    this.$message.success(response.data.message)
+                }
+                else{
+                    this.$message.error(response.data.message)
+                }
+
             }).finally(() => {
                 //this.getOtherData()
                 //this.loading_submit = false

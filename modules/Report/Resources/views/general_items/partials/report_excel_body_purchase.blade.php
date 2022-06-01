@@ -1,6 +1,30 @@
 <?php
     $iscType = $value->system_isc_type;
     $warehouse_description = \App\CoreFacturalo\Helpers\Template\ReportHelper::getWarehouseDescription($value, $purchase);
+    
+    $apply_conversion_to_pen = $request_apply_conversion_to_pen == 'true';
+
+    $unit_price = $value->unit_price;
+    $unit_value = $value->unit_value;
+    $total_value = $value->total_value;
+    $total_isc = $value->total_isc;
+    $total = $value->total;
+    $total_igv = $value->total_igv;
+    $description_apply_conversion_to_pen = null;
+
+    // aplicar conversión si es que esta habilitada la configuracion
+    if($apply_conversion_to_pen && $value->isCurrencyTypeUsd())
+    {
+        $total = round($value->getConvertTotalToPen(), 2);
+        $unit_price = round($value->getConvertUnitPriceToPen(), 6);
+        $unit_value = round($value->getConvertUnitValueToPen(), 6);
+        $total_value = round($value->getConvertTotalValueToPen(), 2);
+        $total_isc = round($value->getConvertTotalIscToPen(), 2);
+        $total_igv = round($value->getConvertTotalIgvToPen(), 2);
+        $description_apply_conversion_to_pen = '(Se aplicó conversión a soles)';
+    }
+    // aplicar conversión si es que esta habilitada la configuracion
+
 ?>
 <tr>
     <td class="celda">{{ $loop->iteration }}</td>
@@ -33,7 +57,7 @@
     @endif
     </td>
     --}}
-    <td class="celda"> {{$purchase->currency_type_id}}</td>
+    <td class="celda"> {{$purchase->currency_type_id}} {{ $description_apply_conversion_to_pen ?? ''}}</td>
     <td class="celda"> {{$purchase->exchange_rate_sale}}</td>
     <td class="celda"> {{$value->item->unit_type_id}}</td>
     <td class="celda"> {{$value->relation_item ? $value->relation_item->internal_id:''}}</td>
@@ -44,21 +68,21 @@
     <td class="celda">{{ $model }}</td>
     --}}
     <td class="celda"></td>
-    <td class="celda"> {{$value->unit_value}}</td>
-    <td class="celda"> {{$value->unit_price}}</td>
+    <td class="celda"> {{$unit_value}}</td>
+    <td class="celda"> {{$unit_price}}</td>
     <td class="celda">
         @if($value->discounts)
             {{collect($value->discounts)->sum('amount')}}
         @endif
     </td>
-    <td class="celda"> {{$value->total_value}}</td>
+    <td class="celda"> {{$total_value}}</td>
     <td class="celda"> {{$value->affectation_igv_type_id}}</td>
-    <td class="celda"> {{$value->total_igv}}</td>
+    <td class="celda"> {{$total_igv}}</td>
     {{-- <td class="celda"> {{$iscType}}</td> --}}
     <td class="celda">{{optional($value->system_isc_type)->description}}</td>
-    <td class="celda"> {{$value->total_isc}}</td>
+    <td class="celda"> {{$total_isc}}</td>
     <td class="celda"> {{$value->total_plastic_bag_taxes}}</td>
-    <td class="celda"> {{$value->total}}</td>
+    <td class="celda"> {{$total}}</td>
     
     <td class="celda">{{ $purchase->exchange_rate_sale }}</td>
     <td class="celda">{{ $warehouse_description }}</td>

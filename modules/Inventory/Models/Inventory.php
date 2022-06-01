@@ -131,7 +131,12 @@
         {
             return $this->morphMany(ItemLot::class, 'item_loteable');
         }
-
+    
+    /**
+     * Obtener datos para reporte movimientos
+     *
+     * @return array
+     */
     public function getRowResourceReport()
     {
 
@@ -167,12 +172,16 @@
      * @param  $inventory_transaction_id
      * @param  $date_start
      * @param  $date_end
+     * @param  $order_inventory_transaction_id
      */
-    public function scopeWhereFilterReportMovement($query, $warehouse_id, $inventory_transaction_id, $date_start, $date_end, $item_id)
+    public function scopeWhereFilterReportMovement($query, $warehouse_id, $inventory_transaction_id, $date_start, $date_end, $item_id, $order_inventory_transaction_id)
     {
-        return $query->with(['inventory_kardex'])
+
+        $_order_inventory_transaction_id = $order_inventory_transaction_id == 'true';
+
+        $query->with(['inventory_kardex'])
+                    ->whereHas('transaction')
                     ->where('warehouse_id', $warehouse_id)
-                    ->where('inventory_transaction_id', $inventory_transaction_id)
                     ->whereHas('inventory_kardex', function($query) use($date_start, $date_end, $item_id){
 
                         if ($date_start) $query->where('date_of_issue', '>=', $date_start);
@@ -180,6 +189,12 @@
                         if ($item_id) $query->where('item_id', $item_id);
 
                     });
+
+        if($inventory_transaction_id) $query->where('inventory_transaction_id', $inventory_transaction_id);
+
+        if($_order_inventory_transaction_id) $query->orderBy('inventory_transaction_id');
+
+        return $query;
     }
 
 

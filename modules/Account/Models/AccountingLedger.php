@@ -174,14 +174,18 @@
                 'name' => AccountingLedgerCodeAccount::getNameByCodeAcount('1.1.2.1', 'Cuentas por cobrar clientes'),
             ];
             $record['1.1.2.1']['serialize_data'] = serialize($record['1.1.2.1']); //
-
+            try{
+                $total_payment = $cuentasPorPagar->sum('total_payment');
+            }catch (\ErrorException $e){
+                $total_payment = 0;
+            }
             $record['2.1.1.1'] = [
 
                 'month' => $dates[1],
                 'year' => $dates[0],
                 'code_account' => '2.1.1.1',
                 // 'last_month_total' => $items['initial_balance'] ?? 0,
-                'credits' => $cuentasPorPagar->sum('total_payment'),
+                'credits' =>$total_payment,
                 'debs' => $cuentasPorPagar->sum('total_subtraction'),
                 'final_total' => $cuentasPorPagar->sum('total_to_pay'),
                 'date_of_report' => $requestArray['date_end'],

@@ -478,13 +478,17 @@ trait InventoryTrait
         if (isset($document_item->item->IdLoteSelected)) {
             if ($document_item->item->IdLoteSelected != null) {
 
-                if(is_array($document_item->item->IdLoteSelected)) { 
+                if(is_array($document_item->item->IdLoteSelected)) 
+                { 
 
+                    // presentacion - factor de lista de precios
+                    $quantity_unit = isset($document_item->item->presentation->quantity_unit) ? $document_item->item->presentation->quantity_unit : 1;
                     $lotesSelecteds = $document_item->item->IdLoteSelected;
 
-                    foreach ($lotesSelecteds as $item) {
+                    foreach ($lotesSelecteds as $item) 
+                    {
                         $lot = ItemLotsGroup::query()->find($item->id);
-                        $lot->quantity = $lot->quantity + $item->compromise_quantity;
+                        $lot->quantity = $lot->quantity + ($quantity_unit * $item->compromise_quantity);
                         $lot->save();
                     }
                     
@@ -605,7 +609,11 @@ trait InventoryTrait
                 if (!$lot_group) {
                     throw new Exception("El lote {$purchase_item->lot_code} no existe!");
                 }
-                if ((int)$lot_group->quantity != (int)$purchase_item->quantity) {
+
+                // factor de lista de precios
+                $presentation_quantity = (isset($purchase_item->item->presentation->quantity_unit)) ? $purchase_item->item->presentation->quantity_unit : 1;
+
+                if ((int)$lot_group->quantity != (int) ($purchase_item->quantity * $presentation_quantity)) {
                     throw new Exception("Los productos del lote {$purchase_item->lot_code} han sido vendidos!");
                 }
             }
@@ -698,6 +706,26 @@ trait InventoryTrait
     public function allInventoryTransaction()
     {
         return InventoryTransaction::get();
+    }
+    
+    /**
+     * 
+     * Validar si el lote cuenta con stock disponible, controla descuento de lotes individuales y por presentacion
+     * 
+     * Usado en:
+     * InventoryKardexServiceProvider - método sale (venta cpe)
+     * SaleNoteController - método store (registro nota venta)
+     * 
+     * @param $lot
+     * @param $document_item
+     * @return void
+     */
+    public function validateStockLotGroup($lot, $document_item)
+    {
+        if($lot->quantity < 0)
+        {
+            throw new Exception("El lote '{$lot->code}' del producto {$document_item->item->description} no tiene suficiente stock!");
+        }
     }
 
 }

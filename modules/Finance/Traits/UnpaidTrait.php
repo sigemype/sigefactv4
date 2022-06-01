@@ -19,8 +19,8 @@ trait UnpaidTrait
 
         return $records->transform(function($row, $key) {
 
-
-            $total_to_pay = (float)$row->total - (float)$row->total_payment;
+            $total_to_pay = $this->getTotalToPay($row);
+            // $total_to_pay = (float)$row->total - (float)$row->total_payment;
             $delay_payment = null;
             $date_of_due = null;
 
@@ -98,10 +98,35 @@ trait UnpaidTrait
                 "total_payment" => $row->total_payment,
                 "purchase_order" => $purchase_order,
                 "web_platforms" => $web_platforms ,
+                "total_credit_notes" => $this->getTotalCreditNote($row) ,
             ];
 
         });
 
+    }
+    
+
+    /**
+     * Obtener total por cobrar
+     *
+     * @param  object $row
+     * @return float
+     */
+    public function getTotalToPay($row)
+    {
+        return (float)$row->total - (float)$row->total_payment - (float) $this->getTotalCreditNote($row);
+    }
+
+
+    /**
+     * Validar y obtener total nota credito
+     *
+     * @param  object $row
+     * @return float
+     */
+    public function getTotalCreditNote($row)
+    {
+        return ($row->total_credit_notes ?? 0);
     }
 
 }

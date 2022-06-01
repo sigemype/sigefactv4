@@ -12,6 +12,7 @@
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Illuminate\Database\Eloquent\Builder;
     use Illuminate\Database\Eloquent\Relations\BelongsTo;
+    use App\Models\Tenant\SoapType;
 
     /**
      * Class Production
@@ -98,6 +99,7 @@
             'imperfect',
             'production_collaborator',
             'mix_collaborator',
+            'soap_type_id',
         ];
 
         /**
@@ -114,6 +116,14 @@
         public function user()
         {
             return $this->belongsTo(User::class);
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function soap_type()
+        {
+            return $this->belongsTo(SoapType::class);
         }
 
         public function getCollectionData()

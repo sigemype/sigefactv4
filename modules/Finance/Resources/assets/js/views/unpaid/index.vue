@@ -250,6 +250,7 @@
                                             <th>Ver Cartera</th>
                                             <th>Moneda</th>
                                             <th class="text-right">Por cobrar</th>
+                                            <th class="text-right">T. Nota Crédito</th>
                                             <th class="text-right">Total</th>
                                             <th></th>
                                         </tr>
@@ -338,6 +339,16 @@
                                                     </td>
                                                         <td>{{row.currency_type_id}}</td>
                                                     <td class="text-right text-danger">{{ row.total_to_pay }}</td>
+
+                                                    <td class="text-center">
+                                                        <template v-if="row.type == 'document'">
+                                                            {{ row.total_credit_notes }}
+                                                        </template>
+                                                        <template v-else>
+                                                            -
+                                                        </template>
+                                                    </td>
+
                                                     <td class="text-right">{{ row.total }}</td>
                                                     <td class="text-right">
                                                         <template v-if="row.type === 'document'">

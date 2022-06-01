@@ -52,6 +52,10 @@
                                 key="purchase"
                                 label="Compra"
                                 value="purchase"></el-option>
+                            <el-option
+                                key="garage-gll"
+                                label="Venta (Grifo)"
+                                value="garage-gll"></el-option>
                         </el-select>
                     </div>
                     

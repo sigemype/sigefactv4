@@ -291,6 +291,7 @@ class DashboardView
         $document_payments = DB::table('document_payments')
             ->select('document_id', DB::raw('SUM(payment) as total_payment'))
             ->groupBy('document_id');
+
         $document_select = "documents.id as id, " .
             "DATE_FORMAT(documents.date_of_issue, '%Y/%m/%d') as date_of_issue, " .
             "persons.name as customer_name,".
@@ -299,7 +300,8 @@ class DashboardView
             "CONCAT(documents.series,'-',documents.number) AS number_full, " .
             "documents.total as total, " .
             "IFNULL(payments.total_payment, 0) as total_payment, " .
-            "documents.total - IFNULL(total_payment, 0)  as total_subtraction, " .
+            "IFNULL(credit_notes.total_credit_notes, 0) as total_credit_notes, " .
+            "documents.total - IFNULL(total_payment, 0) - IFNULL(total_credit_notes, 0)  as total_subtraction, " .
             "'document' AS 'type', " .
             "documents.currency_type_id, " .
             "documents.exchange_rate_sale, " .
@@ -314,6 +316,7 @@ class DashboardView
             "sale_notes.filename as number_full, " .
             "sale_notes.total as total, " .
             "IFNULL(payments.total_payment, 0) as total_payment, " .
+            "null as total_credit_notes," .
             "sale_notes.total - IFNULL(total_payment, 0)  as total_subtraction, " .
             "'sale_note' AS 'type', " .
             "sale_notes.currency_type_id, " .
@@ -329,9 +332,16 @@ class DashboardView
             ->leftJoinSub($document_payments, 'payments', function ($join) {
                 $join->on('documents.id', '=', 'payments.document_id');
             })
+            ->leftJoinSub(Document::getQueryCreditNotes(), 'credit_notes', function ($join) {
+                $join->on('documents.id', '=', 'credit_notes.affected_document_id');
+            })
             ->whereIn('state_type_id', ['01', '03', '05', '07', '13'])
             ->whereIn('document_type_id', ['01', '03', '08'])
             ->select(DB::raw($document_select));
+
+        // dd($documents->get());
+        // dd($documents->toSql());
+
         if($stablishmentUnpaidAll !== 1) {
             $documents-> where('documents.establishment_id', $establishment_id);
         }
@@ -414,5 +424,7 @@ class DashboardView
         }
         return $documents->union($sale_notes)->havingRaw('total_subtraction > 0');
     }
+
+
 
 }

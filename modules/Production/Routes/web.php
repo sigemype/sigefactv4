@@ -122,6 +122,20 @@
                     Route::get('/pdf', 'PackagingController@pdf');
 
                 });
+
+                
+                Route::prefix('workers')->group(function () {
+                 
+                    Route::get('columns', 'WorkerController@columns');
+                    Route::get('tables', 'WorkerController@tables');
+                    Route::get('', 'WorkerController@index')->name('tenant.workers.index');
+                    Route::get('records', 'WorkerController@records');
+                    Route::get('record/{worker}', 'WorkerController@record');
+                    Route::post('', 'WorkerController@store');
+                    Route::delete('{person}', 'WorkerController@destroy');
+                    
+                });
+
             });
         });
     }

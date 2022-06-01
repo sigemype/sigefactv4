@@ -22,7 +22,8 @@ class HistorySalesCollection extends ResourceCollection
                 'series' => $row->series,
                 'number' => $row->number,
                 'date_of_issue' => $row->date_of_issue,
-                'price' => $row->price, 
+                'price' => $row->price,
+                'name' => $row->name,
             ];
         });
     }
