@@ -34,6 +34,7 @@ class Summary extends ModelTenant
         'unknown_error_status_response',
         'manually_regularized',
         'error_manually_regularized',
+        'unique_filename',
     ];
 
     protected $casts = [

@@ -15,6 +15,8 @@
     use Illuminate\Database\Eloquent\Relations\BelongsTo;
     use Modules\DocumentaryProcedure\Models\DocumentaryFile;
     use Modules\Expense\Models\Expense;
+    use Modules\FullSuscription\Models\Tenant\FullSuscriptionServerDatum;
+    use Modules\FullSuscription\Models\Tenant\FullSuscriptionUserDatum;
     use Modules\Order\Models\OrderForm;
     use Modules\Order\Models\OrderNote;
     use Modules\Purchase\Models\FixedAssetPurchase;
@@ -22,7 +24,7 @@
     use Modules\Sale\Models\Contract;
     use Modules\Sale\Models\SaleOpportunity;
     use Modules\Sale\Models\TechnicalService;
-
+    use App\Models\Tenant\Configuration;
 
     /**
      * App\Models\Tenant\Person
@@ -144,6 +146,7 @@
             'percentage_perception',
             'enabled',
             'website',
+            'barcode',
             // 'zone',
             'observation',
             'credit_days',
@@ -474,7 +477,7 @@
          *
          * @return array
          */
-        public function getCollectionData($withFullAddress = false, $childrens = false)
+        public function getCollectionData($withFullAddress = false, $childrens = false, $servers=false)
         {
 
             $addresses = $this->addresses;
@@ -551,6 +554,7 @@
                 'identity_document_type_code' => $this->identity_document_type->code,
                 'address' => $this->address,
                 'internal_code' => $this->internal_code,
+                'barcode' => $this->barcode,
                 'observation' => $this->observation,
                 'seller' => $seller,
                 'zone' => $this->getZone(),
@@ -601,6 +605,19 @@
                 }
 
                 $data['parent'] = $parent;
+
+            }
+
+            if($servers == true){
+                $serv = FullSuscriptionServerDatum::where('person_id',$this->id)->get();
+                $extra_data = FullSuscriptionUserDatum::where('person_id',$this->id)->first();
+                if(empty($extra_data)){ $extra_data = new FullSuscriptionUserDatum();}
+                 $data['servers'] = $serv;
+                $data['person_id']=$extra_data->getPersonId();
+                $data['discord_user']=$extra_data->getDiscordUser();
+                $data['slack_channel']=$extra_data->getSlackChannel();
+                $data['discord_channel']=$extra_data->getDiscordChannel();
+                $data['gitlab_user']=$extra_data->getGitlabUser();
 
             }
 
@@ -740,4 +757,33 @@
             return $query;
 
         }
+
+        
+        /**
+         * 
+         * Aplicar filtro por vendedor asignado al cliente
+         *
+         * Usado en:
+         * PersonController - records
+         * 
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @param string $type
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public function scopeWhereFilterCustomerBySeller($query, $type)
+        {
+            if($type === 'customers')
+            {
+                $user = auth()->user();
+                
+                if($user->applyCustomerFilterBySeller())
+                {
+                    return $query->where('seller_id', $user->id);
+                }
+            }
+
+            return $query;
+        }
+
+
     }

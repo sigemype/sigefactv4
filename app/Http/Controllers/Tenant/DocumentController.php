@@ -170,6 +170,7 @@ class DocumentController extends Controller
                             ->whereType('customers')->orderBy('name')
                             ->whereIn('identity_document_type_id',$identity_document_type_id)
                             ->whereIsEnabled()
+                            ->whereFilterCustomerBySeller('customers')
                             ->get()->transform(function($row) {
                 /** @var  Person $row */
                 return $row->getCollectionData();
@@ -374,6 +375,7 @@ class DocumentController extends Controller
             $customers = Person::with('addresses')
                                ->whereType('customers')
                                ->whereIsEnabled()
+                               ->whereFilterCustomerBySeller('customers')
                                ->orderBy('name')
                                ->take(20)
                                ->get()->transform(function ($row) {
@@ -963,6 +965,7 @@ class DocumentController extends Controller
 
         $customers = Person::with('addresses')->whereType('customers')
                     ->where('id',$id)
+                    ->whereFilterCustomerBySeller('customers')
                     ->get()->transform(function($row) {
                         /** @var  Person $row */
                         return $row->getCollectionData();
@@ -1113,6 +1116,7 @@ class DocumentController extends Controller
         $category_id = $request->category_id;
         $purchase_order = $request->purchase_order;
         $guides = $request->guides;
+        $plate_numbers = $request->plate_numbers;
 
         $records = Document::query();
 		if ($d_start && $d_end) {
@@ -1162,6 +1166,9 @@ class DocumentController extends Controller
         }
         if (!empty($guides)) {
             $records->where('guides', 'like', DB::raw("%\"number\":\"%") . $guides . DB::raw("%\"%"));
+        }
+        if ($plate_numbers) {
+            $records->where('plate_number', 'like', '%' . $plate_numbers . '%');
         }
         return $records;
     }

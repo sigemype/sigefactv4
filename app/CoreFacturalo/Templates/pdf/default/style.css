@@ -600,9 +600,3 @@ p {
 .mx-auto {
   margin-left: auto !important;
 }
-hr {
-  page-break-after: always;
-  border: 0;
-  margin: 0;
-  padding: 0;
-}

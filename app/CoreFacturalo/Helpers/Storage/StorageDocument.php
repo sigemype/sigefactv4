@@ -88,4 +88,21 @@ trait StorageDocument
         $this->_filename = $filename.'.'.$extension;
         $this->_folder = ($root)?$root.DIRECTORY_SEPARATOR.$file_type:$file_type;
     }
+
+        
+    /**
+     * 
+     * Validar si existe archivo
+     *
+     * @param  string $filename
+     * @param  string $file_type
+     * @param  string $root
+     * @return bool
+     */
+    public function existFileInStorage($filename, $file_type, $root = null)
+    {
+        $this->setData($filename, $file_type, $root);
+        return Storage::disk('tenant')->exists($this->_folder.DIRECTORY_SEPARATOR.$this->_filename);
+    }
+    
 }

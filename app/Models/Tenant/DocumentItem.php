@@ -448,4 +448,150 @@
 
         }
 
+        /**
+         * 
+         * Obtener total y realizar conversión a soles de acuerdo al tipo de cambio
+         *
+         * @return float
+         */
+        public function getConvertTotalToPen()
+        {
+            return $this->generalConvertValueToPen($this->total, $this->document->exchange_rate_sale);
+        }
+
+        /**
+         * 
+         * Obtener valor unitario y realizar conversión a soles de acuerdo al tipo de cambio
+         *
+         * @return float
+         */
+        public function getConvertUnitValueToPen()
+        {
+            return $this->generalConvertValueToPen($this->unit_value, $this->document->exchange_rate_sale);
+        }
+        
+        /**
+         * 
+         * Obtener precio unitario y realizar conversión a soles de acuerdo al tipo de cambio
+         *
+         * @return float
+         */
+        public function getConvertUnitPriceToPen()
+        {
+            return $this->generalConvertValueToPen($this->unit_price, $this->document->exchange_rate_sale);
+        }
+
+        /**
+         * 
+         * Obtener total valor y realizar conversión a soles de acuerdo al tipo de cambio
+         *
+         * @return float
+         */
+        public function getConvertTotalValueToPen()
+        {
+            return $this->generalConvertValueToPen($this->total_value, $this->document->exchange_rate_sale);
+        }
+
+        /**
+         * 
+         * Obtener total igv y realizar conversión a soles de acuerdo al tipo de cambio
+         *
+         * @return float
+         */
+        public function getConvertTotalIgvToPen()
+        {
+            return $this->generalConvertValueToPen($this->total_igv, $this->document->exchange_rate_sale);
+        }
+
+        /**
+         * 
+         * Obtener total isc y realizar conversión a soles de acuerdo al tipo de cambio
+         *
+         * @return float
+         */
+        public function getConvertTotalIscToPen()
+        {
+            return $this->generalConvertValueToPen($this->total_isc, $this->document->exchange_rate_sale);
+        }
+
+        /**
+         * Validar si es venta en dolares
+         *
+         * @return bool
+         */
+        public function isCurrencyTypeUsd()
+        {
+            return $this->document->currency_type_id === 'USD';
+        }
+
+        
+        /**
+         * 
+         * Filtro para no incluir relaciones en consulta
+         *
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @return \Illuminate\Database\Eloquent\Builder
+         */  
+        public function scopeWhereFilterWithOutRelations($query)
+        {
+            return $query->withOut(['affectation_igv_type', 'system_isc_type', 'price_type']);
+        }
+
+        
+        /**
+         * 
+         * Filtro para reporte de ventas grifo
+         * 
+         * Usado en:
+         * FormatController
+         *
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @return \Illuminate\Database\Eloquent\Builder
+         */  
+        public function scopeFilterSaleGarageGLL($query, $d_start, $d_end)
+        {
+            return $query->whereHas('relation_item', function($query){
+                            return $query->where('unit_type_id' , 'GLL');
+                        })
+                        ->whereFilterWithOutRelations()
+                        ->whereHas('document', function($query) use($d_start, $d_end){
+                            return $query->filterDocumentTypeInvoice()
+                                            ->filterRangeDateOfIssue($d_start, $d_end);
+                        })
+                        ->with(['document']);
+        }
+
+        
+        /**
+         * 
+         * Datos para reporte de ventas grifo
+         *
+         * Usado en:
+         * FormatController
+         * 
+         * @return array
+         */
+        public function getDataSaleGarageGll()
+        {
+
+            return [
+                'date_of_issue' => $this->document->date_of_issue->format('d/m/Y'),
+                'document_type_id' => $this->document->document_type_id,
+                'series' => $this->document->series,
+                'number' => $this->document->number,
+                'customer_number' => $this->document->customer->number,
+                'customer_name' => $this->document->customer->name,
+                'total_value' => $this->document->total_value,
+                'total_igv' => $this->document->total_igv,
+                'total_exonerated' => $this->document->total_exonerated,
+                'total' => $this->document->total,
+                'voided_description' => $this->document->getVoidedDescription(),
+                'item_description' => $this->item->description,
+                'quantity' => $this->quantity,
+                'unit_price' => $this->unit_price,
+            ];
+
+        }
+
+
     }

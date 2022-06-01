@@ -94,7 +94,8 @@
                 'item_code' => $this->item_code,
                 'item_code_gsl' => $this->item_code_gsl,
                 'currency_type_id' => $this->currency_type_id,
-                'sale_unit_price' => $this->sale_unit_price,
+                'sale_unit_price' => $this->getFormatSaleUnitPrice(),
+                // 'sale_unit_price' => $this->sale_unit_price,
                 'purchase_unit_price' => $this->purchase_unit_price,
                 'unit_type_id' => $this->unit_type_id,
                 'has_isc' => (bool)$this->has_isc,
@@ -156,6 +157,7 @@
                         'individual_item_id' => $row->individual_item_id,
                         'full_description' => $full_description,
                         'sale_unit_price' => (float)$row->individual_item->sale_unit_price,
+                        'purchase_unit_price' => (float)$row->individual_item->purchase_unit_price,
                         'quantity' => (float)$row->quantity,
                     ];
                 }),
@@ -184,6 +186,7 @@
                 'purchase_has_isc' => $this->purchase_has_isc,
                 'purchase_system_isc_type_id' => $this->purchase_system_isc_type_id,
                 'purchase_percentage_isc' => $this->purchase_percentage_isc,
+                'subject_to_detraction' => $this->subject_to_detraction,
 
             ];
         }

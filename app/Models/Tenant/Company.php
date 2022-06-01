@@ -91,5 +91,16 @@ class Company extends ModelTenant
         return $this;
     }
 
+    
+    /**
+     * 
+     * Obtener soap_type_id para registro de entorno en tablas relacionadas
+     *
+     * @return string
+     */
+    public static function getCompanySoapTypeId()
+    {
+        return Company::select('soap_type_id')->withOut(['identity_document_type'])->firstOrFail()->soap_type_id;
+    }
 
 }

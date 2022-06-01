@@ -73,10 +73,33 @@
             $input = self::setInputByRequest($request);
             $item = self::getAllItemBase($request, false, $id);
 
-            if ($search_by_barcode === false && $input != null) {
-                self::SetWarehouseToUser($item);
-            }
+            // el filtro por almacén no debe depender de la búsqueda por código de barras o coincidencias
+            // if ($search_by_barcode === false && $input != null) {
+            //     self::SetWarehouseToUser($item);
+            // }
 
+            self::SetWarehouseToUser($item);
+
+            return $item->orderBy('description')->get();
+        }
+
+        
+        /**
+         * 
+         * No aplica filtro por almacén
+         * 
+         * @param Request|null $request
+         * @param int          $id
+         *
+         * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+         */
+        public static function getNotServiceItemWithOutWarehouse(Request $request = null, $id = 0)
+        {
+
+            self::validateRequest($request);
+            // $search_by_barcode = $request->has('search_by_barcode') && (bool)$request->search_by_barcode;
+            // $input = self::setInputByRequest($request);
+            $item = self::getAllItemBase($request, false, $id);
 
             return $item->orderBy('description')->get();
         }
@@ -115,6 +138,7 @@
             $id = (int)$id;
             $search_by_barcode = $request->has('search_by_barcode') && (bool)$request->search_by_barcode;
             $input = self::setInputByRequest($request);
+            $search_item_by_barcode_presentation = $request->has('search_item_by_barcode_presentation') && (bool)$request->search_item_by_barcode_presentation;
 
             // $item = Item:: whereIsActive();
             $item = Item::query();
@@ -171,6 +195,8 @@
                     }
                 }
             }
+
+
             if ($bySerie === null) {
                 if ($items_id != null) {
                     $item->whereIn('id', $items_id);
@@ -178,9 +204,18 @@
                     $item->where('id', $id);
                 } else {
                     if ($search_by_barcode === true) {
-                        $item
-                            ->where('barcode', $input)
-                            ->limit(1);
+
+                        if($search_item_by_barcode_presentation)
+                        {
+                            $item->filterItemUnitTypeBarcode($input)->limit(1);
+                        }
+                        else
+                        {
+                            $item
+                                ->where('barcode', $input)
+                                ->limit(1);
+                        }
+
                     } else {
                         self::setFilter($item, $request);
                     }
@@ -946,7 +981,8 @@
          */
         public static function getItemToPurchase(Request $request = null, $id = 0)
         {
-            $items_not_services = self::getNotServiceItem($request, $id);
+            $items_not_services = self::getNotServiceItemWithOutWarehouse($request, $id);
+            // $items_not_services = self::getNotServiceItem($request, $id);
             $items_services = self::getServiceItem($request, $id);
             $establishment_id = auth()->user()->establishment_id;
             $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
@@ -1161,6 +1197,7 @@
 
             }
 
+            $data->whereIsActive();
 
             return self::getItemToTrasferModal($data,$warehouse_id);
         }
@@ -1172,7 +1209,8 @@
          */
         public static function getItemToTrasferWithoutSearch( $warehouse_id = 0): \Illuminate\Database\Eloquent\Collection
         {
-            $data = self::getItemToTrasferCollection($warehouse_id);
+            $data = self::getItemToTrasferCollection($warehouse_id)->whereIsActive();
+
             // Inicia con 20 productos, puede añadirse en el env la variable NUMBER_ITEMS
             $data->take(\Config('extra.number_items_at_start'));
             return  self::getItemToTrasferModal($data,$warehouse_id);

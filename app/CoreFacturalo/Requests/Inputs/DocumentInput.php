@@ -155,46 +155,6 @@ class DocumentInput
             foreach ($inputs['items'] as $row) {
                 $item = Item::query()->find($row['item_id']);
                 /** @var Item $item */
-
-///modificacion para presentaciones desde la app y tambien para web
-                $unit_type_id = (key_exists('item', $row)) ? $row['item']['unit_type_id'] : $item->unit_type_id;
-                $quantity_factor = 1;
-
-                $presentation = (key_exists('item', $row)) ? (isset($row['item']['presentation']) ? $row['item']['presentation'] : []) : [];
-
-                if(!$presentation) {
-
-
-                if (isset($row['presentation_unit_type_id'])) {
-                    if (isset($row['quantity_factor'])) {
-                        if(key_exists('quantity_factor', $row)) {
-                                $quantity_factor = $row['quantity_factor'];
-                            }
-
-                            if ($row['quantity_factor']!=1) {
-                                $unit_type_id = $row['presentation_unit_type_id'];
-                                $presentation = [
-                                    'description' => $row['presentation_description'],
-                                    'item_id' => $item->id,
-                                    'price2' => $row['unit_price'],
-                                    'price_default' => 2,
-                                    'quantity_unit' => $quantity_factor,
-                                    'unit_type_id' => $unit_type_id,
-                                ];
-                            }
-                    }
-                }
-                // else{
-                //     $presentation=[];
-                // }
-
-                        
-                } else {
-                    if(key_exists('quantity_unit', $presentation)) {
-                        $quantity_factor = $presentation['quantity_unit'];
-                    }
-                }
-
                 $arayItem = [
                     'item_id' => $item->id,
                     'item' => [
@@ -203,8 +163,8 @@ class DocumentInput
                         'internal_id' => $item->internal_id,
                         'item_code' => trim($item->item_code),
                         'item_code_gs1' => $item->item_code_gs1,
-                        'unit_type_id' => $unit_type_id,
-                        'presentation' => $presentation,
+                        'unit_type_id' => (key_exists('item', $row)) ? $row['item']['unit_type_id'] : $item->unit_type_id,
+                        'presentation' => (key_exists('item', $row)) ? (isset($row['item']['presentation']) ? $row['item']['presentation'] : []) : [],
                         'amount_plastic_bag_taxes' => $item->amount_plastic_bag_taxes,
                         'is_set' => $item->is_set,
                         'lots' => self::lots($row),
@@ -218,7 +178,6 @@ class DocumentInput
                         'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,  
                     ],
                     'quantity' => $row['quantity'],
-                    'quantity_factor' => $quantity_factor,
                     'unit_value' => $row['unit_value'],
                     'price_type_id' => $row['price_type_id'],
                     'unit_price' => $row['unit_price'],
@@ -593,40 +552,6 @@ class DocumentInput
         ];
     }
 
-        
-    /**
-     * 
-     * Retorna datos para registro de propina
-     *
-     * Usado en:
-     * DocumentInput
-     * TipTrait
-     * 
-     * @param  array $inputs
-     * @param  string $soap_type_id
-     * @return array
-     */
-    public static function tip($inputs, $soap_type_id)
-    {
-        $worker_full_name_tips = Functions::valueKeyInArray($inputs, 'worker_full_name_tips');
-        $total_tips = Functions::valueKeyInArray($inputs, 'total_tips', 0);
-
-        if ($worker_full_name_tips && $total_tips > 0)
-        {
-            return [
-                'date' => date('Y-m-d'),
-                'worker_full_name' => $worker_full_name_tips,
-                'total' => $total_tips,
-                'soap_type_id' => $soap_type_id,
-                'origin_date_of_issue' => $inputs['date_of_issue'],
-            ];
-        }
-
-        return null;
-    }
-    
-
-
     private static function note($inputs)
     {
         $document_type_id = $inputs['document_type_id'];
@@ -666,4 +591,37 @@ class DocumentInput
             ]
         ];
     }
+
+        
+    /**
+     * 
+     * Retorna datos para registro de propina
+     *
+     * Usado en:
+     * DocumentInput
+     * TipTrait
+     * 
+     * @param  array $inputs
+     * @param  string $soap_type_id
+     * @return array
+     */
+    public static function tip($inputs, $soap_type_id)
+    {
+        $worker_full_name_tips = Functions::valueKeyInArray($inputs, 'worker_full_name_tips');
+        $total_tips = Functions::valueKeyInArray($inputs, 'total_tips', 0);
+
+        if ($worker_full_name_tips && $total_tips > 0)
+        {
+            return [
+                'date' => date('Y-m-d'),
+                'worker_full_name' => $worker_full_name_tips,
+                'total' => $total_tips,
+                'soap_type_id' => $soap_type_id,
+                'origin_date_of_issue' => $inputs['date_of_issue'],
+            ];
+        }
+
+        return null;
+    }
+    
 }

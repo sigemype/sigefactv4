@@ -92,6 +92,9 @@
         <td>Modalidad de Transporte: {{ $document->transport_mode_type->description }}</td>
     </tr>
     <tr>
+        <td>Descripcion de Motivo: {{ $document->transfer_reason_description }}</td>
+    </tr>
+    <tr>
         <td>Peso Bruto Total({{ $document->unit_type_id }}): {{ $document->total_weight }}</td>
         @if($document->packages_number)
         <td>Número de Bultos: {{ $document->packages_number }}</td>

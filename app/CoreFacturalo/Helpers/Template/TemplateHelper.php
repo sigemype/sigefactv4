@@ -267,4 +267,17 @@
 
 
         }
+
+        
+        /**
+         * 
+         * Obtener configuracion de decimales para el precio unitario en pdf
+         *
+         * @return Configuration
+         */
+        public static function getConfigurationDecimalQuantity()
+        {
+            return Configuration::getDataDecimalQuantity();
+        }
+
     }

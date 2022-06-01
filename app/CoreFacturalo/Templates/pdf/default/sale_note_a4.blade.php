@@ -8,6 +8,11 @@
     $payments = $document->payments;
     $accounts = \App\Models\Tenant\BankAccount::all();
 
+    $logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
+
 @endphp
 <html>
 <head>
@@ -20,7 +25,7 @@
         @if($company->logo)
             <td width="20%">
                 <div class="company_logo_box">
-                    <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
+                    <img src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}" alt="{{$company->name}}" class="company_logo" style="max-width: 150px;">
                 </div>
             </td>
         @else
@@ -57,6 +62,12 @@
     <tr>
         <td>{{ $customer->identity_document_type->description }}:</td>
         <td>{{ $customer->number }}</td>
+        
+        @if ($document->due_date)
+            <td class="align-top">Fecha Vencimiento:</td>
+            <td>{{ $document->getFormatDueDate() }}</td>
+        @endif
+
     </tr>
     @if ($customer->address !== '')
     <tr>
@@ -186,10 +197,14 @@
             <td class="text-center align-top">
                 @inject('itemLotGroup', 'App\Services\ItemLotsGroupService')
                 @php
-                    $lot_code = isset($row->item->lots_group) ? collect($row->item->lots_group)->first(function($row){ return $row->checked == true;}):null;
+                    $lot_code = [];
+                    if(isset($row->item->lots_group)) {
+                        $lot_codes_compromise = collect($row->item->lots_group)->where('compromise_quantity', '>', 0);
+                        $lot_code =  $lot_codes_compromise->all();
+                    }
                 @endphp
                 {{
-                    $itemLotGroup->getLote($lot_code ? $lot_code->id : null)
+                    $itemLotGroup->getLote($lot_code)
                 }}
 
             </td>
@@ -263,10 +278,30 @@
             <td colspan="7" class="text-right font-bold">IGV: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold">{{ number_format($document->total_igv, 2) }}</td>
         </tr>--}}
+        
+        @if($document->total_charge > 0 && $document->charges)
+            <tr>
+                <td colspan="7" class="text-right font-bold">CARGOS ({{$document->getTotalFactor()}}%): {{ $document->currency_type->symbol }}</td>
+                <td class="text-right font-bold">{{ number_format($document->total_charge, 2) }}</td>
+            </tr>
+        @endif
+        
         <tr>
             <td colspan="7" class="text-right font-bold">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold">{{ number_format($document->total, 2) }}</td>
         </tr>
+        
+        @php
+            $change_payment = $document->getChangePayment();
+        @endphp
+
+        @if($change_payment < 0)
+            <tr>
+                <td colspan="7" class="text-right font-bold">VUELTO: {{ $document->currency_type->symbol }}</td>
+                <td class="text-right font-bold">{{ number_format(abs($change_payment),2, ".", "") }}</td>
+            </tr>
+        @endif
+
     </tbody>
 </table>
 
@@ -308,7 +343,7 @@
             $payment = 0;
         @endphp
         @foreach($payments as $row)
-            <tr><td>- {{ $row->date_of_payment->format('d/m/Y') }} - {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment }}</td></tr>
+            <tr><td>- {{ $row->date_of_payment->format('d/m/Y') }} - {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td></tr>
             @php
                 $payment += (float) $row->payment;
             @endphp

@@ -268,4 +268,83 @@ class PurchaseItem extends ModelTenant
      * @return Item|Item[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed|null
      */
     public function getModelItem(){ return Item::find($this->item_id);}
+
+    
+    /**
+     * Validar si es compra en dolares
+     *
+     * @return bool
+     */
+    public function isCurrencyTypeUsd()
+    {
+        return $this->purchase->currency_type_id === 'USD';
+    }
+
+    /**
+     * 
+     * Obtener total y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalToPen()
+    {
+        return $this->generalConvertValueToPen($this->total, $this->purchase->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener valor unitario y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertUnitValueToPen()
+    {
+        return $this->generalConvertValueToPen($this->unit_value, $this->purchase->exchange_rate_sale);
+    }
+    
+    /**
+     * 
+     * Obtener precio unitario y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertUnitPriceToPen()
+    {
+        return $this->generalConvertValueToPen($this->unit_price, $this->purchase->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener total valor y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalValueToPen()
+    {
+        return $this->generalConvertValueToPen($this->total_value, $this->purchase->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener total igv y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalIgvToPen()
+    {
+        return $this->generalConvertValueToPen($this->total_igv, $this->purchase->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener total isc y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalIscToPen()
+    {
+        return $this->generalConvertValueToPen($this->total_isc, $this->purchase->exchange_rate_sale);
+    }
+
+
 }

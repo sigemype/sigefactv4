@@ -26,6 +26,8 @@
     use Modules\Order\Models\OrderNote;
     use Modules\Sale\Models\TechnicalService;
     use phpDocumentor\Reflection\Utils;
+    use Modules\Pos\Models\Tip;
+    use Illuminate\Support\Facades\DB;
 
 
     /**
@@ -150,7 +152,7 @@
             'invoice',
             'note',
             'payments',
-            'fees'
+            'fee'
         ];
         protected $fillable = [
             'user_id',
@@ -555,7 +557,7 @@
         /**
          * @return HasMany
          */
-        public function fees()
+        public function fee()
         {
             return $this->hasMany(DocumentFee::class);
         }
@@ -938,6 +940,11 @@
         {
             return $this->hasMany(GuideFile::class);
         }
+        
+        public function tip()
+        {
+            return $this->morphOne(Tip::class, 'origin');
+        }
 
         /**
          * @param \Illuminate\Database\Eloquent\Builder $query
@@ -1184,6 +1191,147 @@
                 'payments',
                 'fee'
             ]);
+        }
+
+                
+        /**
+         * Obtener diferencia de días en base a la fecha de emisión
+         * 
+         * Usado en:
+         * VoidedController - Validación de plazo de envío
+         *
+         * @param  Carbon $value
+         * @return int
+         */
+        public function getDiffInDaysDateOfIssue($value = null)
+        {
+            $date = $value ?? Carbon::now();
+
+            return $this->date_of_issue->diffInDays($date);
+        }
+        
+        
+        /**
+         * Validar si el documento fue generado a partir de un registro externo
+         *
+         * Usado en:
+         * InventoryKardexServiceProvider
+         * 
+         * @return bool
+         */
+        public function isGeneratedFromExternalRecord()
+        {
+            $generated = false;
+
+            if(!is_null($this->order_note_id))
+            {
+                $generated = true;
+            }
+            
+            // @todo agregar mas registros relacionados
+
+            return $generated;
+        }
+        
+
+        /**
+         * 
+         * Filtrar por rango de fechas
+         * 
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @return \Illuminate\Database\Eloquent\Builder
+         * 
+         */
+        public function scopeFilterRangeDateOfIssue($query, $date_start, $date_end)
+        {
+            return $query->whereBetween('date_of_issue', [$date_start, $date_end]);
+        }
+
+        /**
+         * 
+         * Filtrar facturas y boletas
+         * 
+         * @param \Illuminate\Database\Eloquent\Builder $query
+         * @return \Illuminate\Database\Eloquent\Builder
+         * 
+         */
+        public function scopeFilterDocumentTypeInvoice($query)
+        {
+            return $query->whereIn('document_type_id', ['01', '03']);
+        }
+
+        /**
+         * 
+         * @return string
+         * 
+         */
+        public function getVoidedDescription()
+        {
+            return $this->state_type_id === '11' ? 'SI' : 'NO';
+        }
+
+        
+        /**
+         * 
+         * Obtener pagos en efectivo
+         *
+         * @return Collection
+         */
+        public function getCashPayments()
+        {
+            return $this->payments()->whereFilterCashPayment()->get()->transform(function($row){{
+                return $row->getRowResourceCashPayment();
+            }});
+        }
+
+
+        /**
+         * 
+         * Validar si el registro esta rechazado o anulado
+         * 
+         * @return bool
+         */
+        public function isVoidedOrRejected()
+        {
+            return in_array($this->state_type_id, self::VOIDED_REJECTED_IDS);
+        }
+
+                
+        /**
+         * 
+         * Obtener el total de notas de credito de cada cpe
+         *
+         * @return float
+         */
+        public function getCreditNotesTotal()
+        {
+            return $this->affected_documents()
+                        ->join('documents', 'documents.id', '=', 'notes.document_id')
+                        ->whereHas('document', function($query){
+                            return $query->whereStateTypeAccepted()->where('document_type_id', '07');
+                        })
+                        ->sum('documents.total');
+        }
+
+        
+        /**
+         * 
+         * Obtener query de nc para subconsulta de cuentas por cobrar
+         * 
+         * Usado en:
+         * DashboardView
+         * AccountsReceivable
+         * 
+         * @return \Illuminate\Database\Eloquent\Builder
+         */
+        public static function getQueryCreditNotes()
+        {
+            return DB::table('notes')
+                        ->join('documents', 'documents.id', '=', 'notes.document_id')
+                        ->whereIn('documents.state_type_id', ['01', '03', '05', '07', '13'])
+                        ->where('documents.document_type_id', '07')
+                        ->select('affected_document_id', DB::raw('SUM(documents.total) as total_credit_notes'))
+                        ->groupBy('affected_document_id');
         }
 
     }

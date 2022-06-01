@@ -132,6 +132,7 @@ class RecurrencySaleNoteCommand extends Command
 
                     $replicate_sale_note->automatic_date_of_issue = $automatic_date_of_issue;
                     $replicate_sale_note->number = SaleNote::getLastNumberByModel($sale_note);
+                    $replicate_sale_note->unique_filename = null;
 
                     $replicate_sale_note->save();
 
@@ -178,6 +179,7 @@ class RecurrencySaleNoteCommand extends Command
 
                     $name = [$replicate_sale_note->series, $replicate_sale_note->number, date('Ymd')];
                     $replicate_sale_note->filename = join('-', $name);
+                    $replicate_sale_note->unique_filename = $replicate_sale_note->filename;
 
                     $replicate_sale_note->update();
 

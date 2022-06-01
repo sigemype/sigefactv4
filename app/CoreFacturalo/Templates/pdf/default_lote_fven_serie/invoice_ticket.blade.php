@@ -364,6 +364,23 @@
                     <br>
                     *** Pago Anticipado ***
                 @endif
+                @if($row->item->model)
+                    <br>
+                    Modelo:{{ $row->item->model }}
+                @endif
+                <br>
+                @inject('itemLotGroup', 'App\Services\ItemLotsGroupService')
+                    @if($itemLotGroup->getLote($row->item->IdLoteSelected) != '')
+                    Lote: {{ $itemLotGroup->getLote($row->item->IdLoteSelected) }}
+                    <br>
+                @endif
+                @isset($row->item->lots)
+                    @foreach($row->item->lots as $lot)
+                        @if( isset($lot->has_sale) && $lot->has_sale)
+                            <span style="font-size: 9px">{{ $lot->series }}</span><br>
+                        @endif
+                    @endforeach
+                @endisset
             </td>
             <td class="text-right desc-9 align-top">{{ number_format($row->unit_price, 2) }}</td>
             <td class="text-right desc-9 align-top font-bold">{{ number_format($row->total, 2) }}</td>

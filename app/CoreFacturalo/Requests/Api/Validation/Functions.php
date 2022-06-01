@@ -11,6 +11,8 @@ use App\Models\Tenant\Series;
 use App\Models\Tenant\Catalogs\District;
 use Exception;
 use App\Models\Tenant\Configuration;
+use Carbon\Carbon;
+
 
 class Functions
 {
@@ -221,6 +223,32 @@ class Functions
 
         $exist_district = District::select('id')->find($district_id);
         if (!$exist_district) throw new Exception("El código ubigeo es incorrecto");
+    }
+
+    
+    /**
+     * 
+     * Validar fecha de emisión en base a los días configurados en el plazo de envío
+     *
+     * Días contados desde la fecha de emisión
+     * 
+     * @param  array $inputs
+     * @return void
+     */
+    public static function validateDateOfIssue($inputs) 
+    {
+
+        $configuration = Configuration::select('shipping_time_days', 'restrict_receipt_date')->firstOrFail();
+
+        if($configuration->restrict_receipt_date)
+        {
+            $today = Carbon::now();
+            $date_of_issue = Carbon::parse($inputs['date_of_issue']);
+            $difference_days = $configuration->shipping_time_days - $date_of_issue->diffInDays($today);
+    
+            if($difference_days <= 0) throw new Exception("La fecha de emisión no puede ser menor a {$configuration->shipping_time_days} día(s).");
+        }
+
     }
 
 

@@ -9,6 +9,13 @@ use App\Http\Resources\Tenant\VoidedCollection;
 use App\Models\Tenant\Voided;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Tenant\VoidedRequest;
+use Carbon\Carbon;
+use App\Models\Tenant\{
+    Document,
+    Configuration
+};
+
 
 class VoidedController extends Controller
 {
@@ -47,8 +54,11 @@ class VoidedController extends Controller
         return new VoidedCollection($voided->union($summaries)->orderBy('date_of_issue', 'DESC')->paginate(config('tenant.items_per_page')));
     }
 
-    public function store(Request $request)
+    public function store(VoidedRequest $request)
     {
+        $validate = $this->validateVoided($request);
+        if(!$validate['success']) return $validate;
+
         $fact = DB::connection('tenant')->transaction(function () use($request) {
             $facturalo = new Facturalo();
             $facturalo->save($request->all());
@@ -67,6 +77,45 @@ class VoidedController extends Controller
             'message' => "La anulación {$document->identifier} fue creado correctamente",
         ];
     }
+
+    
+    /**
+     * Validaciones previas
+     *
+     * @param VoidedRequest $request
+     * @return array
+     */
+    public function validateVoided($request)
+    {
+
+        $configuration = Configuration::select('restrict_voided_send', 'shipping_time_days_voided')->firstOrFail();
+        $voided_date_of_issue = Carbon::parse($request->date_of_issue);
+
+        if($configuration->restrict_voided_send)
+        {
+            foreach ($request->documents as $row) 
+            {
+                $document = Document::whereFilterWithOutRelations()->select('date_of_issue')->findOrFail($row['document_id']);
+    
+                $difference_days = $configuration->shipping_time_days_voided - $document->getDiffInDaysDateOfIssue($voided_date_of_issue);
+    
+                if($difference_days < 0)
+                {
+                    return [
+                        'success' => false,
+                        'message' => "El documento excede los {$configuration->shipping_time_days_voided} días válidos para ser anulado."
+                    ];
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => null
+        ];
+
+    }
+
 
     public function status($voided_id)
     {

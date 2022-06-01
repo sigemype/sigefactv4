@@ -41,6 +41,8 @@ class UserResource extends JsonResource {
             'permission_edit_cpe' => $this->permission_edit_cpe,
             'recreate_documents' => $this->recreate_documents,
             'series_id'        => ($this->series_id == 0) ? null : $this->series_id,
+            'create_payment' => $this->create_payment,
+            'delete_payment' => $this->delete_payment,
         ];
     }
 }
