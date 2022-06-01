@@ -119,7 +119,7 @@ export default {
                 this.form.token_apiruc = 'false';
             }
             this.$http
-                .post(`/${this.resource}`, this.form)
+                .post(`/${this.resource}/apiruc`, this.form)
                 .then(response => {
                     if (response.data.success) {
                         this.$message.success(response.data.message);

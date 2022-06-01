@@ -291,7 +291,8 @@
                                             effect="dark"
                                             placement="top-start">
                                     <el-badge :value="row.document_not_sent"
-                                              class="item">
+                                              class="item"
+                                              :type="row.document_not_sent == 0 ? 'primary' : 'danger'">
                                         <i class="far fa-bell text-secondary"></i>
                                     </el-badge>
                                 </el-tooltip>
@@ -301,7 +302,8 @@
                                             effect="dark"
                                             placement="top-start">
                                     <el-badge :value="row.document_regularize_shipping"
-                                              class="item  ml-4">
+                                              class="item  ml-4"
+                                              :type="row.document_regularize_shipping == 0 ? 'primary' : 'danger'">
                                         <i class="fas fa-exclamation-triangle text-secondary"></i>
                                     </el-badge>
                                 </el-tooltip>
@@ -311,7 +313,8 @@
                                             effect="dark"
                                             placement="top-start">
                                     <el-badge :value="row.document_to_be_canceled"
-                                              class="item  ml-4">
+                                              class="item  ml-4"
+                                              :type="row.document_to_be_canceled == 0 ? 'primary' : 'danger'">
                                         <i class="fas fa-exclamation-circle text-secondary"></i>
                                     </el-badge>
                                 </el-tooltip>

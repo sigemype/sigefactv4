@@ -16,7 +16,7 @@
                 <img src="{{ asset('storage/uploads/logos/'.$vc_company->logo) }}"
                      alt="Logo"/>
             @else
-                <img src="{{asset('logo/700x300.jpg')}}"
+                <img src="{{asset('logo/tulogo.png')}}"
                      alt="Logo"/>
             @endif
         </a>
@@ -321,8 +321,10 @@
                                             <a class="nav-link"
                                                href="{{route('tenant.pos.index')}}">Punto de venta</a>
                                         </li>
+                                    @endif
+                                    @if(in_array('pos_garage', $vc_module_levels))
                                         <li class="{{ ($firstLevel === 'pos' && $secondLevel === 'garage')?'nav-active':'' }}">
-                                                <a class="nav-link"
+                                            <a class="nav-link"
                                                 href="{{route('tenant.pos.garage')}}">Venta rápida <span style="font-size:.65rem;">(Grifos y Markets)</span></a>
                                         </li>
                                     @endif
@@ -845,7 +847,7 @@
                         </li>
                     @endif
                     @if(in_array('reports', $vc_modules))
-                        <li class="{{  ($firstLevel === 'reports' && in_array($secondLevel, ['purchases', 'search','sales','customers','items', 'general-items','consistency-documents', 'quotations', 'sale-notes','cash','commissions','document-hotels', 'validate-documents', 'document-detractions','commercial-analysis', 'order-notes-consolidated', 'order-notes-general', 'sales-consolidated', 'user-commissions', 'fixed-asset-purchases', 'massive-downloads'])) ? 'nav-active' : ''}} {{ $firstLevel === 'list-reports' ? 'nav-active' : '' }}">
+                        <li class="{{  ($firstLevel === 'reports' && in_array($secondLevel, ['purchases', 'search','sales','customers','items', 'general-items','consistency-documents', 'quotations', 'sale-notes','cash','commissions','document-hotels', 'validate-documents', 'document-detractions','commercial-analysis', 'order-notes-consolidated', 'order-notes-general', 'sales-consolidated', 'user-commissions', 'fixed-asset-purchases', 'massive-downloads', 'tips'])) ? 'nav-active' : ''}} {{ $firstLevel === 'list-reports' ? 'nav-active' : '' }}">
                             <a class="nav-link"
                                href="{{ url('list-reports') }}">
                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -1200,6 +1202,45 @@
                         </li>
                     @endif
                     {{-- Suscription --}}
+                    @if(in_array('full_suscription_app', $vc_modules) )
+                        <li class=" nav-parent {{ ($firstLevel === 'full_suscription') ? 'nav-active nav-expanded' : '' }}">
+                            <a class="nav-link"
+                               href="#">
+                                <i class="fa fas fa-calendar-check"
+                                   aria-hidden="true"></i>
+                                <span>
+                                    Suscripción Servicios SAAS
+                                </span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li class="{{ ($firstLevel === 'full_suscription' && $secondLevel === 'client')?'nav-active':'' }}">
+                                    <a class="nav-link"
+                                       href="{{ route('tenant.fullsuscription.client.index') }}">
+                                    Clientes
+                                    </a>
+                                </li>
+                                <li class="{{ (($firstLevel === 'full_suscription') && ($secondLevel === 'plans')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                       href="{{ route('tenant.fullsuscription.plans.index') }}">
+                                        Planes
+                                    </a>
+                                </li>
+                                <li class="{{ (($firstLevel === 'full_suscription') && ($secondLevel === 'payments')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                       href="{{ route('tenant.fullsuscription.payments.index') }}">
+                                        Suscripciones
+                                    </a>
+                                </li>
+                                <li class="{{ (($firstLevel === 'full_suscription') && ($secondLevel === 'payment_receipt')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                       href="{{ route('tenant.fullsuscription.payment_receipt.index') }}">
+                                        Recibos de pago
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+                    {{-- Suscription Escolar--}}
                     @if(in_array('suscription_app', $vc_modules) )
                         <li class=" nav-parent {{ ($firstLevel === 'suscription') ? 'nav-active nav-expanded' : '' }}">
                             <a class="nav-link"
@@ -1284,6 +1325,7 @@
                                                     ($firstLevel === 'machine-production') ||
                                                     ($firstLevel === 'packaging') ||
                                                     ($firstLevel === 'machine-type-production') ||
+                                                    ($firstLevel === 'workers') ||
                                                     ($firstLevel === 'mill-production')
                                                 ) ? 'nav-active nav-expanded' : '' }}">
                             <a class="nav-link"
@@ -1327,6 +1369,12 @@
                                     </a>
                                 </li>
 
+                                <li class="{{ (($firstLevel === 'workers')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                        href="{{ route('tenant.workers.index') }}">
+                                        Empleados
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     @endif
@@ -1411,6 +1459,40 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                    @endif
+
+                    @if(in_array('generate_link_app', $vc_modules))
+                        <li class="{{ ($firstLevel === 'payment-links')?'nav-active':'' }}">
+                            <a class="nav-link"
+                               href="{{ route('tenant.payment.generate.index') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="feather feather-share-2">
+                                    <circle cx="18"
+                                        cy="5"
+                                        r="3"></circle>
+                                    <circle cx="6"
+                                        cy="12"
+                                        r="3"></circle>
+                                    <circle cx="18"
+                                        cy="19"
+                                        r="3"></circle>
+                                    <line x1="8.59"
+                                        y1="13.51"
+                                        x2="15.42"
+                                        y2="17.49"></line>
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                </svg>
+                                <span>Generador de link de pago</span>
+                            </a>
                         </li>
                     @endif
 

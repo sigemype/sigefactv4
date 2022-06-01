@@ -126,6 +126,11 @@
         $total = 0;
         $subTotal = 0
     @endphp
+
+    @if ($is_garage)
+        @include('tenant.cash.partials.data_garage')
+    @endif
+
     <div class="">
         <div class=" ">
             <table class="">
@@ -163,7 +168,7 @@
                     <td class="celda"></td>
                     <td class="celda"></td>
                     <td class="celda"> Totales </td>
-                    <td style="text-align: right">
+                    <td class="celda" style="text-align: right">
                         {{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($subTotal) }}
                     </td>
                     <td class="celda"></td>

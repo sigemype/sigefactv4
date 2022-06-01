@@ -202,6 +202,23 @@
                                        v-text="errors.observations[0]"></small>
                             </div>
                         </div>
+                        
+                        <div class="col-lg-2" v-if="showOrderFormExternal">
+                            <div :class="{'has-danger': errors.order_form_external}"
+                                 class="form-group">
+                                <label class="control-label">Orden de pedido
+                                    <el-tooltip class="item"
+                                                content="Pedidos externos"
+                                                effect="dark"
+                                                placement="top">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <el-input v-model="form.order_form_external"></el-input>
+                                <small v-if="errors.order_form_external" class="form-control-feedback" v-text="errors.order_form_external[0]"></small>
+                            </div>
+                        </div>
+
                     </div>
                     <hr>
                     <h4>Datos envío</h4>
@@ -468,9 +485,10 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="(row, index) in form.items">
+                            <tr v-for="(row, index) in form.items" :key="index">
                                 <td>{{ index + 1 }}</td>
-                                <td>{{ row.item.description }}</td>
+                                <td>{{ setDescriptionOfItem(row.item) }}</td>
+                                <!-- <td>{{ row.item.description }}</td> -->
                                 <td class="text-right">{{ row.quantity }}</td>
                                 <td class="text-right">
                                     <button class="btn waves-effect waves-light btn-xs btn-danger" type="button"
@@ -512,6 +530,7 @@ import PersonForm from '../persons/form.vue';
 import Items from './items.vue';
 import DispatchOptions from './partials/options.vue'
 import {mapActions, mapState} from "vuex";
+import {showNamePdfOfDescription} from '@helpers/functions'
 
 export default {
     props: [
@@ -520,6 +539,7 @@ export default {
         'typeDocument',
         'dispatch',
         'configuration',
+        'sale_note',
     ],
     components: {
         PersonForm,
@@ -685,6 +705,9 @@ export default {
 
     },
     methods: {
+        setDescriptionOfItem(item) {
+            return showNamePdfOfDescription(item, this.configuration.show_pdf_name)
+        },
         changeTransferReasonType(){
 
             // exportacion
@@ -789,7 +812,7 @@ export default {
                     semitrailer: null
                 },
                 related: {},
-
+                order_form_external: null,
             }
         },
         changeEstablishment() {
@@ -910,6 +933,9 @@ export default {
         ...mapState([
             'config',
         ]),
+        showOrderFormExternal(){
+            return ['i', 'on'].includes(this.typeDocument)
+        },
     },
 }
 </script>

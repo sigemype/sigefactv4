@@ -82,66 +82,11 @@
         </div>
     </div>
 </div>
-    {{--<section class="body">--}}
-        {{--<!-- start: header -->--}}
-        {{--@include('tenant.layouts.partials.header')--}}
-        {{--<!-- end: header -->--}}
-        {{--<div class="inner-wrapper">--}}
-            {{--<!-- start: sidebar -->--}}
-            {{--@include('tenant.layouts.partials.sidebar')--}}
-            {{--<!-- end: sidebar -->--}}
-            {{--<section role="main" class="content-body" id="main-wrapper">--}}
-              {{--@yield('content')--}}
-            {{--</section>--}}
-        {{--</div>--}}
-    {{--</section>--}}
-
-    <!-- Vendor -->
-    {{--<script src="{{ asset('porto-light/vendor/jquery/jquery.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/jquery-browser-mobile/jquery.browser.mobile.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/jquery-cookie/jquery-cookie.js')}}"></script>--}}
-        {{--<script src="{{asset('master/style-switcher/style.switcher.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/popper/umd/popper.min.js')}}"></script>--}}
-    {{--<!-- <script src="{{ asset('porto-light/vendor/bootstrap/js/bootstrap.js')}}"></script> -->--}}
-    {{--<script src="{{ asset('porto-light/vendor/common/common.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/nanoscroller/nanoscroller.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/magnific-popup/jquery.magnific-popup.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/jquery-placeholder/jquery-placeholder.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/select2/js/select2.js') }}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/datatables/media/js/jquery.dataTables.min.js')}}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/datatables/media/js/dataTables.bootstrap4.min.js')}}"></script>--}}
-
-    {{--<!-- Specific Page Vendor -->--}}
-    {{--<script src="{{asset('porto-light/vendor/jquery-ui/jquery-ui.js')}}"></script>--}}
-    {{--<script src="{{asset('porto-light/vendor/jqueryui-touch-punch/jqueryui-touch-punch.js')}}"></script>--}}
-    {{--<script src="{{asset('porto-light/vendor/select2/js/select2.js')}}"></script>--}}
-
-    {{--<script src="{{asset('porto-light/vendor/jquery-loading/dist/jquery.loading.js')}}"></script>--}}
-
-    {{--<!--<script src="assets/vendor/select2/js/select2.js"></script>-->--}}
-    {{--<script src="{{asset('porto-light/vendor/bootstrap-multiselect/bootstrap-multiselect.js')}}"></script>--}}
-
-    {{--<!-- Moment -->--}}
-    {{--<script src="{{ asset('porto-light/vendor/moment/moment.js') }}"></script>--}}
-
-    {{--<!-- DatePicker -->--}}
-    {{--<script src="{{asset('porto-light/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js')}}"></script>--}}
-
-    {{--<!-- Date range Plugin JavaScript -->--}}
-    {{--<script src="{{ asset('porto-light/vendor/bootstrap-timepicker/bootstrap-timepicker.js') }}"></script>--}}
-    {{--<script src="{{ asset('porto-light/vendor/bootstrap-daterangepicker/daterangepicker.js') }}"></script>--}}
-
-    <!-- Theme Custom -->
-    {{--<script src="{{asset('porto-light/js/custom.js')}}"></script>--}}
-
-    <!-- Theme Initialization Files -->
-    {{--<script src="{{asset('porto-light/js/theme.init.js')}}"></script>--}}
-
-    {{--<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>--}}
-    {{--<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>--}}
 
     {{--@stack('scripts')--}}
-
+    
+    @yield('content-mercadopago')
+    
     <script src="{{ asset('js/manifest.js') }}"></script>
     <script src="{{ asset('js/vendor.js') }}"></script>
     <script src="{{ mix('js/app.js') }}"></script>

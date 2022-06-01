@@ -241,7 +241,7 @@
                             @if($company->logo)
                                 <img src="{{ asset('storage/uploads/logos/' . $company->logo) }}" alt="Logo" width="220" />
                             @else
-                                <img src="{{asset('logo/700x300.jpg')}}" alt="Logo" width="220" />
+                                <img src="{{asset('logo/logo.png')}}" alt="Logo" width="220" />
                             @endif
                         </td>
                       </tr>

@@ -143,10 +143,10 @@
                 this.$emit('add', this.payments);
             },
             async events() {
-                await this.$eventHub.$on("cancelSaleGarage", () => {
-                    console.info('multiplepayment');
-                    this.getFormPosLocalStorage()
-                });
+                // await this.$eventHub.$on("cancelSaleGarage", () => {
+                //     console.info('multiplepayment');
+                //     this.getFormPosLocalStorage()
+                // });
             },
         }
     }

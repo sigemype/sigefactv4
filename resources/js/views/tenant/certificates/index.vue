@@ -69,9 +69,12 @@
                 this.showDialog = true
             },
             clickDelete() {
-                this.destroy(`/${this.resource}`).then(() =>
+                this.destroy(`/${this.resource}`).then(() => {
+
                     this.$eventHub.$emit('reloadData')
-                )
+                    this.$eventHub.$emit('reloadDataCompany')
+                    
+                })
             }
         }
     }

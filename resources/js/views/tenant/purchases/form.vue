@@ -616,6 +616,7 @@
         <purchase-form-item :currency-type-id-active="form.currency_type_id"
                             :exchange-rate-sale="form.exchange_rate_sale"
                             :showDialog.sync="showDialogAddItem"
+                            :localHasGlobalIgv="localHasGlobalIgv"
                             @add="addRow"></purchase-form-item>
 
         <person-form :external="true"
@@ -753,7 +754,8 @@ export default {
         this.loadHasGlobalIgv()
         this.loadEstablishment()
         this.searchPurchaseOrder();
-        this.localHasGlobalIgv = this.hasGlobalIgv;
+        // this.localHasGlobalIgv = this.hasGlobalIgv;
+        this.initGlobalIgv()
     },
     methods: {
         ...mapActions([
@@ -762,11 +764,11 @@ export default {
             'loadHasGlobalIgv',
         ]),
         changeHasGlobalIgv() {
-            if(this.form.items.length < 1 && this.config.enabled_global_igv_to_purchase === true) {
-                this.$store.commit('sethasGlobalIgv', !this.hasGlobalIgv);
-             this.loadHasGlobalIgv()
-            }
-            this.localHasGlobalIgv = this.hasGlobalIgv;
+            // if(this.form.items.length < 1 && this.config.enabled_global_igv_to_purchase === true) {
+            //     this.$store.commit('sethasGlobalIgv', !this.hasGlobalIgv);
+            //  this.loadHasGlobalIgv()
+            // }
+            // this.localHasGlobalIgv = this.hasGlobalIgv;
 
         },
         changeHasPayment() {
@@ -1118,6 +1120,12 @@ export default {
 
             this.readonly_date_of_due = false
 
+            this.initGlobalIgv()
+
+        },
+        initGlobalIgv(){
+            this.localHasGlobalIgv = this.config.checked_global_igv_to_purchase
+            // this.changeHasGlobalIgv()
         },
         resetForm() {
             this.initForm()

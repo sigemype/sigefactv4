@@ -13,7 +13,7 @@
                   @submit.prevent="submit">
                 <div class="col-xl-9 col-md-9 col-12">
                     <div class="row card-header no-gutters align-items-start"
-                         style="background-color: #FFFFFF;">
+                         style="background-color: #FFFFFF !important;">
                         <div class="col-xl-2 col-md-2 col-12">
                             <logo :path_logo="(company.logo != null) ? `/storage/uploads/logos/${company.logo}` : ''"
                                   :position_class="'text-left'"
@@ -1389,6 +1389,8 @@
             :showDialog.sync="showDialogAddItem"
             :typeUser="typeUser"
             :customer-id="form.customer_id"
+            :currency-types="currency_types"
+            :is-from-invoice="true"
             @add="addRow"></document-form-item>
 
         <person-form :document_type_id=form.document_type_id
@@ -2768,7 +2770,7 @@ export default {
 
                 if (this.form.currency_type_id == 'PEN') {
 
-                    //this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), 2)
+                    // this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), 2)
                     this.form.detraction.amount = _.round(parseFloat(this.form.total) * (parseFloat(this.form.detraction.percentage) / 100), this.detractionDecimalQuantity)
 
                     this.form.total_pending_payment = this.form.total - this.form.detraction.amount
@@ -2801,7 +2803,7 @@ export default {
                 let detraction = this.form.detraction
 
                 let tot = (this.form.currency_type_id == 'PEN') ? this.form.total : (this.form.total * this.form.exchange_rate_sale)
-                let total_restriction = (detraction.detraction_type_id !== '027') ? 700 : 400
+                let total_restriction = (this.form.operation_type_id == '1001') ? 700 : 400
 
                 if (tot <= total_restriction)
                     return {
@@ -3315,19 +3317,19 @@ export default {
             //input donde se ingresa monto o porcentaje
             let input_global_discount = parseFloat(this.total_global_discount)
 
-            if (input_global_discount > 0) 
+            if (input_global_discount > 0)
             {
                 const percentage_igv = 18
                 let base = (this.isGlobalDiscountBase) ? parseFloat(this.form.total_taxed) : parseFloat(this.form.total)
                 let amount = 0
                 let factor = 0
 
-                if (this.is_amount) 
+                if (this.is_amount)
                 {
                     amount = input_global_discount
                     factor = _.round(amount / base, 5)
                 }
-                else 
+                else
                 {
                     factor = _.round(input_global_discount / 100, 5)
                     amount = factor * base
@@ -3341,7 +3343,7 @@ export default {
                     this.form.total_taxed = _.round(base - this.form.total_discount, 2)
                     this.form.total_value = this.form.total_taxed
                     this.form.total_igv = _.round(this.form.total_taxed * (percentage_igv / 100), 2)
-    
+
                     //impuestos (isc + igv + icbper)
                     this.form.total_taxes = _.round(this.form.total_igv + this.form.total_isc + this.form.total_plastic_bag_taxes, 2);
                     this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)

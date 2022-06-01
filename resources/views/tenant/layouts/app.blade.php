@@ -47,6 +47,7 @@
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/bootstrap/css/bootstrap.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/animate/animate.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/font-awesome/5.11/css/all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('porto-light/vendor/meteocons/css/meteocons.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/select2/css/select2.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/select2-bootstrap-theme/select2-bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/datatables/media/css/dataTables.bootstrap4.css') }}" />
@@ -74,9 +75,11 @@
         <link rel="stylesheet" href="{{ asset('theme/custom_styles.css') }}" />
     @endif
 
-    {{-- @if (file_exists(public_path('theme/custom_styles_ecommerce.css')))
-        <link rel="stylesheet" href="{{ asset('theme/custom_styles_ecommerce.css') }}" />
-    @endif --}}
+    @if($vc_compact_sidebar->skin)
+        @if (file_exists(storage_path('app/public/skins/'.$vc_compact_sidebar->skin->filename)))
+            <link rel="stylesheet" href="{{ asset('storage/skins/'.$vc_compact_sidebar->skin->filename) }}" />
+        @endif
+    @endif
 
 
     @stack('styles')
@@ -112,13 +115,14 @@
 
     <section class="body">
         <!-- start: header -->
-        @include('tenant.layouts.partials.header')
+        {{-- @include('tenant.layouts.partials.header') --}}
         <!-- end: header -->
         <div class="inner-wrapper">
             <!-- start: sidebar -->
             @include('tenant.layouts.partials.sidebar')
             <!-- end: sidebar -->
             <section role="main" class="content-body" id="main-wrapper">
+                @include('tenant.layouts.partials.header')
               @yield('content')
               @include('tenant.layouts.partials.sidebar_styles')
             </section>

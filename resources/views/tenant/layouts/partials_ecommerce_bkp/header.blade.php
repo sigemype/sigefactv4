@@ -38,7 +38,7 @@
  }
 
  .header-menu a:hover, .header-menu a:focus {
-    color: #0187cc;   
+    color: #0187cc;
     background-color: #f4f4f4;
 }
 
@@ -55,17 +55,17 @@
 
 }
 .search_price{
-    
+
 }
 .search_btn{
-    
+
 }
 
 .search_input:focus {
     background-color: #fff;
     border-color: #fff;
     box-shadow: none;
-  
+
 }
 
 .header-contact span {
@@ -84,7 +84,7 @@
                     @if($vc_company->logo_store)
                         <img src="{{ asset('storage/uploads/logos/'.$vc_company->logo_store) }}" alt="Logo" />
                     @else
-                        <img src="{{asset('logo/700x300.jpg')}}" alt="Logo" />
+                        <img src="{{asset('logo/tulogo.png')}}" alt="Logo" />
                     @endif
                  </a>
              </div><!-- End .header-left -->
@@ -98,7 +98,7 @@
                          <ul v-if="results.length > 0">
                             <li v-for="result in results">
                                 <a :href="'/ecommerce/item/' + result.id" class="d-flex">
-                                    <div class="flex-grow-1"><img style="max-width: 80px" :src="result.image_url_small" alt="England flag"> 
+                                    <div class="flex-grow-1"><img style="max-width: 80px" :src="result.image_url_small" alt="England flag">
                                     <span class="search_title" style="font-size: 1.0em;"> @{{ result.description }} </span>
                                     </div>
                                     <span class="search_price">@{{result.sale_unit_price}}</span>

@@ -11,6 +11,11 @@
             <tenant-signature-pse-index></tenant-signature-pse-index>
         </div>
 
+
+        <div class="col-lg-6 col-md-12 pt-2 pt-md-0 ui-sortable">
+            <tenant-payment-configurations-index></tenant-payment-configurations-index>
+        </div>
+
     </div>
     {{--<div class="row">--}}
         {{--<div class="col-lg-6 col-md-12">--}}

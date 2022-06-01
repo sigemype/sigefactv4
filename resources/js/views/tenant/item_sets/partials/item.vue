@@ -73,6 +73,7 @@
                 this.form = {
                     individual_item_id: null,
                     sale_unit_price: 0,
+                    purchase_unit_price: 0,
                     quantity: 1,
                     full_description: null
                 }
@@ -89,6 +90,7 @@
                 let item = _.find(this.individual_items, {'id': this.form.individual_item_id})
                 this.form.sale_unit_price = item.sale_unit_price
                 this.form.full_description = item.full_description
+                this.form.purchase_unit_price = item.purchase_unit_price
             
             }, 
             async clickAddItem() {

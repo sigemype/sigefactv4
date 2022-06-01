@@ -162,7 +162,19 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mt-4">
-                                <label class="control-label">Productos de una ubicación</label>
+                                <label class="control-label">
+                                    Productos de una ubicación (Stock)
+                                    
+                                    <el-tooltip class="item"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                        <div slot="content">
+                                            Mostrar stock de los productos de 1 almacén - Disponible en Listado de productos / POS Lista de productos.<br/>
+                                        </div>
+                                    </el-tooltip>
+
+                                </label>
                                 <div :class="{'has-danger': errors.product_only_location}"
                                         class="form-group">
                                     <el-switch v-model="form.product_only_location"
@@ -515,6 +527,79 @@
                                            v-text="errors.new_validator_pagination[0]"></small>
                                 </div>
                             </div>
+                            <div class="col-md-2 mt-4">
+                            </div>
+                            
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Filtrar clientes según vendedor asignado
+                                    <el-tooltip class="item"
+                                                content="Aplica para usuarios con perfil Vendedor - Disponible en Clientes y Ventas/Comprobante electrónico"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                 <div :class="{'has-danger': errors.customer_filter_by_seller}"
+                                        class="form-group">
+                                    <el-switch v-model="form.customer_filter_by_seller"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.customer_filter_by_seller"
+                                            class="form-control-feedback"
+                                            v-text="errors.customer_filter_by_seller[0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Habilitar registro de propinas
+                                    <el-tooltip class="item"
+                                                content="Disponible en POS"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                 <div :class="{'has-danger': errors.enabled_tips_pos}"
+                                        class="form-group">
+                                    <el-switch v-model="form.enabled_tips_pos"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.enabled_tips_pos"
+                                            class="form-control-feedback"
+                                            v-text="errors.enabled_tips_pos[0]"></small>
+                                </div>
+                            </div>
+
+                            
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Habilitar búsqueda avanzada
+                                    <el-tooltip class="item"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                        <div slot="content">
+                                            Disponible en Listado de productos/servicios para el campo Nombre.<br/>
+                                            Disponible en Listado de Inventario (Movimientos) para el campo Producto.<br/>
+                                            Disponible en Reporte Kardex para el campo Nombre y Código interno del Producto.<br/>
+                                        </div>
+                                    </el-tooltip>
+                                </label>
+                                 <div :class="{'has-danger': errors.enabled_advanced_records_search}"
+                                        class="form-group">
+                                    <el-switch v-model="form.enabled_advanced_records_search"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.enabled_advanced_records_search"
+                                            class="form-control-feedback"
+                                            v-text="errors.enabled_advanced_records_search[0]"></small>
+                                </div>
+                            </div>
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="third">
@@ -603,7 +688,7 @@
                                     @click.prevent="showDialogAllowanceCharge = true">[+ Aplicar cargos]</a>
                                 <el-tooltip
                                     class="item"
-                                    content="Disponible en Ventas - Comprobante electrónico"
+                                    content="Disponible en Ventas - Comprobante electrónico / Nota de venta"
                                     effect="dark"
                                     placement="top-start">
                                     <i class="fa fa-info-circle"></i>
@@ -761,6 +846,139 @@
                                     <small v-if="errors.global_discount_type_id"
                                             class="form-control-feedback"
                                             v-text="errors.global_discount_type_id[0]"></small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Restringir venta de productos menores al precio de compra 
+                                    <el-tooltip
+                                        class="item"
+                                        content="Validar que el precio de compra del producto no sea superior al de venta - Disponible Ventas/Comprobante electrónico - Nota de venta"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.validate_purchase_sale_unit_price}"
+                                        class="form-group">
+                                    <el-switch v-model="form.validate_purchase_sale_unit_price"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.validate_purchase_sale_unit_price"
+                                            class="form-control-feedback"
+                                            v-text="errors.validate_purchase_sale_unit_price[0]"></small>
+                                </div>
+                            </div>
+
+                            <template v-if="typeUser != 'integrator'">
+                                <div class="col-md-6 mt-4">
+                                    <label class="control-label">Restringir envío de comunicación de baja (RA)
+                                        <el-tooltip
+                                            class="item"
+                                            content="Se validará los días de plazo de envío para la anulación del documento - Disponible para anulaciones de Facturas y Notas relacionadas"
+                                            effect="dark"
+                                            placement="top-start">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.restrict_voided_send}"
+                                            class="form-group">
+                                        <el-switch v-model="form.restrict_voided_send"
+                                                    active-text="Si"
+                                                    inactive-text="No"
+                                                    @change="submit"></el-switch>
+                                        <small v-if="errors.restrict_voided_send"
+                                                class="form-control-feedback"
+                                                v-text="errors.restrict_voided_send[0]"></small>
+                                    </div>
+                                </div>
+
+                                <template v-if="form.restrict_voided_send" >
+                                    <div class="col-md-4 mt-4">
+                                        <label class="control-label">
+                                            Días de plazo de envío de la comunicación de baja
+                                        </label>
+                                        <div :class="{'has-danger': errors.shipping_time_days_voided}"
+                                                class="form-group">
+                                            <el-input-number v-model="form.shipping_time_days_voided"
+                                                                :min="1"
+                                                                :precision="0"
+                                                                :step="1"
+                                                                @change="submit"></el-input-number>
+                                            <small v-if="errors.shipping_time_days_voided"
+                                                    class="form-control-feedback"
+                                                    v-text="errors.shipping_time_days_voided[0]"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </template>
+                            </template>
+
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Asignar precio unitario a los productos desde registro relacionado
+                                    <el-tooltip
+                                        class="item"
+                                        content="Se asignará el precio unitario desde el registro relacionado (Cotización, Nota de venta) a la guía - Generar CPE desde Guía"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.set_unit_price_dispatch_related_record}"
+                                        class="form-group">
+                                    <el-switch v-model="form.set_unit_price_dispatch_related_record"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.set_unit_price_dispatch_related_record"
+                                            class="form-control-feedback"
+                                            v-text="errors.set_unit_price_dispatch_related_record[0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Agregar leyenda al XML (Amazonía)
+                                    <el-tooltip
+                                        class="item"
+                                        content="Registra la leyenda 2001 en el XML - Disponible Nuevo CPE (Facturas/Boletas)"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.legend_forest_to_xml}"
+                                        class="form-group">
+                                    <el-switch v-model="form.legend_forest_to_xml"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.legend_forest_to_xml"
+                                            class="form-control-feedback"
+                                            v-text="errors.legend_forest_to_xml[0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Modificar moneda al agregar producto
+                                    <el-tooltip
+                                        class="item"
+                                        content="Disponible en Nuevo CPE"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.change_currency_item}"
+                                        class="form-group">
+                                    <el-switch v-model="form.change_currency_item"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.change_currency_item"
+                                            class="form-control-feedback"
+                                            v-text="errors.change_currency_item[0]"></small>
                                 </div>
                             </div>
 
@@ -1025,6 +1243,50 @@
                                     </div>
                                 </div>
                             </div>
+
+                            
+                            <div class="col-md-3 mt-4">
+                                <label class="control-label">Modificar cantidad de decimales
+                                    <el-tooltip
+                                        class="item"
+                                        content="Disponible para el precio unitario de Facturas/Boletas en formato A4/A5, usando la plantilla pdf Default"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.change_decimal_quantity_unit_price_pdf}"
+                                        class="form-group">
+                                    <el-switch v-model="form.change_decimal_quantity_unit_price_pdf"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.change_decimal_quantity_unit_price_pdf"
+                                            class="form-control-feedback"
+                                            v-text="errors.change_decimal_quantity_unit_price_pdf[0]"></small>
+                                </div>
+                            </div>
+
+                            <template v-if="form.change_decimal_quantity_unit_price_pdf" >
+                                <div class="col-md-2 mt-4">
+                                    <label class="control-label">
+                                        Cantidad de decimales
+                                    </label>
+                                    <div :class="{'has-danger': errors.decimal_quantity_unit_price_pdf}"
+                                            class="form-group">
+                                        <el-input-number v-model="form.decimal_quantity_unit_price_pdf"
+                                                            :min="2"
+                                                            :max="6"
+                                                            :precision="0"
+                                                            :step="1"
+                                                            @change="submit"></el-input-number>
+                                        <small v-if="errors.decimal_quantity_unit_price_pdf"
+                                                class="form-control-feedback"
+                                                v-text="errors.decimal_quantity_unit_price_pdf[0]"></small>
+                                    </div>
+                                </div>
+                            </template>
+
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="five">
@@ -1066,7 +1328,9 @@
                         <span slot="label">Compras</span>
                         <tenant-configurations-form-purchases
                             :errors="errors"
+                            :form="form"
                             @EmitChange="UpdateFormPurchase"
+                            @submitConfigPurchase="submitConfigPurchase"
                         ></tenant-configurations-form-purchases>
 
                     </el-tab-pane>
@@ -1302,6 +1566,12 @@
                             </div>
                         </div>
                     </el-tab-pane>
+
+                    <el-tab-pane class="mb-3"  name="ten">
+                        <span slot="label">Reportes</span>
+                        <report-configurations-index></report-configurations-index>
+                    </el-tab-pane>
+                    
                 </el-tabs>
                 <terms-condition :form="form"
                                     :showClose="false"
@@ -1332,6 +1602,7 @@ import TermsCondition from '@views/quotations/partials/terms_condition.vue'
 import TermsConditionSale from '@views/documents/partials/terms_condition.vue'
 import AllowanceCharge from './partials/allowance_charge.vue'
 import {mapActions, mapState} from "vuex";
+import ReportConfigurationsIndex from './partials/report_configurations_index.vue'
 
 export default {
     props: [
@@ -1342,6 +1613,7 @@ export default {
         TermsCondition,
         TermsConditionSale,
         AllowanceCharge,
+        ReportConfigurationsIndex,
     },
     computed: {
         ...mapState([
@@ -1473,14 +1745,32 @@ export default {
                 permission_to_edit_cpe: false,
                 name_product_pdf_to_xml:false,
                 detraction_amount_rounded_int:false,
+                validate_purchase_sale_unit_price: false,
                 show_logo_by_establishment: false,
-                shipping_time_days: 0
+                shipping_time_days: 0,
+                customer_filter_by_seller: false,
+                checked_global_igv_to_purchase: false,
+                checked_update_purchase_price: false,
+                set_global_purchase_currency_items: false,
+                set_unit_price_dispatch_related_record: false,
+                restrict_voided_send: false,
+                shipping_time_days_voided: 0,
+                enabled_tips_pos: false,
+                legend_forest_to_xml: false,
+
+                change_currency_item: false,
+                enabled_advanced_records_search: false,
+                change_decimal_quantity_unit_price_pdf: false,
+                decimal_quantity_unit_price_pdf: false,
             };
         },
         UpdateFormPurchase(e) {
             //Añadir la variable para cada item en compra. No es posible pasar elemento form por vuex
             this.form.enabled_global_igv_to_purchase = this.config.enabled_global_igv_to_purchase
             this.submit();
+        },
+        submitConfigPurchase(){
+            this.submit()
         },
         changeDefaultDocumentType03(){
 

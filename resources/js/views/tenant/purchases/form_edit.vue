@@ -109,6 +109,22 @@
                             </div>
                         </div>
 
+                        
+                        <div class="col-md-8 mt-2 mb-2" v-if="configuration.enabled_global_igv_to_purchase">
+                            <div class="form-group">
+                                <el-checkbox v-model="localHasGlobalIgv"
+                                             :disabled="(form.items.length != 0 && configuration.enabled_global_igv_to_purchase)"
+                                             @change="changeHasGlobalIgv">¿La compra tiene igv?
+                                    <el-tooltip class="item"
+                                                content="Al estar la configuracion activa, sobreescribe el igv del item. Si no esta checado, el producto no tendra igv."
+                                                effect="dark"
+                                                placement="top-end">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </el-checkbox>
+                            </div>
+                        </div>
+
                         <div class="col-lg-6 col-md-6" v-if="form.has_client">
                             <div class="form-group">
                                 <label class="control-label">
@@ -358,7 +374,8 @@
                                     <tr v-for="(row, index) in form.items" :key="index">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ row.item.description }}<br/><small>{{ row.affectation_igv_type.description }}</small></td>
-                                        <td class="text-left">{{ (row.warehouse_description) ? row.warehouse_description : row.warehouse.description  }}</td>
+                                        <td class="text-left">{{ getWarehouseDescription(row)  }}</td>
+                                        <!-- <td class="text-left">{{ (row.warehouse_description) ? row.warehouse_description : row.warehouse.description  }}</td> -->
                                         <td class="text-left">{{ row.lot_code }}</td>
                                         <td class="text-center">{{ row.item.unit_type_id }}</td>
                                         <td class="text-right">{{ row.quantity }}</td>
@@ -444,6 +461,7 @@
         <purchase-form-item :showDialog.sync="showDialogAddItem"
                            :currency-type-id-active="form.currency_type_id"
                            :exchange-rate-sale="form.exchange_rate_sale"
+                           :localHasGlobalIgv="localHasGlobalIgv"
                            @add="addRow"></purchase-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
@@ -509,7 +527,10 @@
                 currency_type: {},
                 readonly_date_of_due: false,
                 configuration: {},
-                purchaseNewId: null
+                purchaseNewId: null,
+                localHasGlobalIgv: false,
+                warehouses: [],
+
             }
         },
         async created() {
@@ -527,6 +548,7 @@
                     this.all_customers = response.data.customers
                     this.configuration = response.data.configuration
                     this.payment_conditions = response.data.payment_conditions
+                    this.warehouses = response.data.warehouses
 
                     this.charges_types = response.data.charges_types
                     this.form.currency_type_id = (this.currency_types.length > 0)?this.currency_types[0].id:null
@@ -551,6 +573,7 @@
             await this.filterCustomers()
             await this.changeHasPayment()
             await this.changeHasClient()
+            this.initGlobalIgv()
         },
         computed: { 
             creditPaymentMethod: function () {
@@ -564,7 +587,32 @@
             },
         },
         methods: {
+            getWarehouse(id){
+                return _.find(this.warehouses, { id : id })
+            },
+            getWarehouseDescription(row){
 
+                let description = null
+
+                if(row.warehouse_description)
+                {
+                    description = row.warehouse_description
+                }
+                else if(row.warehouse)
+                {
+                    description = row.warehouse.description
+                }
+                else
+                {
+                    const warehouse = this.getWarehouse(row.warehouse_id)
+                    if(warehouse) description = warehouse.description
+                }
+
+                return description
+            },
+            changeHasGlobalIgv() { 
+
+            },
             changeHasPayment(){
 
                 if(!this.form.has_payment){
@@ -763,6 +811,9 @@
                 }
 
             },
+            setCurrencyType(){
+                this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
+            },
             initRecord()
             {
                 this.$http.get(`/${this.resource}/record/${this.resourceId}` )
@@ -784,6 +835,8 @@
                     this.form.purchase_payments_id = dato.purchase_payments.id
                     this.form.purchase_order_id = dato.purchase_order_id
                     this.form.customer_id = dato.customer_id
+
+                    this.setCurrencyType()
 
                     if(this.form.customer_id){
                         this.searchRemotePersons(dato.customer_number)
@@ -927,6 +980,12 @@
                 // this.clickAddPayment()
                 this.initInputPerson()
                 this.readonly_date_of_due = false
+
+                this.initGlobalIgv()
+
+            },
+            initGlobalIgv(){
+                this.localHasGlobalIgv = this.configuration.checked_global_igv_to_purchase
             },
             resetForm() {
                 this.initForm()

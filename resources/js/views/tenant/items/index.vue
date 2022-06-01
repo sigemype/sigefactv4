@@ -102,6 +102,9 @@
                                 >L. Atributos</a
                                 >
                             </template>
+                            
+                            <a class="dropdown-item text-1" href="#" @click.prevent="clickImportUpdatePrice()">Actualizar precios</a>
+
                         </div>
                     </div>
                 </template>
@@ -320,7 +323,6 @@
                                         >
                                             Duplicar
                                         </button>
-
                                         <button
                                             v-if="row.active"
                                             class="dropdown-item"
@@ -335,19 +337,36 @@
                                         >
                                             Habilitar
                                         </button>
-
                                         <button
                                             class="dropdown-item"
                                             @click.prevent="clickBarcode(row)"
                                         >
                                             Cod. Barras
                                         </button>
-
                                         <button
                                             class="dropdown-item"
                                             @click.prevent="clickPrintBarcode(row)"
                                         >
                                             Etiquetas
+                                        </button>
+                                        <div class="dropdown-divider"></div>
+                                        <button
+                                            class="dropdown-item"
+                                            @click.prevent="clickPrintBarcodeX(row, 1)"
+                                        >
+                                            Etiquetas 1x1
+                                        </button>
+                                        <button
+                                            class="dropdown-item"
+                                            @click.prevent="clickPrintBarcodeX(row, 2)"
+                                        >
+                                            Etiquetas 1x2
+                                        </button>
+                                        <button
+                                            class="dropdown-item"
+                                            @click.prevent="clickPrintBarcodeX(row, 3)"
+                                        >
+                                            Etiquetas 1x3
                                         </button>
                                     </template>
                                 </div>
@@ -392,6 +411,10 @@
             ></items-import-extra-info>
 
 
+            <items-import-update-price
+                :showDialog.sync="showImporUpdatePrice"
+            ></items-import-update-price>
+
             <!--
             : false,
             show_extra_info_to_item
@@ -424,6 +447,7 @@ import DataTable from "../../../components/DataTable.vue";
 import {deletable} from "../../../mixins/deletable";
 import ItemsHistory from "@viewsModuleItem/items/history.vue";
 import {mapActions, mapState} from "vuex";
+import ItemsImportUpdatePrice from "./partials/update_prices.vue";
 
 export default {
     props: [
@@ -443,6 +467,7 @@ export default {
         ItemsImportListPrice,
         ItemsImportExtraInfo,
         ItemsHistory,
+        ItemsImportUpdatePrice
     },
     data() {
         return {
@@ -455,6 +480,7 @@ export default {
             showExportExtraDialog: false,
             showImportListPriceDialog: false,
             showImportExtraWithExtraInfo: false,
+            showImporUpdatePrice: false,
             showWarehousesDetail: false,
             resource: "items",
             recordId: null,
@@ -622,6 +648,9 @@ export default {
         clickImportExtraWithExtraInfo() {
             this.showImportExtraWithExtraInfo = true;
         },
+        clickImportUpdatePrice(){
+            this.showImporUpdatePrice = true;
+        },
         clickDelete(id) {
             this.destroy(`/${this.resource}/${id}`).then(() =>
                 this.$eventHub.$emit("reloadData")
@@ -654,6 +683,15 @@ export default {
             }
 
             window.open(`/${this.resource}/export/barcode/print?id=${row.id}`);
+        },
+        clickPrintBarcodeX(row, x) {
+            if (!row.barcode) {
+                return this.$message.error(
+                    "Para generar el código de barras debe registrar el código de barras."
+                );
+            }
+
+            window.open(`/${this.resource}/export/barcode/print_x?format=${x}&id=${row.id}`);
         },
         getItems() {
             this.$http.get(`/${this.resource}/item/tables`).then(response => {

@@ -926,9 +926,11 @@ export default {
                 this.form.unit_price = this.recordItem.unit_price
                 this.form.unit_price_value = this.recordItem.input_unit_price_value
                 // this.form.unit_price_value = this.recordItem.input_unit_price_value
-                if (this.recordItem.item.has_igv == false) {
-                    this.form.unit_price = this.recordItem.total_base_igv
-                }
+                // if (this.recordItem.item.has_igv == false) {
+                //     this.form.unit_price = this.recordItem.total_base_igv
+                // }
+
+                this.setHasIgvUpdate()
                 this.form.has_plastic_bag_taxes = (this.recordItem.total_plastic_bag_taxes > 0) ? true : false
                 this.form.warehouse_id = this.recordItem.warehouse_id
                 if (this.recordItem.item.name_product_pdf) {
@@ -947,6 +949,16 @@ export default {
                 this.calculateQuantity()
             } else {
                 this.isUpdateWarehouseId = null
+            }
+
+        },
+        setHasIgvUpdate(){
+            
+            if(this.recordItem.item)
+            {
+                this.form.has_igv = this.recordItem.item.has_igv
+                
+                if(this.form.item) this.form.item.has_igv = this.recordItem.item.has_igv
             }
 
         },
@@ -1297,7 +1309,7 @@ export default {
         },
         async getLastPriceItem() {
             this.itemLastPrice =null
-            if(this.configuration.show_last_price_sale) {
+            if(this.config.show_last_price_sale) {
                 if(this.customerId && this.form.item_id) {
                     const params = {
                         'type_document': 'QUOTATION',

@@ -1098,6 +1098,16 @@ export default {
                 }
             }
 
+            //validar precio compra y venta
+            if(this.configuration.validate_purchase_sale_unit_price)
+            {
+                let val_purchase_unit_price = parseFloat(this.form.item.purchase_unit_price)
+                
+                if(val_purchase_unit_price > parseFloat(unit_price)){
+                    return this.$message.error(`El precio de compra no puede ser superior al precio de venta (P. Compra: ${val_purchase_unit_price})`)
+                }
+            }
+            
             this.form.input_unit_price_value = this.form.unit_price_value;
 
             this.form.unit_price = unit_price;

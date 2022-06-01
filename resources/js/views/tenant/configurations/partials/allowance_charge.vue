@@ -3,7 +3,7 @@
         <form autocomplete="off" @submit.prevent="submit">
             <div class="form-body">
                 <div class="row">
-                    <div class="col-md-8"> 
+                    <div class="col-md-8">
                         <div class="form-group">
                             <label class="control-label">Aplicar cargo automático
                             </label>
@@ -29,7 +29,7 @@
 </template>
 
 <script>
- 
+
 
     export default {
         props:['showDialog', 'form'],

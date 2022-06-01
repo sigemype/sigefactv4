@@ -97,6 +97,18 @@
                                                 @click.prevent="clickEnable(row.id)">Habilitar
                                         </button>
                                     </div>
+                                    <button
+                                        class="dropdown-item"
+                                        @click.prevent="clickBarcode(row)"
+                                    >
+                                        Cod. Barras
+                                    </button>
+                                    <button
+                                        class="dropdown-item"
+                                        @click.prevent="clickPrintBarcode(row)"
+                                    >
+                                        Etiquetas
+                                    </button>
                                 </div>
                             </div>
                         </td>
@@ -238,6 +250,24 @@ export default {
             this.enable(`/${this.resource}/enabled/${1}/${id}`).then(() =>
                 this.$eventHub.$emit('reloadData')
             )
+        },
+        clickBarcode(row) {
+            if (!row.barcode) {
+                return this.$message.error(
+                    "Para generar el código de barras debe registrar el código de barras."
+                );
+            }
+
+            window.open(`/${this.resource}/barcode/${row.id}`);
+        },
+        clickPrintBarcode(row) {
+            if (!row.barcode) {
+                return this.$message.error(
+                    "Para generar el código de barras debe registrar el código de barras."
+                );
+            }
+
+            window.open(`/${this.resource}/export/barcode/print?id=${row.id}`);
         },
     }
 }

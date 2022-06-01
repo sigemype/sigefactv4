@@ -47,7 +47,7 @@
                         <a class="dropdown-item text-1"
                            href="#"
                            @click.prevent="clickDownloadReportPagos()">Descargar
-                                                                       Excel de pagos</a>
+                                                                       Excel</a>
                         <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportDocuments()">Generar Reporte de Comprobantes</a>
                     </div>
                 </div>
@@ -774,9 +774,6 @@ export default {
         clickDownloadReportPagos() {
 
             this.showDialogReportPaymentComplete = true
-        },
-        clickDownloadReportDocuments(){
-            this.showDialogReportDocuments = true
         },
         clickImportSecond() {
             this.showImportSecondDialog = true

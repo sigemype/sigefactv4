@@ -43,8 +43,22 @@
                             <div class="form-group" :class="{'has-danger': errors.phone}">
                                 <label class="control-label">Teléfono</label>
                                 <el-input v-model="form.phone"></el-input>
-                                <small class="form-control-feedback text-muted">Se mostrará un icono de Whatsapp en cada cliente. Agregar codigo de pais, ejemplo; 51955955955</small>
+                                <small class="form-control-feedback text-muted">Agregar codigo de pais, ejemplo; 51955955955</small>
                                 <small class="form-control-feedback" v-if="errors.phone" v-text="errors.phone[0]"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Ver icono de soporte</label>
+                            <div :class="{'has-danger': errors.enable_whatsapp}">
+                                <el-switch
+                                    v-model="form.enable_whatsapp"
+                                    active-text="Si"
+                                    inactive-text="No"
+                                    @change="submitForm">
+                                </el-switch>
+                                <small class="form-control-feedback" v-if="errors.enable_whatsapp" v-text="errors.enable_whatsapp[0]"></small>
+                                <br>
+                                <small class="form-control-feedback">Se mostrará un icono de Whatsapp en cada cliente.</small>
                             </div>
                         </div>
                     </div>
@@ -89,6 +103,7 @@
                     password: null,
                     password_confirmation: null,
                     phone: null,
+                    enable_whatsapp: true
                 }
             },
             submit() {

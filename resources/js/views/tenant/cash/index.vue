@@ -63,10 +63,20 @@
                             <!-- <button type="button" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickDownloadProducts(row.id)">Reporte Productos</button> -->
 
                             <div class="btn-group flex-wrap">
+                                <button type="button" class="btn waves-effect waves-light btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Reporte Efectivo <span class="caret"></span></button>
+                                <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
+                                    <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'pdf')">PDF</a> -->
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportCash(row.id, 'excel')">Excel</a>
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReportIncomeEgress(row.id)">Ingresos y egresos</a>
+                                </div>
+                            </div>
+
+                            <div class="btn-group flex-wrap">
                                 <button type="button" class="btn waves-effect waves-light btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Reporte Productos <span class="caret"></span></button>
                                 <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 42px, 0px);">
-                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'pdf')">PDF</a>
-                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'excel')">Excel</a>
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'pdf')">Punto de venta - PDF</a>
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'excel')">Punto de venta - Excel</a>
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'pdf', true)">Venta rápida - PDF</a>
                                 </div>
                             </div>
 
@@ -220,7 +230,7 @@
             {
                   window.open(`/${this.resource}/report`, '_blank');
             },
-            clickDownloadProducts(id, type)
+            clickDownloadProducts(id, type, is_garage = false)
             {
 
                 if(type == 'excel'){
@@ -228,9 +238,24 @@
                     return
                 }
 
+                window.open(`/${this.resource}/report/products/${id}/${is_garage}`, '_blank');
+                // window.open(`/${this.resource}/report/products/${id}`, '_blank');
+
+            },
+            clickDownloadReportCash(id, type)
+            {
+
+                if(type == 'excel'){
+                    window.open(`/${this.resource}/report/cash-excel/${id}`, '_blank');
+                    return
+                }
+
                 window.open(`/${this.resource}/report/products/${id}`, '_blank');
 
-            }
+            },
+            clickDownloadReportIncomeEgress(id){
+                window.open(`/${this.resource}/report-cash-income-egress/${id}`, '_blank');
+            },
         }
     }
 </script>

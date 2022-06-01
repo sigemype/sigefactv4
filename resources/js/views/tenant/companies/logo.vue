@@ -50,7 +50,7 @@ export default {
         src() {
             if (this.path_logo != '') return this.path_logo;
 
-            return '/logo/700x300.jpg';
+            return '/logo/tulogo.png';
         },
         div_src() {
             if (this.position_class != '') {

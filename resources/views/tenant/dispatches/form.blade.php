@@ -7,5 +7,10 @@
         :type-document="{{ json_encode($type) }}"
         :dispatch="{{ json_encode($dispatch) }}"
         :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
+        
+        @if(isset($sale_note))
+            :sale_note="{{ json_encode($sale_note) }}"
+        @endif
+
     ></tenant-dispatches-form>
 @endsection

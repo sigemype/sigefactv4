@@ -18,7 +18,11 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(row, index) in items" :key="index">
-                                        <td class="text-center">{{row.item.description}}</td>
+                                        <td class="text-center">{{ setDescriptionOfItem(row.item) }}
+                                        {{
+                                        row.item.presentation.hasOwnProperty('description') ?
+                                        row.item.presentation.description : ''
+                                        }}</td>
                                         <td class="text-center">{{row.quantity}}</td>
                                         <td class="series-table-actions text-right">
                                             <button  type="button" class="btn waves-effect waves-light btn-xs btn-success" @click.prevent="openDialogLots(row.item.lots, row.item_id)">
@@ -59,9 +63,10 @@
     // import Lots from "./lots.vue";
     import SelectLotsForm from '../../documents/partials/lots.vue'
     import SelectWarehouses from './select_warehouses.vue'
+    import {showNamePdfOfDescription} from '../../../../helpers/functions'
 
     export default {
-        props:['items'],
+        props:['items','config'],
         components:{SelectLotsForm, SelectWarehouses},
 
         data()
@@ -126,7 +131,10 @@
             },
             addRowSelectLot(){
 
-            }
+            },
+            setDescriptionOfItem(item) {
+                return showNamePdfOfDescription(item, this.config.show_pdf_name)
+            },
 
         }
     }

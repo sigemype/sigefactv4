@@ -27,8 +27,7 @@
                 <i class="fa custom-caret"></i>
             </a>
             <div class="dropdown-menu">
-                <ul class="list-unstyled mb-2">
-                    <li class="divider"></li>
+                <ul class="list-unstyled mb-0">
                     <li>
                         <a role="menuitem" href="{{ route('system.users.create') }}"><i class="fas fa-user"></i> Perfil</a>
                         <a role="menuitem" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

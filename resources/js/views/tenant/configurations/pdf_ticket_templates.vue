@@ -150,10 +150,16 @@ export default {
             this.form.current_format = selected.template_ticket_pdf;
         },
         refreshTickets() {
-            this.$http.get(`/${this.resource}/templates/ticket/refresh`).then(response => {
-                this.$message.success(response.data.message);
-                location.reload()
-            })
+            this.$http.all([
+                this.$http.get(`/${this.resource}/templates/ticket/refresh`),
+                this.$http.get(`/${this.resource}/addSeeder`)
+            ]).then(
+                this.$http.spread((...responses) => {
+                    this.$message.success(responses[0].data.message);
+                    this.$message.success(responses[1].data.message);
+                    location.reload()
+                })
+            )
         },
         viewImage(template) {
             this.template = template

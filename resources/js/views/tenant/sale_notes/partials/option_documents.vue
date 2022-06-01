@@ -448,14 +448,13 @@
 
                 let error_by_item = 0
                 let message = ""
-
                 this.document.fee.forEach((item)=>{
-                    console.error(item)
+                    // console.error(item)
                     var date_issue = moment(this.document.date_of_issue).format('YYYY-MM-DD')
                     var date_payment = moment(item.date).format('YYYY-MM-DD')
-                    if(date_issue > date_payment){
+                    if(date_issue >= date_payment){
                         error_by_item++;
-                        message = "Verificar fechas de pago, no pueden ser anteriores a la fecha de emisión";
+                        message = "Verificar fechas de pago, no pueden ser anteriores o igual a la fecha de emisión";
                     }
                 })
 
@@ -478,7 +477,8 @@
                     return this.$message.error(validate_payment_destination.message);
                 }
 
-                let validate_payment_date = await this.validatePaymentDate()
+                let validate_payment_date = this.validatePaymentDate()
+                console.log(validate_payment_date)
 
                 if(validate_payment_date.error_by_item > 0) {
                     return this.$message.error(validate_payment_date.message);

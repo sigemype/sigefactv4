@@ -1,55 +1,50 @@
 <template>
     <div id="styleSwitcher" class="style-switcher">
 
-        <a id="styleSwitcherOpen" class="style-switcher-open" href="#"><i class="fas fa-cogs"></i></a>
+        <a id="styleSwitcherOpen" class="style-switcher-open" href="#">
+            <i class="fas fa-paint-brush"></i>
+        </a>
 
         <form class="style-switcher-wrap" autocomplete="off">
-
             <h4>Configuraciones visuales</h4>
-
             <div v-if="visual == null">
                 <h5 class="">No posee ajustes actualmente</h5>
                 <a href="" class="text-warning" v-if="typeUser != 'integrator'">cargar ajustes por defecto</a>
                 <br>
             </div>
-            <div v-if="typeUser != 'integrator'">
+            <div v-if="typeUser != 'integrator'" class="pt-3">
+                <div class="text-right">
+                    <a v-if="visuals.bg == 'white'"
+                        href="/configurations/change-mode"
+                        class="notification-icon text-secondary"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Modo noche"
+                        style="text-decoration: none;">
+                        <i class="fas fa-2x fa-moon"></i>
+                    </a>
+                    <a v-if="visuals.bg == 'dark'"
+                        href="/configurations/change-mode"
+                        class="notification-icon text-white"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Modo día"
+                        style="text-decoration: none;">
+                        <i class="fa-2x wi-sun"></i>
+                    </a>
+                </div>
 
-                <!-- <h5>Fondo oscuro</h5>
-                <el-switch
-                    v-model="visuals.bg"
-                    active-text="Dark"
-                    inactive-text="Light"
-                    active-value="dark"
-                    inactive-value="light"
-                    active-color="#383f48"
-                    inactive-color="#ccc"
-                    @change="submit">
-                </el-switch> -->
-
-                <!-- <div class="hidden-on-dark pt-3">
-                    <h5>Encabezado</h5>
-                    <el-switch
-                        v-model="visuals.header"
-                        active-text="Dark"
-                        inactive-text="Light"
-                        active-value="dark"
-                        inactive-value="light"
-                        active-color="#383f48"
-                        inactive-color="#ccc"
-                        @change="submit">
-                    </el-switch>
-                </div> -->
 
                 <div class="pt-3">
                     <h5>Color de fondo del sidebar</h5>
                     <div class="form-group el-custom-control">
                         <button :class="{ 'active': visuals.sidebar_theme === 'white' }" type="button" @click="onChangeBgSidebar('white')" class="btn" style="background-color: #ffffff;"></button>
                         <button :class="{ 'active': visuals.sidebar_theme === 'blue' }" type="button" @click="onChangeBgSidebar('blue')" class="btn" style="background-color: #7367f0;"></button>
-                        <button :class="{ 'active': visuals.sidebar_theme === 'gray' }" type="button" @click="onChangeBgSidebar('gray')" class="btn" style="background-color: #82868b;"></button>
+                        <!-- <button :class="{ 'active': visuals.sidebar_theme === 'gray' }" type="button" @click="onChangeBgSidebar('gray')" class="btn" style="background-color: #82868b;"></button> -->
                         <button :class="{ 'active': visuals.sidebar_theme === 'green' }" type="button" @click="onChangeBgSidebar('green')" class="btn" style="background-color: #28c76f;"></button>
                         <button :class="{ 'active': visuals.sidebar_theme === 'red' }" type="button" @click="onChangeBgSidebar('red')" class="btn" style="background-color: #ea5455;"></button>
-                        <button :class="{ 'active': visuals.sidebar_theme === 'warning' }" type="button" @click="onChangeBgSidebar('warning')" class="btn" style="background-color: #ff9f43;"></button>
-                        <button :class="{ 'active': visuals.sidebar_theme === 'ligth-blue' }" type="button" @click="onChangeBgSidebar('ligth-blue')" class="btn" style="background-color: #00cfe8;"></button>
+                        <!-- <button :class="{ 'active': visuals.sidebar_theme === 'warning' }" type="button" @click="onChangeBgSidebar('warning')" class="btn" style="background-color: #ff9f43;"></button> -->
+                        <!-- <button :class="{ 'active': visuals.sidebar_theme === 'ligth-blue' }" type="button" @click="onChangeBgSidebar('ligth-blue')" class="btn" style="background-color: #00cfe8;"></button> -->
                         <button :class="{ 'active': visuals.sidebar_theme === 'dark' }" type="button" @click="onChangeBgSidebar('dark')" class="btn" style="background-color: #283046;"></button>
                     </div>
                 </div>
@@ -82,30 +77,38 @@
                 </div>
 
                 <div class="pt-3">
-                    <h5>Ver icono de soporte</h5>
-                    <div :class="{'has-danger': errors.enable_whatsapp}">
-                        <el-switch
-                            v-model="form.enable_whatsapp"
-                            active-text="Si"
-                            inactive-text="No"
-                            @change="submitForm">
-                        </el-switch>
-                        <small class="form-control-feedback" v-if="errors.enable_whatsapp" v-text="errors.enable_whatsapp[0]"></small>
-                        <br>
-                        <small class="form-control-feedback">Se mostrará si su administrador ha añadido número de soporte: Administrador/Perfil/Teléfono</small>
+                    <h5>Cambiar tema</h5>
+                    <div :class="{'has-danger': errors.compact_sidebar}">
+                        <el-select
+                            v-model="form.skin_id"
+                            placeholder="Tema"
+                            @change="submitForm"
+                            class="pb-3">
+                            <el-option
+                                v-for="item in skins"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
+                        <small class="form-control-feedback" v-if="errors.compact_sidebar" v-text="errors.compact_sidebar[0]"></small>
+                        <el-button type="button" @click="dialogSkins()" color="primary">Subir tema</el-button>
                     </div>
                 </div>
 
             </div>
         </form>
-
+        <dialog-skins :showDialog.sync="dialogSkinsVisible" :skins.sync="skins"/>
     </div>
 </template>
 
 <script>
+    import DialogSkins from './partials/dialog_skins.vue'
     export default {
         props:['visual','typeUser'],
-
+        components: {
+            DialogSkins
+        },
         data() {
             return {
                 loading_submit: false,
@@ -113,6 +116,8 @@
                 errors: {},
                 form: {},
                 visuals: {},
+                skins: {},
+                dialogSkinsVisible: false
             }
         },
         async created() {
@@ -132,6 +137,7 @@
                     colums_grid_item: 4,
                     enable_whatsapp: true,
                     phone_whatsapp: '',
+                    skins: 1,
                 }
             },
             getRecords() {
@@ -139,6 +145,7 @@
                     if (response.data !== ''){
                         this.visuals = response.data.data.visual;
                         this.form = response.data.data;
+                        this.skins = response.data.data.skins;
                     }
                 });
             },
@@ -182,6 +189,9 @@
                 }).then(() => {
                     this.loading_submit = false;
                 });
+            },
+            dialogSkins() {
+                this.dialogSkinsVisible = true
             },
         }
     }

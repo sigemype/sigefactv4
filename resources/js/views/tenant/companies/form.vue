@@ -370,11 +370,29 @@ export default {
                 console.log(2)
 
             })
+        
+        this.events()
     },
     methods: {
         ...mapActions([
             'loadConfiguration',
         ]),
+        events(){
+
+            this.$eventHub.$on('reloadDataCompany', () => {
+                this.getRecord()
+            })
+
+        },
+        async getRecord(){
+            
+            await this.$http.get(`/${this.resource}/record`)
+                    .then(response => {
+                        if (response.data !== '') {
+                            this.form = response.data.data
+                        }
+                    })
+        },
         initForm() {
             this.errors = {}
             this.form = {

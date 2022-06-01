@@ -76,6 +76,19 @@
                                             <i class="fa fa-search"></i>
                                         </el-button>
                                     </el-tooltip>
+                                    <el-tooltip
+                                        slot="append"
+                                        :disabled="recordItem != null"
+                                        class="item"
+                                        content="Historial de ventas"
+                                        effect="dark"
+                                        placement="bottom">
+                                        <el-button
+                                            :disabled="isEditItemNote"
+                                            @click.prevent="clickHistorySales()">
+                                            <i class="fa fa-list"></i>
+                                        </el-button>
+                                    </el-tooltip>
                                 </el-input>
                             </template>
                             <template v-else>
@@ -124,6 +137,10 @@
                                                                             barras
                                 </el-checkbox>
                                 <br>
+                                <template v-if="search_item_by_barcode">
+                                    <el-checkbox v-model="search_item_by_barcode_presentation">Por presentación</el-checkbox>
+                                    <br>
+                                </template>
                             </template>
                             <el-checkbox v-model="form.has_plastic_bag_taxes"
                                          :disabled="isEditItemNote">Impuesto a la
@@ -199,15 +216,42 @@
                                         <i class="fa fa-info-circle"></i>
                                 </el-tooltip>
                             </label>
-                            <el-input v-model="form.unit_price_value"
-                                      :tabindex="'3'"
-                                      :readonly="!edit_unit_price"
-                                      @input="calculateQuantity">
-                                <template v-if="form.item.currency_type_symbol"
-                                          slot="prepend">
-                                    {{ form.item.currency_type_symbol }}
+
+                            <template v-if="configuration.change_currency_item && isFromInvoice">
+
+                                <template v-if="form.item">
+                                    <el-input v-model="form.unit_price_value"
+                                            :tabindex="'3'"
+                                            :readonly="!edit_unit_price"
+                                            @input="calculateQuantity">
+
+                                        <template v-if="form.item.currency_type_symbol">
+                                            <el-select slot="prepend" v-model="form.item.currency_type_id" class="el-select-currency">
+
+                                                <el-option v-for="option in currencyTypes"
+                                                            :key="option.id"
+                                                            :label="option.symbol"
+                                                            :value="option.id"></el-option>
+                                            </el-select>
+                                        </template>
+                                    </el-input>
                                 </template>
-                            </el-input>
+                                
+                            </template>
+                            <template v-else>
+
+                                <el-input v-model="form.unit_price_value"
+                                        :tabindex="'3'"
+                                        :readonly="!edit_unit_price"
+                                        @input="calculateQuantity">
+                                    <template v-if="form.item.currency_type_symbol"
+                                            slot="prepend">
+                                        {{ form.item.currency_type_symbol }}
+                                    </template>
+                                </el-input>
+
+                            </template>
+
                             <small v-if="errors.unit_price_value"
                                    class="form-control-feedback"
                                    v-text="errors.unit_price[0]"></small>
@@ -526,14 +570,17 @@
         </form>
         <item-form :external="true"
                    :showDialog.sync="showDialogNewItem"></item-form>
-
-
         <warehouses-detail
             :isUpdateWarehouseId="isUpdateWarehouseId"
             :showDialog.sync="showWarehousesDetail"
             :warehouses="warehousesDetail">
         </warehouses-detail>
-
+        <history-sales-form
+            :showDialog.sync="showDialogHistorySales"
+            :item_id="history_item_id"
+            :customer_id="this.customerId"
+            :type="true"
+        ></history-sales-form>
         <lots-group
             :lots_group="form.lots_group"
             :quantity="form.quantity"
@@ -558,6 +605,11 @@
     margin-right: 5% !important;
     max-width: 80% !important;
 }
+
+.el-select-currency {
+    width: 59px;
+}
+
 </style>
 
 <script>
@@ -574,7 +626,7 @@ import VueCkeditor from 'vue-ckeditor5'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import {ItemOptionDescription, ItemSlotTooltip} from "../../../../helpers/modal_item";
 import Keypress from "vue-keypress";
-
+import HistorySalesForm from "../../../../../../modules/Pos/Resources/assets/js/views/history/sales.vue";
 export default {
     props: [
         'recordItem',
@@ -588,7 +640,9 @@ export default {
         'documentTypeId',
         'noteCreditOrDebitTypeId',
         'displayDiscount',
-        'customerId'
+        'customerId',
+        'currencyTypes',
+        'isFromInvoice',
     ],
     components: {
         ItemForm,
@@ -596,6 +650,7 @@ export default {
         Keypress,
         LotsGroup,
         SelectLotsForm,
+        HistorySalesForm,
         'vue-ckeditor': VueCkeditor.component
     },
     data() {
@@ -641,7 +696,9 @@ export default {
             },
             value1: 'hello',
             readonly_total: 0,
-            itemLastPrice: null
+            itemLastPrice: null,
+            search_item_by_barcode_presentation: false,
+            showDialogHistorySales: false,
             //item_unit_type: {}
         }
     },
@@ -847,17 +904,20 @@ export default {
             this.calculateTotal()
         },
         async searchRemoteItems(input) {
-            if (input.length > 2) {
+
+            if (input.length > 2) 
+            {
                 this.loading_search = true
                 const params = {
                     'input': input,
-                    'search_by_barcode': this.search_item_by_barcode ? 1 : 0
+                    'search_by_barcode': this.search_item_by_barcode ? 1 : 0,
+                    'search_item_by_barcode_presentation': this.search_item_by_barcode_presentation ? 1 : 0,
                 }
                 await this.$http.get(`/${this.resource}/search-items/`, {params})
                     .then(response => {
                         this.items = response.data.items
                         this.loading_search = false
-                        this.enabledSearchItemsBarcode()
+                        this.enabledSearchItemsBarcode(input)
                         this.enabledSearchItemBySeries()
                         if (this.items.length == 0) {
                             this.filterItems()
@@ -871,14 +931,37 @@ export default {
         filterItems() {
             this.items = this.all_items
         },
-        enabledSearchItemsBarcode() {
+        enabledSearchItemsBarcode(input) {
             if (this.search_item_by_barcode) {
+
                 this.$refs.selectBarcode.$data.selectedLabel = '';
-                if (this.items.length == 1) {
-                    this.form.item_id = this.items[0].id;
-                    this.$refs.selectBarcode.blur();
-                    this.changeItem();
+
+                //busqueda por presentacion
+                if(this.search_item_by_barcode_presentation)
+                {
+                    if (this.items.length == 1)
+                    {
+                        const item_unit_type = _.find(this.items[0].item_unit_types, { barcode : input})
+    
+                        if(!_.isEmpty(item_unit_type))
+                        {
+                            this.form.item_id = this.items[0].id;
+                            this.$refs.selectBarcode.blur();
+                            this.changeItem()
+                            this.selectedPrice(item_unit_type)
+                        }
+                    }
                 }
+                //busqueda comun
+                else
+                {
+                    if (this.items.length == 1) {
+                        this.form.item_id = this.items[0].id;
+                        this.$refs.selectBarcode.blur();
+                        this.changeItem();
+                    }
+                }
+
             }
         },
         async enabledSearchItemBySeries() {
@@ -1223,6 +1306,8 @@ export default {
         },
         async clickAddItem() {
 
+            if(parseFloat(this.form.unit_price_value) <= 0) return this.$message.error('El Precio Unitario debe ser mayor a 0');
+
             // if(this.form.quantity < this.getMinQuantity()){
             //     return this.$message.error(`La cantidad no puede ser inferior a ${this.getMinQuantity()}`);
             // }
@@ -1252,6 +1337,18 @@ export default {
 
                 }
             }
+
+            
+            //validar precio compra y venta
+            if(this.configuration.validate_purchase_sale_unit_price)
+            {
+                let val_purchase_unit_price = parseFloat(this.form.item.purchase_unit_price)
+                
+                if(val_purchase_unit_price > parseFloat(unit_price)){
+                    return this.$message.error(`El precio de compra no puede ser superior al precio de venta (P. Compra: ${val_purchase_unit_price})`)
+                }
+            }
+
 
             this.form.input_unit_price_value = this.form.unit_price_value;
 
@@ -1289,6 +1386,8 @@ export default {
             this.row.IdLoteSelected = IdLoteSelected
             this.row.document_item_id = document_item_id
 
+            this.showMessageDetraction()
+
             this.$emit('add', this.row);
 
             if (this.search_item_by_barcode) {
@@ -1300,6 +1399,14 @@ export default {
             } else {
                 this.setFocusSelectItem();
             }
+        },
+        showMessageDetraction(){
+
+            let total = (this.currencyTypeIdActive === 'PEN') ? this.row.total : (this.row.total * this.exchangeRateSale)
+            let total_restriction = 700
+
+            if (total >= total_restriction && this.row.item.subject_to_detraction) this.$message.warning('El producto/servicio vendido está sujeto a detracción')
+
         },
         cleanItems() {
             this.items = []
@@ -1570,6 +1677,17 @@ export default {
             }
            
         }
+        ,
+        clickHistorySales() {
+            if (!this.form.item_id) {
+                return this.$message.error('Seleccione un item');
+            }
+
+            let item = _.find(this.items, {'id': this.form.item_id});
+            this.history_item_id = item.id;
+            this.showDialogHistorySales = true;
+            // console.log(item)
+        },
     }
 }
 

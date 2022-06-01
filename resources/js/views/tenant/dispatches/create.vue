@@ -263,6 +263,23 @@
                                        v-text="errors.observations[0]"></small>
                             </div>
                         </div>
+
+                        <div class="col-lg-2" v-if="!order_form_id">
+                            <div :class="{'has-danger': errors.order_form_external}"
+                                 class="form-group">
+                                <label class="control-label">Orden de pedido
+                                    <el-tooltip class="item"
+                                                content="Pedidos externos"
+                                                effect="dark"
+                                                placement="top">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <el-input v-model="form.order_form_external"></el-input>
+                                <small v-if="errors.order_form_external" class="form-control-feedback" v-text="errors.order_form_external[0]"></small>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="row">
                     </div>
@@ -613,20 +630,42 @@
                                         <div class="col-8">
                                             <!-- Selector para item -->
                                             <div :class="{'has-danger': errors.items}"
-                                                 class="form-group">
-                                                <el-select v-model="current_item"
-                                                           :loading="loading_search"
-                                                           :remote-method="searchRemoteItems"
-                                                           filterable
-                                                           remote
-                                                           ref="selectItem"
-                                                           @change="onChangeItem">
-                                                    <el-option
-                                                        v-for="option in items"
-                                                        :key="option.id"
-                                                        :label="option.full_description"
-                                                        :value="option.id"></el-option>
-                                                </el-select>
+                                                 class="form-group" id="custom-select">
+
+                                                <el-input id="custom-input">
+
+                                                    <el-select v-model="current_item"
+                                                            id="select-width"
+                                                            :loading="loading_search"
+                                                            :remote-method="searchRemoteItems"
+                                                            popper-class="el-select-items"
+                                                            filterable
+                                                            remote
+                                                            ref="selectItem"
+                                                            slot="prepend"
+                                                            @change="onChangeItem">
+
+                                                        <el-option
+                                                            v-for="option in items"
+                                                            :key="option.id"
+                                                            :label="option.full_description"
+                                                            :value="option.id"></el-option>
+                                                    </el-select>
+
+                                                    <el-tooltip
+                                                        slot="append"
+                                                        class="item"
+                                                        content="Ver Stock del Producto"
+                                                        effect="dark"
+                                                        placement="bottom">
+                                                        <el-button
+                                                            @click.prevent="clickWarehouseDetail()">
+                                                            <i class="fa fa-search"></i>
+                                                        </el-button>
+                                                    </el-tooltip>
+
+                                                </el-input>
+
                                                 <small v-if="errors.items"
                                                        class="form-control-feedback"
                                                        v-text="errors.items[0]"></small>
@@ -730,6 +769,12 @@
             :showDialog.sync="showDialogLots"
             @addRowLotGroup="addRowLotGroup">
         </lots-group>
+        
+        <warehouses-detail
+            :showDialog.sync="showWarehousesDetail"
+            :warehouses="warehousesDetail">
+        </warehouses-detail>
+
     </div>
 </template>
 
@@ -741,6 +786,7 @@ import LotsGroup from '../documents/partials/lots_group.vue';
 
 import DispatchOptions from './partials/options.vue'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+import WarehousesDetail from '@components/WarehousesDetail.vue'
 
 export default {
     props: [
@@ -753,6 +799,7 @@ export default {
         PersonForm,
         Items,
         DispatchOptions,
+        WarehousesDetail,
     },
     computed: {
         ...mapState([
@@ -858,6 +905,8 @@ export default {
             recordId: null,
             company: {},
             customerAddresses: [],
+            showWarehousesDetail: false,
+            warehousesDetail: [],
         }
     },
     created() {
@@ -908,6 +957,17 @@ export default {
         })
     },
     methods: {
+        clickWarehouseDetail(){
+
+            if (!this.current_item) {
+                return this.$message.error('Seleccione un producto');
+            }
+
+            const item = _.find(this.items, {'id': this.current_item});
+
+            this.warehousesDetail = item.warehouses
+            this.showWarehousesDetail = true
+        },
         changeTransferReasonType(){
 
             // exportacion
@@ -1068,12 +1128,19 @@ export default {
             }
         },
         onLoadItemsFromSummary(items, itemsFromStorage) {
+
             items.map(it => {
-                const itemWithQuantity = itemsFromStorage.find(i => i.id == it.id);
-                if (itemWithQuantity) {
+                // const itemWithQuantity = itemsFromStorage.find(i => i.id == it.id);
+
+                const quantityByItems = _.sumBy(itemsFromStorage.filter(i => i.id == it.id), function(row){
+                    return parseFloat(row.quantity)
+                })
+
+                if (quantityByItems) {
                     this.addItem({
                         item: it,
-                        quantity: itemWithQuantity.quantity
+                        quantity: quantityByItems
+                        // quantity: itemWithQuantity.quantity
                     });
                 }
             });
@@ -1274,6 +1341,7 @@ export default {
                     semitrailer: null
                 },
                 related: {},
+                order_form_external: null,
             }
 
             this.changeEstablishment();

@@ -1,39 +1,15 @@
 <header class="header">
     <div class="logo-container">
-        {{-- <a href="{{route('tenant.dashboard.index')}}" class="logo pt-2 pt-md-0">
-
-            @if($vc_company->logo)
-                <img src="{{ asset('storage/uploads/logos/'.$vc_company->logo) }}" alt="Logo" />
-            @else
-                <img src="{{asset('logo/700x300.jpg')}}" alt="Logo" />
-            @endif
-        </a> --}}
         <div class="sidebar-toggle" data-toggle-class="sidebar-left-collapsed" data-target="html"
              data-fire-event="sidebar-left-toggle">
-             {{-- <img src="{{ asset('images/disc.svg') }}" alt="Sidebar toggle" class="img-fluid" width="20"> --}}
-            <i class="fas fa-bullseye" aria-label="Toggle sidebar"></i>
+            <i class="fas fa-angle-left" aria-label="Toggle sidebar"></i>
+            <i class="fas fa-angle-right" aria-label="Toggle sidebar"></i>
         </div>
         <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
             <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
         </div>
-        <div class="d-md-none d-lg-block" style="height: inherit">
-            <a class="topbar-links" href="{{ route('tenant.documents.create') }}" title="Nueva factura" data-toggle="tooltip" data-placement="bottom">
-                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-                <span>FA</span>
-            </a>
-            <a class="topbar-links" href="{{ in_array('pos', $vc_modules) ? route('tenant.pos.index') : '#' }}" title="POS" data-toggle="tooltip" data-placement="bottom">
-                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-                <span>POS</span>
-            </a>
-            <a class="topbar-links" href="{{ in_array('configuration', $vc_modules) ? route('tenant.companies.create') : '#' }}" title="Mi empresa" data-toggle="tooltip" data-placement="bottom">
-                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-                <span>ME</span>
-            </a>
-            <a class="topbar-links" href="{{ in_array('establishments', $vc_modules) ? route('tenant.establishments.index') : '#' }}" title="Nuevo establecimiento" data-toggle="tooltip" data-placement="bottom">
-                <i class="fas fa-fw fa-plus" aria-hidden="true"></i>
-                <span>ES</span>
-            </a>
-        </div>
+        <tenant-dialog-header-menu></tenant-dialog-header-menu>
+
     </div>
     <div class="header-right">
 
@@ -65,14 +41,6 @@
         <span class="separator"></span>
         <ul class="notifications">
             <li>
-                <a href="{{ route('settings.change_mode') }}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Modo noche">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </a>
-            </li>
-        </ul>
-        <span class="separator"></span>
-        <ul class="notifications">
-            <li>
                 <a href="{{ route('tenant_orders_index') }}" class="notification-icon text-secondary" data-toggle="tooltip" data-placement="bottom" title="Pedidos pendientes">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                     <span class="badge badge-pill badge-info badge-up cart-item-count">{{ $vc_orders }}</span>
@@ -80,13 +48,13 @@
             </li>
         </ul>
 
-        @if($vc_document > 0 || $vc_document_regularize_shipping > 0)
+        @if($vc_document > 0 || $vc_document_regularize_shipping > 0 || $vc_finished_downloads > 0)
         <span class="separator"></span>
         <ul class="notifications">
             <li class="showed" id="dropdown-notifications">
                 <a href="#" id="dn-toggle" class="dropdown-toggle notification-icon" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="far fa-bell text-secondary"></i>
-                    <span class="badge">!</span>
+                    <span class="badge {{ $vc_document == 0 && $vc_document_regularize_shipping == 0 && $vc_finished_downloads > 0 ? 'badge-info' : '' }}">!</span>
                 </a>
 
                 <div id="dn-menu" class="dropdown-menu notification-menu" style="">

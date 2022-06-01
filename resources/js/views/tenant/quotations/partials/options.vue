@@ -464,7 +464,7 @@
                 </template>
             </div>
 
-            <series-form v-if="generate && form.quotation" :items="form.quotation.items"></series-form>
+            <series-form v-if="generate && form.quotation" :items="form.quotation.items" :config="config"></series-form>
             <div  v-show="document.total > 0" class="col-lg-12">
                 <div class="form-group pull-right">
                     <label class="control-label"> Total </label> <br>

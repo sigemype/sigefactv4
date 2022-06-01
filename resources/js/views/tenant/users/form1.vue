@@ -259,6 +259,35 @@
                             </div>
                         </div>
 
+                        <div class="row" v-if="typeUser != 'integrator'">
+                            <div  class="col-md-12 mt-4">
+                                <div class="form-comtrol">
+                                    <label class="control-label">Pagos
+                                        <el-tooltip class="item"
+                                                    content="Disponible en: Listado de comprobantes - Pagos"
+                                                    effect="dark"
+                                                    placement="top">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                </div>
+                            </div>
+                            <div  class="col-md-4 mt-1">
+                                <div class="form-comtrol">
+                                    <el-checkbox v-model="form.create_payment">
+                                        Agregar
+                                    </el-checkbox>
+                                </div>
+                            </div>
+                            <div  class="col-md-4 mt-1">
+                                <div class="form-comtrol">
+                                    <el-checkbox v-model="form.delete_payment">
+                                        Eliminar
+                                    </el-checkbox>
+                                </div>
+                            </div>
+                        </div>
+
                     </el-tab-pane>
                 </el-tabs>
             </div>
@@ -430,6 +459,8 @@ export default {
                 levels: [],
                 permission_edit_cpe: false,
                 recreate_documents: false,
+                create_payment: true,
+                delete_payment: true,
             };
         },
         create() {

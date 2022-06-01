@@ -50,6 +50,13 @@
                                     <td class="text-center">{{row.item.description}}</td>
                                     <td class="text-center">{{row.quantity}}</td>
                                     <td class="series-table-actions text-right">
+                                        
+                                        <template v-if="row.item.lots_enabled">
+                                            <button class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="openDialogLotsGroup(index, row)">
+                                                <i class="el-icon-check"></i> Lotes
+                                            </button>
+                                        </template>
+
                                         <template v-if="row.item.series_enabled">
                                             <button class="btn waves-effect waves-light btn-xs btn-success" @click.prevent="openDialogLots(index, row)">
                                                 <i class="el-icon-check"></i> Series
@@ -83,14 +90,23 @@
             @addRowSelectLot="addRowSelectLot">
         </select-lots-form>
          
+        <lots-group
+            :lots_group="lots_group"
+            :quantity="lots_group_quantity"
+            :showDialog.sync="showDialogLotsGroup"
+            @addRowLotGroup="addRowLotGroup">
+        </lots-group>
+
     </div>
 </template>
 
 <script> 
+
 import SelectLotsForm from '../../documents/partials/lots.vue'
+import LotsGroup from '../../sale_notes/partials/lots_group.vue'
 
 export default {
-    components: {SelectLotsForm},
+    components: {SelectLotsForm, LotsGroup},
 
     props: [
         'showDialog',
@@ -113,12 +129,28 @@ export default {
             showDialogSelectLots: false,
             documentNewId: null,
             itemId: null,
+            showDialogLotsGroup:false,
+            lots_group_quantity:0,
+            lots_group_quantity:0,
+            lots_group: [],
+            current_index_item: -1
         }
     },
     async created() {
         await this.initDocument()
     },
     methods: {   
+        addRowLotGroup(lots_selecteds){
+            // console.log(lots_selecteds)
+            this.document.items[this.current_index_item].IdLoteSelected = lots_selecteds
+            this.current_index_item = -1
+        },
+        openDialogLotsGroup(index, row){
+            this.current_index_item = index
+            this.showDialogLotsGroup = true
+            this.lots_group_quantity = row.quantity
+            this.lots_group = this.document.items[index].item.lots_group
+        },
         openDialogLots(index, row){
             this.showDialogSelectLots = true
             this.lots = this.document.items[index].item.lots
@@ -169,7 +201,7 @@ export default {
         },
         async submit() {
 
-            let validate_items = await this.validateQuantityandSeries()
+            let validate_items = await this.validateQuantitySeriesLots()
             if (!validate_items.success)
                 return this.$message.error(validate_items.message)
 
@@ -250,9 +282,10 @@ export default {
             this.$emit("update:showDialog", false)
             this.resetDocument()
         },  
-        async validateQuantityandSeries() {
+        async validateQuantitySeriesLots() {
 
             let error = 0
+            let error_lots_group = 0
 
             await this.document.items.forEach((element) => {
 
@@ -261,6 +294,11 @@ export default {
                     let select_lots = _.filter(element.item.lots, {has_sale: true}).length
                     if (select_lots != element.quantity) error ++
                 }
+
+                if (element.item.lots_enabled) {
+                    if (!element.IdLoteSelected) error_lots_group++
+                }
+
             })
 
             if(error > 0) 
@@ -271,6 +309,14 @@ export default {
                 }
             }
                 
+            if(error_lots_group > 0) 
+            {
+                return {
+                    success: false,
+                    message: 'Las cantidades y lotes seleccionados deben ser iguales.',
+                }
+            }
+
             return {
                 success: true
             }

@@ -233,7 +233,7 @@
             <div v-else
                  class="row col-12">
                 No hay Familia de productos, puedes gestionarlos en
-                <a :href="`./extra_info_items/item-mold-cavities`">Pagina de propiedades</a>
+                <a :href="`./extra_info_items/item-prodcut-family`">Pagina de propiedades</a>
             </div>
 
         </div>

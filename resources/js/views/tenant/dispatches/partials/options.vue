@@ -162,8 +162,8 @@ export default {
     },
     methods: {
 
-        clickDownload(format = null) {
-            if(format !== null && (this.form && this.form.external_id)) {
+        clickDownload(format = 'a4') {
+            if( (this.form && this.form.external_id)) {
                 window.open(`/print/dispatch/${this.form.external_id}/${format}`, '_blank');
             }
         },

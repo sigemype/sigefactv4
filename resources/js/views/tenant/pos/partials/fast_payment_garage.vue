@@ -165,15 +165,33 @@
                     </div>
                     <div class="row m-0 p-0 h-25 d-flex align-items-center">
                         <div class="col-lg-6">
-                            <button :disabled="button_payment"
+                            <!-- <button :disabled="button_payment"
                                     class="btn btn-block btn-primary"
                                     @click="clickPayment">PAGAR
-                            </button>
+                            </button> -->
+                            
+                            <el-button
+                                :disabled="button_payment"
+                                :loading="loading_submit"
+                                class="submit btn btn-block btn-primary"
+                                @click="clickPayment"
+                                >
+                                PAGAR
+                            </el-button>
+
                         </div>
                         <div class="col-lg-6">
-                            <button class="btn btn-block btn-danger"
+                            <!-- <button class="btn btn-block btn-danger"
                                     @click="clickCancel">CANCELAR
-                            </button>
+                            </button> -->
+                            
+                            <el-button
+                                :loading="loading_submit_cancel"
+                                class="submit btn btn-block btn-danger"
+                                @click="clickCancel"
+                                >
+                                CANCELAR
+                            </el-button>
                         </div>
                     </div>
                 </div>
@@ -191,6 +209,7 @@
             :showDialog.sync="showDialogMultiplePayment"
             :total="form.total"
             @add="addRow"
+            ref="componentMultiplePaymentGarage"
         ></multiple-payment-form>
 
         <!-- <sale-notes-options :showDialog.sync="showDialogSaleNote"
@@ -286,7 +305,8 @@ export default {
             statusDocument: {},
             payment_method_types: [],
             payments: [],
-            locked_submit: false
+            locked_submit: false,
+            loading_submit_cancel: false,
         }
     },
     async created() {
@@ -316,6 +336,7 @@ export default {
     },
     mounted() {
         // console.log(this.currencyTypeActive)
+        this.checkPaymentGarage()
     },
     methods: {
         handleFn113() {
@@ -652,7 +673,7 @@ export default {
             this.difference = _.round(this.difference, 2)
             // this.form_payment.payment = this.amount
 
-            this.$eventHub.$emit('eventSetFormPosLocalStorage', this.form)
+            this.$eventHub.$emit('eventSetFormPosLocalStorageGarage', this.form)
             this.lStoPayment()
 
         },
@@ -697,37 +718,18 @@ export default {
         },
         async clickCancel() {
 
-            this.loading_submit = true
-            await this.sleep(800);
-            this.loading_submit = false
+            this.loading_submit_cancel = true
+            await this.sleep(400);
+            this.loading_submit_cancel = false
             this.cleanLocalStoragePayment()
-            this.$eventHub.$emit('cancelSaleGarage')
+            // this.$eventHub.$emit('cancelSaleGarage')
             //console.info('cli cancel fas_payment')
 
         },
         async events() {
-            await this.$eventHub.$on("cancelSaleGarage", () => {
-                console.info('aquiss');
-                this.initLStoPayment()
-                this.getTables()
-                this.initFormPayment()
-                this.inputAmount()
-                this.form.payments = []
-                this.$eventHub.$on('reloadDataCardBrands', (card_brand_id) => {
-                    this.reloadDataCardBrands(card_brand_id)
-                })
-
-                this.$eventHub.$on('localSPaymentsGarage', (payments) => {
-                    this.payments = payments
-                });
-
-                this.setInitialAmount()
-
-                this.getFormPosLocalStorage()
-
-                this.payments = []
-                this.amount = 0
-            });
+            await this.$eventHub.$on("eventCheckPaymentGarage", () => {
+                this.checkPaymentGarage()
+            })
         },
         cleanLocalStoragePayment() {
 
@@ -757,6 +759,13 @@ export default {
                     }
                 });
             }
+        },
+        cleanPayments(){
+            this.payments = []
+        },
+        initDataComponent(){
+            this.cleanPayments()
+            // this.filterSeries()
         },
         async clickPayment() {
             // if(this.has_card && !this.form_payment.card_brand_id) return this.$message.error('Seleccione una tarjeta');
@@ -824,6 +833,9 @@ export default {
                         this.gethtml();
                     }
                     this.$eventHub.$emit('saleSuccess');
+
+                    this.initDataComponent()
+                    
                 } else {
                     this.$message.error(response.data.message);
                 }
@@ -905,14 +917,40 @@ export default {
                     }
                 })
         },
-        getTables() {
-            this.$http.get(`/${this.resource}/payment_tables`)
+        async getTables() {
+            await this.$http.get(`/${this.resource}/payment_tables`)
                 .then(response => {
                     this.all_series = response.data.series
                     this.payment_method_types = response.data.payment_method_types
                     this.cards_brand = response.data.cards_brand
                     this.filterSeries()
                 })
+
+        },
+        checkPaymentGarage(){ 
+
+            if(this.form.payments.length == 0)
+            {
+                this.$refs.componentMultiplePaymentGarage.clickAddPayment(this.form.total)
+                this.setAmount(this.form.total)
+            }
+            else if(this.form.payments.length == 1)
+            {
+
+                this.form.payments[0].payment = this.form.total
+
+                if(this.payments.length == 0)
+                {
+                    this.payments = this.form.payments
+                }   
+
+                this.setAmount(this.form.total)
+
+            }
+            else
+            {
+                // multiples pagos no controlados
+            }
 
         },
     }

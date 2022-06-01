@@ -101,9 +101,12 @@
             },
             successUpload(response, file, fileList) {
                 if (response.success) {
+
                     this.$message.success(response.message)
                     this.$eventHub.$emit('reloadData')
+                    this.$eventHub.$emit('reloadDataCompany')
                     this.close()
+                    
                 } else {
                     this.$message({message:response.message, type: 'error'})
                 }

@@ -628,18 +628,23 @@
                 </div>
                 <div class="h-50 bg-light" style="overflow-y: auto">
                     <div class="row m-0 p-0 d-flex align-items-center">
-                        <fast-payment
-                            :is_payment.sync="is_payment"
-                            :form="form"
-                            :currency-type-id-active="form.currency_type_id"
-                            :currency-type-active="currency_type"
-                            :exchange-rate-sale="form.exchange_rate_sale"
-                            :customer="customer"
-                            :soapCompany="soapCompany"
-                            :businessTurns="businessTurns"
-                            :is-print="isPrint"
-                            :rows-items="form.items.length"
-                        ></fast-payment>
+
+                        <template v-if="show_fast_payment_garage">
+                            <fast-payment
+                                :is_payment.sync="is_payment"
+                                :form="form"
+                                :currency-type-id-active="form.currency_type_id"
+                                :currency-type-active="currency_type"
+                                :exchange-rate-sale="form.exchange_rate_sale"
+                                :customer="customer"
+                                :soapCompany="soapCompany"
+                                :businessTurns="businessTurns"
+                                :is-print="isPrint"
+                                :rows-items="form.items.length"
+                                ref="componentFastPaymentGarage"
+                            ></fast-payment>
+                        </template>
+
                     </div>
                 </div>
             </div>
@@ -824,11 +829,14 @@ export default {
             pagination: {},
             category_selected: "",
             focusClienteSelect: false,
+            show_fast_payment_garage: false,
             itemUnitTypes: []
         };
     },
     async created() {
         this.loadConfiguration()
+
+        this.show_fast_payment_garage = false
         await this.initForm();
         await this.getTables();
         this.events();
@@ -839,7 +847,10 @@ export default {
 
         await this.selectDefaultCustomer();
 
+        this.show_fast_payment_garage = true
+
         this.form.establishment_id = this.establishment.id;
+
     },
 
     computed: {
@@ -1185,6 +1196,8 @@ export default {
                     customer.identity_document_type_id == "6" ? "01" : "03";
             }
 
+            if(this.$refs.componentFastPaymentGarage) this.$refs.componentFastPaymentGarage.filterSeries()
+
             this.setLocalStorageIndex("customer", this.customer);
             this.setFormPosLocalStorage();
         },
@@ -1215,15 +1228,20 @@ export default {
             );
 
             await this.$eventHub.$on("cancelSaleGarage", () => {
+
                 this.is_payment = false;
                 this.initForm();
                 this.changeExchangeRate();
                 this.cancelFormPosLocalStorage();
                 this.selectDefaultCustomer();
+
                 this.$nextTick(() => {
                     this.initFocus();
+                    if(this.$refs.componentFastPaymentGarage && !this.form.series_id) this.$refs.componentFastPaymentGarage.filterSeries()
                 });
-                this.form.establishment_id = this.establishment.id;
+
+                this.form.establishment_id = this.establishment.id
+
             });
 
             // await this.$eventHub.$on("indexInitFocus", () => {
@@ -1244,6 +1262,7 @@ export default {
                 this.initForm();
                 this.getTables();
                 this.setFormPosLocalStorage();
+
             });
 
             await this.$eventHub.$on("enterSelectItemUnitType", (unit_type) => {
@@ -1615,6 +1634,12 @@ export default {
             // this.form.total = _.round(total, 2);
             this.form.total = _.round(total + this.form.total_plastic_bag_taxes, 2)
             this.form.subtotal = this.form.total
+
+            this.checkPaymentGarage()
+        },
+        checkPaymentGarage(){
+
+            this.$eventHub.$emit('eventCheckPaymentGarage')
 
         },
         changeDateOfIssue() {

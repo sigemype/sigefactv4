@@ -4,11 +4,13 @@
             <div class="form-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group" :class="{'has-danger': errors.description}">
+                        <div class="form-group" :class="{'has-danger': errors[`documents.0.description`]}">
                             <label class="control-label">Descripción del motivo de anulación</label>
                             <el-input v-model="form.documents[0].description" dusk="description"></el-input>
-                            <small class="form-control-feedback" v-if="errors.description"
-                                   v-text="errors.description[0]"></small>
+
+                            <template v-if="errors[`documents.0.description`]">
+                                <small class="form-control-feedback"  v-text="errors[`documents.0.description`][0]"></small>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -109,7 +111,7 @@ export default {
                 })
                 .catch(error => {
                     if (error.response.status === 422) {
-                        this.errors = error.response.data.errors
+                        this.errors = error.response.data
                     } else {
                         this.$message.error(error.response.data.message)
                     }

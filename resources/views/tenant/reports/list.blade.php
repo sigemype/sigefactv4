@@ -149,6 +149,11 @@
                         <li>
                             <a href="{{route('tenant.reports.sales_consolidated.index')}}">Consolidado de items</a>
                         </li>
+                        
+                        <li>
+                            <a href="{{route('tenant.reports.tips.index')}}">Propinas</a>
+                        </li>
+                        
                     </ul>
                 </div>
             </div>

@@ -158,6 +158,16 @@
                                            v-text="errors.person_type_id[0]"></small>
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div :class="{'has-danger': errors.barcode}"
+                                    class="form-group">
+                                    <label class="control-label">Código de barra</label>
+                                    <el-input v-model="form.barcode"></el-input>
+                                    <small v-if="errors.barcode"
+                                        class="form-control-feedback"
+                                        v-text="errors.barcode[0]"></small>
+                                </div>
+                            </div>
                             <div v-if="form.state"
                                  class="col-md-6">
                                 <div class="form-group">

@@ -1,4 +1,4 @@
-<article class="auth__image" style="background-image: url({{ $login->image }})">
+<article class="auth__image" style="background-image: url({{ $login->image }});background-size: 100%">
     @if ($useLoginGlobal)
         @if ($login->logo ?? false)
             @if ($login->position_logo != 'none')
@@ -9,7 +9,7 @@
         @if($company->logo)
             <img class="auth__logo {{ $login->position_logo }}" src="{{ asset('storage/uploads/logos/' . $company->logo) }}" alt="Logo" />
         @else
-            <img class="auth__logo {{ $login->position_logo }}" src="{{asset('logo/700x300.jpg')}}" alt="Logo" />
+            <img class="auth__logo {{ $login->position_logo }}" src="{{asset('logo/tulogo.png')}}" alt="Logo" />
         @endif
     @endif
 </article>

@@ -1,4 +1,4 @@
-<template> 
+<template>
     <el-dialog :title="title" class="text-left" :visible="showDialog" @close="close"   @open="create">
         <!-- <p class="text-center">* Se recomienda resoluciones 700x300.</p> -->
         <div class="text-center">
@@ -11,7 +11,7 @@
             <el-button @click="clickCancel">Cancelar</el-button>
             <el-button @click="upload" class="submit" type="primary" :disabled="imageUrl == ''">Guardar</el-button>
         </span>
-    </el-dialog> 
+    </el-dialog>
 </template>
 
 <script>
@@ -29,7 +29,7 @@
         },
         created(){
             this.initForm()
-            
+
             this.$eventHub.$on('eventInitForm', () => {
                 this.initForm()
             })
@@ -37,8 +37,8 @@
         computed: {
             src() {
                 if (this.path_img_detraction != '') return this.path_img_detraction;
-                
-                return '/logo/700x300.jpg';
+
+                return '/logo/tulogo.png';
             }
         },
         methods: {
@@ -46,10 +46,10 @@
                 // console.log(this.path_img_detraction)
             },
             initForm(){
-                this.form = { 
+                this.form = {
                     image: null,
                     imageUrl: null,
-                    temp_path: null, 
+                    temp_path: null,
                 }
 
                 this.imageUrl = null
@@ -57,10 +57,10 @@
             beforeUpload(file) {
                 const isIMG = ((file.type === 'image/jpeg') || (file.type === 'image/png') || (file.type === 'image/jpg'));
                 const isLt2M = file.size / 1024 / 1024 < 2;
-                
+
                 if (!isIMG) this.$message.error('La imagen no es valida!');
                 if (!isLt2M) this.$message.error('La imagen excede los 2MB!');
-                
+
                 return isIMG && isLt2M;
             },
             preview(file) {
@@ -84,7 +84,7 @@
                 } else {
                     this.$message.error(response.message)
                 }
-                
+
                 // this.$message({message:'Error al subir el archivo', type: 'error'});
                 // this.imageUrl = '';
             },
@@ -119,7 +119,7 @@
         line-height: 178px;
         text-align: center;
     }
-    
+
     .avatar {
         width: 178px;
         height: 178px;

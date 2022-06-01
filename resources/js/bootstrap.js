@@ -45,3 +45,12 @@ $(function () {
         listElements[0].scrollIntoView();
     }
 });
+
+
+const mercadopago = window.Mercadopago; 
+
+if(mercadopago)
+{
+    mercadopago.setPublishableKey(window.token_mercado_pago);
+    mercadopago.getIdentificationTypes();
+}

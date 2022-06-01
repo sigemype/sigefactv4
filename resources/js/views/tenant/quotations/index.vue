@@ -28,6 +28,7 @@
                         <th>#</th>
                         <th class="text-center">Fecha Emisión</th>
                         <th class="text-center" v-if="columns.delivery_date.visible">T. Entrega</th>
+                        <th>Registrado por</th>
                         <th>Vendedor</th>
                         <th>Cliente</th>
                         <th>Estado</th>
@@ -56,6 +57,7 @@
                         <td class="text-center">{{ row.date_of_issue }}</td>
                         <td class="text-center" v-if="columns.delivery_date.visible">{{ row.delivery_date }}</td>
                         <td>{{ row.user_name }}</td>
+                        <td>{{ row.seller_name }}</td>
                         <td>{{ row.customer_name }}<br/><small v-text="row.customer_number"></small></td>
                         <td>
                             <template v-if="row.state_type_id == '11'">

@@ -35,6 +35,7 @@ export default {
         show_totals_on_cpe_list:false,
         pos_history:true,
         production_app:false,
+        facturalo_server:false,
         pos_cost_price:true,
         print_new_line_to_observation:true,
         company: {},
