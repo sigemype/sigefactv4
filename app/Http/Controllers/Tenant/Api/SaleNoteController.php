@@ -46,7 +46,8 @@ class SaleNoteController extends Controller
 
     public function lists()
     {
-        $record = SaleNote::orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
+        //$record = SaleNote::orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
+        $record = SaleNote::where('establishment_id', auth()->user()->establishment_id)->orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
         $records = new SaleNoteCollection($record);
 
         return $records;

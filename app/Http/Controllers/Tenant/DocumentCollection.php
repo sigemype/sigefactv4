@@ -181,7 +181,7 @@ class DocumentCollection extends ResourceCollection
                     ];
                 }) : null,
                 //agregago por LoretoSoft para entregar el id de la anulacion si existe
-                'voided' => $this->getVoided($row, $row->id),
+                // 'voided' => $this->getVoided($row, $row->id),
                 'sales_note' => $nvs,
                 'order_note' =>$order_note,
                 'balance' => $balance,
