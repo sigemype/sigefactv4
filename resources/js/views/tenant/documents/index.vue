@@ -783,6 +783,9 @@ export default {
                 this.$eventHub.$emit('reloadData')
             )
         },
+        clickDownloadReportDocuments(){
+            this.showDialogReportDocuments = true
+        },
         clickReportPayments() {
             this.showDialogReportPayment = true
         }
