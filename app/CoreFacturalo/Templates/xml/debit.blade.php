@@ -8,7 +8,7 @@
     $number = ($note->affected_document) ? $note->affected_document->number : $note->data_affected_document->number;
 
 @endphp
-{!! '<?xml version="1.0" encoding="utf-8" standalone="no"?>' !!}
+{!!  '<'.'?xml version="1.0" encoding="utf-8" standalone="no"?'.'>'  !!}
 <DebitNote xmlns="urn:oasis:names:specification:ubl:schema:xsd:DebitNote-2"
            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
            xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
@@ -242,7 +242,7 @@
             </cac:TaxCategory>
         </cac:TaxSubtotal>
         @endif
-        @if($document->total_plastic_bag_taxes > 0) 
+        @if($document->total_plastic_bag_taxes > 0)
         <cac:TaxSubtotal>
             <cbc:TaxAmount currencyID="{{ $document->currency_type_id }}">{{ $document->total_plastic_bag_taxes }}</cbc:TaxAmount>
             <cac:TaxCategory>

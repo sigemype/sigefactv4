@@ -3,7 +3,7 @@
     $supplier = $document->supplier;
     $operation_data = $document->operation_data;
 @endphp
-{!! '<?xml version="1.0" encoding="utf-8" standalone="no"?>' !!} 
+{!!  '<'.'?xml version="1.0" encoding="utf-8" standalone="no"?'.'>'  !!}
 <SelfBilledInvoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:SelfBilledInvoice-2"
 	xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
 	xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
@@ -48,7 +48,7 @@
 			</cac:PartyIdentification>
             <cac:PartyName>
                 <cbc:Name><![CDATA[{{ $company->trade_name }}]]></cbc:Name>
-            </cac:PartyName> 
+            </cac:PartyName>
 			<cac:PartyLegalEntity>
                 <cbc:RegistrationName><![CDATA[{{ $company->name }}]]></cbc:RegistrationName>
 				<cac:RegistrationAddress>
@@ -190,12 +190,12 @@
                     <cac:SellersItemIdentification>
                         <cbc:ID>{{ $row->item->internal_id }}</cbc:ID>
                     </cac:SellersItemIdentification>
-                @endif 
+                @endif
                 @if($row->item->item_code)
                     <cac:CommodityClassification>
                         <cbc:ItemClassificationCode>{{ $row->item->item_code }}</cbc:ItemClassificationCode>
                     </cac:CommodityClassification>
-                @endif 
+                @endif
             </cac:Item>
             <cac:Price>
                 <cbc:PriceAmount currencyID="{{ $document->currency_type_id }}">{{ $row->unit_value }}</cbc:PriceAmount>
