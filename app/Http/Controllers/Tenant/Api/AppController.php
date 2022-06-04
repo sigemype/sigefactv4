@@ -125,7 +125,7 @@ class AppController extends Controller
         $user = $request->user();
         $establishment = Establishment::where('id', '=', $user->establishment_id)->first();
         $configurations = Configuration::where('id', '=', 1)->first();
-// dd($configurations);
+// return $configurations;
         $permisos = new UserResource(User::findOrFail($user->id));
 
         return [
@@ -136,6 +136,7 @@ class AppController extends Controller
             'customerdefault' => $establishment->customer_id,
             'seriedefault' => $user->series_id,
             'token' => $user->api_token,
+            'restaurant_role_id' => $user->restaurant_role_id,
             'ruc' => $company->number,
             'logo' => $establishment->logo != null ? $establishment->logo : $company->logo,
             'levels' => $permisos->levels,
@@ -359,7 +360,7 @@ class AppController extends Controller
     public function tables()
     {
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
-        $categories = Category::orderBy('name')->take(10)->get();
+        $categories = Category::orderBy('name')->get();
         $establishment_id = auth()->user()->establishment_id;
         $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
@@ -384,8 +385,8 @@ class AppController extends Controller
                     'internal_id' => $row->internal_id,
                     'item_code' => $row->item_code,
                     'currency_type_symbol' => $row->currency_type->symbol,
-                    'sale_unit_price' => number_format( $row->sale_unit_price, 2),
-                    'price' => $row->sale_unit_price,
+                    'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
+                    'price' =>  str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                     'purchase_unit_price' => $row->purchase_unit_price,
                     'unit_type_id' => $row->unit_type_id,
                     'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -507,7 +508,7 @@ class AppController extends Controller
                     'item_code' => $row->item_code,
                     'currency_type_symbol' => $row->currency_type->symbol,
                     'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
-                    'price' => $row->sale_unit_price,
+                    'price' =>  str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                     'purchase_unit_price' => $row->purchase_unit_price,
                     'unit_type_id' => $row->unit_type_id,
                     'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -562,7 +563,7 @@ class AppController extends Controller
                     ->whereHasInternalId()
                     ->whereWarehouse()
                     // ->whereNotIsSet()
-                    // ->whereIsActive()
+                    ->whereIsActive()
                     ->orderBy('description')
                     ->get()
                     ->take(20)
@@ -580,7 +581,7 @@ class AppController extends Controller
                             'internal_id' => $row->internal_id,
                             'item_code' => $row->item_code ?? '',
                             'currency_type_symbol' => $row->currency_type->symbol,
-                            'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
+                            'sale_unit_price' => str_replace("", "" , number_format( $row->sale_unit_price, 2)),
                             'purchase_unit_price' => $row->purchase_unit_price,
                             'unit_type_id' => $row->unit_type_id,
                             'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -627,11 +628,16 @@ class AppController extends Controller
 
     public function item(ItemRequest $request)
     {
+        
         $row = Item::firstOrNew(['id' => $request->id]);
         $row->item_type_id = '01';
+        // $row->has_igv = '01';
         $row->amount_plastic_bag_taxes = Configuration::firstOrFail()->amount_plastic_bag_taxes;
         $row->fill($request->all());
         $temp_path = $request->input('temp_path');
+
+        $establishment_id = auth()->user()->establishment_id;
+        $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
 
         if($temp_path) {
 
@@ -686,9 +692,9 @@ class AppController extends Controller
                 'description' => $row->description,
                 'currency_type_id' => $row->currency_type_id,
                 'internal_id' => $row->internal_id,
-                'item_code' => $row->item_code,
+                'item_code' => $row->item_code ?? '',
                 'currency_type_symbol' => $row->currency_type->symbol,
-                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                 'purchase_unit_price' => $row->purchase_unit_price,
                 'unit_type_id' => $row->unit_type_id,
                 'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -697,6 +703,31 @@ class AppController extends Controller
                 'has_igv' => (bool) $row->has_igv,
                 'is_set' => (bool) $row->is_set,
                 'aux_quantity' => 1,
+                'active' => $row->active,
+                'barcode' => $row->barcode ?? '',
+                'brand' => optional($row->brand)->name,
+                'category' => optional($row->category)->name,
+                'stock' => $row->unit_type_id!='ZZ' ? ItemWarehouse::where([['item_id', $row->id],['warehouse_id', $warehouse->id]])->first()->stock : '0',
+                'image' => $row->image != "imagen-no-disponible.jpg" ? url("/storage/uploads/items/" . $row->image) : url("/logo/" . $row->image),
+                'warehouses' => collect($row->warehouses)->transform(function($row) {
+                    return [
+                        'warehouse_description' => $row->warehouse->description,
+                        'stock' => $row->stock,
+                        'warehouse_id' => $row->warehouse_id,
+                    ];
+                }),
+                'item_unit_types' => $row->item_unit_types->transform(function($row) {
+                    return [
+                        'id' => $row->id,
+                        'description' => $row->description,
+                        'unit_type_id' => $row->unit_type_id,
+                        'quantity_unit' => $row->quantity_unit,
+                        'price1' => $row->price1,
+                        'price2' => $row->price2,
+                        'price3' => $row->price3,
+                        'price_default' => $row->price_default,
+                    ];
+                }),
             ],
         ];
 
@@ -836,7 +867,7 @@ class AppController extends Controller
                         'internal_id' => $row->internal_id,
                         'item_code' => $row->item_code ?? '',
                         'currency_type_symbol' => $row->currency_type->symbol,
-                        'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                        'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                         'purchase_unit_price' => $row->purchase_unit_price,
                         'unit_type_id' => $row->unit_type_id,
                         'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -876,6 +907,7 @@ class AppController extends Controller
         // return "33";
         $items = Item::where('description', 'like', "%{$request->input}%" )
                 ->orWhere('internal_id', 'like', "%{$request->input}%")
+                    ->orWhere('barcode', 'like', "%{$request->input}%")
                 ->whereHasInternalId()
                 ->whereWarehouse()
                 ->whereIsActive()
@@ -896,7 +928,7 @@ class AppController extends Controller
                         'internal_id' => $row->internal_id,
                         'item_code' => $row->item_code ?? '',
                         'currency_type_symbol' => $row->currency_type->symbol,
-                        'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                        'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                         'purchase_unit_price' => $row->purchase_unit_price,
                         'unit_type_id' => $row->unit_type_id,
                         'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
@@ -992,20 +1024,20 @@ class AppController extends Controller
                             'warehouse_id' => $row->warehouse_id,
                         ];
                     }),
-                            'item_unit_types' => $row->item_unit_types->transform(function($row) {
-                                return [
-                                    'id' => $row->id,
-                                    'description' => $row->description,
-                                    'unit_type_id' => $row->unit_type_id,
-                                    'quantity_unit' => $row->quantity_unit,
-                                    'price1' => $row->price1,
-                                    'price2' => $row->price2,
-                                    'price3' => $row->price3,
-                                    'price_default' => $row->price_default,
-                                ];
-                            }),
+                    'item_unit_types' => $row->item_unit_types->transform(function($row) {
+                        return [
+                            'id' => $row->id,
+                            'description' => $row->description,
+                            'unit_type_id' => $row->unit_type_id,
+                            'quantity_unit' => $row->quantity_unit,
+                            'price1' => $row->price1,
+                            'price2' => $row->price2,
+                            'price3' => $row->price3,
+                            'price_default' => $row->price_default,
                         ];
-                    });
+                    }),
+                ];
+            });
 
         return [
             'success' => true,
@@ -1041,8 +1073,9 @@ class AppController extends Controller
                 'internal_id' => $row->internal_id,
                 'item_code' => $row->item_code,
                 'currency_type_symbol' => $row->currency_type->symbol,
-                'sale_unit_price' => number_format( $row->sale_unit_price, 2),
+                'sale_unit_price' => str_replace(",", "" , number_format( $row->sale_unit_price, 2)),
                 'purchase_unit_price' => $row->purchase_unit_price,
+                'category_id' => $row->category_id,
                 'unit_type_id' => $row->unit_type_id,
                 'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
                 'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
@@ -2475,6 +2508,33 @@ if ($type_user=="admin") {
         }
 
         return compact('sale_notes_array', 'documents_array', 'total_array');
+    }
+
+
+
+    public function items_woo()
+    {
+
+        $items = Item::whereHasInternalId()
+                    // ->whereNotIsSet()
+                    ->whereIsActive()
+                    ->orderBy('description')
+                    ->take(20)
+                    ->get()
+                    ->transform(function($row){
+
+                return [
+                    'sku' => $row->internal_id,
+                    'qty' => $row->stock,
+                    'name' => $row->description,
+                    'price' => number_format( $row->sale_unit_price, 2),
+                ];
+            });
+
+
+        return $items;
+
+
     }
 
 

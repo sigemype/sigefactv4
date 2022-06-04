@@ -213,7 +213,8 @@ class DocumentController extends Controller
 
     public function tables()
     {
-        $customers = $this->table('customers');
+        // $customers = $this->table('customers');
+        $customers = null;
         $user = new User();
         if(\Auth::user()){
             $user = \Auth::user();
@@ -377,7 +378,7 @@ class DocumentController extends Controller
                                ->whereIsEnabled()
                                ->whereFilterCustomerBySeller('customers')
                                ->orderBy('name')
-                               ->take(20)
+                               ->take(5)
                                ->get()->transform(function ($row) {
                     /** @var Person $row */
                     return $row->getCollectionData();
@@ -445,7 +446,7 @@ class DocumentController extends Controller
                 ->whereIsActive()
                 ->orderBy('description');
             $items_u = $items_u
-                ->take(20)
+                ->take(10)
                 ->get();
             $items_s = $items_s
                 ->take(10)

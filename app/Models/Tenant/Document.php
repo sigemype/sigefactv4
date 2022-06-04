@@ -152,7 +152,7 @@
             'invoice',
             'note',
             'payments',
-            'fee'
+            'fees'
         ];
         protected $fillable = [
             'user_id',
@@ -1189,7 +1189,7 @@
                 'invoice',
                 'note',
                 'payments',
-                'fee'
+                'fees'
             ]);
         }
 

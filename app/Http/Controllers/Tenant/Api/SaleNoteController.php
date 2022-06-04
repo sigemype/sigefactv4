@@ -35,6 +35,7 @@ use App\CoreFacturalo\Helpers\Number\NumberLetter;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\CoreFacturalo\Requests\Inputs\Common\PersonInput;
 use App\CoreFacturalo\Requests\Inputs\Common\EstablishmentInput;
+use App\Models\Tenant\Cash;
 
 class SaleNoteController extends Controller
 {
@@ -46,8 +47,7 @@ class SaleNoteController extends Controller
 
     public function lists()
     {
-        //$record = SaleNote::orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
-        $record = SaleNote::where('establishment_id', auth()->user()->establishment_id)->orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
+        $record = SaleNote::orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
         $records = new SaleNoteCollection($record);
 
         return $records;
@@ -106,6 +106,13 @@ class SaleNoteController extends Controller
 
             $this->setFilename();
             $this->createPdf($this->sale_note, 'a4', $this->sale_note->filename);
+
+        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
+        // dd($cash);
+        if ($cash!=null) {
+                $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'sale_note_id' => $this->sale_note->id]);
+        }
+
         });
 
         return [
@@ -122,13 +129,13 @@ class SaleNoteController extends Controller
     {
         $this->company = Company::active();
         // self::ExtraLog(__FILE__."::".__LINE__."  \n Campos ".__FUNCTION__." \n". json_encode($inputs) ."\n\n\n\n");
-
         $type_period = $inputs['type_period'];
         $quantity_period = $inputs['quantity_period'];
         $force_create_if_not_exist = isset($inputs['force_create_if_not_exist'])?(bool)$inputs['force_create_if_not_exist']:false;
         $d_of_issue = new Carbon($inputs['date_of_issue']);
         $automatic_date_of_issue = null;
 
+// return $force_create_if_not_exist;
         if ($type_period && $quantity_period > 0) {
             $add_period_date = ($type_period == 'month') ? $d_of_issue->addMonths($quantity_period) : $d_of_issue->addYears($quantity_period);
             $automatic_date_of_issue = $add_period_date->format('Y-m-d');
@@ -250,7 +257,6 @@ class SaleNoteController extends Controller
     {
         $name = [$this->sale_note->prefix, $this->sale_note->id, date('Ymd')];
         $this->sale_note->filename = join('-', $name);
-        $this->sale_note->unique_filename = $this->sale_note->filename; //campo único para evitar duplicados
         $this->sale_note->save();
     }
 
