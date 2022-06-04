@@ -58,12 +58,6 @@
         <td width="" class="pt-3"><p class="desc">{{ $document->date_of_issue->format('Y-m-d') }}</p></td>
     </tr>
 
-    @if ($document->due_date)
-        <tr>
-            <td width="" class="pt-3"><p class="desc">F. Vencimiento:</p></td>
-            <td width="" class="pt-3"><p class="desc">{{ $document->getFormatDueDate() }}</p></td>
-        </tr>
-    @endif
 
     <tr>
         <td class="align-top"><p class="desc">Cliente:</p></td>
@@ -211,30 +205,10 @@
             <td colspan="4" class="text-right font-bold desc">IGV: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total_igv, 2) }}</td>
         </tr>--}}
-        
-        @if($document->total_charge > 0 && $document->charges)
-            <tr>
-                <td colspan="4" class="text-right font-bold desc">CARGOS ({{$document->getTotalFactor()}}%): {{ $document->currency_type->symbol }}</td>
-                <td class="text-right font-bold desc">{{ number_format($document->total_charge, 2) }}</td>
-            </tr>
-        @endif
-        
         <tr>
             <td colspan="4" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total, 2) }}</td>
         </tr>
-        
-        @php
-            $change_payment = $document->getChangePayment();
-        @endphp
-
-        @if($change_payment < 0)
-            <tr>
-                <td colspan="4" class="text-right font-bold desc">VUELTO: {{ $document->currency_type->symbol }}</td>
-                <td class="text-right font-bold desc">{{ number_format(abs($change_payment),2, ".", "") }}</td>
-            </tr>
-        @endif
-        
     </tbody>
 </table>
 <table class="full-width">
@@ -289,7 +263,7 @@
         $payment = 0;
     @endphp
     @foreach($payments as $row)
-        <tr><td>- {{ $row->date_of_payment->format('d/m/Y') }} - {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment + $row->change }}</td></tr>
+        <tr><td>- {{ $row->date_of_payment->format('d/m/Y') }} - {{ $row->payment_method_type->description }} - {{ $row->reference ? $row->reference.' - ':'' }} {{ $document->currency_type->symbol }} {{ $row->payment }}</td></tr>
         @php
             $payment += (float) $row->payment;
         @endphp

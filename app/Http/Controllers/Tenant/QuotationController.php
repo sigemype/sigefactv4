@@ -81,8 +81,7 @@ class QuotationController extends Controller
             'customer' => 'Cliente',
             'date_of_issue' => 'Fecha de emisión',
             'delivery_date' => 'Fecha de entrega',
-            'user_name' => 'Registrado por',
-            'seller_name' => 'Vendedor',
+            'user_name' => 'Vendedor',
             'referential_information' => 'Inf.Referencial'
         ];
     }
@@ -119,13 +118,6 @@ class QuotationController extends Controller
                                 ->orWhere('number', 'like', "%{$request->value}%");
                         })
                         ->whereTypeUser()
-                        ->latest();
-
-        }else if($request->column == 'seller_name'){
-
-            $records = Quotation::whereHas('seller', function($query) use($request){
-                            $query->where('name', 'like', "%{$request->value}%");
-                        })
                         ->latest();
 
         }else{

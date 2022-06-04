@@ -62,7 +62,6 @@ use Modules\Item\Models\ItemLotsGroup;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use setasign\Fpdi\Fpdi;
-use Modules\Inventory\Models\InventoryConfiguration;
 
 
 class ItemController extends Controller
@@ -98,7 +97,6 @@ class ItemController extends Controller
             'lot_code' => 'Código lote',
             'active' => 'Habilitados',
             'inactive' => 'Inhabilitados',
-            'category' => 'Categoria'
         ];
     }
 
@@ -120,17 +118,10 @@ class ItemController extends Controller
     public function getRecords(Request $request){
 
         $records = Item::whereTypeUser()->whereNotIsSet();
-        
-        switch ($request->column) 
-        {
+        switch ($request->column) {
 
             case 'brand':
                 $records->whereHas('brand',function($q) use($request){
-                                    $q->where('name', 'like', "%{$request->value}%");
-                                });
-                break;
-            case 'category':
-                $records->whereHas('category',function($q) use($request){
                                     $q->where('name', 'like', "%{$request->value}%");
                                 });
                 break;
@@ -145,19 +136,9 @@ class ItemController extends Controller
 
             default:
                 if($request->has('column'))
-                {
-                    if($this->applyAdvancedRecordsSearch() && $request->column === 'description')
-                    {
-                        if($request->value) $records->whereAdvancedRecordsSearch($request->column, $request->value);
-                    }
-                    else
-                    {
-                        $records->where($request->column, 'like', "%{$request->value}%");
-                    }
-                }
+                $records->where($request->column, 'like', "%{$request->value}%");
                 break;
         }
-
         if ($request->type) {
             if($request->type ==='PRODUCTS') {
                 // listar solo productos en la lista de productos
@@ -219,7 +200,6 @@ class ItemController extends Controller
         }
         /** Informacion adicional */
         $configuration = $configuration->getCollectionData();
-        $inventory_configuration = InventoryConfiguration::firstOrFail();
         /*
         $configuration = Configuration::select(
             'affectation_igv_type_id',
@@ -247,8 +227,7 @@ class ItemController extends Controller
             'CatItemStatus',
             'CatItemPackageMeasurement',
             'CatItemProductFamily',
-            'CatItemUnitsPerPackage',
-            'inventory_configuration'
+            'CatItemUnitsPerPackage'
         );
     }
 
@@ -345,15 +324,6 @@ class ItemController extends Controller
             $item_unit_type->price_default = $value['price_default'];
             $item_unit_type->save();
 
-            // migracion desarrollo sin terminar #1401
-            if(!$value['barcode']) {
-                $item_unit_type->barcode = $item_unit_type->id.$item_unit_type->unit_type_id.$item_unit_type->quantity_unit;
-                $item_unit_type->save();
-            }
-            else {
-                $item_unit_type->barcode = $value['barcode'];
-                $item_unit_type->save();
-            }
         }
         if (isset($request->supplies)) {
             foreach($request->supplies as $value){
@@ -564,17 +534,6 @@ class ItemController extends Controller
         }
 
         $item->update();
-
-        // migracion desarrollo sin terminar #1401
-        $inventory_configuration = InventoryConfiguration::firstOrFail();
-
-        if($inventory_configuration->generate_internal_id == 1) {
-            if(!$item->internal_id) {
-                $items = Item::count();
-                $item->internal_id = (string)($items + 1);
-                $item->save();
-            }
-        }
         /********************************* SECCION PARA PRECIO POR ALMACENES ******************************************/
 
         // Precios por almacenes
@@ -955,7 +914,7 @@ class ItemController extends Controller
         }
 
         if($period !== 'all'){
-            $items->whereBetween('items.created_at', [$d_start, $d_end]);
+            $items->whereBetween('created_at', [$d_start, $d_end]);
         }
 
         $records =  $items->get();
@@ -1235,56 +1194,6 @@ class ItemController extends Controller
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         $pdf->output('etiquetas_'.now()->format('Y_m_d').'.pdf', 'I');
-
-    }
-
-    public function printBarCodeX(Request $request)
-    {
-        ini_set("pcre.backtrack_limit", "50000000");
-        $id = $request->id;
-        $format = $request->format;
-
-        $record = Item::find($id);
-        $item_warehouse = ItemWarehouse::where([['item_id', $id], ['warehouse_id', auth()->user()
-            ->establishment->warehouse->id]])->first();
-
-        if(!$item_warehouse){
-            return [
-                'success' => false,
-                'message' => "El producto seleccionado no esta disponible en su almacen!"
-            ];
-        }
-
-        if($item_warehouse->stock < 1){
-            return [
-                'success' => false,
-                'message' => "El producto seleccionado no tiene stock disponible en su almacen, no puede generar etiquetas!"
-            ];
-        }
-
-        $stock = $item_warehouse->stock;
-
-        $width = ($format == 1) ? 80 : 104.1;
-        $height = ($format == 1) ? 26 : 24;
-
-        $pdf = new Mpdf([
-                'mode' => 'utf-8',
-                'format' => [
-                    $width,
-                    $height
-                    ],
-                'margin_top' => 2,
-                'margin_right' => 2,
-                'margin_bottom' => 0,
-                'margin_left' => 2
-            ]);
-        $html = view('tenant.items.exports.items-barcode-x', compact('record', 'stock', 'format'))->render();
-
-        // return $html;
-
-        $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
-
-        $pdf->output('etiquetas_1x'.$format.'_'.now()->format('Y_m_d').'.pdf', 'I');
 
     }
 

@@ -8,7 +8,6 @@ use App\Models\System\User;
 use Hyn\Tenancy\Environment;
 use App\Models\System\Client;
 use Illuminate\Support\Facades\DB;
-use App\Models\System\Configuration;
 
 class UserController extends Controller
 {
@@ -33,6 +32,7 @@ class UserController extends Controller
             $user->email = $request->input('email');
             $user->name = $request->input('name');
             $user->phone = $request->input('phone');
+            $this->updatePhoneClients($request->input('phone'));
         }
 
         if (strlen($request->input('password')) > 0) {
@@ -42,22 +42,17 @@ class UserController extends Controller
         }
         $user->save();
 
-        $configuration = Configuration::first();
-        $configuration->enable_whatsapp = $request->input('enable_whatsapp');
-        $configuration->save();
-        $this->updatePhoneClients($request->input('phone'), $request->input('enable_whatsapp'));
-
         return [
             'success' => true,
             'message' => 'Usuario actualizado'
         ];
     }
+    
 
+    public function updatePhoneClients($phone){
 
-    public function updatePhoneClients($phone, $enable_whatsapp){
-
-        DB::connection('system')->transaction(function () use ($phone, $enable_whatsapp) {
-
+        DB::connection('system')->transaction(function () use ($phone) {
+            
             $records = Client::get();
 
             foreach ($records as $row) {
@@ -65,10 +60,8 @@ class UserController extends Controller
                 $tenancy = app(Environment::class);
                 $tenancy->tenant($row->hostname->website);
 
-                DB::connection('tenant')->table('configurations')->where('id', 1)->update([
-                    'phone_whatsapp' => $phone,
-                    'enable_whatsapp' => $enable_whatsapp
-                ]);
+                DB::connection('tenant')->table('configurations')->where('id', 1)->update(['phone_whatsapp' => $phone]);
+                
             }
 
         });

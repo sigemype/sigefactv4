@@ -448,12 +448,6 @@ class SaleNoteController extends Controller
         if($request != null && $request->has('onlySuscription') && (bool)$request->onlySuscription == true){
             $records->whereNotNull('grade')->whereNotNull('section') ;
         }
-        // Solo devuelve Suscripciones que tengan relacion en user_rel_suscription_plans.
-        if($request != null && $request->has('onlyFullSuscription') && (bool)$request->onlyFullSuscription == true){
-            $records->whereNotNull('user_rel_suscription_plan_id')
-                ->whereNull('grade')->whereNull('section')
-            ;
-        }
         if($request->column == 'customer'){
             $records->whereHas('person', function($query) use($request){
                                     $query
@@ -519,7 +513,6 @@ class SaleNoteController extends Controller
         $currency_types = CurrencyType::whereActive()->get();
         $discount_types = ChargeDiscountType::whereType('discount')->whereLevel('item')->get();
         $charge_types = ChargeDiscountType::whereType('charge')->whereLevel('item')->get();
-        $global_charge_types = ChargeDiscountType::whereIn('id', ['50'])->get();
         $company = Company::active();
         $payment_method_types = PaymentMethodType::all();
         $series = collect(Series::all())->transform(function($row) {
@@ -538,7 +531,7 @@ class SaleNoteController extends Controller
 
 
         return compact('customers', 'establishments','currency_types', 'discount_types', 'configuration',
-                         'charge_types','company','payment_method_types', 'series', 'payment_destinations','sellers', 'global_charge_types');
+                         'charge_types','company','payment_method_types', 'series', 'payment_destinations','sellers');
     }
 
     public function changed($id)
@@ -633,19 +626,13 @@ class SaleNoteController extends Controller
 
                 if(isset($row['IdLoteSelected']))
                 {
-                    if(is_array($row['IdLoteSelected'])) 
-                    {
-                        // presentacion - factor de lista de precios
-                        $quantity_unit = isset($sale_note_item->item->presentation->quantity_unit) ? $sale_note_item->item->presentation->quantity_unit : 1;
+                    if(is_array($row['IdLoteSelected'])) {
 
-                        foreach ($row['IdLoteSelected'] as $item) 
-                        {
+                        foreach ($row['IdLoteSelected'] as $item) {
                             $lot = ItemLotsGroup::query()->find($item['id']);
-                            $lot->quantity = $lot->quantity - ($quantity_unit * $item['compromise_quantity']);
-                            $this->validateStockLotGroup($lot, $sale_note_item);
+                            $lot->quantity = $lot->quantity - $item['compromise_quantity'];
                             $lot->save();
                         }
-                        
                     }
                     else {
 
@@ -814,14 +801,12 @@ class SaleNoteController extends Controller
 //        $this->createPdf();
 //    }
 
-    private function setFilename()
-    {
+    private function setFilename(){
+
         $name = [$this->sale_note->series,$this->sale_note->number,date('Ymd')];
         $this->sale_note->filename = join('-', $name);
-        
-        $this->sale_note->unique_filename = $this->sale_note->filename; //campo único para evitar duplicados
-
         $this->sale_note->save();
+
     }
 
     public function toPrint($external_id, $format) {
@@ -853,6 +838,7 @@ class SaleNoteController extends Controller
 
         $this->configuration = Configuration::first();
         // $configuration = $this->configuration->formats;
+        $terms_condition = $this->configuration->terms_condition_sale;
         $base_template = Establishment::find($this->document->establishment_id)->template_pdf;
 
         $html = $template->pdf($base_template, "sale_note", $this->company, $this->document, $format_pdf);
@@ -863,6 +849,7 @@ class SaleNoteController extends Controller
             if(config('tenant.enabled_template_ticket_80')) $width = 76;
 
             $company_logo      = ($this->company->logo) ? 40 : 0;
+            $terms_condition   = (strlen($terms_condition) / 20) * 3;
             $company_name      = (strlen($this->company->name) / 20) * 10;
             $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
@@ -877,8 +864,9 @@ class SaleNoteController extends Controller
             $total_taxed       = $this->document->total_taxed != '' ? '10' : '0';
             $quantity_rows     = count($this->document->items);
             $payments     = $this->document->payments()->count() * 2;
-            $discount_global = 0;
+
             $extra_by_item_description = 0;
+            $discount_global = 0;
             foreach ($this->document->items as $it) {
                 if(strlen($it->item->description)>100){
                     $extra_by_item_description +=24;
@@ -894,10 +882,11 @@ class SaleNoteController extends Controller
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    120 +
-                    ($quantity_rows * 8)+
+                    60 +
+                    (($quantity_rows * 8) + $extra_by_item_description) +
                     ($discount_global * 3) +
                     $company_logo +
+                    $terms_condition +
                     $payments +
                     $company_name +
                     $company_address +
@@ -911,12 +900,11 @@ class SaleNoteController extends Controller
                     $total_free +
                     $total_unaffected +
                     $total_exonerated +
-                    $extra_by_item_description +
                     $total_taxed],
-                'margin_top' => 2,
-                'margin_right' => 5,
+                'margin_top' => 0,
+                'margin_right' => 2,
                 'margin_bottom' => 0,
-                'margin_left' => 5
+                'margin_left' => 2
             ]);
         } else if($format_pdf === 'a5'){
 
@@ -1014,7 +1002,7 @@ class SaleNoteController extends Controller
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         if(config('tenant.pdf_template_footer')) {
-            /* if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) */
+            // if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
                 if ($base_template != 'full_height') {
                     $html_footer = $template->pdfFooter($base_template,$this->document);
                 } else {
@@ -1026,12 +1014,8 @@ class SaleNoteController extends Controller
                         $html_footer_legend = $template->pdfFooterLegend($base_template, $this->document);
                     }
                 }
-                
-                if (($format_pdf === 'ticket') || ($format_pdf === 'ticket_58') || ($format_pdf === 'ticket_50')) {
-                    $pdf->WriteHTML($html_footer.$html_footer_legend, HTMLParserMode::HTML_BODY);
-                }else{
-                    $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
-                }
+                $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
+            // }
         }
 
         if ($base_template === 'brand') {
@@ -1041,7 +1025,7 @@ class SaleNoteController extends Controller
                 $pdf->SetHTMLFooter("");
             }
         }
-        
+
         $this->uploadFile($this->document->filename, $pdf->output('', 'S'), 'sale_note');
     }
 
@@ -1600,29 +1584,23 @@ class SaleNoteController extends Controller
         ]);
         $clientId = $request->client_id;
         $records = SaleNote::without(['user', 'soap_type', 'state_type', 'currency_type', 'payments'])
-                            ->select('series', 'number', 'id', 'date_of_issue', 'total')
+                            ->select('series', 'number', 'id', 'date_of_issue')
                             ->where('customer_id', $clientId)
                             ->whereNull('document_id')
                             ->whereIn('state_type_id', ['01', '03', '05'])
                             ->orderBy('number', 'desc');
 
         $dateOfIssue = $request->date_of_issue;
-        $dateOfDue = $request->date_of_due;
-        if ($dateOfIssue&&!$dateOfDue) {
+        if ($dateOfIssue) {
             $records = $records->where('date_of_issue', $dateOfIssue);
         }
-        
-        if ($dateOfIssue&&$dateOfDue) {
-            $records = $records->whereBetween('date_of_issue', [$dateOfIssue,$dateOfDue]);
-        }
-        $sum_total=0;
+
         $records = $records->take(20)
             ->get();
-        $sum_total=number_format($records->sum('total'),2);
+
         return response()->json([
             'success' => true,
             'data' => $records,
-            'sum_total' => $sum_total,
         ], 200);
     }
 
@@ -1674,11 +1652,6 @@ class SaleNoteController extends Controller
         $this->sale_note->external_id = Str::uuid()->toString();
         $this->sale_note->state_type_id = '01' ;
         $this->sale_note->number = SaleNote::getLastNumberByModel($obj) ;
-        $this->sale_note->unique_filename = null;
-
-        $this->sale_note->changed = false;
-        $this->sale_note->document_id = null;
-
         $this->sale_note->save();
 
         foreach($obj->items as $row)

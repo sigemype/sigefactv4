@@ -111,7 +111,7 @@ use Picqer\Barcode\BarcodeGeneratorPNG;
  */
 class Item extends ModelTenant
 {
-    protected $with = ['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags','item_lots'];
+    protected $with = ['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags'];
     protected $fillable = [
         'warehouse_id',
         'name',
@@ -174,7 +174,6 @@ class Item extends ModelTenant
         'purchase_system_isc_type_id',
         'purchase_has_isc',
 
-        'subject_to_detraction',
         // 'warehouse_id'
     ];
 
@@ -182,7 +181,6 @@ class Item extends ModelTenant
         'date_of_due' => 'date',
         'is_for_production' => 'bool',
         'purchase_has_isc' => 'bool',
-        'subject_to_detraction' => 'bool',
     ];
 
     /**
@@ -934,7 +932,6 @@ class Item extends ModelTenant
                     'price2'        => $item_unit_types->price2,
                     'price3'        => $item_unit_types->price3,
                     'price_default' => $item_unit_types->price_default,
-                    'barcode' => $item_unit_types->barcode,
                 ];
             }),
             'warehouses' => collect($this->warehouses)->transform(function ($warehouses) use ($warehouse) {
@@ -972,8 +969,6 @@ class Item extends ModelTenant
             'system_isc_type_id' => $this->system_isc_type_id,
             'percentage_isc' => $this->percentage_isc,
             'is_for_production'=>$this->isIsForProduction(),
-            'subject_to_detraction' => $this->subject_to_detraction,
-            
         ];
 
         // El nombre de producto, por defecto, sera la misma descripcion.
@@ -1066,9 +1061,6 @@ class Item extends ModelTenant
         if(empty($currency )){
             $currency = new CurrencyType();
         }
-
-        $show_sale_unit_price = "{$currency->symbol} {$this->getFormatSaleUnitPrice()}";
-
         return [
             'name_disa' => $name_disa,
             'laboratory' => $laboratory,
@@ -1103,8 +1095,7 @@ class Item extends ModelTenant
             'active' => (bool)$this->active,
             'has_igv_description' => $has_igv_description,
             'purchase_has_igv_description' => $purchase_has_igv_description,
-            'sale_unit_price' => $show_sale_unit_price,
-            // 'sale_unit_price' => "{$currency->symbol} {$this->sale_unit_price}",
+            'sale_unit_price' => "{$currency->symbol} {$this->sale_unit_price}",
             'sale_unit_price_with_igv' => "{$currency->symbol} $salePriceWithIgv",
             'purchase_unit_price' => "{$currency->symbol} {$this->purchase_unit_price}",
             'created_at' => ($this->created_at) ? $this->created_at->format('Y-m-d H:i:s') : '',
@@ -1158,18 +1149,6 @@ class Item extends ModelTenant
 
         ];
     }
-
-    
-    /**
-     * Obtener precio unitario entero o con decimales
-     *
-     * @return int|float
-     */
-    public function getFormatSaleUnitPrice()
-    {
-        return ((int)$this->sale_unit_price != $this->sale_unit_price) ? $this->sale_unit_price : round($this->sale_unit_price);
-    }
-
 
     /**
      * Establece un standar para insersion por catalogo DIGEMID
@@ -1448,28 +1427,20 @@ class Item extends ModelTenant
         $currentRow = $class::where('item_id',$this->id)
             ->whereNotIn($field_id,$dataCollection)
             ->get();
-
         foreach ($currentRow as $row){
             $row->setActive(false)->push();
             $row->delete();
         }
 
 
-
         foreach($dataCollection as $item){
 
-            if($field_id=='cat_item_product_family_id' && get_class($item)==CatItemProductFamily::class) {
-                $item = $item->id;
-            }
             $ck = [
                 'item_id'=>$this->id,
                 $field_id=>$item
             ];
             $newRow = $class::where($ck)->first();
-
-            if(empty($newRow)) {
-                $newRow = new $class($ck);
-            }
+            if(empty($newRow)) $newRow = new $class($ck);
 
             $newRow->setActive(true)->push();
         }
@@ -2111,24 +2082,6 @@ class Item extends ModelTenant
             ->distinct();
     }
 
-    
-    /**
-     * Almacenes asociados al producto
-     *
-     * @return array
-     */
-    public function getDataWarehouses()
-    {
-        return collect($this->warehouses)->transform(function($row){
-            return [
-                'warehouse_description' => $row->warehouse->description,
-                'stock' => $row->stock,
-                'warehouse_id' => $row->warehouse_id,
-            ];
-        });
-    }
-
-
     /**
      * @param Builder $query
      *
@@ -2156,173 +2109,6 @@ class Item extends ModelTenant
             $query->where('stock', '>', $stockmin);
         });
     }
-    
-
-    /**
-     * 
-     * Obtener presentaciones
-     *
-     * Usado en: 
-     * PosController
-     * 
-     * @param  bool $search_item_by_barcode_presentation
-     * @param  string $barcode_presentation
-     * @return array
-     */
-    public function getItemUnitTypesBarcode($search_item_by_barcode_presentation = false, $barcode_presentation)
-    {
-        return $search_item_by_barcode_presentation ? $this->item_unit_types()->where('barcode', $barcode_presentation)->get() : $this->item_unit_types;
-    }
-
-    /**
-     * 
-     * Filtrar por codigo de barra de presentacion
-     * 
-     * Usado en: 
-     * PosController
-     * 
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeOrFilterItemUnitTypeBarcode($query, $barcode)
-    {
-        return $query->orWhereHas('item_unit_types', function($query) use($barcode) {
-            $query->where('barcode', $barcode);
-        });
-    }
-
-    /**
-     * 
-     * Filtrar por codigo de barra de presentacion
-     * 
-     * Usado en: 
-     * SearchItemController
-     * 
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeFilterItemUnitTypeBarcode($query, $barcode)
-    {
-        return $query->whereHas('item_unit_types', function($query) use($barcode) {
-            $query->where('barcode', $barcode);
-        });
-    }
-
-
-    /**
-     * 
-     * Filtro para no incluir relaciones en consulta
-     *
-     * @param Builder $query
-     * @return Builder
-     */  
-    public function scopeWhereFilterWithOutRelations($query)
-    {
-        return $query->withOut(['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags']);
-    }
-
-
-    /**
-     * 
-     * Filtro para consulta al actualizar precios
-     * 
-     * Usado en:
-     * ItemUpdatePriceImport
-     *
-     * @param Builder $query
-     * @param  string $internal_id
-     * @return Builder
-     */  
-    public function scopeWhereFilterUpdatePrices($query, $internal_id)
-    {
-        return $query->whereFilterWithOutRelations()->where('internal_id', $internal_id)->select('id', 'internal_id', 'sale_unit_price', 'purchase_unit_price');
-    }
-
-    
-    /**
-     * 
-     * Filtro avanzado para busqueda
-     * Usado en:
-     * ItemController - records
-     * Modules\Inventory\Http\Controllers\ItemController - advancedItemsSearch
-     * Modules\Inventory\Http\Controllers\InventoryController - records
-     * 
-     * @param Builder $query
-     * @param  string $column
-     * @param  string $value
-     * @return Builder
-     * 
-     */  
-    public function scopeWhereAdvancedRecordsSearch($query, $column, $value)
-    {
-        $search_values = $this->getSearchValues($value);
-
-        return $query->where(function($q) use($search_values, $column){
-
-            foreach ($search_values as $search_value) 
-            {
-                $q->where($column, 'like', "%{$search_value}%");
-            }
-
-        });
-    }
-
-    
-    /**
-     * 
-     * Filtro para busqueda avanzada de items en reporte kardex
-     *
-     * @param  Builder $query
-     * @return Builder
-     */
-    public function scopeWhereFilterReportKardex($query)
-    {
-        return $query->whereNotIsSet()->where([['item_type_id', '01'], ['unit_type_id', '!=', 'ZZ']]);
-    }
-    
-
-    /**
-     * 
-     * Datos del item para busqueda avanzada
-     * 
-     * Usado en:
-     * Modules\Inventory\Http\Controllers\ItemController
-     * 
-     * @return array
-     */
-    public function getRowResourceAdvancedSearch()
-    {
-
-        $full_description = $this->getFullDescriptionAdvancedSearch();
-
-        return [
-            'id' => $this->id,
-            'full_description' => $full_description,
-            'internal_id' => $this->internal_id,
-            'description' => $this->description,
-        ];
-    }
-
-    
-    /**
-     * 
-     * Descripcion del item para busqueda avanzada
-     *
-     * @return string
-     */
-    public function getFullDescriptionAdvancedSearch()
-    {
-        $description = ($this->internal_id) ? $this->internal_id . ' - ' . $this->description : $this->description;
-
-        $category = "";
-        if($this->category) $category = ($this->category->id) ? " - {$this->category->name}" : "";
-
-        $brand = "";
-        if($this->brand) $brand = ($this->brand->id) ? " - {$this->brand->name}" : "";
-
-        return "{$description}{$category}{$brand}";
-    }
-
 
 }
 

@@ -4,7 +4,6 @@
 
     use App\Models\Tenant\Person;
     use Illuminate\Http\Request;
-    use Modules\FullSuscription\Models\Tenant\FullSuscriptionUserDatum;
 
     /**
      * Tener en cuenta como base modules/Document/Traits/SearchTrait.php
@@ -195,13 +194,6 @@
             $person->with('addresses');
             $orderColum = 'name';
             $children = false;
-            if($request->has('column') && !empty($request->column) && $request->column == 'discord_channel'){
-                $value = $request->value;
-                $request->request->remove('column');
-                $orderColum = 'id';
-                $temp = FullSuscriptionUserDatum::where('discord_channel','like',"%$value%")->select('person_id')->distinct()->get()->pluck('person_id');
-                $person->whereIn('id',$temp);
-            }
             if($request!= null){
                 if($request->has('column') && !empty($request->column)){
                     $orderColum = $request->column;

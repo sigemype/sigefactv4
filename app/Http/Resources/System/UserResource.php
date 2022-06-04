@@ -3,7 +3,6 @@
 namespace App\Http\Resources\System;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\System\Configuration;
 
 class UserResource extends JsonResource
 {
@@ -15,14 +14,11 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        $configuration = Configuration::first();
         return [
             'id' => $this->id,
             'email' => $this->email,
             'name' => $this->name,
             'phone' => $this->phone,
-            'enable_whatsapp' => (bool)$configuration->enable_whatsapp,
         ];
     }
 }

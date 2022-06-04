@@ -34,7 +34,6 @@ class SummaryInput
             'date_of_reference' => $date_of_reference,
             'identifier' => $identifier,
             'filename' => $filename,
-            'unique_filename' => $filename,
             'documents' => $inputs['documents']
         ];
     }

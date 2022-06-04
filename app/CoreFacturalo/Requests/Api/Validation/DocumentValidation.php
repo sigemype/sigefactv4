@@ -35,8 +35,6 @@ class DocumentValidation
         Functions::identityDocumentTypeInvoice($inputs);
 
         Functions::validateDetraction($inputs);
-
-        Functions::validateDateOfIssue($inputs);
         
         return $inputs;
     }

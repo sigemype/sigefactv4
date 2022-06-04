@@ -124,7 +124,6 @@
             'send_to_pse',
             'response_signature_pse',
             'response_send_cdr_pse',
-            'order_form_external',
 
         ];
 
@@ -287,14 +286,6 @@
         /**
          * @return BelongsTo
          */
-        public function reference_quotation()
-        {
-            return $this->belongsTo(Quotation::class, 'reference_quotation_id');
-        }
-
-        /**
-         * @return BelongsTo
-         */
         public function unit_type()
         {
             return $this->belongsTo(UnitType::class, 'unit_type_id');
@@ -429,31 +420,6 @@
             return $this->belongsTo(OrderNote::class, 'reference_order_note_id');
         }
 
-        
-        /**
-         * 
-         * Obtener orden de pedido externa o relacionada de order form
-         *
-         * @return string
-         */
-        public function getOrderFormDescription()
-        {
-
-            $order_form_description = null;
-
-            if($this->order_form)
-            {
-                $order_form_description = $this->order_form->number_full;
-            }
-            else if($this->order_form_external)
-            {
-                $order_form_description = $this->order_form_external;
-            }
-
-            return $order_form_description;
-            
-        }
-
 
         /**
          * Retorna un standar de nomenclatura para el modelo
@@ -473,7 +439,6 @@
 
             if ($this->generate_document) $documents [] = ['description' => $this->generate_document->number_full];
             if ($this->reference_document) $documents [] = ['description' => $this->reference_document->number_full];
- 
 
             //
             return [
@@ -508,9 +473,7 @@
                 'soap_shipping_response' => $this->soap_shipping_response,
                 'btn_generate_document' => $this->generate_document || $this->reference_document_id ? false : true,
                 'transfer_reason_type' => $this->transfer_reason_type,
-                'transfer_reason_description' => $this->transfer_reason_description,
-                'documents' => $documents,
-                'order_form_description' => $this->getOrderFormDescription(),
+                'documents' => $documents
             ];
 
         }
@@ -644,38 +607,6 @@
         public function setResponseSignaturePseAttribute($value)
         {
             $this->attributes['response_signature_pse'] = (is_null($value)) ? null : json_encode($value);
-        }
-
-        
-        /**
-         * 
-         * Retornar registro relacionado
-         * 
-         * Guia generada desde: Cot, Nv, Ped
-         * 
-         */
-        public function getRelationExternalDocument()
-        {
-            if(!is_null($this->reference_quotation_id)) return $this->reference_quotation;
-            
-            if(!is_null($this->reference_sale_note_id)) return $this->sale_note;
-
-            if(!is_null($this->reference_order_note_id)) return $this->order_note;
-            
-            return null;
-        }
-
-        
-        /**
-         * 
-         * Validar si existe relación
-         *
-         * @param $relation_external_document
-         * @return bool
-         */
-        public function isGeneratedFromExternalDocument($relation_external_document)
-        {
-            return !is_null($relation_external_document);
         }
 
     }

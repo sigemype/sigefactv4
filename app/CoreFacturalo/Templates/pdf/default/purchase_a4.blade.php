@@ -81,7 +81,7 @@
             {{ ($supplier->department_id !== '-')? '- '.$supplier->department->description : '' }}
         </td>
     </tr>
-    @endif
+    @endif 
     @if ($supplier->telephone)
     <tr>
         <td class="align-top">Teléfono:</td>
@@ -89,7 +89,7 @@
             {{ $supplier->telephone }}
         </td>
     </tr>
-    @endif
+    @endif 
     <tr>
         <td class="align-top">Usuario:</td>
         <td colspan="3">
@@ -102,14 +102,8 @@
         <td  colspan="3">{{ $document->purchase_order->number_full }}</td>
     </tr>
     @endif
-    @if ($document->observation)
-    <tr>
-        <td class="align-top">Observación: </td>
-        <td colspan="3">{{ $document->observation }}</td>
-    </tr>
-    @endif
 </table>
-
+ 
 
 <table class="full-width mt-10 mb-10">
     <thead class="">
@@ -135,11 +129,6 @@
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
             <td class="text-left">
                 {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
-
-                @if($row->total_isc > 0)
-                    <br/><span style="font-size: 9px">ISC : {{ $row->total_isc }} ({{ $row->percentage_isc }}%)</span>
-                @endif
-
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)
                         <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
@@ -211,14 +200,6 @@
             <td colspan="5" class="text-right font-bold">IGV: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold">{{ number_format($document->total_igv, 2) }}</td>
         </tr>
-
-        @if($document->total_isc > 0)
-        <tr>
-            <td colspan="5" class="text-right font-bold">ISC: {{ $document->currency_type->symbol }}</td>
-            <td class="text-right font-bold">{{ number_format($document->total_isc, 2) }}</td>
-        </tr>
-        @endif
-
         <tr>
             <td colspan="5" class="text-right font-bold">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold">{{ number_format($document->total, 2) }}</td>
@@ -280,11 +261,7 @@
             <br/>
             <strong>Información adicional</strong>
             @foreach($document->additional_information as $information)
-                <p>@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
-                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
-                        @else
-                            {{$information}}
-                        @endif</p>
+                <p>{{ $information }}</p>
             @endforeach
         </td> --}}
     </tr>

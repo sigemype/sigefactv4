@@ -181,15 +181,7 @@
             </td>
             <td class="text-center align-top">{{ $row->item->unit_type_id }}</td>
             <td class="text-left">
-                
-                @if($row->name_product_pdf)
-                    {!!$row->name_product_pdf!!}
-                @else
-                    {!!$row->item->description!!} 
-                @endif
-                
-                @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
-                
+                {!!$row->item->description!!} @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
                 @if($row->attributes)
                     @foreach($row->attributes as $attr)
                         <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
@@ -297,11 +289,7 @@
             <br/>
             <strong>Información adicional</strong>
             @foreach($document->additional_information as $information)
-                <p>@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
-                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
-                        @else
-                            {{$information}}
-                        @endif</p>
+                <p>{{ $information }}</p>
             @endforeach
         </td> --}}
     </tr>

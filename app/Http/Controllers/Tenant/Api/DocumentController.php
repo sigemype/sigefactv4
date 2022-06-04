@@ -11,6 +11,7 @@ use Exception;
 use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentControllerSend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Tenant\Cash;
 
 class DocumentController extends Controller
 {
@@ -40,6 +41,12 @@ class DocumentController extends Controller
 
         $document = $fact->getDocument();
         $response = $fact->getResponse();
+
+        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
+        // dd($cash);
+        if ($cash!=null) {
+                $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'document_id' => $document->id]);
+        }
 
         return [
             'success' => true,

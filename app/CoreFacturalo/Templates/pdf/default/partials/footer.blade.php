@@ -99,4 +99,8 @@
             <img src="data:{{mime_content_type(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png"))}};base64, {{base64_encode(file_get_contents(public_path("status_images".DIRECTORY_SEPARATOR."sigefact.png")))}}" alt="sigefact_logo" class="" width="12%">
         </div>
     </table>
+<<<<<<< HEAD
 </body>
+=======
+</body>
+>>>>>>> parent of 7abfff87 (Actualizacion pro5 - App)

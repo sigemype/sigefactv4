@@ -35,14 +35,8 @@ class DocumentEmail extends Mailable
         $pdf = $this->getStorage($this->document->filename, 'pdf');
         $xml = $this->getStorage($this->document->filename, 'signed');
         $cdr = null;
-        
         if($this->document->document_type_id !== '03') {
-
-            if($this->existFileInStorage($this->document->filename, 'cdr'))
-            {
-                $cdr = $this->getStorage($this->document->filename, 'cdr');
-            }
-
+            $cdr = $this->getStorage($this->document->filename, 'cdr');
         }
 
 

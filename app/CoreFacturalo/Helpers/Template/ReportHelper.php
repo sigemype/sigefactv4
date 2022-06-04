@@ -238,18 +238,4 @@
             return $warehouse_description;
         }
 
-
-        /**
-         * @param $is_garage
-         *
-         * @return bool
-         */
-        public static  function setBoolIsGarage(&$is_garage)
-        {
-            if(is_string($is_garage))
-            {
-                $is_garage = $is_garage == 'true';
-            }
-        }
-
     }

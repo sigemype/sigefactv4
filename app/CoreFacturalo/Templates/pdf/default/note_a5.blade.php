@@ -313,11 +313,7 @@
                     @if ($loop->first)
                         <strong>Información adicional</strong>
                     @endif
-                    <p>@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
-                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
-                        @else
-                            {{$information}}
-                        @endif</p>
+                    <p>{{ $information }}</p>
                 @endif
             @endforeach
             <br>

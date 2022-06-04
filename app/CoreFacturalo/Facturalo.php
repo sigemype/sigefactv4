@@ -930,7 +930,7 @@ class Facturalo
                 }
 
             } else {
-
+                
                 //enviar cdr a pse
                 $this->sendCdrToPse($res->getCdrZip(), $this->document);
                 //enviar cdr a pse

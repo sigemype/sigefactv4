@@ -30,8 +30,6 @@ use Modules\Sale\Models\Contract;
 use Modules\Sale\Models\SaleOpportunity;
 use Modules\Sale\Models\TechnicalService;
 use Modules\Sale\Models\UserCommission;
-use App\Models\Tenant\Configuration;
-use Modules\Restaurant\Models\RestaurantRole;
 
 
 /**
@@ -144,7 +142,6 @@ use Modules\Restaurant\Models\RestaurantRole;
  * @property int|null $user_commissions_count
  * @property int|null $voideds_count
  * @property int|null $zone_id
- * @property int|null $restaurant_role_id
 
  */
 class User extends Authenticatable
@@ -176,11 +173,6 @@ class User extends Authenticatable
         'permission_edit_cpe',
         'recreate_documents',
         'zone_id',
-        'restaurant_role_id',
-        
-        'delete_payment',
-        'create_payment',
-
 
         // 'email_verified_at',
         // 'api_token',
@@ -205,9 +197,6 @@ class User extends Authenticatable
         'establishment_id' => 'int',
         'zone_id' => 'int',
         'locked' => 'bool',
-
-        'delete_payment' => 'bool',
-        'create_payment' => 'bool',
     ];
 
     public function modules()
@@ -326,11 +315,6 @@ class User extends Authenticatable
         return $this->hasMany(SaleNote::class,
 'seller_id',
 'id');
-    }
-
-    public function restaurant_role()
-    {
-        return $this->belongsTo(RestaurantRole::class);
     }
 
     public function scopeWhereTypeUser($query)
@@ -634,20 +618,6 @@ $withEstablishment = true){
     }
 
     /**
-     * @return array
-     */
-    public function getCollectionRestaurantData(){
-        return [
-            'id' => $this->id,
-            'email' => $this->email,
-            'name' => $this->name,
-            'restaurant_role_id' => $this->restaurant_role_id,
-            'restaurant_role_name' => $this->restaurant_role_id ? $this->restaurant_role->name : '',
-            'locked' => (bool) $this->locked,
-        ];
-    }
-
-    /**
      * @return HasMany
      */
     public function cashes()
@@ -888,37 +858,4 @@ $withEstablishment = true){
             ->get();
 
     }
-
-        
-    /**
-     * 
-     * Validar si aplica el filtro por vendedor para el usuario en sesión (filtrar clientes por vendedor asignado)
-     *
-     * Usado en:
-     * Person - scopeWhereFilterCustomerBySeller
-     * 
-     * @return bool
-     */
-    public function applyCustomerFilterBySeller()
-    {
-        $configuration = Configuration::select('customer_filter_by_seller')->first();
-
-        return ($this->type === 'seller' && $configuration->customer_filter_by_seller);
-    }
-
-    
-    /**
-     * 
-     * Obtener permisos para pagos de comprobantes
-     *
-     * @return array
-     */
-    public function getPermissionsPayment()
-    {
-        return [
-            'create_payment' => $this->create_payment,
-            'delete_payment' => $this->delete_payment,
-        ];
-    }
-
 }

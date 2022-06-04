@@ -140,10 +140,9 @@
             $customers = $this->getPersons('customers');
             $configuration = Configuration::first();
             $payment_conditions = GeneralPaymentCondition::get();
-            $warehouses = Warehouse::get();
 
             return compact('suppliers', 'establishment', 'currency_types', 'discount_types', 'configuration', 'payment_conditions',
-                'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers', 'warehouses');
+                'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers');
         }
 
         public function table($table)
@@ -381,13 +380,9 @@
                         if (array_key_exists('item', $row)) {
                             if (isset($row['item']['lots_enabled']) && $row['item']['lots_enabled'] == true) {
 
-                                // factor de lista de precios
-                                $presentation_quantity = (isset($p_item->item->presentation->quantity_unit)) ? $p_item->item->presentation->quantity_unit : 1;
-
                                 ItemLotsGroup::create([
                                     'code' => $row['lot_code'],
-                                    'quantity' => $row['quantity'] * $presentation_quantity,
-                                    // 'quantity' => $row['quantity'],
+                                    'quantity' => $row['quantity'],
                                     'date_of_due' => $row['date_of_due'],
                                     'item_id' => $row['item_id']
                                 ]);
@@ -603,13 +598,9 @@
                     if (array_key_exists('item', $row)) {
                         if (isset($row['item']['lots_enabled']) && $row['item']['lots_enabled'] == true) {
 
-                            // factor de lista de precios
-                            $presentation_quantity = (isset($p_item->item->presentation->quantity_unit)) ? $p_item->item->presentation->quantity_unit : 1;
-
                             ItemLotsGroup::create([
                                 'code' => $row['lot_code'],
-                                'quantity' => $row['quantity'] * $presentation_quantity,
-                                // 'quantity' => $row['quantity'],
+                                'quantity' => $row['quantity'],
                                 'date_of_due' => $row['date_of_due'],
                                 'item_id' => $row['item_id']
                             ]);

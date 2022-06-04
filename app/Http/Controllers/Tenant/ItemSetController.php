@@ -98,7 +98,6 @@ class ItemSetController extends Controller
                 'internal_id' => $row->internal_id,
                 'description' => $row->description,
                 'sale_unit_price' => $row->sale_unit_price,
-                'purchase_unit_price' => $row->purchase_unit_price,
             ];
         });
 

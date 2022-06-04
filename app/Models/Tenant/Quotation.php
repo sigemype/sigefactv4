@@ -257,7 +257,7 @@ class Quotation extends ModelTenant
                 $user = new User();
             }
         }
-        else {
+        else { 
             $user = auth()->user();
         }
         return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
@@ -344,11 +344,6 @@ class Quotation extends ModelTenant
             $orderNote = [];
         }
 
-        $seller = User::find($this->seller_id);
-        if(empty($seller)){
-            $seller = new User();
-        }
-
         return [
             'id' => $row->id,
             'items' => $items,
@@ -361,7 +356,6 @@ class Quotation extends ModelTenant
             'delivery_date' => $row->delivery_date,
             'identifier' => $row->identifier,
             'user_name' => $row->user->name,
-            'seller_name' => $seller->name,
             'customer_id' => $row->customer_id,
             'customer_name' => $row->customer->name,
             'customer_number' => $row->customer->number,
@@ -424,105 +418,6 @@ class Quotation extends ModelTenant
         }
 
         return $this->delivery_date->format('Y-m-d');
-    }
-
-
-    /**
-     *
-     * Obtener total y realizar conversión al tipo de cambio si se requiere
-     *
-     * @return float
-     */
-    public function getTransformTotal()
-    {
-        return ($this->currency_type_id === 'PEN') ? $this->total : ($this->total * $this->exchange_rate_sale);
-    }
-
-
-    /**
-     *
-     * Validar si tiene estado registrado/aceptado
-     *
-     * @return bool
-     */
-    public function hasStateTypeAccepted()
-    {
-        return in_array($this->state_type_id, ['01','05']);
-    }
-
-
-    /**
-     *
-     * Validar si la cotizacion tiene pagos
-     *
-     * @return bool
-     */
-    public function hasPayments()
-    {
-        return $this->payments->count() > 0;
-    }
-
-
-    /**
-     *
-     * Validar si cumple las condiciones para sumar a los ingresos de caja o mostrar en reporte (pos)
-     *
-     * @return bool
-     */
-    public function applyQuotationToCash()
-    {
-        return ($this->hasStateTypeAccepted() && $this->hasPayments() && !$this->changed);
-    }
-
-
-    /**
-     * 
-     * Filtro para no incluir relaciones en consulta
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */  
-    public function scopeWhereFilterWithOutRelations($query)
-    {
-        return $query->withOut(['user', 'soap_type', 'state_type', 'currency_type', 'items', 'payments']);
-    }
-
-
-    /**
-     * 
-     * Obtener descripción del tipo de documento
-     *
-     * @return string
-     */
-    public function getDocumentTypeDescription()
-    {
-        return 'COTIZACIÓN';
-    }
-
-    
-    /**
-     * 
-     * Obtener pagos en efectivo
-     *
-     * @return Collection
-     */
-    public function getCashPayments()
-    {
-        return $this->payments()->whereFilterCashPayment()->get()->transform(function($row){{
-            return $row->getRowResourceCashPayment();
-        }});
-    }
-    
-    
-    /**
-     * 
-     * Validar si el registro esta rechazado o anulado
-     * 
-     * @return bool
-     */
-    public function isVoidedOrRejected()
-    {
-        return in_array($this->state_type_id, self::VOIDED_REJECTED_IDS);
     }
 
 }
