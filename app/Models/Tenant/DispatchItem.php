@@ -23,12 +23,15 @@ class DispatchItem extends ModelTenant
 {
     use AttributePerItems;
     public $timestamps = false;
-
+    protected $with = [
+        'relation_item',
+    ];
     protected $fillable = [
         'dispatch_id',
         'item_id',
         'item',
         'quantity',
+        'name_product_pdf',
     ];
 
     /**

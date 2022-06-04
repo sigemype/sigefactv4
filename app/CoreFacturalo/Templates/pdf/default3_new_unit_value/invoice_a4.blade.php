@@ -24,7 +24,7 @@
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
 
     //calculate items
-    $allowed_items = 80;
+    $allowed_items = 75;
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 3);
     $total_weight = 0;
@@ -580,15 +580,15 @@
 
 @if(count($accounts) > 0)
 <table class="full-width border-box my-2">
+    <tr>
+        <th class="p-1" width="33%">Banco</th>
+        <th class="p-1">Moneda</th>
+        <th class="p-1">Código de Cuenta Interbancaria</th>
+        <th class="p-1">Código de Cuenta</th>
+    </tr>
     @foreach($accounts as $account)
         <tr>
-            <th class="p-1">Banco</th>
-            <th class="p-1">Moneda</th>
-            <th class="p-1">Código de Cuenta Interbancaria</th>
-            <th class="p-1">Código de Cuenta</th>
-        </tr>
-        <tr>
-            <td class="text-center">{{$account->bank->description}}</td>
+            <td class="text-left">{{$account->bank->description}}</td>
             <td class="text-center text-upp">{{$account->currency_type->description}}</td>
             <td class="text-center">
                 @if($account->cci)

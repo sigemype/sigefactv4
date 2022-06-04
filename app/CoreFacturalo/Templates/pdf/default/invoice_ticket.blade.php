@@ -10,6 +10,7 @@
 
     if($document_base) {
         $affected_document_number = ($document_base->affected_document) ? $document_base->affected_document->series.'-'.str_pad($document_base->affected_document->number, 8, '0', STR_PAD_LEFT) : $document_base->data_affected_document->series.'-'.str_pad($document_base->data_affected_document->number, 8, '0', STR_PAD_LEFT);
+
     } else {
         $affected_document_number = null;
     }
@@ -17,6 +18,12 @@
 
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
+
+
+    $logo = "storage/uploads/logos/{$company->logo}";
+    if($establishment->logo) {
+        $logo = "{$establishment->logo}";
+    }
 
 @endphp
 <html>
@@ -28,7 +35,7 @@
 
 @if($company->logo)
     <div class="text-center company_logo_box pt-5">
-        <img src="data:{{mime_content_type(public_path("storage/uploads/logos/{$company->logo}"))}};base64, {{base64_encode(file_get_contents(public_path("storage/uploads/logos/{$company->logo}")))}}" alt="{{$company->name}}" class="company_logo_ticket contain">
+        <img src="data:{{mime_content_type(public_path("{$logo}"))}};base64, {{base64_encode(file_get_contents(public_path("{$logo}")))}}" alt="{{$company->name}}" class="company_logo_ticket contain">
     </div>
 {{--@else--}}
     {{--<div class="text-center company_logo_box pt-5">--}}
@@ -387,13 +394,13 @@
 
 <table class="full-width mt-10 mb-10">
     <thead class="">
-        <tr>
-            <th class="border-top-bottom desc-9 text-left">CANT.</th>
-            <th class="border-top-bottom desc-9 text-left">UNIDAD</th>
-            <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
-            <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
-            <th class="border-top-bottom desc-9 text-left">TOTAL</th>
-        </tr>
+    <tr>
+        <th class="border-top-bottom desc-9 text-left">CANT.</th>
+        <th class="border-top-bottom desc-9 text-left">UNIDAD</th>
+        <th class="border-top-bottom desc-9 text-left">DESCRIPCIÓN</th>
+        <th class="border-top-bottom desc-9 text-left">P.UNIT</th>
+        <th class="border-top-bottom desc-9 text-left">TOTAL</th>
+    </tr>
     </thead>
     <tbody>
     @foreach($document->items as $row)
@@ -406,7 +413,7 @@
                 @endif
             </td>
             <td class="text-center desc-9 align-top">{{ $row->item->unit_type_id }}</td>
-            <td class="text-left desc-9 align-top">
+            <td class="text-left desc-9 align-top font-bold">
                 @if($row->name_product_pdf)
                     {!!$row->name_product_pdf!!}
                 @else
@@ -418,6 +425,10 @@
                 @endif
 
                 @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
+
+                @if($row->total_plastic_bag_taxes > 0)
+                    <br/>ICBPER : {{ $row->total_plastic_bag_taxes }}
+                @endif
 
                 @foreach($row->additional_information as $information)
                     @if ($information)
@@ -441,7 +452,7 @@
                         <br/><small>{{ $document->currency_type->symbol}} {{ $charge->amount}} ({{ $charge->factor * 100 }}%) {{$charge->description }}</small>
                     @endforeach
                 @endif
-                
+
                 @if($row->item->is_set == 1)
 
                  <br>
@@ -579,14 +590,14 @@
             <td colspan="4" class="text-right font-bold desc">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold desc">{{ number_format($document->total, 2) }}</td>
         </tr>
-        
+
         @if(($document->retention || $document->detraction) && $document->total_pending_payment > 0)
             <tr>
                 <td colspan="4" class="text-right font-bold desc">M. PENDIENTE: {{ $document->currency_type->symbol }}</td>
                 <td class="text-right font-bold desc">{{ number_format($document->total_pending_payment, 2) }}</td>
             </tr>
         @endif
-        
+
         @if($balance < 0)
            <tr>
                <td colspan="4" class="text-right font-bold desc">VUELTO: {{ $document->currency_type->symbol }}</td>
@@ -612,22 +623,27 @@
         @endforeach
     </tr>
 
+
     @if ($document->detraction)
         <tr>
-            <td class="desc pt-2 font-bold">
+            <td class="desc pt-3 font-bold">
                 Operación sujeta al Sistema de Pago de Obligaciones Tributarias
             </td>
         </tr>
     @endif
 
     <tr>
-        <td class="desc pt-2">
+        <td class="desc pt-3">
             @foreach($document->additional_information as $information)
                 @if ($information)
                     @if ($loop->first)
                         <strong>Información adicional</strong>
                     @endif
-                    <p class="desc">{{ $information }}</p>
+                    <p class="desc">@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
+                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
+                        @else
+                            {{$information}}
+                        @endif</p>
                 @endif
             @endforeach
             <br>
@@ -635,7 +651,7 @@
                 @foreach($accounts as $account)
                     <p class="desc">
                         <small>
-                            <span class="desc">{{$account->bank->description}}</span> {{$account->currency_type->description}}
+                            <span class="font-bold desc">{{$account->bank->description}}</span> {{$account->currency_type->description}}
                             <span class="font-bold desc">N°:</span> {{$account->number}}
                             @if($account->cci)
                             <span class="font-bold desc">CCI:</span> {{$account->cci}}
@@ -647,7 +663,7 @@
         </td>
     </tr>
     <tr>
-        <td class="text-center pt-2"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
+        <td class="text-center pt-3"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
     </tr>
     <tr>
         <td class="text-center desc">Código Hash: {{ $document->hash }}</td>
@@ -670,14 +686,14 @@
     @endphp
     {{-- Condicion de pago  Crédito / Contado --}}
     <tr>
-        <td class="desc pt-2">
+        <td class="desc pt-5">
             <strong>CONDICIÓN DE PAGO: {{ $paymentCondition }} </strong>
         </td>
     </tr>
 
     @if($document->payment_method_type_id)
         <tr>
-            <td class="desc pt-2">
+            <td class="desc pt-5">
                 <strong>MÉTODO DE PAGO: </strong>{{ $document->payment_method_type->description }}
             </td>
         </tr>
@@ -687,7 +703,7 @@
 
         @if($payments->count())
             <tr>
-                <td class="desc pt-2">
+                <td class="desc pt-5">
                     <strong>PAGOS:</strong>
                 </td>
             </tr>
@@ -698,7 +714,7 @@
             @endforeach
         @endif
     @else
-        @foreach($document->fees as $key => $quote)
+        @foreach($document->fee as $key => $quote)
             <tr>
                 <td class="desc">&#8226; {{ (empty($quote->getStringPaymentMethodType()) ? 'Cuota #'.( $key + 1) : $quote->getStringPaymentMethodType()) }} / Fecha: {{ $quote->date->format('d-m-Y') }} / Monto: {{ $quote->currency_type->symbol }}{{ $quote->amount }}</td>
             </tr>
@@ -731,7 +747,7 @@
     </tr>
 
     <tr>
-        <td class="text-center desc pt-2">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
+        <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>
 </table>
 

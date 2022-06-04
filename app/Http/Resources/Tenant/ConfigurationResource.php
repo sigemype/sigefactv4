@@ -60,7 +60,10 @@ class ConfigurationResource extends JsonResource
             'active_warehouse_prices' => (bool) $this->active_warehouse_prices,
             'show_last_price_sale' => (bool) $this->show_last_price_sale,
             'show_logo_by_establishment' => (bool)$this->show_logo_by_establishment,
-
+            'top_menu_a_id' => $this->top_menu_a_id,
+            'top_menu_b_id' => $this->top_menu_b_id,
+            'top_menu_c_id' => $this->top_menu_c_id,
+            'top_menu_d_id' => $this->top_menu_d_id,
         ];
     }
 }

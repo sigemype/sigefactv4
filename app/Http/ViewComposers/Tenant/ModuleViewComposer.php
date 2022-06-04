@@ -3,6 +3,7 @@
 namespace App\Http\ViewComposers\Tenant;
 
 use App\Models\System\Configuration;
+use App\Models\Tenant\Configuration as TenantConfiguration;
 use App\Models\Tenant\Module;
 
 class ModuleViewComposer
@@ -16,6 +17,8 @@ class ModuleViewComposer
         } else {
             $view->vc_modules = Module::all()->pluck('value')->toArray();
         }
+        $view->vc_configuration = TenantConfiguration::first();
+
         $view->useLoginGlobal = $systemConfig->use_login_global;
     }
 }

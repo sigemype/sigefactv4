@@ -11,6 +11,8 @@
     use Illuminate\Foundation\Application;
     use Illuminate\Support\Facades\Config;
     use Modules\Inventory\Models\Warehouse;
+    use Modules\LevelAccess\Models\ModuleLevel;
+    use App\Models\Tenant\Skin;
 
     /**
      * Class App\Models\Tenant\Configuration
@@ -218,6 +220,7 @@
             'show_totals_on_cpe_list',
             'mi_tienda_pe',
             'detraction_amount_rounded_int',
+            'validate_purchase_sale_unit_price',
             'show_terms_condition_pos',
             'show_ticket_80',
             'show_ticket_58',
@@ -230,6 +233,24 @@
             'url_apiruc',
             'new_validator_pagination',
             'token_apiruc',
+            'customer_filter_by_seller',
+            'checked_global_igv_to_purchase',
+            'checked_update_purchase_price',
+            'set_global_purchase_currency_items',
+            'set_unit_price_dispatch_related_record',
+            'restrict_voided_send',
+            'shipping_time_days_voided',
+            'top_menu_a_id',
+            'top_menu_b_id',
+            'top_menu_c_id',
+            'top_menu_d_id',
+            'skin_id',
+            'enabled_tips_pos',
+            'legend_forest_to_xml',
+            'change_currency_item',
+            'enabled_advanced_records_search',
+            'change_decimal_quantity_unit_price_pdf',
+            'decimal_quantity_unit_price_pdf',
         ];
 
         protected $casts = [
@@ -295,12 +316,32 @@
             'show_totals_on_cpe_list' => 'bool',
             'auto_print' => 'bool',
             'detraction_amount_rounded_int' => 'bool',
+            'validate_purchase_sale_unit_price' => 'bool',
             'show_terms_condition_pos' => 'bool',
             'show_last_price_sale' => 'bool',
             'show_logo_by_establishment' => 'bool',
             'print_new_line_to_observation' => 'bool',
             'shipping_time_days' => 'int',
             'new_validator_pagination' => 'int',
+            'customer_filter_by_seller' => 'bool',
+            'checked_global_igv_to_purchase' => 'bool',
+            'checked_update_purchase_price' => 'bool',
+            'set_global_purchase_currency_items' => 'bool',
+            'set_unit_price_dispatch_related_record' => 'bool',
+            'restrict_voided_send' => 'bool',
+            'shipping_time_days_voided' => 'int',
+            'top_menu_a_id' => 'int',
+            'top_menu_b_id' => 'int',
+            'top_menu_c_id' => 'int',
+            'top_menu_d_id' => 'int',
+            'skin_id' => 'int',
+            'enabled_tips_pos' => 'bool',
+            'legend_forest_to_xml' => 'bool',
+            'change_currency_item' => 'bool',
+            'enabled_advanced_records_search' => 'bool',
+            'change_decimal_quantity_unit_price_pdf' => 'bool',
+            'decimal_quantity_unit_price_pdf' => 'int',
+
         ];
 
         protected $hidden = [
@@ -393,6 +434,7 @@
                 $warehouse = new Warehouse();
             }
             $currency = CurrencyType::all();
+            $skins = Skin::all();
             return [
                 'id' => $this->id,
                 'company' => $company,
@@ -474,6 +516,8 @@
                 'pos_cost_price' => $this->isPosCostPrice(),
                 'show_totals_on_cpe_list' => $this->isShowTotalsOnCpeList(),
                 'detraction_amount_rounded_int' => $this->detraction_amount_rounded_int,
+                'customer_filter_by_seller' => $this->customer_filter_by_seller,
+                'validate_purchase_sale_unit_price' => $this->validate_purchase_sale_unit_price,
                 'global_discount_type_id' => $this->global_discount_type_id,
                 'show_terms_condition_pos' => (bool)$this->show_terms_condition_pos,
                 'mi_tienda_pe' => $this->isMiTiendaPe(),
@@ -481,8 +525,29 @@
                 'show_ticket_58' => (bool)$this->show_ticket_58,
                 'show_ticket_50' => (bool)$this->show_ticket_50,
                 'show_last_price_sale' => (bool)$this->show_last_price_sale,
+                'show_logo_by_establishment' => (bool)$this->show_logo_by_establishment,
                 'shipping_time_days' => $this->shipping_time_days,
+                'checked_global_igv_to_purchase' => $this->checked_global_igv_to_purchase,
+                'checked_update_purchase_price' => $this->checked_update_purchase_price,
+                'set_global_purchase_currency_items' => $this->set_global_purchase_currency_items,
+                'set_unit_price_dispatch_related_record' => $this->set_unit_price_dispatch_related_record,
                 'new_validator_pagination' => $this->getNewValidatorPagination(),
+                'restrict_voided_send' => $this->restrict_voided_send,
+                'shipping_time_days_voided' => $this->shipping_time_days_voided,
+                'top_menu_a' => $this->top_menu_a_id ? $this->top_menu_a : '',
+                'top_menu_b' => $this->top_menu_b_id ? $this->top_menu_b : '',
+                'top_menu_c' => $this->top_menu_c_id ? $this->top_menu_c : '',
+                'top_menu_d' => $this->top_menu_d_id ? $this->top_menu_d : '',
+                'skin_id' => $this->skin_id,
+                'skins' => $skins,
+                'facturalo_server' => true, // $this->getFacturaloConfig(),
+                'enabled_tips_pos' => $this->enabled_tips_pos,
+                'legend_forest_to_xml' => $this->legend_forest_to_xml,
+                'change_currency_item' => $this->change_currency_item,
+                'enabled_advanced_records_search' => $this->enabled_advanced_records_search,
+                'change_decimal_quantity_unit_price_pdf' => $this->change_decimal_quantity_unit_price_pdf,
+                'decimal_quantity_unit_price_pdf' => $this->decimal_quantity_unit_price_pdf,
+
             ];
         }
 
@@ -2050,6 +2115,7 @@
          */
         public function UseCustomApiPeruToken(){
             // .env ALLOW_CLIENT_USE_OWN_APIPERU_TOKEN
+            return (bool)env('ALLOW_CLIENT_USE_OWN_APIPERU_TOKEN', false);
             return (bool)\Config('extra.AllowClientUseOwnApiperuToken');
         }
 
@@ -2073,4 +2139,74 @@
             return $this;
         }
 
+        public function scopeGetUnitPriceDispatchRelatedRecord($query)
+        {
+            return $query->select('set_unit_price_dispatch_related_record')->first()->set_unit_price_dispatch_related_record;
+        }
+
+        /**
+         * Usado en:
+         * LegendInput, para facturas y boletas
+         *
+         * @return bool
+         */
+        public static function isEnabledLegendForestToXml()
+        {
+            return Configuration::select('legend_forest_to_xml')->firstOrFail()->legend_forest_to_xml;
+        }
+
+        /**
+         *
+         * Obtener configuracion avanzada de busqueda
+         *
+         * @param Builder $query
+         * @return Builder
+         */
+        public function scopeIsEnabledAdvancedRecordsSearch($query)
+        {
+            return $query->select('enabled_advanced_records_search')->firstOrFail()->enabled_advanced_records_search;
+        }
+
+
+        /**
+         *
+         * Obtener configuracion de decimales para el precio unitario en pdf
+         *
+         * @param Builder $query
+         * @return Builder
+         */
+        public function scopeGetDataDecimalQuantity($query)
+        {
+            return $query->select('change_decimal_quantity_unit_price_pdf', 'decimal_quantity_unit_price_pdf')->firstOrFail();
+        }
+
+        public function top_menu_a()
+        {
+            return $this->belongsTo(ModuleLevel::class, 'top_menu_a_id');
+        }
+
+        public function top_menu_b()
+        {
+            return $this->belongsTo(ModuleLevel::class, 'top_menu_b_id');
+        }
+
+        public function top_menu_c()
+        {
+            return $this->belongsTo(ModuleLevel::class, 'top_menu_c_id');
+        }
+
+        public function top_menu_d()
+        {
+            return $this->belongsTo(ModuleLevel::class, 'top_menu_d_id');
+        }
+
+        public function skin()
+        {
+            return $this->belongsTo(Skin::class, 'skin_id');
+        }
+
+        public function  getFacturaloConfig(): bool
+        {
+            return (bool) \Config('extra.suscription_facturalo');
+        }
     }

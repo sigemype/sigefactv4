@@ -14,6 +14,11 @@ class DocumentTransform
 
         $totals = $inputs['totales'];
 
+        // foreach ($inputs['items'] as $key => $value) {
+        //     $inputs['items'][$key]['codigo_interno'] = ($inputs['items'][$key]['codigo_interno']) ? $inputs['items'][$key]['codigo_interno']:'';
+        //     $inputs['items'][$key]['codigo_producto_sunat'] = ($inputs['items'][$key]['codigo_producto_sunat']) ? $inputs['items'][$key]['codigo_producto_sunat']:'';
+        // }
+
         $inputs_transform = [
             'series' => Functions::valueKeyInArray($inputs, 'serie_documento'),
             'number' => Functions::valueKeyInArray($inputs, 'numero_documento'),
@@ -124,11 +129,6 @@ class DocumentTransform
                     'lots' => Functions::valueKeyInArray($row, 'lots', []),
                     'update_description' => Functions::valueKeyInArray($row, 'actualizar_descripcion', true), //variable para determinar si se actualiza la descripcion del item cuando se envia desde api
                     'name_product_pdf' => Functions::valueKeyInArray($row, 'nombre_producto_pdf'),
-
-                    ///agregar para presentaciones en la app                    
-                    'quantity_factor' => Functions::valueKeyInArray($row, 'cantidad_factor', 1),
-                    'presentation_description' => Functions::valueKeyInArray($row, 'presentation_description', null),
-                    'presentation_unit_type_id' => Functions::valueKeyInArray($row, 'presentation_unit_type_id', null),
                 ];
             }
 
@@ -356,73 +356,28 @@ class DocumentTransform
         return $inputs_transform;
     }
 
-    //    if(this.data.codigo_condicion_de_pago === '01') {
-    //         return [{codigo_destino_pago: this.data.paymentdestination,codigo_metodo_pago: this.data.paymentmethodtype,referencia: this.data.referencia, cambio: this.calculateChange() ,monto: this.calculatePaymentAmount()}]
-    //     }else{
-    //       return [];
-    //     }
-    // },
-
-    // cuotas_credito() {
-    //     if(this.data.codigo_condicion_de_pago === '02') {
-    //         return [{fecha: this.data.fecha_de_pago, codigo_tipo_moneda: 'PEN', monto: this.calculatePaymentAmount2()}]
-    //     }else{
-    //       return [];
-    //     }
-    // },
 
     private static function payments($inputs)
     {
         if(in_array($inputs['codigo_tipo_documento'], ['01', '03'])) {
-//si viene por la app tendra esta variable
-if (isset($inputs['codigo_condicion_de_pago'])) {
 
-    if($inputs['codigo_condicion_de_pago']=="01") {
+            $payments = [];
 
-                $payments = [];
+            if(key_exists('pagos', $inputs)) {
 
-                if(key_exists('pagos', $inputs)) {
-
-                    foreach ($inputs['pagos'] as $row) {
-                        $payments[] = [
-                            'date_of_payment' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
-                            'payment_method_type_id' => $row['codigo_metodo_pago'],
-                            'payment_destination_id' => $row['codigo_destino_pago'],
-                            'reference' => Functions::valueKeyInArray($row, 'referencia'),
-                            'change' => Functions::valueKeyInArray($row, 'cambio'),
-                            'payment' => Functions::valueKeyInArray($row, 'monto', 0),
-                        ];
-                    }
-
+                foreach ($inputs['pagos'] as $row) {
+                    $payments[] = [
+                        'date_of_payment' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
+                        'payment_method_type_id' => $row['codigo_metodo_pago'],
+                        'payment_destination_id' => $row['codigo_destino_pago'],
+                        'reference' => Functions::valueKeyInArray($row, 'referencia'),
+                        'payment' => Functions::valueKeyInArray($row, 'monto', 0),
+                    ];
                 }
 
-                return $payments;
+            }
 
-    }
-
-}else{
-//si viene desde la app offline
-    $payments = [];
-
-    if(key_exists('pagos', $inputs)) {
-
-        foreach ($inputs['pagos'] as $row) {
-            $payments[] = [
-                'date_of_payment' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
-                'payment_method_type_id' => $row['codigo_metodo_pago'],
-                'payment_destination_id' => $row['codigo_destino_pago'],
-                'reference' => Functions::valueKeyInArray($row, 'referencia'),
-                'change' => Functions::valueKeyInArray($row, 'cambio'),
-                'payment' => Functions::valueKeyInArray($row, 'monto', 0),
-            ];
-        }
-
-    }
-
-    return $payments;
-
-}
-
+            return $payments;
 
         }
 
@@ -432,36 +387,17 @@ if (isset($inputs['codigo_condicion_de_pago'])) {
     private static function fee($inputs)
     {
         $fee = [];
-
-        //si viene por la app tendra esta variable
-if (isset($inputs['codigo_condicion_de_pago'])) {
-
-    if($inputs['codigo_condicion_de_pago']=="02") {
-
         if (key_exists('cuotas', $inputs)) {
             foreach ($inputs['cuotas'] as $row) {
                 $fee[] = [
                     'date' => $row['fecha'],
                     'currency_type_id' => $row['codigo_tipo_moneda'],
                     'amount' => $row['monto'],
+                    'payment_method_type_id' => Functions::valueKeyInArray($row, 'codigo_metodo_de_pago'),
                 ];
             }
         }
 
-    }
-
-}else{
-//si viene desde la app offline
-    if (key_exists('cuotas', $inputs)) {
-        foreach ($inputs['cuotas'] as $row) {
-            $fee[] = [
-                'date' => $row['fecha'],
-                'currency_type_id' => $row['codigo_tipo_moneda'],
-                'amount' => $row['monto'],
-            ];
-        }
-    }
-}
         return $fee;
     }
 }

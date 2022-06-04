@@ -20,6 +20,7 @@
 
     $total_payment = $document->payments->sum('payment');
     $balance = ($document->total - $total_payment) - $document->payments->sum('change');
+    $configuration_decimal_quantity = App\CoreFacturalo\Helpers\Template\TemplateHelper::getConfigurationDecimalQuantity();
 
 @endphp
 <html>
@@ -317,9 +318,17 @@
 
                 @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
 
+                @if($row->total_plastic_bag_taxes > 0)
+                    <br/><span style="font-size: 9px">ICBPER : {{ $row->total_plastic_bag_taxes }}</span>
+                @endif
+
                 @foreach($row->additional_information as $information)
                     @if ($information)
-                        <br/><span style="font-size: 9px">{{ $information }}</span>
+                        <br/><span style="font-size: 9px">@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
+                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
+                        @else
+                            {{$information}}
+                        @endif</span>
                     @endif
                 @endforeach
 
@@ -333,7 +342,7 @@
                         <br/><span style="font-size: 9px">{{ $dtos->factor * 100 }}% {{$dtos->description }}</span>
                     @endforeach
                 @endif
-                
+
                 @if($row->charges)
                     @foreach($row->charges as $charge)
                         <br/><span style="font-size: 9px">{{ $document->currency_type->symbol}} {{ $charge->amount}} ({{ $charge->factor * 100 }}%) {{$charge->description }}</span>
@@ -354,7 +363,13 @@
                 @endif
             </td>
             <td class="text-left align-top">{{ $row->item->model ?? '' }}</td>
-            <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+            
+            @if ($configuration_decimal_quantity->change_decimal_quantity_unit_price_pdf)
+                <td class="text-right align-top">{{ $row->generalApplyNumberFormat($row->unit_price, $configuration_decimal_quantity->decimal_quantity_unit_price_pdf) }}</td>
+            @else
+                <td class="text-right align-top">{{ number_format($row->unit_price, 2) }}</td>
+            @endif
+            
             <td class="text-right align-top">
                 @if($row->discounts)
                     @php
@@ -491,7 +506,7 @@
             <td colspan="6" class="text-right font-bold">TOTAL A PAGAR: {{ $document->currency_type->symbol }}</td>
             <td class="text-right font-bold">{{ number_format($document->total, 2) }}</td>
         </tr>
-        
+
         @if(($document->retention || $document->detraction) && $document->total_pending_payment > 0)
             <tr>
                 <td colspan="6" class="text-right font-bold">M. PENDIENTE: {{ $document->currency_type->symbol }}</td>
@@ -550,7 +565,11 @@
                     @if ($loop->first)
                         <strong>Información adicional</strong>
                     @endif
-                    <p>{{ $information }}</p>
+                    <p>@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
+                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
+                        @else
+                            {{$information}}
+                        @endif</p>
                 @endif
             @endforeach
             <br>

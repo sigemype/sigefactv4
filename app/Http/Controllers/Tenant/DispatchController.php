@@ -313,6 +313,7 @@ class DispatchController extends Controller
                     }),
                     'lots' => [],
                     'lots_enabled' => (bool) $row->lots_enabled,
+                    'warehouses' => $row->getDataWarehouses(),
                 ];
             });
 
@@ -482,10 +483,17 @@ class DispatchController extends Controller
         $establishment = Establishment::where('id', auth()->user()->establishment_id)->first();
         $establishment_id = $establishment->id;
         $warehouse = ModuleWarehouse::where('establishment_id', $establishment_id)->first();
+        $relation_external_document = $dispatch->getRelationExternalDocument();
+        $set_unit_price_dispatch_related_record = Configuration::getUnitPriceDispatchRelatedRecord();
 
         $itemsId = $dispatch->items->pluck('item_id')->all();
-        $items = Item::whereIn('id', $itemsId)->get()->transform(function ($row) use ($warehouse) {
+
+        $items = Item::whereIn('id', $itemsId)->get()->transform(function ($row) use ($warehouse, $dispatch, $relation_external_document, $set_unit_price_dispatch_related_record) {
+
             $detail = $this->getFullDescription($row, $warehouse);
+
+            $sale_unit_price = $this->getDispatchSaleUnitPrice($row, $dispatch, $relation_external_document, $set_unit_price_dispatch_related_record);
+            
             return [
                 'id'                               => $row->id,
                 'full_description'                 => $detail['full_description'],
@@ -497,7 +505,8 @@ class DispatchController extends Controller
                 'description'                      => $row->description,
                 'currency_type_id'                 => $row->currency_type_id,
                 'currency_type_symbol'             => $row->currency_type->symbol,
-                'sale_unit_price'                  => number_format($row->sale_unit_price, 4, '.', ''),
+                'sale_unit_price'                  => number_format($sale_unit_price, 4, '.', ''),
+                // 'sale_unit_price'                  => number_format($row->sale_unit_price, 4, '.', ''),
                 'purchase_unit_price'              => $row->purchase_unit_price,
                 'unit_type_id'                     => $row->unit_type_id,
                 'sale_affectation_igv_type_id'     => $row->sale_affectation_igv_type_id,
@@ -563,7 +572,32 @@ class DispatchController extends Controller
             'affectation_igv_types' => $affectation_igv_types,
             'payment_conditions' => $payment_conditions,
         ], 200);
+
     }
+
+    
+    /**
+     * Obtener precio unitario desde registro relacionado a la guia - convertir guia a cpe
+     *
+     * @param  Item $item
+     * @param  Dispatch $dispatch
+     * @param  mixed $relation_external_document
+     * @param  bool $set_unit_price_dispatch_related_record
+     * @return float
+     */
+    public function getDispatchSaleUnitPrice($item, $dispatch, $relation_external_document, $set_unit_price_dispatch_related_record)
+    {
+
+        if($dispatch->isGeneratedFromExternalDocument($relation_external_document) && $set_unit_price_dispatch_related_record)
+        {
+            $exist_item = $relation_external_document->items->where('item_id', $item->id)->first();
+            
+            if($exist_item) return $exist_item->unit_price;
+        }
+
+        return $item->sale_unit_price;
+    }
+
 
     public function setDocumentId($id)
     {

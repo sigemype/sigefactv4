@@ -216,4 +216,114 @@ class SaleNoteItem extends ModelTenant
      */
     public function getModelItem(){ return Item::find($this->item_id);}
 
+    
+    /**
+     * Validar si es venta en dolares
+     *
+     * @return bool
+     */
+    public function isCurrencyTypeUsd()
+    {
+        return $this->sale_note->currency_type_id === 'USD';
+    }
+
+    /**
+     * 
+     * Obtener total y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalToPen()
+    {
+        return $this->generalConvertValueToPen($this->total, $this->sale_note->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener valor unitario y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertUnitValueToPen()
+    {
+        return $this->generalConvertValueToPen($this->unit_value, $this->sale_note->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener precio unitario y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertUnitPriceToPen()
+    {
+        return $this->generalConvertValueToPen($this->unit_price, $this->sale_note->exchange_rate_sale);
+    }
+
+    /**
+     * 
+     * Obtener total valor y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalValueToPen()
+    {
+        return $this->generalConvertValueToPen($this->total_value, $this->sale_note->exchange_rate_sale);
+    }
+    
+    /**
+     * 
+     * Obtener total igv y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalIgvToPen()
+    {
+        return $this->generalConvertValueToPen($this->total_igv, $this->sale_note->exchange_rate_sale);
+    }
+    
+    /**
+     * 
+     * Obtener total isc y realizar conversión a soles de acuerdo al tipo de cambio
+     *
+     * @return float
+     */
+    public function getConvertTotalIscToPen()
+    {
+        return $this->generalConvertValueToPen($this->total_isc, $this->sale_note->exchange_rate_sale);
+    }
+    
+    
+    /**
+     * 
+     * Filtro para no incluir relaciones en consulta
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */  
+    public function scopeWhereFilterWithOutRelations($query)
+    {
+        return $query->withOut(['affectation_igv_type', 'system_isc_type', 'price_type']);
+    }
+
+
+    /**
+     * 
+     * Filtro para reporte de ventas grifo
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */  
+    public function scopeFilterSaleGarageGLL($query, $d_start, $d_end)
+    {
+        return $query->whereHas('relation_item', function($query){
+                        return $query->where('unit_type_id' , 'GLL');
+                    })
+                    ->whereFilterWithOutRelations()
+                    ->whereHas('sale_note', function($query) use($d_start, $d_end){
+                        return $query->whereStateTypeAccepted()->filterRangeDateOfIssue($d_start, $d_end);
+                    });
+    }
+
+
 }

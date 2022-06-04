@@ -20,6 +20,10 @@ use Maatwebsite\Excel\Excel;
 use Carbon\Carbon;
 use App\Exports\ClientExport;
 use App\Models\System\Configuration;
+use Barryvdh\DomPDF\Facade as PDF;
+use Mpdf\HTMLParserMode;
+use Mpdf\Mpdf;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class PersonController extends Controller
 {
@@ -36,6 +40,7 @@ class PersonController extends Controller
     {
         return [
             'name' => 'Nombre',
+            'barcode' => 'Código de barras',
             'number' => 'Número',
             'document_type' => 'Tipo de documento'
         ];
@@ -43,9 +48,10 @@ class PersonController extends Controller
 
     public function records($type, Request $request)
     {
-      //  return 'sd';
+
         $records = Person::where($request->column, 'like', "%{$request->value}%")
                             ->where('type', $type)
+                            ->whereFilterCustomerBySeller($type)
                             ->orderBy('name');
 
         return new PersonCollection($records->paginate(config('tenant.items_per_page')));
@@ -86,8 +92,13 @@ class PersonController extends Controller
 
     public function store(PersonRequest $request)
     {
+        /* dd($request->all()); */
 
-
+        if (!$request->barcode) {
+            if ($request->internal_id) {
+                $request->merge(['barcode' => $request->internal_id]);
+            }
+        }
 
         if($request->state){
             if($request->state != "ACTIVO"){
@@ -276,5 +287,78 @@ class PersonController extends Controller
             'success' => true,
             'data' => $persons,
         ], 200);
+    }
+
+    public function printBarCode(Request $request)
+    {
+        ini_set("pcre.backtrack_limit", "50000000");
+        $id = $request->id;
+
+        $record = Person::find($id);
+        
+
+        $pdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => [
+                    104.1,
+                    24
+                    ],
+                'margin_top' => 2,
+                'margin_right' => 2,
+                'margin_bottom' => 0,
+                'margin_left' => 2
+            ]);
+        $html = view('tenant.persons.exports.persons-barcode-id', compact('record'))->render();
+
+        $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+
+        $pdf->output('etiquetas_clientes_'.now()->format('Y_m_d').'.pdf', 'I');
+
+    }
+
+    public function generateBarcode($id)
+    {
+
+        $person = Person::findOrFail($id);
+
+        $colour = [150, 150, 150];
+
+        $generator = new BarcodeGeneratorPNG();
+
+        $temp = tempnam(sys_get_temp_dir(), 'person_barcode');
+
+        file_put_contents($temp, $generator->getBarcode($person->barcode, $generator::TYPE_CODE_128, 5, 70, $colour));
+
+        $headers = [
+            'Content-Type' => 'application/png',
+        ];
+
+        return response()->download($temp, "{$person->barcode}.png", $headers);
+
+    }
+
+    public function getPersonByBarcode($request)
+    {
+        /* dd($request); */
+        $value = $request;
+
+        $customers = Person::with('addresses')->whereType('customers')
+        ->where('id',$value)->get()->transform(function($row) {
+                        /** @var  Person $row */
+                        return $row->getCollectionData();
+                        /* Movido al modelo */
+                        return [
+                            'id' => $row->id,
+                            'description' => $row->number.' - '.$row->name,
+                            'name' => $row->name,
+                            'number' => $row->number,
+                            'identity_document_type_id' => $row->identity_document_type_id,
+                            'identity_document_type_code' => $row->identity_document_type->code,
+                            'addresses' => $row->addresses,
+                            'address' =>  $row->address
+                        ];
+                    });
+
+        return compact('customers');
     }
 }

@@ -172,7 +172,11 @@
             </td>
             <td class="text-center align-top">
 
-                {{$row->m_item->brand != null ? $row->m_item->brand->name : '' }}
+                @if($row->m_item&&$row->m_item!=null)
+                    {{$row->m_item->brand != null ? $row->m_item->brand->name : '' }}
+                @else
+                    {{''}}
+                @endif
 
             </td>
             <td class="text-center align-top">

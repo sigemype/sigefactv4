@@ -22,6 +22,10 @@
     {
         use UsesTenantConnection;
 
+        public const RESERVED_SYMBOLS_FILTER = ['-', '+', '<', '>', '@', '(', ')', '~'];
+
+        public const VOIDED_REJECTED_IDS = ['09', '11'];
+
         /**
          * Devuelve un esqueleto del array de data extra. Previene error de no enconrarse la funcion en otros modelos
          *
@@ -63,4 +67,73 @@
         {
             return array_key_exists($attr, $this->attributes);
         }
+
+                
+        /**
+         * @param  float $value
+         * @param  float $exchange_rate_sale
+         * @return float
+         */
+        public function generalConvertValueToPen($value, $exchange_rate_sale)
+        {
+            return $value * $exchange_rate_sale;
+        }
+        
+
+        /**
+         * 
+         * Aplicar formato a fechas
+         *
+         * @param  $date
+         * @param  string $format
+         * @return string
+         */
+        public function generalFormatDate($date, $format = 'Y-m-d')
+        {
+            return $date->format($format);
+        }
+        
+        
+        /**
+         * 
+         * Reemplazar simbolos reservados por espacio, para busqueda avanzada
+         *
+         * @param  string $value
+         * @return string
+         */
+        public function replaceReservedSymbols($value)
+        {
+            return str_replace(self::RESERVED_SYMBOLS_FILTER, ' ', $value);
+        }
+
+        
+        /**
+         * 
+         * Obtener arreglo con los valores a buscar - busqueda avanzada
+         *
+         * @param  string $value
+         * @return array
+         */
+        public function getSearchValues($value)
+        {
+            $search_term = $this->replaceReservedSymbols($value);
+
+            return preg_split('/\s+/', $search_term, -1, PREG_SPLIT_NO_EMPTY);
+        }
+
+    
+        /**
+         * 
+         * Aplicar formato
+         *
+         * @param  $value
+         * @param  int $decimals
+         * @return string
+         */
+        public function generalApplyNumberFormat($value, $decimals = 2)
+        {
+            return number_format($value, $decimals, ".", "");
+        }
+        
+
     }

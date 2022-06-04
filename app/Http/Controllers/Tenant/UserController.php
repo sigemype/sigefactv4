@@ -128,11 +128,10 @@ class UserController extends Controller
              ->setSeriesId($request->input('series_id'));
         $user->establishment_id = $request->input('establishment_id');
 
-        // if($user->id != 1)
-        // {
-            $user->recreate_documents = $request->input('recreate_documents');
-            $user->permission_edit_cpe = $request->input('permission_edit_cpe');
-        // }
+        $user->recreate_documents = $request->input('recreate_documents');
+        $user->permission_edit_cpe = $request->input('permission_edit_cpe');
+        $user->create_payment = $request->input('create_payment');
+        $user->delete_payment = $request->input('delete_payment');
 
         $user->save();
 

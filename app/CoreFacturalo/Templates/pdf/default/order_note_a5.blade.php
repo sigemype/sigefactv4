@@ -282,7 +282,11 @@
             <br/>
             <strong>Información adicional</strong>
             @foreach($document->additional_information as $information)
-                <p>{{ $information }}</p>
+                <p>@if(\App\CoreFacturalo\Helpers\Template\TemplateHelper::canShowNewLineOnObservation())
+                            {!! \App\CoreFacturalo\Helpers\Template\TemplateHelper::SetHtmlTag($information) !!}
+                        @else
+                            {{$information}}
+                        @endif</p>
             @endforeach
         </td> --}}
     </tr>

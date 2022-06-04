@@ -25,6 +25,7 @@ class SaleNoteResource2 extends JsonResource
             'prefix' => $this->prefix,
             'establishment_id' => $this->establishment_id,
             'date_of_issue' => $this->date_of_issue->format('Y-m-d'),
+            'due_date' => $this->getFormatDueDate(),
             'time_of_issue' => $this->time_of_issue,
             'customer_id' => $this->customer_id,
             'currency_type_id' => $this->currency_type_id,

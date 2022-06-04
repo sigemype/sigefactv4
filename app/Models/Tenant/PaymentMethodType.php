@@ -74,6 +74,8 @@
             'is_cash',
         ];
 
+        public const CASH_PAYMENT_ID = '01';
+
         /**
          * Devuelve los metodos de pago como standandar. Se pueden excluir elementos por $exclude_method_types_id
          *

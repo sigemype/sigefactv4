@@ -14,10 +14,14 @@ use App\Models\Tenant\DocumentPayment;
 use App\Models\Tenant\SaleNotePayment;
 use App\Models\Tenant\Invoice;
 use Carbon\Carbon;
+use Modules\Finance\Traits\UnpaidTrait;
 
 
 class AccountsReceivable implements FromView
 {
+
+    use UnpaidTrait;
+
     /**
      * @return \Illuminate\Support\Collection
      */
@@ -35,6 +39,9 @@ class AccountsReceivable implements FromView
             ->leftJoinSub($document_payments, 'payments', function ($join) {
                 $join->on('documents.id', '=', 'payments.document_id');
             })
+            ->leftJoinSub(Document::getQueryCreditNotes(), 'credit_notes', function ($join) {
+                $join->on('documents.id', '=', 'credit_notes.affected_document_id');
+            })
             ->whereIn('state_type_id', ['01', '03', '05', '07', '13'])
             ->whereIn('document_type_id', ['01', '03', '08'])
             ->select(DB::raw("documents.id as id, " .
@@ -42,12 +49,15 @@ class AccountsReceivable implements FromView
                 "persons.name as customer_name, persons.id as customer_id, documents.document_type_id," .
                 "CONCAT(documents.series,'-',documents.number) AS number_full, " .
                 "documents.total as total, " .
+                "IFNULL(credit_notes.total_credit_notes, 0) as total_credit_notes, " .
                 "IFNULL(payments.total_payment, 0) as total_payment, " .
                 "'document' AS 'type', " . "documents.currency_type_id, " . "documents.exchange_rate_sale", "companies.trade_name"))
             ->where('total_canceled', 0);
+
         $sale_note_payments = DB::table('sale_note_payments')
             ->select('sale_note_id', DB::raw('SUM(payment) as total_payment'))
             ->groupBy('sale_note_id');
+
         $company = DB::connection('tenant')->table('companies')
             ->select('name', 'number')->get();
 
@@ -63,6 +73,7 @@ class AccountsReceivable implements FromView
                 "persons.name as customer_name, persons.id as customer_id, null as document_type_id," .
                 "sale_notes.filename as number_full, " .
                 "sale_notes.total as total, " .
+                "null as total_credit_notes," .
                 "IFNULL(payments.total_payment, 0) as total_payment, " .
                 "'sale_note' AS 'type', " . "sale_notes.currency_type_id, " . "sale_notes.exchange_rate_sale"))
             ->where('sale_notes.changed', false)
@@ -74,7 +85,9 @@ class AccountsReceivable implements FromView
 
 
         $collection = collect($records)->transform(function ($row) {
-            $total_to_pay = (float)$row->total - (float)$row->total_payment;
+            
+            $total_to_pay = $this->getTotalToPay($row);
+            // $total_to_pay = (float)$row->total - (float)$row->total_payment;
             $delay_payment = null;
             $date_of_due = null;
 
