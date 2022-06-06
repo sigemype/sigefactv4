@@ -374,11 +374,11 @@ class Facturalo
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
             if($format_pdf === 'ticket_50') $width = 45;
 
-            $company_name      = (strlen($this->company->name) / 20) * 10;
-            $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
+            $company_name      = (strlen($this->company->name) / 15) * 10;
+            $company_address   = (strlen($this->document->establishment->address) / 20) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
             $customer_name     = strlen($this->document->customer->name) > '25' ? '10' : '0';
-            $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
+            $customer_address  = (strlen($this->document->customer->address) / 100) * 10;
             $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
             $p_order           = $this->document->purchase_order != '' ? '10' : '0';
 
@@ -406,7 +406,7 @@ class Facturalo
             $discount_global = 0;
             foreach ($this->document->items as $it) {
                 if(strlen($it->item->description)>100){
-                    $extra_by_item_description +=24;
+                    $extra_by_item_description +=20;
                 }
                 if ($it->discounts) {
                     $discount_global = $discount_global + 1;
@@ -435,9 +435,9 @@ class Facturalo
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    95 +
-                    (($quantity_rows * 8) + $extra_by_item_description) +
-                    ($document_payments * 8) +
+                    50 +
+                    (($quantity_rows * 5) + $extra_by_item_description) +
+                    ($document_payments * 5) +
                     ($discount_global * 8) +
                     $company_name +
                     $company_address +
