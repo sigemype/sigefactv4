@@ -557,7 +557,7 @@
         /**
          * @return HasMany
          */
-        public function fee()
+        public function fees()
         {
             return $this->hasMany(DocumentFee::class);
         }

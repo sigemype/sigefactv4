@@ -13,7 +13,7 @@
     }
 
     $payments = $document->payments;
-    $fees = $document->fee;
+    $fees = $document->fees;
     $cantfees = $fees->count();
     $document->load('reference_guides');
     $total_payment = $document->payments->sum('payment');
