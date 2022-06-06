@@ -231,12 +231,12 @@ class DocumentCollection extends ResourceCollection
         if(in_array($row->document_type_id, ['01', '03'])) {
 
             $voided = \App\Models\Tenant\VoidedDocument::where("document_id", "=", $document_id)->orderBy('id', 'desc')->first();
-            $voided_data = \App\Models\Tenant\Voided::where("id", $voided["voided_id"])->orderBy('id', 'desc')->get()->transform(function($row) {
-                    return [
-                        'external_id' => $row->external_id,
-                        'ticket' => $row->ticket,
-                    ];
-                });
+            // $voided_data = \App\Models\Tenant\Voided::where("id", $voided["voided_id"])->orderBy('id', 'desc')->get()->transform(function($row) {
+            //         return [
+            //             'external_id' => $row->external_id,
+            //             'ticket' => $row->ticket,
+            //         ];
+            //     });
         }
 
         return $voided_data;
