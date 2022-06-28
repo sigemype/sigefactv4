@@ -160,9 +160,10 @@
             <td class="text-center">{{ $row->item->internal_id }}</td>
             <td class="text-left">
                 @if($row->name_product_pdf)
-                    {!!$row->name_product_pdf!!}
+                	{!!$row->item->description!!} <br>
+                        {!!html_entity_decode($row->name_product_pdf)!!}
                 @else
-                    {!!$row->item->description!!}
+                        {!!$row->item->description!!}
                 @endif
 
                 @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif

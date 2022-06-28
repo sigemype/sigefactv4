@@ -142,7 +142,7 @@
                                     <td class="celda">{{$value->state_type->description}}</td>
                                     <td class="celda">
                                         @php
-                                            $fees = $value->fee;
+                                            $fees = $value->fees;
                                             $cantfees = $fees->count();
                                         @endphp
                                         @if ($fees->count())
