@@ -34,7 +34,7 @@ class ReportCommissionDetailCollection extends ResourceCollection
             }
 
             return [
-                'id' => $row->id,
+                'id' => $row->item,
                 'date_of_issue' => $relation->date_of_issue->format('Y-m-d'),
                 'type_document' => $type_document,
                 'serie' => $relation->number_full,
@@ -50,5 +50,5 @@ class ReportCommissionDetailCollection extends ResourceCollection
             ];
         });
     }
-    
+
 }
