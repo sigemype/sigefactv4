@@ -156,7 +156,7 @@ class DocumentInput
                 $item = Item::query()->find($row['item_id']);
                 /** @var Item $item */
 
-///modificacion para presentaciones desde la app y tambien para web
+                ///modificacion para presentaciones desde la app y tambien para web
                 $unit_type_id = (key_exists('item', $row)) ? $row['item']['unit_type_id'] : $item->unit_type_id;
                 $quantity_factor = 1;
 
@@ -188,7 +188,7 @@ class DocumentInput
                 //     $presentation=[];
                 // }
 
-                        
+
                 } else {
                     if(key_exists('quantity_unit', $presentation)) {
                         $quantity_factor = $presentation['quantity_unit'];
@@ -215,7 +215,7 @@ class DocumentInput
                         'date_of_due' => (!empty($item->date_of_due)) ? $item->date_of_due->format('Y-m-d') : null,
                         'has_igv' => $row['item']['has_igv'] ?? true,
                         'unit_price' => $row['unit_price'] ?? 0,
-                        'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,  
+                        'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,
                     ],
                     'quantity' => $row['quantity'],
                     'quantity_factor' => $quantity_factor,
@@ -255,7 +255,7 @@ class DocumentInput
         }
         return null;
     }
-    
+
     /**
      * Devuelve el nombre producto pdf en texto plano para ser usado en el xml
      *
@@ -269,7 +269,7 @@ class DocumentInput
 
             // validar configuracion
             $configuration = Configuration::select('name_product_pdf_to_xml')->firstOrFail();
-    
+
             if($configuration->name_product_pdf_to_xml)
             {
                 return trim((new Html2Text($row['name_product_pdf']))->getText());
@@ -457,7 +457,7 @@ class DocumentInput
         }
         return null;
     }
-    
+
     private static function retention($inputs)
     {
 
@@ -593,15 +593,15 @@ class DocumentInput
         ];
     }
 
-        
+
     /**
-     * 
+     *
      * Retorna datos para registro de propina
      *
      * Usado en:
      * DocumentInput
      * TipTrait
-     * 
+     *
      * @param  array $inputs
      * @param  string $soap_type_id
      * @return array
@@ -624,7 +624,7 @@ class DocumentInput
 
         return null;
     }
-    
+
 
 
     private static function note($inputs)
