@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenant;
+namespace App\Http\Resources\Tenant;
 
 use App\Models\Tenant\EmailSendLog;
 use Illuminate\Http\Resources\Json\ResourceCollection;
