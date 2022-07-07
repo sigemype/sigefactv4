@@ -45,7 +45,7 @@ class DocumentController extends Controller
         $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
         // dd($cash);
         if ($cash!=null) {
-                $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'document_id' => $document->id]);
+            $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'document_id' => $document->id]);
         }
 
         return [
