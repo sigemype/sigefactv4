@@ -10,7 +10,7 @@
                         <div class="col-sm-6 text-left mt-3 mb-0">
                             <address class="ib mr-2" >
                                 <span class="font-weight-bold d-block">COTIZACIÓN</span>
-                                <span class="font-weight-bold d-block">COT-XXX</span>
+                                <span class="font-weight-bold d-block">COT-XXXX</span>
                                 <span class="font-weight-bold">{{company.name}}</span>
                                 <br>
                                 <div v-if="establishment.address != '-'">{{ establishment.address }}, </div> {{ establishment.district.description }}, {{ establishment.province.description }}, {{ establishment.department.description }} - {{ establishment.country.description }}
@@ -243,8 +243,7 @@
                                         <thead>
                                             <tr>
                                                 <th width="5%">#</th>
-                                                <th class="font-weight-bold"
-                                                    width="30%">Descripción</th>
+                                                <th class="font-weight-bold" width="30%">Descripción</th>
                                                 <th width="8%" class="text-center font-weight-bold">Unidad</th>
                                                 <th width="8%" class="text-center font-weight-bold">Cantidad</th>
                                                 <th class="text-center font-weight-bold">Valor Unitario</th>
@@ -257,7 +256,7 @@
                                         <tbody v-if="form.items.length > 0">
                                             <tr v-for="(row, index) in form.items" :key="index">
                                                 <td>{{index + 1}}</td>
-                                                <td>{{setDescriptionOfItem (row.item)}} {{row.item.presentation.hasOwnProperty('description') ? row.item.presentation.description : ''}}<br/><small>{{row.affectation_igv_type.description}}</small></td>
+                                                <td>{{setDescriptionOfItem (row.item)}} <br/><small>{{row.affectation_igv_type.description}}</small></td>
                                                 <td class="text-center">{{row.item.unit_type_id}}</td>
                                                 <td class="text-center">{{row.quantity}}</td>
                                                 <td class="text-center">{{currency_type.symbol}} {{getFormatUnitPriceRow(row.unit_value)}}</td>
