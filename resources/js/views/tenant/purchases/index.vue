@@ -112,10 +112,16 @@
                         <td v-if="columns.total_perception.visible" class="text-right">{{ row.total_perception ? row.total_perception : 0 }}</td>
                         <td class="text-right">{{ row.total   }}</td>
                         <td class="text-right">
-
-                            <a v-if="row.state_type_id != '11'" :href="`/${resource}/edit/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
-                            <button v-if="row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickAnulate(row.id)">Anular</button>
-                            <button v-if="row.state_type_id == '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
+                            <template v-if="permissions.edit_purchase">
+                                <a v-if="row.state_type_id != '11'" :href="`/${resource}/edit/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
+                            </template>
+                            <template v-if="permissions.annular_purchase">
+                                <button v-if="row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickAnulate(row.id)">Anular</button>
+                            </template>
+                            <template v-if="permissions.delete_purchase&&row.state_type_id=='11'">
+                                <button v-if="row.state_type_id == '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)">Eliminar</button>
+                            </template>
+                            
                             <button  type="button" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickOptions(row.id)">Opciones</button>
                             <button
                                 type="button"
@@ -243,7 +249,8 @@ import {mapActions, mapState} from 'vuex'
                         visible: false
                     },
 
-                }
+                },
+                permissions: {},
             }
         },
         computed: {
@@ -252,9 +259,13 @@ import {mapActions, mapState} from 'vuex'
                 'warehouses',
             ]),
         },
-        created() {
+        async created() {
             this.$store.commit('setConfiguration',this.configuration)
             this.$store.commit('setTypeUser',this.typeUser)
+            await this.$http.get(`/${this.resource}/tables`)
+                .then(response => {
+                    this.permissions = response.data.permissions
+                })
             this.getDocumentTypes()
         },
         methods: {

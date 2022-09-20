@@ -45,11 +45,26 @@ class DocumentCollection extends ResourceCollection
                     $btn_note = false;
                 }
             }
-            if ($row->group_id === '02') {
+
+            if ($row->group_id === '02') 
+            {
                 if ($row->state_type_id === '05') {
                     $btn_note = true;
                     $btn_voided = true;
+
+                    // envio individual
+                    if($row->isSingleDocumentShipment()) $has_cdr = true;
+                    // envio individual
+                    
                 }
+                
+                // envio individual reenviar
+                if ($row->state_type_id === '01' && $row->isSingleDocumentShipment()) 
+                {
+                    $btn_resend = true;
+                }
+                // envio individual reenviar
+
 
                 if (in_array($row->document_type_id, ['07', '08'])) {
                     $btn_note = false;
@@ -64,6 +79,7 @@ class DocumentCollection extends ResourceCollection
                 }
 
             }
+
             $btn_guide = $btn_note;
             if($btn_guide === false && ($row->state_type_id === '01')){
                 // #750
@@ -123,6 +139,7 @@ class DocumentCollection extends ResourceCollection
                 'customer_name' => $row->customer->name,
                 'customer_number' => $row->customer->number,
                 'customer_telephone' => $row->customer->telephone,
+                'customer_email' => optional($row->customer)->email,
                 'currency_type_id' => $row->currency_type_id,
                 'total_exportation' => $row->total_exportation,
                 'total_free' => $row->total_free,
@@ -190,6 +207,7 @@ class DocumentCollection extends ResourceCollection
                 'soap_type' => $row->soap_type,
                 'plate_numbers' => $row->getPlateNumbers(),
                 'total_charge' => $row->total_charge,
+                'filename' => $row->filename,
             ];
 
         });

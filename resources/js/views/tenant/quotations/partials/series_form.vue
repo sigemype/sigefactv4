@@ -1,6 +1,6 @@
 <template>
 
-        <div class="row">
+        <div class="row" :loading="loading">
             <div class="col-lg-12">
                 <div class="row">
                         <div class="col-md-12">
@@ -25,10 +25,17 @@
                                         }}</td>
                                         <td class="text-center">{{row.quantity}}</td>
                                         <td class="series-table-actions text-right">
+                                            
+                                            <template v-if="row.item.lots_enabled">
+                                                <button class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="openDialogLotsGroup(index, row)">
+                                                    <i class="el-icon-check"></i> Lotes
+                                                </button>
+                                            </template>
+
                                             <button  type="button" class="btn waves-effect waves-light btn-xs btn-success" @click.prevent="openDialogLots(row.item.lots, row.item_id)">
                                                     <i class="el-icon-check"></i> Series
                                             </button>
-                                            <button  type="button" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="openSelectWarehouses(row, index)">
+                                            <button  type="button" class="btn waves-effect waves-light btn-xs btn-info" @click.prevent="openSelectWarehouses(row, index)">
                                                 <i class="el-icon-search"></i> Stock
                                             </button>
                                         </td> 
@@ -55,6 +62,13 @@
                 :item_index="item_index">
             </select-warehouses>
 
+            <select-lots-group
+                :lots_group="lots_group"
+                :quantity="lots_group_quantity"
+                :showDialog.sync="showDialogLotsGroup"
+                @addRowLotGroup="addRowLotGroup">
+            </select-lots-group>
+
         </div>
 
 </template>
@@ -64,10 +78,11 @@
     import SelectLotsForm from '../../documents/partials/lots.vue'
     import SelectWarehouses from './select_warehouses.vue'
     import {showNamePdfOfDescription} from '../../../../helpers/functions'
+    import SelectLotsGroup from '../../documents/partials/lots_group.vue'
 
     export default {
         props:['items','config'],
-        components:{SelectLotsForm, SelectWarehouses},
+        components:{SelectLotsForm, SelectWarehouses, SelectLotsGroup},
 
         data()
         {
@@ -78,6 +93,11 @@
                 lots:[],
                 item_id: null,
                 item_index: -1,
+                showDialogLotsGroup:false,
+                lots_group_quantity:0,
+                lots_group: [],
+                current_index_item: -1,
+                loading: false,
             }
         },
         created(){
@@ -90,6 +110,46 @@
 
         },
         methods:{
+            addRowLotGroup(lots_selecteds){
+                this.items[this.current_index_item].IdLoteSelected = lots_selecteds
+                this.current_index_item = -1
+            },
+            async openDialogLotsGroup(index, row){
+                
+                await this.getLotsGroup(row.item_id)
+                await this.regularizeCompromiseQuantity(row)
+                this.current_index_item = index
+                this.lots_group_quantity = row.quantity
+                this.showDialogLotsGroup = true
+
+            },
+            regularizeCompromiseQuantity(row){
+
+                if(row.IdLoteSelected)
+                {
+                    this.lots_group.forEach(l_group => {
+                        
+                        const lot = _.find(row.IdLoteSelected, {id : l_group.id})
+
+                        if(lot) l_group.compromise_quantity = lot.compromise_quantity 
+
+                    })
+                }
+
+            },
+            async getLotsGroup(item_id){
+
+                this.loading = true
+
+                await this.$http.get(`/item-lots-group/available-data/${item_id}`)
+                    .then((response) => {
+                        this.lots_group = response.data
+                    })
+                    .then(()=>{
+                        this.loading = false
+                    })
+
+            },
             // verifyWarehouse(row){
 
             //     let warehouse = _.find(this.selectWarehouses, {warehouse_id : row.warehouse_id, checked : true})

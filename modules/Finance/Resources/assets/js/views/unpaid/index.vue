@@ -395,12 +395,14 @@
             :showDialog.sync="showDialogDocumentPayments"
             :documentId="recordId"
             :external="true"
+            :configuration="this.configuration"
             ></document-payments>
 
         <sale-note-payments
             :showDialog.sync="showDialogSaleNotePayments"
             :documentId="recordId"
             :external="true"
+            :configuration="this.configuration"
             ></sale-note-payments>
 
     </div>
@@ -414,7 +416,7 @@
     import queryString from "query-string";
 
     export default {
-        props:['typeUser'],
+        props:['typeUser','configuration'],
         components: {DocumentPayments, SaleNotePayments},
         data() {
             return {

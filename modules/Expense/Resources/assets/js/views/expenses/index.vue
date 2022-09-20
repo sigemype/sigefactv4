@@ -45,6 +45,11 @@
 
                         <td class="text-center">
 
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-success m-1__2"
+                                    @click.prevent="clickPrint(row.external_id)">
+                                    <i class="fas fa-print"></i>
+                            </button>
+
                             <button type="button" v-if="row.state_type_id != '11'" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-primary m-1__2"
                                     @click.prevent="clickCreate(row.id)">
                                     <i class="fa fa-pen"></i>
@@ -104,6 +109,9 @@
         created() {
         },
         methods: {
+            clickPrint(external_id){
+                window.open(`/${this.resource}/print/${external_id}`, '_blank');
+            },
             clickCreate(id = '') {
                 location.href = `/${this.resource}/create/${id}`
             },

@@ -5,7 +5,6 @@
     <link href="{{ $path_style }}" rel="stylesheet" />
 </head>
 <body>
-    
 <table class="full-width">
     <tr>
         <td class="text-center font-bold">Bienes transferidos y/o servicios prestados en la Amazonía para ser consumidos en la misma</td>

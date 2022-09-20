@@ -139,5 +139,18 @@
             )->whereIn('bank_loans.state_type_id', ['01', '03', '05', '07', '13']);
         }
 
+        
+        /**
+         * 
+         * Se agrega scope polimorfico para filtrar destino en global payment
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeWithBankIfExist($query)
+        {
+            return $query->with(['bank']);
+        }
+
 
     }

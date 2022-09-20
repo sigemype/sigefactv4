@@ -681,7 +681,7 @@ export default {
                     it.input_unit_price_value = parseFloat(newTotal);
                     it.item.unit_price = parseFloat(newTotal);
                     it.unit_value = parseFloat(newTotal);
-                    const newItem = calculateRowItem(it, "PEN", 3);
+                    const newItem = calculateRowItem(it, "PEN", 3, this.percentage_igv);
                     return newItem;
                 }
                 return it;
@@ -796,7 +796,7 @@ export default {
                 if (row.affectation_igv_type_id === "10") {
                     total_taxed += parseFloat(row.total_value);
                 }
-                
+
                 if (row.affectation_igv_type_id === '20') {
                     total_exonerated += parseFloat(row.total_value)
                 }

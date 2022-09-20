@@ -1,0 +1,15 @@
+.page-blue-magenta,
+.bg-blue-magenta {
+  background-color: #cb2027;
+}
+
+.color-bluemagenta {
+  --f7-theme-color: #cb2027;
+  --f7-theme-color-rgb: 189, 13, 38;
+  --f7-theme-color-shade: #CC0D00;
+  --f7-theme-color-tint: #A30B00;
+}
+
+:root {
+  --f7-color-bluemagenta: #cb2027;
+}

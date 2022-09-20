@@ -1311,6 +1311,13 @@
                                     </a>
                                 </li>
                                 {{--                                @endif--}}
+
+                                <li class="{{ (($firstLevel === 'suscription') && ($secondLevel === 'grade_section')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link"
+                                       href="{{ route('tenant.suscription.grade_section.index') }}">
+                                        Grados y Secciones
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     @endif
@@ -1492,6 +1499,17 @@
                                     <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                                 </svg>
                                 <span>Generador de link de pago</span>
+                            </a>
+                        </li>
+                    @endif
+
+                    
+                    @if(in_array('app_2_generator', $vc_modules))
+                        <li class="{{ ($firstLevel === 'live-app')?'nav-active':'' }}">
+                            <a class="nav-link"
+                               href="{{ route('tenant.liveapp.configuration') }}">
+                                <i class="fas fa-puzzle-piece"></i>
+                                <span>Generador APP 2.0</span>
                             </a>
                         </li>
                     @endif

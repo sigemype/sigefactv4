@@ -24,6 +24,8 @@ use Modules\Payment\Http\Resources\{
     PaymentLinkCollection,
     PaymentLinkResource,
 };
+use App\Http\Controllers\Tenant\DocumentPaymentController;
+use App\Http\Requests\Tenant\DocumentPaymentRequest;
 
 
 class PaymentLinkController extends Controller
@@ -105,19 +107,39 @@ class PaymentLinkController extends Controller
     public function store(PaymentLinkRequest $request)
     {
 
-        $record = PaymentLink::create([
-            'user_id' => auth()->id(),
-            'uuid' => Str::uuid()->toString(),
-            'soap_type_id' => Company::select('soap_type_id')->firstOrFail()->soap_type_id,
-            'payment_link_type_id' => $request->payment_link_type_id,
-            'payment_id' => $request->payment_id,
-            'payment_type' => PaymentLink::getModelByType($request->instance_type),
-            'total' => $request->total,
-        ]);
+        $data = DB::connection('tenant')->transaction(function () use ($request) {
+
+            $payment_id = $request->payment_id;
+
+            // registrar pago si es que se hace los 2 pasos en 1
+            if(!$request->payment_id)
+            {
+                $document_payment_request = new DocumentPaymentRequest($request->only('date_of_payment','payment_method_type_id','payment_destination_id','payment','document_id', 'payment_received'));
+                $document_payment_response = app(DocumentPaymentController::class)->store($document_payment_request);
+                if(!$document_payment_response['success']) throw new Exception('Error al registrar pago y link de pago');
+                $payment_id = $document_payment_response['id'];
+            }
+
+            PaymentLink::create([
+                'user_id' => auth()->id(),
+                'uuid' => Str::uuid()->toString(),
+                'soap_type_id' => Company::select('soap_type_id')->firstOrFail()->soap_type_id,
+                'payment_link_type_id' => $request->payment_link_type_id,
+                'payment_id' => $payment_id,
+                'payment_type' => PaymentLink::getModelByType($request->instance_type),
+                'total' => $request->total,
+            ]);
+
+            return [
+                'document_payment_id' => $payment_id
+            ];
+        });
+
 
         return [
             'success' => true,
-            'message' => 'Link generado con éxito'
+            'message' => 'Link generado con éxito',
+            'data' => $data
         ];
 
     }

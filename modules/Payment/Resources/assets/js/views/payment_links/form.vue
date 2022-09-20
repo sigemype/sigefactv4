@@ -6,7 +6,7 @@
                     <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.payment_link_type_id}">
                             <label class="control-label">Tipo</label>
-                            <el-select  v-model="form.payment_link_type_id" :disabled="recordId">
+                            <el-select  v-model="form.payment_link_type_id" :disabled="recordId != null">
                                 <el-option v-for="(option, index) in payment_link_types" :key="index" :value="option.id" :label="option.description"></el-option>
                             </el-select>
                             <small class="form-control-feedback" v-if="errors.payment_link_type_id" v-text="errors.payment_link_type_id[0]"></small>

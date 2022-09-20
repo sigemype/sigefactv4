@@ -251,6 +251,19 @@
             'enabled_advanced_records_search',
             'change_decimal_quantity_unit_price_pdf',
             'decimal_quantity_unit_price_pdf',
+            'separate_cash_transactions',
+            'order_cash_income',
+            'generate_order_note_from_quotation',
+            'list_items_by_warehouse',
+            'ticket_single_shipment',
+            'hide_pdf_view_documents',
+            'dashboard_sales',
+            'dashboard_general',
+            'dashboard_clients',
+            'dashboard_products',
+            'affect_all_documents',
+            'quantity_sales_notes',
+            'restrict_series_selection_seller',
         ];
 
         protected $casts = [
@@ -341,6 +354,15 @@
             'enabled_advanced_records_search' => 'bool',
             'change_decimal_quantity_unit_price_pdf' => 'bool',
             'decimal_quantity_unit_price_pdf' => 'int',
+            'separate_cash_transactions' => 'bool',
+            'order_cash_income' => 'bool',
+            'generate_order_note_from_quotation' => 'bool',
+            'list_items_by_warehouse' => 'bool',
+            'ticket_single_shipment' => 'bool',
+            'hide_pdf_view_documents' => 'bool',
+            'affect_all_documents'=>'bool',
+            'restrict_series_selection_seller'=>'bool',
+            
 
         ];
 
@@ -547,7 +569,20 @@
                 'enabled_advanced_records_search' => $this->enabled_advanced_records_search,
                 'change_decimal_quantity_unit_price_pdf' => $this->change_decimal_quantity_unit_price_pdf,
                 'decimal_quantity_unit_price_pdf' => $this->decimal_quantity_unit_price_pdf,
-
+                'separate_cash_transactions' => $this->separate_cash_transactions,
+                'order_cash_income' => $this->order_cash_income,
+                'generate_order_note_from_quotation' => $this->generate_order_note_from_quotation,
+                'list_items_by_warehouse' => $this->list_items_by_warehouse,
+                'ticket_single_shipment' => $this->ticket_single_shipment,
+                'hide_pdf_view_documents' => $this->hide_pdf_view_documents,
+                'dashboard_sales' => (bool)$this->dashboard_sales,
+                'dashboard_general' => (bool)$this->dashboard_general,
+                'dashboard_clients' => (bool)$this->dashboard_clients,
+                'dashboard_products' => (bool)$this->dashboard_products,
+                'affect_all_documents' => (bool)$this->affect_all_documents,
+                'restrict_series_selection_seller' => $this->restrict_series_selection_seller,
+                
+                'delete_relation_note_to_invoice' => (bool)config('tenant.delete_relation_note_to_invoice'),
             ];
         }
 
@@ -2209,4 +2244,42 @@
         {
             return (bool) \Config('extra.suscription_facturalo');
         }
+
+
+        /**
+         *
+         * @param Builder $query
+         * @return Builder
+         */
+        public function scopeGetSeparateCashTransactions($query)
+        {
+            return $query->select('separate_cash_transactions')->firstOrFail()->separate_cash_transactions;
+        }
+
+
+        /**
+         *
+         * @param Builder $query
+         * @return Builder
+         */
+        public function scopeGetOrderCashIncome($query)
+        {
+            return $query->select('order_cash_income')->firstOrFail()->order_cash_income;
+        }
+
+
+        /**
+         *
+         * Obtener campo individual de la configuracion
+         *
+         * @param  Builder $query
+         * @param  string $column
+         * @return Builder
+         */
+        public function scopeGetRecordIndividualColumn($query, $column)
+        {
+            return $query->select($column)->firstOrFail()->{$column};
+        }
+
+
     }

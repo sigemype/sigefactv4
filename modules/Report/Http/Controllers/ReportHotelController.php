@@ -112,7 +112,9 @@
          */
         private function data($date_start, $date_end)
         {
-            return HotelRent::SearchByDate($date_start,$date_end)->latest();
+            $rooms = HotelRent::with('room','room.rates', 'rate','room.category')
+			->orderBy('id', 'DESC');
+            return $rooms=$rooms->SearchByDate($date_start,$date_end)->latest();
 
 
 
@@ -130,9 +132,12 @@
 
             $records = $this->getRecords($request->all())->get();
 
+            $rooms = HotelRoom::get();
+
             $documentHotelExport = new ReportHotelExport();
             $documentHotelExport
                 ->records($records)
+                ->rooms($rooms)
                 ->company($company);
 
             return $documentHotelExport->download('Reporte_Hoteles_' . Carbon::now() . '.xlsx');

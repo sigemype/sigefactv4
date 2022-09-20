@@ -48,7 +48,8 @@
                                                placeholder="Escriba el nombre o número de documento del cliente"
                                                :remote-method="searchRemoteCustomers"
                                                :loading="loading_search"
-                                               @change="changeCustomer">
+                                               @change="changeCustomer"
+                                               @keyup.enter.native="keyupCustomer">
 
                                         <el-option v-for="option in customers" :key="option.id" :value="option.id"
                                                    :label="option.description"></el-option>
@@ -162,6 +163,11 @@
                                             <th class="text-center font-weight-bold">Subtotal</th>
                                             <!--<th class="text-right font-weight-bold">Cargo</th>-->
                                             <th class="text-center font-weight-bold">Total</th>
+
+                                            <template v-if="is_generate_from_quotation">
+                                                <th width="8%"></th>
+                                            </template>
+
                                             <th width="8%"></th>
                                         </tr>
                                         </thead>
@@ -181,6 +187,18 @@
                                             <td class="text-center">{{ currency_type.symbol }} {{ row.total_value }}</td>
                                             <!--<td class="text-right">{{ currency_type.symbol }} {{ row.total_charge }}</td>-->
                                             <td class="text-center">{{ currency_type.symbol }} {{ row.total }}</td>
+
+                                            <!-- si se genera pedido desde una cotizacion -->
+                                            <template v-if="is_generate_from_quotation">
+                                                <td class="text-center">
+                                                    <template v-if="row.item.lots_enabled">
+                                                        <button class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="openDialogLotsGroup(index, row)">
+                                                            <i class="el-icon-check"></i> Lotes
+                                                        </button>
+                                                    </template>
+                                                </td>
+                                            </template>
+
                                             <td class="text-center">
                                                 <button type="button"
                                                         class="btn waves-effect waves-light btn-xs btn-danger"
@@ -189,7 +207,7 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="8"></td>
+                                            <td :colspan="is_generate_from_quotation ? 9 : 8"></td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -245,11 +263,13 @@
                               :exchange-rate-sale="form.exchange_rate_sale"
                               :typeUser="typeUser"
                               :configuration="config"
+                              :percentage-igv="percentage_igv"
                               @add="addRow"></order-note-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
                      type="customers"
                      :external="true"
+                     :input_person="input_person"
                      :document_type_id=form.document_type_id></person-form>
 
         <order-note-options :showDialog.sync="showDialogOptions"
@@ -258,6 +278,13 @@
                             :showGenerate="false"
                             :showClose="false"
                             :configuration="config"></order-note-options>
+
+        <select-lots-group
+            :lots_group="lots_group"
+            :quantity="lots_group_quantity"
+            :showDialog.sync="showDialogLotsGroup"
+            @addRowLotGroup="addRowLotGroup">
+        </select-lots-group>
     </div>
 </template>
 
@@ -269,13 +296,14 @@ import {functions, exchangeRate} from '@mixins/functions'
 import {calculateRowItem,showNamePdfOfDescription} from '@helpers/functions'
 import Logo from '@views/companies/logo.vue'
 import {mapActions, mapState} from "vuex";
+import SelectLotsGroup from '@views/documents/partials/lots_group.vue'
 
 export default {
     props: [
         'typeUser',
         'configuration'
     ],
-    components: {OrderNoteFormItem, PersonForm, OrderNoteOptions, Logo},
+    components: {OrderNoteFormItem, PersonForm, OrderNoteOptions, Logo, SelectLotsGroup},
     mixins: [functions, exchangeRate],
     data() {
         return {
@@ -297,7 +325,13 @@ export default {
             currency_type: {},
             orderNoteNewId: null,
             activePanel: 0,
-            loading_search: false
+            loading_search: false,
+            is_generate_from_quotation: false,
+            current_index_item: -1,
+            lots_group_quantity: 0,
+            showDialogLotsGroup: false,
+            lots_group: [],
+            input_person: {},
         }
     },
     created() {
@@ -306,12 +340,15 @@ export default {
         this.loadEstablishment()
         this.loadCompany()
     },
-    mounted() {
+    async mounted() {
         this.initForm()
         this.$eventHub.$on('reloadDataPersons', (customer_id) => {
             this.reloadDataCustomers(customer_id)
         })
-        this.$http.get(`/${this.resource}/tables`)
+        this.$eventHub.$on('initInputPerson', () => {
+            this.initInputPerson()
+        });
+        await this.$http.get(`/${this.resource}/tables`)
             .then(response => {
                 this.currency_types = response.data.currency_types
                 this.establishments = response.data.establishments
@@ -331,10 +368,16 @@ export default {
                 this.allCustomers()
             })
             .then(() => {
+
                 // valida si viene de cotizaciones
                 let fromCotizacion = localStorage.getItem('FromQuotation')
                 let q = localStorage.getItem('Quotation')
-                if (fromCotizacion !== undefined && fromCotizacion && q !== undefined) {
+
+                if (fromCotizacion !== undefined && fromCotizacion && q !== undefined)
+                {
+
+                    this.is_generate_from_quotation = true
+
                     this.$http.post(`/${this.resource}/Quotation/get/${q}`)
                         .then(response => {
                             let data = response.data;
@@ -359,10 +402,54 @@ export default {
 
                     //
                 }
+
             })
+        await this.getPercentageIgv();
         this.loading_form = true
     },
     methods: {
+        addRowLotGroup(lots_selecteds){
+
+            this.form.items[this.current_index_item].IdLoteSelected = lots_selecteds
+            this.current_index_item = -1
+
+        },
+        regularizeCompromiseQuantity(row){
+
+            if(row.IdLoteSelected)
+            {
+                this.lots_group.forEach(l_group => {
+
+                    const lot = _.find(row.IdLoteSelected, {id : l_group.id})
+
+                    if(lot) l_group.compromise_quantity = lot.compromise_quantity
+
+                })
+            }
+
+        },
+        async getLotsGroup(item_id){
+
+            this.loading = true
+
+            await this.$http.get(`/item-lots-group/available-data/${item_id}`)
+                .then((response) => {
+                    this.lots_group = response.data
+                })
+                .then(()=>{
+                    this.loading = false
+                })
+
+        },
+        async openDialogLotsGroup(index, row){
+
+            await this.getLotsGroup(row.item_id)
+            await this.regularizeCompromiseQuantity(row)
+            this.current_index_item = index
+            this.lots_group_quantity = row.quantity
+            this.showDialogLotsGroup = true
+
+        },
         ...mapActions([
             'loadConfiguration',
             'loadCompany',
@@ -372,7 +459,7 @@ export default {
             this.setAddressByCustomer()
         },
         setAddressByCustomer(){
-            
+
             let customer = _.find(this.customers, {id : this.form.customer_id})
 
             if(customer){
@@ -410,12 +497,14 @@ export default {
                     .then(response => {
                         this.customers = response.data.customers
                         this.loading_search = false
-                        if (this.customers.length == 0) {
+                        /* if (this.customers.length == 0) {
                             this.allCustomers()
-                        }
+                        } */
+                        this.input_person.number=(this.customers.length==0)? input : null
                     })
             } else {
                 this.allCustomers()
+                this.input_person.number= null
             }
 
         },
@@ -463,6 +552,10 @@ export default {
                     format_pdf: 'a4',
                 }
             }
+
+            this.is_generate_from_quotation = false
+
+            this.initInputPerson()
         },
         resetForm() {
             this.activePanel = 0
@@ -481,11 +574,13 @@ export default {
         cleanCustomer() {
             this.form.customer_id = null;
         },
-        changeDateOfIssue() {
+        async changeDateOfIssue() {
             // this.form.date_of_due = this.form.date_of_issue > this.form.date_of_due ? this.form.date_of_issue:null
-            this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
+            await this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
                 this.form.exchange_rate_sale = response
             })
+            await this.getPercentageIgv();
+            this.changeCurrencyType();
         },
         allCustomers() {
             this.customers = this.all_customers
@@ -503,7 +598,7 @@ export default {
             this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
             let items = []
             this.form.items.forEach((row) => {
-                items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
             });
             this.form.items = items
             this.calculateTotal()
@@ -547,7 +642,7 @@ export default {
                 }
 
                 // total_value += parseFloat(row.total_value)
-                
+
                 if (!['21', '37'].includes(row.affectation_igv_type_id)) {
                     total_value += parseFloat(row.total_value)
                 }
@@ -577,6 +672,31 @@ export default {
             this.form.total_taxes = _.round(total_igv, 2)
             this.form.total = _.round(total, 2)
         },
+
+        async validateQuantityLotsGroup() {
+
+            let error_lots_group = 0
+
+            await this.form.items.forEach((element) => {
+
+                if (element.item.lots_enabled)
+                {
+                    if (!element.IdLoteSelected) error_lots_group++
+                }
+
+            });
+
+            if(error_lots_group > 0)
+            {
+                return {
+                    success: false,
+                    message: 'Las cantidades y lotes seleccionados deben ser iguales.',
+                }
+            }
+
+            return {success: true}
+        },
+
         async submit() {
 
             if (this.form.date_of_issue > this.form.date_of_due)
@@ -585,7 +705,15 @@ export default {
             if (this.form.date_of_issue > this.form.delivery_date)
                 return this.$message.error('La fecha de emisión no puede ser posterior a la de entrega');
 
+
+            if(this.is_generate_from_quotation)
+            {
+                const validate_items = await this.validateQuantityLotsGroup();
+                if (!validate_items.success) return this.$message.error(validate_items.message)
+            }
+
             this.loading_submit = true
+
             // await this.changePaymentMethodType(false)
             await this.$http.post(`/${this.resource}`, this.form).then(response => {
                 if (response.data.success) {
@@ -617,7 +745,37 @@ export default {
         },
         setDescriptionOfItem(item){
             return showNamePdfOfDescription(item,this.config.show_pdf_name)
-        }
+        },
+        keyupCustomer() {
+
+            if (this.input_person.number) {
+
+                if (!isNaN(parseInt(this.input_person.number))) {
+
+                    switch (this.input_person.number.length) {
+                        case 8:
+                            this.input_person.identity_document_type_id = '1'
+                            this.showDialogNewPerson = true
+                            break;
+
+                        case 11:
+                            this.input_person.identity_document_type_id = '6'
+                            this.showDialogNewPerson = true
+                            break;
+                        default:
+                            this.input_person.identity_document_type_id = '6'
+                            this.showDialogNewPerson = true
+                            break;
+                    }
+                }
+            }
+        },
+        initInputPerson() {
+            this.input_person = {
+                number: null,
+                identity_document_type_id: null
+            }
+        },
     },
     computed: {
         ...mapState([

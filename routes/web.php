@@ -287,6 +287,11 @@ if ($hostname) {
             Route::get('documents/payments/excel/{month}/{anulled}', 'Tenant\DocumentController@report_payments')->name('tenant.document.payments.excel');
             Route::get('documents/payments-complete', 'Tenant\DocumentController@report_payments');
 
+
+            Route::post('documents/import_excel_format', 'Tenant\DocumentController@importExcelFormat');
+            Route::get('documents/import_excel_tables', 'Tenant\DocumentController@importExcelTables');
+
+
             Route::delete('documents/delete_document/{document_id}', 'Tenant\DocumentController@destroyDocument');
 
             Route::get('documents/data-table/items', 'Tenant\DocumentController@getDataTableItem');
@@ -565,6 +570,7 @@ if ($hostname) {
 
             Route::post('sale-notes/transform-data-order', 'Tenant\SaleNoteController@transformDataOrder');
             Route::post('sale-notes/items-by-ids', 'Tenant\SaleNoteController@getItemsByIds');
+            Route::post('sale-notes/delete-relation-invoice', 'Tenant\SaleNoteController@deleteRelationInvoice');
 
             //POS
             Route::get('pos', 'Tenant\PosController@index')->name('tenant.pos.index');
@@ -679,6 +685,9 @@ if ($hostname) {
             //Almacen de columnas por usuario
             Route::post('validate_columns','Tenant\SettingController@getColumnsToDatatable');
 
+            Route::post('general-upload-temp-image', 'Controller@generalUploadTempImage');
+
+
             // test theme
             // Route::get('testtheme', function () {
             //     return view('tenant.layouts.partials.testtheme');
@@ -716,7 +725,9 @@ if ($hostname) {
             Route::post('clients', 'System\ClientController@store');
             Route::post('clients/update', 'System\ClientController@update');
 
-            Route::delete('clients/{client}', 'System\ClientController@destroy');
+            Route::delete('clients/{client}/{input_validate}', 'System\ClientController@destroy');
+            // Route::delete('clients/{client}', 'System\ClientController@destroy');
+
             Route::post('clients/password/{client}', 'System\ClientController@password');
             Route::post('clients/locked_emission', 'System\ClientController@lockedEmission');
             Route::post('clients/locked_tenant', 'System\ClientController@lockedTenant');

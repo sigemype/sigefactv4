@@ -91,6 +91,10 @@
             </td>
         </tr>
     @endif
+    <tr>
+        <td>Vendedor:</td>
+        <td> @if($document->seller_id != 0){{$document->seller->name }} @else {{ $document->user->name }} @endif</td>
+    </tr>
     @if ($document->plate_number !== null)
     <tr>
         <td class="align-top"><p class="desc">N° Placa:</p></td>
@@ -303,5 +307,17 @@
     <tr><td class="pb-10"><strong>SALDO:</strong> {{ $document->currency_type->symbol }} {{ number_format($document->total - $payment, 2) }}</td></tr>
 </table>
 @endif
+@if ($document->terms_condition)
+    <br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    </table>
+@endif
+<br>
 </body>
 </html>

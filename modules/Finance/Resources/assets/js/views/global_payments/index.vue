@@ -5,7 +5,7 @@
         </div>
         <div class="card mb-0">
                 <div class="card-body">
-                    <data-table :resource="resource">
+                    <data-table :resource="resource" :isAsynchronous="true">
                         <tr slot="heading">
                             <th class="">#</th>
                             <th class="">Adquiriente</th>

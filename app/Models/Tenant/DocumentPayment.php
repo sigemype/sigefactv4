@@ -23,10 +23,12 @@ class DocumentPayment extends ModelTenant
         'reference',
         'change',
         'payment',
+        'payment_received',
     ];
 
     protected $casts = [
         'date_of_payment' => 'date',
+        'payment_received' => 'bool',
     ];
 
     public function payment_method_type()
@@ -105,5 +107,44 @@ class DocumentPayment extends ModelTenant
     {
         return $this->morphMany(PaymentLink::class, 'payment');
     }
+
+    
+    /**
+     * 
+     * Retornar descripcion del pago
+     *
+     * @return string
+     */
+    public function getPaymentReceivedDescription()
+    {
+        $description = null;
+
+        if(!is_null($this->payment_received))
+        {
+            $description = $this->payment_received ? 'SI' : 'NO';
+        }
+
+        return $description;
+    }
+    
+
+    /**
+     * 
+     * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterRelationsPayments($query)
+    {
+        // \Log::info("document");
+        return $query->generalPaymentsWithOutRelations()
+                    ->with([
+                        'payment_method_type' => function($payment_method_type){
+                            $payment_method_type->select('id', 'description');
+                        }, 
+                    ]);
+    }
+
 
 }

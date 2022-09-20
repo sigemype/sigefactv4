@@ -28,7 +28,7 @@
                             <div :class="{'has-danger': errors.series}"
                                  class="form-group">
                                 <label class="control-label">Serie<span class="text-danger"> *</span></label>
-                                <el-select v-model="form.series_id">
+                                <el-select v-model="form.series_id" :disabled="generalDisabledSeries()">
                                     <el-option v-for="option in series"
                                                :key="option.id"
                                                :label="option.number"
@@ -155,7 +155,7 @@
                                                 :key="option.id"
                                                 :label="option.description"
                                                 :value="option.id"></el-option>
-                                    </el-select> 
+                                    </el-select>
                                     <small v-if="errors['related.document_type_id']" class="form-control-feedback" v-text="errors['related.document_type_id'][0]"></small>
                                 </div>
                             </div>
@@ -750,6 +750,7 @@
 
         <person-form :external="true"
                      :showDialog.sync="showDialogNewPerson"
+                     :input_person="input_person"
                      type="customers"></person-form>
 
         <items
@@ -769,7 +770,7 @@
             :showDialog.sync="showDialogLots"
             @addRowLotGroup="addRowLotGroup">
         </lots-group>
-        
+
         <warehouses-detail
             :showDialog.sync="showWarehousesDetail"
             :warehouses="warehousesDetail">
@@ -787,11 +788,13 @@ import LotsGroup from '../documents/partials/lots_group.vue';
 import DispatchOptions from './partials/options.vue'
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import WarehousesDetail from '@components/WarehousesDetail.vue'
+import {setDefaultSeriesByMultipleDocumentTypes} from '@mixins/functions'
 
 export default {
     props: [
         'order_form_id',
         'configuration',
+        'authUser',
     ],
     components: {
         itemForm,
@@ -801,6 +804,7 @@ export default {
         DispatchOptions,
         WarehousesDetail,
     },
+    mixins: [setDefaultSeriesByMultipleDocumentTypes],
     computed: {
         ...mapState([
             'config',
@@ -817,6 +821,7 @@ export default {
             IdLoteSelected: false,
             showDialogLots: false,
             min_qty: 0.0001,
+            input_person: {},
             // min_qty: 0.1,
             showDialogOptions: false,
             showDialogNewPerson: false,
@@ -928,7 +933,7 @@ export default {
             this.identityDocumentTypes = response.data.identityDocumentTypes;
             this.transferReasonTypes = response.data.transferReasonTypes;
             this.related_document_types = response.data.related_document_types
-            
+
             this.transportModeTypes = response.data.transportModeTypes;
             this.establishments = response.data.establishments;
             this.departments = response.data.departments;
@@ -955,6 +960,9 @@ export default {
         this.$eventHub.$on('reloadDataPersons', (customer_id) => {
             this.reloadDataCustomers(customer_id)
         })
+        this.$eventHub.$on('initInputPerson', () => {
+            this.initInputPerson()
+        });
     },
     methods: {
         clickWarehouseDetail(){
@@ -1157,12 +1165,14 @@ export default {
                     .then(response => {
                         this.customers = response.data.customers
                         this.loading_search = false
-                        if (this.customers.length == 0) {
+                        /* if (this.customers.length == 0) {
                             this.filterCustomers()
-                        }
+                        } */
+                        this.input_person.number=(this.customers.length==0)? input : null
                     })
             } else {
                 this.filterCustomers()
+                this.input_person.number= null
             }
 
         },
@@ -1342,6 +1352,7 @@ export default {
                 },
                 related: {},
                 order_form_external: null,
+                terms_condition:null
             }
 
             this.changeEstablishment();
@@ -1358,6 +1369,7 @@ export default {
             this.form.series_id = null;
             this.setDefaultSerie();
             this.setOriginAddressByEstablishment()
+            this.generalSetDefaultSerieByDocumentType('09')
         },
         setOriginAddressByEstablishment() {
 
@@ -1555,7 +1567,7 @@ export default {
             //             success: false,
             //             message: 'El campo Número de documento (DAM) no cumple con el formato establecido - XXXX-XX-XXX-XXXXXX'
             //         }
-            //     } 
+            //     }
 
             // }
 
@@ -1564,6 +1576,10 @@ export default {
             // }
         },
         async submit() {
+
+            if (this.config.affect_all_documents) {
+                this.form.terms_condition = this.config.terms_condition_sale;
+            }
 
             const validateQuantity = await this.verifyQuantityItems()
             if (!validateQuantity.validate) {
@@ -1643,6 +1659,12 @@ export default {
         },
         focusDescription() {
                 this.$refs.selectItem.$el.getElementsByTagName('input')[0].focus()
+        },
+        initInputPerson() {
+            this.input_person = {
+                number: null,
+                identity_document_type_id: null
+            }
         },
     }
 }

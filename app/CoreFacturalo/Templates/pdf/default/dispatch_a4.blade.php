@@ -91,7 +91,7 @@
         <td>Motivo Traslado: {{ $document->transfer_reason_type->description }}</td>
         <td>Modalidad de Transporte: {{ $document->transport_mode_type->description }}</td>
     </tr>
-    
+
     @if($document->related)
     <tr>
         <td>Número de documento (DAM): {{ $document->related->number }}</td>
@@ -109,6 +109,12 @@
         <td>P.Partida: {{ $document->origin->location_id }} - {{ $document->origin->address }}</td>
         <td>P.Llegada: {{ $document->delivery->location_id }} - {{ $document->delivery->address }}</td>
     </tr>
+    @if($document->order_form_external)
+    <tr>
+        <td>Orden de pedido: {{ $document->order_form_external }}</td>
+        <td></td>
+    </tr>
+    @endif
     </tbody>
 </table>
 <table class="full-width border-box mt-10 mb-10">
@@ -160,10 +166,9 @@
             <td class="text-center">{{ $row->item->internal_id }}</td>
             <td class="text-left">
                 @if($row->name_product_pdf)
-                	{!!$row->item->description!!} <br>
-                        {!!html_entity_decode($row->name_product_pdf)!!}
+                    {!!$row->name_product_pdf!!}
                 @else
-                        {!!$row->item->description!!}
+                    {!!$row->item->description!!}
                 @endif
 
                 @if (!empty($row->item->presentation)) {!!$row->item->presentation->description!!} @endif
@@ -290,5 +295,18 @@
     @endif
 </table>
 @endif
+
+@if ($document->terms_condition)
+    <br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    </table>
+@endif
+
 </body>
 </html>

@@ -63,7 +63,8 @@ class SaleNotePaymentController extends Controller
             'total_paid' => $total_paid,
             'total' => $total,
             'total_difference' => $total_difference,
-            'paid' => $sale_note->total_canceled
+            'paid' => $sale_note->total_canceled,
+            'external_id' => $sale_note->external_id,
         ];
     }
 

@@ -4,7 +4,9 @@ namespace App\Imports;
 
 use App\Models\Tenant\Item;
 use App\Models\Tenant\Warehouse;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Modules\Item\Models\Category;
@@ -65,6 +67,59 @@ class ItemsImport implements ToCollection
                 $lot_code = $row[17];
                 $date_of_due = $row[18];
                 $barcode = $row[19] ?? null;
+                $image_url = $row[20] ?? null;
+
+                // image names
+                $file_name = '';
+                $file_name_medium = '';
+                $file_name_small = '';
+
+
+
+                // verifica el campo url y valida si es una url correcta
+                if($image_url && filter_var($image_url, FILTER_VALIDATE_URL)) {
+                    // verifica si la url no obtiene errores
+                    if(strpos(get_headers($image_url, 1)[0],'200') != false){
+                        // dd(stripos(getimagesize($image_url)['mime'], 'image') === 0? 'no':'si');
+                        $image_type = exif_imagetype($image_url);
+                        // verifica si lo que obtiene de la url es una imagen
+                        if($image_type > 0 || $image_type < 19) {
+                            $directory = 'public'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR;
+                            $dateNow = date('YmdHis');
+                            $content = file_get_contents($image_url);
+                            $slugs = explode ("/", $image_url);
+                            $latestSlug = $slugs [(count ($slugs) - 1)];
+                            $image_name = strtok($latestSlug, '?');
+
+                            $file_name = Str::slug($description).'-'.$dateNow.'.'.$image_name;
+                            $file_name_medium = Str::slug($description).'-'.$dateNow.'_medium.'.$image_name;
+                            $file_name_small = Str::slug($description).'-'.$dateNow.'_small.'.$image_name;
+
+                            Storage::put($directory.$file_name, $content);
+
+                            $getImage = Storage::get($directory.$file_name);
+
+                            $image_medium = \Image::make($getImage)
+                                            ->resize(512, null, function ($constraint) {
+                                                $constraint->aspectRatio();
+                                                $constraint->upsize();
+                                            })
+                                            ->stream();
+
+                            Storage::put($directory.$file_name_medium, $image_medium);
+
+                            $image_small = \Image::make($getImage)
+                                            ->resize(256, null, function ($constraint) {
+                                                $constraint->aspectRatio();
+                                                $constraint->upsize();
+                                            })
+                                            ->stream();
+
+                            Storage::put($directory.$file_name_small, $image_small);
+                        }
+                    }
+                }
+
                 $warehouse_id = request('warehouse_id');
 
 
@@ -112,6 +167,9 @@ class ItemsImport implements ToCollection
                             'date_of_due' => $_date_of_due,
                             'barcode' => $barcode,
                             'warehouse_id' => $warehouse_id,
+                            'image' => $file_name,
+                            'image_medium' => $file_name_medium,
+                            'image_small' => $file_name_small,
                         ]);
 
                         $new_item->lots_group()->create([
@@ -143,6 +201,9 @@ class ItemsImport implements ToCollection
                             'second_name' => $second_name,
                             'barcode' => $barcode,
                             'warehouse_id' => $warehouse_id,
+                            'image' => $file_name,
+                            'image_medium' => $file_name_medium,
+                            'image_small' => $file_name_small,
                         ]);
 
                     }

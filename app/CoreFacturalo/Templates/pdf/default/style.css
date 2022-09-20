@@ -37,6 +37,12 @@ table {
 .text-center {
     text-align: center !important;
 }
+.text-uppercase {
+  text-transform: uppercase;
+}
+.text-lowercase {
+  text-transform: lowercase;
+}
 .text-left {
     text-align: left !important;
 }
@@ -164,6 +170,9 @@ p {
 
 .desc {
   font-size: 10px !important;
+}
+.desc-ticket {
+  font-size: 1rem !important;
 }
 
 .desc-9 {

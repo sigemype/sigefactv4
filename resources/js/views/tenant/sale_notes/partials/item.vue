@@ -28,7 +28,7 @@
                                         slot="prepend"
                                         tabindex="1"
                                         v-model="form.item_id"
-                                        :disabled="recordItem != null"
+                                        :disabled="isUpdateItem"
                                         :loading="loading_search"
                                         :remote-method="searchRemoteItems"
                                         filterable
@@ -56,13 +56,13 @@
                                     </el-select>
                                     <el-tooltip
                                         slot="append"
-                                        :disabled="recordItem != null"
+                                        :disabled="isUpdateItem"
                                         class="item"
                                         content="Ver Stock del Producto"
                                         effect="dark"
                                         placement="bottom">
                                         <el-button
-                                            :disabled="isEditItemNote"
+                                            :disabled="isUpdateItem"
                                             @click.prevent="clickWarehouseDetail()">
                                             <i class="fa fa-search"></i>
                                         </el-button>
@@ -76,7 +76,7 @@
                                                ref="selectBarcode"
                                                slot="prepend"
                                                v-model="form.item_id"
-                                               :disabled="recordItem != null"
+                                               :disabled="isUpdateItem"
                                                :loading="loading_search"
                                                :remote-method="searchRemoteItems"
                                                filterable
@@ -94,13 +94,13 @@
                                     </el-select>
                                     <el-tooltip
                                         slot="append"
-                                        :disabled="recordItem != null"
+                                        :disabled="isUpdateItem"
                                         class="item"
                                         content="Ver Stock del Producto"
                                         effect="dark"
                                                 placement="bottom">
                                         <el-button
-                                            :disabled="isEditItemNote"
+                                            :disabled="isUpdateItem"
                                             @click.prevent="clickWarehouseDetail()">
                                             <i class="fa fa-search"></i>
                                         </el-button>
@@ -109,7 +109,7 @@
                             </template>
 
                             <template v-if="!is_client">
-                                <el-checkbox v-model="search_item_by_barcode" :disabled="recordItem != null">Buscar por
+                                <el-checkbox v-model="search_item_by_barcode" :disabled="isUpdateItem">Buscar por
                                                                                                              código de
                                                                                                              barras
                                 </el-checkbox>
@@ -126,14 +126,14 @@
                         <div :class="{'has-danger': errors.affectation_igv_type_id}" class="form-group">
                             <label class="control-label">Afectación Igv</label>
                             <el-select v-model="form.affectation_igv_type_id"
-                                       :disabled="!change_affectation_igv_type_id" filterable>
+                                       :disabled="!change_affectation_igv_type_id || isUpdateItem" filterable>
                                 <el-option
                                     v-for="option in affectation_igv_types"
                                            :key="option.id"
                                            :label="option.description"
                                            :value="option.id"></el-option>
                             </el-select>
-                            <el-checkbox v-model="change_affectation_igv_type_id" :disabled="recordItem != null">
+                            <el-checkbox v-model="change_affectation_igv_type_id" :disabled="isUpdateItem">
                                 Editar
                             </el-checkbox>
                             <small v-if="errors.affectation_igv_type_id" class="form-control-feedback"
@@ -272,9 +272,9 @@
                             </div>
                         </div>
 
-                        <div class="col-md-12 mt-2">
+                        <div class="col-md-12 mt-2" v-if="!isUpdateItem">
                             <el-collapse v-model="activePanel">
-                                <el-collapse-item :disabled="recordItem != null"
+                                <el-collapse-item :disabled="isUpdateItem"
                                                   name="1" title="+ Agregar Descuentos/Cargos/Atributos especiales">
                                     <div v-if="discount_types.length > 0">
                                         <label class="control-label">
@@ -424,7 +424,7 @@
                 </div>
                 <div class="col-6">
                     <el-button v-if="form.item_id" class="add form-control btn btn-primary" native-type="submit" type="primary">
-                        Agregar
+                        {{ titleAction }}
                     </el-button>
                 </div>
             </div>
@@ -446,7 +446,8 @@
                     </el-button>
                 </el-popover>
                 <el-button v-if="form.item_id" class="add" native-type="submit" type="primary">
-                    Agregar
+                    {{ titleAction }}
+                    <!-- Agregar -->
                 </el-button>
             </div>
         </form>
@@ -464,11 +465,13 @@
             :lots_group="form.lots_group"
             :quantity="form.quantity"
             :showDialog.sync="showDialogLots"
+            :isUpdateItem="isUpdateItem"
+            :oldSelectedLotsGroup="old_selected_lots_group"
             @addRowLotGroup="addRowLotGroup">
         </lots-group>
 
         <select-lots-form
-            :documentItemId="documentItem"
+            :saleNoteItemId="form.sale_note_item_id"
             :itemId="form.item_id"
             :lots="lots"
             :quantity="form.quantity"
@@ -512,7 +515,8 @@ export default {
         'isEditItemNote',
         'configuration',
         'documentTypeId',
-        'noteCreditOrDebitTypeId'
+        'noteCreditOrDebitTypeId',
+        'percentageIgv'
     ],
     components: {
         ItemForm,
@@ -563,7 +567,8 @@ export default {
                 classic: ClassicEditor
             },
             value1: 'hello',
-            readonly_total: 0
+            readonly_total: 0,
+            old_selected_lots_group: []
             //item_unit_type: {}
         }
     },
@@ -628,6 +633,9 @@ export default {
                 return this.config.allow_edit_unit_price_to_seller;
             }
             return false;
+        },
+        isUpdateItem(){
+            return !_.isEmpty(this.recordItem)
         }
     },
     methods: {
@@ -722,7 +730,7 @@ export default {
 
         },
         clickIncrease() {
-            this.form.quantity = parseInt(this.form.quantity + 1)
+            this.form.quantity = parseInt(this.form.quantity) + 1
             this.calculateTotal()
         },
         async searchRemoteItems(input) {
@@ -838,7 +846,9 @@ export default {
                 lots_group: [],
                 IdLoteSelected: null,
                 document_item_id: null,
-                name_product_pdf: ''
+                name_product_pdf: '',
+                sale_note_item_id: null,
+                record_id: null,
             };
 
             this.activePanel = 0;
@@ -852,8 +862,8 @@ export default {
         // },
         async create() {
 
-            this.titleDialog = (this.recordItem) ? ' Editar Producto o Servicio' : ' Agregar Producto o Servicio';
-            this.titleAction = (this.recordItem) ? ' Editar' : ' Agregar';
+            this.titleDialog = (this.isUpdateItem) ? ' Editar Producto o Servicio' : ' Agregar Producto o Servicio';
+            this.titleAction = (this.isUpdateItem) ? ' Editar' : ' Agregar';
             if(this.operation_types !== undefined) {
                 let operation_type = await _.find(this.operation_types, {id: this.operationTypeId})
                 if(operation_type !== undefined) {
@@ -861,53 +871,130 @@ export default {
                 }
             }
 
-            if (this.recordItem) {
+            // console.log(this.recordItem, "aq")
+
+            this.updateItem()
+
+            this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
+
+        },
+        // edicion de item
+        searchGetIdLoteSelected(){
+
+            if(this.old_selected_lots_group.length > 0)
+            {
+                let new_id_lote_selected = []
+
+                this.old_selected_lots_group.forEach(lot => {
+
+                    let search_lot = _.find(this.form.lots_group, { id : lot.id})
+
+                    if(search_lot)
+                    {
+                        search_lot.compromise_quantity = lot.compromise_quantity
+                        new_id_lote_selected.push(lot)
+                    }
+
+                })
+
+                if(new_id_lote_selected.length > 0)
+                {
+                    return new_id_lote_selected
+                }
+            }
+
+            return null
+
+        },
+        regularizeCompromiseQuantityLots(){
+
+            this.form.IdLoteSelected.forEach(lot => {
+                let search_lot = _.find(this.form.lots_group, { id : lot.id})
+                if(search_lot)  search_lot.compromise_quantity = lot.compromise_quantity
+            })
+
+        },
+        setIdLoteSelected(){
+            // console.log(this.recordItem.item.IdLoteSelected)
+
+            if(this.recordItem.item.IdLoteSelected)
+            {
+                this.old_selected_lots_group = this.recordItem.item.IdLoteSelected
+                this.form.IdLoteSelected = this.recordItem.item.IdLoteSelected
+                this.regularizeCompromiseQuantityLots()
+            }
+            else
+            {
+                if(this.recordItem.item.lots_group)
+                {
+                    this.old_selected_lots_group = _.filter(this.recordItem.item.lots_group, function(lot) { return lot.compromise_quantity > 0 })
+                    this.form.IdLoteSelected = this.searchGetIdLoteSelected()
+                }
+            }
+
+        },
+        setItemLots(){
+
+            if(this.recordItem.item.lots)
+            {
+                this.form.sale_note_item_id = this.recordItem.record_id
+                this.form.item.lots = this.recordItem.item.lots
+                this.lots = this.recordItem.item.lots
+            }
+
+        },
+        setNameProductPdf(){
+
+            if (this.recordItem.item.name_product_pdf) {
+                this.form.name_product_pdf = this.recordItem.item.name_product_pdf
+            }
+
+        },
+        setUnitPriceValue(){
+
+            if(this.recordItem.item.has_igv)
+            {
+                this.form.unit_price_value = this.recordItem.input_unit_price_value ? this.recordItem.input_unit_price_value : this.recordItem.unit_price
+            }
+            else
+            {
+                this.form.unit_price_value = this.recordItem.input_unit_price_value ? this.recordItem.input_unit_price_value : this.recordItem.unit_value
+            }
+
+        },
+        async updateItem(){
+
+            if (this.isUpdateItem)
+            {
                 await this.reloadDataItems(this.recordItem.item_id)
-                this.form.item_id = await this.recordItem.item_id
-                await this.changeItem()
-                this.form.quantity = this.recordItem.quantity
-                this.form.unit_price_value = this.recordItem.input_unit_price_value
+
+                this.form.quantity = parseFloat(this.recordItem.quantity)
+                this.setUnitPriceValue()
                 this.form.has_plastic_bag_taxes = (this.recordItem.total_plastic_bag_taxes > 0) ? true : false
                 this.form.warehouse_id = this.recordItem.warehouse_id
                 this.isUpdateWarehouseId = this.recordItem.warehouse_id
+                this.form.record_id = this.recordItem.record_id
+                this.form.affectation_igv_type_id = this.recordItem.affectation_igv_type_id
 
-                if (this.isEditItemNote) {
-                    this.form.item.currency_type_id = this.currencyTypeIdActive
-                    this.form.item.currency_type_symbol = (this.currencyTypeIdActive == 'PEN') ? 'S/' : '$'
-
-                    if (this.documentTypeId == '07' && this.noteCreditOrDebitTypeId == '07') {
-
-                        this.form.document_item_id = this.recordItem.id ? this.recordItem.id : this.recordItem.document_item_id
-                        this.form.item.lots = this.recordItem.item.lots
-                        await this.regularizeLots()
-                        this.lots = this.form.item.lots
-                    }
-
-                }
-
-                if (this.recordItem.item.name_product_pdf) {
-                    this.form.name_product_pdf = this.recordItem.item.name_product_pdf
-                }
-                // if(this.recordItem.name_product_pdf){
-                //     this.form.name_product_pdf = this.recordItem.name_product_pdf
-                // }
-
-                if(this.recordItem.item.change_free_affectation_igv){
-
-                    this.form.affectation_igv_type_id = '15'
-                    this.form.item.change_free_affectation_igv = true
-
-                }else{
-                    if(this.recordItem.item.original_affectation_igv_type_id){
-                        this.form.affectation_igv_type_id = this.recordItem.item.original_affectation_igv_type_id
-                    }
-                }
+                this.setIdLoteSelected()
+                this.setItemLots()
+                this.setPresentationEditItem()
+                this.setNameProductPdf()
                 this.calculateQuantity()
+
             } else {
                 this.isUpdateWarehouseId = null
             }
 
-            this.$refs.selectSearchNormal.$el.getElementsByTagName('input')[0].focus()
+        },
+        // edicion de item
+        setPresentationEditItem() {
+
+            if (!_.isEmpty(this.recordItem.item.presentation)) {
+                this.selectedPrice(this.recordItem.item.presentation)
+                this.getSelectedClass(this.recordItem.item.presentation)
+            }
+
         },
         async regularizeLots() {
 
@@ -1007,7 +1094,9 @@ export default {
             this.$emit('update:showDialog', false)
         },
         async changeItem() {
-            this.form.item = _.find(this.items, {'id': this.form.item_id});
+
+            this.form.item = { ..._.find(this.items, {'id': this.form.item_id}) }
+            // this.form.item = _.find(this.items, {'id': this.form.item_id});
             this.form.item_unit_types = _.find(this.items, {'id': this.form.item_id}).item_unit_types
             this.form.unit_price_value = this.form.item.sale_unit_price;
             this.lots = this.form.item.lots
@@ -1066,6 +1155,36 @@ export default {
         cleanTotalItem() {
             this.total_item = null
         },
+        getResponseMessage(success, message = null){
+
+            return {
+                success: success,
+                message: message,
+            }
+
+        },
+        validateIdLoteSelected(){
+
+            if (this.form.item.lots_enabled)
+            {
+                if (!this.form.IdLoteSelected)
+                {
+                    return this.getResponseMessage(false, 'Debe seleccionar un lote.')
+                }
+                else
+                {
+                    const compromise_quantity = parseFloat(_.sumBy(this.form.IdLoteSelected, 'compromise_quantity'))
+
+                    if(compromise_quantity != parseFloat(this.form.quantity))
+                    {
+                        return this.getResponseMessage(false, 'La suma de cantidades comprometidas de los lotes debe der igual a la cantidad pedida.')
+                    }
+                }
+            }
+
+            return this.getResponseMessage(true)
+
+        },
         async clickAddItem() {
 
             // if(this.form.quantity < this.getMinQuantity()){
@@ -1073,10 +1192,8 @@ export default {
             // }
             this.validateQuantity()
 
-            if (this.form.item.lots_enabled) {
-                if (!this.form.IdLoteSelected)
-                    return this.$message.error('Debe seleccionar un lote.');
-            }
+            const validate_id_lote_selected = this.validateIdLoteSelected()
+            if(!validate_id_lote_selected.success) return this.$message.error(validate_id_lote_selected.message)
 
 
             if (this.validateTotalItem().total_item) return;
@@ -1093,7 +1210,7 @@ export default {
                     // do nothing
                     // exonerado de igv
                 }else{
-                    unit_price = this.form.unit_price_value * 1.18;
+                    unit_price = this.form.unit_price_value * (1 + this.percentageIgv);
 
                 }
             }
@@ -1102,12 +1219,12 @@ export default {
             if(this.configuration.validate_purchase_sale_unit_price)
             {
                 let val_purchase_unit_price = parseFloat(this.form.item.purchase_unit_price)
-                
+
                 if(val_purchase_unit_price > parseFloat(unit_price)){
                     return this.$message.error(`El precio de compra no puede ser superior al precio de venta (P. Compra: ${val_purchase_unit_price})`)
                 }
             }
-            
+
             this.form.input_unit_price_value = this.form.unit_price_value;
 
             this.form.unit_price = unit_price;
@@ -1117,12 +1234,10 @@ export default {
 
             let IdLoteSelected = this.form.IdLoteSelected
             let document_item_id = this.form.document_item_id
-            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
+            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv);
 
             this.row.item.name_product_pdf = this.row.name_product_pdf || '';
-            if (this.recordItem) {
-                this.row.indexi = this.recordItem.indexi
-            }
+
 
             let select_lots = await _.filter(this.row.item.lots, {'has_sale': true})
             let un_select_lots = await _.filter(this.row.item.lots, {'has_sale': false})
@@ -1136,9 +1251,7 @@ export default {
             // this.row.lots = select_lots
             this.initForm();
 
-            if (this.recordItem) {
-                this.row.indexi = this.recordItem.indexi
-            }
+            if (this.recordItem) this.row.aux_index = this.recordItem.aux_index
 
             this.row.IdLoteSelected = IdLoteSelected
             this.row.document_item_id = document_item_id
@@ -1186,7 +1299,8 @@ export default {
 
                 await this.$http.get(`/${this.resource}/search/item/${item_id}`).then((response) => {
 
-                    this.items = response.data.items
+                    this.items = response.data
+                    // this.items = response.data.items
                     this.form.item_id = item_id
                     this.changeItem()
 

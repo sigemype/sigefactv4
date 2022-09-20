@@ -100,7 +100,7 @@
         </tr>
     </table>
 </div>
-@if(!empty($reports))
+@if(!empty($records))
     <div class="">
         <div class=" ">
             <table class="">
@@ -126,7 +126,7 @@
                 </thead>
                 <tbody>
                 <?php $balance = 0; ?>
-                @foreach($reports as $key => $value)
+                @foreach($records as $key => $value)
                     <?php
                     /** @var \Modules\Inventory\Models\InventoryKardex $value */
                     $itemKardex = $value->getKardexReportCollection($balance);

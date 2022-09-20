@@ -79,16 +79,18 @@
                 </div>
                 <div class="row">
                     <div class="col-md-3">
-                            <label class="control-label">Fecha registro</label>
-                            <el-date-picker v-model="form.created_at" type="datetime"
-                                            value-format="yyyy-MM-dd HH:mm:ss" format="dd/MM/yyyy HH:mm:ss" :clearable="true"></el-date-picker>
+                        <label class="control-label">Fecha registro</label>
+                        <el-date-picker v-model="form.created_at" type="datetime"
+                                        value-format="yyyy-MM-dd HH:mm:ss" format="dd/MM/yyyy HH:mm:ss"
+                                        :clearable="true"></el-date-picker>
                     </div>
                     <div class="col-md-8">
                         <div class="form-group" :class="{'has-danger': errors.comments}">
                             <label class="control-label">Comentarios
                             </label>
-                            <el-input  type="textarea" :rows="3" :maxlength="250" v-model="form.comments"></el-input>
-                            <small class="form-control-feedback" v-if="errors.comments" v-text="errors.comments[0]"></small>
+                            <el-input type="textarea" :rows="3" :maxlength="250" v-model="form.comments"></el-input>
+                            <small class="form-control-feedback" v-if="errors.comments"
+                                   v-text="errors.comments[0]"></small>
                         </div>
                     </div>
                 </div>
@@ -122,6 +124,7 @@
 // import OutputLotsForm from './partials/lots.vue'
 import LotsGroup from './lots_group.vue'
 import SelectLotsForm from './lots.vue'
+import {filterWords} from "../../../../../../resources/js/helpers/functions";
 
 
 export default {
@@ -222,7 +225,10 @@ export default {
             this.items = [];
             await this.$http.post(`/${this.resource}/search_items`, {'search': search})
                 .then(response => {
-                    this.items = response.data.items
+                    let items = response.data.items;
+                    if (items.length > 0) {
+                        this.items = items; //filterWords(search, items);
+                    }
                 })
             this.loading_search = false;
         },

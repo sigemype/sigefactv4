@@ -111,7 +111,7 @@
                             <template v-else>
                                 <span class="badge text-white" :class="{'bg-success': (row.total_canceled), 'bg-warning': (!row.total_canceled)}">{{row.total_canceled ? 'Pagado':'Pendiente'}}</span>
                             </template>
-                            
+
                         </td>
 
                         <td>{{ row.purchase_order }}</td>
@@ -154,95 +154,105 @@
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 
+                                    <button
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Anular"
+                                        v-if="row.state_type_id != '11'"
+                                        type="button"
+                                        class="dropdown-item"
+                                    @click.prevent="clickVoided(row.id)">
+        <!--                                <i class="fas fa-trash"></i>-->
+                                        Anular
+                                    </button>
 
-                            <button
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="Anular"
-                                v-if="row.state_type_id != '11'"
-                                type="button"
-                                class="dropdown-item"
-                             @click.prevent="clickVoided(row.id)">
-<!--                                <i class="fas fa-trash"></i>-->
-                                Anular
-                            </button>
+                                    <button data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Editar"
+                                            type="button"
+                                            class="dropdown-item"
+                                            @click.prevent="clickCreate(row.id)"
+                                            v-if="row.btn_generate && row.state_type_id != '11' && typeUser != 'seller'">
+        <!--                                        <i class="dropdown-item fas fa-file-signature"></i>-->
+                                        Editar
+                                    </button>
 
-                            <button data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Editar"
-                                    type="button"
-                                    class="dropdown-item"
-                                    @click.prevent="clickCreate(row.id)"
-                                    v-if="row.btn_generate && row.state_type_id != '11' && typeUser != 'seller'">
-<!--                                        <i class="dropdown-item fas fa-file-signature"></i>-->
-                                Editar
-                            </button>
+                                    <button data-toggle="tooltip"
+                                            data-placement="top"
+                                            title="Generar comprobante"
+                                            type="button"
+                                            class="dropdown-item"
+                                            @click.prevent="clickGenerate(row.id)"
+                                            v-if="!row.changed && row.state_type_id != '11' && soapCompany != '03'">
+        <!--                                <i class="dropdown-item fas fa-file-excel"></i>-->
+                                        Generar comprobante
+                                    </button>
 
-                            <button data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Generar comprobante"
-                                    type="button"
-                                    class="dropdown-item"
-                                    @click.prevent="clickGenerate(row.id)"
-                                    v-if="!row.changed && row.state_type_id != '11' && soapCompany != '03'">
-<!--                                <i class="dropdown-item fas fa-file-excel"></i>-->
-                                Generar comprobante
-                            </button>
+                                    <el-tooltip class="item" effect="dark" content="Generar guía desde CPE" placement="top-start">
+                                        <template v-for="(document,i) in row.documents" >
+                                            <a :href="`/dispatches/create/${document.id}`"
+                                            class="dropdown-item"
+                                                v-if="row.changed" :key="i">
+        <!--                                        <i class="dropdown-item fas fa-file-alt"></i>-->
+                                                Generar guía desde
 
-                            <el-tooltip class="item" effect="dark" content="Generar guía desde CPE" placement="top-start">
-                                <template v-for="(document,i) in row.documents" >
-                                    <a :href="`/dispatches/create/${document.id}`"
-                                       class="dropdown-item"
-                                        v-if="row.changed" :key="i">
-<!--                                        <i class="dropdown-item fas fa-file-alt"></i>-->
-                                        Generar guía desde
+                                            </a>
+                                        </template>
+                                    </el-tooltip>
 
-                                    </a>
-                                </template>
-                            </el-tooltip>
+                                    <el-tooltip
+                                        class="item"
+                                        effect="dark"
+                                        content="Generar guía desde Nota Venta"
+                                        placement="left">
+                                        <a :href="`/dispatches/generate/${row.id}`"
+                                        class="dropdown-item"
+                                        >
+                                            Generar guía
+                                        </a>
+                                    </el-tooltip>
 
-                            <el-tooltip
-                                class="item"
-                                effect="dark"
-                                content="Generar guía desde Nota Venta"
-                                placement="left">
-                                <a :href="`/dispatches/generate/${row.id}`"
-                                   class="dropdown-item"
-                                >
-                                    Generar guía
-                                </a>
-                            </el-tooltip>
+                                    <button
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Imprimir"
+                                        v-if="row.state_type_id != '11'"
+                                        type="button"
+                                        class="dropdown-item"
+                                            @click.prevent="clickOptions(row.id)">
+                                            <!--                                <i class="dropdown-item fas fa-print"></i>-->
+                                            Imprimir
+                                    </button>
+                                    <button @click="duplicate(row.id)"
+                                            title="Duplica la nota de venta"
+                                            type="button"
+                                            class="dropdown-item"
+                                            >
+        <!--                                <i class="dropdown-item fas fa-copy"></i>-->
+                                        Duplica la nota de venta
+                                    </button>
+                                    <button
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Enviar a otro servidor"
+                                        v-if="row.state_type_id != '11' && row.send_other_server=== true"
+                                        type="button"
+                                        class="dropdown-item"
+                                        @click.prevent="sendToServer(row.id)">
+        <!--                                <i class="dropdown-item fas fa-wifi"></i>-->
+                                        Enviar a otro servidor
+                                    </button>
 
-                            <button
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="Imprimir"
-                                v-if="row.state_type_id != '11'"
-                                type="button"
-                                class="dropdown-item"
-                                    @click.prevent="clickOptions(row.id)">
-                                    <!--                                <i class="dropdown-item fas fa-print"></i>-->
-                                    Imprimir
-                            </button>
-                            <button @click="duplicate(row.id)"
-                                    title="Duplica la nota de venta"
-                                    type="button"
-                                    class="dropdown-item"
-                                    >
-<!--                                <i class="dropdown-item fas fa-copy"></i>-->
-                                Duplica la nota de venta
-                            </button>
-                            <button
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="Enviar a otro servidor"
-                                v-if="row.state_type_id != '11' && row.send_other_server=== true"
-                                type="button"
-                                class="dropdown-item"
-                                @click.prevent="sendToServer(row.id)">
-<!--                                <i class="dropdown-item fas fa-wifi"></i>-->
-                                Enviar a otro servidor
-                            </button>
+                                    <button
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Elimina unicamente la relación entre la nota y factura"
+                                        v-if="configuration.delete_relation_note_to_invoice && row.documents.length > 0"
+                                        type="button"
+                                        class="dropdown-item"
+                                        @click="sendDeleteRelationInvoice(row.id)">
+                                        Eliminar factura relacionada
+                                    </button>
 
                                 </div>
                             </div>
@@ -254,6 +264,26 @@
                 </data-table>
             </div>
         </div>
+        <!-- <el-dialog
+            title="Eliminar Documento Relacionado"
+            :visible="showDialogDeleteRelationInvoice"
+            >
+            <table>
+                <tr v-for="(document, index) in dataDeleteRelation.documents" :key="index">
+                    <td>
+                        <el-button
+                            type="button"
+                            class="btn waves-effect waves-light btn-xs btn-danger"
+                            @click.prevent="deleteRelationInvoice(row.id)">
+                            <i class="fas fa-trash"></i>
+                        </el-button>
+                    </td>
+                    <td>
+                        {{document.number_full}}
+                    </td>
+                </tr>
+            </table>
+        </el-dialog> -->
 
         <sale-note-payments :showDialog.sync="showDialogPayments"
                             :documentId="recordId"></sale-note-payments>
@@ -377,7 +407,12 @@
                         visible: false
                     }
 
-                }
+                },
+                // showDialogDeleteRelationInvoice: false,
+                // dataDeleteRelation: {
+                //     documents: {},
+                //     id: ''
+                // }
             }
         },
         created() {
@@ -489,7 +524,6 @@
             clickCreate(id = '') {
                 location.href = `/${this.resource}/create/${id}`
             },
-
             changeConcurrency(row) {
                 this.$http.post(`/${this.resource}/enabled-concurrency`, row).then(response => {
                     if (response.data.success) {
@@ -514,7 +548,26 @@
                     this.$eventHub.$emit('reloadData')
                 )
             },
-
+            // deleteRelationInvoice(saleNote) {
+            //     this.dataDeleteRelation.documents = saleNote.documents
+            //     this.dataDeleteRelation.id = saleNote.id
+            //     this.showDialogDeleteRelationInvoice = true
+            // },
+            sendDeleteRelationInvoice(id) {
+                this.$http.post(`${this.resource}/delete-relation-invoice`, {id})
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$message.success('Se ha eliminado el comprobante relacionado correctamente.')
+                            this.$eventHub.$emit('reloadData')
+                        } else {
+                            this.$message.error('No se guardaron los cambios')
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+                this.$eventHub.$emit('reloadData')
+            },
         }
     }
 </script>

@@ -147,7 +147,7 @@ class ReportKardexCollection extends ResourceCollection
                     'id' => $row->id,
                     'item_name' => $row->item->description,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
-                    'date_of_issue' => '-',
+                    'date_of_issue' => isset($row->inventory_kardexable->date_of_issue) ? $row->inventory_kardexable->date_of_issue->format('Y-m-d') : '',
                     'type_transaction' => $row->inventory_kardexable->description,
                     'number' => "-",
                     // 'input' => $input,

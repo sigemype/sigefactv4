@@ -36,16 +36,16 @@ class InventoryConfigurationController extends Controller
         $inventory_configuration->fill($request->all());
         
         // migracion desarrollo sin terminar #1401
-        if($request->generate_internal_id == true) {
-            $item = Item::first();
-            if($item) {
-                $inventory_configuration->generate_internal_id = 0;
-                return [
-                    'success' => false,
-                    'message' => 'Solo permitido si no tiene productos'
-                ];
-            }
-        }
+        // if($request->generate_internal_id == true) {
+        //     $item = Item::first();
+        //     if($item) {
+        //         $inventory_configuration->generate_internal_id = 0;
+        //         return [
+        //             'success' => false,
+        //             'message' => 'Solo permitido si no tiene productos'
+        //         ];
+        //     }
+        // }
         
         $inventory_configuration->save();
 

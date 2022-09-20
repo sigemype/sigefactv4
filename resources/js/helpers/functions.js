@@ -1,4 +1,4 @@
-function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
+function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale, pigv) {
     // console.log(currency_type_id_new, exchange_rate_sale)
 
     let currency_type_id_old = row_old.item.currency_type_id
@@ -38,7 +38,7 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         affectation_igv_type_id: row_old.affectation_igv_type_id,
         affectation_igv_type: row_old.affectation_igv_type,
         total_base_igv: 0,
-        percentage_igv: 18,
+        percentage_igv: pigv * 100,
         total_igv: 0,
         system_isc_type_id: has_isc ? row_old.system_isc_type_id : null,
         // system_isc_type_id: null,
@@ -71,11 +71,16 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         total_igv_without_rounding: 0,
         total_taxes_without_rounding: 0,
         total_without_rounding: 0,
+
+        //
+        purchase_unit_price: row_old.item.purchase_unit_price,
+        purchase_unit_value: row_old.item.purchase_unit_value,
+        purchase_has_igv: row_old.item.has_igv,
     };
 
     // console.log(row)
 
-    let percentage_igv = 18
+    let percentage_igv = pigv * 100
     let unit_value = row.unit_price
 
     if (row.affectation_igv_type_id === '10') {
@@ -227,7 +232,7 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
 
 
     //impuesto bolsa - icbper
-    
+
     let total_plastic_bag_taxes = 0
 
     if (row_old.has_plastic_bag_taxes) {
@@ -254,24 +259,24 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
     row.total_taxes = _.round(total_taxes, 2)
     row.total = _.round(total, 2)
 
-    
+
     //procedimiento para agregar isc
-    if(has_isc){
+    if (has_isc) {
 
         row.total_base_isc = _.round(total_value, 2) //total valor antes de aplicar isc
         row.total_isc = _.round(total_value * (row.percentage_isc / 100), 2)
         // row.total_isc = _.round(row.total_base_isc * (row.percentage_isc / 100), 2)
 
         //calcular nueva base incrementando el valor actual + isc
-        total_base_igv += row.total_isc  
-        row.total_base_igv = _.round(total_base_igv, 2)  
-        
+        total_base_igv += row.total_isc
+        row.total_base_igv = _.round(total_base_igv, 2)
+
         total_igv = total_base_igv * (percentage_igv / 100)
         row.total_igv = _.round(total_igv, 2)
 
         //asignar nuevo total impuestos, si tiene descuentos se usa total_taxes para calcular el precio unitario
         total_taxes = total_igv + row.total_isc + total_plastic_bag_taxes
-        // total_taxes = total_igv + row.total_isc 
+        // total_taxes = total_igv + row.total_isc
         row.total_taxes = _.round(total_taxes, 2)
 
         total = total_value + total_taxes
@@ -289,11 +294,11 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
         // row.total_igv = row.total_base_igv * (percentage_igv / 100)
 
         // //asignar nuevo total impuestos, si tiene descuentos se usa total_taxes para calcular el precio unitario
-        // total_taxes = row.total_igv + row.total_isc 
+        // total_taxes = row.total_igv + row.total_isc
         // row.total_taxes = total_taxes
 
         // row.total = row.total_value + row.total_taxes
-        
+
         // //calcular nuevo precio unitario
         // row.unit_price = _.round(row.total / row.quantity, 6)
 
@@ -337,7 +342,7 @@ function calculateRowItem(row_old, currency_type_id_new, exchange_rate_sale) {
     row.total_igv_without_rounding = total_igv
     row.total_taxes_without_rounding = total_taxes
     row.total_without_rounding = total
-    
+
 
     if (row.affectation_igv_type.free) {
         row.price_type_id = '02'
@@ -402,9 +407,22 @@ function sumAmountDiscountsNoBaseByItem(row) {
     return sum_discount_no_base
 }
 
-function FormatUnitPriceRow(unit_price){
+function FormatUnitPriceRow(unit_price) {
     return _.round(unit_price, 6)
     // return unit_price.toFixed(6)
 }
 
-export {calculateRowItem, getUniqueArray, showNamePdfOfDescription, sumAmountDiscountsNoBaseByItem, FormatUnitPriceRow}
+
+const filterWords = (input, items) => {
+    let search_value = input.toLowerCase();
+    return items.filter((item) => {
+        let text_filter = item.text_filter.toLowerCase();
+        return !search_value.split(' ')
+            .some(p => !text_filter.includes(p));
+    });
+}
+
+export {
+    calculateRowItem, getUniqueArray, showNamePdfOfDescription,
+    sumAmountDiscountsNoBaseByItem, FormatUnitPriceRow, filterWords
+}

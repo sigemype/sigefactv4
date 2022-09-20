@@ -53,9 +53,15 @@ class PurchaseController extends Controller
 
     use StorageDocument;
 
-    public function records()
+    public function records(Request $request)
     {
-        $records = Purchase::latest()->get();
+        $records = Purchase::where(function($q) use($request){
+                                $q->where('series', 'like', "%{$request->input}%" )
+                                    ->orWhere('number','like', "%{$request->input}%");
+                            })
+                            ->latest()
+                            ->take(config('tenant.items_per_page'))
+                            ->get();
 
         return new PurchaseCollection($records);
     }
@@ -152,6 +158,8 @@ class PurchaseController extends Controller
                 'id' => $purchase->id,
                 'number_full' => "{$purchase->series}-{$purchase->number}",
                 'external_id' => $purchase->external_id,
+                'filename' => $purchase->filename,
+                'print_a4' => $purchase->getUrlPrintPdf(),
             ],
         ];
     }

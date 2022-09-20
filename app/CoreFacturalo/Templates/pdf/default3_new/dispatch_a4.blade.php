@@ -33,7 +33,6 @@
         <td width="40%" class="pl-3">
             <div class="text-left">
                 <h3 class="">{{ $company->name }}</h3>
-                <h4>{{ 'RUC '.$company->number }}</h4>
                 <h5 style="text-transform: uppercase;">
                     {{ ($establishment->address !== '-')? $establishment->address : '' }}
                     {{ ($establishment->district_id !== '-')? ', '.$establishment->district->description : '' }}
@@ -45,14 +44,13 @@
             </div>
         </td>
         <td width="40%" class="border-box py-2 px-2 text-center">
-            <h3 class="font-bold">{{ 'R.U.C. '.$company->number }}</h3>
-            <h3 class="text-center font-bold">{{ $document->document_type->description }}</h3>
-            <br>
-            <h3 class="text-center font-bold">{{ $document_number }}</h3>
+            <h4 class="font-bold">{{ 'R.U.C. '.$company->number }}</h4>
+            <h4 class="text-center font-bold">{{ $document->document_type->description }}</h4>
+            <h4 class="text-center font-bold">{{ $document_number }}</h4>
         </td>
     </tr>
 </table>
-<table class="full-width border-box mt-10 mb-10"> 
+<table class="full-width border-box mt-10 mb-10">
     <tbody >
         <tr >
             <td style="text-decoration: underline;" colspan="2" class="pl-3">DESTINATARIO</td>
@@ -88,7 +86,7 @@
         </tr>
     </tbody>
 </table>
-<table class="full-width border-box mt-10 mb-10"> 
+<table class="full-width border-box mt-10 mb-10">
     <tbody>
         <tr>
             <td style="text-decoration: underline;" colspan="2" class="pl-3">ENVIO</td>
@@ -133,7 +131,7 @@
     </tbody>
 </table>
 
-<table class="full-width border-box mt-10 mb-10"> 
+<table class="full-width border-box mt-10 mb-10">
     <tr>
         <td width="45%" class="border-box pl-3">
             <table class="full-width">
@@ -174,7 +172,7 @@
     </tr>
 </table>
 
- 
+
 <table class="full-width mt-0 mb-0" >
     <thead >
         <tr class="">
@@ -186,7 +184,7 @@
             <th class="border-top-bottom text-right py-1 desc" class="cell-solid"  width="12%">PESO</th>
         </tr>
     </thead>
-    <tbody class=""> 
+    <tbody class="">
         @foreach($document->items as $row)
             @php
                 $total_weight_line = 0;
@@ -200,7 +198,7 @@
                     @else
                         {{ number_format($row->quantity, 0) }}
                     @endif
-                    
+
                 </td>
                 <td class="p-1 text-center align-top desc cell-solid-rl">{{ $row->item->unit_type_id }}</td>
                 <td class="p-1 text-left align-top desc text-upp cell-solid-rl">
@@ -209,15 +207,15 @@
                         @foreach($row->relation_item->attributes as $attr)
                             @if($attr->attribute_type_id === '5032')
                             @php
-                                $total_weight += $attr->value * $row->quantity;  
-                                $total_weight_line += $attr->value * $row->quantity;  
-                                  
+                                $total_weight += $attr->value * $row->quantity;
+                                $total_weight_line += $attr->value * $row->quantity;
+
                             @endphp
                             @endif
                             <br/><span style="font-size: 9px">{!! $attr->description !!} : {{ $attr->value }}</span>
                         @endforeach
                     @endif
-                </td> 
+                </td>
                 <td class="p-1 text-center align-top desc cell-solid-rl">
                     {{ $total_weight_line }}
                 </td>
@@ -245,9 +243,9 @@
         </tr>
     </tbody>
 </table>
- 
 
-<table class="full-widthmt-10 mb-10"> 
+
+<table class="full-widthmt-10 mb-10">
     <tr>
         <td width="75%">
             <table class="full-width">
@@ -255,14 +253,14 @@
                     @php
                         $total_packages = $document->items()->sum('quantity');
                     @endphp
-                    <td ><strong>TOTAL NÚMERO DE BULTOS:</strong> 
+                    <td ><strong>TOTAL NÚMERO DE BULTOS:</strong>
                         @if(((int)$total_packages != $total_packages))
                             {{ $total_packages }}
                         @else
                             {{ number_format($total_packages, 0) }}
                         @endif
                     </td>
-                </tr> 
+                </tr>
             </table>
         </td>
 
@@ -270,14 +268,14 @@
             <table class="full-width">
                 <tr>
                     <td ><strong>PESO TOTAL:</strong> KGM: {{$total_weight}}</td>
-                </tr> 
+                </tr>
             </table>
-        </td> 
+        </td>
     </tr>
 </table>
 
 
-<table class="full-width border-box mt-10 mb-10"> 
+<table class="full-width border-box mt-10 mb-10">
     <tr>
         <td width="50%" class="border-box pl-3">
             <table class="full-width">
@@ -286,7 +284,7 @@
                 </tr>
                 <tr>
                     <td>{{ $document->observations }}</td>
-                </tr> 
+                </tr>
             </table>
         </td>
         <td width="3%"></td>
@@ -295,12 +293,22 @@
             <table class="full-width">
                 <tr>
                     <td rowspan="2"><strong>Representación impresa de la Guía de Remisión</strong></td>
-                </tr> 
+                </tr>
             </table>
         </td>
 
     </tr>
 </table>
-
+@if ($document->terms_condition)
+        <br>
+        <table class="full-width">
+            <tr>
+                <td>
+                    <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                    {!! $document->terms_condition !!}
+                </td>
+            </tr>
+        </table>
+    @endif
 </body>
 </html>

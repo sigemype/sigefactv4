@@ -26,6 +26,7 @@ class ExpenseCollection extends ResourceCollection
                 'currency_type_id' => $row->currency_type_id,
                 'state_type_id' => $row->state_type_id,
                 'total' => $row->total,
+                'external_id' => $row->external_id,
                 'expense_type_description' => $row->expense_type->description,
                 'expense_reason_description' => $row->expense_reason->description,
 

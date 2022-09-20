@@ -109,7 +109,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="col-md-8 mt-2 mb-2" v-if="configuration.enabled_global_igv_to_purchase">
                             <div class="form-group">
                                 <el-checkbox v-model="localHasGlobalIgv"
@@ -140,9 +140,9 @@
 
                             </div>
                         </div>
- 
+
                     </div>
-                    
+
                     <div class="row">
                         <template v-if="form.has_payment">
 
@@ -162,7 +162,7 @@
                                         v-text="errors.payment_condition_id[0]"></small>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-12 col-lg-12 mt-2">
                                 <!-- Contado -->
                                 <template v-if="form.payment_condition_id === '01'">
@@ -249,10 +249,10 @@
                                             <th class="pb-2" v-if="form.fee.length>0"
                                                 >Método de pago
                                             </th>
-                                            <th class="pb-2" 
+                                            <th class="pb-2"
                                                 >Fecha
                                             </th>
-                                            <th class="pb-2" 
+                                            <th class="pb-2"
                                                 >Monto
                                             </th>
                                             <th class="pb-2" ></th>
@@ -290,7 +290,7 @@
                                     </table>
 
                                 </template>
- 
+
                                 <!-- Crédito con cuotas -->
                                 <template v-else>
                                     <table v-if="form.fee.length > 0">
@@ -343,7 +343,7 @@
                     </div>
 
                     <div class="row">
-                        
+
                         <div class="col-lg-12 col-md-6 d-flex align-items-end mt-4">
                             <div class="form-group">
                                 <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="showDialogAddItem = true">+ Agregar Producto</button>
@@ -400,7 +400,7 @@
                             <p class="text-right" v-if="form.total_exonerated > 0">OP.EXONERADAS: {{ currency_type.symbol }} {{ form.total_exonerated }}</p>
                             <p class="text-right" v-if="form.total_taxed > 0">OP.GRAVADA: {{ currency_type.symbol }} {{ form.total_taxed }}</p>
                             <p class="text-right" v-if="form.total_igv > 0">IGV: {{ currency_type.symbol }} {{ form.total_igv }}</p>
-                            
+
                             <p v-if="form.total_isc > 0" class="text-right">ISC: {{ currency_type.symbol }} {{ form.total_isc }}</p>
 
                             <h3 class="text-right" v-if="form.total > 0"><b>TOTAL COMPRAS: </b>{{ currency_type.symbol }} {{ form.total }}</h3>
@@ -575,7 +575,7 @@
             await this.changeHasClient()
             this.initGlobalIgv()
         },
-        computed: { 
+        computed: {
             creditPaymentMethod: function () {
                 return _.filter(this.payment_method_types, {'is_credit': true})
             },
@@ -610,7 +610,7 @@
 
                 return description
             },
-            changeHasGlobalIgv() { 
+            changeHasGlobalIgv() {
 
             },
             changeHasPayment(){
@@ -702,7 +702,7 @@
                         }
 
                     }
-                    
+
                     if(this.isCreditPaymentCondition && this.form.fee.length == 0){
 
                         return {
@@ -867,7 +867,7 @@
                 return payments
             },
             changePaymentMethodType(index) {
-                
+
                 let id = '01'
 
                 if (this.form.payments.length > 0) {
@@ -897,7 +897,7 @@
                     this.readonly_date_of_due = false
 
                 }
-    
+
             },
             inputTotalPerception(){
                 this.total_amount = parseFloat(this.form.total) + parseFloat(this.form.total_perception)
@@ -1039,7 +1039,7 @@
                 this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
                 let items = []
                 this.form.items.forEach((row) => {
-                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
                 });
                 this.form.items = items
                 this.calculateTotal()
@@ -1082,7 +1082,7 @@
                     total_value += parseFloat(row.total_value)
                     total_igv += parseFloat(row.total_igv)
                     total += parseFloat(row.total)
-                    
+
                     // isc
                     total_isc += parseFloat(row.total_isc)
                     total_base_isc += parseFloat(row.total_base_isc)
@@ -1101,7 +1101,7 @@
                 this.form.total_igv = _.round(total_igv, 2)
                 this.form.total_value = _.round(total_value, 2)
                 // this.form.total_taxes = _.round(total_igv, 2)
-                
+
                 //impuestos (isc + igv)
                 this.form.total_taxes = _.round(total_igv + total_isc, 2)
 

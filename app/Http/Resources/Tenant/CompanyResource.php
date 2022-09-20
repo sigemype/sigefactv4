@@ -51,6 +51,7 @@ class CompanyResource extends JsonResource
             'url_send_cdr_pse' => $this->url_send_cdr_pse,
             'url_signature_pse' => $this->url_signature_pse,
             'client_id_pse' => $this->client_id_pse,
+            'app_logo' => $this->app_logo,
 
         ];
     }

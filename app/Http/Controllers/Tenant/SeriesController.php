@@ -34,14 +34,9 @@ class SeriesController extends Controller
 
     public function store(SeriesRequest $request)
     {
-        $record = Series::where([['document_type_id',$request->document_type_id],['number', $request->number]])->first();
 
-        if($record){
-            return [
-                'success' => false,
-                'message' => 'La serie ya ha sido registrada'
-            ];
-        }
+        $validate_series = $this->validateSeries($request);
+        if(!$validate_series['success']) return $validate_series;
 
         $id = $request->input('id');
         $series = Series::firstOrNew(['id' => $id]);
@@ -53,6 +48,35 @@ class SeriesController extends Controller
             'message' => ($id)?'Serie editada con éxito':'Serie registrada con éxito'
         ];
     }
+
+    
+    /**
+     * 
+     * Validar datos
+     *
+     * @param  SeriesRequest $request
+     * @return array
+     */
+    public function validateSeries(SeriesRequest $request)
+    {
+
+        $record = Series::where([['document_type_id',$request->document_type_id],['number', $request->number]])->first();
+
+        if($record)
+        {
+            return [
+                'success' => false,
+                'message' => 'La serie ya ha sido registrada'
+            ];
+        }
+
+        
+        return [
+            'success' => true,
+            'message' => null
+        ];
+    }
+
 
     public function destroy($id)
     {

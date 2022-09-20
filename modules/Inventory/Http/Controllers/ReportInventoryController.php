@@ -65,7 +65,7 @@ class ReportInventoryController extends Controller
      *
      * @return Builder
      */
-    private function getRecords($warehouse_id = 0, $filter, $request) 
+    private function getRecords($warehouse_id = 0, $filter, $request)
     {
         $query = ItemWarehouse::with(['warehouse', 'item'=> function ($query){
                                 $query->select('id', 'barcode', 'internal_id', 'description', 'category_id', 'brand_id','stock_min', 'sale_unit_price', 'purchase_unit_price', 'model', 'date_of_due' );
@@ -170,7 +170,7 @@ class ReportInventoryController extends Controller
         $tray = DownloadTray::create([
             'user_id' => auth()->user()->id,
             'module' => 'INVENTORY',
-            'format' => $request->format,
+            'format' => $request->input('format'),
             'date_init' => date('Y-m-d H:i:s'),
             'type' => 'Reporte Inventario'
         ]);
@@ -184,7 +184,7 @@ class ReportInventoryController extends Controller
         }else{
             $website_id = $hostname->website_id;
         }
-        ProcessInventoryReport::dispatch($website_id,$trayId, ($request->warehouse_id == 'all' ? 0 :  $request->warehouse_id), $request->format, $request->all() );
+        ProcessInventoryReport::dispatch($website_id,$trayId, ($request->warehouse_id == 'all' ? 0 :  $request->warehouse_id), $request->input('format'), $request->all() );
 
         return  [
             'success' => true,

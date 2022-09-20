@@ -291,11 +291,11 @@
         },
         methods: {
 
-            handleRemove(file, fileList) {                
+            handleRemove(file, fileList) {
                 this.form.upload_filename = null
                 this.form.temp_path = null
                 this.fileList = []
-            }, 
+            },
             onSuccess(response, file, fileList) {
                 // console.log(response, file, fileList)
                 this.fileList = fileList
@@ -350,7 +350,7 @@
                 this.form.items[index].item.unit_price = this.form.items[index].unit_price
                 this.form.items[index].item.presentation = [];
                 this.form.items[index].affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.items[index].affectation_igv_type_id})
-                this.row = await calculateRowItem(this.form.items[index], this.form.currency_type_id, this.exchangeRateSale)
+                this.row = await calculateRowItem(this.form.items[index], this.form.currency_type_id, this.exchangeRateSale, this.percentageIgv)
                 this.form.items[index] = this.row
                 await this.calculateTotal()
 
@@ -530,7 +530,7 @@
                 this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
                 let items = []
                 this.form.items.forEach((row) => {
-                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentageIgv))
                 });
                 this.form.items = items
                 this.calculateTotal()

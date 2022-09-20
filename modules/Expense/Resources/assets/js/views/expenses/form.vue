@@ -150,7 +150,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(row, index) in form.items">
+                                        <tr v-for="(row, index) in form.items" :key="index">
                                             <td>{{ index + 1 }}</td>
                                             <td>{{ row.description }}</td>
                                             <td class="text-right">{{ currency_type.symbol }} {{ row.total }}</td>

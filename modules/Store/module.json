@@ -1,0 +1,14 @@
+{
+    "name": "Store",
+    "alias": "store",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Store\\Providers\\StoreServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

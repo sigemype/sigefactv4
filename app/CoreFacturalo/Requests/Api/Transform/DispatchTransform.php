@@ -38,7 +38,6 @@ class DispatchTransform
             'items' => self::items($inputs),
             'legends' => LegendTransform::transform($inputs),
             'actions' => ActionTransform::transform($inputs),
-
         ];
          self::AffectedDocument($data, $inputs);
         return  $data;

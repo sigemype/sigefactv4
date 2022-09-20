@@ -380,7 +380,7 @@ export default {
                     //     'unit_price': this.record.cost
                     // });
                     let total = _.round(parseFloat(this.record.cost), 2);
-                    let unit_value = this.record.cost / 1.18;
+                    let unit_value = this.record.cost / (1 + this.percentageIgv);
                     let total_taxed = _.round(unit_value, 2);
                     let total_igv = _.round(total - total_taxed, 2);
                     let item_description = `Descripción: ${this.record.description}, Estado: ${this.record.state}, Razón: ${this.record.reason + "\n"}`;
@@ -400,7 +400,7 @@ export default {
                         'unit_type_id': 'ZZ',
                         'affectation_igv_type_id': '10',
                         'description': item_description,
-                        'percentage_igv': 18,
+                        'percentage_igv': this.percentageIgv * 100,
                         'currency_type_id': 'PEN',
                         'unit_value': unit_value,
                         'unit_price': total,
@@ -606,7 +606,7 @@ export default {
             // await this.assignDocument();
             //
             let validate_payment_destination = await this.validatePaymentDestination()
-            
+
             if (validate_payment_destination.error_by_item > 0) {
                 return this.$message.error('El destino del pago es obligatorio');
             }

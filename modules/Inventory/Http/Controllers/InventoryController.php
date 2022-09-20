@@ -214,7 +214,7 @@ class InventoryController extends Controller
 			$inventory->comments = $comments;
 
 			if($created_at) {
-			  $inventory->created_at = $created_at;
+			  $inventory->date_of_issue = $created_at;
 			}
 			
 			$inventory->save();

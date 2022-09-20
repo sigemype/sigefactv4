@@ -130,6 +130,13 @@
                         <span class="text-muted">Se recomienda resoluciones 700x300</span>
                         <el-button @click="onOpenFileLogo">Cambiar logo del establecimiento</el-button>
                     </div>
+                    <div class="col-12">
+                        <div class="form-comtrol">
+                            <el-checkbox v-model="form.has_igv_31556">
+                                Sujeto al IGV - Ley 31556
+                            </el-checkbox>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="form-actions text-right mt-4">
@@ -234,6 +241,7 @@
                     web_address: null,
                     aditional_information: null,
                     customer_id: null,
+                    has_igv_31556: false,
                 }
                 this.file = null;
                 this.preview = null;

@@ -1122,7 +1122,7 @@ export default {
                     // do nothing
                     // exonerado de igv
                 } else {
-                    unit_price = this.form.unit_price_value * 1.18;
+                    unit_price = this.form.unit_price_value * (1 + this.percentageIgv);
 
                 }
             }
@@ -1136,7 +1136,7 @@ export default {
 
             let IdLoteSelected = this.form.IdLoteSelected
             let document_item_id = this.form.document_item_id
-            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
+            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv);
 
             this.row.item.name_product_pdf = this.row.name_product_pdf || '';
             if (this.recordItem) {

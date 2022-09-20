@@ -20,7 +20,7 @@
 
 Linux - Ubuntu 18 - Docker - SSL opcional<br>
 [Guia](https://drive.google.com/file/d/1c0D3nU3E2TfDKG2GDUWzmqbeOjYOxfkg/view?usp=sharing "clic") <br>
-[Script](https://drive.google.com/file/d/1Gm4O1vC51cIAt_Z4VpgSY5BJPJl_9NSV/view?usp=sharing "clic" )
+[Script](https://drive.google.com/file/d/14xecD-9alkz9uYKCH0DHNHR3P2xpMVX0/view?usp=sharing "clic" )
 
 ### Manuales de actualización
 
@@ -141,5 +141,3 @@ URL: [https://demo.facturaperu.com.pe](https://demo.facturaperu.com.pe "Clic")
 <br>
 Usuario: demo@facturaperu.com.pe<br>
 Contraseña: 123456
-
-

@@ -35,7 +35,6 @@ use App\CoreFacturalo\Helpers\Number\NumberLetter;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\CoreFacturalo\Requests\Inputs\Common\PersonInput;
 use App\CoreFacturalo\Requests\Inputs\Common\EstablishmentInput;
-use App\Models\Tenant\Cash;
 
 class SaleNoteController extends Controller
 {
@@ -45,9 +44,17 @@ class SaleNoteController extends Controller
 
     protected $company;
 
-    public function lists()
+    public function lists(Request $request)
     {
-        $record = SaleNote::where('establishment_id', auth()->user()->establishment_id)->orderBy('series', 'desc')->orderBy('number', 'desc')->take(50)->get();
+
+        $record = SaleNote::where(function($q) use($request){
+                                $q->where('series', 'like', "%{$request->input}%" )
+                                    ->orWhere('number','like', "%{$request->input}%");
+                            })
+                            ->latest()
+                            ->take(config('tenant.items_per_page'))
+                            ->get();
+
         $records = new SaleNoteCollection($record);
 
         return $records;
@@ -106,13 +113,6 @@ class SaleNoteController extends Controller
 
             $this->setFilename();
             $this->createPdf($this->sale_note, 'a4', $this->sale_note->filename);
-
-        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
-        // dd($cash);
-        if ($cash!=null) {
-                $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'sale_note_id' => $this->sale_note->id]);
-        }
-
         });
 
         return [
@@ -121,6 +121,8 @@ class SaleNoteController extends Controller
                 'id'     => $this->sale_note->id,
                 'number' => $this->sale_note->number_full,
                 'external_id' => $this->sale_note->external_id,
+                'filename' => $this->sale_note->filename,
+                'print_ticket' => $this->sale_note->getUrlPrintPdf('ticket'),
             ],
         ];
     }
@@ -129,13 +131,13 @@ class SaleNoteController extends Controller
     {
         $this->company = Company::active();
         // self::ExtraLog(__FILE__."::".__LINE__."  \n Campos ".__FUNCTION__." \n". json_encode($inputs) ."\n\n\n\n");
+
         $type_period = $inputs['type_period'];
         $quantity_period = $inputs['quantity_period'];
         $force_create_if_not_exist = isset($inputs['force_create_if_not_exist'])?(bool)$inputs['force_create_if_not_exist']:false;
         $d_of_issue = new Carbon($inputs['date_of_issue']);
         $automatic_date_of_issue = null;
 
-// return $force_create_if_not_exist;
         if ($type_period && $quantity_period > 0) {
             $add_period_date = ($type_period == 'month') ? $d_of_issue->addMonths($quantity_period) : $d_of_issue->addYears($quantity_period);
             $automatic_date_of_issue = $add_period_date->format('Y-m-d');
@@ -255,8 +257,10 @@ class SaleNoteController extends Controller
 
     private function setFilename()
     {
-        $name = [$this->sale_note->prefix, $this->sale_note->id, date('Ymd')];
+        $name = [$this->sale_note->series, $this->sale_note->number, date('Ymd')];
+        // $name = [$this->sale_note->prefix, $this->sale_note->id, date('Ymd')];
         $this->sale_note->filename = join('-', $name);
+        $this->sale_note->unique_filename = $this->sale_note->filename; //campo único para evitar duplicados
         $this->sale_note->save();
     }
 
@@ -281,7 +285,7 @@ class SaleNoteController extends Controller
         $this->createPdf($sale_note, $format, $filename);
     }
 
-    public function createPdf($sale_note = null, $format_pdf = null, $filename = null)
+    public function createPdf($sale_note = null, $format_pdf = null, $filename = null, $output = 'pdf')
     {
         $template = new Template();
         $pdf = new Mpdf();
@@ -439,6 +443,19 @@ class SaleNoteController extends Controller
 
         $stylesheet = file_get_contents($path_css);
 
+        
+        // retornar html del pdf para impresion directa
+        if($output === 'html') 
+        {
+            $path_html = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'ticket_html.css');
+            $ticket_html = file_get_contents($path_html);
+            $pdf->WriteHTML($ticket_html, HTMLParserMode::HEADER_CSS);
+            $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+
+            return "<style>".$ticket_html.$stylesheet."</style>".$html;
+        }
+        
+
         $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
@@ -461,11 +478,7 @@ class SaleNoteController extends Controller
                     ->where('document_type_id', '80')
                     ->get()
                     ->transform(function ($row) {
-                        return [
-                            'id'               => $row->id,
-                            'document_type_id' => $row->document_type_id,
-                            'number'           => $row->number
-                        ];
+                        return $row->getApiRowResource();
                     });
     }
 

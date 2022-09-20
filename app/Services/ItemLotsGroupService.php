@@ -77,4 +77,72 @@
             return $result;
 
         }
+
+                
+        /**
+         * 
+         * Obtener lote y cantidad comprometida
+         *
+         * @param  array|int $id_lot_selected
+         * @return string
+         */
+        public function getItemLotGroupWithQuantity($id_lot_selected)
+        {
+            $description = null;
+
+            if (is_array($id_lot_selected)) 
+            {
+                foreach ($id_lot_selected as $key => $item) 
+                {
+                    $separator = $key == 0 ? '' : '<br>';
+                    $description .= "{$separator} - {$item->code} <b>({$item->compromise_quantity})</b>";
+                }
+            } 
+            else 
+            {
+                $description = $this->getItemLotsGroupCode($id_lot_selected);
+            }
+
+            return $description;
+        }
+
+        
+        /**
+         * 
+         * Obtener código de lote por id
+         *
+         * @param  int $id
+         * @return string
+         */
+        public function getItemLotsGroupCode($id)
+        {
+            $record = ItemLotsGroup::select('code')->find($id);
+            $code = null;
+            
+            if ($record) $code = $record->code;
+
+            return $code;
+        }
+
+        
+        /**
+         * 
+         * Retornar cantidad de lotes seleccionados
+         *
+         * @param  int $id_lot_selected
+         * @return string
+         */
+        public function getQuantityLotsSelected($id_lot_selected)
+        {
+            $description = null;
+
+            if($id_lot_selected)
+            {
+                if(is_array($id_lot_selected)) $description = count($id_lot_selected).' Und';
+            }
+
+            return $description;
+        }
+
+
     }

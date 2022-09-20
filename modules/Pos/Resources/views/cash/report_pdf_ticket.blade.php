@@ -76,6 +76,9 @@
     <p><strong>Ingreso: </strong>S/. {{ $data['cash_income'] }} </p>
     <p><strong>Saldo final: </strong>S/. {{$data['cash_final_balance']}} </p>
     <p><strong>Egreso: </strong>S/. {{$data['cash_egress']}} </p>
+
+    <p><strong>Total caja: </strong>S/. {{$data['total_cash_payment_method_type_01']}} </p>
+
     <p>&nbsp;</p>
     <p><strong>Por cobrar: </strong>S/. {{$data['credit']}} </p>
     <p><strong>Notas de Débito:</strong>S/. {{$data['nota_debito']}}</p>

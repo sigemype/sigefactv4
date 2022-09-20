@@ -272,7 +272,7 @@
                         </div>
                         <div class="col-md-6" v-else >&nbsp;</div>
                         -->
-                        <div class="col-md-6" >&nbsp;</div>
+                        <div class="col-md-6">&nbsp;</div>
 
                         <div class="col-md-6 table-responsive">
                             <table v-if="form.fee.length>0"
@@ -358,8 +358,8 @@
                         @add="addRow">
         </loan-form-item>
 
-        <loan-options                           :isUpdate="id ? true:false"
-                                                :recordId="expenseNewId"
+        <loan-options :isUpdate="id ? true:false"
+                      :recordId="expenseNewId"
                       :showClose="false"
                       :showDialog.sync="showDialogOptions">
         </loan-options>
@@ -400,7 +400,7 @@ export default {
     },
     data() {
         return {
-            loanId :null,
+            loanId: null,
             resource: 'bank_loan',
             showDialogAddItem: false,
             showDialogNewPerson: false,
@@ -436,7 +436,7 @@ export default {
                 this.bank_loan_reasons = data.bank_loan_reasons
                 this.bank_loan_method_types = data.bank_loan_method_types
                 this.bank_loan_types = data.bank_loan_types
-                 this.accounts = data.accounts
+                this.accounts = data.accounts
                 // this.currency_types = data.currency_types
                 this.$store.commit('setCurrencyTypes', data.currency_types);
                 // this.establishment = data.establishment
@@ -446,7 +446,7 @@ export default {
                 this.form.establishment_id = (this.establishment.id) ? this.establishment.id : null
                 this.form.bank_loan_type_id = (this.bank_loan_types.length > 0) ? this.bank_loan_types[0].id : null
                 this.form.loan_reason_id = (this.bank_loan_reasons.length > 0) ? this.bank_loan_reasons[0].id : null
-                this.$store.commit('setPaymentMethodTypes',data.payment_destinations)
+                this.$store.commit('setPaymentMethodTypes', data.payment_destinations)
                 // this.payment_destinations = data.payment_destinations
 
                 this.changeDateOfIssue()
@@ -455,12 +455,12 @@ export default {
             .then(() => {
 
                 this.getDataFromLoan()
-            }).finally(()=>{
+            }).finally(() => {
             if (this.form.fee.length < 1) {
                 this.addFee()
             }
 
-            })
+        })
     },
     created() {
 
@@ -468,10 +468,10 @@ export default {
         this.loadConfiguration()
         // await
         this.initForm()
-        if(this.config.currency_type_id !== undefined) {
+        if (this.config.currency_type_id !== undefined) {
             this.form.currency_type_id = this.config.currency_type_id
         }
-        if(this.config.establishment !== undefined) {
+        if (this.config.establishment !== undefined) {
             this.form.establishment_id = this.config.establishment.id
         }
 
@@ -490,7 +490,7 @@ export default {
         ...mapActions([
             'loadConfiguration',
         ]),
-        getDataFromLoan(){
+        getDataFromLoan() {
             if (this.id !== undefined && this.id) {
                 let data = undefined
                 this.expenseNewId = this.id
@@ -500,17 +500,17 @@ export default {
                         data = response.data.data.bank_loan;
                         this.form = data
                     })
-                .finally(()=>{
+                    .finally(() => {
                         if (this.form.fee.length < 1) {
                             this.addFee()
                         }
                     })
-            }else{
+            } else {
                 this.addFee()
             }
         },
         async isUpdate() {
-            if (this.id !== undefined  && this.id) {
+            if (this.id !== undefined && this.id) {
                 await this.$http.get(`/${this.resource}/record/${this.id}`)
                     .then(response => {
                         this.form = response.data.data.bank_loan
@@ -531,17 +531,17 @@ export default {
             this.aux_bank_id = null
 
         },
-        changeBank(){
+        changeBank() {
 
             this.form.bank_account_id = null;
             this.accounts_by_bank = [];
-            this.accounts_by_bank = _.filter(this.accounts,{bank_id:this.form.bank_id})
+            this.accounts_by_bank = _.filter(this.accounts, {bank_id: this.form.bank_id})
         },
         initForm() {
             this.errors = {}
             this.form = {
-                id: (this.id)?this.id:null,
-                bank_account_id :null,
+                id: (this.id) ? this.id : null,
+                bank_account_id: null,
                 payment_condition_id: '02',
                 establishment_id: null,
                 bank_loan_type_id: null,
@@ -565,7 +565,7 @@ export default {
         resetForm() {
             this.initForm()
             this.form.currency_type_id = (this.currency_types.length > 0) ? this.currency_types[0].id : null
-            this.form.establishment_id = (this.config.establishment !== undefined)?this.config.establishment.id:null;
+            this.form.establishment_id = (this.config.establishment !== undefined) ? this.config.establishment.id : null;
             this.form.bank_loan_type_id = (this.bank_loan_types.length > 0) ? this.bank_loan_types[0].id : null
             this.form.loan_reason_id = (this.bank_loan_reasons.length > 0) ? this.bank_loan_reasons[0].id : null
 
@@ -612,7 +612,8 @@ export default {
             this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
             let items = []
             this.form.items.forEach((row) => {
-                items.push(this.calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                items.push(this.calculateRowItem(row, this.form.currency_type_id,
+                    this.form.exchange_rate_sale))
 
 
             });
@@ -724,25 +725,25 @@ export default {
 
         clickAddFee() {
             // @todo: mejorar las cuotas para que añadan un mes automaticamente
-                this.addFee()
-                this.calculateFee();
+            this.addFee()
+            this.calculateFee();
 
         },
-        addFee(){
+        addFee() {
             let date = moment();
             this.form.date_of_due = date;
             // @todo: mejorar las cuotas para que añadan un mes automaticamente
-                if (this.form.fee) {
-                    let fee_count = parseInt(this.form.fee.length);
-                    if (isNaN(fee_count)) fee_count = 0;
-                    date = date.add(fee_count, 'months')
-                    this.form.fee.push({
-                        id: null,
-                        date: date.format('YYYY-MM-DD'),
-                        currency_type_id: this.form.currency_type_id,
-                        amount: 0,
-                    });
-                }
+            if (this.form.fee) {
+                let fee_count = parseInt(this.form.fee.length);
+                if (isNaN(fee_count)) fee_count = 0;
+                date = date.add(fee_count, 'months')
+                this.form.fee.push({
+                    id: null,
+                    date: date.format('YYYY-MM-DD'),
+                    currency_type_id: this.form.currency_type_id,
+                    amount: 0,
+                });
+            }
         },
         calculateFee() {
 

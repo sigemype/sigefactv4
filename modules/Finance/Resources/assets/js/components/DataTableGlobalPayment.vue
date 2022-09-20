@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading="loading">
         <div class="row">
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
@@ -74,7 +74,7 @@
 
                             <template v-if="records.length>0">
 
-                                <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button>
+                                <!-- <el-button class="submit" type="danger"  icon="el-icon-tickets" @click.prevent="clickDownload('pdf')" >Exportar PDF</el-button> -->
 
                                 <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportal Excel</el-button>
 
@@ -140,12 +140,14 @@
     export default {
         props: {
             resource: String,
-            applyCustomer: { type : Boolean, required: false, default: false}
+            applyCustomer: { type : Boolean, required: false, default: false},
+            isAsynchronous: { type : Boolean, required: false, default: false}
         },
         data () {
             return {
                 loading_submit:false,
                 loading_search:false,
+                loading: false,
                 columns: [],
                 records: [],
                 headers: headers_token,
@@ -201,10 +203,42 @@
 
             },
             clickDownload(type) {
-                let query = queryString.stringify({
+                
+                const query = queryString.stringify({
                     ...this.form
-                });
-                window.open(`/${this.resource}/${type}/?${query}`, '_blank');
+                })
+
+                if(this.isAsynchronous)
+                {
+                    this.generateAsynchronousReport(query, type)
+                }
+                else
+                {
+                    window.open(`/${this.resource}/${type}/?${query}`, '_blank');
+                }
+
+            },
+            async generateAsynchronousReport(query, type){
+
+                this.loading = true
+                await this.$http.get(`/${this.resource}/${type}/?${query}`).then((response) => {
+                            
+                            this.$notify({
+                                // title: '',
+                                message: response.data.message,
+                                type: 'success',
+                                onClick: ()=>{
+                                    window.open('/reports/download-tray')
+                                }
+                            })
+
+                        })
+                        .catch(error => {
+                            this.$message.error(`Ocurrión un error: ${error.response.data.message}`)
+                        })
+                        .then(()=>{
+                            this.loading = false
+                        })
             },
             initForm(){
 

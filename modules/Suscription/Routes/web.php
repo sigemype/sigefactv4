@@ -93,8 +93,33 @@
                             ->name('tenant.suscription.payment_receipt.index');
 
                     });
+                    
 
+                    // grados y secciones
+                    Route::get('grade_section', 'SuscriptionController@indexGradeSection')->name('tenant.suscription.grade_section.index');
 
+                    Route::prefix('grades')->group(function () {
+                        
+                        Route::get('records', 'GradeController@records');
+                        Route::get('columns', 'GradeController@columns');
+                        Route::get('record/{id}', 'GradeController@record');
+                        Route::post('', 'GradeController@store');
+                        Route::delete('{id}', 'GradeController@destroy');
+
+                    });
+                    
+                    Route::prefix('sections')->group(function () {
+                        
+                        Route::get('records', 'SectionController@records');
+                        Route::get('columns', 'SectionController@columns');
+                        Route::get('record/{id}', 'SectionController@record');
+                        Route::post('', 'SectionController@store');
+                        Route::delete('{id}', 'SectionController@destroy');
+
+                    });
+                    // grados y secciones
+
+                    
                     Route::post('CommonData','SuscriptionController@Tables');
                 });
         })

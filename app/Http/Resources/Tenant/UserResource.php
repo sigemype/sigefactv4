@@ -43,6 +43,32 @@ class UserResource extends JsonResource {
             'series_id'        => ($this->series_id == 0) ? null : $this->series_id,
             'create_payment' => $this->create_payment,
             'delete_payment' => $this->delete_payment,
+            'edit_purchase' => $this->edit_purchase,
+            'annular_purchase' => $this->annular_purchase,
+            'delete_purchase' => $this->delete_purchase,
+
+            
+            'identity_document_type_id' => $this->identity_document_type_id,
+            'number' => $this->number,
+            'address' => $this->address,
+            'names' => $this->names,
+            'last_names' => $this->last_names,
+            'personal_email' => $this->personal_email,
+            'corporate_email' => $this->corporate_email,
+            'personal_cell_phone' => $this->personal_cell_phone,
+            'corporate_cell_phone' => $this->corporate_cell_phone,
+            'date_of_birth' => $this->date_of_birth,
+            'contract_date' => $this->contract_date,
+            'position' => $this->position,
+            'multiple_default_document_types' => $this->multiple_default_document_types,
+
+            'photo_filename' => $this->photo_filename,
+            'photo_temp_image' => $this->getPhotoForView(),
+            'photo_temp_path' => null,
+            'default_document_types' => $this->default_document_types->transform(function($row){
+                return $row->getDataMultipleDocumentType();
+            }),
+
         ];
     }
 }

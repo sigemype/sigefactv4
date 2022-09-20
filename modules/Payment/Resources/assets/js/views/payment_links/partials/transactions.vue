@@ -73,7 +73,7 @@
             },
             close() {
                 this.$emit('update:showDialog', false)
-                this.initForm()
+                // this.initForm()
             }
         }
     }

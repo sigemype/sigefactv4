@@ -145,8 +145,21 @@ class DispatchController extends Controller
             return view('tenant.dispatches.create');
         }
 
+        $configuration = Configuration::query()->first();
+        $items = [];
+        foreach ($document->items as $item) {
+            $name_product_pdf = ($configuration->show_pdf_name)?strip_tags($item->name_product_pdf):null;
+            $items[] = [
+                'item_id' => $item->item_id,
+                'item' => $item,
+                'quantity' => $item->quantity,
+                'description' => $item->item->description,
+                'name_product_pdf' => $name_product_pdf
+            ];
+        }
+
         $dispatch = Dispatch::find($dispatch_id);
-        return view('tenant.dispatches.form', compact('document', 'type', 'dispatch'));
+        return view('tenant.dispatches.form', compact('document', 'items', 'type', 'dispatch'));
     }
 
     public function generate($sale_note_id)
@@ -155,8 +168,20 @@ class DispatchController extends Controller
         $type = null;
         $document = $sale_note;
         $dispatch = null;
-
-        return view('tenant.dispatches.form', compact('document', 'type', 'dispatch', 'sale_note'));
+        $configuration = Configuration::query()->first();
+        $items = [];
+        foreach ($document->items as $item) {
+            $name_product_pdf = ($configuration->show_pdf_name)?strip_tags($item->name_product_pdf):null;
+            $items[] = [
+                'item_id' => $item->item_id,
+                'item' => $item,
+                'quantity' => $item->quantity,
+                'description' => $item->item->description,
+                'name_product_pdf' => $name_product_pdf
+            ];
+        }
+        //dd($sale_note_id);
+        return view('tenant.dispatches.form', compact('document', 'type', 'dispatch', 'items'));
     }
 
     public function sendDispatchToSunat(Dispatch $document) {
@@ -389,7 +414,7 @@ class DispatchController extends Controller
         $drivers = Driver::all();
         $dispachers = Dispatcher::all();
         $related_document_types = RelatedDocumentType::get();
-        
+
         // ya se tiene un locations con lo siguiente combinado
         // $departments = Department::whereActive()->get();
         // $provinces = Province::whereActive()->get();
@@ -493,7 +518,7 @@ class DispatchController extends Controller
             $detail = $this->getFullDescription($row, $warehouse);
 
             $sale_unit_price = $this->getDispatchSaleUnitPrice($row, $dispatch, $relation_external_document, $set_unit_price_dispatch_related_record);
-            
+
             return [
                 'id'                               => $row->id,
                 'full_description'                 => $detail['full_description'],
@@ -559,7 +584,7 @@ class DispatchController extends Controller
         $payment_destinations = $this->getPaymentDestinations();
         $affectation_igv_types = AffectationIgvType::whereActive()->get();
         $payment_conditions = PaymentCondition::get();
-        
+
         return response()->json([
             'dispatch'               => $dispatch,
             'document_types_invoice' => $document_types_invoice,
@@ -575,7 +600,7 @@ class DispatchController extends Controller
 
     }
 
-    
+
     /**
      * Obtener precio unitario desde registro relacionado a la guia - convertir guia a cpe
      *
@@ -591,7 +616,7 @@ class DispatchController extends Controller
         if($dispatch->isGeneratedFromExternalDocument($relation_external_document) && $set_unit_price_dispatch_related_record)
         {
             $exist_item = $relation_external_document->items->where('item_id', $item->id)->first();
-            
+
             if($exist_item) return $exist_item->unit_price;
         }
 

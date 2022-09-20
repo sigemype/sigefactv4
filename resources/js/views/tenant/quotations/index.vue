@@ -160,11 +160,25 @@
                         </td>
 
                         <td class="text-right">
+
+<!--                            /*-->
+<!--                             #830-->
+<!--                             */-->
+                            <button v-if="row.btn_options"
+                                    type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info"
+                                    @click.prevent="clickGenerateDocument(row.id)" >
+                                Generar comprobante
+                            </button>
+<!--                            /*-->
+<!--                             #830-->
+<!--                             */-->
+
                             <button v-if="row.btn_options"
                                     type="button"
                                     class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickOptions(row.id)" >
-                                Generar comprobante
+                                Generar nota de venta
                             </button>
 
                             <a v-if="row.documents.length == 0 && row.state_type_id != '11'" :href="`/${resource}/edit/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
@@ -226,7 +240,8 @@
     export default {
         props:[
             'typeUser',
-            'soapCompany'
+            'soapCompany',
+            'generateOrderNoteFromQuotation',
         ],
         mixins: [
             deletable
@@ -298,16 +313,23 @@
                 'loadConfiguration',
             ]),
             canMakeOrderNote(row){
-                let sal = true;
-                if(row.order_note.full_number ) {
-                    // Si ya tiene Pedidos, no se genera uno nuevo
-                    sal = false
+
+                let permission = true
+
+                // Si ya tiene Pedidos, no se genera uno nuevo
+                if(row.order_note.full_number)
+                {
+                    permission = false
                 }
-                if(this.typeUser !== 'admin') {
-                    // solo administradores pueden hacer pedidos desde cotizacion
-                    sal = false;
+                else
+                {
+                    if(this.typeUser !== 'admin')
+                    {
+                        permission = this.generateOrderNoteFromQuotation
+                    }
                 }
-                return sal;
+
+                return permission
             },
             clickPrintContract(external_id){
                 window.open(`/contracts/print/${external_id}/a4`, '_blank');
@@ -369,6 +391,9 @@
 
                 })
                 this.$eventHub.$emit('reloadData')
+            },
+            clickGenerateDocument(recordId) {
+                window.location.href = `/documents/create/quotations/${recordId}`;
             }
         }
     }

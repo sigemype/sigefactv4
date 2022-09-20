@@ -62,7 +62,8 @@
             'warehouse_id' => 'int',
             'warehouse_destination_id' => 'int',
             'quantity' => 'float',
-            'inventories_transfer_id' => 'int'
+            'inventories_transfer_id' => 'int',
+            'date_of_issue' => 'date',
         ];
         protected $fillable = [
             'type',
@@ -77,6 +78,7 @@
             'detail',
             'inventories_transfer_id',
             'comments',
+            'date_of_issue',
             'created_at'
         ];
 

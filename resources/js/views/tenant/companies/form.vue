@@ -135,6 +135,28 @@
                                                                               PNG</small></div>
                                 </div>
                             </div>
+
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Logo APP</label>
+                                    <el-input v-model="form.app_logo"
+                                              :readonly="true">
+                                        <el-upload slot="append"
+                                                   :data="{'type': 'app_logo'}"
+                                                   :headers="headers"
+                                                   :on-success="successUpload"
+                                                   :show-file-list="false"
+                                                   action="/companies/uploads">
+                                            <el-button icon="el-icon-upload"
+                                                       type="primary"></el-button>
+                                        </el-upload>
+                                    </el-input>
+                                    <div class="sub-title text-danger"><small>Se recomienda color blanco</small>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div v-if="form.soap_type_id == '02'"
                                  class="col-md-6">
                                 <div :class="{'has-danger': errors.certificate_due}"
@@ -419,6 +441,7 @@ export default {
                 cod_digemid: null,
                 integrated_query_client_id: null,
                 integrated_query_client_secret: null,
+                app_logo: null,
 
             }
         },

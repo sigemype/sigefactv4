@@ -33,6 +33,7 @@ use App\Models\Tenant\PaymentMethodType;
 use App\Models\Tenant\Person;
 use App\Models\Tenant\SaleNote;
 use App\Models\Tenant\SaleNoteItem;
+use App\Models\Tenant\Document;
 use App\Models\Tenant\SaleNoteMigration;
 use App\Models\Tenant\Series;
 use App\Models\Tenant\User;
@@ -479,6 +480,9 @@ class SaleNoteController extends Controller
         if($request->purchase_order) {
             $records->where('purchase_order', $request->purchase_order);
         }
+        if($request->license_plate) {
+            $records->where('license_plate', $request->license_plate);
+        }
         return $records;
     }
 
@@ -596,6 +600,7 @@ class SaleNoteController extends Controller
         return $this->storeWithData($request->all());
     }
 
+
     public function storeWithData($inputs)
     {
         DB::connection('tenant')->beginTransaction();
@@ -608,7 +613,12 @@ class SaleNoteController extends Controller
 
             $this->deleteAllPayments($this->sale_note->payments);
 
-            foreach($data['items'] as $row) {
+            //se elimina los items para activar el evento deleted del modelo y controlar el inventario
+            $this->deleteAllItems($this->sale_note->items);
+
+
+            foreach($data['items'] as $row)
+            {
 
                 // $item_id = isset($row['id']) ? $row['id'] : null;
                 $item_id = isset($row['record_id']) ? $row['record_id'] : null;
@@ -618,6 +628,7 @@ class SaleNoteController extends Controller
                     $row['item']['lots'] = isset($row['lots']) ? $row['lots']:$row['item']['lots'];
                 }
 
+                $this->setIdLoteSelectedToItem($row);
                 $sale_note_item->fill($row);
                 $sale_note_item->sale_note_id = $this->sale_note->id;
                 $sale_note_item->save();
@@ -631,14 +642,19 @@ class SaleNoteController extends Controller
                     }
                 }
 
-                if(isset($row['IdLoteSelected']))
+                // control de lotes
+
+                $id_lote_selected = $this->getIdLoteSelectedItem($row);
+
+                // si tiene lotes y no fue generado a partir de otro documento (pedido...)
+                if($id_lote_selected && !$this->sale_note->isGeneratedFromExternalRecord())
                 {
-                    if(is_array($row['IdLoteSelected']))
+                    if(is_array($id_lote_selected))
                     {
                         // presentacion - factor de lista de precios
                         $quantity_unit = isset($sale_note_item->item->presentation->quantity_unit) ? $sale_note_item->item->presentation->quantity_unit : 1;
 
-                        foreach ($row['IdLoteSelected'] as $item)
+                        foreach ($id_lote_selected as $item)
                         {
                             $lot = ItemLotsGroup::query()->find($item['id']);
                             $lot->quantity = $lot->quantity - ($quantity_unit * $item['compromise_quantity']);
@@ -653,32 +669,32 @@ class SaleNoteController extends Controller
                         if(isset($row['item']) && isset($row['item']['presentation'])&&isset($row['item']['presentation']['quantity_unit'])){
                             $quantity_unit = $row['item']['presentation']['quantity_unit'];
                         }
-                        $lot = ItemLotsGroup::find($row['IdLoteSelected']);
+                        $lot = ItemLotsGroup::find($id_lote_selected);
                         $lot->quantity = ($lot->quantity - ($row['quantity'] * $quantity_unit));
                         $lot->save();
                     }
 
                 }
+                // control de lotes
 
             }
 
             //pagos
-            // foreach ($data['payments'] as $row) {
-            //     $this->sale_note->payments()->create($row);
-            // }
-
             $this->savePayments($this->sale_note, $data['payments']);
 
             $this->setFilename();
             $this->createPdf($this->sale_note,"a4", $this->sale_note->filename);
             $this->regularizePayments($data['payments']);
             DB::connection('tenant')->commit();
+
             return [
                 'success' => true,
                 'data' => [
                     'id' => $this->sale_note->id,
+                    'number_full' => $this->sale_note->number_full,
                 ],
             ];
+
         } catch (Exception $e) {
             DB::connection('tenant')->rollBack();
             return [
@@ -687,6 +703,56 @@ class SaleNoteController extends Controller
             ];
         }
     }
+
+
+    /**
+     *
+     * Obtener lote seleccionado
+     *
+     * @todo regularizar lots_group, no se debe guardar en bd, ya que tiene todos los lotes y no los seleccionados, reemplazar por IdLoteSelected
+     *
+     * @param  array $row
+     * @return array
+     */
+    private function getIdLoteSelectedItem($row)
+    {
+        $id_lote_selected = null;
+
+        if(isset($row['IdLoteSelected']))
+        {
+            $id_lote_selected = $row['IdLoteSelected'];
+        }
+        else
+        {
+            if(isset($row['item']['lots_group']))
+            {
+                $id_lote_selected = collect($row['item']['lots_group'])->where('compromise_quantity', '>', 0)->toArray();
+            }
+        }
+
+        return $id_lote_selected;
+    }
+
+
+    /**
+     *
+     * Asignar lote a item (regularizar propiedad en json item)
+     *
+     * @param  array $row
+     * @return void
+     */
+    private function setIdLoteSelectedToItem(&$row)
+    {
+        if(isset($row['IdLoteSelected']))
+        {
+            $row['item']['IdLoteSelected'] = $row['IdLoteSelected'];
+        }
+        else
+        {
+            $row['item']['IdLoteSelected'] = isset($row['item']['IdLoteSelected']) ? $row['item']['IdLoteSelected'] : null;
+        }
+    }
+
 
     private function regularizePayments($payments){
 
@@ -1772,5 +1838,30 @@ class SaleNoteController extends Controller
         return SearchItemController::TransformToModalSaleNote(Item::whereIn('id', $request->ids)->get());
     }
 
+
+    /**
+     * Elimina la relación con factura (problema antiguo respecto un nuevo campo en notas de venta que se envía de forma incorrecta a la factura siendo esta rechazada)
+     * No se previene el error en este metodo
+     *
+     *
+     */
+    public function deleteRelationInvoice(Request $request) {
+        // dd($request->all());
+        try {
+            $sale_note = SaleNote::find($request->id);
+
+            $document = Document::find($sale_note->document_id);
+            $document->sale_note_id = null;
+            $document->save();
+
+            $sale_note->changed = 0;
+            $sale_note->document_id = null;
+            $sale_note->save();
+        }catch(RequestException $e){
+            return ['success' => false];
+        }
+
+        return ['success' => true];
+    }
 
 }

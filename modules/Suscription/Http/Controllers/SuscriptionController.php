@@ -257,4 +257,9 @@
         }
 
 
+        public function indexGradeSection()
+        {
+            return view('suscription::grade_section.index');
+        }
+
     }

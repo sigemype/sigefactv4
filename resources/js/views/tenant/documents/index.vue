@@ -21,6 +21,12 @@
                             @click.prevent="clickImportSecond()"><i
                         class="fa fa-upload"></i> Importar Formato 2</button>
                 </span>
+                <span v-if="document_import_excel">
+                    <button type="button"
+                            class="btn btn-custom btn-sm  mt-2 mr-2"
+                            @click.prevent="clickImportExcel"><i
+                        class="fa fa-upload"></i> Importar Formato</button>
+                </span>
                 <a :href="`/${resource}/create`"
                    class="btn btn-custom btn-sm  mt-2 mr-2"><i
                     class="fa fa-plus-circle"></i> Nuevo</a>
@@ -488,6 +494,8 @@
             <DocumentValidate :showDialogValidate.sync="showDialogValidate"></DocumentValidate>
 
             <massive-validate-cpe :showDialogValidate.sync="showDialogApiPeruDevValidate"></massive-validate-cpe>
+
+            <document-import-excel :showDialog.sync="showImportExcelDialog"></document-import-excel>
         </div>
     </div>
 </template>
@@ -497,7 +505,8 @@
 import DocumentsVoided from './partials/voided.vue'
 import DocumentOptions from './partials/options.vue'
 import DocumentPayments from './partials/payments.vue'
-import DocumentImportSecond from './partials/import_second.vue'
+import DocumentImportSecond from './partials/import_second'
+import DocumentImportExcel from './partials/ImportExcel'
 import DataTable from '../../../components/DataTableDocuments.vue'
 import ItemsImport from './import.vue'
 import {deletable} from '../../../mixins/deletable'
@@ -517,6 +526,7 @@ export default {
         'typeUser',
         'import_documents',
         'import_documents_second',
+        'document_import_excel',
         'userId',
         'configuration',
         'userPermissionEditCpe',
@@ -540,7 +550,8 @@ export default {
         ReportPaymentComplete,
         ReportDocuments,
         DocumentValidate,
-        MassiveValidateCpe
+        MassiveValidateCpe,
+        DocumentImportExcel
     },
     data() {
         return {
@@ -553,6 +564,7 @@ export default {
             showImportDialog: false,
             showDialogCDetraction: false,
             showImportSecondDialog: false,
+            showImportExcelDialog: false,
             resource: 'documents',
             recordId: null,
             showDialogOptions: false,
@@ -772,11 +784,13 @@ export default {
             this.showImportDialog = true
         },
         clickDownloadReportPagos() {
-
             this.showDialogReportPaymentComplete = true
         },
         clickImportSecond() {
             this.showImportSecondDialog = true
+        },
+        clickImportExcel() {
+            this.showImportExcelDialog = true
         },
         clickDeleteDocument(document_id) {
             this.destroy(`/${this.resource}/delete_document/${document_id}`).then(() =>

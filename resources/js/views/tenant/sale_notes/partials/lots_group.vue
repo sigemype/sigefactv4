@@ -75,7 +75,7 @@
 
 <script>
 export default {
-    props: ["showDialog", "lots_group", "stock", "recordId", "quantity"],
+    props: ["showDialog", "lots_group", "stock", "recordId", "quantity", 'isUpdateItem', 'oldSelectedLotsGroup'],
     data() {
         return {
             titleDialog: "Lotes",
@@ -137,10 +137,26 @@ export default {
             let row = val[val.length - 1];
             this.multipleSelection = [row];
         },
-        create() {
-          this.filter()
+        async create() {
+            await this.filter()
+            await this.checkQuantityUpdate()
         },
+        checkQuantityUpdate(){
 
+            // if(this.isUpdateItem && this.oldSelectedLotsGroup.length > 0)
+            // {
+
+            //     //buscar la cantidad comprometida de cada lote y asignar valor (para edicion)
+            //     this.oldSelectedLotsGroup.forEach(lot => {
+                    
+            //         let search_lot = _.find(this.lots_group_, { id : lot.id})
+
+            //         if(search_lot) search_lot.compromise_quantity = lot.compromise_quantity
+
+            //     })
+            // }
+
+        },
         async submit() {
             
             //validar cantidad comprometida igual a cantidad pedida

@@ -40,7 +40,7 @@
                             </el-input>
                             <small class="form-control-feedback" v-if="errors.unit_price" v-text="errors.unit_price[0]"></small>
                         </div>
-                    </div>  
+                    </div>
                     <div class="col-md-12 mt-3">
                         <section class="card mb-2 card-transparent card-collapsed" id="card-section">
                                 <header class="card-header hoverable bg-light border-top rounded-0 py-1" data-card-toggle style="cursor: pointer;" id="card-click">
@@ -162,7 +162,7 @@
 
         <fa-item-form :showDialog.sync="showDialogNewItem"
                    :external="true"></fa-item-form>
- 
+
 
     </el-dialog>
 </template>
@@ -213,7 +213,7 @@
                 this.reloadDataFixedAssetItems(fixed_asset_item_id)
             })
         },
-        methods: {  
+        methods: {
             initForm() {
                 this.errors = {}
                 this.form = {
@@ -293,7 +293,7 @@
             close() {
                 this.initForm()
                 this.$emit('update:showDialog', false)
-            }, 
+            },
             changeItem() {
                 this.form.item = _.find(this.items, {'id': this.form.fixed_asset_item_id})
                 this.form.unit_price = this.form.item.purchase_unit_price
@@ -305,7 +305,7 @@
                 this.form.item.unit_price = this.form.unit_price
                 this.form.item.presentation = this.item_unit_type;
                 this.form.affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.affectation_igv_type_id})
-                this.row = await calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale)
+                this.row = await calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv)
                 this.row.fixed_asset_item_id = await this.row.item_id
                 this.initForm()
                 this.$emit('add', this.row)

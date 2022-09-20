@@ -8,6 +8,7 @@
                             user-id="{{ auth()->user()->id }}"
                             :user-permission-edit-cpe="{{ json_encode(auth()->user()->permission_edit_cpe) }}"
                             :import_documents_second="{{ json_encode($import_documents_second) }}"
+                            :document_import_excel="{{ json_encode($document_import_excel) }}"
                             :configuration="{{ $configuration }}"
                             :view_apiperudev_validator_cpe="{{ json_encode($view_apiperudev_validator_cpe) }}"
                             :view_validator_cpe="{{ json_encode($view_validator_cpe) }}"></tenant-documents-index>

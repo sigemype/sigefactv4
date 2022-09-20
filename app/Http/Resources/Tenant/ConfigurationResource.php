@@ -64,6 +64,10 @@ class ConfigurationResource extends JsonResource
             'top_menu_b_id' => $this->top_menu_b_id,
             'top_menu_c_id' => $this->top_menu_c_id,
             'top_menu_d_id' => $this->top_menu_d_id,
+            'dashboard_sales' => (bool)$this->dashboard_sales,
+            'dashboard_general' => (bool)$this->dashboard_general,
+            'dashboard_clients' => (bool)$this->dashboard_clients,
+            'dashboard_products' => (bool)$this->dashboard_products,
         ];
     }
 }

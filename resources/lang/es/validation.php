@@ -316,6 +316,20 @@ return [
 		'qrcode_yape' => 'código QR',
 		'name_yape' => 'nombres y apellidos',
 		'telephone_yape' => 'teléfono',
+		'payment' => 'monto',
+		'password_pse' => 'contraseña autenticación',
+		'url_login_pse' => 'url autenticación',
+		'user_pse' => 'usuario autenticación',
+		'beginning_balance' => 'saldo inicial',
+
+		'personal_email' => 'correo electrónico personal',
+		'corporate_email' => 'correo electrónico corporativo',
+		'personal_cell_phone' => 'celular personal',
+		'corporate_cell_phone' => 'celular corporativo',
+		'establishment_id' => 'establecimiento',
+
+		'default_document_types.*.document_type_id' => 'tipo de documento',
+		'default_document_types.*.series_id' => 'serie',
 
 
 	],

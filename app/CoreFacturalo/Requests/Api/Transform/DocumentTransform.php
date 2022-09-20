@@ -14,6 +14,11 @@ class DocumentTransform
 
         $totals = $inputs['totales'];
 
+        // foreach ($inputs['items'] as $key => $value) {
+        //     $inputs['items'][$key]['codigo_interno'] = ($inputs['items'][$key]['codigo_interno']) ? $inputs['items'][$key]['codigo_interno']:'';
+        //     $inputs['items'][$key]['codigo_producto_sunat'] = ($inputs['items'][$key]['codigo_producto_sunat']) ? $inputs['items'][$key]['codigo_producto_sunat']:'';
+        // }
+
         $inputs_transform = [
             'series' => Functions::valueKeyInArray($inputs, 'serie_documento'),
             'number' => Functions::valueKeyInArray($inputs, 'numero_documento'),
@@ -23,6 +28,7 @@ class DocumentTransform
             'currency_type_id' => Functions::valueKeyInArray($inputs, 'codigo_tipo_moneda'),
             'exchange_rate_sale' => Functions::valueKeyInArray($inputs, 'factor_tipo_de_cambio', 1),
             'purchase_order' => Functions::valueKeyInArray($inputs, 'numero_orden_de_compra'),
+            'folio' => Functions::valueKeyInArray($inputs, 'folio'),
 //            'establishment' => EstablishmentTransform::transform($inputs['datos_del_emisor']),
             'customer' => PersonTransform::transform($inputs['datos_del_cliente_o_receptor']),
             'total_prepayment' => Functions::valueKeyInArray($totals, 'total_anticipos'),
@@ -58,6 +64,7 @@ class DocumentTransform
             'related' => self::related($inputs),
             'legends' => LegendTransform::transform($inputs),
             'additional_information' => Functions::valueKeyInArray($inputs, 'informacion_adicional'),
+            'additional_data' => Functions::valueKeyInArray($inputs, 'dato_adicional'),
             'actions' => ActionTransform::transform($inputs),
             'hotel' => Functions::valueKeyInArray($inputs, 'hotel',[]),
             'transport' => Functions::valueKeyInArray($inputs, 'transport',[]),
@@ -124,11 +131,7 @@ class DocumentTransform
                     'lots' => Functions::valueKeyInArray($row, 'lots', []),
                     'update_description' => Functions::valueKeyInArray($row, 'actualizar_descripcion', true), //variable para determinar si se actualiza la descripcion del item cuando se envia desde api
                     'name_product_pdf' => Functions::valueKeyInArray($row, 'nombre_producto_pdf'),
-
-                    ///agregar para presentaciones en la app                    
-                    'quantity_factor' => Functions::valueKeyInArray($row, 'cantidad_factor', 1),
-                    'presentation_description' => Functions::valueKeyInArray($row, 'presentation_description', null),
-                    'presentation_unit_type_id' => Functions::valueKeyInArray($row, 'presentation_unit_type_id', null),
+                    'additional_data' => Functions::valueKeyInArray($row, 'dato_adicional'),
                 ];
             }
 
@@ -205,7 +208,7 @@ class DocumentTransform
 
             $origin_location_id = Functions::valueKeyInArray($detraction, 'ubigeo_origen') ? self::parseLocation($detraction['ubigeo_origen']) : null;
             $delivery_location_id = Functions::valueKeyInArray($detraction, 'ubigeo_destino') ? self::parseLocation($detraction['ubigeo_destino']) : null;
-            
+
             return [
                 'detraction_type_id' => $detraction['codigo_tipo_detraccion'],
                 'percentage' => $detraction['porcentaje'],
@@ -216,7 +219,7 @@ class DocumentTransform
                 'trip_detail' => Functions::valueKeyInArray($detraction, 'detalle_viaje'),
                 'origin_address' => Functions::valueKeyInArray($detraction, 'direccion_origen'),
                 'delivery_address' => Functions::valueKeyInArray($detraction, 'direccion_destino'),
-                'origin_location_id' => $origin_location_id, 
+                'origin_location_id' => $origin_location_id,
                 'delivery_location_id' => $delivery_location_id,
                 'reference_value_payload' => Functions::valueKeyInArray($detraction, 'valor_referencial_carga_util'),
                 'reference_value_service' => Functions::valueKeyInArray($detraction, 'valor_referencial_servicio_transporte'),
@@ -225,7 +228,7 @@ class DocumentTransform
         }
         return null;
     }
-    
+
     private static function parseLocation($district_id)
     {
         $province_id = $district_id ? substr($district_id, 0 ,4) : null;
@@ -252,7 +255,7 @@ class DocumentTransform
         }
         return null;
     }
-    
+
     private static function retention($inputs)
     {
         // dd($inputs);
@@ -271,7 +274,7 @@ class DocumentTransform
 
         return null;
     }
-    
+
 
     private static function prepayments($inputs)
     {
@@ -356,73 +359,29 @@ class DocumentTransform
         return $inputs_transform;
     }
 
-    //    if(this.data.codigo_condicion_de_pago === '01') {
-    //         return [{codigo_destino_pago: this.data.paymentdestination,codigo_metodo_pago: this.data.paymentmethodtype,referencia: this.data.referencia, cambio: this.calculateChange() ,monto: this.calculatePaymentAmount()}]
-    //     }else{
-    //       return [];
-    //     }
-    // },
-
-    // cuotas_credito() {
-    //     if(this.data.codigo_condicion_de_pago === '02') {
-    //         return [{fecha: this.data.fecha_de_pago, codigo_tipo_moneda: 'PEN', monto: this.calculatePaymentAmount2()}]
-    //     }else{
-    //       return [];
-    //     }
-    // },
 
     private static function payments($inputs)
     {
         if(in_array($inputs['codigo_tipo_documento'], ['01', '03'])) {
-//si viene por la app tendra esta variable
-if (isset($inputs['codigo_condicion_de_pago'])) {
 
-    if($inputs['codigo_condicion_de_pago']=="01") {
+            $payments = [];
 
-                $payments = [];
+            if(key_exists('pagos', $inputs)) {
 
-                if(key_exists('pagos', $inputs)) {
-
-                    foreach ($inputs['pagos'] as $row) {
-                        $payments[] = [
-                            'date_of_payment' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
-                            'payment_method_type_id' => $row['codigo_metodo_pago'],
-                            'payment_destination_id' => $row['codigo_destino_pago'],
-                            'reference' => Functions::valueKeyInArray($row, 'referencia'),
-                            'change' => Functions::valueKeyInArray($row, 'cambio'),
-                            'payment' => Functions::valueKeyInArray($row, 'monto', 0),
-                        ];
-                    }
-
+                foreach ($inputs['pagos'] as $row) {
+                    $payments[] = [
+                        'date_of_payment' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
+                        'payment_method_type_id' => $row['codigo_metodo_pago'],
+                        'payment_destination_id' => $row['codigo_destino_pago'],
+                        'reference' => Functions::valueKeyInArray($row, 'referencia'),
+                        'payment' => Functions::valueKeyInArray($row, 'monto', 0),
+                        'payment_received' => Functions::valueKeyInArray($row, 'pago_recibido'),
+                    ];
                 }
 
-                return $payments;
+            }
 
-    }
-
-}else{
-//si viene desde la app offline
-    $payments = [];
-
-    if(key_exists('pagos', $inputs)) {
-
-        foreach ($inputs['pagos'] as $row) {
-            $payments[] = [
-                'date_of_payment' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
-                'payment_method_type_id' => $row['codigo_metodo_pago'],
-                'payment_destination_id' => $row['codigo_destino_pago'],
-                'reference' => Functions::valueKeyInArray($row, 'referencia'),
-                'change' => Functions::valueKeyInArray($row, 'cambio'),
-                'payment' => Functions::valueKeyInArray($row, 'monto', 0),
-            ];
-        }
-
-    }
-
-    return $payments;
-
-}
-
+            return $payments;
 
         }
 
@@ -432,36 +391,17 @@ if (isset($inputs['codigo_condicion_de_pago'])) {
     private static function fee($inputs)
     {
         $fee = [];
-
-        //si viene por la app tendra esta variable
-if (isset($inputs['codigo_condicion_de_pago'])) {
-
-    if($inputs['codigo_condicion_de_pago']=="02") {
-
         if (key_exists('cuotas', $inputs)) {
             foreach ($inputs['cuotas'] as $row) {
                 $fee[] = [
                     'date' => $row['fecha'],
                     'currency_type_id' => $row['codigo_tipo_moneda'],
                     'amount' => $row['monto'],
+                    'payment_method_type_id' => Functions::valueKeyInArray($row, 'codigo_metodo_de_pago'),
                 ];
             }
         }
 
-    }
-
-}else{
-//si viene desde la app offline
-    if (key_exists('cuotas', $inputs)) {
-        foreach ($inputs['cuotas'] as $row) {
-            $fee[] = [
-                'date' => $row['fecha'],
-                'currency_type_id' => $row['codigo_tipo_moneda'],
-                'amount' => $row['monto'],
-            ];
-        }
-    }
-}
         return $fee;
     }
 }

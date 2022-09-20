@@ -26,7 +26,7 @@ use Modules\Pos\Models\CashTransaction;
  */
 class Cash extends ModelTenant
 {
-    protected $with = ['cash_documents'];
+    // protected $with = ['cash_documents'];
 
     protected $table = 'cash';
 
@@ -130,6 +130,155 @@ class Cash extends ModelTenant
     public function cash_documents_credit()
     {
         return $this->hasMany(CashDocumentCredit::class);
+    }
+    
+
+    /**
+     * 
+     * Obtener total de ingresos por tipo de documento
+     *
+     * @return array
+     */
+    public function getTotalsIncomeSummary()
+    {
+
+        $document_total_payments = $this->cash_documents()
+                            ->whereHas('document')
+                            ->get()
+                            ->sum(function($row){
+                                return $row->document->getTotalAllPayments();
+                            });
+        
+        
+        $sale_note_total_payments = $this->cash_documents()
+                            ->whereHas('sale_note')
+                            ->get()
+                            ->sum(function($row){
+                                return $row->sale_note->getTotalAllPayments();
+                            });
+
+        return [
+            'document_total_payments' => $this->generalApplyNumberFormat($document_total_payments),
+            'sale_note_total_payments' => $this->generalApplyNumberFormat($sale_note_total_payments),
+        ];
+        
+    }
+    
+    
+    /**
+     * 
+     * Obtener comprobantes y notas de venta ordenados para reporte ingresos en caja
+     *
+     * @return array
+     */
+    public function getIncomePaymentsData()
+    {
+        
+        $documents = $this->cash_documents()
+                        ->join('documents', 'documents.id', '=', 'cash_documents.document_id')
+                        ->orderBy('documents.document_type_id')
+                        ->orderBy('documents.created_at')
+                        ->get();
+        
+        $sale_notes = $this->cash_documents()
+                            ->join('sale_notes', 'sale_notes.id', '=', 'cash_documents.sale_note_id')
+                            ->orderBy('sale_notes.created_at')
+                            ->get();
+
+        return [
+            'documents' => $documents,
+            'sale_notes' => $sale_notes,
+        ];
+        
+    }
+
+
+    /**
+     * 
+     * Filtrar cajas del usuario que realiza la petición
+     * 
+     * Usado en:
+     * caja - app
+     *
+     * @param  Builder $query
+     * @param  string $input
+     * @return Builder
+     */
+    public function scopeWhereFilterRecordsApi($query, $input)
+    {
+
+        return $query->where(function($q) use($input){
+                        $q->where('income', 'like', "%{$input}%" )
+                            ->orWhere('reference_number','like', "%{$input}%");
+                    })
+                    ->where('user_id', auth()->id())
+                    ->latest();
+    }
+
+        
+    /**
+     * 
+     * Obtener datos para api (app)
+     *
+     * @return array
+     */
+    public function getApiRowResource()
+    {
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'user_name' => $this->user->name,
+            'date_opening' => $this->date_opening,
+            'time_opening' => $this->time_opening,
+            'opening' => "{$this->date_opening} {$this->time_opening}",
+            'date_closed' => $this->date_closed,
+            'time_closed' => $this->time_closed, 
+            'closed' => !$this->state ? "{$this->date_closed} {$this->time_closed}" : null,
+            'beginning_balance' => (float) $this->beginning_balance,
+            'final_balance' => (float) $this->final_balance,
+            'income' => (float) $this->income,
+            'state' => (bool) $this->state, 
+            'state_description' => $this->state_description,
+            'reference_number' => $this->reference_number,
+        ];
+    }
+
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getStateDescriptionAttribute()
+    {
+        return ($this->state) ? 'Aperturada':'Cerrada';
+    }
+
+        
+    /**
+     * 
+     * Se agrega scope polimorfico para filtrar destino en global payment
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeWithBankIfExist($query)
+    {
+        return $query;
+    }
+
+    
+    /**
+     * 
+     * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterRelationsGlobalPayment($query)
+    {
+        return $query->with([
+                        'cash_transaction'
+                    ]);
     }
 
 }

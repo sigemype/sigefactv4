@@ -194,17 +194,18 @@
                         Route::get('/pdf', 'ReportKardexController@pdf')->name('reports.kardex.pdf');
                         Route::get('/excel', 'ReportKardexController@excel')->name('reports.kardex.excel');
                         Route::get('/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
+                        Route::get('/filter_by_warehouse/{warehouse}', 'ReportKardexController@filterByWarehouse');
                         Route::get('/records', 'ReportKardexController@records')->name('reports.kardex.records');
                         Route::get('/lots/filter', 'ReportKardexController@records_lots');
                     });
-                    Route::get('kardex_lots/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
-                    Route::get('kardex_series/filter', 'ReportKardexController@filter')->name('reports.kardex.filter');
-
+                    Route::get('kardex_lots/filter', 'ReportKardexController@filter');
+                    Route::get('kardex_lots/filter_by_warehouse/{warehouse}', 'ReportKardexController@filterByWarehouse');
+                    Route::get('kardex_series/filter', 'ReportKardexController@filter');
+                    Route::get('kardex_series/filter_by_warehouse/{warehouse}', 'ReportKardexController@filterByWarehouse');
 
                     Route::get('kardex_lots/records', 'ReportKardexController@records_lots_kardex')->name('reports.kardex_lots.records');
                     Route::get('kardex_lots/pdf', 'ReportKardexLotsController@pdf');
                     Route::get('kardex_lots/excel', 'ReportKardexLotsController@excel');
-
 
                     Route::get('kardex_series/records', 'ReportKardexController@records_series_kardex')->name('reports.kardex_series.records');
                     Route::get('kardex_series/pdf', 'ReportKardexSeriesController@pdf');
@@ -275,8 +276,8 @@
                     Route::get('stock/{item_id}/{warehouse_id}', 'TransferController@stock');
                     Route::get('items/{warehouse_id}', 'TransferController@items');
                     Route::post('search-items', 'TransferController@searchItems');
-                    Route::get('download', 'TransferController@transfers_download');
-                    Route::get('/download/pdf/{inventoryTransfer}', 'TransferController@getPdf');
+
+                     Route::get('/download/pdf/{inventoryTransfer}', 'TransferController@getPdf');
                      // Route::get('info/{inventoryTransfer}', 'TransferController@getInventoryTransferData');
 
                 });

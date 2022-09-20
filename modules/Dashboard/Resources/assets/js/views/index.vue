@@ -103,6 +103,7 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="row">
+                    <template v-if="configuration.dashboard_sales">
                         <div class="col-xl-3">
                             <section class="card card-dashboard">
                                 <div class="card-body" v-if="loaders.sale_note">
@@ -236,7 +237,8 @@
                                 </div>
                             </section>
                         </div>
-
+                    </template>
+                    <template v-if="configuration.dashboard_general">
                         <div class="col-xl-3 col-md-3">
                             <section class="card card-dashboard">
                                 <div class="card-body" v-if="loaders.balance">
@@ -424,7 +426,8 @@
                                 </div>
                             </section>
                         </div>
-
+                    </template>
+                    <template v-if="configuration.dashboard_products">
                         <div class="col-xl-3 col-md-6">
                             <section class="card card-dashboard">
                                 <div class="card-body" v-if="loaders.items_by_sales">
@@ -472,6 +475,8 @@
                                 </div>
                             </section>
                         </div>
+                    </template>
+                    <template v-if="configuration.dashboard_clients">
                         <div class="col-xl-3 col-md-6">
                             <section class="card card-dashboard">
                                 <div class="card-body" v-if="loaders.top_customers">
@@ -521,10 +526,17 @@
                                 </div>
                             </section>
                         </div>
-
+                    </template>
+                    <template v-if="configuration.dashboard_products">
                         <div class="col-xl-6 col-md-12 col-lg-12">
                             <dashboard-stock></dashboard-stock>
                         </div>
+                    </template>
+                    <template v-if="configuration.dashboard_products">
+                        <div class="col-xl-6 col-md-12 col-lg-12">
+                            <dashboard-inventory></dashboard-inventory>
+                        </div>
+                    </template>
                     </div>
                 </div>
             </div>
@@ -550,10 +562,12 @@ import DashboardStock from "./partials/dashboard_stock.vue";
 import queryString from "query-string";
 import LoaderGraph from "../components/loaders/l-graph.vue";
 import RowTop from "./RowTop";
+import DashboardInventory from "./partials/dashboard_inventory.vue";
+import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
 export default {
-  props: ["typeUser", "soapCompany"],
-  components: { DashboardStock, LoaderGraph, RowTop },
+  props: ["typeUser", "soapCompany",'configuration'],
+  components: { DashboardStock, LoaderGraph, RowTop, DashboardInventory },
   data() {
     return {
       loading_search: false,
@@ -613,6 +627,8 @@ export default {
     };
   },
   async created() {
+    this.loadConfiguration()
+    this.$store.commit('setConfiguration', this.configuration)
     this.initForm();
     this.initLoaders();
     await this.$http.get(`/${this.resource}/filter`).then((response) => {
@@ -625,6 +641,9 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+            'loadConfiguration',
+        ]),
     changeFilterItem() {
       this.form.item_id = null;
       this.loadDataUtilities();

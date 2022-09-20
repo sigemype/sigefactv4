@@ -16,6 +16,7 @@ if($current_hostname) {
                 // Route::post('unpaid', 'DashboardController@unpaid');
                 // Route::get('unpaidall', 'DashboardController@unpaidall')->name('unpaidall');
                 Route::get('stock-by-product/records', 'DashboardController@stockByProduct');
+                Route::get('product-of-due/records', 'DashboardController@productOfDue');
                 Route::post('utilities', 'DashboardController@utilities');
                 Route::get('global-data', 'DashboardController@globalData');
                 Route::get('sales-by-product', 'DashboardController@salesByProduct');

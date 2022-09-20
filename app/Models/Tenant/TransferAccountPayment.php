@@ -8,6 +8,8 @@
     use Carbon\Carbon;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Modules\Finance\Models\GlobalPayment;
+    use Illuminate\Database\Eloquent\Relations\MorphTo;
+
 
     /**
      * Class TransferAccountPayment
@@ -278,4 +280,32 @@
                 $amount
             );
         }
+
+        
+        /**
+         * 
+         * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeFilterRelationsPayments($query)
+        {
+            return $query;
+        }
+        
+
+        /**
+         * 
+         * Se registra relacion polimorfica para reporte de pagos
+         * Obs: Si es posible asociar con el campo origin_type
+         * 
+         * 
+         * @return MorphTo
+         */
+        public function associated_record_payment()
+        {
+            return $this->morphTo();
+        }
+        
     }

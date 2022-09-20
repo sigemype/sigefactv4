@@ -64,17 +64,20 @@ class SummaryController extends Controller
         ];
     }
 
-    public function documents(SummaryDocumentsRequest $request) {
+    public function documents(SummaryDocumentsRequest $request) 
+    {
         $company = Company::active();
         $date_of_reference = $request->input('date_of_reference');
         
-        $documents = Document::query()
-            ->where('date_of_issue', $request->input('date_of_reference'))
-            ->where('soap_type_id', $company->soap_type_id)
-            ->where('group_id', '02')
-            ->where('state_type_id', '01')
-            ->take(500)
-            ->get();
+        $documents = Document::filterDocumentsForSummary($date_of_reference, $company->soap_type_id)->get();
+         
+        // $documents = Document::query()
+        //     ->where('date_of_issue', $request->input('date_of_reference'))
+        //     ->where('soap_type_id', $company->soap_type_id)
+        //     ->where('group_id', '02')
+        //     ->where('state_type_id', '01')
+        //     ->take(500)
+        //     ->get();
             
         if (count($documents) === 0) {
             return [

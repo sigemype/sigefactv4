@@ -208,7 +208,7 @@
                         <div :class="{'has-danger': errors.unit_price_value}"
                              class="form-group">
                             <label class="control-label">
-                                Precio Unitario 
+                                Precio Unitario
 
                                 <el-tooltip v-if="itemLastPrice" class="item" :content="itemLastPrice"
                                                 effect="dark"
@@ -217,7 +217,7 @@
                                 </el-tooltip>
                             </label>
 
-                            <template v-if="configuration.change_currency_item && isFromInvoice">
+                            <template v-if="applyChangeCurrencyItem && isFromInvoice">
 
                                 <template v-if="form.item">
                                     <el-input v-model="form.unit_price_value"
@@ -236,7 +236,7 @@
                                         </template>
                                     </el-input>
                                 </template>
-                                
+
                             </template>
                             <template v-else>
 
@@ -643,6 +643,7 @@ export default {
         'customerId',
         'currencyTypes',
         'isFromInvoice',
+        'percentageIgv'
     ],
     components: {
         ItemForm,
@@ -699,6 +700,7 @@ export default {
             itemLastPrice: null,
             search_item_by_barcode_presentation: false,
             showDialogHistorySales: false,
+            history_item_id: null,
             //item_unit_type: {}
         }
     },
@@ -795,6 +797,13 @@ export default {
                 return this.config.allow_edit_unit_price_to_seller;
             }
             return false;
+        },
+        applyChangeCurrencyItem(){
+
+            if(this.configuration) return this.configuration.change_currency_item
+
+            return false
+
         }
     },
     methods: {
@@ -900,12 +909,12 @@ export default {
 
         },
         clickIncrease() {
-            this.form.quantity = parseInt(this.form.quantity + 1)
+            this.form.quantity = parseInt(this.form.quantity) + 1
             this.calculateTotal()
         },
         async searchRemoteItems(input) {
 
-            if (input.length > 2) 
+            if (input.length > 2)
             {
                 this.loading_search = true
                 const params = {
@@ -942,7 +951,7 @@ export default {
                     if (this.items.length == 1)
                     {
                         const item_unit_type = _.find(this.items[0].item_unit_types, { barcode : input})
-    
+
                         if(!_.isEmpty(item_unit_type))
                         {
                             this.form.item_id = this.items[0].id;
@@ -1333,19 +1342,22 @@ export default {
                     // do nothing
                     // exonerado de igv
                 } else {
-                    unit_price = this.form.unit_price_value * 1.18;
+                    unit_price = this.form.unit_price_value * (1 + this.percentageIgv);
 
                 }
             }
 
-            
+
             //validar precio compra y venta
-            if(this.configuration.validate_purchase_sale_unit_price)
+            if(this.configuration)
             {
-                let val_purchase_unit_price = parseFloat(this.form.item.purchase_unit_price)
-                
-                if(val_purchase_unit_price > parseFloat(unit_price)){
-                    return this.$message.error(`El precio de compra no puede ser superior al precio de venta (P. Compra: ${val_purchase_unit_price})`)
+                if(this.configuration.validate_purchase_sale_unit_price)
+                {
+                    let val_purchase_unit_price = parseFloat(this.form.item.purchase_unit_price)
+
+                    if(val_purchase_unit_price > parseFloat(unit_price)){
+                        return this.$message.error(`El precio de compra no puede ser superior al precio de venta (P. Compra: ${val_purchase_unit_price})`)
+                    }
                 }
             }
 
@@ -1359,7 +1371,7 @@ export default {
 
             let IdLoteSelected = this.form.IdLoteSelected
             let document_item_id = this.form.document_item_id
-            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
+            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv);
 
             this.row.item.name_product_pdf = this.row.name_product_pdf || '';
             if (this.recordItem) {
@@ -1671,11 +1683,11 @@ export default {
                         if(response.data.unit_price) {
                             this.itemLastPrice = `Último precio de venta: ${response.data.unit_price}`
                         }
-                        
+
                     })
                 }
             }
-           
+
         }
         ,
         clickHistorySales() {

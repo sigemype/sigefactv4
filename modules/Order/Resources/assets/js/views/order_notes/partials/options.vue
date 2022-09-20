@@ -490,15 +490,26 @@ export default {
             {
                 new_items = items.map((row) => {
 
-                    if (Array.isArray(row.item.lots_group)) 
+                    // si existe propiedad regularizada en json item
+                    if(row.item.IdLoteSelected)
                     {
-                        // obtener lotes vendidos, con cantidad mayor a 0
-                        let sale_lots_group = this.getSaleLotsGroup(row.item.lots_group)
-
-                        if (sale_lots_group.length > 0) 
+                        if (Array.isArray(row.item.IdLoteSelected)) 
                         {
-                            // generar arreglo de lotes vendidos con la data necesaria para que sea procesado en registro de cpe
-                            row.IdLoteSelected = this.transformSaleLotsGroup(sale_lots_group)
+                            row.IdLoteSelected = row.item.IdLoteSelected
+                        }
+                    }
+                    else
+                    {
+                        if (Array.isArray(row.item.lots_group)) 
+                        {
+                            // obtener lotes vendidos, con cantidad mayor a 0
+                            let sale_lots_group = this.getSaleLotsGroup(row.item.lots_group)
+    
+                            if (sale_lots_group.length > 0) 
+                            {
+                                // generar arreglo de lotes vendidos con la data necesaria para que sea procesado en registro de cpe
+                                row.IdLoteSelected = this.transformSaleLotsGroup(sale_lots_group)
+                            }
                         }
                     }
 

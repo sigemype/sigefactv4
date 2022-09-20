@@ -126,12 +126,12 @@
                             popper-class="el-select-document_type"
                             @change="changeDocumentType"
                         >
-                            <el-option
-                                v-for="option in document_types"
-                                :key="option.id"
-                                :label="option.description"
-                                :value="option.id"
-                            ></el-option>
+<!--                            <el-option-->
+<!--                                v-for="option in document_types"-->
+<!--                                :key="option.id"-->
+<!--                                :label="option.description"-->
+<!--                                :value="option.id"-->
+<!--                            ></el-option>-->
                             <el-option key="nv" label="NOTA DE VENTA" value="nv"></el-option>
                         </el-select>
                         <small
@@ -464,7 +464,10 @@
                 </template>
             </div>
 
+            <!-- controlar series y lotes -->
             <series-form v-if="generate && form.quotation" :items="form.quotation.items" :config="config"></series-form>
+            <!-- controlar series y lotes -->
+
             <div  v-show="document.total > 0" class="col-lg-12">
                 <div class="form-group pull-right">
                     <label class="control-label"> Total </label> <br>
@@ -520,6 +523,7 @@ import SaleNoteOptions from "../../sale_notes/partials/options.vue";
 import SeriesForm from "./series_form.vue";
 import moment from "moment";
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+import {functions} from '../../../../mixins/functions';
 
 export default {
     components: {DocumentOptions, SaleNoteOptions, SeriesForm},
@@ -532,6 +536,7 @@ export default {
         "type",
         "typeUser",
     ],
+    mixins: [functions],
     computed:{
         ...mapState([
             'config',
@@ -591,7 +596,7 @@ export default {
             }
             window.open(`https://wa.me/51${this.form.customer_telephone}?text=${this.form.message_text}`, '_blank');
         },
-        
+
         validateCustomerRetention(identity_document_type_id) {
 
             if (identity_document_type_id != '6') {
@@ -604,7 +609,7 @@ export default {
 
         },
         disabledRetention(){
-            
+
             if (this.document.has_retention) {
                 this.document.has_retention = false
                 this.changeRetention()
@@ -847,23 +852,26 @@ export default {
                 is_receivable: false,
                 payments: [],
                 hotel: {},
-                
+
                 total_pending_payment: 0,
                 has_retention: false,
                 retention: {},
 
             };
         },
-        changeDateOfIssue() {
+        async changeDateOfIssue() {
             this.document.date_of_due = this.document.date_of_issue;
+            await this.getPercentageIgv();
         },
         resetDocument() {
             this.generate = this.showGenerate ? true : false;
             this.initDocument();
-            this.document.document_type_id =
-                this.document_types.length > 0
-                    ? this.document_types[0].id
-                    : null;
+            // this.document.document_type_id =
+            //     this.document_types.length > 0
+            //         ? this.document_types[0].id
+            //         : null;
+
+            this.document.document_type_id = 'nv';
             this.changeDocumentType();
         },
         validatePaymentDestination() {
@@ -881,7 +889,7 @@ export default {
         },
         async submit() {
 
-            let validate_items = await this.validateQuantityandSeries();
+            let validate_items = await this.validateQuantityandSeriesLots();
             if (!validate_items.success)
                 return this.$message.error(validate_items.message);
 
@@ -1025,6 +1033,9 @@ export default {
                         .get(`/${this.resource}/record2/${this.recordId}`)
                         .then((response) => {
                             this.form = response.data.data;
+                            this.form.establishment_id = this.form.quotation.establishment_id
+                            this.form.date_of_issue = this.form.quotation.date_of_issue
+                            this.getPercentageIgv();
                             this.document.payments =
                                 response.data.data.quotation.payments;
                             this.document.total = this.form.quotation.total;
@@ -1084,13 +1095,16 @@ export default {
                 this.document_types = this.all_document_types;
             }
 
-            this.document.document_type_id =
-                this.document_types.length > 0
-                    ? this.document_types[0].id
-                    : null;
+            // this.document.document_type_id =
+            //     this.document_types.length > 0
+            //         ? this.document_types[0].id
+            //         : null;
+
+            this.document.document_type_id = 'nv';
+
             await this.changeDocumentType();
 
-            
+
             // retencion para clientes con ruc
             this.validateCustomerRetention(customer.identity_document_type_id)
 
@@ -1146,16 +1160,35 @@ export default {
                     this.loading = false;
                 });
         },
-        async validateQuantityandSeries() {
+        async validateQuantityandSeriesLots() {
+
             let error = 0;
+            let error_lots_group = 0
+
             await this.form.quotation.items.forEach((element) => {
+
                 if (element.item.series_enabled) {
                     const select_lots = _.filter(element.item.lots, {
                         has_sale: true,
                     }).length;
                     if (select_lots != element.quantity) error++;
                 }
+
+                if (element.item.lots_enabled)
+                {
+                    if (!element.IdLoteSelected) error_lots_group++
+                }
+
             });
+
+            if(error_lots_group > 0)
+            {
+                return {
+                    success: false,
+                    message: 'Las cantidades y lotes seleccionados deben ser iguales.',
+                }
+            }
+
             if (error > 0)
                 return {
                     success: false,

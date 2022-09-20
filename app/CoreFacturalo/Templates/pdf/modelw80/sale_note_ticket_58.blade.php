@@ -196,7 +196,16 @@
             </tr>
         @endforeach
     </tr>
-
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc-ticket text-uppercase">
+                <br>
+                Términos y condiciones del servicio
+                <br>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    @endif
  
 </table>
 </body>

@@ -356,6 +356,7 @@ class Quotation extends ModelTenant
             'payment_method_type_id' => $row->payment_method_type_id,
             'soap_type_id' => $row->soap_type_id,
             'external_id' => $row->external_id,
+            'number_full' => $row->number_full,
             'date_of_issue' => $row->date_of_issue->format('Y-m-d'),
             // 'delivery_date' => ($row->delivery_date) ? $row->delivery_date->format('Y-m-d') : null,
             'delivery_date' => $row->delivery_date,
@@ -365,6 +366,8 @@ class Quotation extends ModelTenant
             'customer_id' => $row->customer_id,
             'customer_name' => $row->customer->name,
             'customer_number' => $row->customer->number,
+            'customer_telephone' => $row->customer->telephone,
+            'customer_email' => optional($row->customer)->email,
             'currency_type_id' => $row->currency_type_id,
             'total_exportation' => number_format($row->total_exportation,2),
             'total_free' => number_format($row->total_free,2),
@@ -396,6 +399,7 @@ class Quotation extends ModelTenant
             'referential_information' => $row->referential_information,
             'created_at' => $row->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),
+            'print_ticket' => $row->getUrlPrintPdf('ticket'),
         ];
     }
 
@@ -525,4 +529,30 @@ class Quotation extends ModelTenant
         return in_array($this->state_type_id, self::VOIDED_REJECTED_IDS);
     }
 
+
+    /**
+     * 
+     * Obtener url para impresión
+     *
+     * @param  string $format
+     * @return string
+     */
+    public function getUrlPrintPdf($format = "a4")
+    {
+        return url("quotations/print/{$this->external_id}/{$format}");
+    }
+        
+
+    /**
+     * 
+     * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterRelationsGlobalPayment($query)
+    {
+        return $query->whereFilterWithOutRelations();
+    }
+    
 }

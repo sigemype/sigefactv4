@@ -922,7 +922,7 @@ export default {
                 let citems = this.form.items;
                 Object.keys(citems).forEach(key => {
                     let row = citems[key] // value of the current key
-                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
                 })
             }
 

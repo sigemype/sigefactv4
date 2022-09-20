@@ -194,6 +194,7 @@ use App\Models\Tenant\{
                                     'total_isc'                          => $total_isc,
                                     'total_igv'                          => $total_igv,
                                     'total'                              => $total,
+                                    'observation'=>$row->additional_information,
                                     // 'selected_currency'                              => $currencyRequested,
                                     'exchange_rate_sale'                 => $exchange_rate_sale,
                                     'currency_type_symbol'               => $symbol,

@@ -160,6 +160,16 @@
             <p class="desc">{{ $document->date_of_issue->format('Y-m-d') }} {{$document->created_at->format('H:i:s')}}</p>
         </td>
     </tr>
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc-ticket text-uppercase">
+                <br>
+                Términos y condiciones del servicio
+                <br>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    @endif
 </table>
 {{--
 <table class="full-width">

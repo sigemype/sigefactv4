@@ -217,6 +217,8 @@
             'subtotal',
             'total_igv_free',
             'unique_filename', //registra nombre de archivo unico (campo para evitar duplicidad)
+            
+            'terms_condition',
         ];
 
         protected $casts = [
@@ -626,6 +628,39 @@
             return $this->belongsTo(PaymentMethodType::class);
         }
 
+        
+        /**
+         * 
+         * Validar condicion para el boton edicion
+         *
+         * @param  int $total_documents
+         * @return bool
+         * 
+         */
+        public function getBtnGenerate($total_documents)
+        {
+            if($total_documents > 0)
+            {
+                $btn_generate = false;
+            }
+            else
+            {
+                // si proviene de un pedido o registro externo que afecta inventario se deshabilita la opcion editar
+                // si se habilita se deben controlar los movimientos que afectan a inventario
+                if($this->isGeneratedFromExternalRecord())
+                {
+                    $btn_generate = false;
+                }
+                else
+                {
+                    $btn_generate = true;
+                }
+            }
+
+            return $btn_generate;
+        }
+
+
         /**
          * @param Configuration|null $configuration
          *
@@ -649,7 +684,8 @@
             }
             $total_documents = $documents->count();
 
-            $btn_generate = ($total_documents > 0) ? false : true;
+            $btn_generate = $this->getBtnGenerate($total_documents);
+            // $btn_generate = ($total_documents > 0) ? false : true;
             $btn_payments = ($total_documents > 0) ? false : true;
             $due_date = ( !empty($this->due_date)) ? $this->due_date->format('Y-m-d') : null;
 
@@ -753,6 +789,7 @@
                 'customer_email' => $customer_email,
                 'customer_telephone' => optional($this->person)->telephone,
                 'seller' => $this->seller,
+                'filename' => $this->filename,
                 'seller_name'                     => ((int)$this->seller_id !=0)?$this->seller->name:'',
 // 'number' => $this->number,
             ];
@@ -1337,6 +1374,113 @@
         {
             return in_array($this->state_type_id, self::VOIDED_REJECTED_IDS);
         }
+        
 
+        /**
+         * 
+         * Retornar el total de pagos
+         *
+         * @return float
+         */
+        public function getTotalAllPayments()
+        {
+
+            $total_payments = 0;
+
+            if(!$this->isVoidedOrRejected())
+            {
+                $total_payments = $this->payments->sum('payment');
+    
+                if($this->currency_type_id === 'USD')
+                {
+                    $total_payments = $this->generalConvertValueToPen($total_payments, $this->exchange_rate_sale);
+                }
+            }
+
+            return $total_payments;
+        }
+
+        
+        /**
+         * 
+         * Validar si la nota de venta fue generada a partir de un registro externo
+         *
+         * Usado en:
+         * SaleNoteController
+         * 
+         * @return bool
+         */
+        public function isGeneratedFromExternalRecord()
+        {
+            $generated = false;
+
+            if(!is_null($this->order_note_id))
+            {
+                $generated = true;
+            }
+            
+            // @todo agregar mas registros relacionados
+
+            return $generated;
+        }
+
+        
+        /**
+         * 
+         * Obtener url para impresión
+         *
+         * @param  string $format
+         * @return string
+         */
+        public function getUrlPrintPdf($format = "a4")
+        {
+            return url("sale-notes/print/{$this->external_id}/{$format}");
+        }
+
+        
+        /**
+         * 
+         * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeFilterRelationsGlobalPayment($query)
+        {
+            return $query->whereFilterWithOutRelations()
+                        ->select([
+                            'id',
+                            'user_id',
+                            'external_id',
+                            'establishment_id',
+                            'soap_type_id',
+                            'state_type_id',
+                            'prefix',
+                            'date_of_issue',
+                            'time_of_issue',
+                            'customer_id',
+                            'customer',
+                            'currency_type_id',
+                            'exchange_rate_sale',
+                            'total',
+                            'filename',
+                            'total_canceled',
+                            'quotation_id',
+                            'order_note_id',
+                            'series',
+                            'number',
+                            'paid',
+                            'payment_method_type_id',
+                            'due_date',
+                            'document_id',
+                            'seller_id',
+                            'order_id',
+                            'technical_service_id',
+                            'changed',
+                            'user_rel_suscription_plan_id',
+                            'subtotal',
+                        ]);
+
+        }
 
     }

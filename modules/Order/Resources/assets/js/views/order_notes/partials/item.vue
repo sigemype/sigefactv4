@@ -477,8 +477,6 @@ import VueCkeditor from "vue-ckeditor5";
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import {ItemOptionDescription, ItemSlotTooltip} from "../../../../../../../../resources/js/helpers/modal_item";
 
-
-
 export default {
     props: [
         'recordItem',
@@ -487,6 +485,7 @@ export default {
         'exchangeRateSale',
         'typeUser',
         'configuration',
+        'percentageIgv'
     ],
     components: {ItemForm, WarehousesDetail, LotsGroup, SelectLotsForm, 'vue-ckeditor': VueCkeditor.component},
 
@@ -1046,7 +1045,7 @@ export default {
             if (this.validateTotalItem().total_item) return;
 
             // this.form.item.unit_price = this.form.unit_price;
-            let unit_price = (this.form.has_igv) ? this.form.unit_price : this.form.unit_price * 1.18;
+            let unit_price = (this.form.has_igv) ? this.form.unit_price : this.form.unit_price * (1 + this.percentageIgv);
 
             // this.form.item.unit_price = this.form.unit_price
             this.form.unit_price = unit_price;
@@ -1055,7 +1054,7 @@ export default {
             this.form.item.presentation = this.item_unit_type;
             this.form.affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.affectation_igv_type_id});
             let IdLoteSelected = this.form.IdLoteSelected
-            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale);
+            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv);
             this.row.IdLoteSelected = IdLoteSelected
             this.initForm();
 

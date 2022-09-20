@@ -244,7 +244,7 @@
                             <div :class="{'has-danger': errors.internal_id}"
                                  class="form-group">
                                 <!-- migracion desarrollo sin terminar #1401 -->
-                                 <template v-if="inventory_configuration && inventory_configuration.generate_internal_id == 1">
+                                 <!-- <template v-if="inventory_configuration && inventory_configuration.generate_internal_id == 1">
                                     <label class="control-label">Código Interno
                                     <el-tooltip class="item"
                                                 content="Código interno de la empresa para el control de sus productos | Autogenerado por el sistema"
@@ -258,8 +258,8 @@
                                     <small v-if="errors.internal_id"
                                        class="form-control-feedback"
                                        v-text="errors.internal_id[0]"></small>
-                                </template>
-                                <template v-else>
+                                </template> -->
+                                <!-- <template v-else> -->
                                     <label class="control-label">Código Interno
                                         <el-tooltip class="item"
                                                     content="Código interno de la empresa para el control de sus productos"
@@ -273,7 +273,7 @@
                                     <small v-if="errors.internal_id"
                                         class="form-control-feedback"
                                         v-text="errors.internal_id[0]"></small>
-                                </template>
+                                <!-- </template> -->
                             </div>
                         </div>
                         <div class="col-md-3">

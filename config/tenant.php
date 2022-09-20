@@ -7,8 +7,8 @@ return [
     'items_per_page_simple_d_table_params' => env('ITEMS_PER_PAGE_SIMPLE_D_TABLE_PARAMS', 10),
     'password_change' => env('PASSWORD_CHANGE', false),
     'prefix_database' => env('PREFIX_DATABASE', 'tenancy'),
-    'signature_note' => env('SIGNATURE_NOTE', 'FACTURALO'),
-    'signature_uri' => env('SIGNATURE_URI', '#FACTURALO'),
+    'signature_note' => env('SIGNATURE_NOTE', 'SIGEFACT'),
+    'signature_uri' => env('SIGNATURE_URI', '#SIGEFACT'),
     'force_https' => env('FORCE_HTTPS', false),
     'document_type_03_filter' => env('DOCUMENT_TYPE_03_FILTER', true),
     'is_client' => env('IS_CLIENT', false),
@@ -35,4 +35,13 @@ return [
     'validator_cpe' => env('VALIDATOR_CPE', false),
     'auto_print' => env('AUTO_PRINT', false),
     'show_summary_status_type' => env('SHOW_SUMMARY_STATUS_TYPE', false),
+
+    'document_import_excel' => env('DOCUMENT_IMPORT_EXCEL', false),
+    'template_document_mail' => env('TEMPLATE_DOCUMENT_MAIL', 'default'),
+    'delete_relation_note_to_invoice' => env('DELETE_RELATION_NOTE_TO_INVOICE', false),
+
+    'igv_31556_start' => env('IGV_31556_START', '2022-09-01'),
+    'igv_31556_end' => env('IGV_31556_END', '2024-12-31'),
+    'igv_31556_percentage' => env('IGV_31556_PERCENTAGE', 0.10),
+
 ];

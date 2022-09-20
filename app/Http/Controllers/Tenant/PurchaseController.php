@@ -141,9 +141,10 @@
             $configuration = Configuration::first();
             $payment_conditions = GeneralPaymentCondition::get();
             $warehouses = Warehouse::get();
+            $permissions = auth()->user()->getPermissionsPurchase();
 
             return compact('suppliers', 'establishment', 'currency_types', 'discount_types', 'configuration', 'payment_conditions',
-                'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers', 'warehouses');
+                'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers', 'warehouses','permissions');
         }
 
         public function table($table)

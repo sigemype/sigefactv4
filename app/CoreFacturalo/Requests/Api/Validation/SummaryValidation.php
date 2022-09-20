@@ -21,12 +21,15 @@ class SummaryValidation
     private static function findDocuments($inputs)
     {
         $company = Company::active();
-        $documents = Document::where('date_of_issue', $inputs['date_of_reference'])
-                            ->where('soap_type_id', $company->soap_type_id)
-                            ->where('group_id', '02')
-                            ->where('state_type_id', '01')
-                            ->take(500)
-                            ->get();
+        
+        $documents = Document::filterDocumentsForSummary($inputs['date_of_reference'], $company->soap_type_id)->get();
+
+        // $documents = Document::where('date_of_issue', $inputs['date_of_reference'])
+        //                     ->where('soap_type_id', $company->soap_type_id)
+        //                     ->where('group_id', '02')
+        //                     ->where('state_type_id', '01')
+        //                     ->take(500)
+        //                     ->get();
 
         if($documents->count() === 0) {
             throw new Exception("No se encontraron documentos con fecha de emisión {$inputs['date_of_reference']}.");

@@ -16,6 +16,9 @@ use Modules\Finance\Exports\GlobalPaymentExport;
 use Barryvdh\DomPDF\Facade as PDF;
 use App\Models\Tenant\Establishment;
 use Carbon\Carbon;
+use Modules\Finance\Jobs\ProcessGlobalPaymentReport;
+use Illuminate\Database\Eloquent\Builder;
+use App\Traits\JobReportTrait;
 
 /**
  * Class GlobalPaymentController
@@ -26,7 +29,7 @@ use Carbon\Carbon;
 class GlobalPaymentController extends Controller
 {
 
-    use FinanceTrait;
+    use FinanceTrait, JobReportTrait;
 
     public function index(){
 
@@ -52,12 +55,25 @@ class GlobalPaymentController extends Controller
     {
         /** @var \Illuminate\Database\Eloquent\Builder $records */
         $records = $this->getRecords($request->all(), GlobalPayment::class);
-
+        
         return new GlobalPaymentCollection($records->paginate(config('tenant.items_per_page')));
-
     }
 
-    public function getRecords($request, $model){
+    
+    /**
+     * 
+     * Obtener registros
+     *
+     * Usado en:
+     * ProcessGlobalPaymentReport
+     * records
+     * 
+     * @param  Request $request
+     * @param  GlobalPayment $model
+     * @return Builder
+     */
+    public function getRecords($request, $model)
+    {
         $data_of_period = $this->getDatesOfPeriod($request);
         $payment_type = $request['payment_type'];
         $destination_type = $request['destination_type'];
@@ -71,9 +87,11 @@ class GlobalPaymentController extends Controller
         $params = (object)[
             'date_start' => $data_of_period['d_start'],
             'date_end' => $data_of_period['d_end'],
+            'user_id' => $request['user_id'] ?? null,
         ];
 
-        $records = $model::whereFilterPaymentType($params);
+        // $records = $model::whereFilterPaymentType($params);
+        $records = $model::whereFilterReportPayments($params); //filtros optimizados
 
         if($payment_type){
             $records = $records->whereDefinePaymentType($payment_type);
@@ -90,32 +108,81 @@ class GlobalPaymentController extends Controller
     }
 
 
-    public function pdf(Request $request) {
+    /**
+     * 
+     * Generar reporte pdf
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function pdf(Request $request) 
+    {
+        return $this->processJobReport($request, 'pdf');
 
-        $company = Company::first();
-        $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
-        $records = $this->getRecords($request->all(), GlobalPayment::class)->get();
+        // descarga sin job
+        // $company = Company::first();
+        // $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
+        // $records = $this->getRecords($request->all(), GlobalPayment::class)->get();
 
-        $pdf = PDF::loadView('finance::global_payments.report_pdf', compact("records", "company", "establishment"))->setPaper('a4', 'landscape');;
+        // $pdf = PDF::loadView('finance::global_payments.report_pdf', compact("records", "company", "establishment"))->setPaper('a4', 'landscape');
 
-        $filename = 'Reporte_Pagos_'.date('YmdHis');
+        // $filename = 'Reporte_Pagos_'.date('YmdHis');
 
-        return $pdf->download($filename.'.pdf');
+        // return $pdf->download($filename.'.pdf');
     }
 
+        
+    /**
+     * 
+     * Generar reporte excel
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function excel(Request $request) 
+    {
+        return $this->processJobReport($request, 'xlsx');
 
-    public function excel(Request $request) {
+        // descarga sin job
+        // $company = Company::first();
+        // $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
+        // $records = $this->getRecords($request->all(), GlobalPayment::class)->get();
 
-        $company = Company::first();
-        $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
-        $records = $this->getRecords($request->all(), GlobalPayment::class)->get();
-
-        return (new GlobalPaymentExport)
-                ->records($records)
-                ->company($company)
-                ->establishment($establishment)
-                ->download('Reporte_Pagos_'.Carbon::now().'.xlsx');
-
+        // return (new GlobalPaymentExport)
+        //         ->records($records)
+        //         ->company($company)
+        //         ->establishment($establishment)
+        //         ->download('Reporte_Pagos_'.Carbon::now().'.xlsx');
     }
+
+    
+    /**
+     * 
+     * Procesar reporte en cola
+     *
+     * @param  Request $request
+     * @param  string $type
+     * @return array
+     */
+    private function processJobReport($request, $type)
+    {
+        $website = $this->getTenantWebsite();
+        $user = $this->getCurrentUser();
+
+        $additional_params = [
+            'user_id' => $user->id, 
+            'type' => $user->type, 
+            'establishment_id' => $user->establishment_id
+        ];
+
+        $params = $this->getNewParams($request->all(), $additional_params);
+
+        $tray = $this->createDownloadTray($user->id, 'FINANCE', $type, 'Reporte Pagos');
+
+        ProcessGlobalPaymentReport::dispatch($params, $tray->id, $website->id);
+
+        return $this->getJobResponse();
+    }
+
 
 }

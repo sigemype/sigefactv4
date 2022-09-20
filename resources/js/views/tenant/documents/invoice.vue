@@ -329,13 +329,6 @@
                                                    style="width: 100%;">
                                                 <tr v-if="form.total > 0 && enabled_discount_global">
                                                     <td>
-                                                        <el-tooltip class="item"
-                                                            :content="global_discount_type.description"
-                                                            effect="dark"
-                                                            placement="top">
-                                                            <i class="fa fa-info-circle"></i>
-                                                        </el-tooltip>
-
                                                         DESCUENTO
                                                         <template v-if="is_amount"> MONTO</template>
                                                         <template v-else> %</template>
@@ -694,12 +687,6 @@
                                        style="width: 100%;">
                                     <tr v-if="form.total > 0 && enabled_discount_global">
                                         <td>
-                                            <el-tooltip class="item"
-                                                :content="global_discount_type.description"
-                                                effect="dark"
-                                                placement="top">
-                                                <i class="fa fa-info-circle"></i>
-                                            </el-tooltip>
                                             DESCUENTO
                                             <template v-if="is_amount"> MONTO</template>
                                             <template v-else> %</template>
@@ -1391,6 +1378,7 @@
             :customer-id="form.customer_id"
             :currency-types="currency_types"
             :is-from-invoice="true"
+            :percentage-igv="percentage_igv"
             @add="addRow"></document-form-item>
 
         <person-form :document_type_id=form.document_type_id
@@ -1473,6 +1461,7 @@ import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import Keypress from "vue-keypress";
 
 export default {
+    name: 'DocumentGenerate',
     props: [
         'idUser',
         'typeUser',
@@ -1574,11 +1563,7 @@ export default {
             payment_conditions: [],
             affectation_igv_types: [],
             total_discount_no_base: 0,
-            show_has_retention: true,
-            global_discount_types: [],
-            global_discount_type: {},
-            error_global_discount: false,
-
+            show_has_retention: true
         }
     },
     computed: {
@@ -1605,8 +1590,23 @@ export default {
         detractionDecimalQuantity: function () {
             return (this.configuration.detraction_amount_rounded_int) ? 0 : 2
         },
-        isGlobalDiscountBase: function () {
-            return (this.configuration.global_discount_type_id === '02')
+        isAutoPrint: function () {
+
+            if(this.configuration)
+            {
+                return this.configuration.auto_print
+            }
+
+            return false
+        },
+        hidePreviewPdf: function () {
+
+            if(this.configuration)
+            {
+                return this.configuration.hide_pdf_view_documents
+            }
+
+            return false
         },
     },
     async created() {
@@ -1646,8 +1646,6 @@ export default {
                 this.payment_destinations = response.data.payment_destinations
                 this.payment_conditions = response.data.payment_conditions;
 
-                this.global_discount_types = response.data.global_discount_types
-
                 this.seller_class = (this.user == 'admin') ? 'col-lg-4 pb-2' : 'col-lg-6 pb-2';
 
                 // this.default_document_type = response.data.document_id;
@@ -1660,8 +1658,8 @@ export default {
                 this.changeDestinationSale()
                 this.changeCurrencyType()
                 this.setDefaultDocumentType();
-                this.setConfigGlobalDiscountType()
             })
+        await this.getPercentageIgv();
         this.loading_form = true
         this.$eventHub.$on('reloadDataPersons', (customer_id) => {
             this.reloadDataCustomers(customer_id)
@@ -1690,7 +1688,7 @@ export default {
                     return this.setItemFromResponse(i, itemsParsed);
                 });
                 this.form.items = itemsResponse.map(i => {
-                    return calculateRowItem(i, this.form.currency_type_id, this.form.exchange_rate_sale)
+                    return calculateRowItem(i, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv)
                 });
             });
         }
@@ -1708,7 +1706,7 @@ export default {
                     return this.setItemFromResponse(i, itemsParsed);
                 });
                 this.form.items = itemsResponse.map(i => {
-                    return calculateRowItem(i, this.form.currency_type_id, this.form.exchange_rate_sale)
+                    return calculateRowItem(i, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv)
                 });
             });
         }
@@ -1743,11 +1741,21 @@ export default {
             localStorage.removeItem('notes')
         }
 
+        this.startConnectionQzTray()
+
     },
     methods: {
         ...mapActions([
             'loadConfiguration',
         ]),
+        startConnectionQzTray(){
+
+            if (!qz.websocket.isActive() && this.isAutoPrint)
+            {
+                startConnection();
+            }
+
+        },
         async changeRowFreeAffectationIgv(row, index) {
 
             if (row.item.change_free_affectation_igv) {
@@ -1761,7 +1769,7 @@ export default {
                 this.form.items[index].affectation_igv_type = await _.find(this.affectation_igv_types, {id: this.form.items[index].affectation_igv_type_id})
             }
 
-            this.form.items[index] = await calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale)
+            this.form.items[index] = await calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv)
             await this.calculateTotal()
 
         },
@@ -2120,7 +2128,7 @@ export default {
 
             }
 
-            this.form.prepayments[index].total = (this.form.affectation_type_prepayment == 10) ? _.round(this.form.prepayments[index].amount * 1.18, 2) : this.form.prepayments[index].amount
+            this.form.prepayments[index].total = (this.form.affectation_type_prepayment == 10) ? _.round(this.form.prepayments[index].amount * (1 + this.percentage_igv), 2) : this.form.prepayments[index].amount
 
             this.changeTotalPrepayment()
 
@@ -2281,7 +2289,7 @@ export default {
 
                     this.form.total_discount = _.round(amount, 2)
                     this.form.total_taxed = _.round(this.form.total_taxed - amount, 2)
-                    this.form.total_igv = _.round(this.form.total_taxed * 0.18, 2)
+                    this.form.total_igv = _.round(this.form.total_taxed * this.percentage_igv, 2)
                     this.form.total_taxes = _.round(this.form.total_igv, 2)
                     this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
 
@@ -2301,7 +2309,7 @@ export default {
 
                         this.form.total_discount = _.round(amount, 2)
                         this.form.total_taxed = _.round(this.form.total_taxed - amount, 2)
-                        this.form.total_igv = _.round(this.form.total_taxed * 0.18, 2)
+                        this.form.total_igv = _.round(this.form.total_taxed * this.percentage_igv, 2)
                         this.form.total_taxes = _.round(this.form.total_igv, 2)
                         this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
 
@@ -2566,12 +2574,12 @@ export default {
                     .then(response => {
                         this.customers = response.data.customers
                         this.loading_search = false
-                        this.input_person.number = null
+                        this.input_person.number = (this.customers.length==0)? input : null
 
-                        if (this.customers.length == 0) {
+                        /* if (this.customers.length == 0) {
                             this.filterCustomers()
                             this.input_person.number = input
-                        }
+                        } */
                     })
             } else {
                 this.filterCustomers()
@@ -2908,15 +2916,16 @@ export default {
             }
 
         },
-        changeDateOfIssue() {
+        async changeDateOfIssue() {
 
             this.validateDateOfIssue()
-
             this.form.date_of_due = this.form.date_of_issue
             // if (! this.isUpdate) {
-            this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
+            await this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
                 this.form.exchange_rate_sale = response
             });
+            await this.getPercentageIgv();
+            this.changeCurrencyType();
             // }
         },
         assignmentDateOfPayment() {
@@ -3002,7 +3011,7 @@ export default {
             this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
             let items = []
             this.form.items.forEach((row) => {
-                items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
             });
             this.form.items = items
             this.calculateTotal()
@@ -3286,8 +3295,7 @@ export default {
         },
         deleteDiscountGlobal() {
 
-            let discount = _.find(this.form.discounts, {'discount_type_id': this.configuration.global_discount_type_id})
-            // let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
+            let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
             let index = this.form.discounts.indexOf(discount)
 
             if (index > -1) {
@@ -3295,20 +3303,6 @@ export default {
                 this.form.total_discount = 0
             }
 
-        },
-        setConfigGlobalDiscountType()
-        {
-            this.global_discount_type = _.find(this.global_discount_types, { id : this.configuration.global_discount_type_id})
-        },
-        setGlobalDiscount(factor, amount, base)
-        {
-            this.form.discounts.push({
-                discount_type_id: this.global_discount_type.id,
-                description: this.global_discount_type.description,
-                factor: factor,
-                amount: amount,
-                base: base
-            })
         },
         discountGlobal() {
 
@@ -3319,7 +3313,7 @@ export default {
 
             if (input_global_discount > 0)
             {
-                const percentage_igv = 18
+                const percentage_igv = this.percentage_igv * 100;
                 let base = (this.isGlobalDiscountBase) ? parseFloat(this.form.total_taxed) : parseFloat(this.form.total)
                 let amount = 0
                 let factor = 0
@@ -3336,6 +3330,7 @@ export default {
                 }
 
                 this.form.total_discount = _.round(amount, 2)
+                this.form.total = _.round(this.form.total - amount, 2)
 
                 // descuentos que afectan la bi
                 if(this.isGlobalDiscountBase)
@@ -3472,17 +3467,22 @@ export default {
             let temp = this.form.payment_condition_id;
             // Condicion de pago Credito con cuota pasa a credito
             if (this.form.payment_condition_id === '03') this.form.payment_condition_id = '02';
+
             this.$http.post(path, this.form).then(response => {
                 if (response.data.success) {
                     this.$eventHub.$emit('reloadDataItems', null)
                     this.resetForm();
                     this.documentNewId = response.data.data.id;
-                    this.showDialogOptions = true;
+
+                    this.showOptionsDialog(response)
 
                     this.form_cash_document.document_id = response.data.data.id;
 
                     // this.savePaymentMethod();
                     this.saveCashDocument();
+
+                    this.autoPrintDocument()
+
                 } else {
                     this.$message.error(response.data.message);
                 }
@@ -3497,6 +3497,72 @@ export default {
                 this.loading_submit = false;
                 this.setDefaultDocumentType();
             });
+
+        },
+        showOptionsDialog(response){
+
+            if(this.hidePreviewPdf)
+            {
+                const response_data = response.data.data
+
+                if(response_data.response.sent)
+                {
+                    this.$message.success(response_data.response.description)
+                }
+                else
+                {
+                    this.$message.success(`Comprobante registrado: ${response_data.number_full}`)
+                }
+            }
+            else
+            {
+                this.showDialogOptions = true
+            }
+
+        },
+        autoPrintDocument(){
+
+            if(this.isAutoPrint)
+            {
+                this.$http.get(`/printticket/document/${this.documentNewId}/ticket`)
+                        .then(response => {
+                            this.printTicket(response.data)
+                        })
+                        .catch(error => {
+                            console.log(error)
+                        })
+            }
+
+        },
+        printTicket(html_pdf){
+
+            if (html_pdf.length > 0)
+            {
+                const config = getUpdatedConfig()
+                const opts = getUpdatedConfig()
+
+                const printData = [
+                    {
+                        type: 'html',
+                        format: 'plain',
+                        data: html_pdf,
+                        options: opts
+                    }
+                ]
+
+                qz.print(config, printData)
+                    .then(()=>{
+
+                        this.$notify({
+                            title: '',
+                            message: 'Impresión en proceso...',
+                            type: 'success'
+                        })
+
+                    })
+                    .catch(displayError)
+            }
+
         },
         saveCashDocument() {
             this.$http.post(`/cash/cash_document`, this.form_cash_document)

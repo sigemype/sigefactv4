@@ -108,5 +108,25 @@ class ItemLotsGroup extends ModelTenant
         $this->item_id = $item_id;
         return $this;
     }
+    
+
+    /**
+     * 
+     * Obtener datos para formulario de venta de lotes
+     *
+     * @return array
+     */
+    public function getRowResourceSale()
+    {
+        return [
+            'id'          => $this->id,
+            'code'        => $this->code,
+            'quantity'    => $this->quantity,
+            'date_of_due' => $this->date_of_due,
+            'checked'     => false,
+            'compromise_quantity' => 0
+        ];
+    }
+
 
 }

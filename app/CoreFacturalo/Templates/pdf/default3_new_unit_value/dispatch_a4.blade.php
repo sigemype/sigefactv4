@@ -7,7 +7,7 @@
     // $document_type_driver = App\Models\Tenant\Catalogs\IdentityDocumentType::findOrFail($document->driver->identity_document_type_id);
     $document_type_dispatcher = App\Models\Tenant\Catalogs\IdentityDocumentType::findOrFail($document->dispatcher->identity_document_type_id);
 
-    $allowed_items = 80;
+    $allowed_items = 65;
     $quantity_items = $document->items()->count();
     $cycle_items = $allowed_items - ($quantity_items * 5);
     $total_weight = 0;
@@ -301,6 +301,16 @@
 
     </tr>
 </table>
-
+@if ($document->terms_condition)
+        <br>
+        <table class="full-width">
+            <tr>
+                <td>
+                    <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                    {!! $document->terms_condition !!}
+                </td>
+            </tr>
+        </table>
+    @endif
 </body>
 </html>

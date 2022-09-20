@@ -28,6 +28,7 @@ class DocumentWebTransform
             'codigo_tipo_moneda' => Functions::valueKeyInArray($inputs, 'currency_type_id'),
             'factor_tipo_de_cambio' => Functions::valueKeyInArray($inputs, 'exchange_rate_sale', 1),
             'numero_orden_de_compra' => Functions::valueKeyInArray($inputs, 'purchase_order'),
+            'folio' => Functions::valueKeyInArray($inputs, 'folio'),
 //            'establishment' => EstablishmentTransform::transform($inputs['datos_del_emisor']),
             'datos_del_cliente_o_receptor' => self::person_transform($customer),
 
@@ -63,6 +64,7 @@ class DocumentWebTransform
             // 'related' => self::related($inputs),
             // 'legends' => LegendTransform::transform($inputs),
             'informacion_adicional' => Functions::valueKeyInArray($inputs, 'additional_information'),
+            'dato_adicional' => Functions::valueKeyInArray($inputs, 'additional_data'),
             'acciones' => self::actions_transform($inputs),
             // 'hotel' => Functions::valueKeyInArray($inputs, 'hotel',[]),
             'pagos' => self::payments($inputs),
@@ -72,7 +74,7 @@ class DocumentWebTransform
         $inputs_transform = self::invoice($inputs_transform, $inputs);
         $inputs_transform = self::note($inputs_transform, $inputs);
         // dd($inputs_transform);
-        
+
         return $inputs_transform;
     }
 
@@ -80,7 +82,7 @@ class DocumentWebTransform
 
         if(key_exists('actions', $inputs)) {
             $actions = $inputs['actions'];
-            return [ 
+            return [
                 'formato_pdf' => Functions::valueKeyInArray($actions, 'format_pdf')
             ];
         }
@@ -159,7 +161,7 @@ class DocumentWebTransform
     }
 
 
-    
+
 
     private static function invoice($inputs_transform, $inputs)
     {
@@ -177,7 +179,7 @@ class DocumentWebTransform
             $inputs_transform['motivo_o_sustento_de_nota'] = Functions::valueKeyInArray($inputs, 'note_description');
             $inputs_transform['documento_afectado'] = [
                 'external_id' => Document::select('external_id')->find($inputs['affected_document_id'])->external_id
-            ]; 
+            ];
         }
         return $inputs_transform;
     }
@@ -341,16 +343,16 @@ class DocumentWebTransform
                         'fecha_de_emision' => $row['date_of_payment'],
                         'codigo_metodo_pago' => $row['payment_method_type_id'],
                         'codigo_destino_pago' => $row['payment_destination_id'],
-                        'referencia' => Functions::valueKeyInArray($row, 'reference'), 
-                        'monto' => Functions::valueKeyInArray($row, 'payment', 0), 
+                        'referencia' => Functions::valueKeyInArray($row, 'reference'),
+                        'monto' => Functions::valueKeyInArray($row, 'payment', 0),
                     ];
-                } 
+                }
 
             }
 
             return $payments;
 
-        } 
+        }
 
         return [];
     }

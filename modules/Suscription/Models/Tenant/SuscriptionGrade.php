@@ -38,5 +38,20 @@
         {
             return $this->name;
         }
+        
+        
+        /**
+         * 
+         * Obtener datos para el listado y edicion
+         *
+         * @return array
+         */
+        public function getRowResource()
+        {
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+            ];
+        }
 
     }

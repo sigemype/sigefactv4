@@ -102,4 +102,18 @@
         {
             return $this->hasMany(Person::class, 'identity_document_type_id', 'id');
         }
+        
+        
+        /**
+         * 
+         * Filtrar tipos de documentos para usuarios
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeFilterDataForPersons($query)
+        {
+            return $query->whereIn('id', ['0','1','4','7']);
+        }
+
     }

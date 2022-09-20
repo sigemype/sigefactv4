@@ -4,6 +4,7 @@ namespace Modules\Finance\Helpers;
 
 use Illuminate\Support\Facades\Storage;
 use Validator;
+use Illuminate\Support\Str;
 
 
 class UploadFileHelper
@@ -81,6 +82,36 @@ class UploadFileHelper
         $filename =  ($prefix ? "{$prefix}_" : "")."{$id}_{$now}".'.'.end($old_filename_array);
 
         Storage::put($directory.$filename, file_get_contents($temp_path));
+
+        return $filename;
+    }
+
+    
+    /**
+     * 
+     * Cargar imágen
+     *
+     * @param  string $folder
+     * @param  string $old_filename
+     * @param  string $temp_path
+     * @param  string $name
+     * @param  bool $file_get_contents
+     * @param  string $suffix
+     * @return string
+     */
+    public static function uploadImageFromTempFile($folder, $old_filename, $temp_path, $name, $file_get_contents, $suffix = null)
+    {
+        
+        $directory = 'public'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.$folder.DIRECTORY_SEPARATOR;
+        $old_filename_array = explode('.', $old_filename);
+        $now = date('YmdHis');
+
+        $suffix = ($suffix ? "-{$suffix}" : "");
+        $filename =  Str::slug($name)."-{$now}{$suffix}".'.'.end($old_filename_array);
+
+        $file = $file_get_contents ? file_get_contents($temp_path) :  $temp_path;
+        
+        Storage::put($directory.$filename, $file);
 
         return $filename;
     }

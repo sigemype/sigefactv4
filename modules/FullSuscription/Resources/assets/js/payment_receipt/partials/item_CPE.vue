@@ -1001,7 +1001,7 @@ export default {
 
             if (this.validateTotalItem().total_item) return;
 
-            let unit_price = (this.form.has_igv) ? this.form.unit_price_value : this.form.unit_price_value * 1.18;
+            let unit_price = (this.form.has_igv) ? this.form.unit_price_value : this.form.unit_price_value * (1 + this.percentage_igv);
 
             this.form.input_unit_price_value = this.form.unit_price_value;
 

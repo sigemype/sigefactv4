@@ -5,6 +5,8 @@ namespace Modules\Item\Models;
 use App\Models\Tenant\Item;
 use App\Models\Tenant\ModelTenant;
 use Modules\Inventory\Models\Warehouse;
+use Illuminate\Database\Eloquent\Builder;
+
 
 /**
  * Modules\Item\Models\ItemLot
@@ -29,6 +31,10 @@ class ItemLot extends ModelTenant
         'item_loteable_id',
         'has_sale',
         'state'
+    ];
+
+    protected $casts = [
+        'has_sale' => 'boolean',
     ];
 
     public function item()
@@ -209,5 +215,20 @@ class ItemLot extends ModelTenant
     //     });
 
     // }
+
+
+    /**
+     *
+     * Filtrar series disponibles
+     *
+     * @param  Builder $query
+     * @param  int $item_id
+     * @return Builder
+     */
+    public function scopeWhereAvailableItemLot($query, $item_id)
+    {
+        $query->where('item_id', $item_id)->where('has_sale', false)->where('warehouse_id', $this->getCurrentWarehouseId());
+    }
+
 
 }

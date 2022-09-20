@@ -81,6 +81,7 @@
             'name_product_pdf',
             'additional_information',
             'name_product_xml',
+            'additional_data'
         ];
 
         public static function boot()
@@ -449,7 +450,7 @@
         }
 
         /**
-         * 
+         *
          * Obtener total y realizar conversión a soles de acuerdo al tipo de cambio
          *
          * @return float
@@ -460,7 +461,7 @@
         }
 
         /**
-         * 
+         *
          * Obtener valor unitario y realizar conversión a soles de acuerdo al tipo de cambio
          *
          * @return float
@@ -469,9 +470,9 @@
         {
             return $this->generalConvertValueToPen($this->unit_value, $this->document->exchange_rate_sale);
         }
-        
+
         /**
-         * 
+         *
          * Obtener precio unitario y realizar conversión a soles de acuerdo al tipo de cambio
          *
          * @return float
@@ -482,7 +483,7 @@
         }
 
         /**
-         * 
+         *
          * Obtener total valor y realizar conversión a soles de acuerdo al tipo de cambio
          *
          * @return float
@@ -493,7 +494,7 @@
         }
 
         /**
-         * 
+         *
          * Obtener total igv y realizar conversión a soles de acuerdo al tipo de cambio
          *
          * @return float
@@ -504,7 +505,7 @@
         }
 
         /**
-         * 
+         *
          * Obtener total isc y realizar conversión a soles de acuerdo al tipo de cambio
          *
          * @return float
@@ -524,30 +525,30 @@
             return $this->document->currency_type_id === 'USD';
         }
 
-        
+
         /**
-         * 
+         *
          * Filtro para no incluir relaciones en consulta
          *
          * @param \Illuminate\Database\Eloquent\Builder $query
          * @return \Illuminate\Database\Eloquent\Builder
-         */  
+         */
         public function scopeWhereFilterWithOutRelations($query)
         {
             return $query->withOut(['affectation_igv_type', 'system_isc_type', 'price_type']);
         }
 
-        
+
         /**
-         * 
+         *
          * Filtro para reporte de ventas grifo
-         * 
+         *
          * Usado en:
          * FormatController
          *
          * @param \Illuminate\Database\Eloquent\Builder $query
          * @return \Illuminate\Database\Eloquent\Builder
-         */  
+         */
         public function scopeFilterSaleGarageGLL($query, $d_start, $d_end)
         {
             return $query->whereHas('relation_item', function($query){
@@ -561,14 +562,14 @@
                         ->with(['document']);
         }
 
-        
+
         /**
-         * 
+         *
          * Datos para reporte de ventas grifo
          *
          * Usado en:
          * FormatController
-         * 
+         *
          * @return array
          */
         public function getDataSaleGarageGll()
@@ -593,5 +594,13 @@
 
         }
 
+        public function getAdditionalDataAttribute($value)
+        {
+            return (is_null($value)) ? null : (object)json_decode($value);
+        }
 
+        public function setAdditionalDataAttribute($value)
+        {
+            $this->attributes['additional_data'] = (is_null($value)) ? null : json_encode($value);
+        }
     }

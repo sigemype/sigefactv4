@@ -386,7 +386,16 @@
             <td class="desc">{{ $document->user->name }}</td>
         @endif
     </tr>
-
+    @if ($document->terms_condition)
+    <tr>
+        <td class="desc-ticket text-uppercase">
+            <br>
+            Términos y condiciones del servicio
+            <br>
+            {!! $document->terms_condition !!}
+        </td>
+    </tr>
+@endif
     <tr>
         <td class="text-center desc pt-5">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
     </tr>

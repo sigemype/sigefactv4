@@ -126,6 +126,7 @@
             'response_send_cdr_pse',
             'order_form_external',
 
+            'terms_condition',
         ];
 
         protected $casts = [

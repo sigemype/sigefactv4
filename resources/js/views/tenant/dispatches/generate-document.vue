@@ -429,7 +429,7 @@
 import DocumentOptions from "@views/documents/partials/options.vue";
 import SaleNoteOptions from "@views/sale_notes/partials/options.vue";
 import {calculateRowItem} from "../../../helpers/functions";
-import {exchangeRate} from "../../../mixins/functions";
+import {exchangeRate, functions} from "../../../mixins/functions";
 import moment from "moment";
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
@@ -439,7 +439,7 @@ export default {
         SaleNoteOptions
     },
     mixins: [
-        exchangeRate
+        exchangeRate, functions
     ],
     props: [
         "showDialog",
@@ -922,7 +922,8 @@ export default {
             return calculateRowItem(
                 it,
                 this.currencyTypeIdActive,
-                this.exchangeRateSale
+                this.exchangeRateSale,
+                this.percentage_igv
             );
         },
         assignDocument() {
@@ -973,14 +974,17 @@ export default {
                 .filter((a) => a.id == "10")
                 .reduce((a) => a);
             this.form.dispatch = await data.dispatch;
+            this.form.establishment_id = this.form.dispatch.establishment_id;
+            this.form.date_of_issue = this.form.dispatch.date_of_issue;
 
+            await this.getPercentageIgv();
             this.payment_conditions = await data.payment_conditions;
 
             const items = await data.items.map((i) => {
 
                 const it = this.form.dispatch.items.filter((ite) => ite.item_id == i.id).reduce((ite) => ite);
 
-                let unit_price = (!i.has_igv) ? i.sale_unit_price * 1.18 : i.sale_unit_price;
+                let unit_price = (!i.has_igv) ? i.sale_unit_price * (1 + this.percentage_igv) : i.sale_unit_price;
 
                 i.quantity = it.quantity;
                 i.unit_price = unit_price;

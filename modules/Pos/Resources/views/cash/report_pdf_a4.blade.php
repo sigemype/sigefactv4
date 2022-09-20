@@ -180,6 +180,21 @@
             </td>
         </tr>
         <tr>
+            <td class="td-custom">
+                <p>
+                    <strong>
+                        Total caja:
+                    </strong>
+                    S/. {{$data['total_cash_payment_method_type_01']}} 
+                    {{-- (Saldo inicial + Efectivo) --}}
+                </p>
+            </td>
+            <td class="td-custom">
+            </td>
+        </tr>
+
+
+        <tr>
             <td><hr></td>
             <td><hr></td>
         </tr>
@@ -243,6 +258,7 @@
 
     </table>
 </div>
+
 @if($data['cash_documents_total']>0)
     <div class="">
         <div class=" ">
@@ -276,80 +292,90 @@
                 @endforeach
                 </tbody>
             </table>
-            <br>
-            <table>
-                <thead>
-                <tr>
-                    <th>
-                        #
-                    </th>
-                    <th>
-                        Tipo transacción
-                    </th>
-                    <th>
-                        Tipo documento
-                    </th>
-                    <th>
-                        Documento
-                    </th>
-                    <th>
-                        Fecha emisión
-                    </th>
-                    <th>
-                        Cliente/Proveedor
-                    </th>
-                    <th>
-                        N° Documento
-                    </th>
-                    <th>
-                        Moneda
-                    </th>
-                    <th>
-                        T.Pagado
-                    </th>
-                    <th>
-                        Total
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($data['all_documents'] as $key => $value)
+
+
+            @if ($data['separate_cash_transactions'])
+
+                @include('pos::cash.partials.cash_transactions_table')
+        
+            @else
+
+                <br>
+                <table>
+                    <thead>
                     <tr>
-                        <td class="celda">
-                            {{ $loop->iteration }}{{--
-                            <br> {!! $value['usado'] !!}  <br> <strong>{{$value['tipo']}}</strong> --}}
-                        </td>
-                        <td class="celda">
-                            {{ $value['type_transaction'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['document_type_description'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['number'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['date_of_issue'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['customer_name'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['customer_number'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['currency_type_id'] }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['total_payments']??'0.00' }}
-                        </td>
-                        <td class="celda">
-                            {{ $value['total_string'] }}
-                        </td>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Tipo transacción
+                        </th>
+                        <th>
+                            Tipo documento
+                        </th>
+                        <th>
+                            Documento
+                        </th>
+                        <th>
+                            Fecha emisión
+                        </th>
+                        <th>
+                            Cliente/Proveedor
+                        </th>
+                        <th>
+                            N° Documento
+                        </th>
+                        <th>
+                            Moneda
+                        </th>
+                        <th>
+                            T.Pagado
+                        </th>
+                        <th>
+                            Total
+                        </th>
                     </tr>
-                @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    @foreach($data['all_documents'] as $key => $value)
+                        <tr>
+                            <td class="celda">
+                                {{ $loop->iteration }}{{--
+                                <br> {!! $value['usado'] !!}  <br> <strong>{{$value['tipo']}}</strong> --}}
+                            </td>
+                            <td class="celda">
+                                {{ $value['type_transaction'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['document_type_description'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['number'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['date_of_issue'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['customer_name'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['customer_number'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['currency_type_id'] }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['total_payments']??'0.00' }}
+                            </td>
+                            <td class="celda">
+                                {{ $value['total_string'] }}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            @endif
+
         </div>
     </div>
 @else
@@ -358,5 +384,6 @@
         </p>
     </div>
 @endif
+
 </body>
 </html>

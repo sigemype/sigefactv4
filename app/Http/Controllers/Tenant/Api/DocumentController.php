@@ -11,7 +11,6 @@ use Exception;
 use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentControllerSend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Tenant\Cash;
 
 class DocumentController extends Controller
 {
@@ -42,12 +41,6 @@ class DocumentController extends Controller
         $document = $fact->getDocument();
         $response = $fact->getResponse();
 
-        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
-        // dd($cash);
-        if ($cash!=null) {
-            $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'document_id' => $document->id]);
-        }
-
         return [
             'success' => true,
             'data' => [
@@ -59,6 +52,7 @@ class DocumentController extends Controller
                 'number_to_letter' => $document->number_to_letter,
                 'hash' => $document->hash,
                 'qr' => $document->qr,
+                'id' => $document->id,
             ],
             'links' => [
                 'xml' => $document->download_external_xml,
@@ -161,15 +155,21 @@ class DocumentController extends Controller
 
     public function lists($startDate = null, $endDate = null)
     {
-        if ($startDate == null) {
-            $record = Document::orderBy('date_of_issue', 'desc')
-                ->take(50)
-                ->get();
-        } else {
+
+        if ($startDate == null) 
+        {
+            $record = Document::whereTypeUser()
+                                ->orderBy('date_of_issue', 'desc')
+                                ->take(50)
+                                ->get();
+        }
+        else 
+        {
             $record = Document::whereBetween('date_of_issue', [$startDate, $endDate])
                 ->orderBy('date_of_issue', 'desc')
                 ->get();
         }
+
         $records = new DocumentCollection($record);
         return $records;
     }

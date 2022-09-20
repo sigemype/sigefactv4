@@ -250,7 +250,17 @@
         <p class="desc-9">Representación impresa de <br> <span class="font-bold">{{ $document->document_type->description }}</span> <br> Consulte su comprobante de pago en: <br> <span class="font-bold">{!! url('/buscar') !!} </span></p>
         <p class="desc-9">Código Hash: {{ $document->hash }}</p>
     </div>
-
+    @if ($document->terms_condition)
+        <br>
+        <table class="full-width">
+            <tr>
+                <td>
+                    <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                    {!! $document->terms_condition !!}
+                </td>
+            </tr>
+        </table>
+    @endif
 </div>
 </body>
 </html>

@@ -23,6 +23,8 @@ class DocumentPaymentCollection extends ResourceCollection
                 'reference' => $row->reference,
                 'filename' => ($row->payment_file) ? $row->payment_file->filename:null,
                 'payment' => $row->payment,
+                'payment_received' => $row->payment_received,
+                'payment_received_description' => $row->getPaymentReceivedDescription(),
             ];
         });
     }

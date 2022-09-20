@@ -55,6 +55,7 @@ class EstablishmentController extends Controller
     public function store(EstablishmentRequest $request)
     {
         $id = $request->input('id');
+        $has_igv_31556 = ($request->input('has_igv_31556') === 'true');
         $establishment = Establishment::firstOrNew(['id' => $id]);
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
             $request->validate(['file' => 'mimes:jpeg,png,jpg|max:1024']);
@@ -66,7 +67,7 @@ class EstablishmentController extends Controller
             $request->merge(['logo' => $path]);
         }
         $establishment->fill($request->all());
-
+        $establishment->has_igv_31556 = $has_igv_31556;
         $establishment->save();
 
         if(!$id) {

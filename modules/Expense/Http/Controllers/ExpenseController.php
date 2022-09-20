@@ -24,11 +24,15 @@ use App\Models\Tenant\Company;
 use Modules\Finance\Traits\FinanceTrait;
 use Modules\Expense\Exports\ExpenseExport;
 use Carbon\Carbon;
+use App\CoreFacturalo\Helpers\Functions\GeneralPdfHelper;
+use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use Exception;
+
 
 class ExpenseController extends Controller
 {
 
-    use FinanceTrait;
+    use FinanceTrait, StorageDocument;
 
     public function index()
     {
@@ -160,6 +164,9 @@ class ExpenseController extends Controller
                 $this->createGlobalPayment($record_payment, $row);
             }
 
+            $this->setFilename($doc);
+            $this->createPdf($doc);
+
             return $doc;
         });
 
@@ -170,6 +177,60 @@ class ExpenseController extends Controller
             ],
         ];
     }
+    
+
+    /**
+     * 
+     * Imprimir gasto
+     *
+     * @param  string $external_id
+     * @param  string $format
+     * @return mixed
+     */
+    public function toPrint($external_id, $format = 'a4') 
+    {
+        $record = Expense::where('external_id', $external_id)->first();
+
+        if (!$record) throw new Exception("El código {$external_id} es inválido, no se encontro el registro relacionado");
+
+        // si no tienen nombre de archivo, se regulariza
+        if(!$record->filename) $this->setFilename($record);
+
+        $this->createPdf($record, $format, $record->filename);
+
+        return GeneralPdfHelper::getPreviewTempPdf('expense', $this->getStorage($record->filename, 'expense'));
+    }
+
+    
+    /**
+     * 
+     * Asignar nombre de archivo
+     *
+     * @param  Expense $expense
+     * @return void
+     */
+    private function setFilename(Expense $expense)
+    {
+        $expense->filename = GeneralPdfHelper::getNumberIdFilename($expense->id, $expense->number);
+        $expense->save();
+    }
+
+        
+    /**
+     * 
+     * Crear pdf para gastos
+     *
+     * @param  Expense $expense
+     * @param  string $format_pdf
+     * @return void
+     */
+    public function createPdf(Expense $expense, $format_pdf = 'a4') 
+    {
+        $file_content = GeneralPdfHelper::getBasicPdf('expense', $expense, $format_pdf);
+
+        $this->uploadStorage($expense->filename, $file_content, 'expense');
+    }
+
 
     public static function merge_inputs($inputs)
     {

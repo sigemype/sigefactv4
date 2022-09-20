@@ -43,6 +43,12 @@
                         <td class="text-right">{{ row.total }}</td>
 
                         <td class="text-center">
+                            
+                            <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-primary m-1__2"
+                                    @click.prevent="clickPrint(row.external_id)">
+                                    <i class="fas fa-print"></i>
+                            </button>
+
                             <button type="button" style="min-width: 41px" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
                                     @click.prevent="clickPayment(row.id)">
                                     <i class="fa fa-search"></i>
@@ -89,6 +95,11 @@
         created() {
         },
         methods: {
+            clickPrint(external_id){
+
+                window.open(`/${this.resource}/print/${external_id}`, '_blank');
+
+            },
             clickExpensePayment(recordId) {
                 this.recordId = recordId;
                 this.showDialogExpensePayments = true

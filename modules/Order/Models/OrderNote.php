@@ -594,6 +594,8 @@
                 'user_name' => $this->user->name,
                 'customer_name' => $this->customer->name,
                 'customer_number' => $this->customer->number,
+                'customer_telephone' => optional($this->customer)->telephone,
+                'customer_email' => optional($this->customer)->email,
                 'currency_type_id' => $this->currency_type_id,
                 'total_exportation' => number_format($this->total_exportation, 2),
                 // 'total_free' => number_format($this->total_free,2),
@@ -633,8 +635,24 @@
                 'created_at' => $this->created_at->format('Y-m-d H:i:s'),
                 'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
                 'print_a4' => url('') . "/order-notes/print/{$this->external_id}/a4",
+                'filename' => $this->filename,
+                'print_ticket' => $this->getUrlPrintPdf('ticket'),
             ];
         }
+
+        
+        /**
+         * 
+         * Obtener url para impresión
+         *
+         * @param  string $format
+         * @return string
+         */
+        public function getUrlPrintPdf($format = "a4")
+        {
+            return url("order-notes/print/{$this->external_id}/{$format}");
+        }
+        
 
         /**
          * @return Dispatch[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection|mixed
@@ -670,4 +688,54 @@
         {
             return $this->hasMany(GuideFile::class);
         }
+
+        
+        /**
+         * @param $query
+         *
+         * @return mixed
+         */
+        public function scopeWhereStateTypeAccepted($query)
+        {
+            return $query->whereIn('state_type_id', self::STATE_TYPES_ACCEPTED);
+        }
+
+
+        /**
+         * 
+         * Obtener total y realizar conversión al tipo de cambio si se requiere
+         *
+         * @return float
+         */
+        public function getTransformTotal()
+        {
+            return ($this->currency_type_id === 'PEN') ? $this->total : ($this->total * $this->exchange_rate_sale);
+        }
+        
+        
+        /**
+         * 
+         * Obtener suma total del pedidos
+         *
+         * @param  Builder $query
+         * @param  string $date_start
+         * @param  string $date_end
+         * @return Builder
+         */
+        public function scopeFilterTotalsReport($query, $establishment_id, $date_start, $date_end)
+        {
+            $query->whereDoesntHave('documents')
+                    ->whereDoesntHave('sale_notes')
+                    ->where('establishment_id', $establishment_id)
+                    ->whereStateTypeAccepted();
+
+            if($date_start && $date_end)
+            {
+                $query->whereBetween('date_of_issue', [$date_start, $date_end]);
+            }
+
+            return $query;
+        }
+
+
     }

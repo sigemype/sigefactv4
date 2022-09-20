@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CashDocument extends ModelTenant
 {
-    protected $with = ['document','sale_note'];
+    // protected $with = ['document','sale_note'];
 
     public $timestamps = false;
 

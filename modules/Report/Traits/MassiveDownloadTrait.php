@@ -382,6 +382,7 @@
                 $pdf_margin_right = 1;
                 $pdf_margin_bottom = 5;
                 $pdf_margin_left = 1;
+                
 
                 $pdf_data = [
 
@@ -473,7 +474,87 @@
                 */
                 return $pdfj->Output('S');
 
-            } else {
+            }elseif ($format_pdf === 'a5') {
+
+                $base_pdf_template = $configuration->formats;
+                $width = 210;
+
+                if (config('tenant.enabled_template_ticket_80')) $width = 76;
+                $pdf_margin_top = 2;
+                $pdf_margin_right = 5;
+                $pdf_margin_bottom = 0;
+                $pdf_margin_left = 5;
+
+                $pdf_data = [
+
+                    'margin_top' => $pdf_margin_top,
+                    'margin_right' => $pdf_margin_right,
+                    'margin_bottom' => $pdf_margin_bottom,
+                    'margin_left' => $pdf_margin_left
+                ];
+
+
+                $documents = isset($data['documents_01']) ? $data['documents_01'] : [];
+                $type = 'invoice';
+                $pdf_array = [];
+                $pdfj = new Fpdi();
+                foreach ($documents as $document) {
+                    /** @var Document $document */
+                    $pdf = $this->addRecordToPdf(
+                        $document,
+                        $format_pdf,
+                        $base_pdf_template,
+                        $type,
+                        $stylesheet,
+                        $pdf_data
+                    );
+
+                    $pdf1 = $pdf;
+                    PdfUnionController::addFpi($pdfj, $pdf1);
+                    // $this->SaveTempPdf($pdf,$pdf_array,$document);
+                }
+
+                $documents = isset($data['documents_03']) ? $data['documents_03'] : [];
+                $type = 'invoice';
+
+                foreach ($documents as $document) {
+                    /** @var Document $document */
+                    $pdf = $this->addRecordToPdf(
+                        $document,
+                        $format_pdf,
+                        $base_pdf_template,
+                        $type,
+                        $stylesheet,
+                        $pdf_data
+                    );
+
+                    $pdf1 = $pdf;
+                    PdfUnionController::addFpi($pdfj, $pdf1);
+                    // $this->SaveTempPdf($pdf,$pdf_array,$document);
+                }
+
+                $documents = isset($data['sale_notes']) ? $data['sale_notes'] : [];
+                $type = 'sale_note';
+
+                foreach ($documents as $document) {
+                    /** @var SaleNote $document */
+                    $pdf = $this->addRecordToPdf(
+                        $document,
+                        $format_pdf,
+                        $base_pdf_template,
+                        $type,
+                        $stylesheet,
+                        $pdf_data
+                    );
+
+                    $pdf1 = $pdf;
+                    PdfUnionController::addFpi($pdfj, $pdf1);
+                    //   $this->SaveTempPdf($pdf,$pdf_array,$document);
+                }
+
+                return $pdfj->Output('S');
+
+            }else {
 
                 if ($pdf_font_regular != false) {
 
@@ -541,6 +622,7 @@
             $width = 100;
             if ($format_pdf == 'ticket' || $format_pdf == 80) $width = 78;
             if ($format_pdf == 'ticket_58') $width = 56;
+            if ($format_pdf == 'a5') $width = 210;
             $configuration = Configuration::first();
             $company = Company::active();
             $template = new Template();
@@ -596,10 +678,20 @@
                 + $total_unaffected
                 + $total_exonerated
                 + $total_taxed;
-            $format['format'] = [
-                $width,
-                $height,
-            ];
+
+            if($format_pdf=='a5'){
+                $diferencia = 148 - (float)$height;
+
+                $format['format'] = [
+                    $width,
+                    $diferencia + $height,
+                ];
+            }else{
+                $format['format'] = [
+                    $width,
+                    $height,
+                ];
+            }
 
 
             $pdf = new Mpdf($format);

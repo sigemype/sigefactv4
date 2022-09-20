@@ -130,6 +130,8 @@ class Facturalo
                 $this->savePayments($document, $inputs['payments']);
                 $this->saveFee($document, $inputs['fee']);
                 foreach ($inputs['items'] as $row) {
+//                    $purchase_unit_price = $row['purchase_unit_price'];
+//                    $row['item']['purchase_unit_price'] = $purchase_unit_price;
                     $document->items()->create($row);
                     // $row['document_id']=  $document->id;
                     // $item = new DocumentItem($row);
@@ -359,6 +361,12 @@ class Facturalo
             $pdf_margin_right = 5;
             $pdf_margin_bottom = 15;
             $pdf_margin_left = 14;
+        }
+        if (substr($base_pdf_template, 0, 7) === 'facnova') {
+            $pdf_margin_top = 5;
+            $pdf_margin_right = 2;
+            $pdf_margin_bottom = 5;
+            $pdf_margin_left = 5;
         }
 
         $html = $template->pdf($base_pdf_template, $this->type, $this->company, $this->document, $format_pdf);
@@ -712,27 +720,14 @@ class Facturalo
 
         if($this->company->send_document_to_pse)
         {
-            if(in_array($this->type, ['invoice', 'dispatch']))
+            if(in_array($this->type, ['invoice', 'dispatch', 'credit', 'debit']))
             {
                 $send_to_pse = true;
             }
-            elseif($this->type === 'voided')
+            elseif(in_array($this->type, ['voided', 'summary']))
             {
-                // validar si los documentos informados en la RA son facturas y fueron enviados a pse
-                $filter_quantity_documents = $this->document->documents->where('document.document_type_id', '01')
-                                                                        ->where('document.send_to_pse', true)
-                                                                        ->count();
-
-                if($this->document->documents->count() === $filter_quantity_documents)
-                {
-                    $send_to_pse = true;
-                }
-                else
-                {
-                    $this->sendDocumentPse->throwException('Documento a anular no es factura o no fue enviado al PSE.');
-                }
+                $send_to_pse = $this->document->getSendToPse($this->sendDocumentPse);
             }
-
         }
 
         return $send_to_pse;
@@ -917,11 +912,18 @@ class Facturalo
                 if($extService->getCustomStatusCode() === 0){
 
                     // if($this->document->summary_status_type_id === '1') {
-                    if(in_array($this->document->summary_status_type_id, ['1', '2'])) {
+                    if(in_array($this->document->summary_status_type_id, ['1', '2']))
+                    {
                         $this->updateStateDocuments(self::ACCEPTED);
-                    } else {
+                    }
+                    else
+                    {
                         $this->updateStateDocuments(self::VOIDED);
                     }
+
+                    //enviar cdr a pse
+                    $this->sendCdrToPse($res->getCdrZip(), $this->document);
+                    //enviar cdr a pse
 
                 }else if($extService->getCustomStatusCode() === 99){
 
@@ -1141,7 +1143,8 @@ class Facturalo
                     "reference" => $row['reference'],
                     "payment_destination_id" => isset($row['payment_destination_id']) ? $row['payment_destination_id'] : null,
                     "change" => $change,
-                    "payment" => $payment
+                    "payment" => $payment,
+                    "payment_received" => isset($row['payment_received']) ? $row['payment_received'] : null,
                 ];
 
             });

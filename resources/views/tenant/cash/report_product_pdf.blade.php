@@ -126,7 +126,19 @@
         $total = 0;
         $subTotal = 0
     @endphp
-
+    @php
+        $items_id=[];
+        foreach ($documents as $item) {
+            $validate=in_array($item['item_id'],$items_id);
+            if (!$validate) {
+                $items_id[]=$item['item_id'];
+            }
+        }
+        
+        
+        $allTotal=0;
+        //dd($items_id);
+    @endphp
     @if ($is_garage)
         @include('tenant.cash.partials.data_garage')
     @endif
@@ -170,6 +182,73 @@
                     <td class="celda"> Totales </td>
                     <td class="celda" style="text-align: right">
                         {{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($subTotal) }}
+                    </td>
+                    <td class="celda"></td>
+
+                </tr>
+                </tbody>
+            </table>
+            <br>
+            {{-- TOTALES --}}
+            <table class="">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach ($items_id as $item_id)
+                    @php
+                        $quantity_item=0;
+                        $description='';
+                        $unit_value=0;
+                        $total_item=0;
+                        $info='TOTAL CON IGV';
+                    @endphp
+                    <tr>
+                    @foreach($documents as $item)
+                    
+                        @if ($item_id==$item['item_id'])
+                            @php
+                                $quantity_item+=$item['quantity'];
+                                $description=$item['description'];
+                                $unit_value=$item['unit_value'];
+                                $total_item+=$item['total'];
+                                
+                            @endphp
+                        @endif
+                        @php
+                            //dd($quantity_item);
+                        @endphp
+                        
+                    @endforeach
+                        <td class="celda">{{ $loop->iteration }}</td>
+                            <td class="celda">{{ $description }}</td>
+                            <td class="celda">{{ $quantity_item }}</td>
+                            <td class="celda"
+                                style="text-align: right">{{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($unit_value) }}</td>
+                            <td class="celda"
+                                style="text-align: right">{{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($total_item) }}</td>
+                            <td >{{$info}}</td>
+                        </tr>
+                        @php
+                            //$total+=$item['unit_value'];
+                            $allTotal+=$total_item;
+                        @endphp
+                @endforeach
+                
+                <tr>
+                    <td class="celda"></td>
+                    <td class="celda"></td>
+                    <td class="celda"></td>
+                    <td class="celda"> Totales </td>
+                    <td class="celda" style="text-align: right">
+                        {{ App\CoreFacturalo\Helpers\Template\ReportHelper::setNumber($allTotal) }}
                     </td>
                     <td class="celda"></td>
 

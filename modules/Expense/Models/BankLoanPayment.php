@@ -282,6 +282,23 @@
             return $this->belongsTo(BankLoan::class, 'bank_loan_id');
         }
 
+
+        /**
+         * 
+         * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeFilterRelationsPayments($query)
+        {
+            return $query->with([
+                'payment_method_type' => function($payment_method_type){
+                    $payment_method_type->select('id', 'description');
+                }, 
+            ]);
+        }
+
     }
 
 

@@ -75,9 +75,15 @@ class OrderNoteController extends Controller
     //     ];
     // }
 
-    public function lists()
+    public function lists(Request $request)
     {
-        $records = OrderNote::orderBy('id', 'desc')->take(50)->get();
+        $records = OrderNote::where(function($q) use($request){
+                                $q->where('prefix', 'like', "%{$request->input}%" )
+                                    ->orWhere('id','like', "%{$request->input}%");
+                            })
+                            ->orderBy('id', 'desc')
+                            ->take(config('tenant.items_per_page'))
+                            ->get();
 
         return new OrderNoteCollection($records);
     }

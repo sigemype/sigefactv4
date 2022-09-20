@@ -29,10 +29,16 @@
                         <el-tab-pane label="Imprimir Ticket" name="first" v-if="config !== null  && config.show_ticket_80">
                             <embed v-if="config !== null  && config.show_ticket_80" id="nemo" :src="form.print_ticket" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
-                        <el-tab-pane label="Imprimir A4" name="second">
+                        <el-tab-pane label="Imprimir Ticket 58" name="second" v-if="config.show_ticket_58">
+                            <embed v-if="config.show_ticket_58" :src="form.print_ticket_58" type="application/pdf" width="100%" height="450px"/>
+                        </el-tab-pane>
+                        <el-tab-pane label="Imprimir Ticket 50" name="third" v-if="config.show_ticket_50 && this.resource=='documents'">
+                            <embed v-if="config.show_ticket_50" :src="form.print_ticket_50" type="application/pdf" width="100%" height="450px"/>
+                        </el-tab-pane>
+                        <el-tab-pane label="Imprimir A4" name="quarter">
                             <embed :src="form.print_a4" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
-                        <el-tab-pane label="Imprimir A5" name="third">
+                        <el-tab-pane label="Imprimir A5" name="fifth">
                             <embed :src="form.print_a5" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
                     </el-tabs>
@@ -56,6 +62,26 @@
                                 <i class="fa fa-receipt"></i>
                             </button>
                             <p>Ticket</p>
+                        </div>
+                        <div
+                            v-if="config.show_ticket_58"
+                            class="col text-center font-weight-bold mt-3">
+                            <button class="btn btn-lg btn-info waves-effect waves-light"
+                                    type="button"
+                                    @click="clickPrint(form.print_ticket_58)">
+                                <i class="fa fa-receipt"></i>
+                            </button>
+                            <p>Ticket 58</p>
+                        </div>
+                        <div
+                            v-if="config.show_ticket_50&& this.resource=='documents'"
+                            class="col text-center font-weight-bold mt-3">
+                            <button class="btn btn-lg btn-info waves-effect waves-light"
+                                    type="button"
+                                    @click="clickPrint(form.print_ticket_50)">
+                                <i class="fa fa-receipt"></i>
+                            </button>
+                            <p>Ticket 50</p>
                         </div>
                         <div class="col text-center font-weight-bold mt-3">
                             <button class="btn btn-lg btn-info waves-effect waves-light"
@@ -163,9 +189,15 @@
                         format = 'ticket'
                         break;
                     case 'second':
-                        format = 'a4'
+                        format = 'ticket_58'
                         break;
                     case 'third':
+                        format = 'ticket_50'
+                        break;
+                    case 'quarter':
+                        format = 'a4'
+                        break;
+                    case 'fifth':
                         format= 'a5'
                         break;
                 }
@@ -177,7 +209,11 @@
                 }
                 else if(this.resource == 'documents')
                 {
-                    window.open(`/downloads/Document/${type}/${external_id}/pdf`, '_blank');
+                    if(format=='ticket'){
+                        window.open(`/downloads/Document/${type}/${external_id}/pdf`, '_blank');
+                    }else{
+                        window.open(`downloads/documents/${type}/${external_id}/${format}`, '_blank');
+                    }
                 }
 
             },
@@ -207,6 +243,8 @@
                     print_a4: null,
                     print_a5: null,
                     print_ticket: null,
+                    print_ticket_50: null,
+                    print_ticket_58: null,
                     external_id: null,
                     number: null,
                     customer_telephone:null,
@@ -262,7 +300,13 @@
             },
             changeActiveName() {
                 this.loadConfiguration();
-                this.activeName =( this.config!== null && this.config.show_ticket_80) ? 'first' : 'second';
+                this.activeName =( this.config!== null && this.config.show_ticket_80) ? 'first' : 'quarter';
+                if((!this.config.show_ticket_80&&this.config.show_ticket_50)||(!this.config.show_ticket_80&&!this.config.show_ticket_50)){
+                    this.activeName = ( this.config!== null &&this.config.show_ticket_58) ? 'second' : 'third';
+                }
+                if(!this.config.show_ticket_58&&!this.config.show_ticket_80){
+                    this.activeName = ( this.config!== null &&this.config.show_ticket_50) ? 'third' : 'quarter';
+                }
             }
             // clickConsultCdr(document_id) {
             //     this.$http.get(`/${this.resource}/consult_cdr/${document_id}`)

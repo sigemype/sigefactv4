@@ -129,6 +129,7 @@
 <script>
 import InputLotsForm from '../../../../../../resources/js/views/tenant/items/partials/lots.vue'
 import OutputLotsForm from './partials/lots.vue'
+import {filterWords} from "../../../../../../resources/js/helpers/functions";
 
 export default {
     components: {InputLotsForm, OutputLotsForm},
@@ -234,7 +235,11 @@ export default {
             this.items = [];
             await this.$http.post(`/${this.resource}/search_items`, {'search': search})
                 .then(response => {
-                    this.items = response.data.items
+                    let items = response.data.items;
+                    if(items.length > 0) {
+                        this.items = items; //filterWords(search, items);
+                    }
+
                 })
             this.loading_search = false;
         },

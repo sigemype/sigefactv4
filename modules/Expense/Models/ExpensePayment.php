@@ -155,4 +155,20 @@
         }
         
 
+        /**
+         * 
+         * Obtener relaciones necesarias o aplicar filtros para reporte pagos - finanzas
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeFilterRelationsPayments($query)
+        {
+            return $query->with([
+                'expense_method_type' => function($q){
+                    $q->select('id', 'description');
+                }, 
+            ]);
+        }
+
     }

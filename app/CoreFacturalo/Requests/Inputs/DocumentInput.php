@@ -19,7 +19,6 @@ use App\Models\Tenant\Configuration;
 
 class DocumentInput
 {
-
     public static function set($inputs)
     {
         $document_type_id = $inputs['document_type_id'];
@@ -64,6 +63,11 @@ class DocumentInput
 
         $items = self::items($inputs);
 
+        //configuracion para envio individual de boleta
+        $ticket_single_shipment = self::getTicketSingleShipment($inputs);
+        $inputs['ticket_single_shipment'] = $ticket_single_shipment;
+
+
         return [
             'type' => $inputs['type'],
             'group_id' => $inputs['group_id'],
@@ -85,6 +89,7 @@ class DocumentInput
             'customer' => $customer,
             'currency_type_id' => $inputs['currency_type_id'],
             'purchase_order' => Functions::valueKeyInArray($inputs, 'purchase_order'),
+            'folio' => Functions::valueKeyInArray($inputs, 'folio'),
             'quotation_id' => Functions::valueKeyInArray($inputs, 'quotation_id'),
             'sale_note_id' => Functions::valueKeyInArray($inputs, 'sale_note_id'),
             'order_note_id' => Functions::valueKeyInArray($inputs, 'order_note_id'),
@@ -128,6 +133,7 @@ class DocumentInput
             'hotel' => self::hotel($inputs),
             'transport' => self::transport($inputs),
             'additional_information' => Functions::valueKeyInArray($inputs, 'additional_information'),
+            //'additional_data' => Functions::valueKeyInArray($inputs, 'additional_data'),
             'plate_number' => Functions::valueKeyInArray($inputs, 'plate_number'),
             'legends' => LegendInput::set($inputs),
             'actions' => ActionInput::set($inputs),
@@ -145,8 +151,10 @@ class DocumentInput
             'total_pending_payment' => Functions::valueKeyInArray($inputs, 'total_pending_payment', 0),
             // 'pending_amount_detraction' => Functions::valueKeyInArray($inputs, 'pending_amount_detraction', 0),
             'tip' => self::tip($inputs, $soap_type_id),
+            'ticket_single_shipment' => $ticket_single_shipment,
         ];
     }
+
 
     public static function items($inputs)
     {
@@ -155,46 +163,6 @@ class DocumentInput
             foreach ($inputs['items'] as $row) {
                 $item = Item::query()->find($row['item_id']);
                 /** @var Item $item */
-
-                ///modificacion para presentaciones desde la app y tambien para web
-                $unit_type_id = (key_exists('item', $row)) ? $row['item']['unit_type_id'] : $item->unit_type_id;
-                $quantity_factor = 1;
-
-                $presentation = (key_exists('item', $row)) ? (isset($row['item']['presentation']) ? $row['item']['presentation'] : []) : [];
-
-                if(!$presentation) {
-
-
-                if (isset($row['presentation_unit_type_id'])) {
-                    if (isset($row['quantity_factor'])) {
-                        if(key_exists('quantity_factor', $row)) {
-                                $quantity_factor = $row['quantity_factor'];
-                            }
-
-                            if ($row['quantity_factor']!=1) {
-                                $unit_type_id = $row['presentation_unit_type_id'];
-                                $presentation = [
-                                    'description' => $row['presentation_description'],
-                                    'item_id' => $item->id,
-                                    'price2' => $row['unit_price'],
-                                    'price_default' => 2,
-                                    'quantity_unit' => $quantity_factor,
-                                    'unit_type_id' => $unit_type_id,
-                                ];
-                            }
-                    }
-                }
-                // else{
-                //     $presentation=[];
-                // }
-
-
-                } else {
-                    if(key_exists('quantity_unit', $presentation)) {
-                        $quantity_factor = $presentation['quantity_unit'];
-                    }
-                }
-
                 $arayItem = [
                     'item_id' => $item->id,
                     'item' => [
@@ -203,8 +171,8 @@ class DocumentInput
                         'internal_id' => $item->internal_id,
                         'item_code' => trim($item->item_code),
                         'item_code_gs1' => $item->item_code_gs1,
-                        'unit_type_id' => $unit_type_id,
-                        'presentation' => $presentation,
+                        'unit_type_id' => (key_exists('item', $row)) ? $row['item']['unit_type_id'] : $item->unit_type_id,
+                        'presentation' => (key_exists('item', $row)) ? (isset($row['item']['presentation']) ? $row['item']['presentation'] : []) : [],
                         'amount_plastic_bag_taxes' => $item->amount_plastic_bag_taxes,
                         'is_set' => $item->is_set,
                         'lots' => self::lots($row),
@@ -213,12 +181,11 @@ class DocumentInput
                         'sanitary' => $item->sanitary,
                         'cod_digemid' => $item->cod_digemid,
                         'date_of_due' => (!empty($item->date_of_due)) ? $item->date_of_due->format('Y-m-d') : null,
-                        'has_igv' => $item->has_igv = 1 ? true : false,
+                        'has_igv' => $row['item']['has_igv'] ?? true,
                         'unit_price' => $row['unit_price'] ?? 0,
-                        'purchase_unit_price' => $item->purchase_unit_price ?? 0,
+                        'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,
                     ],
                     'quantity' => $row['quantity'],
-                    'quantity_factor' => $quantity_factor,
                     'unit_value' => $row['unit_value'],
                     'price_type_id' => $row['price_type_id'],
                     'unit_price' => $row['unit_price'],
@@ -247,7 +214,10 @@ class DocumentInput
                     'name_product_pdf' => Functions::valueKeyInArray($row, 'name_product_pdf'),
                     'name_product_xml' => Functions::valueKeyInArray($row, 'name_product_pdf') ? self::getNameProductXml($row, $inputs) : null,
                     'update_description' => Functions::valueKeyInArray($row, 'update_description', false),
+                    'additional_data' => Functions::valueKeyInArray($row, 'additional_data'),
+//                    'additional_data' => key_exists('additional_data', $row)?$row['additional_data']:null,
                 ];
+//                dd($arayItem);
                 Item::SaveExtraDataToRequest($arayItem,$row);
                 $items[] = $arayItem;
             }
@@ -593,40 +563,6 @@ class DocumentInput
         ];
     }
 
-
-    /**
-     *
-     * Retorna datos para registro de propina
-     *
-     * Usado en:
-     * DocumentInput
-     * TipTrait
-     *
-     * @param  array $inputs
-     * @param  string $soap_type_id
-     * @return array
-     */
-    public static function tip($inputs, $soap_type_id)
-    {
-        $worker_full_name_tips = Functions::valueKeyInArray($inputs, 'worker_full_name_tips');
-        $total_tips = Functions::valueKeyInArray($inputs, 'total_tips', 0);
-
-        if ($worker_full_name_tips && $total_tips > 0)
-        {
-            return [
-                'date' => date('Y-m-d'),
-                'worker_full_name' => $worker_full_name_tips,
-                'total' => $total_tips,
-                'soap_type_id' => $soap_type_id,
-                'origin_date_of_issue' => $inputs['date_of_issue'],
-            ];
-        }
-
-        return null;
-    }
-
-
-
     private static function note($inputs)
     {
         $document_type_id = $inputs['document_type_id'];
@@ -666,4 +602,56 @@ class DocumentInput
             ]
         ];
     }
+
+
+    /**
+     *
+     * Retorna datos para registro de propina
+     *
+     * Usado en:
+     * DocumentInput
+     * TipTrait
+     *
+     * @param  array $inputs
+     * @param  string $soap_type_id
+     * @return array
+     */
+    public static function tip($inputs, $soap_type_id)
+    {
+        $worker_full_name_tips = Functions::valueKeyInArray($inputs, 'worker_full_name_tips');
+        $total_tips = Functions::valueKeyInArray($inputs, 'total_tips', 0);
+
+        if ($worker_full_name_tips && $total_tips > 0)
+        {
+            return [
+                'date' => date('Y-m-d'),
+                'worker_full_name' => $worker_full_name_tips,
+                'total' => $total_tips,
+                'soap_type_id' => $soap_type_id,
+                'origin_date_of_issue' => $inputs['date_of_issue'],
+            ];
+        }
+
+        return null;
+    }
+
+
+    /**
+     *
+     * Retornar configuracion para envio individual de boletas
+     *
+     * @param  array $inputs
+     * @return bool
+     */
+    public static function getTicketSingleShipment($inputs)
+    {
+        if($inputs['document_type_id'] === Document::DOCUMENT_TYPE_TICKET)
+        {
+            return Configuration::getRecordIndividualColumn('ticket_single_shipment');
+        }
+
+        return false;
+    }
+
+
 }

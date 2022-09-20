@@ -320,6 +320,17 @@
 
 </table>
 @endif
+@if ($document->terms_condition)
+        <br>
+        <table class="full-width">
+            <tr>
+                <td>
+                    <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                    {!! $document->terms_condition !!}
+                </td>
+            </tr>
+        </table>
+    @endif
 <div class="text-center">
     <img style="width: 45%" height="80px" src="data:{{mime_content_type($footer_image)}};base64, {{base64_encode(file_get_contents($footer_image))}}" alt="image" class="">
 </div>

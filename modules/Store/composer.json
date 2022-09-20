@@ -1,0 +1,25 @@
+{
+    "name": "eriquegasparcarlos/store",
+    "description": "",
+    "authors": [
+        {
+            "name": "Carlos Alfredo Erique",
+            "email": "eriquegasparcarlos@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Store\\Providers\\StoreServiceProvider"
+            ],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Store\\": ""
+        }
+    }
+}

@@ -37,7 +37,8 @@
                                         placeholder="Escriba el nombre o número de documento del cliente"
                                         :remote-method="searchRemoteCustomers"
                                         :loading="loading_search"
-                                        @change="changeCustomer">
+                                        @change="changeCustomer"
+                                        @keyup.enter.native="keyupCustomer">
 
                                         <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
 
@@ -68,7 +69,7 @@
                                     <small class="form-control-feedback" v-if="errors.delivery_date" v-text="errors.delivery_date[0]"></small>
                                 </div>
                             </div>
-                            
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Dirección de envío
@@ -87,7 +88,7 @@
                                     <small class="form-control-feedback" v-if="errors.description" v-text="errors.description[0]"></small>
                                 </div>
                             </div> -->
-                            
+
                             <div class="col-lg-6">
                                 <div class="form-group" :class="{'has-danger': errors.observation}">
                                     <label class="control-label">Observación
@@ -225,6 +226,7 @@
         <person-form :showDialog.sync="showDialogNewPerson"
                        type="customers"
                        :external="true"
+                       :input_person="input_person"
                        :document_type_id = form.document_type_id></person-form>
 
         <order-note-options :type="type" :showDialog.sync="showDialogOptions"
@@ -260,6 +262,7 @@
         data() {
             return {
                 type:  'edit',
+                input_person: {},
                 resource: 'order-notes',
                 showDialogAddItem: false,
                 showDialogNewPerson: false,
@@ -308,6 +311,9 @@
             this.$eventHub.$on('reloadDataPersons', (customer_id) => {
                 this.reloadDataCustomers(customer_id)
             })
+            this.$eventHub.$on('initInputPerson', () => {
+                this.initInputPerson()
+            });
 
         },
         methods: {
@@ -315,7 +321,7 @@
                 this.setAddressByCustomer()
             },
             setAddressByCustomer(){
-                
+
                 let customer = _.find(this.customers, {id : this.form.customer_id})
 
                 if(customer){
@@ -436,10 +442,12 @@
                             .then(response => {
                                 this.customers = response.data.customers
                                 this.loading_search = false
-                                if(this.customers.length == 0){this.allCustomers()}
+                                /* if(this.customers.length == 0){this.allCustomers()} */
+                                this.input_person.number=(this.customers.length==0)? input : null
                             })
                 } else {
                     this.allCustomers()
+                    this.input_person.number= null
                 }
 
             },
@@ -489,6 +497,7 @@
                         format_pdf:'a4',
                     }
                 }
+                this.initInputPerson()
             },
             resetForm() {
                 this.activePanel = 0
@@ -529,13 +538,13 @@
                 this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
                 let items = []
                 this.form.items.forEach((row) => {
-                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
                 });
                 this.form.items = items
                 this.calculateTotal()
             },
             calculateTotal() {
-                
+
                 let total_discount = 0
                 let total_charge = 0
                 let total_exportation = 0
@@ -572,7 +581,7 @@
                         total += parseFloat(row.total)
                     }
                     // total_value += parseFloat(row.total_value)
-                    
+
                     if (!['21', '37'].includes(row.affectation_igv_type_id)) {
                         total_value += parseFloat(row.total_value)
                     }
@@ -588,7 +597,7 @@
                         total_igv_free += row.total_igv
 
                     }
-                    
+
                 });
 
                 this.form.total_igv_free = _.round(total_igv_free, 2)
@@ -642,6 +651,36 @@
                     this.form.customer_id = customer_id
                     this.setAddressByCustomer()
                 })
+            },
+            keyupCustomer() {
+
+                if (this.input_person.number) {
+
+                    if (!isNaN(parseInt(this.input_person.number))) {
+
+                        switch (this.input_person.number.length) {
+                            case 8:
+                                this.input_person.identity_document_type_id = '1'
+                                this.showDialogNewPerson = true
+                                break;
+
+                            case 11:
+                                this.input_person.identity_document_type_id = '6'
+                                this.showDialogNewPerson = true
+                                break;
+                            default:
+                                this.input_person.identity_document_type_id = '6'
+                                this.showDialogNewPerson = true
+                                break;
+                        }
+                    }
+                }
+            },
+            initInputPerson() {
+                this.input_person = {
+                    number: null,
+                    identity_document_type_id: null
+                }
             },
         }
     }

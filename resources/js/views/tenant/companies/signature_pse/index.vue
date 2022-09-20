@@ -4,7 +4,7 @@
             <h3 class="my-0">Firma digital PSE
                 <el-tooltip
                     class="item"
-                    content="Solicitar datos al PSE - Disponible para facturas, boletas y anulaciones de facturas"
+                    content="Solicitar datos al PSE - Disponible para facturas, boletas, resumen de boletas, y anulaciones de facturas"
                     effect="dark"
                     placement="top-start">
                     <i class="fa fa-info-circle"></i>
@@ -37,12 +37,44 @@
                     
                     <template v-if="form.send_document_to_pse">
 
-                        <div class="col-md-3 mt-3">
+                        <!-- <div class="col-md-3 mt-3">
                             <div class="form-group" :class="{'has-danger': errors.client_id_pse}">
                                 <label class="control-label">ID Cliente <span class="text-danger">*</span>
                                 </label>
                                 <el-input v-model="form.client_id_pse"></el-input>
                                 <small class="form-control-feedback" v-if="errors.client_id_pse" v-text="errors.client_id_pse[0]"></small>
+                            </div>
+                        </div> -->
+
+                        <div class="col-md-12 mt-3">
+                            <div class="form-group" :class="{'has-danger': errors.url_login_pse}">
+                                <label class="control-label">Url autenticación <span class="text-danger">*</span></label>
+                                <el-input v-model="form.url_login_pse"></el-input>
+                                <small class="form-control-feedback" v-if="errors.url_login_pse" v-text="errors.url_login_pse[0]"></small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mt-3">
+                            <div class="form-group" :class="{'has-danger': errors.user_pse}">
+                                <label class="control-label">Usuario autenticación <span class="text-danger">*</span></label>
+                                <el-input v-model="form.user_pse"></el-input>
+                                <small class="form-control-feedback" v-if="errors.user_pse" v-text="errors.user_pse[0]"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                            <div class="form-group" :class="{'has-danger': errors.password_pse}">
+                                <label class="control-label">Contraseña autenticación <span class="text-danger">*</span>
+                                    <el-tooltip
+                                        class="item"
+                                        content="Registrar solo si desea modificar la contraseña actual"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <el-input v-model="form.password_pse" show-password></el-input>
+                                <small class="form-control-feedback" v-if="errors.password_pse" v-text="errors.password_pse[0]"></small>
                             </div>
                         </div>
 
@@ -122,6 +154,9 @@
                     url_signature_pse : null,
                     url_send_cdr_pse : null,
                     client_id_pse: null,
+                    url_login_pse: null,
+                    password_pse: null,
+                    user_pse: null,
                 }
 
                 this.errors = {}

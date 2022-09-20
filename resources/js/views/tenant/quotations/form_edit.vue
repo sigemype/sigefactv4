@@ -10,7 +10,7 @@
                         <div class="col-sm-6 text-left mt-3 mb-0">
                             <address class="ib mr-2" >
                                 <span class="font-weight-bold d-block">COTIZACIÓN</span>
-                                <span class="font-weight-bold d-block">COT-XXXX</span>
+                                <span class="font-weight-bold d-block">COT-XXX</span>
                                 <span class="font-weight-bold">{{company.name}}</span>
                                 <br>
                                 <div v-if="establishment.address != '-'">{{ establishment.address }}, </div> {{ establishment.district.description }}, {{ establishment.province.description }}, {{ establishment.department.description }} - {{ establishment.country.description }}
@@ -34,7 +34,8 @@
                                         placeholder="Escriba el nombre o número de documento del cliente"
                                         :remote-method="searchRemoteCustomers"
                                         :loading="loading_search"
-                                        @change="changeCustomer">
+                                        @change="changeCustomer"
+                                        @keyup.enter.native="keyupCustomer">
 
                                         <el-option v-for="option in customers" :key="option.id" :value="option.id" :label="option.description"></el-option>
 
@@ -243,7 +244,8 @@
                                         <thead>
                                             <tr>
                                                 <th width="5%">#</th>
-                                                <th class="font-weight-bold" width="30%">Descripción</th>
+                                                <th class="font-weight-bold"
+                                                    width="30%">Descripción</th>
                                                 <th width="8%" class="text-center font-weight-bold">Unidad</th>
                                                 <th width="8%" class="text-center font-weight-bold">Cantidad</th>
                                                 <th class="text-center font-weight-bold">Valor Unitario</th>
@@ -256,7 +258,7 @@
                                         <tbody v-if="form.items.length > 0">
                                             <tr v-for="(row, index) in form.items" :key="index">
                                                 <td>{{index + 1}}</td>
-                                                <td>{{setDescriptionOfItem (row.item)}} <br/><small>{{row.affectation_igv_type.description}}</small></td>
+                                                <td>{{setDescriptionOfItem (row.item)}} {{row.item.presentation.hasOwnProperty('description') ? row.item.presentation.description : ''}}<br/><small>{{row.affectation_igv_type.description}}</small></td>
                                                 <td class="text-center">{{row.item.unit_type_id}}</td>
                                                 <td class="text-center">{{row.quantity}}</td>
                                                 <td class="text-center">{{currency_type.symbol}} {{getFormatUnitPriceRow(row.unit_value)}}</td>
@@ -424,7 +426,9 @@ export default {
                 this.reloadDataCustomers(customer_id)
             })
 
-
+            this.$eventHub.$on('initInputPerson', () => {
+                this.initInputPerson()
+            });
 
 
         },
@@ -604,10 +608,12 @@ export default {
                             .then(response => {
                                 this.customers = response.data.customers
                                 this.loading_search = false
-                                if(this.customers.length == 0){this.allCustomers()}
+                                /* if(this.customers.length == 0){this.allCustomers()} */
+                                this.input_person.number=(this.customers.length==0)? input : null
                             })
                 } else {
                     this.allCustomers()
+                    this.input_person.number= null
                 }
 
             },
@@ -670,6 +676,7 @@ export default {
                 this.total_discount_no_base = 0
 
                 this.clickAddPayment()
+                this.initInputPerson()
             },
             resetForm() {
                 this.activePanel = 0
@@ -716,7 +723,7 @@ export default {
                 this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
                 let items = []
                 this.form.items.forEach((row) => {
-                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
                 });
                 this.form.items = items
                 this.calculateTotal()
@@ -882,6 +889,36 @@ export default {
             },
             setDescriptionOfItem(item){
                 return showNamePdfOfDescription(item,this.config.show_pdf_name)
+            },
+            keyupCustomer() {
+
+                if (this.input_person.number) {
+
+                    if (!isNaN(parseInt(this.input_person.number))) {
+
+                        switch (this.input_person.number.length) {
+                            case 8:
+                                this.input_person.identity_document_type_id = '1'
+                                this.showDialogNewPerson = true
+                                break;
+
+                            case 11:
+                                this.input_person.identity_document_type_id = '6'
+                                this.showDialogNewPerson = true
+                                break;
+                            default:
+                                this.input_person.identity_document_type_id = '6'
+                                this.showDialogNewPerson = true
+                                break;
+                        }
+                    }
+                }
+            },
+            initInputPerson() {
+                this.input_person = {
+                    number: null,
+                    identity_document_type_id: null
+                }
             },
         }
     }

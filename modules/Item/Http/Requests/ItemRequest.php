@@ -4,6 +4,8 @@ namespace Modules\Item\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Inventory\Models\InventoryConfiguration;
+
 
 class ItemRequest extends FormRequest
 {
@@ -14,10 +16,15 @@ class ItemRequest extends FormRequest
 
     public function rules()
     {
+
+        //validar configuracion de codigo interno automatico para aplicar restriccion
+        $generate_internal_id = InventoryConfiguration::getRecordIndividualColumn('generate_internal_id');
+
         $id = $this->input('id');
+
         return [
             'internal_id' => [
-                'required',
+                $generate_internal_id ? 'nullable' : 'required',
                 Rule::unique('tenant.items')->ignore($id),
             ],
             'description' => [

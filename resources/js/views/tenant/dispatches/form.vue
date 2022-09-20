@@ -22,7 +22,7 @@
                         <div class="col-lg-2">
                             <div :class="{'has-danger': errors.series_id}" class="form-group">
                                 <label class="control-label">Serie<span class="text-danger"> *</span></label>
-                                <el-select v-model="form.series_id">
+                                <el-select v-model="form.series_id" :disabled="generalDisabledSeries()">
                                     <el-option v-for="option in series" :key="option.id" :label="option.number"
                                                :value="option.id"></el-option>
                                 </el-select>
@@ -90,7 +90,7 @@
                             </div>
                         </div>
 
-                        
+
 
                         <!-- numero de DAM -->
                         <template v-if="form.transfer_reason_type_id === '09'">
@@ -121,7 +121,7 @@
                                                 :key="option.id"
                                                 :label="option.description"
                                                 :value="option.id"></el-option>
-                                    </el-select> 
+                                    </el-select>
                                     <small v-if="errors['related.document_type_id']" class="form-control-feedback" v-text="errors['related.document_type_id'][0]"></small>
                                 </div>
                             </div>
@@ -202,7 +202,7 @@
                                        v-text="errors.observations[0]"></small>
                             </div>
                         </div>
-                        
+
                         <div class="col-lg-2" v-if="showOrderFormExternal">
                             <div :class="{'has-danger': errors.order_form_external}"
                                  class="form-group">
@@ -487,7 +487,7 @@
                             <tbody>
                             <tr v-for="(row, index) in form.items" :key="index">
                                 <td>{{ index + 1 }}</td>
-                                <td>{{ setDescriptionOfItem(row.item) }}</td>
+                                <td>{{ setDescriptionOfItem(row) }}</td>
                                 <!-- <td>{{ row.item.description }}</td> -->
                                 <td class="text-right">{{ row.quantity }}</td>
                                 <td class="text-right">
@@ -531,6 +531,7 @@ import Items from './items.vue';
 import DispatchOptions from './partials/options.vue'
 import {mapActions, mapState} from "vuex";
 import {showNamePdfOfDescription} from '@helpers/functions'
+import {setDefaultSeriesByMultipleDocumentTypes} from '@mixins/functions'
 
 export default {
     props: [
@@ -540,12 +541,14 @@ export default {
         'dispatch',
         'configuration',
         'sale_note',
+        'authUser',
     ],
     components: {
         PersonForm,
         Items,
         DispatchOptions
     },
+    mixins: [setDefaultSeriesByMultipleDocumentTypes],
     data() {
         return {
             showDialogOptions: false,
@@ -706,7 +709,12 @@ export default {
     },
     methods: {
         setDescriptionOfItem(item) {
-            return showNamePdfOfDescription(item, this.configuration.show_pdf_name)
+            if(this.configuration.show_pdf_name) {
+                if(item.name_product_pdf !== '' && !_.isNull(item.name_product_pdf)) {
+                    return item.name_product_pdf;
+                }
+            }
+            return item.description;
         },
         changeTransferReasonType(){
 
@@ -813,12 +821,14 @@ export default {
                 },
                 related: {},
                 order_form_external: null,
+                terms_condition: null,
             }
         },
         changeEstablishment() {
             this.form.establishment = _.find(this.establishments, {'id': this.form.establishment_id})
             this.filterSeries()
             this.setOriginAddressByEstablishment()
+            this.generalSetDefaultSerieByDocumentType('09')
         },
         changeDateOfIssue() {
             this.form.date_of_shipping = this.form.date_of_issue
@@ -897,6 +907,11 @@ export default {
             this.form.items.splice(index, 1);
         },
         submit() {
+
+            if (this.config.affect_all_documents) {
+                this.form.terms_condition = this.config.terms_condition_sale;
+            }
+
             this.loading_submit = true;
 
             this.$http.post(`/${this.resource}`, this.form).then(response => {

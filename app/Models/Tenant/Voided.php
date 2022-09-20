@@ -155,4 +155,33 @@ class Voided extends ModelTenant
         $this->attributes['response_signature_pse'] = (is_null($value)) ? null : json_encode($value);
     }
 
+    
+    /**
+     * 
+     * Validar si la RA se firma y envia a pse
+     *
+     * @param  SendDocumentPse $sendDocumentPse
+     * @return bool
+     */
+    public function getSendToPse($sendDocumentPse)
+    {
+        $send_to_pse = false;
+
+        // validar si los documentos informados en la RA fueron enviados a pse
+        $voided_documents = $this->documents;
+        $filter_quantity_documents = $voided_documents->where('document.send_to_pse', true)->count();
+
+        if($voided_documents->count() === $filter_quantity_documents)
+        {
+            $send_to_pse = true;
+        }
+        else
+        {
+            $sendDocumentPse->throwException('Documento a anular no fue enviado al PSE.');
+        }
+
+        return $send_to_pse;
+    }
+
+
 }

@@ -33,6 +33,7 @@ if($current_hostname) {
                 Route::get('record/{expense}', 'ExpenseController@record');
                 Route::get('{record}/voided', 'ExpenseController@voided');
                 Route::get('report/excel', 'ExpenseController@excel');
+                Route::get('print/{external_id}/{format?}', 'ExpenseController@toPrint');
 
             });
             /**

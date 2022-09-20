@@ -30,7 +30,8 @@
         {
             $prefix = env('PREFIX_URL',null);
             $prefix = !empty($prefix)?$prefix.".":'';
-            $app_url = $prefix. env('APP_URL_BASE');
+            $app_url = $prefix. config('configuration.app_url_base');
+            // $app_url = $prefix. env('APP_URL_BASE');
             $url =  $_SERVER['HTTP_HOST']??null;
             $company = null;
             // Desde admin

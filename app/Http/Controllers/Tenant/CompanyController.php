@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\CompanyRequest;
 use App\Http\Resources\Tenant\CompanyResource;
 use Illuminate\Http\Request;
+use App\Http\Requests\Tenant\CompanyPseRequest;
+
 
 /**
  * Class CompanyController
@@ -81,6 +83,12 @@ class CompanyController extends Controller
 			    $file->storeAs('public/uploads/favicons', $filename);
             }
 
+            if (($type === 'app_logo')) 
+            {
+                request()->validate(['file' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+                $file->storeAs('public/uploads/logos', $name);
+            }
+
 
             if (($type === 'img_firm')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
 
@@ -111,20 +119,16 @@ class CompanyController extends Controller
      * @param  Request $request
      * @return array
      */
-    public function storeSendPse(Request $request)
+    public function storeSendPse(CompanyPseRequest $request)
     {
-
-        $request->validate([
-            'url_signature_pse' => 'required_if:send_document_to_pse, "true"',
-            'url_send_cdr_pse' => 'required_if:send_document_to_pse, "true"',
-            'client_id_pse' => 'required_if:send_document_to_pse, "true"',
-        ]);
-
         $company = Company::firstOrFail();
         $company->send_document_to_pse = $request->send_document_to_pse;
         $company->url_signature_pse = $request->url_signature_pse;
         $company->url_send_cdr_pse = $request->url_send_cdr_pse;
         $company->client_id_pse = $request->client_id_pse;
+        $company->url_login_pse = $request->url_login_pse;
+        $company->user_pse = $request->user_pse;
+        $company->password_pse = $request->password_pse ?? $company->password_pse;
         $company->save();
 
         return [
@@ -150,6 +154,9 @@ class CompanyController extends Controller
             'url_signature_pse' => $company->url_signature_pse,
             'url_send_cdr_pse' => $company->url_send_cdr_pse,
             'client_id_pse' => $company->client_id_pse,
+            'url_login_pse' => $company->url_login_pse,
+            'user_pse' => $company->user_pse,
+            // 'password_pse' => $company->password_pse,
         ];
         
     }

@@ -1289,7 +1289,8 @@ export default {
             this.row = calculateRowItem(
                 this.form.items[index],
                 this.form.currency_type_id,
-                1
+                1,
+                this.percentage_igv
             );
 
             // console.log(this.form.items[index])
@@ -1304,7 +1305,8 @@ export default {
             this.row = calculateRowItem(
                 this.form.items[index],
                 this.form.currency_type_id,
-                1
+                1,
+                this.percentage_igv
             );
             this.form.items[index] = this.row;
             this.calculateTotal();
@@ -1550,7 +1552,7 @@ export default {
 
                 let unit_price = exist_item.item.has_igv
                     ? exist_item.item.sale_unit_price
-                    : exist_item.item.sale_unit_price * 1.18;
+                    : exist_item.item.sale_unit_price * (1 + this.percentage_igv);
                 // exist_item.unit_price = unit_price
                 exist_item.item.unit_price = unit_price;
 
@@ -1559,7 +1561,8 @@ export default {
                 this.row = calculateRowItem(
                     exist_item,
                     this.form.currency_type_id,
-                    exchangeRateSale
+                    exchangeRateSale,
+                    this.percentage_igv
                 );
 
 
@@ -1589,7 +1592,7 @@ export default {
 
                 let unit_price = this.form_item.has_igv
                     ? this.form_item.unit_price_value
-                    : this.form_item.unit_price_value * 1.18;
+                    : this.form_item.unit_price_value * (1 + this.percentage_igv);
 
                 this.form_item.unit_price = unit_price;
                 this.form_item.item.unit_price = unit_price;
@@ -1609,7 +1612,8 @@ export default {
                 this.row = calculateRowItem(
                     this.form_item,
                     this.form.currency_type_id,
-                    exchangeRateSale
+                    exchangeRateSale,
+                    this.percentage_igv
                 );
                 // console.log(this.row)
 
@@ -1920,7 +1924,8 @@ export default {
                     calculateRowItem(
                         row,
                         this.form.currency_type_id,
-                        this.form.exchange_rate_sale
+                        this.form.exchange_rate_sale,
+                        this.percentage_igv
                     )
                 );
             });

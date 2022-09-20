@@ -122,6 +122,9 @@
                                         <el-option :id="'ticket'"
                                                    :label="'Ticket PDF'"
                                                    :value="'ticket'"></el-option>
+                                        <el-option :id="'a5'"
+                                                   :label="'PDF A5'"
+                                                   :value="'a5'"></el-option>
                                     </el-select>
 
                                 </div>

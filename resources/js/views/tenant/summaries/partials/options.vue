@@ -1,6 +1,6 @@
 <template>
     <el-dialog :title="titleDialog" :visible="showDialog" @open="create" width="30%" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" append-to-body>
-            
+
         <template v-if="form.manually_regularized">
             
             <div class="row mb-4">
@@ -22,6 +22,17 @@
                         :type="form.response_type"
                         show-icon>
                     </el-alert>
+                </div>
+            </div>
+
+            <div class="row mb-4" v-if="form.send_to_pse">
+                <div class="col-lg-12 col-md-12 col-sm-12" v-if="form.response_signature_pse">
+                    <el-alert :title="`Firma Xml PSE: ${form.response_signature_pse}`"
+                                show-icon type="success"></el-alert>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 mt-3" v-if="form.response_send_cdr_pse">
+                    <el-alert :title="`Envio CDR PSE: ${form.response_send_cdr_pse}`"
+                                show-icon type="success"></el-alert>
                 </div>
             </div>
 
@@ -72,6 +83,10 @@
                     unknown_error_status_response : false,
                     manually_regularized : false,
                     error_manually_regularized : {},
+
+                    send_to_pse: false,
+                    response_signature_pse: null,
+                    response_send_cdr_pse: null,
                 }
             },
             async create() {

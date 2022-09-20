@@ -893,5 +893,35 @@ class DashboardData
             'general' => $this->totals($establishment_id, $d_start, $d_end, $period, $month_start, $month_end),
         ];
     }
+    
+
+    /**
+     * 
+     * Método para acceder a los totales (método privado)
+     * El gráfico no incluye pedidos
+     * 
+     * Usado en:
+     * ReportController - App
+     *
+     * @param  int $establishment_id
+     * @param  string $d_start
+     * @param  string $d_end
+     * @param  string $period
+     * @param  string $month_start
+     * @param  string $month_end
+     * @return array
+     */
+    public function getGeneralTotals($establishment_id, $d_start, $d_end, $period, $month_start, $month_end)
+    {
+        $data = $this->totals($establishment_id, $d_start, $d_end, $period, $month_start, $month_end);
+
+        $total_order_notes = $this->getTotalsOrderNote($establishment_id, $d_start, $d_end);
+        
+        $data['totals']['total_order_notes'] = $this->roundNumber($total_order_notes);
+        $data['totals']['total'] = $this->roundNumber($total_order_notes + (float) $data['totals']['total']);
+
+        return $data;
+    }
+
 
 }

@@ -197,12 +197,15 @@
             return transform
         }
 
-        $('#dropdown-notifications').click(function(e) {
-            $('#dropdown-notifications').toggleClass('showed');
-            $('#dn-toggle').toggleClass('show');
-            $('#dn-menu').toggleClass('show');
-            e.stopPropagation();
+        $(document).ready(function () {
+            $('#dropdown-notifications').click(function(e) {
+                $('#dropdown-notifications').toggleClass('showed');
+                $('#dn-toggle').toggleClass('show');
+                $('#dn-menu').toggleClass('show');
+                e.stopPropagation();
+            });
         });
+
         $(document).click(function(){
             $('#dropdown-notifications').removeClass('showed');
             $('#dn-toggle').removeClass('show');

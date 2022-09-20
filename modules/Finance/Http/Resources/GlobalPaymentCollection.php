@@ -34,7 +34,8 @@ class GlobalPaymentCollection extends ResourceCollection
 
                 }
 
-            $cci = $row->getCciAcoount();
+            $cci = $row->getCciBankAcount();
+            // $cci = $row->getCciAcoount();
             $personName= $data_person->name;
             if(!is_string($personName)){
                 if(property_exists($personName,'description')){
@@ -45,7 +46,8 @@ class GlobalPaymentCollection extends ResourceCollection
 
             return [
                 'id' => $row->id,
-                'destination_description' => $row->destination_description,
+                'destination_description' => $row->getDestinationDescriptionPayment(),
+                // 'destination_description' => $row->destination_description,
                 'cci' => $cci,
                 'date_of_payment' => ($payment !== null && $row->payment->date_of_payment !== null) ? $row->payment->date_of_payment->format('Y-m-d'):'',
                 'payment_method_type_description' => $this->getPaymentMethodTypeDescription($row),

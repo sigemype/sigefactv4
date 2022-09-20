@@ -695,9 +695,10 @@
     @endif
     @if ($document->terms_condition)
         <tr>
-            <td class="desc">
+            <td class="desc-ticket text-uppercase">
                 <br>
-                <h6 style="font-size: 10px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                Términos y condiciones del servicio
+                <br>
                 {!! $document->terms_condition !!}
             </td>
         </tr>

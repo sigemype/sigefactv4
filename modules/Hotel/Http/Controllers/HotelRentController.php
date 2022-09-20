@@ -48,7 +48,7 @@ class HotelRentController extends Controller
 			$now = now();
 			$request->merge(['input_date' => $now->format('Y-m-d')]);
 			$request->merge(['input_time' => $now->format('H:i:s')]);
-			$rent = HotelRent::create($request->only('customer_id', 'customer', 'notes', 'towels', 'hotel_room_id', 'duration', 'quantity_persons', 'payment_status', 'output_date', 'output_time', 'input_date', 'input_time'));
+			$rent = HotelRent::create($request->only('customer_id', 'customer', 'notes', 'towels', 'hotel_room_id', 'hotel_rate_id', 'duration', 'quantity_persons', 'payment_status', 'output_date', 'output_time', 'input_date', 'input_time'));
 
 			$room->status = 'OCUPADO';
 			$room->save();

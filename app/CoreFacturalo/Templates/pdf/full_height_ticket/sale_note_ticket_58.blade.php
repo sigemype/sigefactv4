@@ -264,6 +264,16 @@
         @endphp
     @endforeach
     <tr><td><strong>SALDO:</strong> {{ $document->currency_type->symbol }} {{ number_format($document->total - $payment, 2) }}</td></tr>
+    @if ($document->terms_condition)
+    <tr>
+        <td class="desc-ticket text-uppercase">
+            <br>
+            Términos y condiciones del servicio
+            <br>
+            {!! $document->terms_condition !!}
+        </td>
+    </tr>
+@endif
 </table>
 @endif
 </body>

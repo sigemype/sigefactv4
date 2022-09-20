@@ -37,4 +37,11 @@
             'is_locked' => 'bool',
             'is_active' => 'bool',
         ];
+
+        
+        public function scopeSelectGeneralColumns($query)
+        {
+            return $query->select('id', 'name');
+        }
+
     }

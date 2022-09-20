@@ -92,7 +92,8 @@
 
                         }
 
-                        $cci = $value->getCciAcoount();
+                        $cci = $value->getCciBankAcount();
+                        // $cci = $value->getCciAcoount();
                         $personName = $data_person->name;
                         if (!is_string($personName)) {
                             if (property_exists($personName, 'description')) {
@@ -113,7 +114,8 @@
 
                         $data = [
                             'id' => $value->id,
-                            'destination_description' => $value->destination_description,
+                            'destination_description' => $value->getDestinationDescriptionPayment(),
+                            // 'destination_description' => $value->destination_description,
                             'cci' => $cci,
                             'date_of_payment' => ($payment !== null && $value->payment->date_of_payment !== null) ? $value->payment->date_of_payment->format('Y-m-d') : '',
                             'payment_method_type_description' => $payment_method_type_description,

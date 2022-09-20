@@ -29,6 +29,8 @@ use Modules\Document\Helpers\ConsultCdr;
 use Modules\Item\Models\ItemLot;
 use Modules\Document\Http\Resources\ItemLotCollection;
 use App\Models\Tenant\Configuration;
+use App\Models\Tenant\SaleNoteItem;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class DocumentController extends Controller
@@ -304,11 +306,15 @@ class DocumentController extends Controller
     public function searchLots(Request $request)
     {
 
-
         $records = ItemLot::where('series', 'like', "%{$request->input}%");
-        if ($request->document_item_id) {
+
+        $sale_note_item_id = $request->has('sale_note_item_id') ? $request->sale_note_item_id : null;
+
+        if ($request->document_item_id)
+        {
             //proccess credit note
-            $document_item = DocumentItem::findOrFail($request->document_item_id);
+            $document_item = DocumentItem::query()
+                ->findOrFail($request->document_item_id);
             /** @var array $lots */
             $lots = $document_item->item->lots;
             $records
@@ -316,7 +322,13 @@ class DocumentController extends Controller
                 ->where('has_sale', true)
                 ->latest();
 
-        } else {
+        }
+        else if($sale_note_item_id)
+        {
+            $records = $this->getRecordsForSaleNoteItem($records, $sale_note_item_id, $request);
+        }
+        else
+        {
             $warehouse = ModuleWarehouse::select('id')
                                         ->where('establishment_id', auth()->user()->establishment_id)
                                         ->first();
@@ -328,6 +340,31 @@ class DocumentController extends Controller
         }
 
         return new ItemLotCollection($records->paginate(config('tenant.items_per_page')));
+    }
+
+
+    /**
+     *
+     * Obtener series disponibles y vendidas en la nota de venta
+     * Usado para edicion de item en nv
+     *
+     * @param  ItemLot $records
+     * @param  int $sale_note_item_id
+     * @param  Request $request
+     * @return Builder
+     */
+    public function getRecordsForSaleNoteItem($records, $sale_note_item_id, $request)
+    {
+        // obtener series disponibles
+        $records->whereAvailableItemLot($request->item_id)->latest();
+
+        // obtener series vendidas en la nv
+        $sale_note_item = SaleNoteItem::findOrFail($sale_note_item_id);
+        $lots = $sale_note_item->item->lots;
+
+        $sale_lots = ItemLot::whereIn('id', collect($lots)->pluck('id')->toArray())->where('has_sale', true)->latest();
+
+        return $sale_lots->union($records);
     }
 
 

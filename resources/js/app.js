@@ -57,6 +57,7 @@ Vue.component('tenant-persons-index', require('./views/tenant/persons/index.vue'
 Vue.component('tenant-users-form', require('./views/tenant/users/form.vue'));
 Vue.component('tenant-documents-index', require('./views/tenant/documents/index.vue'));
 Vue.component('tenant-documents-invoice', require('./views/tenant/documents/invoice.vue'));
+Vue.component('tenant-documents-invoice-generate', require('./views/tenant/documents/invoice_generate'));
 Vue.component('tenant-documents-invoicetensu', require('./views/tenant/documents/invoicetensu.vue'));
 Vue.component('tenant-documents-note', require('./views/tenant/documents/note.vue'));
 
@@ -374,6 +375,9 @@ Vue.component('tenant-suscription-payments-index', require('../../modules/Suscri
 Vue.component('data-table-payment-receipt', require('../js/components/DataTablePaymentReceipt.vue') );
 Vue.component('tenant-index-payment-receipt', require('../../modules/Suscription/Resources/assets/js/payment_receipt/index.vue') );
 
+// Grados y secciones
+Vue.component('tenant-suscription-grades-index', require('@viewsModuleSuscription/grades/index.vue') );
+Vue.component('tenant-suscription-sections-index', require('@viewsModuleSuscription/sections/index.vue') );
 
 
 /** Modulo Suscripcion **/
@@ -419,6 +423,10 @@ Vue.component('tenant-restaurant-configuration', require('../../modules/Restaura
 Vue.component('tenant-payment-configurations-index', require('@viewsModulePayment/payment_configurations/index.vue'));
 Vue.component('tenant-public-payment-links-index', require('@viewsModulePayment/payment_links/public/index.vue'));
 Vue.component('tenant-payment-links-index', require('@viewsModulePayment/payment_links/index.vue'));
+
+// MobileApp ::
+Vue.component('tenant-mobile-app-configuration', require('@viewsModuleMobileApp/configuration/index.vue'));
+Vue.component('tenant-mobile-app-permissions', require('@viewsModuleMobileApp/permissions/index.vue'));
 
 
 import VueClipboard from 'vue-clipboard2'

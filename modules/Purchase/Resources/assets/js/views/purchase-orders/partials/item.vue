@@ -672,14 +672,14 @@ export default {
 
             if (!affectation_igv_types_exonerated_unaffected.includes(this.form.affectation_igv_type_id)) {
 
-                unit_price = (this.form.purchase_has_igv) ? this.form.unit_price : this.form.unit_price * 1.18;
+                unit_price = (this.form.purchase_has_igv) ? this.form.unit_price : this.form.unit_price * (1 + this.percentageIgv);
 
             }
 
             this.form.item.unit_price = unit_price
             this.form.item.presentation = this.item_unit_type;
             this.form.affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.affectation_igv_type_id})
-            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale)
+            this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv)
             this.row = this.changeWarehouse(this.row)
 
             this.initForm()

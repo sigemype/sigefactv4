@@ -61,7 +61,7 @@ class ReportMassiveDownloadController extends Controller
 
     public function pdf(Request $request) {
 
-
+        //dd($request->all());
         $array = json_decode($request->form,true);
         $params = json_decode($request->form);
 

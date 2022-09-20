@@ -50,6 +50,10 @@ class SummaryResource extends JsonResource
             'unknown_error_status_response' => $this->unknown_error_status_response,
             'manually_regularized' => $this->manually_regularized,
             'error_manually_regularized' => $this->error_manually_regularized,
+
+            'send_to_pse' => $this->send_to_pse,
+            'response_signature_pse' => optional($this->response_signature_pse)->message,
+            'response_send_cdr_pse' => optional($this->response_send_cdr_pse)->message,
         ];
     }
 }

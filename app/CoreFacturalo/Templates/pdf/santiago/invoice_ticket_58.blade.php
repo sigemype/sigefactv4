@@ -270,6 +270,16 @@
 
         </td>
     </tr>
+    @if ($document->terms_condition)
+        <tr>
+            <td class="desc-ticket text-uppercase">
+                <br>
+                Términos y condiciones del servicio
+                <br>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    @endif
     <tr>
         <td class="text-center pt-3"><img class="qr_code" src="data:image/png;base64, {{ $document->qr }}" /></td>
     </tr>

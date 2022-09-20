@@ -83,11 +83,11 @@
             return $item->orderBy('description')->get();
         }
 
-        
+
         /**
-         * 
+         *
          * No aplica filtro por almacén
-         * 
+         *
          * @param Request|null $request
          * @param int          $id
          *
@@ -253,6 +253,7 @@
             $input = self::setInputByRequest($request);
 
             if (!empty($input)) {
+
                 $whereItem[] = ['description', 'like', '%' . str_replace(' ','%',$input) . '%'];
                 $whereItem[] = ['internal_id', 'like', '%' . $input . '%'];
                 $whereItem[] = ['barcode', '=', $input];
@@ -275,6 +276,7 @@
                             $query->where($whereExtra);
                         });
                 }
+
                 $item->OrWhereJsonContains('attributes', ['value' => $input]);
                 //  Limita los resultados de busqueda, inicial 250, puede modificarse en el .env con NUMBER_SEARCH_ITEMS
                 $item->take(\Config('extra.number_items_in_search'));
@@ -1036,7 +1038,7 @@
                         return $row;
                     }),
                     'series_enabled' => (bool)$row->series_enabled,
-                    
+
                     'purchase_has_isc' => $row->purchase_has_isc,
                     'purchase_system_isc_type_id' => $row->purchase_system_isc_type_id,
                     'purchase_percentage_isc' => $row->purchase_percentage_isc,
@@ -1171,24 +1173,83 @@
             }
 
             if(!empty($whereItem)) {
-                foreach ($whereItem as $index => $wItem) {
-                    if ($index < 1) {
-                        $data->Where([$wItem]);
-                    } else {
-                        $data->orWhere([$wItem]);
-                    }
-                }
+                $data = func_filter_items($data, $input);
+//                $data
+//                    ->selectRaw(
+//                            'match(text_filter) against(? in natural language mode) as score',
+//                            [$params['input']]
+//                        )
+//                        ->whereRaw(
+//                            'match(text_filter) against(? in natural language mode) > 0.0000001',
+//                            [$params['input']]
+//                        );
+//                        ->orderBy('score', 'desc');
+//                });
 
-                if ( !empty($whereExtra)) {
-                    $data
-                        ->orWhereHas('brand', function ($query) use ($whereExtra) {
-                            $query->where($whereExtra);
-                        })
-                        ->orWhereHas('category', function ($query) use ($whereExtra) {
-                            $query->where($whereExtra);
-                        });
-                }
-                $data->OrWhereJsonContains('attributes', ['value' => $input]);
+//                $data->when($params['input'], function ($query, $search) {
+//                    $query->select('id', 'description', 'text_filter')
+//                        ->selectRaw(
+//                            'match(text_filter) against(? in natural language mode) as score',
+//                            [$search]
+//                        )
+//                        ->whereRaw(
+//                            'match(text_filter) against(? in natural language mode) > 0.0000001',
+//                            [$search]
+//                        )
+//                        ->orderBy('score', 'desc');
+//                });
+
+//                $items = Item::query()->when($params['input'], function ($query, $search) {
+//                    return $query->select('id', 'text_filter')
+//                        ->selectRaw('match(text_filter) against(? in natural language mode) as score', [$search])
+//                        ->whereRaw('match(text_filter) against(? in natural language mode) > 0.0000001', [$search]);
+//                })->get();
+//
+//                dd($items);
+
+//                $data->whereRaw('match(text_filter) against(? in natural language mode) > 0.0000001', [$input]);
+//                });
+//                $items = Item::query()
+//                    ->select('id', 'text_filter')
+//                    ->selectRaw('match(text_filter) against(? in natural language mode) as score')
+//                    ->having('score', '>', 0)
+//
+//                    ->setBindings([$input])
+//                    ->orderBy('score', 'desc')
+//                ->get();
+
+//                $items = Item::query()
+//                    ->select('id', 'text_filter')
+//                    ->whereRaw('MATCH(text_filter) AGAINST(? IN BOOLEAN MODE)', ['radio%2080'])
+////                    ->having('score', '>', 0)
+////
+////                    ->setBindings([$input])
+////                    ->orderBy('score', 'desc')
+//                    ->get();
+//
+//                dd($items);
+//                $data->whereRaw('match(text_filter)
+//                    against(? in natural language mode) > 0.0000001
+//                ', [$input]);
+
+//                foreach ($whereItem as $index => $wItem) {
+//                    if ($index < 1) {
+//                        $data->Where([$wItem]);
+//                    } else {
+//                        $data->orWhere([$wItem]);
+//                    }
+//                }
+//
+//                if ( !empty($whereExtra)) {
+//                    $data
+//                        ->orWhereHas('brand', function ($query) use ($whereExtra) {
+//                            $query->where($whereExtra);
+//                        })
+//                        ->orWhereHas('category', function ($query) use ($whereExtra) {
+//                            $query->where($whereExtra);
+//                        });
+//                }
+//                $data->OrWhereJsonContains('attributes', ['value' => $input]);
                 // Limita la cantidad de productos en la busqueda a 250, puede modificarse en el .env con NUMBER_SEARCH_ITEMS
                 $data->take(\Config('extra.number_items_in_search'));
             }else{

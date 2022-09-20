@@ -84,7 +84,7 @@
         <td>Teléfono:</td>
         <td>{{ $customer->telephone }}</td>
         <td>Vendedor:</td>
-        <td> @if($document->seller_id != 0)){{$document->seller->name }} @else {{ $document->user->name }} @endif</td>
+        <td> @if($document->seller_id != 0){{$document->seller->name }} @else {{ $document->user->name }} @endif</td>
     </tr>
     @if ($document->plate_number !== null)
     <tr>
@@ -195,17 +195,28 @@
 
             </td>
             <td class="text-center align-top">
+
                 @inject('itemLotGroup', 'App\Services\ItemLotsGroupService')
                 @php
-                    $lot_code = [];
-                    if(isset($row->item->lots_group)) {
-                        $lot_codes_compromise = collect($row->item->lots_group)->where('compromise_quantity', '>', 0);
-                        $lot_code =  $lot_codes_compromise->all();
+
+                    // utilizar propiedad si la nv esta regularizada con dicho campo
+                    if(isset($row->item->IdLoteSelected))
+                    {
+                        $lot_code = $row->item->IdLoteSelected;
                     }
+                    else
+                    {
+                        // para nv con error de propiedad
+                        $lot_code = [];
+                        if(isset($row->item->lots_group)) {
+                            $lot_codes_compromise = collect($row->item->lots_group)->where('compromise_quantity', '>', 0);
+                            $lot_code =  $lot_codes_compromise->all();
+                        }
+                    }
+
                 @endphp
-                {{
-                    $itemLotGroup->getLote($lot_code)
-                }}
+
+                {{ $itemLotGroup->getLote($lot_code) }}
 
             </td>
             <td class="text-center align-top">
@@ -353,6 +364,16 @@
 
 </table>
 @endif
-
+@if ($document->terms_condition)
+    <br>
+    <table class="full-width">
+        <tr>
+            <td>
+                <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
+                {!! $document->terms_condition !!}
+            </td>
+        </tr>
+    </table>
+@endif
 </body>
 </html>

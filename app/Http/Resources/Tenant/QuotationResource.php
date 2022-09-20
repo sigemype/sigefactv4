@@ -23,7 +23,6 @@ class QuotationResource extends JsonResource
         $quotation->payments = self::getTransformPayments($quotation->payments);
         $quotation->items = self::getTransformItems($quotation->items);
 
-
         return [
             'id' => $this->id,
             'external_id' => $this->external_id,

@@ -620,7 +620,7 @@ export default {
                 this.form.items[index].affectation_igv_type = await _.find(this.affectation_igv_types, {id: this.form.items[index].affectation_igv_type_id})
             }
 
-            this.form.items[index] = await calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale)
+            this.form.items[index] = await calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv)
             await this.calculateTotal()
 
         },
@@ -628,7 +628,7 @@ export default {
             this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
             let items = []
             this.form.items.forEach((row) => {
-                items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
             });
             this.form.items = items
             this.calculateTotal()
@@ -891,7 +891,7 @@ export default {
 
                     this.form.total_discount = _.round(amount, 2)
                     this.form.total_taxed = _.round(this.form.total_taxed - amount, 2)
-                    this.form.total_igv = _.round(this.form.total_taxed * 0.18, 2)
+                    this.form.total_igv = _.round(this.form.total_taxed * this.percentage_igv, 2)
                     this.form.total_taxes = _.round(this.form.total_igv, 2)
                     this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
 
@@ -911,7 +911,7 @@ export default {
 
                         this.form.total_discount = _.round(amount, 2)
                         this.form.total_taxed = _.round(this.form.total_taxed - amount, 2)
-                        this.form.total_igv = _.round(this.form.total_taxed * 0.18, 2)
+                        this.form.total_igv = _.round(this.form.total_taxed * this.percentage_igv, 2)
                         this.form.total_taxes = _.round(this.form.total_igv, 2)
                         this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
 
@@ -1007,7 +1007,7 @@ export default {
 
                 this.form.total_discount = _.round(amount, 2)
                 this.form.total_value = _.round(base - amount, 2)
-                this.form.total_igv = _.round(this.form.total_value * 0.18, 2)
+                this.form.total_igv = _.round(this.form.total_value * this.percentage_igv, 2)
                 this.form.total_taxes = _.round(this.form.total_igv, 2)
                 this.form.total = _.round(this.form.total_value + this.form.total_taxes, 2)
 
@@ -1760,7 +1760,7 @@ export default {
 
             }
 
-            this.form.prepayments[index].total = (this.form.affectation_type_prepayment == 10) ? _.round(this.form.prepayments[index].amount * 1.18, 2) : this.form.prepayments[index].amount
+            this.form.prepayments[index].total = (this.form.affectation_type_prepayment == 10) ? _.round(this.form.prepayments[index].amount * (1 + this.percentage_igv), 2) : this.form.prepayments[index].amount
 
             this.changeTotalPrepayment()
 

@@ -494,7 +494,8 @@ export default {
 
             let items = []
             this.form_data.items.forEach((row) => {
-                items.push(calculateRowItem(row, this.form_data.currency_type_id, this.form_data.exchange_rate_sale))
+                items.push(calculateRowItem(row, this.form_data.currency_type_id, this.form_data.exchange_rate_sale,
+                    this.percentage_igv))
             });
             this.form_data.items = items
             this.calculateTotal()

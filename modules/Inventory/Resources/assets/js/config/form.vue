@@ -16,7 +16,7 @@
                         </div>
                         <div class="col-md-12">
                             <!-- migracion desarrollo sin terminar #1401 -->
-                            <label class="control-label">Generar automaticamente codigo interno del producto</label>
+                            <label class="control-label">Generar automáticamente codigo interno del producto</label>
                             <div class="form-group" :class="{'has-danger': errors.generate_internal_id}">
                                 <el-switch v-model="form.generate_internal_id" active-text="Si" inactive-text="No" @change="submit"></el-switch>
                                 <small class="form-control-feedback" v-if="errors.generate_internal_id" v-text="errors.generate_internal_id[0]"></small>

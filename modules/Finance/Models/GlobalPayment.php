@@ -229,7 +229,15 @@
             return $this->belongsTo(TechnicalServicePayment::class, 'payment_id')
                 ->wherePaymentType(TechnicalServicePayment::class);
         }
-
+        
+        
+        /**
+         * 
+         * Esta función genera consultas innecesarias 
+         * @todo Usar en su reemplazo el método getCciBankAcount
+         *
+         * @return string
+         */
         public function getCciAcoount(){
             if ($this->destination_type === Cash::class) {
                 /** @var \App\Models\Tenant\Cash $destination */
@@ -262,8 +270,14 @@
             }
             return '-';
         }
+        
+        
         /**
-         * @return HigherOrderCollectionProxy|mixed|string
+         * 
+         * Esta función genera consultas innecesarias 
+         * @todo Usar en su reemplazo el método getDestinationDescriptionPayment
+         *
+         * @return string
          */
         public function getDestinationDescriptionAttribute()
         {
@@ -659,6 +673,106 @@
             });
 
             return $query;
+        }
+
+
+
+        /**
+         * 
+         * Filtros/Queries para mejorar rendimiento
+         * 
+         * Usado para reporte de pagos
+         * @todo aplicar filtros/consultas para otros reportes
+         * 
+         * @param Builder $query
+         * @return Builder
+         */
+        public function scopeApplyFiltersForPerformance(Builder $query)
+        {
+            return $query->with([
+                'payment' => function ($q){
+                    $q->filterRelationsPayments()
+                        ->with(['associated_record_payment' => function($query){
+                            $query->filterRelationsGlobalPayment();
+                        }]);
+                },
+                'user' => function($q){
+                    $q->select('id', 'name')->whereFilterWithOutRelations();
+                },
+                'destination' => function($q){
+                    $q->withBankIfExist();
+                },
+            ]);
+        }
+
+
+        
+        /**
+         * 
+         * Filtros para reporte de pagos
+         * @todo aplicar filtros de applyFiltersForPerformance para otros reportes (rendimiento)
+         * 
+         * @param Builder $query
+         * @param object $params
+         *
+         * @return Builder
+         */
+        public function scopeWhereFilterReportPayments(Builder $query, $params)
+        {
+            return $query->applyFiltersForPerformance()
+                        ->whereFilterPaymentType($params);
+        }
+
+
+        
+        /**
+         * 
+         * Obtener descripción del destino
+         *
+         * @return string
+         */
+        public function getDestinationDescriptionPayment()
+        {
+
+            if ($this->destination_type === Cash::class) return 'CAJA GENERAL';
+
+            $bank_description = $this->destination->bank->description ?? null;
+            $cci_description = $this->destination->cci ?? null;
+            $full_description = "";
+
+            if($bank_description) $full_description .= $bank_description;
+            
+            if($cci_description) $full_description .=  " {$cci_description}";
+
+            return $full_description;
+
+        }
+
+        
+        /**
+         * 
+         * Obtener cci
+         *
+         * @return string
+         */
+        public function getCciBankAcount()
+        {
+            $destination = $this->destination;
+            $cci_description = '-';
+
+            if($destination)
+            {
+                if ($this->destination_type === Cash::class) 
+                {
+                    $cci_description = $destination->reference_number;
+                }
+                else
+                {
+                    $cci_description = $destination->cci ?? $destination->number;
+                }
+            }
+
+            return $cci_description;
         }
 
 

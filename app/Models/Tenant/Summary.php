@@ -35,6 +35,11 @@ class Summary extends ModelTenant
         'manually_regularized',
         'error_manually_regularized',
         'unique_filename',
+
+        'send_to_pse',
+        'response_signature_pse',
+        'response_send_cdr_pse',
+
     ];
 
     protected $casts = [
@@ -42,6 +47,7 @@ class Summary extends ModelTenant
         'date_of_reference' => 'date',
         'unknown_error_status_response' => 'boolean',
         'manually_regularized' => 'boolean',
+        'send_to_pse' => 'bool',
     ];
 
     /**
@@ -140,6 +146,84 @@ class Summary extends ModelTenant
             $facturalo = new Facturalo();
             return $facturalo->loadDocument($model->id, 'summary');
         });
+    }
+
+        
+    /**
+     * 
+     * Verificar si es un resumen para adicionar o modificar
+     *
+     * @return bool
+     */
+    public function isAddModifySummary()
+    {
+        return in_array($this->summary_status_type_id, ['1', '2']);
+    }
+
+
+    /**
+     * Obtener tipo de documento válido para enviar el xml a firmar al pse
+     *
+     * Usado en:
+     * App\CoreFacturalo\Services\Helpers\SendDocumentPse
+     * 
+     * @return string
+    */
+    public function getDocumentTypeForPse()
+    {
+        return $this->isAddModifySummary() ? 'RESU' : 'REAN';
+    }
+
+
+    public function getResponseSendCdrPseAttribute($value)
+    {
+        return (is_null($value)) ? null : (object)json_decode($value);
+    }
+
+
+    public function setResponseSendCdrPseAttribute($value)
+    {
+        $this->attributes['response_send_cdr_pse'] = (is_null($value)) ? null : json_encode($value);
+    }
+
+
+    public function getResponseSignaturePseAttribute($value)
+    {
+        return (is_null($value)) ? null : (object)json_decode($value);
+    }
+
+
+    public function setResponseSignaturePseAttribute($value)
+    {
+        $this->attributes['response_signature_pse'] = (is_null($value)) ? null : json_encode($value);
+    }
+
+    
+    /**
+     * 
+     * Validar si el resumen se firma y envia a pse
+     *
+     * @param  SendDocumentPse $sendDocumentPse
+     * @return bool
+     */
+    public function getSendToPse($sendDocumentPse)
+    {
+        $send_to_pse = false;
+
+        $summary_voided_documents = $this->documents;
+        $filter_quantity_documents = $summary_voided_documents->where('document.send_to_pse', true)->count();
+        
+        if($summary_voided_documents->count() === $filter_quantity_documents)
+        {
+            $send_to_pse = true;
+        }
+        else
+        {
+            $difference = $summary_voided_documents->count() - $filter_quantity_documents;
+            $sendDocumentPse->throwException("La cantidad de documentos firmados por el PSE, debe ser igual al total de documentos a enviar en el resumen: {$difference} documento(s) no fueron firmados por el PSE.");
+        }
+
+        return $send_to_pse;
     }
 
 }

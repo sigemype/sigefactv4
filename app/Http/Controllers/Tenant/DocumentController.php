@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenant;
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\CoreFacturalo\Helpers\Template\ReportHelper;
-use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SearchItemController;
@@ -13,6 +12,7 @@ use App\Http\Requests\Tenant\DocumentRequest;
 use App\Http\Requests\Tenant\DocumentUpdateRequest;
 use App\Http\Resources\Tenant\DocumentCollection;
 use App\Http\Resources\Tenant\DocumentResource;
+use App\Imports\DocumentImportExcelFormat;
 use App\Imports\DocumentsImport;
 use App\Imports\DocumentsImportTwoFormat;
 use App\Mail\Tenant\DocumentEmail;
@@ -49,7 +49,6 @@ use App\Models\Tenant\Series;
 use App\Models\Tenant\StateType;
 use App\Models\Tenant\User;
 use App\Traits\OfflineTrait;
-use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -86,6 +85,7 @@ class DocumentController extends Controller
         $is_client = $this->getIsClient();
         $import_documents = config('tenant.import_documents');
         $import_documents_second = config('tenant.import_documents_second_format');
+        $document_import_excel = config('tenant.document_import_excel');
         $configuration = Configuration::getPublicConfig();
 
         // apiperu
@@ -96,6 +96,7 @@ class DocumentController extends Controller
         return view('tenant.documents.index',
             compact('is_client','import_documents',
                 'import_documents_second',
+                'document_import_excel',
                 'configuration',
                 'view_apiperudev_validator_cpe',
                 'view_validator_cpe'));
@@ -213,8 +214,7 @@ class DocumentController extends Controller
 
     public function tables()
     {
-        // $customers = $this->table('customers');
-        $customers = null;
+        $customers = $this->table('customers');
         $user = new User();
         if(\Auth::user()){
             $user = \Auth::user();
@@ -378,7 +378,7 @@ class DocumentController extends Controller
                                ->whereIsEnabled()
                                ->whereFilterCustomerBySeller('customers')
                                ->orderBy('name')
-                               ->take(5)
+                               ->take(20)
                                ->get()->transform(function ($row) {
                     /** @var Person $row */
                     return $row->getCollectionData();
@@ -446,7 +446,7 @@ class DocumentController extends Controller
                 ->whereIsActive()
                 ->orderBy('description');
             $items_u = $items_u
-                ->take(10)
+                ->take(20)
                 ->get();
             $items_s = $items_s
                 ->take(10)
@@ -664,6 +664,7 @@ class DocumentController extends Controller
           'success' => true,
           'data' => [
               'id' => $document->id,
+              'number_full' => $document->number_full,
               'response' =>$response
           ]
         ];
@@ -1276,25 +1277,6 @@ class DocumentController extends Controller
         return $records;
     }
 
-    public function report_documents($start, $end, $type = 'pdf'){
-        $records = Document::whereBetween('date_of_issue', [$start , $end])->get();
-        $date_now = Carbon::now();
-
-        if ($type == 'pdf') {
-            $pdf = PDF::loadView('tenant.documents.report', compact("records", "date_now"))->setPaper('a4', 'landscape');
-            $filename = "Reporte_Documentos_".Carbon::now();
-            // return $pdf->stream($filename.'.pdf');
-            return $pdf->download($filename.'.pdf');
-
-        } elseif ($type == 'excel') {
-            $filename = "Reporte_Documentos_".Carbon::now();
-            return (new DocumentIndexExport)
-                ->records($records)
-                ->download($filename.Carbon::now().'.xlsx');
-        }
-
-    }
-
     public function report_payments(Request $request)
     {
         // $month_format = Carbon::parse($month)->format('m');
@@ -1375,4 +1357,46 @@ class DocumentController extends Controller
         return response()->json(Document::where('external_id', $request->external_id)->first());
     }
 
+    public function importExcelFormat(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            try {
+                $import = new DocumentImportExcelFormat();
+                $import->import($request->file('file'), null, Excel::XLSX);
+                $data = $import->getData();
+
+                return [
+                    'success' => true,
+                    'message' =>  'Se importaron '.$data['registered'].' de '.$data['total_records'].' registros',
+                    'data' => $data
+                ];
+            } catch (Exception $e) {
+                return [
+                    'success' => false,
+                    'message' =>  $e->getMessage()
+                ];
+            }
+        }
+        return [
+            'success' => false,
+            'message' =>  __('app.actions.upload.error'),
+        ];
+    }
+
+    public function importExcelTables()
+    {
+        $document_types = DocumentType::query()
+            ->whereIn('id', ['01', '03'])
+            ->get();
+
+        $series = Series::query()
+            ->whereIn('document_type_id', ['01', '03'])
+            ->where('establishment_id', auth()->user()->establishment_id)
+            ->get();
+
+        return [
+            'document_types' => $document_types,
+            'series' => $series,
+        ];
+    }
 }

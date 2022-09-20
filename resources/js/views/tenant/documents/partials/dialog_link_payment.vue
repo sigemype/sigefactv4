@@ -209,6 +209,7 @@
             'exchangeRateSale',
             'payment',
             'showDialog',
+            'documentPayment',
         ],
         data() {
             return {
@@ -360,7 +361,22 @@
                 this.form.payment_id = this.documentPaymentId
                 this.form.total = this.payment
 
+                await this.setDataPaymentLink()
+
                 await this.getData()
+
+            },
+            setDataPaymentLink(){
+
+                if(!this.form.payment_id)
+                {
+                    this.form.date_of_payment = this.documentPayment.date_of_payment
+                    this.form.payment_method_type_id = this.documentPayment.payment_method_type_id
+                    this.form.payment_destination_id = this.documentPayment.payment_destination_id
+                    this.form.payment = this.documentPayment.payment
+                    this.form.document_id = this.documentPayment.document_id
+                    this.form.payment_received = this.documentPayment.payment_received
+                }
 
             },
             clickGenerateLink(){
@@ -369,11 +385,17 @@
 
                 this.$http.post(`/${this.resource}`, this.form)
                     .then(response => {
-                        if (response.data.success) {
-                            this.$message.success(response.data.message)
+
+                        const data = response.data
+
+                        if (data.success) {
+                            this.$message.success(data.message)
+                            this.form.payment_id = data.data.document_payment_id
                             this.getData()
+                            this.$eventHub.$emit('reloadDataPayments')
+
                         } else {
-                            this.$message.error(response.data.message)
+                            this.$message.error(data.message)
                         }
                     })
                     .catch(error => {
@@ -408,12 +430,14 @@
 
                 this.titleDialog = 'Link de pago'
 
+                this.fileList = []
+
             },
             async getData() {
 
                 this.loading = true
 
-                await this.$http.get(`/${this.resource}/record/${this.documentPaymentId}/${this.form.instance_type}/${this.form.payment_link_type_id}`)
+                await this.$http.get(`/${this.resource}/record/${this.form.payment_id}/${this.form.instance_type}/${this.form.payment_link_type_id}`)
                     .then(response => {
 
                         this.has_payment_link = response.data.has_payment_link
@@ -432,7 +456,8 @@
                     })
             },
             close() {
-                this.$emit('update:showDialog', false);
+                this.initForm()
+                this.$emit('update:showDialog', false)
             },
         }
     }

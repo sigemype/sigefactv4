@@ -28,6 +28,7 @@ class DocumentPaymentRequest extends FormRequest
             ],
             'payment' => [
                 'required',
+                'gt:0',
             ],
         ];
     }

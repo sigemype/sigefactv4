@@ -14,6 +14,10 @@
                                 <th>Referencia</th>
                                 <th>Archivo</th>
                                 <th class="text-right">Monto</th>
+                                <template v-if="external">
+                                    <th>Imprimir</th>
+                                </template>
+                                
                                 <th></th>
                             </tr>
                             </thead>
@@ -31,6 +35,12 @@
                                         </button>
                                     </td>
                                     <td class="text-right">{{ row.payment }}</td>
+                                <template v-if="external">
+                                    <td class="series-table-actions text-center">
+                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-primary" @click.prevent="clickOptions()"><i class="fas fa-file-upload"></i></button>
+                                    </td>
+                                </template>
+
                                     <td class="series-table-actions text-right">
                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDelete(row.id)"><i class="fas fa-trash"></i></button>
                                         <!--<el-button type="danger" icon="el-icon-delete" plain @click.prevent="clickDelete(row.id)"></el-button>-->
@@ -130,6 +140,15 @@
                 </div>
             </div>
         </div>
+
+        <document-options
+            :recordId="this.documentId"
+            :showDialogOptions="showDialogOptions"
+            :showClose="showDialogClose"
+            :type="this.type"
+            :configuration="this.configuration"
+        ></document-options>
+
     </el-dialog>
 
 </template>
@@ -149,9 +168,10 @@
 <script>
 
     import {deletable} from '../../../../mixins/deletable'
+    import DocumentOptions from '../../../../../../modules/Finance/Resources/assets/js/views/unpaid/partials/options'
 
     export default {
-        props: ['showDialog', 'documentId'],
+        props: ['showDialog', 'documentId','external','configuration'],
         mixins: [deletable],
         data() {
             return {
@@ -164,7 +184,10 @@
                 index_file: null,
                 fileList: [],
                 showAddButton: true,
-                document: {}
+                document: {},
+                showDialogOptions: false,
+                showDialogClose:false,
+                type:'sale',
             }
         },
         async created() {
@@ -321,7 +344,14 @@
                     }
                     // this.initDocumentTypes()
                 )
-            }
+            },
+            clickPrint(external_id) {
+                 window.open(`/finances/unpaid/print/${external_id}/sale`, '_blank');
+            },
+            clickOptions() {
+                this.showDialogOptions = true
+                this.showDialogClose=true
+            },
         }
     }
 </script>

@@ -24,11 +24,18 @@ class ReportHotelExport implements  FromView, ShouldAutoSize
         return $this;
     }
 
+    public function rooms($rooms) {
+        $this->rooms = $rooms;
+
+        return $this;
+    }
+
 
     public function view(): View {
         return view('report::report_hotels.report_excel', [
             'records'=> $this->records,
             'company' => $this->company,
+            'rooms' => $this->rooms,
         ]);
     }
 }
