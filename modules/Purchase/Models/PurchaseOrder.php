@@ -134,4 +134,38 @@ class PurchaseOrder extends ModelTenant
     {
         return $this->belongsTo(SaleOpportunity::class);
     }
+
+    
+    /**
+     * 
+     * Validar si el registro esta rechazado o anulado
+     * 
+     * @return bool
+     */
+    public function isVoidedOrRejected()
+    {
+        return in_array($this->state_type_id, self::VOIDED_REJECTED_IDS);
+    }
+    
+    
+    /**
+     * 
+     * Mostrar botones de acciones si no esta anulado o no tiene compras aceptadas
+     *
+     * @return bool
+     */
+    public function getShowActionsRow()
+    {
+        $show_actions_row = true;
+
+        $has_accepted_purchases = $this->purchases()->whereStateTypeAccepted()->count();
+
+        if($has_accepted_purchases > 0 || $this->isVoidedOrRejected())
+        {
+            $show_actions_row = false;
+        }
+
+        return $show_actions_row;
+    }
+
 }

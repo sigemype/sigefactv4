@@ -155,7 +155,8 @@
                                     <thead class="">
                                     <tr>
                                         <th>#</th>
-                                        <th>Descripción</th>
+                                        <th>Nombre</th>
+                                        <th v-if="filters.description.visible">Descripción</th>
                                         <th v-if="filters.model.visible">Modelo</th>
                                         <th>Categoria</th>
                                         <th class="text-right">Stock mínimo</th>
@@ -185,6 +186,7 @@
                                         <th>Marca</th>
                                         <th class="text-center">F. vencimiento</th>
                                         <th>Almacén</th>
+                                        <th>Cód. Barras</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -192,6 +194,7 @@
                                         :key="index">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ row.name }}</td>
+                                        <td v-if="filters.description.visible">{{ row.description }}</td>
                                         <td v-if="filters.model.visible">{{ row.model }}</td>
                                         <td>{{ row.item_category_name }}</td>
                                         <td class="text-right">{{ row.stock_min }}</td>
@@ -203,6 +206,7 @@
                                         <td>{{ row.brand_name }}</td>
                                         <td class="text-center">{{ row.date_of_due }}</td>
                                         <td>{{ row.warehouse_name }}</td>
+                                        <td>{{ row.barcode }}</td>
                                     </tr>
                                     </tbody>
                                     <tfoot>
@@ -287,6 +291,10 @@ export default {
         this.initTables();
         this.initForm();
         this.filters = {
+            description: {
+                title: 'Descripción',
+                visible: false
+            },
             categories: {
                 title: 'Categorias',
                 visible: false

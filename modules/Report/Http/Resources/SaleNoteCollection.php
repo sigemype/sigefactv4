@@ -92,6 +92,8 @@
                         ];
                     }),
 
+                    'agent_name' => optional($row->agent)->search_description,
+                    'reference_data' => $row->reference_data,
                 ];
             });
         }

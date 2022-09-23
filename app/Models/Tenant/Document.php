@@ -28,6 +28,7 @@ use Modules\Sale\Models\TechnicalService;
 use phpDocumentor\Reflection\Utils;
 use Modules\Pos\Models\Tip;
 use Illuminate\Support\Facades\DB;
+use Modules\Sale\Models\Agent;
 
 
 /**
@@ -153,7 +154,7 @@ class Document extends ModelTenant
         'invoice',
         'note',
         'payments',
-        'fees'
+        'fee'
     ];
     protected $fillable = [
         'user_id',
@@ -202,7 +203,7 @@ class Document extends ModelTenant
         'detraction',
         'legends',
         'additional_information',
-//        'additional_data',
+        'additional_data',
         'filename',
         'hash',
         'qr',
@@ -256,7 +257,10 @@ class Document extends ModelTenant
         'unique_filename', //registra nombre de archivo unico (campo validador para evitar duplicidad)
 
         'ticket_single_shipment',
-        'folio'
+        'point_system',
+        'point_system_data',
+        'folio',
+        'agent_id',
     ];
 
     protected $casts = [
@@ -267,6 +271,7 @@ class Document extends ModelTenant
         'apply_concurrency' => 'bool',
         'send_to_pse' => 'bool',
         'ticket_single_shipment' => 'bool',
+        'point_system' => 'bool',
     ];
 
     public static function boot()
@@ -444,10 +449,28 @@ class Document extends ModelTenant
         $this->attributes['retention'] = (is_null($value)) ? null : json_encode($value);
     }
 
+    public function getPointSystemDataAttribute($value)
+    {
+        return (is_null($value)) ? null : (object)json_decode($value);
+    }
+
+    public function setPointSystemDataAttribute($value)
+    {
+        $this->attributes['point_system_data'] = (is_null($value)) ? null : json_encode($value);
+    }
+
     public function getAdditionalInformationAttribute($value)
     {
         $arr = explode('|', $value);
         return $arr;
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class);
     }
 
     /**
@@ -573,7 +596,7 @@ class Document extends ModelTenant
     /**
      * @return HasMany
      */
-    public function fees()
+    public function fee()
     {
         return $this->hasMany(DocumentFee::class);
     }
@@ -1204,7 +1227,7 @@ class Document extends ModelTenant
             'invoice',
             'note',
             'payments',
-            'fees'
+            'fee'
         ]);
     }
 
@@ -1479,4 +1502,53 @@ class Document extends ModelTenant
                 'technical_service_id',
             ]);
     }
+
+    
+    /**
+     * 
+     * Determina si es factura o boleta
+     *
+     * @return bool
+     */
+    public function isDocumentTypeInvoice()
+    {
+        return in_array($this->document_type_id, ['01', '03'], true);
+    }
+ 
+
+    /**
+     * 
+     * Determina si fue usado para sistema por puntos
+     *
+     * @return bool
+     */
+    public function isPointSystem()
+    {
+        return $this->point_system;
+    }
+    
+    
+    /**
+     * 
+     * Obtener puntos por la venta
+     *
+     * @return float
+     * 
+     */
+    public function getPointsBySale()
+    {
+        $calculate_quantity_points = 0;
+
+        if($this->isPointSystem())
+        {
+            $point_system_data = $this->point_system_data;
+            $total = $this->total;
+    
+            $value_quantity_points = ($total / $point_system_data->point_system_sale_amount) * $point_system_data->quantity_of_points;
+            $calculate_quantity_points = $point_system_data->round_points_of_sale ? intval($value_quantity_points) : round($value_quantity_points, 2);
+        }
+
+        return $calculate_quantity_points;
+    }
+
 }

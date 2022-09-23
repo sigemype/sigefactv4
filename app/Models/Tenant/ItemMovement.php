@@ -336,8 +336,11 @@
                 $tableNames = 'cat_item_size';
             } elseif ($index == 'colors') {
                 $tableNames = 'cat_colors_items';
+            } elseif ($index == 'CatItemSize') {
+                $tableNames = 'cat_item_size';
             }
 
+            
 
             $temp = self::getQueryToStock($item_id, $establisnment_id)->where('item_movement_rel_extra.' . $columna, '!=', 0)->select(DB::raw(' sum(item_movement.quantity) as total'));
             $total = (float)$temp->first()->total;
@@ -976,4 +979,28 @@
         {
             return $this->hasOne(ItemMovementRelExtra::class);
         }
+
+        
+        /**
+         * Devuelve el total de stock para las variaciones talla y color
+         *
+         * @param int $item_id
+         * @param int $establisnment_id
+         *
+         * @return array
+         */
+        public static function getStockByVariantSizeColor($item_id, $establisnment_id)
+        {
+
+            $data = [];
+            $data['total'] = (float)self::getQueryToStock($item_id, $establisnment_id)->select(DB::raw(' sum(item_movement.quantity) as total'))->first()->total;
+
+            self::getFormatedStockData($data, 'colors', 'item_color_id', $item_id, $establisnment_id);
+            self::getFormatedStockData($data, 'CatItemSize', 'item_size_id', $item_id, $establisnment_id);
+
+            if ($data['total'] == 0) $data['total'] = null;
+            return $data;
+
+        }
+
     }

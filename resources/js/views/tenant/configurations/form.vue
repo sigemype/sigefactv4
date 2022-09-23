@@ -59,7 +59,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div v-if="typeUser != 'integrator'"
                                     class="col-md-6 mt-4">
                                 <label class="control-label">Enviar boletas de forma individual</label>
@@ -181,7 +181,7 @@
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">
                                     Productos de una ubicación (Stock)
-                                    
+
                                     <el-tooltip class="item"
                                                 effect="dark"
                                                 placement="top-start">
@@ -546,7 +546,7 @@
                             </div>
                             <div class="col-md-2 mt-4">
                             </div>
-                            
+
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">
                                     Filtrar clientes según vendedor asignado
@@ -591,7 +591,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">
                                     Habilitar búsqueda avanzada
@@ -618,7 +618,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">
                                     Separar y ordenar transacciones en caja
@@ -663,11 +663,11 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-md-6 mt-4">
-                                
+
                                 <label class="control-label">Permitir generar pedidos desde cotización a vendedores</label>
-                               
+
                                 <div :class="{'has-danger': errors.generate_order_note_from_quotation}"
                                         class="form-group">
                                     <el-switch v-model="form.generate_order_note_from_quotation"
@@ -681,7 +681,7 @@
                             </div>
 
                             <div class="col-md-6 mt-4">
-                                
+
                                 <label class="control-label">
                                     Listar productos por almacén
                                     <el-tooltip class="item"
@@ -691,7 +691,7 @@
                                         <i class="fa fa-info-circle"></i>
                                     </el-tooltip>
                                 </label>
-                               
+
                                 <div :class="{'has-danger': errors.list_items_by_warehouse}"
                                         class="form-group">
                                     <el-switch v-model="form.list_items_by_warehouse"
@@ -703,9 +703,9 @@
                                             v-text="errors.list_items_by_warehouse[0]"></small>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6 mt-4">
-                                
+
                                 <label class="control-label">
                                     Restringir selección de serie para vendedor
                                     <el-tooltip class="item"
@@ -715,7 +715,7 @@
                                         <i class="fa fa-info-circle"></i>
                                     </el-tooltip>
                                 </label>
-                               
+
                                 <div :class="{'has-danger': errors.restrict_series_selection_seller}"
                                         class="form-group">
                                     <el-switch v-model="form.restrict_series_selection_seller"
@@ -944,7 +944,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-md-6 mt-4">
                                 <div :class="{'has-danger': errors.global_discount_type_id}"
                                         class="form-group">
@@ -953,7 +953,7 @@
                                                     effect="dark"
                                                     placement="top-start">
                                             <i class="fa fa-info-circle"></i>
- 
+
                                             <div slot="content">
                                                 <strong>Tipo de descuento predeterminado en POS - Ventas/Comprobante electrónico</strong><br/><br/>
                                                 Sugerencias:<br/>
@@ -975,9 +975,9 @@
                                             v-text="errors.global_discount_type_id[0]"></small>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6 mt-4">
-                                <label class="control-label">Restringir venta de productos menores al precio de compra 
+                                <label class="control-label">Restringir venta de productos menores al precio de compra
                                     <el-tooltip
                                         class="item"
                                         content="Validar que el precio de compra del producto no sea superior al de venta - Disponible Ventas/Comprobante electrónico - Nota de venta"
@@ -1394,7 +1394,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-md-3 mt-4">
                                 <label class="control-label">Modificar cantidad de decimales
                                     <el-tooltip
@@ -1559,7 +1559,7 @@
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">Habilitar busqueda con escáner de código de barras
                                     <el-tooltip class="item"
-                                                content="Disponible POS"
+                                                content="Disponible POS y Venta rápida"
                                                 effect="dark"
                                                 placement="top-start">
                                         <i class="fa fa-info-circle"></i>
@@ -1718,6 +1718,159 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Mostrar nombre completo
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Mostrar nombre completo en listado de productos
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_complete_name_pos}"
+                                        class="form-group">
+                                        <el-switch v-model="form.show_complete_name_pos"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.show_complete_name_pos"
+                                            class="form-control-feedback"
+                                            v-text="errors.show_complete_name_pos[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Habilitar restricción para descuento
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Se limitará el porcentaje de descuento que pueden registrar los vendedores por cada venta - Disponible en POS
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.restrict_seller_discount}"
+                                        class="form-group">
+                                        <el-switch v-model="form.restrict_seller_discount"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.restrict_seller_discount"
+                                            class="form-control-feedback"
+                                            v-text="errors.restrict_seller_discount[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <template v-if="form.restrict_seller_discount">
+                                <div class="col-md-4" >
+                                    <label class="control-label">
+                                        Porcentaje límite de descuento
+                                    </label>
+                                    <div :class="{'has-danger': errors.sellers_discount_limit}" class="form-group mt-1">
+                                        <el-input-number v-model="form.sellers_discount_limit"
+                                                            :min="0.01"
+                                                            :max="95"
+                                                            :precision="2"
+                                                            :step="1"
+                                                            @change="submit"></el-input-number>
+                                        <small v-if="errors.sellers_discount_limit" class="form-control-feedback" v-text="errors.sellers_discount_limit[0]"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" >
+                                </div>
+                            </template>
+
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Habilitar vista categorias y productos
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Disponible en POS
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.enable_categories_products_view}"
+                                        class="form-group">
+                                        <el-switch v-model="form.enable_categories_products_view"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.enable_categories_products_view"
+                                            class="form-control-feedback"
+                                            v-text="errors.enable_categories_products_view[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Habilitar Agente de ventas
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                - Permite el registro de agentes en POS<br>
+                                                - Se habilita la opción Agentes en el módulo Clientes, para gestionar los datos del mismo<br>
+                                                - No tiene accesos al sistema
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.enabled_sales_agents}"
+                                        class="form-group">
+                                        <el-switch v-model="form.enabled_sales_agents"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.enabled_sales_agents"
+                                            class="form-control-feedback"
+                                            v-text="errors.enabled_sales_agents[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Modificar tipo de afectación
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Permite modificar el tipo de afectación Gravado a Exonerado o viceversa - Disponible en POS/Venta rápida
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.change_affectation_exonerated_igv}"
+                                        class="form-group">
+                                        <el-switch v-model="form.change_affectation_exonerated_igv"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.change_affectation_exonerated_igv"
+                                            class="form-control-feedback"
+                                            v-text="errors.change_affectation_exonerated_igv[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3"  name="nine">
@@ -1767,7 +1920,7 @@
                                     <small class="form-control-feedback" v-if="errors.dashboard_sales" v-text="errors.dashboard_sales[0]"></small>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">Productos
                                     <el-tooltip class="item" effect="dark" placement="top-start">
@@ -1809,9 +1962,91 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </el-tab-pane>
+
+                    
+                    <el-tab-pane class="mb-3" name="tab_point_system">
+                        <span slot="label">S. Puntos</span>
+                        <div class="row">
+                            
+                            <div class="col-md-4">
+                                <label class="control-label">
+                                    Habilitar sistema por puntos
+                                    
+                                    <el-tooltip class="item" effect="dark" placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                        <div slot="content">
+                                            <strong>Disponible en Nuevo cpe y POS</strong><br/><br/>
+                                            El monto de venta equivale a X N° de puntos<br/><br/>
+                                            Ejemplo: Si tiene configurado como monto S/1, y este es equivalente a 1 punto, al realizar una venta por S/100 a cliente X, este acumularía 100 puntos.<br/>
+                                        </div>
+                                    </el-tooltip>
+
+                                </label>
+                                <div :class="{'has-danger': errors.enabled_point_system}"
+                                     class="form-group mt-1">
+                                    <el-switch v-model="form.enabled_point_system"
+                                               active-text="Si"
+                                               inactive-text="No"
+                                               @change="submit"></el-switch>
+                                    <small v-if="errors.enabled_point_system"
+                                           class="form-control-feedback"
+                                           v-text="errors.enabled_point_system[0]"></small>
+                                </div>
+                            </div>
+
+                            <template v-if="form.enabled_point_system">
+                                
+                                <div class="col-md-4">
+                                    <label class="control-label">
+                                        Monto de venta
+                                    </label>
+                                    <div :class="{'has-danger': errors.point_system_sale_amount}" class="form-group mt-1">
+                                        <el-input-number v-model="form.point_system_sale_amount"
+                                                            :min="0.01"
+                                                            :precision="2"
+                                                            :step="1"
+                                                            @change="submit"></el-input-number>
+                                        <small v-if="errors.point_system_sale_amount" class="form-control-feedback" v-text="errors.point_system_sale_amount[0]"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="control-label">
+                                        N° de puntos
+                                    </label>
+                                    <div :class="{'has-danger': errors.quantity_of_points}" class="form-group mt-1">
+                                        <el-input-number v-model="form.quantity_of_points"
+                                                            :min="0.01"
+                                                            :precision="2"
+                                                            :step="1"
+                                                            @change="submit"></el-input-number>
+                                        <small v-if="errors.quantity_of_points" class="form-control-feedback" v-text="errors.quantity_of_points[0]"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="control-label">
+                                        Redondear al obtener puntos
+                                    </label>
+                                    <div :class="{'has-danger': errors.round_points_of_sale}"
+                                        class="form-group mt-1">
+                                        <el-switch v-model="form.round_points_of_sale"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                        <small v-if="errors.round_points_of_sale"
+                                            class="form-control-feedback"
+                                            v-text="errors.round_points_of_sale[0]"></small>
+                                    </div>
+                                </div>
+                            </template>
+
+                        </div>
+                    </el-tab-pane>
+
                 </el-tabs>
                 <terms-condition :form="form"
                                     :showClose="false"
@@ -2016,6 +2251,19 @@ export default {
 
                 affect_all_documents:false,
                 restrict_series_selection_seller: false,
+
+                enabled_point_system: false,
+                round_points_of_sale: false,
+                point_system_sale_amount: 0,
+                quantity_of_points: 0,
+
+                show_complete_name_pos: false,
+                enable_categories_products_view: false,
+
+                restrict_seller_discount: false,
+                sellers_discount_limit: 0,
+                enabled_sales_agents: false,
+                change_affectation_exonerated_igv: false,
             };
         },
         UpdateFormPurchase(e) {

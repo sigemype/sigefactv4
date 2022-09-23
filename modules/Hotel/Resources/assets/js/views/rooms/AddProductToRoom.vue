@@ -162,20 +162,28 @@
             :recordItem="recordItem"
             :showDialog.sync="showDialogAddItem"
             :typeUser="typeUser"
+            :percentageIgv="percentage_igv"
             currency-type-id-active="PEN"
             operation-type-id="0101"
             @add="onAddItem"
+
         ></tenant-documents-items-list>
     </div>
 </template>
 
 <script>
 // import DocumentFormItem from "../../../../../../../resources/js/views/tenant/documents/partials/item.vue";
+import {functions} from "../../../../../../../resources/js/mixins/functions";
+import moment from "moment";
+import {mapState} from "vuex/dist/vuex.mjs";
 
 export default {
     components: {
         // DocumentFormItem,
     },
+    mixins: [
+        functions
+    ],
     props: {
         rent: {
             type: Object,
@@ -190,6 +198,10 @@ export default {
             type: Object,
             required: true,
         },
+        establishment: {
+            type: Object,
+            required: true,
+        },
     },
     data() {
         return {
@@ -201,13 +213,23 @@ export default {
                 subtotal: 0,
                 total: 0,
                 igv: 0,
+                date_of_issue: moment().format("YYYY-MM-DD"),
+                establishment_id: null,
             },
             errors: {},
             typeUser: "admin",
             loading: false,
         };
     },
+    computed: {
+        ...mapState([
+            'config',
+        ]),
+    },
     mounted() {
+        console.log(this.configuration);
+        this.form.establishment_id = this.establishment.id;
+        this.getPercentageIgv();
         if (this.products) {
             const products = this.products.map((p) => {
                 p.item.payment_status = p.payment_status;

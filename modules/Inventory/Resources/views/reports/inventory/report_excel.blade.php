@@ -93,6 +93,7 @@
         <th><strong>#</strong></th>
         <th><strong>Cod. de barras</strong></th>
         <th><strong>Cod. Interno</strong></th>
+        <th><strong>Nombre</strong></th>
         <th><strong>Descripción</strong></th>
         <th><strong>Categoria</strong></th>
 
@@ -136,6 +137,7 @@
             <td>{{ $row['barcode'] }}</td>
             <td>{{ $row['internal_id'] }}</td>
             <td>{{ $row['name'] }}</td>
+            <td>{{ $row['description'] }}</td>
             <td>{{ $row['item_category_name'] }}</td>
             <td align="right">{{ $row['stock_min'] }}</td>
             <td align="right">{{ $row['stock'] }}</td>

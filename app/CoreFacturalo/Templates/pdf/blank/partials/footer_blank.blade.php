@@ -32,7 +32,7 @@
 </table>
 <table class="full-width mb-3 mt-3" style="font-family: 'Lucida Console', arial;">
     <tr>
-        <td width="6.5%"><br></td>
+        <td width="2.5%"><br></td>
         <td width="2%">{{ $document->transfer_reason_type->description == 'Venta' ? 'X' : '' }}</td>
         <td width="14%"></td>
         <td width="2%"></td>
@@ -71,5 +71,5 @@
         <td></td>
     </tr>
 </table>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </body>

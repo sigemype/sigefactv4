@@ -42,6 +42,7 @@ class PurchaseOrderCollection extends ResourceCollection
                 'created_at' => $row->created_at->format('Y-m-d H:i:s'),
                 'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),
                 'sale_opportunity_number_full' => ($row->sale_opportunity) ? $row->sale_opportunity->number_full : '',
+                'show_actions_row' => $row->getShowActionsRow(),
 
             ];
         });

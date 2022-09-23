@@ -178,6 +178,10 @@ class Item extends ModelTenant
 
         'subject_to_detraction',
         'favorite',
+
+        'exchange_points',
+        'quantity_of_points',
+
         // 'warehouse_id'
     ];
 
@@ -191,6 +195,8 @@ class Item extends ModelTenant
         'sale_unit_price' => 'float',
         'purchase_unit_price' => 'float',
         'favorite' => 'boolean',
+        'exchange_points' => 'boolean',
+        'quantity_of_points' => 'float',
     ];
 
     /**
@@ -407,6 +413,16 @@ class Item extends ModelTenant
     public function scopeWhereNotIsSet($query)
     {
         return $query->where('is_set', false);
+    }
+
+    /**
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeWhereIsNotService($query)
+    {
+        return $query->where('unit_type_id', '!=', 'ZZ');
     }
 
     /**
@@ -993,6 +1009,10 @@ class Item extends ModelTenant
             'percentage_isc' => $this->percentage_isc,
             'is_for_production'=>$this->isIsForProduction(),
             'subject_to_detraction' => $this->subject_to_detraction,
+            'exchange_points' => $this->exchange_points,
+            'quantity_of_points' => $this->quantity_of_points,
+            'exchanged_for_points' => false, //para determinar si desea canjear el producto
+            'used_points_for_exchange' => null, //total de puntos
 
         ];
 
@@ -2238,7 +2258,7 @@ class Item extends ModelTenant
      */
     public function scopeWhereFilterWithOutRelations($query)
     {
-        return $query->withOut(['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags']);
+        return $query->withOut(['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags', 'item_lots']);
     }
 
 
@@ -2460,9 +2480,9 @@ class Item extends ModelTenant
         return $query;
     }
 
-
+    
     /**
-     *
+     * 
      * Obtener stock del almacen asociado al usuario
      *
      * @param  Warehouse $warehouse
@@ -2479,7 +2499,7 @@ class Item extends ModelTenant
             if($warehouse)
             {
                 $item_warehouse =  ItemWarehouse::select('stock')->where([['item_id', $this->id],['warehouse_id', $warehouse->id]])->first();
-
+                
                 if($item_warehouse) $stock = $item_warehouse->stock;
             }
         }
@@ -2487,7 +2507,7 @@ class Item extends ModelTenant
         return (float) $stock;
     }
 
-
+    
     /**
      *
      * Filtro para no incluir todas las relaciones en consulta
@@ -2548,7 +2568,6 @@ class Item extends ModelTenant
             'barcode' => $this->barcode,
             'currency_type_symbol' => $currency->symbol,
             'sale_unit_price' => $this->generalApplyNumberFormat($this->sale_unit_price),
-            'purchase_unit_price' => $this->generalApplyNumberFormat($this->purchase_unit_price),
             'unit_type_id' => $this->unit_type_id,
             'sale_affectation_igv_type_id' => $this->sale_affectation_igv_type_id,
             'has_igv' => (bool) $this->has_igv,
@@ -2559,6 +2578,18 @@ class Item extends ModelTenant
             'category_id' => $this->category_id,
             'is_set' => $this->is_set,
         ];
+    }
+
+    
+    /**
+     * Stock de variantes para revision inventario
+     *
+     * @param  int $establishment_id
+     * @return array
+     */
+    public function getStockByVariantsInventoryReview($establishment_id)
+    {
+        return ItemMovement::getStockByVariantSizeColor($this->id, $establishment_id);
     }
 
 

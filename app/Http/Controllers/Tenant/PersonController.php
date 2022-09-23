@@ -368,4 +368,18 @@ class PersonController extends Controller
 
         return compact('customers');
     }
+
+    
+    /**
+     * 
+     * Obtener puntos acumulados por cliente
+     *
+     * @param  int $id
+     * @return float
+     */
+    public function getAccumulatedPoints($id)
+    {
+        return Person::getOnlyAccumulatedPoints($id);
+    }
+    
 }

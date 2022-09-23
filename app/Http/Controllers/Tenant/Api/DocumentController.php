@@ -32,8 +32,8 @@ class DocumentController extends Controller
             $facturalo->updateHash();
             $facturalo->updateQr();
             $facturalo->createPdf();
-            $facturalo->sendEmail();
             $facturalo->senderXmlSignedBill();
+            $facturalo->sendEmail();
 
             return $facturalo;
         });
@@ -156,14 +156,14 @@ class DocumentController extends Controller
     public function lists($startDate = null, $endDate = null)
     {
 
-        if ($startDate == null) 
+        if ($startDate == null)
         {
             $record = Document::whereTypeUser()
                                 ->orderBy('date_of_issue', 'desc')
                                 ->take(50)
                                 ->get();
         }
-        else 
+        else
         {
             $record = Document::whereBetween('date_of_issue', [$startDate, $endDate])
                 ->orderBy('date_of_issue', 'desc')

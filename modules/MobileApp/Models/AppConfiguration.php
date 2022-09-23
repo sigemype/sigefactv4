@@ -39,6 +39,8 @@ class AppConfiguration extends ModelTenant
             'header_waves' => $this->header_waves,
             'app_mode' => $this->app_mode,
             'direct_print' => $this->direct_print,
+            'has_igv_31556' => auth()->user() ? auth()->user()->establishment->has_igv_31556 : false,
+            'igv_31556_percentage' => config('tenant.igv_31556_percentage'),
         ];
     }
 

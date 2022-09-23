@@ -346,6 +346,7 @@
                             :exchange-rate-sale="form.exchange_rate_sale"
                             :configuration="configuration"
                             :editNameProduct="configuration.edit_name_product"
+                            :percentage-igv="percentage_igv"
                             @add="addRow"></document-form-item>
 
         <document-options :showDialog.sync="showDialogOptions"

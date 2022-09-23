@@ -16,6 +16,7 @@
     use Modules\Order\Models\OrderNote;
     use Modules\Sale\Models\TechnicalService;
     use Modules\Pos\Models\Tip;
+    use Modules\Sale\Models\Agent;
 
     /**
      * Class SaleNote
@@ -219,6 +220,12 @@
             'unique_filename', //registra nombre de archivo unico (campo para evitar duplicidad)
             
             'terms_condition',
+
+            'point_system',
+            'point_system_data',
+            'created_from_pos',
+            'agent_id',
+
         ];
 
         protected $casts = [
@@ -261,6 +268,10 @@
             'date_of_issue' => 'date',
             'automatic_date_of_issue' => 'date',
             'due_date' => 'date',
+
+            'point_system' => 'bool',
+            'created_from_pos' => 'bool',
+
         ];
 
         public static function boot()
@@ -428,9 +439,27 @@
             $this->attributes['legends'] = (is_null($value)) ? null : json_encode($value);
         }
 
+        public function getPointSystemDataAttribute($value)
+        {
+            return (is_null($value)) ? null : (object)json_decode($value);
+        }
+    
+        public function setPointSystemDataAttribute($value)
+        {
+            $this->attributes['point_system_data'] = (is_null($value)) ? null : json_encode($value);
+        }
+
         public function getIdentifierAttribute()
         {
             return $this->prefix . '-' . $this->id;
+        }
+
+        /**
+         * @return BelongsTo
+         */
+        public function agent()
+        {
+            return $this->belongsTo(Agent::class);
         }
 
         /**
@@ -721,6 +750,17 @@
             $mails = $person->getCollectionData();
             $customer_email=  $mails['optional_email_send'];
 
+            $date_pay=$this->payments()->select('date_of_payment')->get();
+            
+            $date_of_pay='';
+            if (count($date_pay)>0) {
+                //dd(count(array($date_pay)));
+                foreach ($date_pay as $pay) {
+                    //dd($pay);
+                    $date_of_pay=$pay->date_of_payment->format('Y-m-d');
+                }
+            }
+
             return [
                 'id' => $this->id,
                 'soap_type_id' => $this->soap_type_id,
@@ -791,7 +831,11 @@
                 'seller' => $this->seller,
                 'filename' => $this->filename,
                 'seller_name'                     => ((int)$this->seller_id !=0)?$this->seller->name:'',
+                'date_of_payment'              => $date_of_pay,
+                'customer_region'              => $customer->department->description,
 // 'number' => $this->number,
+                'agent_name' => optional($this->agent)->search_description,
+                'reference_data' => $this->reference_data,
             ];
         }
 
@@ -1481,6 +1525,54 @@
                             'subtotal',
                         ]);
 
+        }
+
+        
+        /**
+         * 
+         * Determina si fue creado desde pos
+         *
+         * @return bool
+         */
+        public function isCreatedFromPos()
+        {
+            return $this->created_from_pos;
+        }
+
+
+        /**
+         * 
+         * Determina si fue usado para sistema por puntos
+         *
+         * @return bool
+         */
+        public function isPointSystem()
+        {
+            return $this->point_system;
+        }
+
+        
+        /**
+         * 
+         * Obtener puntos por la venta
+         *
+         * @return float
+         * 
+         */
+        public function getPointsBySale()
+        {
+            $calculate_quantity_points = 0;
+
+            if($this->isPointSystem())
+            {
+                $point_system_data = $this->point_system_data;
+                $total = $this->total;
+        
+                $value_quantity_points = ($total / $point_system_data->point_system_sale_amount) * $point_system_data->quantity_of_points;
+                $calculate_quantity_points = $point_system_data->round_points_of_sale ? intval($value_quantity_points) : round($value_quantity_points, 2);
+            }
+
+            return $calculate_quantity_points;
         }
 
     }

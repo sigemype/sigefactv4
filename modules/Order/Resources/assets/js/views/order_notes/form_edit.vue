@@ -221,6 +221,7 @@
             :exchange-rate-sale="form.exchange_rate_sale"
             :showDialog.sync="showDialogAddItem"
             :typeUser="typeUser"
+            :percentage-igv="percentage_igv"
             @add="addRow"></order-note-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
@@ -407,13 +408,12 @@
                     // }
                 }
             },
-            initRecord()
-            {
-                this.$http.get(`/${this.resource}/record/${this.resourceId}` )
+            async initRecord() {
+                await this.$http.get(`/${this.resource}/record/${this.resourceId}` )
                     .then(response => {
-
                         let data = response.data.data.order_note
                         this.form.id = data.id
+                        this.form.establishment_id = data.establishment_id
                         this.form.customer_id = data.customer_id
                         this.form.currency_type_id = data.currency_type_id
                         this.form.payment_method_type_id = data.payment_method_type_id
@@ -427,9 +427,8 @@
                         this.form.observation = data.observation
                         this.calculateTotal()
                         this.reloadDataCustomers(this.form.customer_id)
-
                     })
-
+                await this.getPercentageIgv();
             },
 
             searchRemoteCustomers(input) {
@@ -516,11 +515,13 @@
             cleanCustomer(){
                 this.form.customer_id = null;
             },
-            changeDateOfIssue() {
+            async changeDateOfIssue() {
                 this.form.date_of_due = this.form.date_of_issue
-                this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
+                await this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
                     this.form.exchange_rate_sale = response
                 })
+                await this.getPercentageIgv();
+                this.changeCurrencyType();
             },
             allCustomers() {
                 this.customers = this.all_customers

@@ -118,6 +118,7 @@ YouTube Tutorial para solucionar error 1033 SUNAT: [YouTube](https://www.youtube
 5.- [https://facturaloperu.com](https://facturaloperu.com) no se hace responsable por los daños o perjuicios del uso del código de este software cuando no ha sido distribuido directamente por [https://facturaloperu.com](https://facturaloperu.com)
 
 ### No clasificados
+Bloqueo de html y php: [Guía](https://docs.google.com/document/d/1ndWo3yA0TBAE5JcemfN5XXXXjuigfZUS/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 Recreación de documentos: [Guía](https://drive.google.com/file/d/1fD2-XN4eavBEbEXGJuxEbjbqR_mMGp0K/view?usp=sharing "Clic")<br>
 Manual de cambios privados: [Guía](https://drive.google.com/file/d/1bUFNi6JmOB70MkfkA76lx37skF0b6LDv/view?usp=sharing "Clic")<br>
 Validador documentos: [Guía](https://drive.google.com/file/d/1Q8SblYp-fd1x30emqeNO6qPTx_XyjaJE/view?usp=sharing "Clic")<br>

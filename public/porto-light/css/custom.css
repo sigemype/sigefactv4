@@ -891,3 +891,28 @@ html.sidebar-dark:not(.sidebar-light) .card-header.bg-info {
 .card-header.bg-success {
   background: #47a447 !important;
 }
+
+.c-btn-disabled{
+  color: #606266;
+}
+
+@media only screen and (max-width: 767px) {
+  .page-header {
+    display: flow-root;
+    position: relative;
+    box-shadow: none;
+    background: #fff;
+    left: 15px;
+    height: auto;
+    padding-bottom: 8px;
+    padding-left: 8px;
+  }
+  .page-header h2 {
+    display: none;
+  }
+}
+
+
+.fs-point-system{
+  font-size: 15px;
+}

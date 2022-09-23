@@ -33,6 +33,8 @@ use Modules\Sale\Models\UserCommission;
 use App\Models\Tenant\Configuration;
 use Modules\Restaurant\Models\RestaurantRole;
 use Modules\MobileApp\Models\AppModule;
+use Modules\LevelAccess\Models\AuthorizedDiscountUser;
+
 
 /**
  * Class User
@@ -879,6 +881,15 @@ $withEstablishment = true){
     {
         return $this->belongsToMany(AppModule::class);
     }
+
+    /**
+     * @return HasMany
+     */
+    public function authorized_discount_users()
+    {
+        return $this->hasMany(AuthorizedDiscountUser::class);
+    }
+
 
     /**
      * Devuelve las series que puede seleccionar el usuario.

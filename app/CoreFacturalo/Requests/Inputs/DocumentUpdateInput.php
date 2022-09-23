@@ -171,6 +171,9 @@ class DocumentUpdateInput
                         'cod_digemid' => $item->cod_digemid,
                         'unit_price' => $row['unit_price'] ?? 0,
                         'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,
+                        
+                        'exchanged_for_points' => $row['item']['exchanged_for_points'] ?? false,
+                        'used_points_for_exchange' => $row['item']['used_points_for_exchange'] ?? null,
 
                     ],
                     'quantity' => $row['quantity'],

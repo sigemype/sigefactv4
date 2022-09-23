@@ -432,7 +432,9 @@ class SaleNoteController extends Controller
     {
 
         $records = $this->getRecords($request);
-
+        
+        /* $records = new SaleNoteCollection($records->paginate(config('tenant.items_per_page')));
+        dd($records); */
         return new SaleNoteCollection($records->paginate(config('tenant.items_per_page')));
 
     }
@@ -866,6 +868,8 @@ class SaleNoteController extends Controller
             $values['customer'] = $customer;
         }
 
+        $this->setDataPointSystemToValues($values, $inputs);
+
 
         unset($inputs['series_id']);
 
@@ -873,6 +877,32 @@ class SaleNoteController extends Controller
         $inputs = array_merge($inputs, $values);
         return $inputs;
     }
+
+    
+    /**
+     * Configuración de sistema por puntos
+     *
+     * @param  array $values
+     * @param  array $inputs
+     * @return void
+     */
+    private function setDataPointSystemToValues(&$values, $inputs)
+    {
+        $configuration = Configuration::getDataPointSystem();
+
+        $created_from_pos = $inputs['created_from_pos'] ?? false;
+
+        if($created_from_pos && $configuration->enabled_point_system)
+        {
+            $values['point_system'] = $configuration->enabled_point_system;
+            $values['point_system_data'] = [
+                'point_system_sale_amount' => $configuration->point_system_sale_amount,
+                'quantity_of_points' => $configuration->quantity_of_points,
+                'round_points_of_sale' => $configuration->round_points_of_sale,
+            ];
+        }
+    }
+
 
 //    public function recreatePdf($sale_note_id)
 //    {
@@ -960,7 +990,7 @@ class SaleNoteController extends Controller
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    60 +
+                    120 +
                     ($quantity_rows * 8)+
                     ($discount_global * 3) +
                     $company_logo +

@@ -1,3 +1,6 @@
+@php
+    $enabled_sales_agents = App\Models\Tenant\Configuration::getRecordIndividualColumn('enabled_sales_agents');
+@endphp
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -75,6 +78,7 @@
                                 <th class="text-center">Moneda</th>
                                 <th class="text-center">Plataforma</th>
                                 <th class="text-center">Orden de compra</th>
+                                <th class="text-center">Region</th>
                                 <th class="text-center">Comprobantes</th>
                                 <th class="text-center">Fecha comprobante</th>
                                 <th>Cotización</th>
@@ -85,6 +89,10 @@
                                 <th class="text-right">T.Gravado</th>
                                 <th class="text-right">T.Igv</th>
                                 <th class="text-right">Total</th>
+                                @if ($enabled_sales_agents)
+                                    <th>Agente</th>
+                                    <th>Datos de referencia</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -107,6 +115,7 @@
                                     @endforeach
                                 </td>
                                 <td>{{$value->purchase_order}}</td>
+                                <td>{{$value->customer->department->description}}</td>
                                 @php
                                     $documents = $value->documents;
                                 @endphp
@@ -141,6 +150,11 @@
                                     <td class="celda">{{ $value->total_igv}}</td>
                                     <td class="celda">{{ $value->total}}</td>
 
+                                @endif
+                                
+                                @if ($enabled_sales_agents)
+                                    <td>{{optional($value->agent)->search_description}}</td>
+                                    <td>{{$value->reference_data}}</td>
                                 @endif
                             </tr>
 

@@ -316,8 +316,11 @@
                         <th>
                             Documento
                         </th>
-                        <th>
+                        {{-- <th>
                             Fecha emisión
+                        </th> --}}
+                        <th>
+                            Fecha de pago
                         </th>
                         <th>
                             Cliente/Proveedor

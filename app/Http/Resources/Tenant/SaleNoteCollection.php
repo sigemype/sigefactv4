@@ -4,7 +4,7 @@
 
     use App\Models\Tenant\Configuration;
     use Illuminate\Http\Resources\Json\ResourceCollection;
-
+    use App\Models\Tenant\Person;
     /**
      * Class SaleNoteCollection
      *
@@ -30,6 +30,15 @@
                 $btn_generate = (count($row->documents) > 0) ? false : true;
                 $btn_payments = (count($row->documents) > 0) ? false : true;
                 $due_date = (!empty($row->due_date)) ? $row->due_date->format('Y-m-d') : null;
+                $date_pay=$row->payments;
+                $payment='';
+                if (count($date_pay)>0) {
+                    foreach ($date_pay as $pay) {
+                        $payment=$pay->date_of_payment->format('Y-m-d');
+                    }
+                }
+                //$depa=$depa->description;
+                //return dd($date);
                 return [
                     'id'                           => $row->id,
                     'soap_type_id'                 => $row->soap_type_id,
@@ -39,6 +48,7 @@
                     'full_number'                  => $row->series.'-'.$row->number,
                     'customer_name'                => $row->customer->name,
                     'customer_number'              => $row->customer->number,
+                    'customer_region'              => $row->customer->department->description,
                     'currency_type_id'             => $row->currency_type_id,
                     'total_exportation'            => number_format($row->total_exportation, 2),
                     'total_free'                   => number_format($row->total_free, 2),
@@ -76,6 +86,7 @@
                     'print_a4'                     => url('')."/sale-notes/print/{$row->external_id}/a4",
                     'purchase_order'               => $row->purchase_order,
                     'due_date'                     => $due_date,
+                    'date_of_payment'              => $payment,
                 ];
             });
         }

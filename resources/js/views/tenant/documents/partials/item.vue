@@ -1125,6 +1125,9 @@ export default {
                     }
                 }
                 this.calculateQuantity()
+
+                if(this.recordItem.item.exchanged_for_points) this.form.item.exchanged_for_points = this.recordItem.item.exchanged_for_points
+                
             } else {
                 this.isUpdateWarehouseId = null
             }
@@ -1672,7 +1675,8 @@ export default {
         },
         async getLastPriceItem() {
             this.itemLastPrice =null
-            if(this.configuration.show_last_price_sale) {
+            let show_last_price_sale = _.has(this.configuration, 'show_last_price_sale')?this.configuration.show_last_price_sale:false;
+            if(show_last_price_sale) {
                 if(this.customerId && this.form.item_id) {
                     const params = {
                         'type_document': 'CPE',

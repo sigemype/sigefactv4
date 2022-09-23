@@ -297,4 +297,87 @@ export const setDefaultSeriesByMultipleDocumentTypes = {
 }
 
 
+// funciones para sistema por puntos
+// Usado en:
+// invoice_generate.vue
+// pos/payment.vue
+
+export const pointSystemFunctions = {
+    data() {
+        return {
+            customer_accumulated_points: 0,
+            calculate_customer_accumulated_points: 0,
+            total_exchange_points: 0,
+            total_points_by_sale: 0,
+        }
+    },
+    methods: {
+        setTotalPointsBySale(configuration)
+        {
+            if(configuration && configuration.enabled_point_system)
+            {
+                const calculate_points = (this.form.total / configuration.point_system_sale_amount) * configuration.quantity_of_points
+                this.total_points_by_sale = configuration.round_points_of_sale ? parseInt(calculate_points) : _.round(calculate_points, 2)
+                // this.total_points_by_sale = _.round((this.form.total / configuration.point_system_sale_amount) * configuration.quantity_of_points, 2)
+            }
+        },
+        recalculateUsedPointsForExchange(row)
+        {
+            if(row.item.exchanged_for_points) row.item.used_points_for_exchange = this.getUsedPoints(row)
+        },
+        async setCustomerAccumulatedPoints(customer_id, enabled_point_system)
+        {
+            if(enabled_point_system)
+            {
+                await this.$http.get(`/persons/accumulated-points/${customer_id}`).then((response) => {
+                        this.customer_accumulated_points = response.data
+                        this.calculate_customer_accumulated_points = response.data //para calculos
+                        this.calculateNewPoints()
+                    })
+            }
+        },
+        setTotalExchangePoints()
+        {
+            this.total_exchange_points = this.getTotalExchangePointsItems()
+            this.calculateNewPoints()
+        },
+        hasPointsAvailable()
+        {
+            return this.calculate_customer_accumulated_points >= 0
+        },
+        calculateNewPoints()
+        {
+            this.calculate_customer_accumulated_points = this.customer_accumulated_points - this.total_exchange_points
+        },
+        validateExchangePoints()
+        {
+            if(!this.hasPointsAvailable())
+            {
+                return {
+                    success: false,
+                    message: `El total de puntos a canjear excede los puntos acumulados: ${this.calculate_customer_accumulated_points} puntos`
+                }
+            }
+
+            return {
+                success: true
+            }
+        },
+        getExchangePointDescription(row)
+        {
+            return `¿Desea canjearlo por ${this.getUsedPoints(row)} puntos?`
+        },
+        getUsedPoints(row)
+        {
+            return _.round(row.item.quantity_of_points * row.quantity, 2)
+        },
+        getTotalExchangePointsItems()
+        {
+            return _.sumBy(this.form.items, (row)=>{
+                return (row.item.exchanged_for_points) ? this.getUsedPoints(row) : 0
+            })
+        },
+    }
+}
+
 

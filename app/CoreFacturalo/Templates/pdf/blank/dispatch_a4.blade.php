@@ -12,20 +12,22 @@
 
 
 @endphp
+
 <html>
 <head>
     {{--<title>{{ $document_number }}</title>--}}
     {{--<link href="{{ $path_style }}" rel="stylesheet" />--}}
-	<link href="https://allfont.es/allfont.css?fonts=lucida-console" rel="stylesheet" type="text/css" />
-	
+    <link href="https://allfont.es/allfont.css?fonts=lucida-console" rel="stylesheet" type="text/css" />
+
 </head>
 <body>
 
 {{-- <div class="" style="position: absolute; z-index: 0; width:100%; top: 0; left: 0;">
     <img src="data:{{mime_content_type($background)}};base64, {{base64_encode(file_get_contents($background))}}" alt="anulado" class="" style="width: 100%; opacity: 0.3">
 </div> --}}
+<br>
 <table class="full-width p-0 mt-20 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
-	<tr>&nbsp;</tr>
+    <tr>&nbsp;</tr>
     @foreach($document->items as $row)
     <tr>
         <td width="13%" class="align-top">
@@ -49,16 +51,5 @@
     </tr>
     @endforeach
 </table>
-@if ($document->terms_condition)
-        <br>
-        <table class="full-width">
-            <tr>
-                <td>
-                    <h6 style="font-size: 12px; font-weight: bold;">Términos y condiciones del servicio</h6>
-                    {!! $document->terms_condition !!}
-                </td>
-            </tr>
-        </table>
-    @endif
 </body>
 </html>

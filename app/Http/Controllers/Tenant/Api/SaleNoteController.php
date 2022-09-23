@@ -8,6 +8,7 @@ use App\Models\Tenant\Establishment as EstablishmentModel;
 use App\Models\Tenant\Person as PersonModel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use Mpdf\HTMLParserMode;
@@ -16,6 +17,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Tenant\Series;
 use App\Models\Tenant\Company;
+
 // use App\Models\Tenant\Warehouse;
 use Mpdf\Config\FontVariables;
 use App\CoreFacturalo\Template;
@@ -47,34 +49,34 @@ class SaleNoteController extends Controller
     public function lists(Request $request)
     {
 
-        $record = SaleNote::where(function($q) use($request){
-                                $q->where('series', 'like', "%{$request->input}%" )
-                                    ->orWhere('number','like', "%{$request->input}%");
-                            })
-                            ->latest()
-                            ->take(config('tenant.items_per_page'))
-                            ->get();
+        $record = SaleNote::where(function ($q) use ($request) {
+            $q->where('series', 'like', "%{$request->input}%")
+                ->orWhere('number', 'like', "%{$request->input}%");
+        })
+            ->latest()
+            ->take(config('tenant.items_per_page'))
+            ->get();
 
         $records = new SaleNoteCollection($record);
 
         return $records;
     }
 
-    public function store(SaleNoteRequest $request)
+    public function store(Request $request)
     {
         $request['establishment_id'] = $request['establishment_id'] ? $request['establishment_id'] : auth()->user()->establishment_id;
-        $force_create_if_not_exist = isset($request['force_create_if_not_exist'])?(bool)$request['force_create_if_not_exist']:false;
+        $force_create_if_not_exist = isset($request['force_create_if_not_exist']) ? (bool)$request['force_create_if_not_exist'] : false;
         $request['force_create_if_not_exist'] = $force_create_if_not_exist;
 
         $data = [];
-        if($request['force_create_if_not_exist']) {
+        if ($request['force_create_if_not_exist']) {
             // Se saca de tenant, para que pueda guardar el item correctamente.
-            self::ExtraLog(__FILE__."::".__LINE__."   ".__FUNCTION__."  \n Entra por crear ".__FUNCTION__." \n". var_export($request->all(),true) ."\n\n\n\n");
+            self::ExtraLog(__FILE__ . "::" . __LINE__ . "   " . __FUNCTION__ . "  \n Entra por crear " . __FUNCTION__ . " \n" . var_export($request->all(), true) . "\n\n\n\n");
             $data = $this->mergeData($request);
         }
 
-        DB::connection('tenant')->transaction(function () use ($request,$data) {
-            if(!$request['force_create_if_not_exist']) {
+        DB::connection('tenant')->transaction(function () use ($request, $data) {
+            if (!$request['force_create_if_not_exist']) {
                 $data = $this->mergeData($request);
             }
             $this->sale_note = SaleNote::updateOrCreate(
@@ -108,8 +110,10 @@ class SaleNoteController extends Controller
             /*foreach ($data['payments'] as $row) {
                 $this->sale_note->payments()->create($row);
             }*/
-            $payments = new \App\Http\Controllers\Tenant\SaleNoteController;
-            $payments->savePayments($this->sale_note, $data['payments']);
+            if(key_exists('payments', $data)) {
+                $payments = new \App\Http\Controllers\Tenant\SaleNoteController;
+                $payments->savePayments($this->sale_note, $data['payments']);
+            }
 
             $this->setFilename();
             $this->createPdf($this->sale_note, 'a4', $this->sale_note->filename);
@@ -117,8 +121,8 @@ class SaleNoteController extends Controller
 
         return [
             'success' => true,
-            'data'    => [
-                'id'     => $this->sale_note->id,
+            'data' => [
+                'id' => $this->sale_note->id,
                 'number' => $this->sale_note->number_full,
                 'external_id' => $this->sale_note->external_id,
                 'filename' => $this->sale_note->filename,
@@ -134,7 +138,7 @@ class SaleNoteController extends Controller
 
         $type_period = $inputs['type_period'];
         $quantity_period = $inputs['quantity_period'];
-        $force_create_if_not_exist = isset($inputs['force_create_if_not_exist'])?(bool)$inputs['force_create_if_not_exist']:false;
+        $force_create_if_not_exist = isset($inputs['force_create_if_not_exist']) ? (bool)$inputs['force_create_if_not_exist'] : false;
         $d_of_issue = new Carbon($inputs['date_of_issue']);
         $automatic_date_of_issue = null;
 
@@ -142,13 +146,13 @@ class SaleNoteController extends Controller
             $add_period_date = ($type_period == 'month') ? $d_of_issue->addMonths($quantity_period) : $d_of_issue->addYears($quantity_period);
             $automatic_date_of_issue = $add_period_date->format('Y-m-d');
         }
-        if($force_create_if_not_exist === true){
+        if ($force_create_if_not_exist === true) {
             // busca la persona por id
             $person = PersonModel::find($inputs['customer_id']);
             $client_data = $inputs['datos_del_cliente_o_receptor'];
             $client_number = isset($client_data['numero_documento']) ? $client_data['numero_documento'] : null;
             // compara el numero con el id del cliente, Si es diferente, deberia crear el cliente
-            if($person !== null && $client_number !== $person->number){
+            if ($person !== null && $client_number !== $person->number) {
                 $person = null;
             }
             if ($person === null) {
@@ -173,34 +177,51 @@ class SaleNoteController extends Controller
             self::ExtraLog(__FILE__ . "::" . __LINE__ . "   " . __FUNCTION__ . "  \n Buscando Items " . var_export($items, true) . "\n\n\n\n");
 
             foreach ($items as $key => $item) {
-                $item_in = $item['full_item'];
-                self::ExtraLog('Item Antes \n\n\n\n\n' . var_export($item['full_item'], true) . "\n<<<<<<<<<<<<<<<<<<<<<<<<");
-                unset(
-                    $item_in['item_id'],
-                    $item_in['internal_id'],
-                    $item_in['id'],
-                    $item_in['barcode'],
-                    $item_in['tags'],
-                    $item_in['unit_type'],
-                    $item_in['item_type'],
-                    $item_in['currency_type'],
-                    $item_in['warehouses'],
-                    $item_in['item_unit_types']
-                );
-                foreach ($item_in as $k => $v) {
-                    if (empty($v)) {
-                        unset($item_in[$k]);
+                if(key_exists('full_item', $item)) {
+                    $item_in = $item['full_item'];
+                    self::ExtraLog('Item Antes \n\n\n\n\n' . var_export($item_in, true) . "\n<<<<<<<<<<<<<<<<<<<<<<<<");
+                    unset(
+                        $item_in['item_id'],
+                        $item_in['internal_id'],
+                        $item_in['id'],
+                        $item_in['barcode'],
+                        $item_in['tags'],
+                        $item_in['unit_type'],
+                        $item_in['item_type'],
+                        $item_in['currency_type'],
+                        $item_in['warehouses'],
+                        $item_in['item_unit_types']
+                    );
+                    foreach ($item_in as $k => $v) {
+                        if (empty($v)) {
+                            unset($item_in[$k]);
+                        }
+                    }
+                    self::ExtraLog('Item Despues \n\n\n\n\n' . var_export($item_in, true) . "\n<<<<<<<<<<<<<<<<<<<<<<<<");
+                    $identicalItem = Item::where($item_in)->first();
+                    if ($identicalItem === null) {
+                        $identicalItem = new Item($item_in);
+                        $identicalItem->stock = 1;
+                        $identicalItem->stock_min = 1;
+                        $identicalItem->push();
+
+                    }
+                } else {
+                    $item_in = $item;
+                    $item_in['sale_unit_price'] = $item_in['unit_price'];
+                    $item_in['sale_affectation_igv_type_id'] = $item_in['affectation_igv_type_id'];
+                    $item_in['purchase_affectation_igv_type_id'] = $item_in['affectation_igv_type_id'];
+                   // $item_in['is_set'] = isset($item_in['is_set']) ? (bool)$item_in['is_set'] : false;
+                    $identicalItem = Item::query()
+                        ->where('internal_id', $item_in['internal_id'])->first();
+                    if ($identicalItem === null) {
+                        $identicalItem = new Item($item_in);
+                        $identicalItem->stock = 1;
+                        $identicalItem->stock_min = 1;
+                        $identicalItem->push();
                     }
                 }
-                self::ExtraLog('Item Despues \n\n\n\n\n' . var_export($item_in, true) . "\n<<<<<<<<<<<<<<<<<<<<<<<<");
-                $identicalItem = Item::where($item_in)->first();
-                if ($identicalItem === null) {
-                    $identicalItem = new Item($item_in);
-                    $identicalItem->stock = 1;
-                    $identicalItem->stock_min = 1;
-                    $identicalItem->push();
 
-                }
                 $items[$key]['id'] = $identicalItem->id;
                 $items[$key]['attributes'] = $identicalItem->attributes;
                 $items[$key]['item_id'] = $identicalItem->id;
@@ -208,6 +229,9 @@ class SaleNoteController extends Controller
                 $items[$key]['item']['barcode'] = $identicalItem->barcode;
                 $items[$key]['item']['id'] = $identicalItem->id;
                 $items[$key]['item']['item_id'] = $identicalItem->id;
+                $items[$key]['item']['is_set'] = $identicalItem->is_set;
+                $items[$key]['item']['unit_type_id'] = $identicalItem->unit_type_id;
+                $items[$key]['item']['description'] = $identicalItem->description;
             }
 
             $inputs['items'] = $items;
@@ -222,17 +246,18 @@ class SaleNoteController extends Controller
 
         $values = [
             'automatic_date_of_issue' => $automatic_date_of_issue,
-            'user_id'                 => auth()->id(),
-            'external_id'             => Str::uuid()->toString(),
-            'customer'                => $customer,
-            'establishment'           => EstablishmentInput::set($inputs['establishment_id']),
-            'soap_type_id'            => $this->company->soap_type_id,
-            'state_type_id'           => '01',
-            'series'                  => $data_series['series'],
-            'number'                  => $data_series['number']
+            'user_id' => auth()->id(),
+            'external_id' => Str::uuid()->toString(),
+            'customer' => $customer,
+            'establishment' => EstablishmentInput::set($inputs['establishment_id']),
+            'soap_type_id' => $this->company->soap_type_id,
+            'state_type_id' => '01',
+            'series' => $data_series['series'],
+            'number' => $data_series['number']
         ];
 
         $inputs->merge($values);
+
         return $inputs->all();
     }
 
@@ -242,9 +267,9 @@ class SaleNoteController extends Controller
 
         if (!$id) {
             $sale_note = SaleNote::select('number')->where('soap_type_id', $this->company->soap_type_id)
-                                ->where('series', $series)
-                                ->orderBy('number', 'desc')
-                                ->first();
+                ->where('series', $series)
+                ->orderBy('number', 'desc')
+                ->first();
 
             $number = ($sale_note) ? $sale_note->number + 1 : 1;
         }
@@ -332,7 +357,7 @@ class SaleNoteController extends Controller
             $legends = $this->document->legends != '' ? '10' : '0';
 
             $pdf = new Mpdf([
-                'mode'   => 'utf-8',
+                'mode' => 'utf-8',
                 'format' => [
                     $width,
                     40 +
@@ -352,10 +377,10 @@ class SaleNoteController extends Controller
                     $total_unaffected +
                     $total_exonerated +
                     $total_taxed],
-                'margin_top'    => 0,
-                'margin_right'  => 2,
+                'margin_top' => 0,
+                'margin_right' => 2,
                 'margin_bottom' => 0,
-                'margin_left'   => 2
+                'margin_left' => 2
             ]);
         } elseif ($format_pdf === 'a5') {
             $company_name = (strlen($this->company->name) / 20) * 10;
@@ -380,31 +405,31 @@ class SaleNoteController extends Controller
             $legends = $this->document->legends != '' ? '10' : '0';
 
             $alto = ($quantity_rows * 8) +
-                    ($discount_global * 3) +
-                    $company_name +
-                    $company_address +
-                    $company_number +
-                    $customer_name +
-                    $customer_address +
-                    $p_order +
-                    $legends +
-                    $total_exportation +
-                    $total_free +
-                    $total_unaffected +
-                    $total_exonerated +
-                    $total_taxed;
+                ($discount_global * 3) +
+                $company_name +
+                $company_address +
+                $company_number +
+                $customer_name +
+                $customer_address +
+                $p_order +
+                $legends +
+                $total_exportation +
+                $total_free +
+                $total_unaffected +
+                $total_exonerated +
+                $total_taxed;
             $diferencia = 148 - (float)$alto;
 
             $pdf = new Mpdf([
-                'mode'   => 'utf-8',
+                'mode' => 'utf-8',
                 'format' => [
                     210,
                     $diferencia + $alto
                 ],
-                'margin_top'    => 2,
-                'margin_right'  => 5,
+                'margin_top' => 2,
+                'margin_right' => 5,
                 'margin_bottom' => 0,
-                'margin_left'   => 5
+                'margin_left' => 5
             ]);
         } else {
             $pdf_font_regular = config('tenant.pdf_name_regular');
@@ -420,41 +445,40 @@ class SaleNoteController extends Controller
                 $pdf = new Mpdf([
                     'fontDir' => array_merge($fontDirs, [
                         app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' .
-                                                DIRECTORY_SEPARATOR . 'pdf' .
-                                                DIRECTORY_SEPARATOR . $base_template .
-                                                DIRECTORY_SEPARATOR . 'font')
+                            DIRECTORY_SEPARATOR . 'pdf' .
+                            DIRECTORY_SEPARATOR . $base_template .
+                            DIRECTORY_SEPARATOR . 'font')
                     ]),
                     'fontdata' => $fontData + [
-                        'custom_bold' => [
-                            'R' => $pdf_font_bold . '.ttf',
-                        ],
-                        'custom_regular' => [
-                            'R' => $pdf_font_regular . '.ttf',
-                        ],
-                    ]
+                            'custom_bold' => [
+                                'R' => $pdf_font_bold . '.ttf',
+                            ],
+                            'custom_regular' => [
+                                'R' => $pdf_font_regular . '.ttf',
+                            ],
+                        ]
                 ]);
             }
         }
 
         $path_css = app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' .
-                                             DIRECTORY_SEPARATOR . 'pdf' .
-                                             DIRECTORY_SEPARATOR . $base_template .
-                                             DIRECTORY_SEPARATOR . 'style.css');
+            DIRECTORY_SEPARATOR . 'pdf' .
+            DIRECTORY_SEPARATOR . $base_template .
+            DIRECTORY_SEPARATOR . 'style.css');
 
         $stylesheet = file_get_contents($path_css);
 
-        
+
         // retornar html del pdf para impresion directa
-        if($output === 'html') 
-        {
-            $path_html = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'ticket_html.css');
+        if ($output === 'html') {
+            $path_html = app_path('CoreFacturalo' . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'pdf' . DIRECTORY_SEPARATOR . 'ticket_html.css');
             $ticket_html = file_get_contents($path_html);
             $pdf->WriteHTML($ticket_html, HTMLParserMode::HEADER_CSS);
             $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
-            return "<style>".$ticket_html.$stylesheet."</style>".$html;
+            return "<style>" . $ticket_html . $stylesheet . "</style>" . $html;
         }
-        
+
 
         $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
@@ -475,11 +499,11 @@ class SaleNoteController extends Controller
     public function series()
     {
         return Series::where('establishment_id', auth()->user()->establishment_id)
-                    ->where('document_type_id', '80')
-                    ->get()
-                    ->transform(function ($row) {
-                        return $row->getApiRowResource();
-                    });
+            ->where('document_type_id', '80')
+            ->get()
+            ->transform(function ($row) {
+                return $row->getApiRowResource();
+            });
     }
 
     public function email(Request $request)
@@ -490,7 +514,7 @@ class SaleNoteController extends Controller
 
         $email = $customer_email;
         $mailable = new SaleNoteEmail($company, $record);
-        $id =  $request->id;
+        $id = $request->id;
         $sendIt = EmailController::SendMail($email, $mailable, $id, 2);
         /*
         Configuration::setConfigSmtpMail();
@@ -533,8 +557,8 @@ class SaleNoteController extends Controller
             ], 500);
         }
         $saleNote->items = $saleNote->items
-            ->each(function($item) {
-                $itemBD = Item::without(['item_type', 'unit_type', 'currency_type', 'warehouses','item_unit_types', 'tags'])
+            ->each(function ($item) {
+                $itemBD = Item::without(['item_type', 'unit_type', 'currency_type', 'warehouses', 'item_unit_types', 'tags'])
                     ->findOrFail($item->item_id);
 
                 $itemToArray = json_decode(json_encode($item->item), true);
@@ -544,17 +568,17 @@ class SaleNoteController extends Controller
                 $itemToArray['IdLoteSelected'] = null;
 
                 $item->item = $itemToArray;
-                return (object) $item;
+                return (object)$item;
             });
         $saleNote = $saleNote->toArray();
 
         $data = [
-            'type'             => 'invoice',
-            'group_id'         => '01',
-            'user_id'          => $user->id,
-            'external_id'      => $saleNote['external_id'],
+            'type' => 'invoice',
+            'group_id' => '01',
+            'user_id' => $user->id,
+            'external_id' => $saleNote['external_id'],
             'establishment_id' => $saleNote['establishment_id'],
-            'establishment'    => $saleNote['establishment'],
+            'establishment' => $saleNote['establishment'],
             "soap_type_id" => $saleNote['soap_type_id'],
             "state_type_id" => $saleNote['state_type_id'],
             "ubl_version" => "2.1",
@@ -609,7 +633,7 @@ class SaleNoteController extends Controller
             "transport" => [],
             "plate_number" => $saleNote['plate_number'],
             "legends" => [
-                [ 'code' => 1000, 'value' => NumberLetter::convertToLetter($saleNote['total']) ]
+                ['code' => 1000, 'value' => NumberLetter::convertToLetter($saleNote['total'])]
             ],
             "actions" => [
                 "send_email" => false,
@@ -624,7 +648,6 @@ class SaleNoteController extends Controller
             'sale_note_id' => $saleNoteId,
             'payment_condition_id' => $request->codigo_condicion_de_pago,
         ];
-
 
 
         $dataToRequest = new Request($data);

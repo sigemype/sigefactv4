@@ -131,6 +131,7 @@ class DocumentTransform
                     'lots' => Functions::valueKeyInArray($row, 'lots', []),
                     'update_description' => Functions::valueKeyInArray($row, 'actualizar_descripcion', true), //variable para determinar si se actualiza la descripcion del item cuando se envia desde api
                     'name_product_pdf' => Functions::valueKeyInArray($row, 'nombre_producto_pdf'),
+                    'name_product_xml' => Functions::valueKeyInArray($row, 'nombre_producto_xml'),
                     'additional_data' => Functions::valueKeyInArray($row, 'dato_adicional'),
                 ];
             }

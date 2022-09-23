@@ -189,12 +189,17 @@ class CashController extends Controller
                 }
 
                 $order_number = 3;
-
+                $date_payment;
+                if(count($pays) > 0){
+                    foreach ($pays as $value) {
+                        $date_payment=$value->date_of_payment;
+                    }
+                }
                 $temp = [
                     'type_transaction'          => 'Venta',
                     'document_type_description' => 'NOTA DE VENTA',
                     'number'                    => $sale_note->number_full,
-                    'date_of_issue'             => $sale_note->date_of_issue->format('Y-m-d'),
+                    'date_of_issue'             => $date_payment->format('Y-m-d'),
                     'date_sort'                 => $sale_note->date_of_issue,
                     'customer_name'             => $sale_note->customer->name,
                     'customer_number'           => $sale_note->customer->number,
@@ -291,14 +296,18 @@ class CashController extends Controller
                 if ($record_total != $document->total) {
                     $usado .= '<br> Los montos son diferentes '.$document->total." vs ".$pagado."<br>";
                 }
-
+                $date_payment;
+                if(count($pays) > 0){
+                    foreach ($pays as $value) {
+                        $date_payment=$value->date_of_payment;
+                    }
+                }
                 $order_number = $document->document_type_id === '01' ? 1 : 2;
-
                 $temp = [
                     'type_transaction'          => 'Venta',
                     'document_type_description' => $document->document_type->description,
                     'number'                    => $document->number_full,
-                    'date_of_issue'             => $document->date_of_issue->format('Y-m-d'),
+                    'date_of_issue'             => $date_payment->format('Y-m-d'),
                     'date_sort'                 => $document->date_of_issue,
                     'customer_name'             => $document->customer->name,
                     'customer_number'           => $document->customer->number,

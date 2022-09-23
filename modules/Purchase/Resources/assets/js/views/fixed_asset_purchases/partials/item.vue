@@ -178,7 +178,7 @@
     import {calculateRowItem} from '@helpers/functions'
 
     export default {
-        props: ['showDialog', 'currencyTypeIdActive', 'exchangeRateSale'],
+        props: ['showDialog', 'currencyTypeIdActive', 'exchangeRateSale', 'percentageIgv'],
         components: {FaItemForm},
         data() {
             return {

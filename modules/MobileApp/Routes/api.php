@@ -2,14 +2,14 @@
 
 $hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
 
-if ($hostname) 
+if ($hostname)
 {
     Route::domain($hostname->fqdn)->group(function () {
 
         Route::middleware(['auth:api', 'locked.tenant'])->group(function () {
 
             Route::get('document-print-pdf/{model}/{external_id}/{format}/{extend_pdf_height?}', 'Api\DownloadController@documentPrintPdf');
-            
+
             Route::get('document-print-pdf-text/{model}/{external_id}/{format}', 'Api\DownloadController@documentPrintText');
             // Route::post('document-print-pdf-upload', 'Api\DownloadController@documentPrintPdfUpload');
 
@@ -25,9 +25,9 @@ if ($hostname)
 
             });
 
-            
+
             Route::prefix('items')->group(function () {
-                
+
                 Route::get('records-sale', 'Api\ItemController@recordsSale');
                 Route::get('table/{table}', 'Api\ItemController@table');
                 Route::get('tables', 'Api\ItemController@tables');
@@ -40,7 +40,7 @@ if ($hostname)
                 Route::get('change-favorite/{id}/{favorite}', 'Api\ItemController@changeFavorite');
 
             });
-            
+
 
             Route::prefix('documents')->group(function () {
                 Route::post('validate-document', 'Api\ValidateDocumentController@validateDocument');
@@ -81,15 +81,15 @@ if ($hostname)
                 Route::get('income-summary-report/{cash}', 'Api\CashController@incomeSummaryReport');
 
                 Route::post('store-cash-document', 'Api\CashController@storeCashDocument');
- 
+
             });
 
-            
+
             Route::prefix('reports')->group(function () {
                 Route::get('filters', 'Api\ReportController@filters');
                 Route::post('general-sale', 'Api\ReportController@reportGeneralSale');
             });
 
-        }); 
+        });
     });
-} 
+}

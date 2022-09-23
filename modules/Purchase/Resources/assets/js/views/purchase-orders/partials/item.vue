@@ -386,7 +386,8 @@ export default {
     props: [
         'showDialog',
         'currencyTypeIdActive',
-        'exchangeRateSale'
+        'exchangeRateSale',
+        'percentageIgv'
     ],
     components: {itemForm, LotsForm, 'vue-ckeditor': VueCkeditor.component},
 
@@ -653,8 +654,8 @@ export default {
         },
         changeItem() {
             this.form.item = _.find(this.items, {'id': this.form.item_id})
-            console.error(this.form.item)
-            console.log(this.form.item.purchase_unit_price +' <<< ')
+            // console.error(this.form.item)
+            // console.log(this.form.item.purchase_unit_price +' <<< ')
             this.form.unit_price = this.form.item.purchase_unit_price
             this.form.affectation_igv_type_id = this.form.item.purchase_affectation_igv_type_id
 

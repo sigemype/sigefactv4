@@ -2,7 +2,8 @@
 
     namespace Modules\Inventory\Http\Controllers;
 
-    use App\Http\Controllers\Controller;
+use App\Exports\TransfersExport;
+use App\Http\Controllers\Controller;
     use App\Http\Controllers\SearchItemController;
     use Barryvdh\DomPDF\Facade as PDF;
     use Carbon\Carbon;
@@ -81,6 +82,68 @@
             $record = new TransferResource(Inventory::findOrFail($id));
 
             return $record;
+        }
+
+        public function transfers_download(Request $request){
+            $period = $request->period;
+            switch ($period) {
+                case 'day':
+                    $records = InventoryTransfer::where('created_at', 'like', '%' . $request->date_start . '%')->get();
+                    break;
+
+                case 'month':
+                    $m_start = Carbon::parse($request->month.'-01')->format('Y-m-d');
+                    $m_end = Carbon::parse($request->month.'-01')->endOfMonth()->format('Y-m-d');
+                    $records = InventoryTransfer::whereBetween('created_at',[$m_start.' 00:00:00', $m_end.' 23:00:00'])->get();
+                    break;
+
+                case 'between_days':
+                    $records = InventoryTransfer::whereBetween('created_at',[$request->date_start.' 00:00:00', $request->date_end.' 23:00:00'])->get();
+                    break;
+            }
+
+            $source =  $this->transformReportTransfers($records);
+            // return dd($source);
+            return (new TransfersExport)
+                    ->records($source)
+                    // ->cant_item($this->cant_item)
+                    ->download('Reporte_Transferencias_'.Carbon::now().'.xlsx');
+        }
+
+        private function transformReportTransfers($resource){
+            $records = $resource->transform(function($row){
+                return (object)[
+                    'id' => $row->id,
+                    'description' => $row->description,
+                    'quantity' => round($row->quantity, 1),
+                    'warehouse' => $row->warehouse->description,
+                    'warehouse_destination' => $row->warehouse_destination->description,
+                    'created_at' => $row->created_at->format('Y-m-d'),
+                    'inventory' => $row->inventory->transform(function($o) use ($row) {
+                        return [
+                            'id' => $o->item->id,
+                            'code' => $o->item->internal_id,
+                            'description' => $o->item->description,
+                            'quantity' => $o->quantity,
+                            'sale_unit_price' => $o->item->sale_unit_price,
+                            'purchase_unit_price' => $o->item->purchase_unit_price,
+                            'lots_enabled' => (bool)$o->item->lots_enabled,
+                            'lots' => $o->item->item_lots->where('has_sale', false)->where('warehouse_id', $row->warehouse_destination_id)->transform(function($row) {
+                                return [
+                                    'id' => $row->id,
+                                    'series' => $row->series,
+                                    'date' => $row->date,
+                                    'item_id' => $row->item_id,
+                                    'warehouse_id' => $row->warehouse_id,
+                                    'has_sale' => (bool)$row->has_sale,
+                                    'lot_code' => ($row->item_loteable_type) ? (isset($row->item_loteable->lot_code) ? $row->item_loteable->lot_code:null):null
+                                ];
+                            }),
+                        ];
+                    })
+                ];
+            });
+            return $records;
         }
 
 

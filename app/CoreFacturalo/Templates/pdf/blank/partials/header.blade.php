@@ -27,7 +27,7 @@
 @endphp
 
 <body>
-<br>
+<br><br><br>
 <table class="full-width pb-0">
     <tr>
         <td width="60%" class=""></td>
@@ -52,10 +52,10 @@
 
 <table class="full-width p-0 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
     <tr>
-        <td width="10%">
+        <td width="6%">
             <br><br><br><br>
         </td>
-        <td width="40%" class="align-top" style="text-transform: uppercase; line-height: 20px;">
+        <td width="38%" class="align-top" style="text-transform: uppercase; line-height: 20px;">
             @php
                 $district = \App\Models\Tenant\Catalogs\District::find($document->origin->location_id);
             @endphp
@@ -74,7 +74,7 @@
 <table class="full-width p-0 mt-1 text-bold font-bold" style="font-family: 'Lucida Console', arial;">
     <tr>
         <td width="15%">
-            <br><br>
+            <br><br><br>
         </td>
         <td width="40%" class="align-top pt-3">
             {{ $document->date_of_shipping->format('Y-m-d') }}

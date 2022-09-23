@@ -228,6 +228,24 @@
                                                :value="option.id"></el-option>
                                 </el-select>
                             </div>
+
+                            <!-- sistema por puntos -->
+                            <div v-if="config.enabled_point_system && form.customer_id" class="form-group col-sm-6 mb-0 mt-3">
+                                <p class="fs-point-system">
+                                    <label class="font-weight-bold text-info">Puntos acumulados:</label> 
+                                    <b>{{customer_accumulated_points}}</b> 
+
+                                    <template v-if="total_exchange_points > 0">
+                                    - <b style="color:red">{{ total_exchange_points }}</b> = <b>{{ calculate_customer_accumulated_points }}</b>
+                                    </template>
+                                </p>
+                                <p class="fs-point-system">
+                                    <label class="font-weight-bold text-danger">Puntos por la compra:</label> 
+                                    <b>{{total_points_by_sale}}</b> 
+                                </p>
+                            </div>
+                            <!-- sistema por puntos -->
+
                         </div>
                     </div>
                     <div class="card-body border-top no-gutters p-0">
@@ -267,6 +285,12 @@
                                             <br/>Series: {{ showItemSeries(row.item.lots) }}
                                         </template>
 
+                                        <!-- sistema por puntos -->
+                                        <template v-if="config.enabled_point_system && customer_accumulated_points > 0 && row.item.exchange_points">
+                                            <el-checkbox class="mt-2 mb-2" v-model="row.item.exchanged_for_points" @change="changeRowExchangePoints(row, index)"><b>{{ getExchangePointDescription(row) }}</b></el-checkbox>
+                                        </template>
+                                        <!-- sistema por puntos -->
+
                                     </td>
                                     <td class="text-center">{{ row.item.unit_type_id }}</td>
 
@@ -282,6 +306,7 @@
 
                                     <td class="text-right">{{ currency_type.symbol }} {{ row.total_value }}</td>
                                     <td class="text-right">{{ currency_type.symbol }} {{ row.total }}</td>
+                                    
                                     <td class="text-right">
                                         <template v-if="config.change_free_affectation_igv">
                                             <el-tooltip class="item"
@@ -307,6 +332,7 @@
                                             <span style='font-size:10px;'>&#9998;</span></button>
 
                                     </td>
+
                                 </tr>
                                 <!-- @todo: Mejorar evitando duplicar codigo -->
                                 <!-- Ocultar en cel -->
@@ -337,6 +363,13 @@
                                                    style="width: 100%;">
                                                 <tr v-if="form.total > 0 && enabled_discount_global">
                                                     <td>
+                                                        <el-tooltip class="item"
+                                                            :content="global_discount_type.description"
+                                                            effect="dark"
+                                                            placement="top">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </el-tooltip>
+
                                                         DESCUENTO
                                                         <template v-if="is_amount"> MONTO</template>
                                                         <template v-else> %</template>
@@ -705,6 +738,13 @@
                                        style="width: 100%;">
                                     <tr v-if="form.total > 0 && enabled_discount_global">
                                         <td>
+                                            <el-tooltip class="item"
+                                                :content="global_discount_type.description"
+                                                effect="dark"
+                                                placement="top">
+                                                <i class="fa fa-info-circle"></i>
+                                            </el-tooltip>
+
                                             DESCUENTO
                                             <template v-if="is_amount"> MONTO</template>
                                             <template v-else> %</template>
@@ -1489,7 +1529,7 @@
 import DocumentFormItem from './partials/item.vue'
 import PersonForm from '../persons/form.vue'
 import DocumentOptions from '../documents/partials/options.vue'
-import {exchangeRate, functions} from '../../../mixins/functions'
+import {exchangeRate, functions, pointSystemFunctions} from '../../../mixins/functions'
 import {calculateRowItem, showNamePdfOfDescription} from '../../../helpers/functions'
 import Logo from '../companies/logo.vue'
 import DocumentHotelForm from '../../../../../modules/BusinessTurn/Resources/assets/js/views/hotels/form.vue'
@@ -1522,7 +1562,7 @@ export default {
         DocumentDetraction,
         DocumentTransportForm
     },
-    mixins: [functions, exchangeRate],
+    mixins: [functions, exchangeRate, pointSystemFunctions],
     data() {
         return {
             datEmision: {
@@ -1607,10 +1647,17 @@ export default {
             payment_conditions: [],
             affectation_igv_types: [],
             total_discount_no_base: 0,
-            show_has_retention: true
+            show_has_retention: true,            
+            global_discount_types: [],
+            global_discount_type: {},
+            error_global_discount: false,
+
         }
     },
     computed: {
+        isGlobalDiscountBase: function () {
+            return (this.configuration.global_discount_type_id === '02')
+        },
         ...mapState([
             'config',
             'series',
@@ -1689,6 +1736,7 @@ export default {
                 this.payment_conditions = response.data.payment_conditions;
 
                 this.seller_class = (this.user == 'admin') ? 'col-lg-4 pb-2' : 'col-lg-6 pb-2';
+                this.global_discount_types = response.data.global_discount_types
 
                 // this.default_document_type = response.data.document_id;
                 // this.default_series_type = response.data.series_id;
@@ -1700,6 +1748,7 @@ export default {
                 this.changeDestinationSale()
                 this.changeCurrencyType()
                 this.setDefaultDocumentType();
+                this.setConfigGlobalDiscountType()
             })
         await this.getPercentageIgv();
         this.loading_form = true
@@ -1895,6 +1944,9 @@ export default {
             this.readonly_date_of_due = false
             this.total_discount_no_base = 0
 
+            this.calculate_customer_accumulated_points = 0
+            this.total_exchange_points = 0
+
         },
         startConnectionQzTray() {
 
@@ -1902,6 +1954,13 @@ export default {
                 startConnection();
             }
 
+        },
+        changeRowExchangePoints(row, index)
+        {
+            row.item.change_free_affectation_igv = !row.item.change_free_affectation_igv
+            row.item.used_points_for_exchange = row.item.change_free_affectation_igv ? this.getUsedPoints(row) : null
+            this.setTotalExchangePoints() //in mixins
+            this.changeRowFreeAffectationIgv(row, index)
         },
         async changeRowFreeAffectationIgv(row, index) {
 
@@ -2015,7 +2074,7 @@ export default {
             if(this.authUser.multiple_default_document_types)
             {
                 const default_document_type_serie = _.find(this.authUser.default_document_types, { document_type_id : this.form.document_type_id})
-    
+
                 if(default_document_type_serie)
                 {
                     const exist_serie = _.find(this.series, { id : default_document_type_serie.series_id})
@@ -2045,6 +2104,7 @@ export default {
             }
         },
         async onSetFormData(data) {
+            console.log('onSetFormData')
             this.currency_type = await _.find(this.currency_types, {'id': data.currency_type_id})
             this.form.establishment_id = data.establishment_id;
             this.form.document_type_id = data.document_type_id;
@@ -2077,7 +2137,10 @@ export default {
             this.form.seller_id = data.seller_id;
             this.form.items = this.onPrepareItems(data.items);
             // this.form.series = data.series; //form.series no llena el selector
-            this.$store.commit('setSeries', this.onSetSeries(data.document_type_id, data.series))
+             if(this.table !== 'quotations') {
+                 this.$store.commit('setSeries', this.onSetSeries(data.document_type_id, data.series))
+             }
+            //
             // this.series = this.onSetSeries(data.document_type_id, data.series);
             this.form.state_type_id = data.state_type_id;
             this.form.total_discount = parseFloat(data.total_discount);
@@ -2265,6 +2328,7 @@ export default {
             return null;
         },
         onSetSeries(documentType, serie) {
+            console.log('onSetSeries')
             const find = this.all_series.find(s => s.document_type_id == documentType && s.number == serie);
             if (find) {
                 return [find];
@@ -2939,6 +3003,8 @@ export default {
                     if (seller !== undefined) {
                         this.form.seller_id = seller.id
                     }
+
+                    this.setCustomerAccumulatedPoints(alt.id, this.config.enabled_point_system)
                 }
 
 
@@ -2999,6 +3065,7 @@ export default {
             })
         },
         filterSeries() {
+            console.log('filterSeries');
             this.form.series_id = null
             let series = _.filter(this.all_series, {
                 'establishment_id': this.form.establishment_id,
@@ -3016,6 +3083,7 @@ export default {
                 });
             }
 
+            //console.log(series);
 
             this.$store.commit('setSeries', series)
             this.form.series_id = (this.series.length > 0) ? this.series[0].id : null
@@ -3068,6 +3136,13 @@ export default {
                 //this.form.items.$set(this.recordItem.indexi, row)
                 this.form.items[this.recordItem.indexi] = row
                 this.recordItem = null
+
+                if(this.config.enabled_point_system)
+                {
+                    this.setTotalExchangePoints()
+                    this.recalculateUsedPointsForExchange(row)
+                }
+
             } else {
                 this.form.items.push(JSON.parse(JSON.stringify(row)));
             }
@@ -3077,6 +3152,8 @@ export default {
         clickRemoveItem(index) {
             this.form.items.splice(index, 1)
             this.calculateTotal()
+            
+            if(this.config.enabled_point_system) this.setTotalExchangePoints()
         },
         changeCurrencyType() {
             this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
@@ -3270,6 +3347,8 @@ export default {
 
             this.chargeGlobal()
 
+            this.setTotalPointsBySale(this.config)
+
         },
         sumDiscountsNoBaseByItem(row) {
 
@@ -3365,42 +3444,65 @@ export default {
             this.calculateTotal()
         },
         deleteDiscountGlobal() {
-            let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
+
+            let discount = _.find(this.form.discounts, {'discount_type_id': this.configuration.global_discount_type_id})
+            // let discount = _.find(this.form.discounts, {'discount_type_id': '03'})
             let index = this.form.discounts.indexOf(discount)
+
             if (index > -1) {
                 this.form.discounts.splice(index, 1)
                 this.form.total_discount = 0
             }
+
+        },
+        setConfigGlobalDiscountType()
+        {
+            this.global_discount_type = _.find(this.global_discount_types, { id : this.configuration.global_discount_type_id})
+        },
+        setGlobalDiscount(factor, amount, base)
+        {
+            this.form.discounts.push({
+                discount_type_id: this.global_discount_type.id,
+                description: this.global_discount_type.description,
+                factor: factor,
+                amount: amount,
+                base: base
+            })
         },
         discountGlobal() {
+
             this.deleteDiscountGlobal()
 
             //input donde se ingresa monto o porcentaje
             let input_global_discount = parseFloat(this.total_global_discount)
 
-            if (input_global_discount > 0) {
-                const percentage_igv = this.percentage_igv * 100;
+            if (input_global_discount > 0) 
+            {
+                const percentage_igv = 18
                 let base = (this.isGlobalDiscountBase) ? parseFloat(this.form.total_taxed) : parseFloat(this.form.total)
                 let amount = 0
                 let factor = 0
 
-                if (this.is_amount) {
+                if (this.is_amount) 
+                {
                     amount = input_global_discount
                     factor = _.round(amount / base, 5)
-                } else {
+                }
+                else 
+                {
                     factor = _.round(input_global_discount / 100, 5)
                     amount = factor * base
                 }
 
                 this.form.total_discount = _.round(amount, 2)
-                this.form.total = _.round(this.form.total - amount, 2)
 
                 // descuentos que afectan la bi
-                if (this.isGlobalDiscountBase) {
+                if(this.isGlobalDiscountBase)
+                {
                     this.form.total_taxed = _.round(base - this.form.total_discount, 2)
                     this.form.total_value = this.form.total_taxed
                     this.form.total_igv = _.round(this.form.total_taxed * (percentage_igv / 100), 2)
-
+    
                     //impuestos (isc + igv + icbper)
                     this.form.total_taxes = _.round(this.form.total_igv + this.form.total_isc + this.form.total_plastic_bag_taxes, 2);
                     this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
@@ -3410,7 +3512,8 @@ export default {
 
                 }
                 // descuentos que no afectan la bi
-                else {
+                else
+                {
                     this.form.total = _.round(this.form.total - amount, 2)
                 }
 
@@ -3533,6 +3636,14 @@ export default {
             if (!this.enabled_payments) {
                 this.form.payments = []
             }
+
+            // validacion sistema por puntos
+            if(this.config.enabled_point_system)
+            {
+                const validate_exchange_points = this.validateExchangePoints()
+                if(!validate_exchange_points.success) return this.$message.error(validate_exchange_points.message)
+            }
+            // validacion sistema por puntos
 
             this.loading_submit = true
             let path = `/${this.resource}`;
@@ -3673,6 +3784,9 @@ export default {
             await this.$http.get(`/${this.resource}/search/customer/${customer_id}`).then((response) => {
                 this.customers = response.data.customers
                 this.form.customer_id = customer_id
+
+                this.setCustomerAccumulatedPoints(customer_id, this.config.enabled_point_system)
+
             })
         },
         changeCustomer() {
@@ -3689,6 +3803,7 @@ export default {
                 })
             }
 
+            this.setCustomerAccumulatedPoints(customer.id, this.config.enabled_point_system)
 
             let seller = this.sellers.find(element => element.id == customer.seller_id)
             if (seller !== undefined) {

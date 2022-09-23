@@ -81,4 +81,40 @@ class Warehouse extends ModelTenant
         return $this;
     }
 
+
+    /**
+     * 
+     * Data para filtros - select
+     *
+     * @return array
+     */
+    public static function getDataForFilters()
+    {
+        return self::with(['establishment' => function($query){
+                $query->whereFilterWithOutRelations()
+                ->select(['id', 'description']);
+            }])
+            ->get()
+            ->transform(function($row){
+                return $row->getRowForFilter();
+            });
+    }
+    
+
+    /**
+     * 
+     * Campos para filtros - select
+     *
+     * @return array
+     */
+    public function getRowForFilter()
+    {
+        return [
+            'id' => $this->id,
+            'establishment_id' => $this->establishment_id,
+            'warehouse_description' => $this->description,
+            'establishment_description' => $this->establishment->description,
+        ];
+    }
+
 }

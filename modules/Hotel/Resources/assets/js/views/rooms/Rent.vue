@@ -344,14 +344,20 @@
 </template>
 
 <script>
+
 import PersonForm from "../../../../../../../resources/js/views/tenant/persons/form.vue";
 import moment from "moment";
 import {calculateRowItem} from "../../../../../../../resources/js/helpers/functions";
+import {functions} from "../../../../../../../resources/js/mixins/functions";
+import {mapState} from "vuex/dist/vuex.mjs";
 
 export default {
     components: {
         PersonForm,
     },
+    mixins: [
+        functions
+    ],
     props: {
         room: {
             type: Object,
@@ -365,7 +371,6 @@ export default {
     },
     data() {
         return {
-            errors: {},
             customers: [],
             customer: {},
             customerId: null,
@@ -381,6 +386,8 @@ export default {
                 payment_status: 'PAID',
                 quantity_persons: 2,
                 affectation_igv_type_id: null,
+                date_of_issue: moment().format("YYYY-MM-DD"),
+                establishment_id: null,
             },
             rate: null,
             loading: false,
@@ -391,6 +398,7 @@ export default {
             errors: {
                 customer: {},
             },
+            recordItem: null
         };
     },
     async mounted() {
@@ -403,6 +411,9 @@ export default {
         });
     },
     computed: {
+        ...mapState([
+            'config',
+        ]),
         getAllowedAffectationIgvTypes: function () {
             return this.affectationIgvTypes.filter((item) => {
                 return ['10', '20'].includes(item.id)
@@ -538,6 +549,8 @@ export default {
                 .finally(() => {
                     this.loading = false;
                 });
+            this.form.establishment_id = this.config.establishment.id;
+            await this.getPercentageIgv();
         },
         setAffectationIgvType() {
 

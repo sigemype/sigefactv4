@@ -481,6 +481,9 @@
                                 <th>#</th>
                                 <th class="font-weight-bold">Descripción</th>
                                 <th class="text-right font-weight-bold">Cantidad</th>
+                                <template v-if="document">
+                                    <th></th>
+                                </template>
                                 <th></th>
                             </tr>
                             </thead>
@@ -489,7 +492,42 @@
                                 <td>{{ index + 1 }}</td>
                                 <td>{{ setDescriptionOfItem(row) }}</td>
                                 <!-- <td>{{ row.item.description }}</td> -->
-                                <td class="text-right">{{ row.quantity }}</td>
+                                <template v-if="!filterIndex(index)">
+                                    <td class="text-right">{{ row.quantity }}</td>
+                                </template>
+                                
+                                <template v-if="filterIndex(index)">
+                                    <el-input
+                                        :tabindex="'2'"
+                                        ref="inputQuantity"
+                                        @blur="validateQuantity(index)"
+                                        v-model="row.quantity">
+                                        <el-button slot="prepend"
+                                                :disabled="row.quantity < 0.01"
+                                                icon="el-icon-minus"
+                                                style="padding-right: 5px ;padding-left: 12px"
+                                                
+                                                @click="clickDecrease(index)"></el-button>
+                                        <el-button slot="append"
+                                                icon="el-icon-plus"
+                                                style="padding-right: 5px ;padding-left: 12px"
+                                                @click="clickIncrease(index)"></el-button>
+                                    </el-input>
+                                    <td class="text-right">
+                                        <button class="btn waves-effect waves-light btn-xs btn-success"
+                                                type="button"
+                                                @click.prevent="clickEditSuccess(index)">Modificar
+                                        </button>
+                                    </td>
+                                </template>
+                                <template v-if="document&&!filterIndex(index)">
+                                    <td class="text-right">
+                                        <button class="btn waves-effect waves-light btn-xs btn-primary"
+                                                type="button"
+                                                @click.prevent="clickEditQuantity(index)"><span style='font-size:10px;'>&#9998;</span>
+                                        </button>
+                                    </td>
+                                </template>
                                 <td class="text-right">
                                     <button class="btn waves-effect waves-light btn-xs btn-danger" type="button"
                                             @click.prevent="clickRemoveItem(index)">x
@@ -598,7 +636,10 @@ export default {
                     name: null,
                     identity_document_type_id: null,
                 }
-            }
+            },
+            showEditQuantity:[],
+            indexAffect:[],
+            quantityNew:[],
         }
     },
     created() {
@@ -943,6 +984,69 @@ export default {
         close() {
             location.href = '/dispatches';
         },
+        async clickEditQuantity(id){
+            await this.quantityNew.push(this.form.items[id].quantity)
+            await this.indexAffect.push(id)
+        },
+        clickDecrease(index) {
+            this.form.items[index].quantity = parseInt(this.form.items[index].quantity - 1)
+
+            if (this.form.items[index].quantity <= this.getMinQuantity()) {
+                this.setMinQuantity(index)
+                return
+            }
+
+        },
+        clickIncrease(index) {
+            this.form.items[index].quantity = parseInt(this.form.items[index].quantity) + 1
+            if (this.form.items[index].quantity >= this.getMaxQuantity(index)) {
+                this.setMaxQuantity(index)
+                return
+            }
+        },
+        getMinQuantity() {
+            return 0.01
+        },
+        setMinQuantity(index) {
+            this.form.items[index].quantity = this.getMinQuantity()
+        },
+        getMaxQuantity(index) {
+            return parseInt(this.quantityNew[index])
+        },
+        setMaxQuantity(index) {
+            this.form.items[index].quantity = this.getMaxQuantity(index)
+        },
+        async validateQuantity(index) {
+
+            if (!this.form.items[index].quantity) {
+                await this.setMinQuantity(index)
+            }
+
+            if (isNaN(Number(this.form.items[index].quantity))) {
+                await this.setMinQuantity(index)
+            }
+
+            if (typeof parseFloat(this.form.items[index].quantity) !== 'number') {
+                await this.setMinQuantity(index)
+            }
+
+            if (this.form.items[index].quantity <= this.getMinQuantity()) {
+                await this.setMinQuantity(index)
+            }
+            
+            if (this.form.items[index].quantity >= this.getMaxQuantity(index)) {
+                await this.setMaxQuantity(index)
+            }
+
+        },
+        async clickEditSuccess(index){
+            
+            await this.indexAffect.splice(this.indexAffect.indexOf(index), 1);
+        },
+        filterIndex(index){
+            let value_index=this.indexAffect.some(i=>i==index)
+            return value_index
+        }
     },
     computed: {
         ...mapState([

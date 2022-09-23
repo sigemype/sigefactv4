@@ -30,6 +30,7 @@ class DocumentInput
 
         $offline_configuration = OfflineConfiguration::firstOrFail();
         // $number = Functions::newNumber($soap_type_id, $document_type_id, $series, $number, Document::class);
+        $configuration = Configuration::getColumnsForDocuments();
 
         if ($number !== '#') {
             Functions::validateUniqueDocument($soap_type_id, $document_type_id, $series, $number, Document::class);
@@ -67,6 +68,8 @@ class DocumentInput
         $ticket_single_shipment = self::getTicketSingleShipment($inputs);
         $inputs['ticket_single_shipment'] = $ticket_single_shipment;
 
+        // se registran datos para identificar si el documento fue utilizado para sistema por puntos
+        $point_system_data = self::getPointSystemData($inputs, $configuration);
 
         return [
             'type' => $inputs['type'],
@@ -133,7 +136,7 @@ class DocumentInput
             'hotel' => self::hotel($inputs),
             'transport' => self::transport($inputs),
             'additional_information' => Functions::valueKeyInArray($inputs, 'additional_information'),
-            //'additional_data' => Functions::valueKeyInArray($inputs, 'additional_data'),
+            'additional_data' => Functions::valueKeyInArray($inputs, 'additional_data'),
             'plate_number' => Functions::valueKeyInArray($inputs, 'plate_number'),
             'legends' => LegendInput::set($inputs),
             'actions' => ActionInput::set($inputs),
@@ -152,6 +155,9 @@ class DocumentInput
             // 'pending_amount_detraction' => Functions::valueKeyInArray($inputs, 'pending_amount_detraction', 0),
             'tip' => self::tip($inputs, $soap_type_id),
             'ticket_single_shipment' => $ticket_single_shipment,
+            'point_system' => $point_system_data['point_system'],
+            'point_system_data' => $point_system_data['point_system_data'],
+            'agent_id' => Functions::valueKeyInArray($inputs, 'agent_id'),
         ];
     }
 
@@ -163,6 +169,13 @@ class DocumentInput
             foreach ($inputs['items'] as $row) {
                 $item = Item::query()->find($row['item_id']);
                 /** @var Item $item */
+
+                if(key_exists('name_product_xml', $row)) {
+                    $name_product_xml = Functions::valueKeyInArray($row, 'name_product_xml');
+                } else {
+                    $name_product_xml = Functions::valueKeyInArray($row, 'name_product_pdf') ? self::getNameProductXml($row, $inputs) : null;
+                }
+
                 $arayItem = [
                     'item_id' => $item->id,
                     'item' => [
@@ -184,6 +197,10 @@ class DocumentInput
                         'has_igv' => $row['item']['has_igv'] ?? true,
                         'unit_price' => $row['unit_price'] ?? 0,
                         'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,
+                        
+                        'exchanged_for_points' => $row['item']['exchanged_for_points'] ?? false,
+                        'used_points_for_exchange' => $row['item']['used_points_for_exchange'] ?? null,
+                        
                     ],
                     'quantity' => $row['quantity'],
                     'unit_value' => $row['unit_value'],
@@ -212,7 +229,7 @@ class DocumentInput
                     'warehouse_id' => Functions::valueKeyInArray($row, 'warehouse_id'),
                     'additional_information' => Functions::valueKeyInArray($row, 'additional_information'),
                     'name_product_pdf' => Functions::valueKeyInArray($row, 'name_product_pdf'),
-                    'name_product_xml' => Functions::valueKeyInArray($row, 'name_product_pdf') ? self::getNameProductXml($row, $inputs) : null,
+                    'name_product_xml' => $name_product_xml,
                     'update_description' => Functions::valueKeyInArray($row, 'update_description', false),
                     'additional_data' => Functions::valueKeyInArray($row, 'additional_data'),
 //                    'additional_data' => key_exists('additional_data', $row)?$row['additional_data']:null,
@@ -242,7 +259,11 @@ class DocumentInput
 
             if($configuration->name_product_pdf_to_xml)
             {
-                return trim((new Html2Text($row['name_product_pdf']))->getText());
+                $text = trim((new Html2Text($row['name_product_pdf']))->getText());
+
+                return preg_replace('~\R{1,2}~', ' ', $text);
+
+                // return trim((new Html2Text($row['name_product_pdf']))->getText());
             }
 
         }
@@ -651,6 +672,49 @@ class DocumentInput
         }
 
         return false;
+    }
+
+    
+    /**
+     * 
+     * Configuración de sistema por puntos
+     *
+     * @param  array $inputs
+     * @param  Configuration $configuration
+     * @return array
+     */
+    public static function getPointSystemData($inputs, $configuration)
+    {
+        $data = [
+            'point_system' => false,
+            'point_system_data' => null
+        ];
+
+        if(self::isDocumentInvoice($inputs['document_type_id']) && $configuration->enabled_point_system)
+        {
+            $data = [
+                'point_system' => $configuration->enabled_point_system,
+                'point_system_data' => [
+                    'point_system_sale_amount' => $configuration->point_system_sale_amount,
+                    'quantity_of_points' => $configuration->quantity_of_points,
+                    'round_points_of_sale' => $configuration->round_points_of_sale,
+                ]
+            ];
+        }
+
+        return $data;
+    }
+
+    
+    /**
+     * Determina si es factura o boleta
+     *
+     * @param  string $document_type_id
+     * @return bool
+     */
+    public static function isDocumentInvoice($document_type_id)
+    {
+        return in_array($document_type_id, ['01', '03'], true);
     }
 
 

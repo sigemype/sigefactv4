@@ -110,6 +110,18 @@ class Company extends ModelTenant
 
     /**
      * 
+     * Obtener campos para cabecera de reportes
+     *
+     * @return string
+     */
+    public static function getDataForReportHeader()
+    {
+        return self::select(['number', 'name'])->withOut(['identity_document_type'])->firstOrFail();
+    }
+    
+
+    /**
+     * 
      * Obtener campo individual
      *
      * @param  Builder $query

@@ -396,15 +396,13 @@
             :displayDiscount="false"
             :editNameProduct="config.edit_name_product"
             :exchange-rate-sale="form.exchange_rate_sale"
-
             :isEditItemNote="false"
             :operationTypeId="'0101'"
             :recordItem="recordItem"
             :showDialog.sync="showDialogAddItem"
             :typeUser="config.typeUser"
-            @add="addRow"
-        >
-
+            :percentage-igv="percentage_igv"
+            @add="addRow">
         </tenant-documents-items-list>
 
         <person-form :document_type_id=form.document_type_id
@@ -570,6 +568,7 @@ export default {
                 this.load_record = false
             })
 
+        await this.getPercentageIgv();
         this.$eventHub.$on('reloadDataPersons', (customer_id) => {
             this.reloadDataCustomers(customer_id)
         })
@@ -2069,7 +2068,7 @@ export default {
         cleanCustomer() {
             this.form.customer_id = null
         },
-        changeDateOfIssue() {
+        async changeDateOfIssue() {
             let minDate = moment().subtract(7, 'days')
             if (moment(this.form.date_of_issue) < minDate && this.configuration.restrict_receipt_date) {
                 this.$message.error('No puede seleccionar una fecha menor a 6 días.');
@@ -2079,9 +2078,11 @@ export default {
             }
             this.form.date_of_due = this.form.date_of_issue
             // if (! this.isUpdate) {
-            this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
+            await this.searchExchangeRateByDate(this.form.date_of_issue).then(response => {
                 this.form.exchange_rate_sale = response
             });
+            await this.getPercentageIgv();
+            this.changeCurrencyType();
             // }
         },
         assignmentDateOfPayment() {

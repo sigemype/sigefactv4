@@ -13,7 +13,7 @@ class TenantAddAdditionalDataToDocuments extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('documents', 'state_type_sunat_id')) {
+        if (!Schema::hasColumn('documents', 'additional_data')) {
             Schema::table('documents', function (Blueprint $table) {
                 $table->json('additional_data')->nullable()->after('additional_information');
             });
@@ -27,7 +27,7 @@ class TenantAddAdditionalDataToDocuments extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn('documents', 'state_type_sunat_id')) {
+        if (Schema::hasColumn('documents', 'additional_data')) {
             Schema::table('documents', function (Blueprint $table) {
                 $table->dropColumn('additional_data');
             });

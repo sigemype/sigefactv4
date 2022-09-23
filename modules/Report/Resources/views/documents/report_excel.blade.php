@@ -2,6 +2,8 @@
     use App\Models\Tenant\Document;
     use App\CoreFacturalo\Helpers\Template\TemplateHelper;
     use App\Models\Tenant\SaleNote;
+
+    $enabled_sales_agents = App\Models\Tenant\Configuration::getRecordIndividualColumn('enabled_sales_agents');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -139,6 +141,11 @@
                     @foreach ($categories_services as $category)
                         <th>{{$category->name}}</th>
                     @endforeach
+
+                    @if ($enabled_sales_agents)
+                        <th>Agente</th>
+                        <th>Datos de referencia</th>
+                    @endif
                 </tr>
                 </thead>
                 <tbody>
@@ -351,6 +358,12 @@
 
                         @endphp
                         <td>{{$quality_item}}</td>
+                        
+                        @if ($enabled_sales_agents)
+                            <td>{{optional($value->agent)->search_description}}</td>
+                            <td>{{$value->reference_data}}</td>
+                        @endif
+
                     </tr>
                     @php
                         if($value->currency_type_id == 'PEN'){

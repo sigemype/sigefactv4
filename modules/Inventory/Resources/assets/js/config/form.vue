@@ -7,19 +7,35 @@
             <form autocomplete="off">
                 <div class="form-body">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label class="control-label">Venta con restricción de stock</label>
                             <div class="form-group" :class="{'has-danger': errors.stock_control}">
                                 <el-switch v-model="form.stock_control" active-text="Si" inactive-text="No" @change="submit"></el-switch>
                                 <small class="form-control-feedback" v-if="errors.stock_control" v-text="errors.stock_control[0]"></small>
                             </div>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <!-- migracion desarrollo sin terminar #1401 -->
                             <label class="control-label">Generar automáticamente codigo interno del producto</label>
                             <div class="form-group" :class="{'has-danger': errors.generate_internal_id}">
                                 <el-switch v-model="form.generate_internal_id" active-text="Si" inactive-text="No" @change="submit"></el-switch>
                                 <small class="form-control-feedback" v-if="errors.generate_internal_id" v-text="errors.generate_internal_id[0]"></small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mt-2">
+                            <label class="control-label">
+                                Revisión de inventario
+                                <el-tooltip class="item"
+                                            content="Revisión del inventario del sistema con el escaneado/registrado de forma manual - Disponible en módulo Inventario"
+                                            effect="dark"
+                                            placement="top-start">
+                                    <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+                            </label>
+                            <div class="form-group" :class="{'has-danger': errors.inventory_review}">
+                                <el-switch v-model="form.inventory_review" active-text="Si" inactive-text="No" @change="submit"></el-switch>
+                                <small class="form-control-feedback" v-if="errors.inventory_review" v-text="errors.inventory_review[0]"></small>
                             </div>
                         </div>
                     </div>
@@ -50,6 +66,7 @@
                 this.form = {
                     id: null,
                     stock_control: false,
+                    inventory_review: false,
                 };
             },
             async getRecord() {

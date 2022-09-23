@@ -382,11 +382,11 @@ class Facturalo
             if(config('tenant.enabled_template_ticket_70')) $width = 70;
             if($format_pdf === 'ticket_50') $width = 45;
 
-            $company_name      = (strlen($this->company->name) / 15) * 10;
-            $company_address   = (strlen($this->document->establishment->address) / 20) * 10;
+            $company_name      = (strlen($this->company->name) / 20) * 10;
+            $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
             $customer_name     = strlen($this->document->customer->name) > '25' ? '10' : '0';
-            $customer_address  = (strlen($this->document->customer->address) / 100) * 10;
+            $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
             $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
             $p_order           = $this->document->purchase_order != '' ? '10' : '0';
 
@@ -414,7 +414,7 @@ class Facturalo
             $discount_global = 0;
             foreach ($this->document->items as $it) {
                 if(strlen($it->item->description)>100){
-                    $extra_by_item_description +=20;
+                    $extra_by_item_description +=24;
                 }
                 if ($it->discounts) {
                     $discount_global = $discount_global + 1;
@@ -434,7 +434,7 @@ class Facturalo
             } elseif($this->configuration->legend_footer AND $format_pdf === 'ticket_58') {
                 $height_legend = 30;
             } elseif($this->configuration->legend_footer AND $format_pdf === 'ticket_50') {
-                $height_legend = 50;
+                $height_legend = 10;
             } else {
                 $height_legend = 10;
             }
@@ -443,9 +443,9 @@ class Facturalo
                 'mode' => 'utf-8',
                 'format' => [
                     $width,
-                    120 +
+                    80 +
                     (($quantity_rows * 8) + $extra_by_item_description) +
-                    ($document_payments * 5) +
+                    ($document_payments * 8) +
                     ($discount_global * 8) +
                     $company_name +
                     $company_address +
@@ -612,7 +612,6 @@ class Facturalo
                 }
 
                 $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
-
             }
 //            $html_footer = $template->pdfFooter();
 //            $pdf->SetHTMLFooter($html_footer);
@@ -1195,7 +1194,7 @@ class Facturalo
                 $document->payments()->delete();
                 $this->savePayments($document, $inputs['payments']);
 
-                $document->fees()->delete();
+                $document->fee()->delete();
                 $this->saveFee($document, $inputs['fee']);
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
@@ -1281,7 +1280,7 @@ class Facturalo
     private function saveFee($document, $fee)
     {
         foreach ($fee as $row) {
-            $document->fees()->create($row);
+            $document->fee()->create($row);
         }
     }
 }

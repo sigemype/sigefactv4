@@ -109,5 +109,17 @@ class Establishment extends ModelTenant
     {
         return $query->withOut(['country', 'department', 'province', 'district']);
     }
+    
+    
+    /**
+     * 
+     * Obtener id del almacén
+     *
+     * @return int
+     */
+    public function getCurrentWarehouseId()
+    {
+        return $this->warehouse->id;
+    }
 
 }

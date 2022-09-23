@@ -119,6 +119,21 @@ if($current_hostname) {
 
             });
 
+            // agentes de ventas
+            Route::prefix('agents')->group(function () {
+
+                Route::get('', 'AgentController@index')->name('tenant.agents.index');
+                Route::get('columns', 'AgentController@columns');
+                Route::get('records', 'AgentController@records');
+                Route::get('tables', 'AgentController@tables');
+                Route::post('', 'AgentController@store');
+                Route::get('record/{id}', 'AgentController@record');
+                Route::delete('{id}', 'AgentController@destroy');
+                Route::get('search', 'AgentController@searchAgents');
+
+            });
+            // agentes de ventas
+
         });
 
 

@@ -54,6 +54,9 @@
                         <th v-if="columns.department.visible === true" class="text-center">Departamento</th>
                         <th v-if="columns.province.visible === true" class="text-center">Provincia</th>
                         <th v-if="columns.district.visible === true" class="text-center">Distrito</th>
+
+                        <th class="text-center" v-if="showAccumulatedPoints">Puntos acumulados</th>
+
                         <th class="text-right">Acciones</th>
                     <tr>
                     <tr slot-scope="{ index, row }" :class="{ disable_color : !row.enabled}">
@@ -73,6 +76,10 @@
                         <td v-if="columns.department.visible === true " class="text-center">{{ (row.department)?row.department.description:'' }}</td>
                         <td v-if="columns.province.visible === true " class="text-center">{{ (row.province)?row.province.description:'' }}</td>
                         <td v-if="columns.district.visible === true " class="text-center">{{ (row.district)?row.district.description:'' }}</td>
+
+                        <td v-if="showAccumulatedPoints" class="text-center">{{ row.accumulated_points }}</td>
+
+
                         <td class="text-right">
                             <div class="dropdown">
                                 <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -141,7 +148,7 @@ import {deletable} from '../../../mixins/deletable'
 
 export default {
     mixins: [deletable],
-    props: ['type', 'typeUser', 'api_service_token'],
+    props: ['type', 'typeUser', 'api_service_token', 'configuration'],
     components: {PersonsForm, PersonsImport, PersonsExport, DataTable},
     data() {
         return {
@@ -204,6 +211,17 @@ export default {
     created() {
         this.title = (this.type === 'customers') ? 'Clientes' : 'Proveedores'
         this.getColumnsToShow();
+    },
+    computed: {
+        showAccumulatedPoints()
+        {
+            if(this.configuration)
+            {
+                return (this.configuration.enabled_point_system && this.type === 'customers')
+            }
+
+            return false
+        }
     },
     methods: {
         getColumnsToShow(updated){

@@ -219,7 +219,8 @@ export default {
     props: [
         'showDialog',
         'currencyTypeIdActive',
-        'exchangeRateSale'
+        'exchangeRateSale',
+        'percentageIgv'
     ],
     components: {itemForm, WarehousesDetail, 'vue-ckeditor': VueCkeditor.component},
 

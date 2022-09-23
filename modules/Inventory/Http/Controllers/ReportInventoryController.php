@@ -68,7 +68,7 @@ class ReportInventoryController extends Controller
     private function getRecords($warehouse_id = 0, $filter, $request)
     {
         $query = ItemWarehouse::with(['warehouse', 'item'=> function ($query){
-                                $query->select('id', 'barcode', 'internal_id', 'description', 'category_id', 'brand_id','stock_min', 'sale_unit_price', 'purchase_unit_price', 'model', 'date_of_due' );
+                                $query->select('id', 'barcode', 'internal_id', 'description', 'name', 'category_id', 'brand_id','stock_min', 'sale_unit_price', 'purchase_unit_price', 'model', 'date_of_due' );
                                 $query->with(['category', 'brand']);
                                 $query->without(['item_type', 'unit_type', 'currency_type', 'warehouses', 'item_unit_types', 'tags']);
                                }])

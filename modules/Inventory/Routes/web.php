@@ -276,7 +276,7 @@
                     Route::get('stock/{item_id}/{warehouse_id}', 'TransferController@stock');
                     Route::get('items/{warehouse_id}', 'TransferController@items');
                     Route::post('search-items', 'TransferController@searchItems');
-
+                    Route::get('download', 'TransferController@transfers_download');
                      Route::get('/download/pdf/{inventoryTransfer}', 'TransferController@getPdf');
                      // Route::get('info/{inventoryTransfer}', 'TransferController@getInventoryTransferData');
 
@@ -295,6 +295,16 @@
                     Route::get('create', 'DevolutionController@create')->name('devolutions.create');
                     Route::get('search-items', 'DevolutionController@searchItems');
                     Route::get('download/{external_id}/{format?}', 'DevolutionController@download');
+
+                });
+
+
+                Route::prefix('inventory-review')->group(function () {
+
+                    Route::get('', 'InventoryReviewController@index')->name('tenant.inventory-review.index');
+                    Route::get('filters', 'InventoryReviewController@filters');
+                    Route::get('records', 'InventoryReviewController@records');
+                    Route::post('export', 'InventoryReviewController@export');
 
                 });
 

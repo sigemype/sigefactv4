@@ -748,21 +748,27 @@
 
             DB::connection('tenant')->transaction(function () use ($obj) {
 
+
                 foreach ($obj->items as $it) {
                     $it->lots()->delete();
                 }
 
+
                 $obj->state_type_id = 11;
                 $obj->save();
 
-                foreach ($obj->items as $item) {
+                foreach ($obj->items as $item) 
+                {
+                    $item_warehouse_id = $item->warehouse_id ?? $obj->establishment->getCurrentWarehouseId();
+
                     $item->purchase->inventory_kardex()->create([
                         'date_of_issue' => date('Y-m-d'),
                         'item_id' => $item->item_id,
-                        'warehouse_id' => $item->warehouse_id,
+                        'warehouse_id' => $item_warehouse_id,
                         'quantity' => -$item->quantity,
                     ]);
-                    $wr = ItemWarehouse::where([['item_id', $item->item_id], ['warehouse_id', $item->warehouse_id]])->first();
+                    
+                    $wr = ItemWarehouse::where([['item_id', $item->item_id], ['warehouse_id', $item_warehouse_id]])->first();
                     $wr->stock = $wr->stock - $item->quantity;
                     $wr->save();
                 }

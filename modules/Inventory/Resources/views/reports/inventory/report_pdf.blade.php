@@ -89,6 +89,7 @@
                 <thead>
                 <tr>
                     <th>#</th>
+                    <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Categoria</th>
                     <th>Inventario actual</th>
@@ -112,6 +113,7 @@
                     <tr>
                         <td class="celda">{{$loop->iteration}}</td>
                         <td class="celda">{{$value->item->description ?? ''}}</td>
+                        <td class="celda">{{$value->item->name ?? ''}}</td>
                         <td class="celda">{{optional($value->item->category)->name}}</td>
                         <td class="celda">{{$value->stock}}</td>
                         <td class="celda">{{$value->item->purchase_unit_price}}</td>

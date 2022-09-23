@@ -126,7 +126,13 @@ class DocumentCollection extends ResourceCollection
                     }
                 }
             }
-
+            $date_pay=$row->payments;
+            $payment='';
+            if (count($date_pay)>0) {
+                foreach ($date_pay as $pay) {
+                    $payment=$pay->date_of_payment->format('Y-m-d');
+                }
+            }
             return [
 
                 'id' => $row->id,
@@ -208,6 +214,7 @@ class DocumentCollection extends ResourceCollection
                 'plate_numbers' => $row->getPlateNumbers(),
                 'total_charge' => $row->total_charge,
                 'filename' => $row->filename,
+                'date_of_payment' => $payment,
             ];
 
         });

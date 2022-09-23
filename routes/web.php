@@ -234,6 +234,9 @@ if ($hostname) {
                 Route::get('/export/barcode/print', 'Tenant\PersonController@printBarCode')->name('tenant.persons.export.barcode.print');
                 Route::get('/barcode/{item}', 'Tenant\PersonController@generateBarcode');
                 Route::get('/search/{barcode}', 'Tenant\PersonController@getPersonByBarcode');
+
+                Route::get('accumulated-points/{id}', 'Tenant\PersonController@getAccumulatedPoints');
+
             });
             //Documents
             Route::post('documents/categories', 'Tenant\DocumentController@storeCategories');

@@ -34,6 +34,7 @@
                             <th class="text-center">Moneda</th>
                             <th class="text-center" v-if="columns.web_platforms.visible">Plataforma</th>
                             <th>Orden de compra</th>
+                            <th class="text-center" v-if="columns.region.visible">Region</th>
                             <th class="text-center">Comprobantes</th>
                             <th>Cotización</th>
                             <th>Caso</th>
@@ -44,6 +45,12 @@
                             <th class="text-right">T.Gravado</th>
                             <th class="text-right">T.Igv</th>
                             <th class="text-right">Total</th>
+                            
+                            <template v-if="configuration.enabled_sales_agents">
+                                <th>Agente</th>
+                                <th>Datos de referencia</th>
+                            </template>
+
                         <tr>
                         <tr slot-scope="{ index, row }">
                             <td>{{ index }}</td>
@@ -63,6 +70,7 @@
                             </template>
                         </td>
                         <td>{{ row.purchase_order }}</td>
+                        <td v-if="columns.region.visible">{{row.customer_region}}</td>
                         <td>
                                 <template v-for="(doc,i) in row.documents">
                                     <label class="d-block"  :key="i">{{doc.number_full}}</label>
@@ -80,6 +88,10 @@
                             <td>{{ (row.state_type_id == '11') ? "0.00" : row.total_igv}}</td>
                             <td>{{ (row.state_type_id == '11') ? "0.00" : row.total}}</td>
 
+                            <template v-if="configuration.enabled_sales_agents">
+                                <td>{{ row.agent_name }}</td>
+                                <td>{{ row.reference_data }}</td>
+                            </template>
                         </tr>
 
                     </data-table>
@@ -96,6 +108,7 @@
     import DataTable from '../../components/DataTableReports.vue'
 
     export default {
+        props: ['configuration'],
         components: {DataTable},
         data() {
             return {
@@ -104,6 +117,10 @@
                 columns: {
                     web_platforms: {
                         title: 'Plataformas web',
+                        visible: false
+                    },
+                    region: {
+                        title: 'Region',
                         visible: false
                     },
                 }

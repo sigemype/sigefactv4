@@ -6,7 +6,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ReportInventoryCollection extends ResourceCollection
 {
-   
+
     /**
      * Transform the resource collection into an array.
      *
@@ -21,6 +21,7 @@ class ReportInventoryCollection extends ResourceCollection
                 'barcode' => $item->barcode,
                 'internal_id' => $item->internal_id,
                 'name' => $item->description,
+                'description' => $item->name,
                 'item_category_name' => optional($item->category)->name,
                 'stock_min' => $item->stock_min,
                 'stock' => $row->stock,
@@ -32,7 +33,7 @@ class ReportInventoryCollection extends ResourceCollection
                 'date_of_due' => optional($item->date_of_due)->format('d/m/Y'),
                 'warehouse_name' => $row->warehouse->description
             ];
-            
+
         });
     }
 

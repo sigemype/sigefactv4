@@ -27,6 +27,7 @@
             <th>Proveedor</th>
             <!-- <th>Estado</th> -->
             <th>O. Compra</th>
+            <th class="text-center">Estado</th>
             <th>O. Venta</th>
             <!-- <th>F. Pago</th> -->
             <th class="text-center">Moneda</th>
@@ -57,6 +58,13 @@
               <small v-text="row.document_type_description"></small>
               <br />
             </td>
+            
+            <td class="text-center">
+                <span class="badge bg-secondary text-white" :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01')}">
+                    {{ row.state_type_description }}
+                </span>
+            </td>
+
             <td>{{row.sale_opportunity_number_full}}</td>
 
             <!-- <td>{{ row.payment_method_type_description }}</td> -->
@@ -92,17 +100,13 @@
               >Anular</el-button> -->
 
 
-              <button type="button" v-if="!row.has_purchases && row.state_type_id!='11'" class="btn waves-effect waves-light btn-xs btn-custom m-1__2"
+              <button type="button" v-if="row.show_actions_row" class="btn waves-effect waves-light btn-xs btn-custom m-1__2"
                       @click.prevent="clickCreate(row.id)">Editar</button>
-
-              <!-- <button type="button" v-if="!row.has_purchases && row.state_type_id!='11'" class="btn waves-effect waves-light btn-xs btn-success m-1__2"
-                      @click.prevent="clickGenerateDocument(row.id)">Generar compra</button> -->
-
                       
               <a :href="`/purchases/create/${row.id}`" class="btn waves-effect waves-light btn-xs btn-success m-1__2"  
-                      v-if="!row.has_purchases && row.state_type_id!='11'">Generar compra</a>
+                      v-if="row.show_actions_row">Generar compra</a>
 
-              <button type="button" v-if="!row.has_purchases && row.state_type_id!='11'" class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
+              <button type="button" v-if="row.show_actions_row" class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
                       @click.prevent="clickAnulate(row.id)">Anular</button>
 
               <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"

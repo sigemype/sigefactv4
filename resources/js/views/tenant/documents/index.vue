@@ -97,6 +97,7 @@
                         <th>#</th>
                         <th v-if="columns.soap_type.visible">SOAP</th>
                         <th class="text-center" style="min-width: 95px;">Emisión</th>
+                        <th v-if="columns.date_payment.visible"  class="text-center" style="min-width: 95px;">Fecha de pago</th>
                         <th class="text-center"
                             v-if="columns.date_of_due.visible">Fecha Vencimiento
                         </th>
@@ -153,6 +154,9 @@
                         <td>{{ index }}</td>
                         <td v-if="columns.soap_type.visible"> {{ row.soap_type_description }}</td>
                         <td class="text-center">{{ row.date_of_issue }}</td>
+                        <td class="text-center"
+                            v-if="columns.date_payment.visible">{{ row.date_of_payment }}
+                        </td>
                         <td class="text-center"
                             v-if="columns.date_of_due.visible">{{ row.date_of_due }}
                         </td>
@@ -484,7 +488,7 @@
             <document-payments :showDialog.sync="showDialogPayments"
                                :documentId="recordId"></document-payments>
 
-            <report-documents :showDialog.sync="showDialogReportDocuments"></report-documents>
+
             <document-constancy-detraction :showDialog.sync="showDialogCDetraction"
                                            :recordId="recordId"></document-constancy-detraction>
             <report-payment :showDialog.sync="showDialogReportPayment"></report-payment>
@@ -512,7 +516,6 @@ import ItemsImport from './import.vue'
 import {deletable} from '../../../mixins/deletable'
 import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
-import ReportDocuments from './partials/report_documents.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
 import DocumentValidate from './partials/validate.vue';
 import MassiveValidateCpe from '../../../../../modules/ApiPeruDev/Resources/assets/js/components/MassiveValidateCPE';
@@ -548,7 +551,6 @@ export default {
         DocumentConstancyDetraction,
         ReportPayment,
         ReportPaymentComplete,
-        ReportDocuments,
         DocumentValidate,
         MassiveValidateCpe,
         DocumentImportExcel
@@ -559,7 +561,6 @@ export default {
             showDialogValidate: false,
             showDialogReportPayment: false,
             showDialogReportPaymentComplete: false,
-            showDialogReportDocuments: false,
             showDialogVoided: false,
             showImportDialog: false,
             showDialogCDetraction: false,
@@ -644,6 +645,10 @@ export default {
                 },
                 total_charge: {
                     title: 'T.Cargos',
+                    visible: false
+                },
+                date_payment:{
+                    title: 'Fecha de pago',
                     visible: false
                 },
 
@@ -796,9 +801,6 @@ export default {
             this.destroy(`/${this.resource}/delete_document/${document_id}`).then(() =>
                 this.$eventHub.$emit('reloadData')
             )
-        },
-        clickDownloadReportDocuments(){
-            this.showDialogReportDocuments = true
         },
         clickReportPayments() {
             this.showDialogReportPayment = true
