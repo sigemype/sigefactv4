@@ -154,7 +154,7 @@ class Document extends ModelTenant
         'invoice',
         'note',
         'payments',
-        'fee'
+        'fees'
     ];
     protected $fillable = [
         'user_id',
@@ -596,7 +596,7 @@ class Document extends ModelTenant
     /**
      * @return HasMany
      */
-    public function fee()
+    public function fees()
     {
         return $this->hasMany(DocumentFee::class);
     }
@@ -1227,7 +1227,7 @@ class Document extends ModelTenant
             'invoice',
             'note',
             'payments',
-            'fee'
+            'fees'
         ]);
     }
 
@@ -1503,9 +1503,9 @@ class Document extends ModelTenant
             ]);
     }
 
-    
+
     /**
-     * 
+     *
      * Determina si es factura o boleta
      *
      * @return bool
@@ -1514,10 +1514,10 @@ class Document extends ModelTenant
     {
         return in_array($this->document_type_id, ['01', '03'], true);
     }
- 
+
 
     /**
-     * 
+     *
      * Determina si fue usado para sistema por puntos
      *
      * @return bool
@@ -1526,14 +1526,14 @@ class Document extends ModelTenant
     {
         return $this->point_system;
     }
-    
-    
+
+
     /**
-     * 
+     *
      * Obtener puntos por la venta
      *
      * @return float
-     * 
+     *
      */
     public function getPointsBySale()
     {
@@ -1543,7 +1543,7 @@ class Document extends ModelTenant
         {
             $point_system_data = $this->point_system_data;
             $total = $this->total;
-    
+
             $value_quantity_points = ($total / $point_system_data->point_system_sale_amount) * $point_system_data->quantity_of_points;
             $calculate_quantity_points = $point_system_data->round_points_of_sale ? intval($value_quantity_points) : round($value_quantity_points, 2);
         }
