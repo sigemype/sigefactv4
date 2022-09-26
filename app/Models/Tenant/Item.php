@@ -2480,9 +2480,9 @@ class Item extends ModelTenant
         return $query;
     }
 
-    
+
     /**
-     * 
+     *
      * Obtener stock del almacen asociado al usuario
      *
      * @param  Warehouse $warehouse
@@ -2499,7 +2499,7 @@ class Item extends ModelTenant
             if($warehouse)
             {
                 $item_warehouse =  ItemWarehouse::select('stock')->where([['item_id', $this->id],['warehouse_id', $warehouse->id]])->first();
-                
+
                 if($item_warehouse) $stock = $item_warehouse->stock;
             }
         }
@@ -2507,7 +2507,7 @@ class Item extends ModelTenant
         return (float) $stock;
     }
 
-    
+
     /**
      *
      * Filtro para no incluir todas las relaciones en consulta
@@ -2568,6 +2568,7 @@ class Item extends ModelTenant
             'barcode' => $this->barcode,
             'currency_type_symbol' => $currency->symbol,
             'sale_unit_price' => $this->generalApplyNumberFormat($this->sale_unit_price),
+            'purchase_unit_price' => $this->generalApplyNumberFormat($this->purchase_unit_price),
             'unit_type_id' => $this->unit_type_id,
             'sale_affectation_igv_type_id' => $this->sale_affectation_igv_type_id,
             'has_igv' => (bool) $this->has_igv,
@@ -2580,7 +2581,7 @@ class Item extends ModelTenant
         ];
     }
 
-    
+
     /**
      * Stock de variantes para revision inventario
      *
