@@ -17,15 +17,15 @@ use Mpdf\Mpdf;
 
 class CashController extends Controller
 {
-    
+
     /**
-     * 
+     *
      * Usado en:
      * CashController - App
      *
      * @param  Request $request
      * @return array
-     * 
+     *
      */
     public function email(Request $request) {
         $request->validate(
@@ -177,7 +177,7 @@ class CashController extends Controller
                     $final_balance += $total;
                     if (count($sale_note->payments) > 0) {
                         $pays = $sale_note->payments;
-                        foreach ($methods_payment as $record) 
+                        foreach ($methods_payment as $record)
                         {
                             $record_total = $pays->where('payment_method_type_id', $record->id)->sum('payment');
                             $record->sum = ($record->sum + $record_total);
@@ -213,9 +213,9 @@ class CashController extends Controller
                     'order_number_key'          => $order_number.'_'.$sale_note->created_at->format('YmdHis'),
                 ];
 
-            } 
+            }
             /** Documentos de Tipo Document */
-            elseif ($cash_document->document) 
+            elseif ($cash_document->document)
             {
                 $record_total = 0;
                 $document = $cash_document->document;
@@ -324,7 +324,7 @@ class CashController extends Controller
                 ];
                 /* Notas de credito o debito*/
                 $notes = $document->getNotes();
-            } 
+            }
             /** Documentos de Tipo Servicio tecnico */
             elseif ($cash_document->technical_service) {
                 $usado = '<br>Se usan para cash<br>';
@@ -363,12 +363,12 @@ class CashController extends Controller
 
             }
             /** Documentos de Tipo Gastos */
-            elseif ($cash_document->expense_payment) 
+            elseif ($cash_document->expense_payment)
             {
                 $expense_payment = $cash_document->expense_payment;
                 $total_expense_payment = 0;
 
-                if ($expense_payment->expense->state_type_id == '05') 
+                if ($expense_payment->expense->state_type_id == '05')
                 {
                     $total_expense_payment = self::CalculeTotalOfCurency(
                         $expense_payment->payment,
@@ -456,27 +456,27 @@ class CashController extends Controller
 
             }
             /** Cotizaciones */
-            else if ($cash_document->quotation) 
+            else if ($cash_document->quotation)
             {
                 $quotation = $cash_document->quotation;
 
                 // validar si cumple condiciones para usar registro en reporte
                 if($quotation->applyQuotationToCash())
                 {
-                    if (in_array($quotation->state_type_id, $status_type_id)) 
+                    if (in_array($quotation->state_type_id, $status_type_id))
                     {
                         $record_total = 0;
-    
+
                         $total = self::CalculeTotalOfCurency(
                             $quotation->total,
                             $quotation->currency_type_id,
                             $quotation->exchange_rate_sale
                         );
-    
+
                         $cash_income += $total;
                         $final_balance += $total;
-    
-                        if (count($quotation->payments) > 0) 
+
+                        if (count($quotation->payments) > 0)
                         {
                             $pays = $quotation->payments;
                             foreach ($methods_payment as $record) {
@@ -487,7 +487,7 @@ class CashController extends Controller
                     }
 
                     $order_number = 5;
-    
+
                     $temp = [
                         'type_transaction'          => 'Venta (Pago a cuenta)',
                         'document_type_description' => 'COTIZACION  ',
@@ -575,7 +575,7 @@ class CashController extends Controller
         $data['all_documents'] = $all_documents;
         $temp = [];
 
-        foreach ($methods_payment as $index => $item) 
+        foreach ($methods_payment as $index => $item)
         {
             $temp[] = [
                 'iteracion' => $index + 1,
@@ -601,10 +601,10 @@ class CashController extends Controller
         //$cash_income = ($final_balance > 0) ? ($cash_final_balance - $cash->beginning_balance) : 0;
         return $data;
     }
-    
+
 
     /**
-     * 
+     *
      * Obtener total caja, suma del total de pagos en efectivo mas saldo inicial
      *
      * @param  array $data
@@ -671,7 +671,7 @@ class CashController extends Controller
      * @throws \Mpdf\MpdfException
      * @throws \Throwable
      */
-    private function getPdf($cash, $format = 'ticket', $mm = null) 
+    private function getPdf($cash, $format = 'ticket', $mm = null)
     {
         $data = $this->setDataToReport($cash);
         // dd($data);
@@ -718,7 +718,7 @@ class CashController extends Controller
      *
      * Usado en:
      * CashController - App
-     * 
+     *
      * @param $cash
      * @param integer $mm
      *
@@ -739,7 +739,7 @@ class CashController extends Controller
      *
      * Usado en:
      * CashController - App
-     * 
+     *
      * @param $cash
      *
      * @return mixed
@@ -788,9 +788,9 @@ class CashController extends Controller
         return $report_cash_export->download($filename.'.xlsx');
     }
 
-    
+
     /**
-     * 
+     *
      * Obtener datos para header de reporte
      *
      * @param  Cash $cash
@@ -800,7 +800,7 @@ class CashController extends Controller
     {
 
         $company = Company::select('name', 'number')->first();
-        
+
         $data['cash_user_name'] = $cash->user->name;
         $data['cash_date_opening'] = $cash->date_opening;
         $data['cash_state'] = $cash->state;
@@ -821,14 +821,14 @@ class CashController extends Controller
         return $data;
     }
 
-    
+
     /**
-     * 
+     *
      * Generar reporte de ingresos y egresos por metodo de pago efectivo con destino caja
      *
      * Usado en:
      * CashController - App
-     * 
+     *
      * @param  int $cash
      */
     public function reportCashIncomeEgress($cash)
@@ -837,8 +837,8 @@ class CashController extends Controller
         $cash = Cash::findOrFail($cash);
         $data_payments = collect();
         $data = $this->getHeaderCommonDataToReport($cash);
-        
-        foreach ($cash->cash_documents as $cash_document) 
+
+        foreach ($cash->cash_documents as $cash_document)
         {
             $model_associated = $cash_document->getDataModelAssociated();
             $payments = $model_associated->getCashPayments();
@@ -855,7 +855,7 @@ class CashController extends Controller
         return $this->toPrintCashIncomeEgress(compact('data', 'data_payments'));
 
     }
-    
+
 
     /**
      * Imprimir reporte de ingresos y egresos
@@ -867,7 +867,7 @@ class CashController extends Controller
 
         $view = view('pos::cash.reports.report_income_egress_pdf', $data);
         $html = $view->render();
-        
+
         $pdf = new Mpdf(['mode' => 'utf-8']);
         $pdf->WriteHTML($html);
 

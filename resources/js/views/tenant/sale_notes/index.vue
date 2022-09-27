@@ -31,7 +31,7 @@
                         <th class="text-right"  v-if="columns.seller_name.visible" >Vendedor</th>
 
                         <th class="text-center">Fecha Emisión</th>
-                        <th class="text-center">Fecha de pago</th>
+                        <th class="text-center" v-if="columns.date_payment.visible">Fecha de pago</th>
                         <th>Cliente</th>
                         <th>Nota de Venta</th>
                         <th>Estado</th>
