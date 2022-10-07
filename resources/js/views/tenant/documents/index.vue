@@ -488,7 +488,7 @@
             <document-payments :showDialog.sync="showDialogPayments"
                                :documentId="recordId"></document-payments>
 
-
+            <report-documents :showDialog.sync="showDialogReportDocuments"></report-documents>
             <document-constancy-detraction :showDialog.sync="showDialogCDetraction"
                                            :recordId="recordId"></document-constancy-detraction>
             <report-payment :showDialog.sync="showDialogReportPayment"></report-payment>
@@ -514,6 +514,7 @@ import DocumentImportExcel from './partials/ImportExcel'
 import DataTable from '../../../components/DataTableDocuments.vue'
 import ItemsImport from './import.vue'
 import {deletable} from '../../../mixins/deletable'
+import ReportDocuments from './partials/report_documents.vue'
 import DocumentConstancyDetraction from './partials/constancy_detraction.vue'
 import ReportPayment from './partials/report_payment.vue'
 import ReportPaymentComplete from './partials/report_payment_complete.vue'
@@ -551,6 +552,7 @@ export default {
         DocumentConstancyDetraction,
         ReportPayment,
         ReportPaymentComplete,
+        ReportDocuments,
         DocumentValidate,
         MassiveValidateCpe,
         DocumentImportExcel
@@ -561,6 +563,7 @@ export default {
             showDialogValidate: false,
             showDialogReportPayment: false,
             showDialogReportPaymentComplete: false,
+            showDialogReportDocuments: false,
             showDialogVoided: false,
             showImportDialog: false,
             showDialogCDetraction: false,
@@ -801,6 +804,9 @@ export default {
             this.destroy(`/${this.resource}/delete_document/${document_id}`).then(() =>
                 this.$eventHub.$emit('reloadData')
             )
+        },
+        clickDownloadReportDocuments(){
+            this.showDialogReportDocuments = true
         },
         clickReportPayments() {
             this.showDialogReportPayment = true

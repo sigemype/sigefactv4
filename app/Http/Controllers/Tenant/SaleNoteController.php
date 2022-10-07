@@ -432,7 +432,7 @@ class SaleNoteController extends Controller
     {
 
         $records = $this->getRecords($request);
-        
+
         /* $records = new SaleNoteCollection($records->paginate(config('tenant.items_per_page')));
         dd($records); */
         return new SaleNoteCollection($records->paginate(config('tenant.items_per_page')));
@@ -878,7 +878,7 @@ class SaleNoteController extends Controller
         return $inputs;
     }
 
-    
+
     /**
      * Configuración de sistema por puntos
      *
