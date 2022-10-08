@@ -70,11 +70,9 @@ class ItemsImport implements ToCollection
                 $image_url = $row[20] ?? null;
 
                 // image names
-                $file_name = '';
-                $file_name_medium = '';
-                $file_name_small = '';
-
-
+                $file_name = 'imagen-no-disponible.jpg';
+                $file_name_medium = 'imagen-no-disponible.jpg';
+                $file_name_small = 'imagen-no-disponible.jpg';
 
                 // verifica el campo url y valida si es una url correcta
                 if($image_url && filter_var($image_url, FILTER_VALIDATE_URL)) {
