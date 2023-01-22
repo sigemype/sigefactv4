@@ -1,5 +1,9 @@
 <?php
 
+//Route::get('generate_token', 'ServiceController@dispatch');
+//Route::get('generate_token', 'ServiceDispatchController@generateToken');
+//Route::get('status_ticket/{ticket}', 'ServiceDispatchController@statusTicket');
+
 use Illuminate\Support\Facades\Route;
 
 $current_hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
