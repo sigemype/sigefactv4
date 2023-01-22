@@ -248,7 +248,10 @@ class DashboardUtility
 
             $purchase_unit_price = $this->getPurchaseUnitPrice($sln);
 
-            $sln_total_purchase = $purchase_unit_price * $sln->quantity;
+            $presentation_quantity = $this->getQuantityUnitPresentation($sln);
+
+            $sln_total_purchase = $purchase_unit_price * ($sln->quantity * $presentation_quantity);
+            // $sln_total_purchase = $purchase_unit_price * $sln->quantity;
 
             if($sln->sale_note->currency_type_id === 'PEN'){
 
@@ -313,11 +316,15 @@ class DashboardUtility
             }
         }
 
-        foreach ($document_items as $doc_it) {
+        foreach ($document_items as $doc_it) 
+        {
             $purchase_unit_price = $this->getPurchaseUnitPrice($doc_it);
 
+            $presentation_quantity = $this->getQuantityUnitPresentation($doc_it);
 
-            $doc_total_purchase = $purchase_unit_price * $doc_it->quantity;
+            $doc_total_purchase = $purchase_unit_price * ($doc_it->quantity * $presentation_quantity);
+            
+            // $doc_total_purchase = $purchase_unit_price * $doc_it->quantity;
 
             if($doc_it->document->currency_type_id === 'PEN'){
                 if(in_array($doc_it->document->document_type_id,['01','03','08'])){
@@ -359,5 +366,17 @@ class DashboardUtility
         ];
     }
 
+
+    /**
+     *
+     * Obtener factor de presentación
+     *
+     * @param  Document|SaleNote $model_item
+     * @return float
+     */
+    public function getQuantityUnitPresentation($model_item)
+    {
+        return isset($model_item->item->presentation->quantity_unit) ? (float) $model_item->item->presentation->quantity_unit : 1;
+    }
 
 }
