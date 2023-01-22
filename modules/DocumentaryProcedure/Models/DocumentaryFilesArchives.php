@@ -156,19 +156,19 @@
             return $data;
         }
 
-        public static function saveFile(UploadedFile $file){
-            // $file->storePubliclyAs()
-                   $ext = $file->getClientOriginalExtension();
-            $filenameOriginal = str_replace('.'.$ext, '', $file->getClientOriginalName());
-            $name = $filenameOriginal.'-'.time().'.'.$ext;
-            $path = '/uploads/files/';
-            // $path = config('filesystems.disks.public.root')
+        // public static function saveFile(UploadedFile $file){
+        //     // $file->storePubliclyAs()
+        //            $ext = $file->getClientOriginalExtension();
+        //     $filenameOriginal = str_replace('.'.$ext, '', $file->getClientOriginalName());
+        //     $name = $filenameOriginal.'-'.time().'.'.$ext;
+        //     $path = '/uploads/files/';
+        //     // $path = config('filesystems.disks.public.root')
 
-            $fullpath = $path.$name;
-            $file->storeAs($path, $name);
-            return $fullpath;
+        //     $fullpath = $path.$name;
+        //     $file->storeAs($path, $name);
+        //     return $fullpath;
 
-        }
+        // }
 
 
 

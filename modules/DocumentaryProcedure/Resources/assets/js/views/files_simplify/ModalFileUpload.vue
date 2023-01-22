@@ -345,6 +345,13 @@ export default {
                     this.errors = {};
                 })
                 .catch((error) => {
+
+                    console.log(error)
+                    if (error.response.status === 500) 
+                    {
+                        this.$message.error(error.response.data.message)
+                    }
+
                     if(error ==! undefined && error.response !== undefined) {
                         this.axiosError(error);
                     }
