@@ -33,6 +33,7 @@ use Modules\Sale\Models\UserCommission;
 use App\Models\Tenant\Configuration;
 use Modules\Restaurant\Models\RestaurantRole;
 use Modules\MobileApp\Models\AppModule;
+use Modules\LevelAccess\Models\SystemActivityLog;
 use Modules\LevelAccess\Models\AuthorizedDiscountUser;
 
 
@@ -187,6 +188,8 @@ class User extends Authenticatable
         'annular_purchase',
         'delete_purchase',
 
+        'last_password_update',
+
         // 'email_verified_at',
         // 'api_token',
         // 'remember_token',
@@ -205,6 +208,7 @@ class User extends Authenticatable
         // informacion personal
 
         'multiple_default_document_types',
+        'permission_force_send_by_summary',
 
     ];
 
@@ -233,6 +237,7 @@ class User extends Authenticatable
         'annular_purchase'=>'bool',
         'delete_purchase'=>'bool',
         'multiple_default_document_types'=>'bool',
+        'permission_force_send_by_summary' => 'boolean',
     ];
 
     public function modules()
@@ -673,6 +678,7 @@ $withEstablishment = true){
             'name' => $this->name,
             'restaurant_role_id' => $this->restaurant_role_id,
             'restaurant_role_name' => $this->restaurant_role_id ? $this->restaurant_role->name : '',
+            'restaurant_role_code' => $this->restaurant_role_id ? $this->restaurant_role->code : '',
             'locked' => (bool) $this->locked,
         ];
     }
@@ -1112,6 +1118,38 @@ $withEstablishment = true){
         ]);
     }
 
+        
+    /**
+     * 
+     * Retorna nombre de la conexión
+     *
+     * @return string
+     */
+    public function getDbConnectionName()
+    {
+        return $this->getConnection()->getName();
+    }
+    
+
+    public function system_activity_logs()
+    {
+        return $this->morphMany(SystemActivityLog::class, 'origin');
+    }
+
+    
+    /**
+     * 
+     * Filtro para no incluir relaciones en consulta y obtener el nombre de usuario
+     *
+     * @param Builder $query
+     * @return Builder
+     */  
+    public function scopeFilterOnlyUsername($query)
+    {
+        return $query->whereFilterWithOutRelations()->select('id', 'name');
+    }
+
+
 
     public function getDataOnlyAuthUser()
     {
@@ -1149,7 +1187,35 @@ $withEstablishment = true){
             'photo_filename' => $this->photo_filename,
             'multiple_default_document_types' => $this->multiple_default_document_types,
             'default_document_types' => $this->default_document_types,
+            'permission_force_send_by_summary' => $this->permission_force_send_by_summary,
         ];
+    }
+
+
+    /**
+     * 
+     * Permisos de los modulos y submodulos por usuario
+     *
+     * @return array
+     */
+    public function getWebPermissionsByUser()
+    {
+        $modules_id = $this->getCurrentModuleByTenant()->pluck('module_id')->toArray();
+        $levels_id = $this->getCurrentModuleLevelByTenant()->pluck('module_level_id')->toArray();
+        $modules = Module::whereIn('id', $modules_id)->get();
+        $show_modules = [];
+
+        foreach ($modules as $module)
+        {
+            $show_modules [] = [
+                'id' => $module->id,
+                'value' => $module->value,
+                'description' => $module->description,
+                'levels' => $module->levels()->whereIn('id', $levels_id)->select(['id', 'value', 'description', 'module_id'])->get(),
+            ];
+        }
+
+        return $show_modules;
     }
 
 }

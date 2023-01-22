@@ -112,4 +112,30 @@ class PurchasePayment extends ModelTenant
                     ]);
     }
     
+    
+    /**
+     * 
+     * Filtros para obtener pagos en efectivo
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterCashPaymentWithoutDestination($query)
+    {
+        return $query->where('payment_method_type_id', PaymentMethodType::CASH_PAYMENT_ID);
+    }
+
+    
+    /**
+     * 
+     * Filtros para obtener pagos con transferencia
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterTransferPayment($query)
+    {
+        return $query->where('payment_method_type_id', PaymentMethodType::TRANSFER_PAYMENT_ID);
+    }
+    
 }

@@ -4,6 +4,7 @@ namespace App\CoreFacturalo\Helpers\Functions;
 
 use App\Models\Tenant\Catalogs\District;
 use Illuminate\Database\Query\Builder;
+use Modules\LevelAccess\Models\SystemActivityLogType;
 use DB;
 
 class SetDataHelper
@@ -96,6 +97,78 @@ class SetDataHelper
     public static function deleteDistrict($district_id)
     {
         District::where('id', $district_id)->delete();
+    }
+
+        
+    /**
+     * 
+     * Registrar tipo de actividad para el log
+     *
+     * @param  string $id
+     * @param  string $description
+     * @return void
+     */
+    public static function createSystemActivityLogType($id, $description)
+    {
+        $record = SystemActivityLogType::find($id);
+
+        if(!$record)
+        {
+            SystemActivityLogType::insert([
+                'id' => $id,
+                'description' => $description,
+            ]);
+        }
+    }
+    
+
+    /**
+     * 
+     * Eliminar registro
+     *
+     * @param  string $model
+     * @param  string $id
+     * @return void
+     */
+    public static function deleteGeneralRecord($model, $id)
+    {
+        $model::where('id', $id)->delete();
+    }
+
+    
+    /**
+     * 
+     * Asignar nuevo valor a opcion kardex valorizado
+     *
+     * @param  string $old_value
+     * @param  string $new_value
+     * @return void
+     */
+    public static function fixedModuleLevelValuedKardex($old_value, $new_value, $model)
+    {
+        $module_level_kardex = self::getModuleLevel($old_value, 'Kardex valorizado', $model);
+
+        if($module_level_kardex)
+        {
+            $module_level_kardex->update([
+                'value' => $new_value
+            ]);
+        }
+    }
+    
+
+    /**
+     * 
+     * Usar desde tenant/system enviando en path del modelo
+     *
+     * @param  string $value
+     * @return ModuleLevel
+     */
+    public static function getModuleLevel($value, $description, $model)
+    {
+        return $model::where('value', $value)
+                    ->where('description', $description)
+                    ->first();
     }
 
 }

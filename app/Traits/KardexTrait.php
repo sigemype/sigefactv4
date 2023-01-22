@@ -19,6 +19,7 @@ trait KardexTrait
             'item_id' => $item_id,
             'document_id' => ($relation == 'document') ? $id : null,
             'purchase_id' => ($relation == 'purchase') ? $id : null,
+            'purchase_settlement_id' => ($relation == 'purchase_settlement') ? $id : null,
             'sale_note_id' => ($relation == 'sale_note') ? $id : null,
             'quantity' => $quantity,
         ]);
@@ -28,8 +29,9 @@ trait KardexTrait
     }
 
     public function updateStock($item_id, $quantity, $is_sale){
-
+        
         $item = Item::find($item_id);
+        /* dd($item); */
         $item->stock = ($is_sale) ? $item->stock - $quantity : $item->stock + $quantity;
         $item->save();
 

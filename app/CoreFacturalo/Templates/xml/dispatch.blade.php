@@ -1,46 +1,35 @@
-{!!  '<'.'?xml version="1.0" encoding="utf-8" standalone="no"?'.'>'  !!}
-<DespatchAdvice xmlns="urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2"
-                xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+<DespatchAdvice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                 xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
                 xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-                xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+                xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+                xmlns="urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2">
     <ext:UBLExtensions>
         <ext:UBLExtension>
             <ext:ExtensionContent/>
         </ext:UBLExtension>
     </ext:UBLExtensions>
     <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
-    <cbc:CustomizationID>1.0</cbc:CustomizationID>
-    <cbc:ID>{{ $document->series }}-{{ $document->number }}</cbc:ID>
-    <cbc:IssueDate>{{ $document->date_of_issue->format('Y-m-d') }}</cbc:IssueDate>
-    <cbc:IssueTime>{{ $document->time_of_issue }}</cbc:IssueTime>
-    <cbc:DespatchAdviceTypeCode>{{ $document->document_type_id }}</cbc:DespatchAdviceTypeCode>
-    @if($document->observations)
-    <cbc:Note><![CDATA[{{ $document->observations }}]]></cbc:Note>
-    @endif
-    {{--{% if doc.docBaja -%}--}}
-    {{--<cac:OrderReference>--}}
-        {{--<cbc:ID>{{ doc.docBaja.nroDoc }}</cbc:ID>--}}
-        {{--<cbc:OrderTypeCode listAgencyName="PE:SUNAT"--}}
-                           {{--listName="SUNAT:Identificador de Tipo de Documento"--}}
-                           {{--listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01">{{ doc.docBaja.tipoDoc }}</cbc:OrderTypeCode>--}}
-    {{--</cac:OrderReference>--}}
-    {{--{% endif -%}--}}
-    @if($document->related)
-    <cac:AdditionalDocumentReference>
-        <cbc:ID>{{ $document->related->number }}</cbc:ID>
-        <cbc:DocumentTypeCode listAgencyName="PE:SUNAT" listName="SUNAT:Identificador de documento relacionado" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo21">{{ $document->related->document_type_id }}</cbc:DocumentTypeCode>
-    </cac:AdditionalDocumentReference>
+    <cbc:CustomizationID>2.0</cbc:CustomizationID>
+    <cbc:ID>{{ $document['series'] }}-{{ $document['number'] }}</cbc:ID>
+    <cbc:IssueDate>{{ $document['date_of_issue'] }}</cbc:IssueDate>
+    <cbc:IssueTime>{{ $document['time_of_issue'] }}</cbc:IssueTime>
+    <cbc:DespatchAdviceTypeCode listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01"
+                                listName="Tipo de Documento"
+                                listAgencyName="PE:SUNAT">{{ $document['document_type_id'] }}</cbc:DespatchAdviceTypeCode>
+    @if($document['observations'])
+        <cbc:Note><![CDATA[{{ $document['observations'] }}]]></cbc:Note>
     @endif
     <cac:Signature>
         <cbc:ID>{{ config('configuration.signature_uri') }}</cbc:ID>
         <cbc:Note>{{ config('configuration.signature_note') }}</cbc:Note>
         <cac:SignatoryParty>
             <cac:PartyIdentification>
-                <cbc:ID>{{ $company->number }}</cbc:ID>
+                <cbc:ID>{{ $document['company_number'] }}</cbc:ID>
             </cac:PartyIdentification>
             <cac:PartyName>
-                <cbc:Name><![CDATA[{{ $company->trade_name }}]]></cbc:Name>
+                <cbc:Name><![CDATA[{{ $document['company_name'] }}]]></cbc:Name>
             </cac:PartyName>
         </cac:SignatoryParty>
         <cac:DigitalSignatureAttachment>
@@ -50,137 +39,151 @@
         </cac:DigitalSignatureAttachment>
     </cac:Signature>
     <cac:DespatchSupplierParty>
-        <cbc:CustomerAssignedAccountID schemeID="6">{{ $company->number }}</cbc:CustomerAssignedAccountID>
         <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
+                        schemeAgencyName="PE:SUNAT"
+                        schemeName="Documento de Identidad"
+                        schemeID="6">{{ $document['company_number'] }}</cbc:ID>
+            </cac:PartyIdentification>
             <cac:PartyLegalEntity>
-                <cbc:RegistrationName><![CDATA[{{ $company->name }}]]></cbc:RegistrationName>
+                <cbc:RegistrationName><![CDATA[{{ $document['company_name'] }}]]></cbc:RegistrationName>
             </cac:PartyLegalEntity>
         </cac:Party>
     </cac:DespatchSupplierParty>
     <cac:DeliveryCustomerParty>
-        <cbc:CustomerAssignedAccountID schemeID="{{ $document->customer->identity_document_type_id }}">{{ $document->customer->number }}</cbc:CustomerAssignedAccountID>
         <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
+                        schemeAgencyName="PE:SUNAT"
+                        schemeName="Documento de Identidad"
+                        schemeID="{{ $document['customer_identity_document_type_id'] }}">{{ $document['customer_number'] }}</cbc:ID>
+            </cac:PartyIdentification>
             <cac:PartyLegalEntity>
-                <cbc:RegistrationName><![CDATA[{{ $document->customer->name }}]]></cbc:RegistrationName>
+                <cbc:RegistrationName><![CDATA[{{ $document['customer_name'] }}]]></cbc:RegistrationName>
             </cac:PartyLegalEntity>
         </cac:Party>
     </cac:DeliveryCustomerParty>
-    {{--{% if doc.tercero -%}--}}
-    {{--<cac:SellerSupplierParty>--}}
-        {{--<cbc:CustomerAssignedAccountID schemeID="{{ doc.tercero.tipoDoc }}">{{ doc.tercero.numDoc }}</cbc:CustomerAssignedAccountID>--}}
-        {{--<cac:Party>--}}
-            {{--<cac:PartyLegalEntity>--}}
-                {{--<cbc:RegistrationName><![CDATA[{{ doc.tercero.rznSocial|raw }}]]></cbc:RegistrationName>--}}
-            {{--</cac:PartyLegalEntity>--}}
-        {{--</cac:Party>--}}
-    {{--</cac:SellerSupplierParty>--}}
-    {{--{% endif -%}--}}
     <cac:Shipment>
+        <!-- ID OBLIGATORIO POR UBL -->
         <cbc:ID>1</cbc:ID>
-        <cbc:HandlingCode>{{ $document->transfer_reason_type_id }}</cbc:HandlingCode>
-        @if($document->transfer_reason_description)
-        <cbc:Information>{{ $document->transfer_reason_description }}</cbc:Information>
-        @endif
-        <cbc:GrossWeightMeasure unitCode="{{ $document->unit_type_id }}">{{ $document->total_weight }}</cbc:GrossWeightMeasure>
-        @if($document->packages_number)
-        <cbc:TotalTransportHandlingUnitQuantity>{{ $document->packages_number }}</cbc:TotalTransportHandlingUnitQuantity>
-        @endif
-        <cbc:SplitConsignmentIndicator>{{ ($document->transshipment_indicator)?"true":"false" }}</cbc:SplitConsignmentIndicator>
+        <!-- MOTIVO DEL TRASLADO -->
+        <cbc:HandlingCode listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo20"
+                          listName="Motivo de traslado"
+                          listAgencyName="PE:SUNAT">{{ $document['transfer_reason_type_id'] }}</cbc:HandlingCode>
+        <cbc:HandlingInstructions>{{ $document['transfer_reason_type_name'] }}</cbc:HandlingInstructions>
+        <!-- PESO BRUTO TOTAL DE LA CARGA-->
+        <cbc:GrossWeightMeasure
+            unitCode="{{ $document['unit_type_id'] }}">{{ $document['total_weight'] }}</cbc:GrossWeightMeasure>
         <cac:ShipmentStage>
-            <cbc:TransportModeCode>{{ $document->transport_mode_type_id }}</cbc:TransportModeCode>
+            <!-- MODALIDAD DE TRASLADO -->
+            <cbc:TransportModeCode listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo18"
+                                   listName="Modalidad de traslado"
+                                   listAgencyName="PE:SUNAT">{{ $document['transport_mode_type_id'] }}</cbc:TransportModeCode>
+            <!-- FECHA DE INICIO DEL TRASLADO o FECHA DE ENTREGA DE BIENES AL TRANSPORTISTA -->
             <cac:TransitPeriod>
-                <cbc:StartDate>{{ $document->date_of_shipping->format('Y-m-d') }}</cbc:StartDate>
+                <cbc:StartDate>{{ $document['date_of_shipping'] }}</cbc:StartDate>
             </cac:TransitPeriod>
-            @if($document->dispatcher)
-            @php($dispatcher = $document->dispatcher)
-            <cac:CarrierParty>
-                <cac:PartyIdentification>
-                    <cbc:ID schemeID="{{ $dispatcher->identity_document_type_id }}">{{ $dispatcher->number }}</cbc:ID>
-                </cac:PartyIdentification>
-                <cac:PartyName>
-                    <cbc:Name><![CDATA[{{ $dispatcher->name }}]]></cbc:Name>
-                </cac:PartyName>
-            </cac:CarrierParty>
+            @if($document['transport_mode_type_id'] === '01')
+                <cac:CarrierParty>
+                    <cac:PartyIdentification>
+                        <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
+                                schemeAgencyName="PE:SUNAT"
+                                schemeName="Documento de Identidad"
+                                schemeID="{{ $document['dispatcher_identity_document_type_id'] }}">{{ $document['dispatcher_number'] }}</cbc:ID>
+                    </cac:PartyIdentification>
+                    <cac:PartyLegalEntity>
+                        <!-- NOMBRE/RAZON SOCIAL DEL TRANSPORTISTA-->
+                        <cbc:RegistrationName><![CDATA[{{ $document['dispatcher_name'] }}]]></cbc:RegistrationName>
+                        <!-- NUMERO DE REGISTRO DEL MTC -->
+                        <cbc:CompanyID>{{ $document['dispatcher_number_mtc'] }}</cbc:CompanyID>
+                    </cac:PartyLegalEntity>
+                </cac:CarrierParty>
             @endif
-            {{-- @if($document->driver)
-            @php($driver = $document->driver)
-            <cac:TransportMeans>
-                <cac:RoadTransport>
-                    <cbc:LicensePlateID>{{ $document->license_plate }}</cbc:LicensePlateID>
-                </cac:RoadTransport>
-            </cac:TransportMeans>
-            <cac:DriverPerson>
-                <cbc:ID schemeID="{{ $driver->identity_document_type_id }}">{{ $driver->number }}</cbc:ID>
-            </cac:DriverPerson>
-            @endif --}}
-            @if($document->license_plate)
-            <cac:TransportMeans>
-                <cac:RoadTransport>
-                    <cbc:LicensePlateID>{{ $document->license_plate }}</cbc:LicensePlateID>
-                </cac:RoadTransport>
-            </cac:TransportMeans>
-            @endif
-            @if($document->driver)
-            @php($driver = $document->driver)
-                @if(!is_null($driver->identity_document_type_id) && !is_null($driver->number))
+            @if($document['transport_mode_type_id'] === '02')
+            <!-- CONDUCTOR PRINCIPAL -->
                 <cac:DriverPerson>
-                    <cbc:ID schemeID="{{ $driver->identity_document_type_id }}">{{ $driver->number }}</cbc:ID>
+                    <!-- TIPO Y NUMERO DE DOCUMENTO DE IDENTIDAD -->
+                    <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
+                            schemeAgencyName="PE:SUNAT"
+                            schemeName="Documento de Identidad"
+                            schemeID="{{ $document['driver_identity_document_type_id'] }}">{{ $document['driver_number'] }}</cbc:ID>
+                    <!-- NOMBRES -->
+                    <cbc:FirstName>{{ $document['driver_names'] }}</cbc:FirstName>
+                    <!-- APELLIDOS -->
+                    <cbc:FamilyName>{{ $document['driver_lastnames'] }}</cbc:FamilyName>
+                    <!-- TIPO DE CONDUCTOR: PRINCIPAL -->
+                    <cbc:JobTitle>Principal</cbc:JobTitle>
+                    <cac:IdentityDocumentReference>
+                        <!-- LICENCIA DE CONDUCIR -->
+                        <cbc:ID>{{ $document['driver_license'] }}</cbc:ID>
+                    </cac:IdentityDocumentReference>
                 </cac:DriverPerson>
-                @endif
             @endif
         </cac:ShipmentStage>
         <cac:Delivery>
+            <!-- DIRECCION DEL PUNTO DE LLEGADA -->
             <cac:DeliveryAddress>
-                <cbc:ID>{{ $document->delivery->location_id }}</cbc:ID>
-                <cbc:StreetName>{{ $document->delivery->address }}</cbc:StreetName>
+                <!-- UBIGEO DE LLEGADA -->
+                <cbc:ID schemeAgencyName="PE:INEI"
+                        schemeName="Ubigeos">{{ $document['delivery_location_id'] }}</cbc:ID>
+                <!-- CODIGO DE ESTABLECIMIENTO ANEXO DE LLEGADA -->
+                @if($document['customer_identity_document_type_id'] === '6')
+                <cbc:AddressTypeCode listAgencyName="PE:SUNAT"
+                                     listName="Establecimientos anexos"
+                                     listID="{{ $document['customer_number'] }}">0000</cbc:AddressTypeCode>
+                @endif
+                <cac:AddressLine>
+                    <cbc:Line><![CDATA[{{ $document['delivery_address'] }}]]></cbc:Line>
+                </cac:AddressLine>
             </cac:DeliveryAddress>
+            <cac:Despatch>
+                <!-- DIRECCION DEL PUNTO DE PARTIDA -->
+                <cac:DespatchAddress>
+                    <!-- UBIGEO DE PARTIDA -->
+                    <cbc:ID schemeAgencyName="PE:INEI"
+                            schemeName="Ubigeos">{{ $document['origin_location_id'] }}</cbc:ID>
+                    <!-- CODIGO DE ESTABLECIMIENTO ANEXO DE PARTIDA -->
+                    <cbc:AddressTypeCode listName="Establecimientos anexos"
+                                         listAgencyName="PE:SUNAT"
+                                         listID="{{ $document['company_number'] }}">0000</cbc:AddressTypeCode>
+                    <!-- DIRECCION COMPLETA Y DETALLADA DE PARTIDA -->
+                    <cac:AddressLine>
+                        <cbc:Line><![CDATA[{{ $document['origin_address'] }}]]></cbc:Line>
+                    </cac:AddressLine>
+                </cac:DespatchAddress>
+            </cac:Despatch>
         </cac:Delivery>
-        @if($document->container_number)
-        <cac:TransportHandlingUnit>
-            <cbc:ID>{{ $document->container_number }}</cbc:ID>
-        </cac:TransportHandlingUnit>
-        @endif
-        @if($document->secondary_license_plates)
-            @php($secondary_license_plates = $document->secondary_license_plates)
-            @if($secondary_license_plates->semitrailer)
-            <cac:TransportHandlingUnit>
-                <cbc:ID>{{ $document->license_plate }}</cbc:ID>
-                <cac:TransportEquipment>
-                    <cbc:ID>{{ $secondary_license_plates->semitrailer }}</cbc:ID>
-                </cac:TransportEquipment>
-            </cac:TransportHandlingUnit>
-            @endif
-        @endif
-        <cac:OriginAddress>
-            <cbc:ID>{{ $document->origin->location_id }}</cbc:ID>
-            <cbc:StreetName>{{ $document->origin->address }}</cbc:StreetName>
-        </cac:OriginAddress>
-        @if($document->port_code)
-        <cac:FirstArrivalPortLocation>
-            <cbc:ID>{{ $document->port_code }}</cbc:ID>
-        </cac:FirstArrivalPortLocation>
+        @if($document['transport_mode_type_id'] === '02')
+{{--            @if($document['license_plate'])--}}
+                <cac:TransportHandlingUnit>
+                    <cac:TransportEquipment>
+                        <!-- VEHICULO PRINCIPAL -->
+                        <!-- PLACA - VEHICULO PRINCIPAL -->
+                        <cbc:ID>{{ $document['license_plate'] }}</cbc:ID>
+                    </cac:TransportEquipment>
+                </cac:TransportHandlingUnit>
+{{--            @endif--}}
         @endif
     </cac:Shipment>
-    @foreach($document->items as $row)
-    <cac:DespatchLine>
-        <cbc:ID>{{ $loop->iteration }}</cbc:ID>
-        <cbc:DeliveredQuantity unitCode="{{ $row->item->unit_type_id }}">{{ $row->quantity }}</cbc:DeliveredQuantity>
-        <cac:OrderLineReference>
-            <cbc:LineID>{{ $loop->iteration }}</cbc:LineID>
-        </cac:OrderLineReference>
-        <cac:Item>
-            <cbc:Name><![CDATA[{{ $row->item->description }}]]></cbc:Name>
-            <cac:SellersItemIdentification>
-                <cbc:ID>{{ $row->item->internal_id }}</cbc:ID>
-            </cac:SellersItemIdentification>
-            @if($row->item->item_code)
-            <cac:CommodityClassification>
-                <cbc:ItemClassificationCode listID="UNSPSC"
-                                            listAgencyName="GS1 US"
-                                            listName="Item Classification">{{ $row->item->item_code }}</cbc:ItemClassificationCode>
-            </cac:CommodityClassification>
-            @endif
-        </cac:Item>
-    </cac:DespatchLine>
+    <!-- DETALLES DE BIENES A TRASLADAR -->
+    @foreach($document['items'] as $row)
+        <cac:DespatchLine>
+            <!-- NUMERO DE ORDEN DEL ITEM -->
+            <cbc:ID>{{ $loop->iteration }}</cbc:ID>
+            <!-- CANTIDAD -->
+            <cbc:DeliveredQuantity unitCode="{{ $row['unit_type_id'] }}"
+                                   unitCodeListAgencyName="United Nations Economic Commission for Europe"
+                                   unitCodeListID="UN/ECE rec 20">{{ $row['quantity'] }}</cbc:DeliveredQuantity>
+            <cac:OrderLineReference>
+                <cbc:LineID>{{ $loop->iteration }}</cbc:LineID>
+            </cac:OrderLineReference>
+            <cac:Item>
+                <cbc:Description><![CDATA[{{ $row['name'] }}]]></cbc:Description>
+                <cac:SellersItemIdentification>
+                    <cbc:ID><![CDATA[{{ $row['internal_id'] }}]]></cbc:ID>
+                </cac:SellersItemIdentification>
+            </cac:Item>
+        </cac:DespatchLine>
     @endforeach
 </DespatchAdvice>

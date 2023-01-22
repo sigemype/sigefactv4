@@ -8,6 +8,7 @@
     use Illuminate\Http\RedirectResponse;
     use Illuminate\Http\Request;
     use Modules\LevelAccess\Models\ModuleLevel;
+    use Modules\LevelAccess\Traits\SystemActivityTrait;
 
     /**
      * Class RedirectModuleLevel
@@ -18,6 +19,11 @@
      */
     class RedirectModuleLevel
     {
+        
+        use SystemActivityTrait;
+
+        private $route_path;
+
         /**
          * Handle an incoming request.
          *
@@ -34,6 +40,7 @@
             $level = $user->getLevel();
             $path = explode('/', $request->path());
             $levels = $user->getLevels();
+            $this->route_path = $request->path();
 
             if (!$request->ajax()) {
 
@@ -143,7 +150,8 @@
                 } elseif (in_array($path[0], ["items", "brands", "item-sets"])) {
                     $group = "items";
                 } elseif (in_array($path[0], ["categories"])) {
-                    $group = "catalogs";
+                    // $group = "catalogs";
+                    $group = "items";
                 } elseif (in_array($path[0], ["summaries", "voided"])) {
                     $group = "summary_voided";
                 } elseif ($path[0] == "quotations") {
@@ -273,6 +281,8 @@
          */
         private function redirectRoute($level)
         {
+            // registrar log de actividades cuando el usuario no tiene permiso
+            $this->saveGeneralSystemActivity(auth()->user(), 'level_module_access_error', $this->route_path);
 
             switch ($level) {
 

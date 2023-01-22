@@ -8,6 +8,8 @@ use App\Http\Requests\Tenant\CompanyRequest;
 use App\Http\Resources\Tenant\CompanyResource;
 use Illuminate\Http\Request;
 use App\Http\Requests\Tenant\CompanyPseRequest;
+use App\Http\Requests\Tenant\CompanyWhatsAppApiRequest;
+use Modules\Finance\Helpers\UploadFileHelper;
 
 
 /**
@@ -68,32 +70,44 @@ class CompanyController extends Controller
 
             if (($type === 'logo')) {
                 $v = request()->validate(['file' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+
+                UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
+
                 $file->storeAs(($type === 'logo') ? 'public/uploads/logos' : 'certificates', $name);
             }
 
-            if (($type === 'logo_store')) {
-                request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
-                $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
-            }
+            // if (($type === 'logo_store')) {
+            //     request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+            //     $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
+            // }
 
-			if (($type === 'favicon')) {
+			if (($type === 'favicon')) 
+            {
                 request()->validate(['file' => 'required|image|mimes:png|max:1024']);
                 $filename = time() . '.' . $ext;
                 $name = 'storage/uploads/favicons/' . $filename;
+
+                UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true, 'png', ['image/png']);
+
 			    $file->storeAs('public/uploads/favicons', $filename);
             }
 
             if (($type === 'app_logo')) 
             {
                 request()->validate(['file' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+                UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
                 $file->storeAs('public/uploads/logos', $name);
             }
 
 
-            if (($type === 'img_firm')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+            if(($type === 'img_firm'))
+            {
+                request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+                UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
+                $file->storeAs('public/uploads/firms', $name);
+            } 
 
-            $file->storeAs(($type === 'img_firm') ? 'public/uploads/firms' : 'certificates', $name);
-
+            // $file->storeAs(($type === 'img_firm') ? 'public/uploads/firms' : 'certificates', $name);
 
             $company->$type = $name;
 
@@ -160,5 +174,44 @@ class CompanyController extends Controller
         ];
         
     }
+
+
+    /**
+     * Registrar datos de configuracion para WhatsApp Api
+     *
+     * @param  CompanyWhatsAppApiRequest $request
+     * @return array
+     */
+    public function storeWhatsAppApi(CompanyWhatsAppApiRequest $request)
+    {
+        $company = Company::active();
+        $company->ws_api_token = $request->ws_api_token;
+        $company->ws_api_phone_number_id = $request->ws_api_phone_number_id;
+        $company->save();
+
+        return [
+            'success' => true,
+            'message' => 'Datos guardados correctamente'
+        ];
+    }
+
+    
+    /**
+     * 
+     * Obtener datos de configuracion de WhatsApp Api
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function recordWhatsAppApi()
+    {
+        $company = Company::selectDataWhatsAppApi()->firstOrFail();
+
+        return [
+            'ws_api_token' => $company->ws_api_token,
+            'ws_api_phone_number_id' => $company->ws_api_phone_number_id,
+        ];
+    }
+
 
 }

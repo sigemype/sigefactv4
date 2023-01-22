@@ -8,7 +8,7 @@ class Department extends ModelCatalog
 {
     use UsesTenantConnection;
 
-    protected $with = ['provinces'];
+//    protected $with = ['provinces'];
     public $incrementing = false;
     public $timestamps = false;
 

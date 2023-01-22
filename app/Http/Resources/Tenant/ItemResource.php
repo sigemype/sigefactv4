@@ -189,6 +189,7 @@
                 'subject_to_detraction' => $this->subject_to_detraction,
                 'exchange_points' => $this->exchange_points,
                 'quantity_of_points' => $this->quantity_of_points,
+                'factory_code' => $this->factory_code,
 
             ];
         }

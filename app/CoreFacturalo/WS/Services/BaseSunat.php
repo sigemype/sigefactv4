@@ -181,7 +181,7 @@ class BaseSunat
             ->setError($error);
     }
 
-    private function getXmlResponse($content)
+    public function getXmlResponse($content)
     {
         $filter = function ($filename) {
             return 'xml' === strtolower($this->getFileExtension($filename));

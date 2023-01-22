@@ -78,12 +78,14 @@ class UserController extends Controller
             ['type' => 'seller', 'description' => 'Vendedor'],
         ];
 
-        $config_permission_to_edit_cpe = Configuration::select('permission_to_edit_cpe')->first()->permission_to_edit_cpe;
+        $configuration = Configuration::select(['permission_to_edit_cpe', 'regex_password_user'])->first();
+        $config_permission_to_edit_cpe = $configuration->permission_to_edit_cpe;
+        $config_regex_password_user = $configuration->regex_password_user;
         $zones = Zone::all();
 
         $identity_document_types = IdentityDocumentType::filterDataForPersons()->get();
 
-        return compact('modules', 'establishments', 'types', 'documents', 'series', 'config_permission_to_edit_cpe','zones', 'identity_document_types');
+        return compact('modules', 'establishments', 'types', 'documents', 'series', 'config_permission_to_edit_cpe','zones', 'identity_document_types', 'config_regex_password_user');
     }
 
     public function regenerateToken(User $user){
@@ -149,6 +151,10 @@ class UserController extends Controller
             $user->edit_purchase = $request->input('edit_purchase');
             $user->annular_purchase = $request->input('annular_purchase');
             $user->delete_purchase = $request->input('delete_purchase');
+
+            $user->permission_force_send_by_summary = $request->input('permission_force_send_by_summary');
+
+            if($user->isDirty('password')) $user->last_password_update = date('Y-m-d H:i:s');
 
             $this->setAdditionalData($user, $request);
 

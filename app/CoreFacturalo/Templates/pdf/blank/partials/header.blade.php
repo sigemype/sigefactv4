@@ -98,14 +98,14 @@
         <td width="35%" class="align-top pt-2">
             {{ $document->license_plate }}
             <br><br><br>
-            {{ $document->driver->license }}
+            {{ $document->transport_mode_type_id === '02'?$document->driver->license:'' }}
         </td>
         <td width="10%">
         </td>
         <td width="40%" class="align-top pt-2">
-            {{ $document->dispatcher->name }}
+            {{ $document->transport_mode_type_id === '01'?$document->dispatcher->name:'' }}
             <br><br><br>
-            {{ $document->dispatcher->number }}
+            {{ $document->transport_mode_type_id === '01'?$document->dispatcher->number:'' }}
         </td>
     </tr>
 </table>

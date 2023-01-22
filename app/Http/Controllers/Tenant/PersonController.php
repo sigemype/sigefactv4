@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Requests\Tenant\PersonRequest;
@@ -33,7 +34,7 @@ class PersonController extends Controller
         // $api_service_token = $configuration->token_apiruc =! '' ? $configuration->token_apiruc : config('configuration.api_service_token');
         $api_service_token = \App\Models\Tenant\Configuration::getApiServiceToken();
 
-        return view('tenant.persons.index', compact('type','api_service_token'));
+        return view('tenant.persons.index', compact('type', 'api_service_token'));
     }
 
     public function columns()
@@ -50,9 +51,9 @@ class PersonController extends Controller
     {
 
         $records = Person::where($request->column, 'like', "%{$request->value}%")
-                            ->where('type', $type)
-                            ->whereFilterCustomerBySeller($type)
-                            ->orderBy('name');
+            ->where('type', $type)
+            ->whereFilterCustomerBySeller($type)
+            ->orderBy('name');
 
         return new PersonCollection($records->paginate(config('tenant.items_per_page')));
     }
@@ -65,21 +66,14 @@ class PersonController extends Controller
     public function tables()
     {
         $countries = Country::whereActive()->orderByDescription()->get();
-        $departments = Department::whereActive()->orderByDescription()->get();
-        $provinces = Province::whereActive()->orderByDescription()->get();
-        $districts = District::whereActive()->orderByDescription()->get();
         $identity_document_types = IdentityDocumentType::whereActive()->get();
         $person_types = PersonType::get();
-        $locations = $this->getLocationCascade();
+        $locations = func_get_locations();
         $zones = Zone::all();
         $sellers = $this->getSellers();
-
-        // $configuration = Configuration::first();
-        // $api_service_token = $configuration->token_apiruc == 'false' ? config('configuration.api_service_token') : $configuration->token_apiruc;
         $api_service_token = \App\Models\Tenant\Configuration::getApiServiceToken();
 
-
-        return compact('countries', 'departments', 'provinces', 'districts', 'identity_document_types', 'locations','person_types','api_service_token'
+        return compact('countries', 'identity_document_types', 'locations','person_types','api_service_token'
         ,'zones','sellers');
     }
 
@@ -100,11 +94,11 @@ class PersonController extends Controller
             }
         }
 
-        if($request->state){
-            if($request->state != "ACTIVO"){
+        if ($request->state) {
+            if ($request->state != "ACTIVO") {
                 return [
                     'success' => false,
-                    'message' =>'El estado del contribuyente no es activo, no puede registrarlo',
+                    'message' => 'El estado del contribuyente no es activo, no puede registrarlo',
                 ];
             }
         }
@@ -112,27 +106,34 @@ class PersonController extends Controller
         $id = $request->input('id');
         $person = Person::firstOrNew(['id' => $id]);
         $data = $request->all();
-        unset($data['optional_email'],$data['id']);
+        unset($data['optional_email'], $data['id']);
         $person->fill($data);
+
+        $location_id = $request->input('location_id');
+        if(count($location_id) === 3) {
+            $person->district_id = $location_id[2];
+            $person->province_id = $location_id[1];
+            $person->department_id = $location_id[0];
+        }
+
         $person->save();
 
         $person->addresses()->delete();
         $addresses = $request->input('addresses');
-        foreach ($addresses as $row)
-        {
-            $person->addresses()->updateOrCreate( ['id' => $row['id']], $row);
+        foreach ($addresses as $row) {
+            $person->addresses()->updateOrCreate(['id' => $row['id']], $row);
         }
 
         $optional_email = $request->optional_email;
-        if(!empty($optional_email)){
+        if (!empty($optional_email)) {
             $person->setOptionalEmailArray($optional_email)->push();
         }
 
         $msg = '';
-        if($request->type === 'suppliers'){
-            $msg = ($id)?'Proveedor editado con éxito':'Proveedor registrado con éxito';
-        }else{
-            $msg = ($id)?'Cliente editado con éxito':'Cliente registrado con éxito';
+        if ($request->type === 'suppliers') {
+            $msg = ($id) ? 'Proveedor editado con éxito' : 'Proveedor registrado con éxito';
+        } else {
+            $msg = ($id) ? 'Cliente editado con éxito' : 'Cliente registrado con éxito';
         }
         return [
             'success' => true,
@@ -146,17 +147,17 @@ class PersonController extends Controller
         try {
 
             $person = Person::findOrFail($id);
-            $person_type = ($person->type == 'customers') ? 'Cliente':'Proveedor';
+            $person_type = ($person->type == 'customers') ? 'Cliente' : 'Proveedor';
             $person->delete();
 
             return [
                 'success' => true,
-                'message' => $person_type.' eliminado con éxito'
+                'message' => $person_type . ' eliminado con éxito'
             ];
 
         } catch (Exception $e) {
 
-            return ($e->getCode() == '23000') ? ['success' => false,'message' => "El {$person_type} esta siendo usado por otros registros, no puede eliminar"] : ['success' => false,'message' => "Error inesperado, no se pudo eliminar el {$person_type}"];
+            return ($e->getCode() == '23000') ? ['success' => false, 'message' => "El {$person_type} esta siendo usado por otros registros, no puede eliminar"] : ['success' => false, 'message' => "Error inesperado, no se pudo eliminar el {$person_type}"];
 
         }
 
@@ -171,19 +172,19 @@ class PersonController extends Controller
                 $data = $import->getData();
                 return [
                     'success' => true,
-                    'message' =>  __('app.actions.upload.success'),
+                    'message' => __('app.actions.upload.success'),
                     'data' => $data
                 ];
             } catch (Exception $e) {
                 return [
                     'success' => false,
-                    'message' =>  $e->getMessage()
+                    'message' => $e->getMessage()
                 ];
             }
         }
         return [
             'success' => false,
-            'message' =>  __('app.actions.upload.error'),
+            'message' => __('app.actions.upload.error'),
         ];
     }
 
@@ -191,17 +192,14 @@ class PersonController extends Controller
     {
         $locations = [];
         $departments = Department::where('active', true)->get();
-        foreach ($departments as $department)
-        {
+        foreach ($departments as $department) {
             $children_provinces = [];
-            foreach ($department->provinces as $province)
-            {
+            foreach ($department->provinces as $province) {
                 $children_districts = [];
-                foreach ($province->districts as $district)
-                {
+                foreach ($province->districts as $district) {
                     $children_districts[] = [
                         'value' => $district->id,
-                        'label' => $district->id." - ". $district->description
+                        'label' => $district->id . " - " . $district->description
                     ];
                 }
                 $children_provinces[] = [
@@ -228,7 +226,7 @@ class PersonController extends Controller
         $person->enabled = $type;
         $person->save();
 
-        $type_message = ($type) ? 'habilitado':'inhabilitado';
+        $type_message = ($type) ? 'habilitado' : 'inhabilitado';
 
         return [
             'success' => true,
@@ -246,29 +244,29 @@ class PersonController extends Controller
 
         switch ($period) {
             case 'month':
-                $d_start = Carbon::parse($request->month_start.'-01')->format('Y-m-d');
-                $d_end = Carbon::parse($request->month_start.'-01')->endOfMonth()->format('Y-m-d');
+                $d_start = Carbon::parse($request->month_start . '-01')->format('Y-m-d');
+                $d_end = Carbon::parse($request->month_start . '-01')->endOfMonth()->format('Y-m-d');
                 break;
             case 'between_months':
-                $d_start = Carbon::parse($request->month_start.'-01')->format('Y-m-d');
-                $d_end = Carbon::parse($request->month_end.'-01')->endOfMonth()->format('Y-m-d');
+                $d_start = Carbon::parse($request->month_start . '-01')->format('Y-m-d');
+                $d_end = Carbon::parse($request->month_end . '-01')->endOfMonth()->format('Y-m-d');
                 break;
         }
 
-        if($period == 'all'){
+        if ($period == 'all') {
             $records = Person::where('type', $type)->get();
-        }elseif($period == 'seller'){
-            $records = Person::where([ 'type'=> $type, 'seller_id'=> $request->seller_id, ])->get();
-        }else{
+        } elseif ($period == 'seller') {
+            $records = Person::where(['type' => $type, 'seller_id' => $request->seller_id,])->get();
+        } else {
             $records = Person::where('type', $type)->whereBetween('created_at', [$d_start, $d_end])->get();
         }
 
-        $filename = ($type == 'customers') ? 'Reporte_Clientes_':'Reporte_Proveedores_';
+        $filename = ($type == 'customers') ? 'Reporte_Clientes_' : 'Reporte_Proveedores_';
 
         return (new ClientExport)
-                ->records($records)
-                ->type($type)
-                ->download($filename.Carbon::now().'.xlsx');
+            ->records($records)
+            ->type($type)
+            ->download($filename . Carbon::now() . '.xlsx');
 
     }
 
@@ -302,24 +300,24 @@ class PersonController extends Controller
         $id = $request->id;
 
         $record = Person::find($id);
-        
+
 
         $pdf = new Mpdf([
-                'mode' => 'utf-8',
-                'format' => [
-                    104.1,
-                    24
-                    ],
-                'margin_top' => 2,
-                'margin_right' => 2,
-                'margin_bottom' => 0,
-                'margin_left' => 2
-            ]);
+            'mode' => 'utf-8',
+            'format' => [
+                104.1,
+                24
+            ],
+            'margin_top' => 2,
+            'margin_right' => 2,
+            'margin_bottom' => 0,
+            'margin_left' => 2
+        ]);
         $html = view('tenant.persons.exports.persons-barcode-id', compact('record'))->render();
 
         $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
-        $pdf->output('etiquetas_clientes_'.now()->format('Y_m_d').'.pdf', 'I');
+        $pdf->output('etiquetas_clientes_' . now()->format('Y_m_d') . '.pdf', 'I');
 
     }
 
@@ -350,36 +348,36 @@ class PersonController extends Controller
         $value = $request;
 
         $customers = Person::with('addresses')->whereType('customers')
-        ->where('id',$value)->get()->transform(function($row) {
-                        /** @var  Person $row */
-                        return $row->getCollectionData();
-                        /* Movido al modelo */
-                        return [
-                            'id' => $row->id,
-                            'description' => $row->number.' - '.$row->name,
-                            'name' => $row->name,
-                            'number' => $row->number,
-                            'identity_document_type_id' => $row->identity_document_type_id,
-                            'identity_document_type_code' => $row->identity_document_type->code,
-                            'addresses' => $row->addresses,
-                            'address' =>  $row->address
-                        ];
-                    });
+            ->where('id', $value)->get()->transform(function ($row) {
+                /** @var  Person $row */
+                return $row->getCollectionData();
+                /* Movido al modelo */
+                return [
+                    'id' => $row->id,
+                    'description' => $row->number . ' - ' . $row->name,
+                    'name' => $row->name,
+                    'number' => $row->number,
+                    'identity_document_type_id' => $row->identity_document_type_id,
+                    'identity_document_type_code' => $row->identity_document_type->code,
+                    'addresses' => $row->addresses,
+                    'address' => $row->address
+                ];
+            });
 
         return compact('customers');
     }
 
-    
+
     /**
-     * 
+     *
      * Obtener puntos acumulados por cliente
      *
-     * @param  int $id
+     * @param int $id
      * @return float
      */
     public function getAccumulatedPoints($id)
     {
         return Person::getOnlyAccumulatedPoints($id);
     }
-    
+
 }

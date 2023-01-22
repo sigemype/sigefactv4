@@ -45,42 +45,43 @@ class CompanyController extends Controller
         ];
     }
 
-    public function uploadFile(Request $request)
-    {
-        if ($request->hasFile('file')) {
+    // public function uploadFile(Request $request)
+    // {
+    //     if ($request->hasFile('file')) {
 
-            $company = Company::active();
+    //         $company = Company::active();
 
-            $type = $request->input('type');
+    //         $type = $request->input('type');
 
-            $file = $request->file('file');
-            $ext = $file->getClientOriginalExtension();
-            $name = $type.'_'.$company->number.'.'.$ext;
-
-
-            if (($type === 'logo')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
-
-            $file->storeAs(($type === 'logo') ? 'public/uploads/logos' : 'certificates', $name);
-
-            if (($type === 'logo_store')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
-
-            $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
+    //         $file = $request->file('file');
+    //         $ext = $file->getClientOriginalExtension();
+    //         $name = $type.'_'.$company->number.'.'.$ext;
 
 
-            $company->$type = $name;
+    //         if (($type === 'logo')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
 
-            $company->save();
+    //         $file->storeAs(($type === 'logo') ? 'public/uploads/logos' : 'certificates', $name);
 
-            return [
-                'success' => true,
-                'message' => __('app.actions.upload.success'),
-                'name' => $name,
-                'type' => $type
-            ];
-        }
-        return [
-            'success' => false,
-            'message' =>  __('app.actions.upload.error'),
-        ];
-    }
+    //         if (($type === 'logo_store')) request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+
+    //         $file->storeAs(($type === 'logo_store') ? 'public/uploads/logos' : 'certificates', $name);
+
+
+    //         $company->$type = $name;
+
+    //         $company->save();
+
+    //         return [
+    //             'success' => true,
+    //             'message' => __('app.actions.upload.success'),
+    //             'name' => $name,
+    //             'type' => $type
+    //         ];
+    //     }
+    //     return [
+    //         'success' => false,
+    //         'message' =>  __('app.actions.upload.error'),
+    //     ];
+    // }
+    
 }

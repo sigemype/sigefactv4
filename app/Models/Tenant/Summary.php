@@ -208,20 +208,21 @@ class Summary extends ModelTenant
      */
     public function getSendToPse($sendDocumentPse)
     {
-        $send_to_pse = false;
+        $send_to_pse = true;
+        // $send_to_pse = false;
 
-        $summary_voided_documents = $this->documents;
-        $filter_quantity_documents = $summary_voided_documents->where('document.send_to_pse', true)->count();
+        // $summary_voided_documents = $this->documents;
+        // $filter_quantity_documents = $summary_voided_documents->where('document.send_to_pse', true)->count();
         
-        if($summary_voided_documents->count() === $filter_quantity_documents)
-        {
-            $send_to_pse = true;
-        }
-        else
-        {
-            $difference = $summary_voided_documents->count() - $filter_quantity_documents;
-            $sendDocumentPse->throwException("La cantidad de documentos firmados por el PSE, debe ser igual al total de documentos a enviar en el resumen: {$difference} documento(s) no fueron firmados por el PSE.");
-        }
+        // if($summary_voided_documents->count() === $filter_quantity_documents)
+        // {
+        //     $send_to_pse = true;
+        // }
+        // else
+        // {
+        //     $difference = $summary_voided_documents->count() - $filter_quantity_documents;
+        //     $sendDocumentPse->throwException("La cantidad de documentos firmados por el PSE, debe ser igual al total de documentos a enviar en el resumen: {$difference} documento(s) no fueron firmados por el PSE.");
+        // }
 
         return $send_to_pse;
     }

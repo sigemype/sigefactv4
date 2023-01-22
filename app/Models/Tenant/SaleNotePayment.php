@@ -115,4 +115,42 @@ class SaleNotePayment extends ModelTenant
     }
 
     
+    /**
+     * 
+     * Total de pagos filtrado por id de la nota de venta
+     *
+     * @param  array $sale_notes_id
+     * @return float
+     */
+    public static function sumPaymentsBySaleNote($sale_notes_id)
+    {
+        return self::whereIn('sale_note_id', $sale_notes_id)->sum('payment');
+    }
+
+    
+    /**
+     * 
+     * Filtros para obtener pagos en efectivo
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterCashPaymentWithoutDestination($query)
+    {
+        return $query->where('payment_method_type_id', PaymentMethodType::CASH_PAYMENT_ID);
+    }
+    
+    
+    /**
+     * 
+     * Filtros para obtener pagos con transferencia
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterTransferPayment($query)
+    {
+        return $query->where('payment_method_type_id', PaymentMethodType::TRANSFER_PAYMENT_ID);
+    }
+
 }

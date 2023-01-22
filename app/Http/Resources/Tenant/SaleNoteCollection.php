@@ -87,6 +87,7 @@
                     'purchase_order'               => $row->purchase_order,
                     'due_date'                     => $due_date,
                     'date_of_payment'              => $payment,
+                    'exchange_rate_sale' => $row->exchange_rate_sale,
                 ];
             });
         }

@@ -4,6 +4,8 @@ namespace App\CoreFacturalo;
 
 use App\Models\Tenant\Bank;
 use App\Models\Tenant\BankAccount;
+use Mpdf\HTMLParserMode;
+
 
 class HelperFacturalo
 {
@@ -71,4 +73,56 @@ class HelperFacturalo
 
         return $date_format[2].'-'.$month_name[$date_format[1]].'-'.$date_format[0];
     }
+
+    
+    /**
+     * 
+     * Validar si se agrega ticket de despacho al pdf
+     *
+     * @param  string $format_pdf
+     * @param  string $type
+     * @param  Document|SaleNote $document
+     * @return bool
+     */
+    public function isAllowedAddDispatchTicket($format_pdf, $type, $document)
+    {
+        return in_array($format_pdf, ['ticket', 'ticket_58', 'ticket_50']) && in_array($type, ['invoice', 'sale-note']) && (bool) $document->dispatch_ticket_pdf;
+    }
+
+        
+    /**
+     * 
+     * Agregar ticket de despacho al pdf
+     *
+     * @param  Mpdf $pdf
+     * @param  Company $company
+     * @param  Document|SaleNote $document
+     * @param  array $additional_data
+     * @return void
+     */
+    public function addDocumentDispatchTicket(&$pdf, $company, $document, $additional_data)
+    {
+        list($template, $base_pdf_template, $width, $calculated_height) = $additional_data;
+
+        $html_dispatch_ticket = $template->pdfWithoutFormat($base_pdf_template, 'document_dispatch_ticket', $company, $document);
+        $additional = 0;
+        $base_height = 40;
+
+        if($document->reference_data) $additional += 10;
+
+        $pdf->AddPageByArray([
+            'orientation' => 'P',
+            'newformat' => [
+                $width,
+                $base_height + $calculated_height + $additional,
+            ],
+            'mgt' => 0,
+            'mgr' => 1,
+            'mgb' => 0,
+            'mgl' => 1
+        ]);
+        
+        $pdf->writeHTML($html_dispatch_ticket, HTMLParserMode::HTML_BODY);
+    }
+
 }

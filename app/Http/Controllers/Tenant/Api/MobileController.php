@@ -61,16 +61,24 @@ class MobileController extends Controller
             'seriedefault' => $user->series_id,
             'token' => $user->api_token,
             'restaurant_role_id' => $user->restaurant_role_id,
+            'restaurant_role_code' => $user->restaurant_role_id ? $user->restaurant_role->code : null,
             'ruc' => $company->number,
             'app_logo' => $company->app_logo,
+            'app_logo_base64' => '',//base64_encode(file_get_contents(config('app.url').'/storage/uploads/logos/'.$company->app_logo)),
+            'company' => [
+                'name' => $company->name,
+                'address' => auth()->user()->establishment->department->description.', '.auth()->user()->establishment->province->description.', '.auth()->user()->establishment->district->description.', '.auth()->user()->establishment->address,
+                'phone' => auth()->user()->establishment->telephone,
+                'email' => auth()->user()->establishment->email
+            ],
             'app_configuration' => $this->getAppConfiguration(),
         ];
 
     }
-    
+
 
     /**
-     * 
+     *
      * Obtener configuracion para app
      *
      * @return array
@@ -79,7 +87,7 @@ class MobileController extends Controller
     {
         return optional(AppConfiguration::first())->getRowResource();
     }
-    
+
 
     public function customers()
     {
@@ -167,8 +175,8 @@ class MobileController extends Controller
         return [
             'success' => true,
             'data' => [
-                'items' => $items, 
-                'affectation_types' => $affectation_igv_types, 
+                'items' => $items,
+                'affectation_types' => $affectation_igv_types,
                 'categories' => Category::filterForTables()->get()
             ]
         ];
@@ -240,6 +248,8 @@ class MobileController extends Controller
             $temp_path = $request->input('temp_path');
 
             if($temp_path) {
+
+                UploadFileHelper::checkIfValidFile($request->input('image'), $temp_path, true);
 
                 $directory = 'public'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR;
 
@@ -354,9 +364,10 @@ class MobileController extends Controller
         $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
         $search_by_barcode = $request->has('search_by_barcode') && (bool) $request->search_by_barcode;
         $category_id = $request->category_id ?? null;
-        
+        $limit = $request->limit ?? null;
+
         $item_query = Item::query();
-        
+
         if($search_by_barcode)
         {
             $item_query->where('barcode', $request->input)->limit(1);
@@ -364,6 +375,8 @@ class MobileController extends Controller
         else
         {
             $item_query->where('description', 'like', "%{$request->input}%")->orWhere('internal_id', 'like', "%{$request->input}%");
+
+            if($limit) $item_query->limit($limit);
         }
 
         $items = $item_query->whereHasInternalId()
@@ -424,6 +437,9 @@ class MobileController extends Controller
                                     'price_default' => $row->price_default,
                                 ];
                             }),
+                            'has_isc' => (bool)$row->has_isc,
+                            'system_isc_type_id' => $row->system_isc_type_id,
+                            'percentage_isc' => $row->percentage_isc,
                         ];
                     });
 

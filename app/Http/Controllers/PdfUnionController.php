@@ -49,7 +49,12 @@
             $temp = tempnam(sys_get_temp_dir(), $file_name);
             file_put_contents($temp, $pdf->Output('S'));
 
-            return response()->file($temp);
+            $headers = [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="file.pdf"'
+            ];
+
+            return response()->file($temp, $headers);
         }
 
         //

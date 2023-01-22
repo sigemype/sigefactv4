@@ -3,6 +3,7 @@
 namespace App\Mail\Tenant;
 
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
+use App\CoreFacturalo\WS\Services\BaseSunat;
 use App\Models\Tenant\Document;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -67,7 +68,9 @@ class DocumentEmail extends Mailable
         // $file = $this->getCdr($this->document);
 
         if(!empty($cdr) ){
-            $email->attachData($cdr, $this->document->filename.'.zip');
+            $xml_cdr = (new BaseSunat())->getXmlResponse($cdr);
+//            $email->attachData($cdr, $this->document->filename.'.zip');
+            $email->attachData($xml_cdr, 'R-'.$this->document->filename.'.xml');
         }
 
         if($image_detraction){

@@ -68,7 +68,7 @@ class UserResource extends JsonResource {
             'default_document_types' => $this->default_document_types->transform(function($row){
                 return $row->getDataMultipleDocumentType();
             }),
-
+            'permission_force_send_by_summary' => $this->permission_force_send_by_summary,
         ];
     }
 }

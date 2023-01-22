@@ -1,15 +1,30 @@
 <?php
 
 namespace App\Models\Tenant;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Collection;
+use App\Models\Tenant\Kardex;
+use App\Models\Tenant\InventoryKardex;
+
+use App\Models\Tenant\User;
+use App\Models\Tenant\Person;
+
+use App\Models\Tenant\PurchaseSettlementPayment;
+
 
 use App\Models\Tenant\Catalogs\{
     CurrencyType,
     DocumentType
 };
+use Illuminate\Database\Eloquent\Builder;
 
 
 class PurchaseSettlement extends ModelTenant
 {
+
 
     protected $fillable = [
         'user_id',
@@ -55,6 +70,15 @@ class PurchaseSettlement extends ModelTenant
     protected $casts = [
         'date_of_issue' => 'date',
     ];
+
+    public static function getLastNumberBySerie($serie)
+    {
+        $t = PurchaseSettlement::where('series', $serie)->select('number')->orderby('number', 'DESC')->first();
+        if ( !empty($t)) {
+            return $t->number;
+        }
+        return 0;
+    }
 
     public function getOperationDataAttribute($value)
     {
@@ -150,6 +174,59 @@ class PurchaseSettlement extends ModelTenant
         return $this->hasMany(PurchaseSettlementItem::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function kardex()
+    {
+        return $this->hasMany(Kardex::class);
+    }
+
+    /**
+     * Se usa en la relacion con el inventario kardex en modules/Inventory/Traits/InventoryTrait.php.
+     * Tambien se debe tener en cuenta modules/Inventory/Providers/InventoryKardexServiceProvider.php y
+     * app/Providers/KardexServiceProvider.php para la correcta gestion de kardex
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function inventory_kardex()
+    {
+        return $this->morphMany(InventoryKardex::class, 'inventory_kardexable');
+    }
+
+    /**
+         * @return HasMany
+         */
+        public function purchase_settlement_payment()
+        {
+            return $this->hasMany(PurchaseSettlementPayment::class);
+        }
+
+    /**
+         * @param $query
+         *
+         * @return null
+         */
+        public function scopeWhereTypeUser($query, $params= [])
+        {
+            if(isset($params['user_id'])) {
+                $user_id = (int)$params['user_id'];
+                $user = User::find($user_id);
+                if(!$user) {
+                    $user = new User();
+                }
+            }
+            else { 
+                $user = auth()->user();
+            }
+            return ($user->type == 'seller') ? $query->where('user_id', $user->id) : null;
+        }
+
+    
+        public function scopeWhereStateTypeAccepted($query)
+        {
+            return $query->whereIn('state_type_id', ['01','03','05','07','13']);
+        }
     public function getNumberFullAttribute()
     {
         return $this->series.'-'.$this->number;
@@ -214,5 +291,17 @@ class PurchaseSettlement extends ModelTenant
         ];
     }
 
+    
+    /**
+     *
+     * Filtro para no incluir relaciones en consulta
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeWhereFilterWithOutRelations($query)
+    {
+        return $query;
+    }
 
 }

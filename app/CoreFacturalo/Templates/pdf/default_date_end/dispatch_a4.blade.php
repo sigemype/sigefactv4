@@ -1,4 +1,9 @@
 @php
+    use App\Models\Tenant\Configuration;
+    $configuration = new Configuration();
+    $configuration = $configuration->first()->getCollectionData();
+    $is_pharma = $configuration['is_pharmacy'];
+
     $establishment = $document->establishment;
     $customer = $document->customer;
     //$path_style = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates'.DIRECTORY_SEPARATOR.'pdf'.DIRECTORY_SEPARATOR.'style.css');
@@ -134,9 +139,15 @@
         <th class="border-top-bottom text-center">Item</th>
         <th class="border-top-bottom text-center">Código</th>
         <th class="border-top-bottom text-left">Descripción</th>
-        <th class="border-top-bottom text-left">Modelo</th>
-        <th class="border-top-bottom text-center">Unidad</th>
-        <th class="border-top-bottom text-right">Cantidad</th>
+        {{-- <th class="border-top-bottom text-left">Modelo</th> --}}
+        @if($is_pharma == true)
+            <th class="border-top-bottom text-center py-2">RS</th>
+        @endif
+        <th class="border-top-bottom text-center py-2">LOTE</th>
+        <th class="border-top-bottom text-center py-2">FECHA VCTO.</th>
+
+        <th class="border-top-bottom text-center" width="7%">Unidad</th>
+        <th class="border-top-bottom text-right" width="10%">Cantidad</th>
     </tr>
     </thead>
     <tbody>
@@ -176,7 +187,20 @@
                     *** Pago Anticipado ***
                 @endif
             </td>
-            <td class="text-left">{{ $row->item->model ?? '' }}</td>
+            {{-- <td class="text-left">{{ $row->item->model ?? '' }}</td> --}}
+            @if($is_pharma == true)
+                <td class="text-center align-top">
+                    {{$row->item->sanitary ?? '' }}
+                </td>
+            @endif
+            <td class="text-center align-top">
+                @inject('itemLotGroup', 'App\Services\ItemLotsGroupService')
+                {{ $itemLotGroup->getLote($row->item->IdLoteSelected) }}
+            </td>
+            <td class="text-center align-top">
+                {!! $itemLotGroup->getItemLotGroupDateOfDue($row->item->IdLoteSelected) !!}
+            </td>
+
             <td class="text-center">{{ $row->item->unit_type_id }}</td>
             <td class="text-right">
                 @if(((int)$row->quantity != $row->quantity))

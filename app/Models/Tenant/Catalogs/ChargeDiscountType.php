@@ -20,4 +20,17 @@ class ChargeDiscountType extends ModelCatalog
     {
         return $query->where('level', $level);
     }
+
+        
+    /**
+     * 
+     * Obtener descuentos globales que afectan y no afectan la base
+     *
+     * @return array
+     */
+    public static function getGlobalDiscounts()
+    {
+        return self::whereIn('id', ['02', '03'])->whereActive()->get();
+    }
+    
 }

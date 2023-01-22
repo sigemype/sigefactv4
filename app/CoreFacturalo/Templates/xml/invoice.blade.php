@@ -219,7 +219,8 @@
     <cac:AllowanceCharge>
         <cbc:ChargeIndicator>true</cbc:ChargeIndicator>
         <cbc:AllowanceChargeReasonCode>{{ $charge->charge_type_id }}</cbc:AllowanceChargeReasonCode>
-        <cbc:MultiplierFactorNumeric>{{ $charge->factor }}</cbc:MultiplierFactorNumeric>
+        <cbc:MultiplierFactorNumeric>{{ $document->generalApplyNumberFormat($charge->factor, 5) }}</cbc:MultiplierFactorNumeric>
+        {{-- <cbc:MultiplierFactorNumeric>{{ $charge->factor }}</cbc:MultiplierFactorNumeric> --}}
         <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $charge->amount }}</cbc:Amount>
         <cbc:BaseAmount currencyID="{{ $document->currency_type_id }}">{{ $charge->base }}</cbc:BaseAmount>
     </cac:AllowanceCharge>

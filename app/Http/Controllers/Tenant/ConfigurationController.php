@@ -7,8 +7,10 @@ use App\Http\Resources\Tenant\ConfigurationResource;
 use App\Models\Tenant\Configuration;
 use App\Models\Tenant\Item;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Tenant\Catalogs\{
     AffectationIgvType,
@@ -26,6 +28,8 @@ use App\Models\Tenant\FormatTemplate;
 use Modules\LevelAccess\Models\ModuleLevel;
 use Validator;
 use App\Models\Tenant\Skin;
+use Modules\Finance\Helpers\UploadFileHelper;
+
 
 class ConfigurationController extends Controller
 {
@@ -103,7 +107,12 @@ class ConfigurationController extends Controller
 
     public function show($template)
     {
-        return response()->file(storage_path('app' . DIRECTORY_SEPARATOR . 'preprintedpdf' . DIRECTORY_SEPARATOR . $template . '.pdf'));
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="file.pdf"'
+        ];
+
+        return response()->file(storage_path('app' . DIRECTORY_SEPARATOR . 'preprintedpdf' . DIRECTORY_SEPARATOR . $template . '.pdf'), $headers);
     }
 
     // public function dispatch(Request $request) {
@@ -317,7 +326,9 @@ class ConfigurationController extends Controller
         $configuration->fill($request->all());
         $configuration->save();
 
+        Cache::forget('token_sunat');
 
+        Log::error('Cache toke_sunat eliminado');
         return [
             'success' => true,
             'configuration' => $configuration->getCollectionData(),
@@ -454,6 +465,8 @@ class ConfigurationController extends Controller
 
             request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
 
+            UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
+
             $file->storeAs('public/uploads/header_images', $name);
 
             $configuration->header_image = $name;
@@ -554,6 +567,7 @@ class ConfigurationController extends Controller
             $filename = $file->getClientOriginalName();
             $name = pathinfo($file->getClientOriginalName());
 
+            UploadFileHelper::checkIfValidCssFile($filename, $file->getPathName(), 'css', ['text/css', 'text/plain']);
 
             Storage::disk('public')->put('skins'.DIRECTORY_SEPARATOR.$filename, $file_content);
 
@@ -598,4 +612,60 @@ class ConfigurationController extends Controller
             'skins' => $skins
         ];
     }
+
+    
+    /**
+     * 
+     * Consulta de imagenes footer
+     *
+     * @return array
+     */
+    public function getPdfFooterImages()
+    {
+        return Configuration::first()->getDataPdfFooterImages();
+    }
+    
+
+    /**
+     * 
+     * Cargar imagenes para pdf footer
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function pdfFooterImages(Request $request)
+    {
+        $images = $request->images;
+        $data = [];
+        $configuration = Configuration::first();
+        $folder = 'pdf_footer_images';
+
+        foreach ($images as $index => $image) 
+        {
+            $temp_path = $image['temp_path'] ?? null;
+
+            if($temp_path)
+            {
+                $old_filename = $image['filename'];
+                UploadFileHelper::checkIfValidFile($old_filename, $temp_path, true);
+                $first_old_filename = explode('.', $old_filename)[0];
+                $filename = UploadFileHelper:: uploadImageFromTempFile($folder, $old_filename, $temp_path, "{$first_old_filename}_{$index}_", true);
+            }
+            else
+            {
+                $filename = $image['name'];
+            }
+
+            $data [] = [
+                'filename' => $filename,
+            ];
+
+        }
+
+        $configuration->pdf_footer_images = $data;
+        $configuration->update();
+
+        return $this->generalResponse(true, 'Proceso realizado correctamente.');
+    }
+
 }

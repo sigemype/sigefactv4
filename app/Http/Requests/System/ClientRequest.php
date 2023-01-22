@@ -16,6 +16,8 @@ class ClientRequest extends FormRequest
     public function rules()
     {
         $id = $this->input('id');
+        $password_rules = $this->getPasswordRules($this->input('regex_password_client') ?? false);
+
         return [
             'email' => [
                 'required',
@@ -29,9 +31,7 @@ class ClientRequest extends FormRequest
                 'required',
                 Rule::unique('system.clients')->ignore($id)
             ],
-            'password' => [
-                'required',
-            ],
+            'password' => $password_rules,
             'subdomain' => [
                 'required',
                 new SubdomainNotLatin
@@ -61,4 +61,31 @@ class ClientRequest extends FormRequest
 
         ];
     }
+
+    
+    /**
+     *
+     * @param  bool $regex_password_client
+     * @return array
+     */
+    private function getPasswordRules($regex_password_client)
+    {
+        $password_rules = [
+            'required',
+            'min:6',
+        ];
+
+        if($regex_password_client)
+        {
+            $password_rules = array_merge($password_rules, [
+                'regex:/[a-z]/',      
+                'regex:/[A-Z]/',   
+                'regex:/[0-9]/',
+                'regex:/[@.$!%*#?&-]/',
+            ]);
+        }
+
+        return $password_rules;
+    }
+
 }

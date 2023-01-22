@@ -15,7 +15,18 @@
     use Illuminate\Support\Facades\Route;
     use Modules\Report\Models\ReportConfiguration;
     use App\Models\Tenant\Configuration;
+    use Carbon\Carbon;
+    use App\Models\Tenant\{
+        Company,
+        Establishment,
+    };
     use Modules\MobileApp\Http\Controllers\Api\ItemController as ItemControllerMobileApp;
+    use Modules\Inventory\Models\Warehouse;
+    use App\CoreFacturalo\Helpers\Functions\GeneralPdfHelper;
+    use App\Models\Tenant\Catalogs\{
+        DocumentType
+    };
+    use Exception;
 
 
     /**
@@ -166,7 +177,7 @@
             //dispatcher
             if ($request->has('searchBy')) {
                 if ($request->searchBy == 'dispatches') {
-                    $identity_document_type_id = ['6', '4', '1'];
+                    $identity_document_type_id = ['6', '4', '1', '0'];
                 }
             }
             $customers = Person::where('number', 'like', "%{$request->input}%")
@@ -220,11 +231,11 @@ $string = var_export($header,true);
             return $header;
         }
 
-        
+
         /**
-         * 
+         *
          * Determinar si aplica conversión a soles en reportes registrados en ReportConfiguration
-         * 
+         *
          * Usado en:
          * ReportGeneralItemController
          *
@@ -239,27 +250,27 @@ $string = var_export($header,true);
 
             return false;
         }
-        
+
 
         /**
-         * 
+         *
          * Determinar si aplica busqueda avanzada
-         * 
+         *
          * Usado en:
          * ItemController
          *
          * @return bool
          */
         public function applyAdvancedRecordsSearch()
-        {   
+        {
             return Configuration::isEnabledAdvancedRecordsSearch();
         }
 
 
         /**
-         * 
+         *
          * Asignar lote a item (regularizar propiedad en json item)
-         * 
+         *
          * Usado en:
          * OrderNoteController
          *
@@ -277,10 +288,10 @@ $string = var_export($header,true);
                 $row['item']['IdLoteSelected'] = isset($row['item']['IdLoteSelected']) ? $row['item']['IdLoteSelected'] : null;
             }
         }
-        
-        
+
+
         /**
-         * 
+         *
          * Retornar array para respuestas en peticiones
          *
          * @param  bool $success
@@ -308,4 +319,84 @@ $string = var_export($header,true);
             return app(ItemControllerMobileApp::class)->uploadTempImage($request);
         }
 
+        
+        /**
+         * 
+         * Nombre para reportes
+         *
+         * @param  string $base_name
+         * @param  string $format
+         * @return string
+         */
+        public function generalFilenameReport($base_name, $format)
+        {
+            return $base_name.'_'.Carbon::now().'.'.$format;
+        }
+
+                
+        /**
+         * 
+         * Datos para cabecera de reportes
+         *
+         * @return array
+         */
+        public function generalDataForHeaderReport()
+        {
+            $company = Company::withOut(['identity_document_type'])->select(['number', 'name'])->first();
+
+            return compact('company');
+        }
+        
+  
+        /**
+         * 
+         * Obtener almacen asociado al usuario en sesion
+         *
+         * @return array
+         */
+        public function generalGetCurrentWarehouse()
+        {
+            return Warehouse::where('establishment_id', auth()->user()->establishment_id)->selectBasicColumns()->firstOrFail();
+        }
+        
+
+        /**
+         * 
+         * @param  string $filename
+         * @return array
+         */
+        public static function generalPdfResponseFileHeaders($filename)
+        {
+            return GeneralPdfHelper::pdfResponseFileHeaders($filename);
+        }
+
+                
+        /**
+         * 
+         * Verificar si es una factura o boleta
+         *
+         * @param  string $document_type_id
+         * @return bool
+         */
+        public function generalIsInvoiceDocument($document_type_id)
+        {
+            return in_array($document_type_id, ['01', '03'], true);
+        }
+
+        
+        /**
+         * 
+         * Descripcion del tipo de documento
+         *
+         * @return string
+         */
+        public function generalGetDocumentTypeDescription($document_type_id)
+        {
+            $document_type = DocumentType::filterOnlyDescription()->find($document_type_id);
+
+            if($document_type) return $document_type->description;
+
+            throw new Exception('El tipo de documento no existe');
+        }
+        
     }

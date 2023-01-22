@@ -145,4 +145,77 @@
         }
 
 
+        
+        /**
+         * 
+         * Devuelve la fecha de vencimiento del lote con saltos de linea
+         * 
+         * @param int|array $id_lot_selected
+         * @return string
+         */
+        public function getItemLotGroupDateOfDue($id_lot_selected)
+        {
+            $description = null;
+
+            if($id_lot_selected)
+            {
+                if(is_array($id_lot_selected)) 
+                {
+                    foreach ($id_lot_selected as $key => $item) 
+                    {
+                        $separator = $key == 0 ? '' : '<br>';
+                        $description .= "{$separator}{$item->date_of_due}";
+                    }
+                } 
+                else 
+                {
+                    $record = $this->findItemLotGroup($id_lot_selected);
+                    if ($record)  $description = $record->date_of_due;
+                }
+            }
+
+            return $description;
+        }
+
+        
+        /**
+         *
+         * @param  int $id
+         * @return ItemLotsGroup
+         */
+        public function findItemLotGroup($id)
+        {
+            return ItemLotsGroup::find($id);
+        }
+
+                
+        /**
+         * 
+         * Obtener lote
+         *
+         * @param  array|int $id_lot_selected
+         * @return string
+         */
+        public function getItemLotGroupLineBreak($id_lot_selected)
+        {
+            $description = null;
+
+            if (is_array($id_lot_selected)) 
+            {
+                foreach ($id_lot_selected as $key => $item) 
+                {
+                    $separator = $key == 0 ? '' : '<br>';
+                    $description .= "{$separator} - {$item->code}";
+                }
+            } 
+            else 
+            {
+                $description = $this->getItemLotsGroupCode($id_lot_selected);
+            }
+
+            return $description;
+        }
+
+
+
     }

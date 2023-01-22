@@ -96,4 +96,16 @@ class Note extends ModelTenant
         return Document::find($this->document_id);
     }
 
+    
+    /**
+     * 
+     * Verificar si es nota tipo 13
+     *
+     * @return bool
+     */
+    public function isTypePaymentDateAdjustments()
+    {
+        return $this->note_credit_type_id === NoteCreditType::PAYMENT_DATE_ADJUSTMENTS_CODE;
+    }
+
 }

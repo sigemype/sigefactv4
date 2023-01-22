@@ -19,7 +19,6 @@ class DispatchRequest extends FormRequest
     public function rules()
     {
         //$id = $this->input('id');
-
         return [
             'unit_type_id' => [
                 'required',
@@ -35,15 +34,15 @@ class DispatchRequest extends FormRequest
                 'max:100',
 
             ],
-            'dispatcher.identity_document_type_id'=> [
-                'required',
-            ],
-            'dispatcher.number'=> [
-                'required',
-            ],
-            'dispatcher.name'=> [
-                'required',
-            ],
+//            'dispatcher.identity_document_type_id'=> [
+//                'required',
+//            ],
+//            'dispatcher.number'=> [
+//                'required',
+//            ],
+//            'dispatcher.name'=> [
+//                'required',
+//            ],
             // 'driver.identity_document_type_id'=> [
             //     'required',
             // ],
@@ -62,7 +61,6 @@ class DispatchRequest extends FormRequest
             'driver.number'=> [
                 'required_if:transport_mode_type_id, "02"',
             ],
-
             'customer_id'=> [
                 'required',
             ],
@@ -76,7 +74,6 @@ class DispatchRequest extends FormRequest
                 'required',
                 'max:100',
             ],
-
             'related.number'=> [
                 'required_if:transfer_reason_type_id, "09"',
                 'regex:"^[0-9]{4}-[0-9]{2}-[0-9]{3}-[0-9]{6}$"'
@@ -92,7 +89,7 @@ class DispatchRequest extends FormRequest
     public function messages()
     {
         return [
-            
+
             'transfer_reason_description.required' => 'El campo Descripción de motivo de traslado es obligatorio.',
             'observations.required' => 'El campo Observaciones es obligatorio.',
             'dispatcher.identity_document_type_id.required' => 'El campo Tipo Doc. Identidad es obligatorio.',

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Configuration;
+use Modules\Finance\Helpers\UploadFileHelper;
+
 
 class LoginConfigurationController extends Controller
 {
@@ -18,7 +20,7 @@ class LoginConfigurationController extends Controller
     public function uploadBgImage()
     {
         request()->validate([
-            'image' => 'required|mimes:webp,jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         $config = Configuration::first();
@@ -27,6 +29,9 @@ class LoginConfigurationController extends Controller
             $ext = $file->getClientOriginalExtension();
             $name = time() . '.' . $ext;
             $path = 'public/uploads/login';
+
+            UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
+
             $file->storeAs($path, $name);
 
             $loginConfig = $config->login;

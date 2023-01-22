@@ -30,6 +30,13 @@
 
         public const STATE_TYPES_ACCEPTED = ['01', '03', '05', '07', '13'];
 
+        public const STATE_TYPE_REGISTERED = '01';
+
+        public const SOAP_TYPE_PRODUCTION = '02';
+
+        public const NATIONAL_CURRENCY_ID = 'PEN';
+
+        public const INVOICE_DOCUMENTS_IDS = ['01', '03'];
 
         /**
          * Devuelve un esqueleto del array de data extra. Previene error de no enconrarse la funcion en otros modelos
@@ -194,6 +201,20 @@
         public function getPathPublicUploads($folder, $filename)
         {
             return asset('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . $filename);
+        }
+
+        
+        /**
+         * 
+         * Path imagen
+         *
+         * @param  string $folder
+         * @param  string $filename
+         * @return string
+         */
+        public function getGeneralFilePublicPath($folder, $filename)
+        {
+            return public_path('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . $filename);
         }
 
     }

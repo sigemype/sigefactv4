@@ -10,6 +10,8 @@
     use Illuminate\Support\Facades\Storage;
     use Modules\Order\Models\OrderNote;
     use Symfony\Component\HttpFoundation\StreamedResponse;
+    use Modules\Finance\Helpers\UploadFileHelper;
+
 
     /**
      * Guarda los archivos de guias correspondientes. Por los momentos es solo aplicable en compra, se deja
@@ -215,6 +217,15 @@
 
             $type = $data['type'];
             $id = $data['id'];
+
+            // validaciones archivos
+            $allowed_file_types_images = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/svg'];
+            $is_image = UploadFileHelper::getIsImage($temp_path, $allowed_file_types_images);
+
+            $allowed_file_types = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/svg', 'application/pdf'];
+            UploadFileHelper::checkIfValidFile($this->filename, $temp_path, $is_image, 'jpg,jpeg,png,gif,svg,pdf', $allowed_file_types);
+            // validaciones archivos
+
 
             $file_content = file_get_contents($temp_path);
 

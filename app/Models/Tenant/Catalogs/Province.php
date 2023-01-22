@@ -8,7 +8,7 @@ class Province extends ModelCatalog
 {
     use UsesTenantConnection;
 
-    protected $with = ['districts'];
+//    protected $with = ['districts'];
     public $incrementing = false;
     public $timestamps = false;
 

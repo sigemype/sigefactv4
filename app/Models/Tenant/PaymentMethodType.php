@@ -9,6 +9,7 @@
     use Modules\Sale\Models\ContractPayment;
     use Modules\Sale\Models\QuotationPayment;
     use Modules\Sale\Models\TechnicalServicePayment;
+    use App\Models\Tenant\PurchaseSettlementPayment;
 
     /**
      * App\Models\Tenant\PaymentMethodType
@@ -75,6 +76,7 @@
         ];
 
         public const CASH_PAYMENT_ID = '01';
+        public const TRANSFER_PAYMENT_ID = '04';
 
         /**
          * Devuelve los metodos de pago como standandar. Se pueden excluir elementos por $exclude_method_types_id
@@ -243,6 +245,11 @@
             return $this->hasMany(TechnicalServicePayment::class, 'payment_method_type_id');
         }
 
+        public function purchase_settlement_payments()
+        {
+            return $this->hasMany(PurchaseSettlementPayment::class, 'payment_method_type_id');
+        }
+
 
         public function scopeWhereFilterPayments($query, $params)
         {
@@ -275,6 +282,12 @@
                         });
                 },
                 'purchase_payments' => function ($q) use ($params) {
+                    $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
+                        ->whereHas('associated_record_payment', function ($p) {
+                            $p->whereStateTypeAccepted()->whereTypeUser();
+                        });
+                },
+                'purchase_settlement_payments' => function ($q) use ($params) {
                     $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
                         ->whereHas('associated_record_payment', function ($p) {
                             $p->whereStateTypeAccepted()->whereTypeUser();
@@ -326,4 +339,14 @@
         {
             return $query->where('is_cash', '!=', 1);
         }
+
+        
+        /**
+         * @return bool
+         */
+        public function isCredit()
+        {
+            return (bool)$this->is_credit;
+        }
+
     }

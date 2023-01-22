@@ -30,4 +30,25 @@ class CashDocumentCredit extends ModelTenant
     }
 
 
+    /**
+     * 
+     * Retornar el modelo asociado dependiendo del registro relacionado
+     * 
+     */
+    public function getDataModelAssociated()
+    {
+        if(!is_null($this->document_id)) return $this->document;
+
+        if(!is_null($this->sale_note_id)) return $this->sale_note;
+    }
+
+    
+    /**
+     * @return bool
+     */
+    public function isPending()
+    {
+        return $this->status === 'PENDING';
+    }
+
 }

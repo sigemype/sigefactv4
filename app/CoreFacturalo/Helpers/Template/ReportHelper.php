@@ -252,4 +252,21 @@
             }
         }
 
+
+        /**
+         * 
+         * @param $value
+         *
+         * @return bool
+         */
+        public static function getBoolValue($value)
+        {
+            if(is_string($value))
+            {
+                $value = $value === 'true';
+            }
+
+            return $value;
+        }
+
     }

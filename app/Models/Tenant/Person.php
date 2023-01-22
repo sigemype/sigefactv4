@@ -8,15 +8,11 @@
     use App\Models\Tenant\Catalogs\District;
     use App\Models\Tenant\Catalogs\IdentityDocumentType;
     use App\Models\Tenant\Catalogs\Province;
-    use Eloquent;
     use Hyn\Tenancy\Traits\UsesTenantConnection;
     use Illuminate\Database\Eloquent\Builder;
     use Illuminate\Database\Eloquent\Collection;
-    use Illuminate\Database\Eloquent\Relations\BelongsTo;
     use Modules\DocumentaryProcedure\Models\DocumentaryFile;
     use Modules\Expense\Models\Expense;
-    use Modules\FullSuscription\Models\Tenant\FullSuscriptionServerDatum;
-    use Modules\FullSuscription\Models\Tenant\FullSuscriptionUserDatum;
     use Modules\Order\Models\OrderForm;
     use Modules\Order\Models\OrderNote;
     use Modules\Purchase\Models\FixedAssetPurchase;
@@ -113,19 +109,6 @@
             'district'
         ];
 
-        protected $casts = [
-            'perception_agent' => 'bool',
-            'person_type_id' => 'int',
-            'percentage_perception' => 'float',
-            'enabled' => 'bool',
-            'status' => 'int',
-            'credit_days' => 'int',
-            'seller_id' => 'int',
-            'zone_id' => 'int',
-            'parent_id' => 'int',
-            'accumulated_points' => 'float',
-        ];
-        
         protected $fillable = [
             'type',
             'identity_document_type_id',
@@ -160,8 +143,25 @@
             'zone_id',
             'status',
             'parent_id',
-
             'accumulated_points',
+            'has_discount',
+            'discount_type',
+            'discount_amount',
+        ];
+
+        protected $casts = [
+            'perception_agent' => 'bool',
+            'person_type_id' => 'int',
+            'percentage_perception' => 'float',
+            'enabled' => 'bool',
+            'status' => 'int',
+            'credit_days' => 'int',
+            'seller_id' => 'int',
+            'zone_id' => 'int',
+            'parent_id' => 'int',
+            'accumulated_points' => 'float',
+            'has_discount' => 'bool',
+            'discount_amount' => 'float',
         ];
 
         // protected static function boot()
@@ -491,7 +491,6 @@
          */
         public function getCollectionData($withFullAddress = false, $childrens = false, $servers=false)
         {
-
             $addresses = $this->addresses;
             if ($withFullAddress == true) {
                 $addresses = collect($addresses)->transform(function ($row) {
@@ -524,6 +523,7 @@
                 ];
             }
 
+            $location_id = [];
             /** @var \App\Models\Tenant\Catalogs\Department  $department */
             $department = \App\Models\Tenant\Catalogs\Department::find($this->department_id);
             if(!empty($department)){
@@ -532,6 +532,7 @@
                 "description" => $department->description,
                 "active" => $department->active,
                 ];
+                array_push($location_id, $department['id']);
             }
             $province = \App\Models\Tenant\Catalogs\Province::find($this->province_id);
 
@@ -541,6 +542,7 @@
                     "description" => $province->description,
                     "active" => $province->active,
                 ];
+                array_push($location_id, $province['id']);
             }
             $district = \App\Models\Tenant\Catalogs\District::find($this->district_id);
 
@@ -550,6 +552,7 @@
                     "description" => $district->description,
                     "active" => $district->active,
                 ];
+                array_push($location_id, $district['id']);
             }
             $seller = User::find($this->seller_id);
             if(!empty($seller)){
@@ -575,8 +578,8 @@
                 'website' => $this->website,
                 'document_type' => $this->identity_document_type->description,
                 'enabled' => (bool)$this->enabled,
-                'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-                'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+                'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
+                'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
                 'type' => $this->type,
                 'trade_name' => $this->trade_name,
                 'country_id' => $this->country_id,
@@ -606,7 +609,10 @@
                 'optional_email_send' => implode(',', $optional_mail_send),
                 'childrens' => [],
                 'accumulated_points' => $this->accumulated_points,
-                
+                'has_discount' => $this->has_discount,
+                'discount_type' => $this->discount_type,
+                'discount_amount' => $this->discount_amount,
+                'location_id' => $location_id
             ];
             if ($childrens == true) {
                 $child = $this->children_person->transform(function ($row) {
@@ -772,14 +778,14 @@
 
         }
 
-        
+
         /**
-         * 
+         *
          * Aplicar filtro por vendedor asignado al cliente
          *
          * Usado en:
          * PersonController - records
-         * 
+         *
          * @param \Illuminate\Database\Eloquent\Builder $query
          * @param string $type
          * @return \Illuminate\Database\Eloquent\Builder
@@ -789,7 +795,7 @@
             if($type === 'customers')
             {
                 $user = auth()->user();
-                
+
                 if($user->applyCustomerFilterBySeller())
                 {
                     return $query->where('seller_id', $user->id);
@@ -799,9 +805,9 @@
             return $query;
         }
 
-        
+
         /**
-         * 
+         *
          * Obtener datos para api (app)
          *
          * @return array
@@ -825,10 +831,10 @@
                 'identity_document_type_description' => $this->identity_document_type->description,
             ];
         }
-        
+
 
         /**
-         * 
+         *
          * Descripción para mostrar en campos de búsqueda, etc
          *
          * @return string
@@ -840,9 +846,9 @@
 
 
         /**
-         * 
+         *
          * Filtro para búsqueda de clientes/proveedores
-         * 
+         *
          * Usado en:
          * clientes - app
          *
@@ -858,25 +864,25 @@
                         ->whereType($type)
                         ->orderBy('name');
         }
-    
+
 
         /**
-         * 
+         *
          * @return string
          */
         public function getTitlePersonDescription()
         {
             return $this->type === 'customers' ? 'Cliente' : 'Proveedor';
         }
-        
-        
+
+
         /**
-         * 
+         *
          * Filtro para no incluir relaciones en consulta
          *
          * @param \Illuminate\Database\Eloquent\Builder $query
          * @return \Illuminate\Database\Eloquent\Builder
-         */  
+         */
         public function scopeWhereFilterWithOutRelations($query)
         {
             return $query->withOut([
@@ -888,7 +894,7 @@
             ]);
         }
 
-        
+
         /**
          * Obtener datos iniciales para mostrar lista de clientes - App
          *
@@ -904,14 +910,13 @@
                         ->take($take);
         }
 
-        
         /**
-         * 
+         *
          * Filtro para cliente varios por defecto
          *
          * @param Builder $query
          * @return Builder
-         */  
+         */
         public function scopeWhereFilterVariousClients($query)
         {
             return $query->where([
@@ -921,18 +926,17 @@
             ]);
         }
 
-        
+
         /**
-         * 
+         *
          * Obtener puntos acumulados
          *
          * @param Builder $query
          * @param int $id
          * @return float
-         */  
+         */
         public function scopeGetOnlyAccumulatedPoints($query, $id)
         {
             return $query->whereFilterWithOutRelations()->select('accumulated_points')->findOrFail($id)->accumulated_points;
         }
-
     }

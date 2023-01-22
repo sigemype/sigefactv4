@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use App\CoreFacturalo\Services\IntegratedQuery\{
     AuthApi,
-    ValidateCpe,
+    ValidateCpe
 };
 use App\Models\Tenant\StateType;
 
@@ -79,12 +79,12 @@ class ValidateDocumentsCommand extends Command
         $this->info('----- Documentos:' . $documents->count().' ----- ');
 
         if($documents->count() > 0){
-            
+
             $auth_api = (new AuthApi())->getToken();
-            
+
             if(!$auth_api['success']) {
                 $this->info($auth_api['message']);
-            
+
             }else{
 
                 $access_token = $auth_api['data']['access_token'];
@@ -93,7 +93,7 @@ class ValidateDocumentsCommand extends Command
                 foreach ($documents as $document)
                 {
                     $count++;
-                    
+
                     $validate_cpe = new ValidateCpe(
                                         $access_token,
                                         $document->company->number,
@@ -111,7 +111,7 @@ class ValidateDocumentsCommand extends Command
                         $response_description = $response['message'];
                         $response_code = $response['data']['estadoCp'];
                         $response_state_type_id = $response['data']['state_type_id'];
-                        
+
                         $state_type = $state_types->first(function($state) use($response_state_type_id){
                             return $state->id === $response_state_type_id;
                         });
@@ -123,11 +123,11 @@ class ValidateDocumentsCommand extends Command
                                     .' | Estado Sunat: '.$response_state_type_id.' - '.$state_type_description;
 
                         $this->info($message);
-                        
+
                         if($response_code !== '1') Log::info($message);
 
                     }
- 
+
                 }
 
             }

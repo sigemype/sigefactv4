@@ -38,33 +38,36 @@ class DispatchTransform
             'items' => self::items($inputs),
             'legends' => LegendTransform::transform($inputs),
             'actions' => ActionTransform::transform($inputs),
+            'additional_data' => Functions::valueKeyInArray($inputs, 'dato_adicional'),
         ];
-         self::AffectedDocument($data, $inputs);
-        return  $data;
+        self::AffectedDocument($data, $inputs);
+        return $data;
     }
 
-    private static function AffectedDocument(&$data,$inputs) {
+    private static function AffectedDocument(&$data, $inputs)
+    {
         if (isset($inputs['documento_afectado']) && isset($inputs['documento_afectado']['external_id'])) {
             $data['affected_document_external_id'] = Functions::valueKeyInArray($inputs['documento_afectado'],
-                                                                                           'external_id');
-        }elseif(isset($inputs['documento_afectado'])){
+                'external_id');
+        } elseif (isset($inputs['documento_afectado'])) {
             $data['data_affected_document']['number'] = Functions::valueKeyInArray($inputs['documento_afectado'],
-                                                                                               'numero_documento');
+                'numero_documento');
             $data['data_affected_document']['series'] = Functions::valueKeyInArray($inputs['documento_afectado'],
-                                                                                               'serie_documento');
+                'serie_documento');
             $data['data_affected_document']['document_type_id'] = Functions::valueKeyInArray($inputs['documento_afectado'],
-                                                                                                         'codigo_tipo_documento');
+                'codigo_tipo_documento');
         }
     }
 
     private static function origin($inputs)
     {
-        if(key_exists('direccion_partida', $inputs)) {
+        if (key_exists('direccion_partida', $inputs)) {
             $origin = $inputs['direccion_partida'];
 
             return [
                 'location_id' => $origin['ubigeo'],
                 'address' => $origin['direccion'],
+                'code' => $origin['codigo_del_domicilio_fiscal'],
             ];
         }
         return null;
@@ -72,12 +75,13 @@ class DispatchTransform
 
     private static function delivery($inputs)
     {
-        if(key_exists('direccion_llegada', $inputs)) {
+        if (key_exists('direccion_llegada', $inputs)) {
             $delivery = $inputs['direccion_llegada'];
 
             return [
                 'location_id' => $delivery['ubigeo'],
                 'address' => $delivery['direccion'],
+                'code' => $delivery['codigo_del_domicilio_fiscal'],
             ];
         }
         return null;
@@ -85,13 +89,14 @@ class DispatchTransform
 
     private static function dispatcher($inputs)
     {
-        if(key_exists('transportista', $inputs)) {
+        if (key_exists('transportista', $inputs)) {
             $dispatcher = $inputs['transportista'];
 
             return [
                 'identity_document_type_id' => $dispatcher['codigo_tipo_documento_identidad'],
                 'number' => $dispatcher['numero_documento'],
                 'name' => $dispatcher['apellidos_y_nombres_o_razon_social'],
+                'number_mtc' => $dispatcher['numero_mtc'],
             ];
         }
         return null;
@@ -100,12 +105,14 @@ class DispatchTransform
     private static function driver($inputs)
     {
         $driver = null;
-        if(key_exists('chofer', $inputs)) {
+        if (key_exists('chofer', $inputs)) {
             $driver = $inputs['chofer'];
-
             return [
                 'identity_document_type_id' => $driver['codigo_tipo_documento_identidad'],
-                'number' => $driver['numero_documento']
+                'number' => $driver['numero_documento'],
+                'names' => Functions::valueKeyInArray($driver, 'nombres'),
+                'lastnames' => Functions::valueKeyInArray($driver, 'apellidos'),
+                'license' => Functions::valueKeyInArray($driver, 'numero_licencia')
             ];
         }
         return null;
@@ -113,14 +120,14 @@ class DispatchTransform
 
     private static function items($inputs)
     {
-        if(key_exists('items', $inputs)) {
+        if (key_exists('items', $inputs)) {
             $items = [];
             foreach ($inputs['items'] as $row) {
                 $items[] = [
                     //'internal_id' => $row['codigo_interno'],
                     //'quantity' => Functions::valueKeyInArray($row, 'cantidad'),
 
-                    'internal_id' => isset($row['codigo_interno']) ? $row['codigo_interno']:'',
+                    'internal_id' => isset($row['codigo_interno']) ? $row['codigo_interno'] : '',
                     'description' => Functions::valueKeyInArray($row, 'descripcion'),
                     'name' => Functions::valueKeyInArray($row, 'nombre'),
                     'second_name' => Functions::valueKeyInArray($row, 'nombre_secundario'),
@@ -157,7 +164,7 @@ class DispatchTransform
                     'total' => Functions::valueKeyInArray($row, 'total_item'),
 
                     'additional_information' => Functions::valueKeyInArray($row, 'informacion_adicional'),
-
+                    'additional_data' => Functions::valueKeyInArray($row, 'dato_adicional'),
                 ];
             }
 

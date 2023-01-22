@@ -119,6 +119,18 @@
     </tr>
 </table>
 
+
+@if ($document->additional_data)
+    <table class="full-width">
+        @foreach($document->additional_data as $row)
+            <tr>
+                <td width="15%" class="align-top">{{$row->title}}: </td>
+                <td width="85%">{{ $row->description }}</td>
+            </tr>
+        @endforeach
+    </table>
+@endif
+
 <table class="full-width mt-3">
     @if ($document->observation)
         <tr>
@@ -127,6 +139,7 @@
         </tr>
     @endif
 </table>
+
 
 @if ($document->guides)
 <br/>

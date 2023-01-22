@@ -22,6 +22,9 @@ class DownloadController extends Controller
 
         if ($format != null) $this->reloadPDF($document, 'invoice', $format);
 
+        if(in_array($document->document_type_id, ['09', '31']) && $type === 'cdr') {
+            $type = 'cdr_xml';
+        }
         return $this->download($type, $document);
     }
 
@@ -32,6 +35,9 @@ class DownloadController extends Controller
                 break;
             case 'xml':
                 $folder = 'signed';
+                break;
+            case 'cdr_xml':
+                $folder = 'cdr_xml';
                 break;
             case 'cdr':
                 $folder = 'cdr';
@@ -99,9 +105,17 @@ class DownloadController extends Controller
         $this->reloadPDF($document, $type, $format);
 
         $temp = tempnam(sys_get_temp_dir(), 'pdf');
+
         file_put_contents($temp, $this->getStorage($document->filename, 'pdf'));
 
-        return response()->file($temp);
+        /*
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$document->filename.'.pdf'.'"'
+        ];
+        */
+
+        return response()->file($temp, $this->generalPdfResponseFileHeaders($document->filename));
     }
 
     public function toTicket($model, $external_id, $format = null) {

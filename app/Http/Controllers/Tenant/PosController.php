@@ -75,7 +75,7 @@ class PosController extends Controller
                                 $query->where('name', 'like', '%' . $request->input_item . '%');
                             })
                             ->whereWarehouse();
-                            
+
         if($search_item_by_barcode_presentation) $items_query->orFilterItemUnitTypeBarcode($request->input_item);
 
         $items =  $items_query->whereIsActive()->get()->transform(function($row) use($configuration, $search_item_by_barcode_presentation, $request){
@@ -93,6 +93,7 @@ class PosController extends Controller
                         'sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".",""),
                         'purchase_unit_price' => $row->purchase_unit_price,
                         'unit_type_id' => $row->unit_type_id,
+                        'aux_unit_type_id' => $row->unit_type_id,
                         'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
                         'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
                         'calculate_quantity' => (bool) $row->calculate_quantity,
@@ -125,7 +126,7 @@ class PosController extends Controller
                         'system_isc_type_id' => $row->system_isc_type_id,
                         'percentage_isc' => $row->percentage_isc,
                         'search_item_by_barcode_presentation' => $search_item_by_barcode_presentation,
-                        
+
                         'exchange_points' => $row->exchange_points,
                         'quantity_of_points' => $row->quantity_of_points,
                         'exchanged_for_points' => false, //para determinar si desea canjear el producto
@@ -190,7 +191,10 @@ class PosController extends Controller
                     'name' => $row->name,
                     'number' => $row->number,
                     'identity_document_type_id' => $row->identity_document_type_id,
-                    'identity_document_type_code' => $row->identity_document_type->code
+                    'identity_document_type_code' => $row->identity_document_type->code,
+                    'has_discount' => $row->has_discount,
+                    'discount_type' => $row->discount_type,
+                    'discount_amount' => $row->discount_amount,
                 ];
             });
             return $customers;
@@ -222,6 +226,7 @@ class PosController extends Controller
                         'sale_unit_price' => number_format($row->sale_unit_price, $configuration->decimal_quantity, ".", ""),
                         'purchase_unit_price' => $row->purchase_unit_price,
                         'unit_type_id' => $row->unit_type_id,
+                        'aux_unit_type_id' => $row->unit_type_id,
                         'sale_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
                         'purchase_affectation_igv_type_id' => $row->purchase_affectation_igv_type_id,
                         'calculate_quantity' => (bool)$row->calculate_quantity,
@@ -253,7 +258,7 @@ class PosController extends Controller
                         'has_isc' => (bool)$row->has_isc,
                         'system_isc_type_id' => $row->system_isc_type_id,
                         'percentage_isc' => $row->percentage_isc,
-                        
+
                         'exchange_points' => $row->exchange_points,
                         'quantity_of_points' => $row->quantity_of_points,
                         'exchanged_for_points' => false, //para determinar si desea canjear el producto

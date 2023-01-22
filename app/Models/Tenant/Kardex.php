@@ -12,6 +12,7 @@ class Kardex extends ModelTenant
         'item_id',
         'document_id',
         'purchase_id',
+        'purchase_settlement_id',
         'sale_note_id',
         'quantity', 
     ];
@@ -28,6 +29,11 @@ class Kardex extends ModelTenant
     public function purchase()
     {
         return $this->belongsTo(Purchase::class);
+    }
+
+    public function purchase_settlement()
+    {
+        return $this->belongsTo(PurchaseSettlement::class);
     }
 
     public function sale_note()

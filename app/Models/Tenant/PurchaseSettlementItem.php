@@ -63,4 +63,20 @@ class PurchaseSettlementItem extends ModelTenant
     {
         return $this->belongsTo(PriceType::class, 'price_type_id');
     }
+
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function purchase_settlement()
+    {
+        return $this->belongsTo(PurchaseSettlement::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function item()
+    {
+        return $this->belongsTo(Item::class);
+    }
 }

@@ -12,6 +12,8 @@ use App\Http\Resources\Tenant\EstablishmentResource;
 use App\Http\Resources\Tenant\EstablishmentCollection;
 use App\Models\Tenant\Warehouse;
 use App\Models\Tenant\Person;
+use Modules\Finance\Helpers\UploadFileHelper;
+
 
 class EstablishmentController extends Controller
 {
@@ -62,6 +64,9 @@ class EstablishmentController extends Controller
             $file = $request->file('file');
             $ext = $file->getClientOriginalExtension();
             $filename = time() . '.' . $ext;
+
+            UploadFileHelper::checkIfValidFile($filename, $file->getPathName(), true);
+
             $file->storeAs('public/uploads/logos', $filename);
             $path = 'storage/uploads/logos/' . $filename;
             $request->merge(['logo' => $path]);

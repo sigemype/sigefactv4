@@ -66,15 +66,17 @@
 
         public const SALE_DOCUMENT_TYPES = ['01', '03', '80'];
 
+        public const CREDIT_NOTE_ID = '07';
+
         public $incrementing = false;
+        public $timestamps = false;
         protected $table = "cat_document_types";
         protected $fillable = [
+            'id',
             'active',
             'short',
             'description'
-
         ];
-
 
         /**
          * @return mixed
@@ -146,7 +148,7 @@
          */
         public function scopeOnlyAvaibleDocuments($query)
         {
-            return $query->OnlyActive()->wherein('id', ['01', '03', '07', '08', '09', '20', '40', '80', '04']);
+            return $query->OnlyActive()->wherein('id', ['01', '03', '07', '08', '09', '20', '40', '80', '04', 'U2', 'U3', 'U4']);
         }
 
         /**
@@ -157,6 +159,11 @@
         public function scopeDocumentsActiveToPurchase($query)
         {
             return $query->OnlyActive()->wherein('id', ['01', '02', '03', 'GU75', 'NE76', '14', '07', '08']);
+        }
+
+        public function scopeDocumentsActiveToSettlement($query)
+        {
+            return $query->OnlyActive()->wherein('id', ['04']);
         }
 
 
@@ -292,7 +299,7 @@
 
         }
 
-        
+
         /**
          * @return Builder
          */
@@ -301,4 +308,27 @@
             return $query->onlyActive()->select('id', 'description')->whereIn('id', self::SALE_DOCUMENT_TYPES);
         }
 
+
+        /**
+         * 
+         * Filtro para la descripción
+         *
+         * @param Builder $query
+         * @return Builder
+         */  
+        public function scopeFilterOnlyDescription($query)
+        {
+            return $query->select('id', 'description');
+        }
+
+        
+        /**
+         *
+         * @return bool
+         */
+        public function isInvoice()
+        {
+            return in_array($this->id, self::INVOICE_DOCUMENTS_IDS, true);
+        }
+        
     }

@@ -13,6 +13,7 @@ use App\Models\Tenant\{
     Item
 };
 use Carbon\Carbon;
+use Modules\Inventory\Models\Guide;
 
 class ReportKardexController extends Controller
 {
@@ -21,7 +22,8 @@ class ReportKardexController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
+    public function index()
+    {
         $items = Item::query()
             ->where('item_type_id', '01')
             ->latest()
@@ -32,10 +34,11 @@ class ReportKardexController extends Controller
 
     /**
      * Search
-     * @param  Request $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function search(Request $request) {
+    public function search(Request $request)
+    {
         $balance = 0;
 
         $items = Item::query()
@@ -44,7 +47,7 @@ class ReportKardexController extends Controller
             ->get();
 
         $reports = Kardex::query()
-            ->with(['document', 'purchase', 'item' => function($queryItem) {
+            ->with(['document', 'purchase', 'item' => function ($queryItem) {
                 return $queryItem->where('item_type_id', '01');
             }])
             ->where('item_id', $request->item_id)
@@ -57,16 +60,17 @@ class ReportKardexController extends Controller
 
     /**
      * PDF
-     * @param  Request $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function pdf(Request $request) {
+    public function pdf(Request $request)
+    {
         $balance = 0;
         $company = Company::first();
         $establishment = Establishment::first();
 
         $reports = Kardex::query()
-            ->with(['document', 'purchase', 'item' => function($queryItem) {
+            ->with(['document', 'purchase', 'item' => function ($queryItem) {
                 return $queryItem->where('item_type_id', '01');
             }])
             ->where('item_id', $request->item_id)
@@ -74,23 +78,24 @@ class ReportKardexController extends Controller
             ->get();
 
         $pdf = PDF::loadView('tenant.reports.kardex.report_pdf', compact("reports", "company", "establishment", "balance"));
-        $filename = 'Reporte_Kardex'.date('YmdHis');
+        $filename = 'Reporte_Kardex' . date('YmdHis');
 
-        return $pdf->download($filename.'.pdf');
+        return $pdf->download($filename . '.pdf');
     }
 
     /**
      * Excel
-     * @param  Request $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request) {
+    public function excel(Request $request)
+    {
         $balance = 0;
         $company = Company::first();
         $establishment = Establishment::first();
 
         $records = Kardex::query()
-            ->with(['document', 'purchase', 'item' => function($queryItem) {
+            ->with(['document', 'purchase', 'item' => function ($queryItem) {
                 return $queryItem->where('item_type_id', '01');
             }])
             ->where('item_id', $request->item_id)
@@ -102,6 +107,8 @@ class ReportKardexController extends Controller
             ->records($records)
             ->company($company)
             ->establishment($establishment)
-            ->download('ReporteKar'.Carbon::now().'.xlsx');
+            ->download('ReporteKar' . Carbon::now() . '.xlsx');
     }
+
+
 }

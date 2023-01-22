@@ -181,6 +181,7 @@ class Item extends ModelTenant
 
         'exchange_points',
         'quantity_of_points',
+        'factory_code',
 
         // 'warehouse_id'
     ];
@@ -1013,7 +1014,8 @@ class Item extends ModelTenant
             'quantity_of_points' => $this->quantity_of_points,
             'exchanged_for_points' => false, //para determinar si desea canjear el producto
             'used_points_for_exchange' => null, //total de puntos
-
+            'factory_code' => $this->factory_code,
+            
         ];
 
         // El nombre de producto, por defecto, sera la misma descripcion.
@@ -2400,10 +2402,56 @@ class Item extends ModelTenant
             'active' => (bool) $this->active,
             'stock' => $this->getWarehouseCurrentStock(),
             'favorite' => $this->favorite,
-
+            'has_isc' => (bool)$this->has_isc,
+            'system_isc_type_id' => $this->system_isc_type_id,
+            'percentage_isc' => $this->percentage_isc,
+            
+            'warehouses' => $this->getApiDataWarehouses(),
+            'item_unit_types' => $this->getApiDataItemUnitTypes(),
         ];
     }
 
+    
+    /**
+     * 
+     * Datos de almacenes asociados al item
+     *
+     * @return array
+     */
+    public function getApiDataWarehouses()
+    {
+        return $this->warehouses->transform(function($row) {
+            return [
+                'warehouse_description' => $row->warehouse->description,
+                'stock' => $row->stock,
+                'warehouse_id' => $row->warehouse_id,
+            ];
+        });
+    }
+
+    
+    /**
+     * 
+     * Datos de lista de precios asociados al item
+     *
+     * @return array
+     */
+    public function getApiDataItemUnitTypes()
+    {
+        return $this->item_unit_types->transform(function($row) {
+            return [
+                'id' => $row->id,
+                'description' => $row->description,
+                'unit_type_id' => $row->unit_type_id,
+                'quantity_unit' => $row->quantity_unit,
+                'price1' => $row->price1,
+                'price2' => $row->price2,
+                'price3' => $row->price3,
+                'price_default' => $row->price_default,
+            ];
+        });
+    }
+    
 
     /**
      *
@@ -2480,9 +2528,9 @@ class Item extends ModelTenant
         return $query;
     }
 
-
+    
     /**
-     *
+     * 
      * Obtener stock del almacen asociado al usuario
      *
      * @param  Warehouse $warehouse
@@ -2499,7 +2547,7 @@ class Item extends ModelTenant
             if($warehouse)
             {
                 $item_warehouse =  ItemWarehouse::select('stock')->where([['item_id', $this->id],['warehouse_id', $warehouse->id]])->first();
-
+                
                 if($item_warehouse) $stock = $item_warehouse->stock;
             }
         }
@@ -2507,7 +2555,7 @@ class Item extends ModelTenant
         return (float) $stock;
     }
 
-
+    
     /**
      *
      * Filtro para no incluir todas las relaciones en consulta
@@ -2568,7 +2616,6 @@ class Item extends ModelTenant
             'barcode' => $this->barcode,
             'currency_type_symbol' => $currency->symbol,
             'sale_unit_price' => $this->generalApplyNumberFormat($this->sale_unit_price),
-            'purchase_unit_price' => $this->generalApplyNumberFormat($this->purchase_unit_price),
             'unit_type_id' => $this->unit_type_id,
             'sale_affectation_igv_type_id' => $this->sale_affectation_igv_type_id,
             'has_igv' => (bool) $this->has_igv,
@@ -2581,7 +2628,7 @@ class Item extends ModelTenant
         ];
     }
 
-
+    
     /**
      * Stock de variantes para revision inventario
      *
@@ -2593,6 +2640,149 @@ class Item extends ModelTenant
         return ItemMovement::getStockByVariantSizeColor($this->id, $establishment_id);
     }
 
+
+    /**
+     *
+     * Filtrar por almacen
+     *
+     * @param  Builder $query
+     * @param  int $warehouse_id
+     * @return Builder
+     */
+    public function scopeFilterByWarehouseId($query, $warehouse_id)
+    {
+        if(!is_null($warehouse_id) && $warehouse_id != 'all')
+        {
+            $query->whereHas('warehouses', function ($query) use ($warehouse_id) {
+                return $query->where('warehouse_id', $warehouse_id);
+            });
+        }
+
+        return $query;
+    }
+    
+
+    /**
+     * 
+     * Filtro por coincidencia para X campo
+     *
+     * @param  Builder $query
+     * @param  string $column
+     * @param  string $input
+     * @return Builder
+     */
+    public function scopeWhereColumnFilterLike($query, $column, $input)
+    {
+        return $query->where($column, 'like', "%{$input}%");
+    }
+
+
+    /**
+     * 
+     * Filtro por coincidencia para X campo de una tabla relacionada
+     *
+     * @param  Builder $query
+     * @param  string $relation
+     * @param  string $column
+     * @param  string $input
+     * @return Builder
+     */
+    public function scopeFilterLikeCustomRelation($query, $relation, $column, $input)
+    {
+        return $query->whereHas($relation, function($q) use($column, $input){
+            return $q->where($column, 'like', "%{$input}%");
+        });
+    }
+
+
+    /**
+     * 
+     * Filtro para reporte ajuste stock - inventario
+     *
+     * @param  Builder $query
+     * @param  string $column
+     * @param  string $input
+     * @return Builder
+     */
+    public function scopeFilterRecordsStockReport($query, $column, $input)
+    {
+        switch($column) 
+        {
+            case 'description':
+            case 'internal_id':
+            case 'model':
+                $query->whereColumnFilterLike($column, $input);
+                break;
+
+            case 'category':
+            case 'brand':
+                $query->filterLikeCustomRelation($column, 'name', $input);
+                break;
+        }
+
+        return $query;
+    }
+
+    
+    /**
+     * @return bool
+     */
+    public function checkIsNotService()
+    {
+        return $this->unit_type_id !== self::SERVICE_UNIT_TYPE;
+    }
+
+    
+    /**
+     * @return bool
+     */
+    public function checkIsSet()
+    {
+        return $this->is_set;
+    }
+
+    
+    /**
+     * 
+     * Obtener item por codigo interno
+     * 
+     * Usado para importacion lotes/series en movimientos
+     *
+     * @return Item
+     */
+    public static function getItemByInternalId($internal_id)
+    {
+        return self::whereFilterWithOutRelations()
+                    ->where('internal_id', $internal_id)
+                    ->select([
+                        'id', 
+                        'internal_id',
+                        'series_enabled',
+                        'lots_enabled'
+                    ])
+                    ->first();
+    }
+
+        
+    /**
+     * 
+     * Obtener lotes para gestionar compra/venta/movimiento
+     *
+     * @return array
+     */
+    public function getLotsGroupForCompromise()
+    {
+        return $this->lots_group->transform(function ($lots_group) {
+            return [
+                'id'          => $lots_group->id,
+                'code'        => $lots_group->code,
+                'quantity'    => $lots_group->quantity,
+                'date_of_due' => $lots_group->date_of_due,
+                'checked'     => false,
+                'compromise_quantity' => 0
+            ];
+        });
+    }
 
 }
 

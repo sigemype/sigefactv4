@@ -142,9 +142,10 @@
             $payment_conditions = GeneralPaymentCondition::get();
             $warehouses = Warehouse::get();
             $permissions = auth()->user()->getPermissionsPurchase();
+            $global_discount_types = ChargeDiscountType::whereIn('id', ['02', '03'])->whereActive()->get();
 
             return compact('suppliers', 'establishment', 'currency_types', 'discount_types', 'configuration', 'payment_conditions',
-                'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers', 'warehouses','permissions');
+                'charge_types', 'document_types_invoice', 'company', 'payment_method_types', 'payment_destinations', 'customers', 'warehouses','permissions', 'global_discount_types');
         }
 
         public function table($table)
@@ -385,7 +386,7 @@
                                 // factor de lista de precios
                                 $presentation_quantity = (isset($p_item->item->presentation->quantity_unit)) ? $p_item->item->presentation->quantity_unit : 1;
 
-                                ItemLotsGroup::create([
+                                $item_lots_group = ItemLotsGroup::create([
                                     'code' => $row['lot_code'],
                                     'quantity' => $row['quantity'] * $presentation_quantity,
                                     // 'quantity' => $row['quantity'],
@@ -393,6 +394,8 @@
                                     'item_id' => $row['item_id']
                                 ]);
 
+                                $p_item->item_lot_group_id = $item_lots_group->id;
+                                $p_item->update();
                             }
                         }
 
@@ -553,7 +556,14 @@
 
             file_put_contents($temp, $this->getStorage($purchase->filename, 'purchase'));
 
-            return response()->file($temp);
+            /*
+            $headers = [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$purchase->filename.'"'
+            ];
+            */
+
+            return response()->file($temp, $this->generalPdfResponseFileHeaders($purchase->filename));
         }
 
         private function reloadPDF($purchase, $format, $filename)
@@ -604,6 +614,7 @@
                     if (array_key_exists('item', $row)) {
                         if (isset($row['item']['lots_enabled']) && $row['item']['lots_enabled'] == true) {
 
+                            /*
                             // factor de lista de precios
                             $presentation_quantity = (isset($p_item->item->presentation->quantity_unit)) ? $p_item->item->presentation->quantity_unit : 1;
 
@@ -614,7 +625,9 @@
                                 'date_of_due' => $row['date_of_due'],
                                 'item_id' => $row['item_id']
                             ]);
+                            */
 
+                            $this->processUpdateItemLotsGroup($row, $p_item);
                         }
                     }
                 }
@@ -656,6 +669,71 @@
             ];
 
         }
+
+        
+        /**
+         * 
+         * Crear lote
+         *
+         * @param  string $lot_code
+         * @param  float $quantity
+         * @param  string $date_of_due
+         * @param  int $item_id
+         * @return ItemLotsGroup
+         */
+        private function createItemLotsGroup($lot_code, $quantity, $date_of_due, $item_id)
+        {
+            return ItemLotsGroup::create([
+                    'code' => $lot_code,
+                    'quantity' => $quantity,
+                    'date_of_due' => $date_of_due,
+                    'item_id' => $item_id
+                ]);
+        }
+
+        
+        /**
+         * 
+         * Proceso para actualizar lotes en la compra
+         *
+         * @param  array $row
+         * @param  PurchaseItem $purchase_item
+         * @return void
+         */
+        private function processUpdateItemLotsGroup($row, PurchaseItem $purchase_item)
+        {
+            $lot_code = $row['lot_code'] ?? null;
+            $date_of_due = $row['date_of_due'] ?? null;
+            
+            // factor de lista de precios
+            $presentation_quantity = (isset($purchase_item->item->presentation->quantity_unit)) ? $purchase_item->item->presentation->quantity_unit : 1;
+            $quantity = $row['quantity'] * $presentation_quantity;
+
+            if($lot_code && $date_of_due)
+            {
+                $item_lots_group = $this->createItemLotsGroup($lot_code, $quantity, $date_of_due, $row['item_id']); 
+                $purchase_item->item_lot_group_id = $item_lots_group->id;
+                $purchase_item->update();
+            }
+            else
+            {
+                $data_item_lot_group = $row['data_item_lot_group'] ?? null;
+                
+                if($data_item_lot_group)
+                {
+                    $new_date_of_due = $data_item_lot_group['date_of_due'];
+                    $new_lot_code = $data_item_lot_group['lot_code'];
+
+                    $item_lots_group = $this->createItemLotsGroup($new_lot_code, $quantity, $new_date_of_due, $row['item_id']); 
+
+                    $purchase_item->lot_code = $new_lot_code;
+                    $purchase_item->date_of_due = $new_date_of_due;
+                    $purchase_item->item_lot_group_id = $item_lots_group->id;
+                    $purchase_item->update();
+                }
+            }
+        }
+
 
         /**
          * @param Request $request
@@ -757,7 +835,7 @@
                 $obj->state_type_id = 11;
                 $obj->save();
 
-                foreach ($obj->items as $item) 
+                foreach ($obj->items as $item)
                 {
                     $item_warehouse_id = $item->warehouse_id ?? $obj->establishment->getCurrentWarehouseId();
 
@@ -767,10 +845,12 @@
                         'warehouse_id' => $item_warehouse_id,
                         'quantity' => -$item->quantity,
                     ]);
-                    
+
                     $wr = ItemWarehouse::where([['item_id', $item->item_id], ['warehouse_id', $item_warehouse_id]])->first();
                     $wr->stock = $wr->stock - $item->quantity;
                     $wr->save();
+
+                    self::voidedItemLotsGroup($item);
                 }
 
             });
@@ -780,6 +860,27 @@
                 'message' => 'Compra anulada con éxito'
             ];
         }
+
+        
+        /**
+         * 
+         * Anular lote ingresado por compra
+         *
+         * @param  PurchaseItem $purchase_item
+         * @return void
+         */
+        public static function voidedItemLotsGroup($purchase_item)
+        {
+            $lots_enabled = $purchase_item->item->lots_enabled ?? false;
+
+            if($lots_enabled && $purchase_item->lot_code && $purchase_item->item_lot_group_id)
+            {
+                $lot_group = self::findItemLotsGroup($purchase_item);
+                $lot_group->quantity = $lot_group->quantity - $purchase_item->quantity;
+                $lot_group->update();
+            }
+        }
+
 
         public static function verifyHasSaleItems($items)
         {
@@ -804,8 +905,14 @@
                     }
                 }
                 if ($lot_enabled) {
-                    if ($element->item->lots_enabled && $element->lot_code) {
+
+                    if ($element->item->lots_enabled && $element->lot_code) 
+                    {
+                        /*
                         $lot_group = ItemLotsGroup::where('code', $element->lot_code)->first();
+                        */
+
+                        $lot_group = self::findItemLotsGroup($element);
 
                         if (!$lot_group) {
                             $message = "Lote {$element->lot_code} no encontrado.";
@@ -829,6 +936,29 @@
 
 
         }
+
+        
+        /**
+         *
+         * buscar lote por id o codigo
+         * 
+         * @param  PurchaseItem $purchase_item
+         * @return ItemLotsGroup
+         */
+        public static function findItemLotsGroup($purchase_item)
+        {
+            if(!is_null($purchase_item->item_lot_group_id))
+            {
+                $lot_group = ItemLotsGroup::find($purchase_item->item_lot_group_id);
+            }
+            else
+            {
+                $lot_group = ItemLotsGroup::where('code', $purchase_item->lot_code)->first();
+            }
+
+            return $lot_group;
+        }
+
 
         public function searchItemById($id)
         {

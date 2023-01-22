@@ -39,6 +39,7 @@ use Modules\Inventory\Models\Warehouse;
 use App\CoreFacturalo\Requests\Inputs\Functions;
 use App\Models\Tenant\PurchaseSettlement;
 use App\CoreFacturalo\Services\Helpers\SendDocumentPse;
+use Modules\Finance\Traits\FilePaymentTrait;
 
 
 /**
@@ -48,7 +49,7 @@ use App\CoreFacturalo\Services\Helpers\SendDocumentPse;
  */
 class Facturalo
 {
-    use StorageDocument, FinanceTrait, KardexTrait;
+    use StorageDocument, FinanceTrait, KardexTrait, FilePaymentTrait;
 
     const REGISTERED = '01';
     const SENT = '03';
@@ -99,6 +100,16 @@ class Facturalo
         return $this->document;
     }
 
+    public function setXmlUnsigned($xmlUnsigned)
+    {
+        $this->xmlUnsigned = $xmlUnsigned;
+    }
+
+    public function getXmlSigned()
+    {
+        return $this->xmlSigned;
+    }
+
     public function setType($type)
     {
         $this->type = $type;
@@ -118,10 +129,10 @@ class Facturalo
             case 'debit':
             case 'credit':
                 $document = Document::create($inputs);
+                $document->note()->create($inputs['note']);
                 foreach ($inputs['items'] as $row) {
                     $document->items()->create($row);
                 }
-                $document->note()->create($inputs['note']);
                 if($this->type === 'credit') $this->saveFee($document, $inputs['fee']);
                 $this->document = Document::find($document->id);
                 break;
@@ -261,9 +272,11 @@ class Facturalo
 
     public function updateQr()
     {
-        $this->document->update([
-            'qr' => $this->getQr(),
-        ]);
+        if(config('tenant.save_qrcode')) {
+            $this->document->update([
+                'qr' => $this->getQr(),
+            ]);
+        }
     }
 
     public function updateState($state_type_id)
@@ -336,7 +349,13 @@ class Facturalo
         $format_pdf = ($format != null) ? $format : $format_pdf;
         $this->type = ($type != null) ? $type : $this->type;
 
-        // dd($this->document);
+        if(in_array($this->document->document_type_id, ['09', '31'])) {
+            if($this->document->qr_url) {
+                $qrCode = new QrCodeGenerate();
+                $this->document->qr = $qrCode->displayPNGBase64($this->document->qr_url);
+            }
+        }
+
         $base_pdf_template = Establishment::find($this->document->establishment_id)->template_pdf;
         if (($format_pdf === 'ticket') OR
             ($format_pdf === 'ticket_58') OR
@@ -363,10 +382,10 @@ class Facturalo
             $pdf_margin_left = 14;
         }
         if (substr($base_pdf_template, 0, 7) === 'facnova') {
-            $pdf_margin_top = 5;
-            $pdf_margin_right = 2;
+            $pdf_margin_top = 10;
+            $pdf_margin_right = 4;
             $pdf_margin_bottom = 5;
-            $pdf_margin_left = 5;
+            $pdf_margin_left = 15;
         }
 
         $html = $template->pdf($base_pdf_template, $this->type, $this->company, $this->document, $format_pdf);
@@ -429,14 +448,30 @@ class Facturalo
 
             //ajustes para footer amazonia
 
-            if($this->configuration->legend_footer AND $format_pdf === 'ticket') {
+            if($this->configuration->legend_footer
+                AND $format_pdf === 'ticket'
+                AND !in_array($base_pdf_template, ['ticket_c']))
+            {
                 $height_legend = 15;
-            } elseif($this->configuration->legend_footer AND $format_pdf === 'ticket_58') {
+            } elseif($this->configuration->legend_footer
+                AND $format_pdf === 'ticket_58'
+                AND !in_array($base_pdf_template, ['ticket_c']))
+            {
                 $height_legend = 30;
-            } elseif($this->configuration->legend_footer AND $format_pdf === 'ticket_50') {
+            } elseif($this->configuration->legend_footer
+                AND $format_pdf === 'ticket_50')
+            {
                 $height_legend = 10;
             } else {
                 $height_legend = 10;
+            }
+
+            $append_height = 0;
+
+            if($this->type === 'dispatch')
+            {
+                $append_height = 15;
+                $this->appendHeightFromDispatch($append_height, $format, $this->document);
             }
 
             $pdf = new Mpdf([
@@ -470,6 +505,7 @@ class Facturalo
                     $extra_by_item_additional_information+
                     $height_legend+
                     $document_transport+
+                    $append_height+
                     $document_retention
                 ],
                 'margin_top' => 0,
@@ -598,21 +634,24 @@ class Facturalo
 
         // if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
             // dd($base_pdf_template);// = config(['tenant.pdf_template'=> $configuration]);
-            if(config('tenant.pdf_template_footer')) {
-                $html_footer = '';
-                if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
-                    $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
-                    $html_footer_legend = "";
-                }
-                // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
-                // se quiere visuzalizar ahora la legenda amazona en todos los formatos
-                $html_footer_legend = '';
-                if($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03'])){
-                    $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
-                }
-
-                $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
+        if(config('tenant.pdf_template_footer')) {
+            $html_footer = '';
+            if (($format_pdf != 'ticket') AND ($format_pdf != 'ticket_58') AND ($format_pdf != 'ticket_50')) {
+                $html_footer = $template->pdfFooter($base_pdf_template, in_array($this->document->document_type_id, ['09']) ? null : $this->document);
+                $html_footer_legend = "";
             }
+            // dd($this->configuration->legend_footer && in_array($this->document->document_type_id, ['01', '03']));
+            // se quiere visuzalizar ahora la legenda amazona en todos los formatos
+            $html_footer_legend = '';
+            if($this->configuration->legend_footer
+                && in_array($this->document->document_type_id, ['01', '03'])
+                && !in_array($base_pdf_template, ['ticket_c'])
+            ){
+                $html_footer_legend = $template->pdfFooterLegend($base_pdf_template, $document);
+            }
+
+            $pdf->SetHTMLFooter($html_footer.$html_footer_legend);
+        }
 //            $html_footer = $template->pdfFooter();
 //            $pdf->SetHTMLFooter($html_footer);
         // }
@@ -669,12 +708,74 @@ class Facturalo
         else {
             $pdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
             $pdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
+
+            $helper_facturalo = new HelperFacturalo();
+
+            if($helper_facturalo->isAllowedAddDispatchTicket($format_pdf, $this->type, $this->document))
+            {
+                $helper_facturalo->addDocumentDispatchTicket($pdf, $this->company, $this->document, [
+                    $template,
+                    $base_pdf_template,
+                    $width,
+                    ($quantity_rows * 8) + $extra_by_item_description
+                ]);
+            }
         }
 
         // echo $html_header.$html.$html_footer; exit();
         $this->uploadFile($pdf->output('', 'S'), 'pdf');
         return $this;
     }
+
+
+
+    /**
+     *
+     * Agregar altura para ticket de guia
+     *
+     * @param  float $append_height
+     * @param  $document
+     * @return void
+     */
+    private function appendHeightFromDispatch(&$append_height, $format, $document)
+    {
+        $base_height = 0;
+        $observations = 0;
+        $data_affected_document = 0;
+        $transfer_reason_type = 0;
+        $transport_mode_type = 0;
+        $driver = 0;
+        $license_plate = 0;
+        $secondary_license_plates = 0;
+
+        if($format == 'ticket_58')
+        {
+            $base_height = 80;
+            if($document->data_affected_document) $data_affected_document = 25;
+        }
+        else
+        {
+            $base_height = 50;
+            if($document->data_affected_document) $data_affected_document = 20;
+        }
+
+        if($document->observations) $observations = 30;
+        if($document->transfer_reason_type) $transfer_reason_type = 6;
+        if($document->transport_mode_type) $transport_mode_type = 6;
+        if($document->license_plate) $license_plate = 5;
+        if($document->secondary_license_plates) $secondary_license_plates = 5;
+
+        if($document->driver)
+        {
+            if($document->driver->number)  $driver += 5;
+            if($document->driver->license)  $driver += 5;
+        }
+
+        $append_height += $base_height + $observations + $data_affected_document + $transfer_reason_type + $transport_mode_type + $driver
+                            + $license_plate + $secondary_license_plates;
+
+    }
+
 
     public function loadXmlSigned()
     {
@@ -792,7 +893,7 @@ class Facturalo
             $this->updateRegularizeShipping($code, $message);
             return;
         }
-
+        //dd($message);
         // if($code === 'ERROR_CDR') {
         //     return;
         // }
@@ -1111,8 +1212,8 @@ class Facturalo
 
     }
 
-    private function savePayments($document, $payments){
-
+    private function savePayments($document, $payments)
+    {
         $total = $document->total;
         $balance = $total - collect($payments)->sum('payment');
 
@@ -1158,6 +1259,9 @@ class Facturalo
 
             $record = $document->payments()->create($row);
 
+            // para carga de voucher
+            $this->saveFilesFromPayments($row, $record, 'documents');
+
             //considerar la creacion de una caja chica cuando recien se crea el cliente
             if(isset($row['payment_destination_id'])){
                 $this->createGlobalPayment($record, $row);
@@ -1194,7 +1298,7 @@ class Facturalo
                 $document->payments()->delete();
                 $this->savePayments($document, $inputs['payments']);
 
-                $document->fees()->delete();
+                $document->fee()->delete();
                 $this->saveFee($document, $inputs['fee']);
 
                 $warehouse = Warehouse::where('establishment_id', auth()->user()->establishment_id)->first();
@@ -1280,7 +1384,7 @@ class Facturalo
     private function saveFee($document, $fee)
     {
         foreach ($fee as $row) {
-            $document->fees()->create($row);
+            $document->fee()->create($row);
         }
     }
 }

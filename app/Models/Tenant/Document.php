@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\CoreFacturalo\Helpers\QrCode\QrCodeGenerate;
 use App\Http\Controllers\Tenant\DownloadController;
 use App\Models\Tenant\Catalogs\CurrencyType;
 use App\Models\Tenant\Catalogs\DocumentType;
@@ -143,6 +144,11 @@ class Document extends ModelTenant
 
     public const DOCUMENT_TYPE_TICKET = '03';
 
+    public const GROUP_INVOICE = '01';
+
+    public const GROUP_TICKET = '02';
+
+
     protected $with = [
         'user',
         'soap_type',
@@ -154,7 +160,7 @@ class Document extends ModelTenant
         'invoice',
         'note',
         'payments',
-        'fees'
+        'fee'
     ];
     protected $fillable = [
         'user_id',
@@ -261,6 +267,8 @@ class Document extends ModelTenant
         'point_system_data',
         'folio',
         'agent_id',
+        'force_send_by_summary',
+        'dispatch_ticket_pdf',
     ];
 
     protected $casts = [
@@ -270,8 +278,11 @@ class Document extends ModelTenant
         'enabled_concurrency' => 'bool',
         'apply_concurrency' => 'bool',
         'send_to_pse' => 'bool',
+        'total' => 'float',
         'ticket_single_shipment' => 'bool',
         'point_system' => 'bool',
+        'force_send_by_summary' => 'bool',
+        'dispatch_ticket_pdf' => 'bool',
     ];
 
     public static function boot()
@@ -596,7 +607,7 @@ class Document extends ModelTenant
     /**
      * @return HasMany
      */
-    public function fees()
+    public function fee()
     {
         return $this->hasMany(DocumentFee::class);
     }
@@ -1227,7 +1238,7 @@ class Document extends ModelTenant
             'invoice',
             'note',
             'payments',
-            'fees'
+            'fee'
         ]);
     }
 
@@ -1432,6 +1443,94 @@ class Document extends ModelTenant
 
     /**
      *
+     * Validar si se modifico la boleta enviada de forma individual, a resumen
+     *
+     * @return bool
+     */
+    public function isForceSendBySummary()
+    {
+        return $this->isDocumentTypeTicket() && $this->force_send_by_summary;
+    }
+
+
+    /**
+     *
+     * Validar si se puede modificar el tipo de envio de la boleta, individual a resumen
+     *
+     * @return bool
+     */
+    public function isAvailableForceSendBySummary()
+    {
+        return $this->isSingleDocumentShipment() && !$this->force_send_by_summary && $this->state_type_id === self::STATE_TYPE_REGISTERED && auth()->user()->permission_force_send_by_summary;
+    }
+
+
+    /**
+     *
+     * Verificar si es boleta
+     *
+     * @return bool
+     */
+    public function isDocumentTypeTicket()
+    {
+        return $this->document_type_id === self::DOCUMENT_TYPE_TICKET;
+    }
+
+
+    /**
+     *
+     * Determina si se muestra el boton consultar cdr
+     *
+     * @return bool
+     */
+    public function isAvailableConsultCdr()
+    {
+        $action = false;
+
+        if ($this->state_type_id === self::STATE_TYPE_REGISTERED && $this->soap_type_id === self::SOAP_TYPE_PRODUCTION)
+        {
+            if($this->group_id === self::GROUP_INVOICE)
+            {
+                $action = true;
+            }
+            else
+            {
+                if($this->isSingleDocumentShipment()) $action = true;
+            }
+        }
+
+        return $action;
+    }
+
+
+    /**
+     *
+     * Determina si se muestra el boton para reenvio
+     *
+     * @return bool
+     */
+    public function isAvailableResend()
+    {
+        $action = false;
+
+        if ($this->state_type_id === self::STATE_TYPE_REGISTERED)
+        {
+            if($this->group_id === self::GROUP_INVOICE)
+            {
+                $action = true;
+            }
+            else
+            {
+                if($this->isSingleDocumentShipment()) $action = true;
+            }
+        }
+
+        return $action;
+    }
+
+
+    /**
+     *
      * Filtrar registros para listado de documentos - app
      *
      * @param Builder $query
@@ -1549,6 +1648,179 @@ class Document extends ModelTenant
         }
 
         return $calculate_quantity_points;
+    }
+
+    public function getQrAttribute($value)
+    {
+        if(!is_null($value)) {
+            return $value;
+        }
+        $company = Company::query()->first();
+        $customer = $this->customer;
+        $text = join('|', [
+            $company->number,
+            $this->document_type_id,
+            $this->series,
+            $this->number,
+            $this->total_igv,
+            $this->total,
+            $this->date_of_issue->format('Y-m-d'),
+            $customer->identity_document_type_id,
+            $customer->number,
+            $this->hash
+        ]);
+
+        $qrCode = new QrCodeGenerate();
+        return $qrCode->displayPNGBase64($text);
+    }
+
+                
+    /**
+     *
+     * @param  string $format
+     * @return string
+     */
+    public function getUrlPrintByFormat($format)
+    {
+        return url("print/document/{$this->external_id}/{$format}");
+    }
+
+    
+    /**
+     *
+     * Filtrar registro para envio de mensajes por whatsapp
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public static function scopeFilterDataForSendMessage($query)
+    {
+        return $query->whereFilterWithOutRelations()
+                    ->select([
+                        'id',
+                        'external_id',
+                        'series',
+                        'number',
+                        'filename'
+                    ]);
+    }
+
+    
+    /**
+     * 
+     * Placa para reporte de ventas
+     *
+     * @return string
+     */
+    public function getPlateNumberSaleReport()
+    {
+        return $this->plate_number;
+    }
+    
+
+    /**
+     *
+     * @return bool
+     */
+    public function isCreditNote()
+    {
+        return $this->document_type_id === DocumentType::CREDIT_NOTE_ID;
+    }
+
+
+    /**
+     * 
+     * Determina si es nota credito tipo 13
+     *
+     * @return bool
+     */
+    public function isCreditNoteAndType13()
+    {
+        if($this->isCreditNote())
+        {
+            if($this->note)
+            {
+                return $this->note->isTypePaymentDateAdjustments();
+            }
+        }
+
+        return false;
+    }
+
+        
+    /**
+     * 
+     * Tipo de transaccion para caja
+     *
+     * @return string
+     */
+    public function getTransactionTypeCash()
+    {
+        return 'income';
+    }
+
+
+    /**
+     * 
+     * Tipo de documento para caja
+     *
+     * @return string
+     */
+    public function getDocumentTypeCash()
+    {
+        return $this->getTable();
+    }
+
+    
+    /**
+     * 
+     * Datos para resumen diario de operaciones
+     *
+     * @return array
+     */
+    public function applySummaryDailyOperations()
+    {
+        return [
+            'transaction_type' => $this->getTransactionTypeCash(),
+            'document_type' => $this->getDocumentTypeCash(),
+            'apply' => $this->hasAcceptedState(),
+        ];
+    }
+
+
+    /**
+     *
+     * Obtener total de pagos en efectivo sin considerar destino
+     *
+     * @return float
+     */
+    public function totalCashPaymentsWithoutDestination()
+    {
+        return $this->payments()->filterCashPaymentWithoutDestination()->sum('payment');
+    }
+
+    
+    /**
+     *
+     * Obtener total de pagos en transferencia
+     *
+     * @return float
+     */
+    public function totalTransferPayments()
+    {
+        return $this->payments()->filterTransferPayment()->sum('payment');
+    }
+    
+
+    /**
+     * 
+     * Validar si tiene estado permitido para calculos/etc
+     *
+     * @return bool
+     */
+    public function hasAcceptedState()
+    {
+        return in_array($this->state_type_id, self::STATE_TYPES_ACCEPTED, true);
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\CoreFacturalo;
 use Illuminate\Support\Facades\Log;
+
 class Template
 {
     public function pdf($base_template, $template, $company, $document, $format_pdf)
@@ -117,6 +118,59 @@ class Template
         view()->addLocation(__DIR__.'/Templates');
 
         return view('pdf.'.$base_template.'.partials.footer_dispatch', compact('document'))->render();
+    }
+
+
+    /**
+     *
+     * Renderizar pdf por nombre sin considerar formato
+     *
+     * @param  string $base_template
+     * @param  string $template
+     * @param  mixed $company
+     * @param  mixed $document
+     * @return mixed
+     */
+    public function pdfWithoutFormat($base_template, $template, $company, $document)
+    {
+        $path_template =  $this->validateTemplateWithoutFormat($base_template, $template);
+        return self::render($path_template, $company, $document);
+    }
+
+
+    /**
+     *
+     * Validar si existe el template
+     *
+     * @param  string $base_template
+     * @param  string $template
+     * @return string
+     */
+    public function validateTemplateWithoutFormat($base_template, $template)
+    {
+        $path_app_template = app_path('CoreFacturalo'.DIRECTORY_SEPARATOR.'Templates');
+        $path_template_default = 'pdf'.DIRECTORY_SEPARATOR.'default'.DIRECTORY_SEPARATOR.$template;
+        $path_template = 'pdf'.DIRECTORY_SEPARATOR.$base_template.DIRECTORY_SEPARATOR.$template;
+
+        if(file_exists($path_app_template.DIRECTORY_SEPARATOR.$path_template.'.blade.php')) return str_replace(DIRECTORY_SEPARATOR, '.', $path_template);
+
+        return str_replace(DIRECTORY_SEPARATOR, '.', $path_template_default);
+    }
+
+        
+    /**
+     * Imagenes en footer pdf
+     * 
+     * Disponible para cotizacion a4, en template default/default3
+     *
+     * @param  string $base_template
+     * @return string
+     */
+    public function pdfFooterImages($base_template, $images)
+    {
+        view()->addLocation(__DIR__.'/Templates');
+
+        return view('pdf.'.$base_template.'.partials.footer_images', compact('images'))->render();
     }
 
 }

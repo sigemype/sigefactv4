@@ -8,6 +8,7 @@ use App\Models\System\Configuration;
 use Illuminate\Support\Facades\DB;
 use App\Models\System\Client;
 use Hyn\Tenancy\Environment;
+use Modules\Finance\Helpers\UploadFileHelper;
 
 
 class ConfigurationController extends Controller
@@ -109,7 +110,7 @@ class ConfigurationController extends Controller
     public function storeBgLogin()
     {
         request()->validate([
-            'image' => 'required|mimes:webp,jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         $config = Configuration::first();
@@ -118,6 +119,9 @@ class ConfigurationController extends Controller
             $ext = $file->getClientOriginalExtension();
             $name = time() . '.' . $ext;
             $path = 'public/uploads/login';
+
+            UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
+
             $file->storeAs($path, $name);
 
             $loginConfig = $config->login;
@@ -235,5 +239,22 @@ class ConfigurationController extends Controller
         ];
     }
 
+    
+    /**
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function storeOtherConfiguration(Request $request)
+    {
+        $record = Configuration::first();
+        $record->regex_password_client = $request->regex_password_client;
+        $record->save();
+
+        return [
+            'success' => true,
+            'message' => 'Configuración actualizada',
+        ];
+    }
 
 }

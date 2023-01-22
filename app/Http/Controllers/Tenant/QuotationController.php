@@ -144,6 +144,9 @@ class QuotationController extends Controller
             $records = $records->whereBetween('date_of_issue', [$form->date_start, $form->date_end]);
         }
 
+        $state_type_id = $form->state_type_id ?? null;
+        if($state_type_id) $records->where('state_type_id', $state_type_id);
+
         return $records;
     }
 
@@ -575,7 +578,14 @@ class QuotationController extends Controller
 
         file_put_contents($temp, $this->getStorage($quotation->filename, 'quotation'));
 
-        return response()->file($temp);
+        /*
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$quotation->filename.'"'
+        ];
+        */
+
+        return response()->file($temp, $this->generalPdfResponseFileHeaders($quotation->filename));
     }
 
     private function reloadPDF($quotation, $format, $filename)
@@ -793,9 +803,14 @@ class QuotationController extends Controller
                     $html_footer_legend = $template->pdfFooterLegend($base_template, $this->quotation);
                 }
 
+                $html_footer_images = "";
+                $this->setPdfFooterImages($html_footer_images, $configuration, $format_pdf, $template, $base_template);
+
                 $pdf->setAutoBottomMargin = 'stretch';
 
-                $pdf->SetHTMLFooter($html_footer_term_condition . $html_footer . $html_footer_legend);
+                $pdf->SetHTMLFooter($html_footer_term_condition . $html_footer_images . $html_footer . $html_footer_legend);
+                // $pdf->SetHTMLFooter($html_footer_term_condition . $html_footer . $html_footer_legend);
+                
             }
             //$html_footer = $template->pdfFooter();
             //$pdf->SetHTMLFooter($html_footer);
@@ -806,6 +821,26 @@ class QuotationController extends Controller
         $this->uploadFile($filename, $pdf->output('', 'S'), 'quotation');
     }
 
+    
+    /**
+     * Asignar imagenes en footer
+     *
+     * @param  string $html_footer_images
+     * @param  Configuration $configuration
+     * @param  string $format_pdf
+     * @param  Template $template
+     * @param  string $base_template
+     * @return void
+     */
+    public function setPdfFooterImages(&$html_footer_images, $configuration, $format_pdf, $template, $base_template)
+    {
+        if($format_pdf === 'a4' && $configuration->applyImagesInPdfFooter() && in_array($base_template, ['default', 'default3']))
+        {
+            $html_footer_images = $template->pdfFooterImages($base_template, $configuration->getBase64PdfFooterImages());
+        }
+    }
+
+
     public function uploadFile($filename, $file_content, $file_type)
     {
         $this->uploadStorage($filename, $file_content, $file_type);
@@ -813,6 +848,9 @@ class QuotationController extends Controller
 
     public function email(Request $request)
     {
+        $request->validate([
+            'customer_email' => 'required|email'
+        ]);
 
         $client = Person::find($request->customer_id);
         $quotation = Quotation::find($request->id);

@@ -326,6 +326,9 @@ class ItemController extends Controller
             $file_content = file_get_contents($temp_path);
             $datenow = date('YmdHis');
             $file_name = Str::slug($item->description).'-'.$datenow.'.'.$file_name_old_array[1];
+
+            UploadFileHelper::checkIfValidFile($file_name, $temp_path, true);
+
             Storage::put($directory.$file_name, $file_content);
             $item->image = $file_name;
 
@@ -578,6 +581,8 @@ class ItemController extends Controller
         foreach ($multi_images as $im) {
 
             $file_name = $im['filename'];
+            UploadFileHelper::checkIfValidFile($file_name, $im['temp_path'], true);
+
             $file_content = file_get_contents($im['temp_path']);
             Storage::put($directory.$file_name, $file_content);
 

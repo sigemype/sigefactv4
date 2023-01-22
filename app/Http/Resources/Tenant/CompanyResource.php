@@ -53,6 +53,10 @@ class CompanyResource extends JsonResource
             'client_id_pse' => $this->client_id_pse,
             'app_logo' => $this->app_logo,
 
+            'soap_sunat_username' => $this->soap_sunat_username,
+            'soap_sunat_password' => $this->soap_sunat_password,
+            'api_sunat_id' => $this->api_sunat_id,
+            'api_sunat_secret' => $this->api_sunat_secret,
         ];
     }
 }

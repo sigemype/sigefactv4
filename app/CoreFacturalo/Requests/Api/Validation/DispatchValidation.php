@@ -41,7 +41,8 @@ class DispatchValidation
 
             $items[] = [
                 'item_id' => $id,
-                'quantity' => $row['quantity']
+                'quantity' => $row['quantity'],
+                'additional_data' => $row['additional_data']
             ];
         }
 

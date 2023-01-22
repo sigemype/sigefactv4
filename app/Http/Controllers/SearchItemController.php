@@ -252,12 +252,16 @@
 
             $input = self::setInputByRequest($request);
 
+            $search_factory_code_items = $request->has('search_factory_code_items') && (bool) $request->search_factory_code_items;
+
             if (!empty($input)) {
 
                 $whereItem[] = ['description', 'like', '%' . str_replace(' ','%',$input) . '%'];
                 $whereItem[] = ['internal_id', 'like', '%' . $input . '%'];
                 $whereItem[] = ['barcode', '=', $input];
                 $whereExtra[] = ['name', 'like', '%' .  str_replace(' ','%',$input) . '%'];
+
+                if($search_factory_code_items) $whereItem[] = ['factory_code', 'like', '%' . $input . '%'];
 
                 foreach ($whereItem as $index => $wItem) {
                     if ($index < 1) {
@@ -867,6 +871,7 @@
                         ];
                     }),
                     'series_enabled' => (bool)$row->series_enabled,
+                    'lots_enabled' => (bool)$row->lots_enabled,
                 ];
             });
         }
@@ -1005,6 +1010,9 @@
             return $items->transform(function ($row) use ($warehouse_id, $warehouse) {
                 /** @var Item $row */
                 $temp = array_merge($row->getCollectionData(), $row->getDataToItemModal());
+
+                if(isset($temp['name_product_pdf'])) $temp['name_product_pdf'] = null;
+
                 $full_description = ($row->internal_id) ? $row->internal_id . ' - ' . $row->description : $row->description;
                 $data = [
                     'id' => $row->id,

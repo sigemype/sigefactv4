@@ -9,10 +9,14 @@ use App\Models\Tenant\User;
 use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Person;
+use App\Models\Tenant\PaymentMethodType;
+use Modules\Finance\Traits\FinanceTrait;
 
 class CompanyController extends Controller
 {
    
+    use FinanceTrait;
+
     public function record(Request $request) {
 
         $user = new User();
@@ -41,12 +45,16 @@ class CompanyController extends Controller
                                     ];
 
                                 });
+        $payment_method_types = PaymentMethodType::all();
+        $payment_destinations = $this->getPaymentDestinations();
 
         return [
             'series' => $series,
             'establishments' => $establishments,
             'company' =>  Company::active(),
             'customers' => $customers,
+            'payment_method_types' => $payment_method_types,
+            'payment_destinations' => $payment_destinations
         ];
 
     }
