@@ -44,4 +44,8 @@ return [
     'igv_31556_end' => env('IGV_31556_END', '2024-12-31'),
     'igv_31556_percentage' => env('IGV_31556_PERCENTAGE', 0.10),
 
+    'save_qrcode' => env('SAVE_QRCODE', true),
+
+    'socket_server' => env('SOCKET_SERVER', 'http://localhost:8070'),
+
 ];
