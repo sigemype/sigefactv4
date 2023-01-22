@@ -20,7 +20,7 @@ if ($hostname) {
         Route::get('/exchange_rate/ecommence/{date}', 'Tenant\Api\ServiceController@exchangeRateTest');
 
         Route::get('sale-notes/print/{external_id}/{format?}', 'Tenant\SaleNoteController@toPrint');
-        Route::get('sale-notes/ticket/{external_id}/{format?}', 'Tenant\SaleNoteController@toTicket');
+        Route::get('sale-notes/ticket/{id}/{format?}', 'Tenant\SaleNoteController@toTicket');
         Route::get('purchases/print/{external_id}/{format?}', 'Tenant\PurchaseController@toPrint');
 
         Route::get('quotations/print/{external_id}/{format?}', 'Tenant\QuotationController@toPrint');
@@ -81,6 +81,11 @@ if ($hostname) {
             Route::post('companies/store-send-pse', 'Tenant\CompanyController@storeSendPse');
             Route::get('companies/record-send-pse', 'Tenant\CompanyController@recordSendPse');
 
+            //configuracion WhatsApp Api
+            Route::post('companies/store-whatsapp-api', 'Tenant\CompanyController@storeWhatsAppApi');
+            Route::get('companies/record-whatsapp-api', 'Tenant\CompanyController@recordWhatsAppApi');
+
+
             //Card Brands
             Route::get('card_brands/records', 'Tenant\CardBrandController@records');
             Route::get('card_brands/record/{card_brand}', 'Tenant\CardBrandController@record');
@@ -120,6 +125,9 @@ if ($hostname) {
             Route::get('configurations/templates/ticket/records', 'Tenant\ConfigurationController@getTicketFormats');
             Route::post('configurations/templates/ticket/update', 'Tenant\ConfigurationController@changeTicketFormat');
             Route::get('configurations/apiruc', 'Tenant\ConfigurationController@apiruc');
+
+            Route::post('configurations/pdf-footer-images', 'Tenant\ConfigurationController@pdfFooterImages');
+            Route::get('configurations/get-pdf-footer-images', 'Tenant\ConfigurationController@getPdfFooterImages');
 
             //Certificates
             Route::get('certificates/record', 'Tenant\CertificateController@record');
@@ -298,6 +306,9 @@ if ($hostname) {
             Route::delete('documents/delete_document/{document_id}', 'Tenant\DocumentController@destroyDocument');
 
             Route::get('documents/data-table/items', 'Tenant\DocumentController@getDataTableItem');
+            Route::get('documents/retention/{document}', 'Tenant\DocumentController@retention');
+            Route::post('documents/retention', 'Tenant\DocumentController@retentionStore');
+            Route::post('documents/retention/upload', 'Tenant\DocumentController@retentionUpload');
 
             //Contingencies
             Route::get('contingencies', 'Tenant\ContingencyController@index')->name('tenant.contingencies.index')->middleware('redirect.level', 'tenant.internal.mode');
@@ -381,6 +392,8 @@ if ($hostname) {
                 Route::get('/data_table', 'Tenant\DispatchController@data_table');
                 Route::get('/search/customers', 'Tenant\DispatchController@searchCustomers');
                 Route::get('/search/customer/{id}', 'Tenant\DispatchController@searchClientById');
+                Route::post('/status_ticket', 'Tenant\Api\DispatchController@statusTicket');
+                Route::get('create_new/{table}/{id}', 'Tenant\DispatchController@createNew');
             });
 
             Route::get('customers/list', 'Tenant\PersonController@clientsForGenerateCPE');
@@ -575,6 +588,8 @@ if ($hostname) {
             Route::post('sale-notes/items-by-ids', 'Tenant\SaleNoteController@getItemsByIds');
             Route::post('sale-notes/delete-relation-invoice', 'Tenant\SaleNoteController@deleteRelationInvoice');
 
+            // Route::get('sale-notes/record-generate-document/{salenote}', 'Tenant\SaleNoteController@recordGenerateDocument');
+
             //POS
             Route::get('pos', 'Tenant\PosController@index')->name('tenant.pos.index');
             Route::get('pos_full', 'Tenant\PosController@index_full')->name('tenant.pos_full.index');
@@ -685,11 +700,19 @@ if ($hostname) {
             Route::get('purchase-settlements/columns', 'Tenant\PurchaseSettlementController@columns');
             Route::get('purchase-settlements/records', 'Tenant\PurchaseSettlementController@records');
 
+            Route::get('purchase-settlements/create/{order_id?}', 'Tenant\PurchaseSettlementController@create')->name('tenant.purchase-settlements.create');
+
+Route::post('purchase-settlements', 'Tenant\PurchaseSettlementController@store');
+            Route::get('purchase-settlements/tables', 'Tenant\PurchaseSettlementController@tables');
+            Route::get('purchase-settlements/table/{table}', 'Tenant\PurchaseSettlementController@table');
+            Route::get('purchase-settlements/record/{document}', 'Tenant\PurchaseSettlementController@record');
+
             //Almacen de columnas por usuario
             Route::post('validate_columns','Tenant\SettingController@getColumnsToDatatable');
 
             Route::post('general-upload-temp-image', 'Controller@generalUploadTempImage');
 
+            Route::get('general-get-current-warehouse', 'Controller@generalGetCurrentWarehouse');
 
             // test theme
             // Route::get('testtheme', function () {
@@ -777,6 +800,7 @@ if ($hostname) {
             Route::get('configurations', 'System\ConfigurationController@index')->name('system.configuration.index');
             Route::post('configurations/login', 'System\ConfigurationController@storeLoginSettings');
             Route::post('configurations/bg', 'System\ConfigurationController@storeBgLogin');
+            Route::post('configurations/other-configuration', 'System\ConfigurationController@storeOtherConfiguration');
 
             Route::get('companies/record', 'System\CompanyController@record');
             Route::post('companies', 'System\CompanyController@store');
@@ -836,6 +860,8 @@ if ($hostname) {
                 }
             });
             */
+
+
 
         });
     });

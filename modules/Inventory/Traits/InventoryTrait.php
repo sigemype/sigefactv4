@@ -8,6 +8,8 @@ use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Item;
 use App\Models\Tenant\Purchase;
 use App\Models\Tenant\PurchaseItem;
+use App\Models\Tenant\PurchaseSettlement;
+use App\Models\Tenant\PurchaseSettlementItem;
 use App\Models\Tenant\SaleNote;
 use App\Models\Tenant\SaleNoteItem;
 use Exception;
@@ -21,6 +23,8 @@ use Modules\Item\Models\ItemLot;
 use Modules\Item\Models\ItemLotsGroup;
 use Modules\Order\Models\OrderNote;
 use App\Models\Tenant\ItemSupply;
+use App\Http\Controllers\Tenant\PurchaseController;
+
 
 /**
  * Se debe tener en cuenta este trait para llevar el control de Kardex
@@ -628,9 +632,16 @@ trait InventoryTrait
             throw new Exception("El producto {$purchase_item->item->description} contiene series vendidas!");
         }
     }
+
+
     /**
+     * 
      * Verifica si el producto ha tenido lotes en venta
      *
+     * Usado en:
+     * InventoryKardexServiceProvider - purchase_item_delete
+     * InventoryKardexServiceProvider - purchase_item_settlement_delete
+     * 
      * @param PurchaseItem $purchase_item
      *
      * @throws Exception
@@ -650,10 +661,16 @@ trait InventoryTrait
         if($lot_enabled) {
         // if(array_key_exists('lots_enabled', $purchase_item->item)) {
             if ($purchase_item->item->lots_enabled && $purchase_item->lot_code) {
+                /*
                 $lot_group = ItemLotsGroup::where('code', $purchase_item->lot_code)->first();
+                */
+
+                $lot_group = PurchaseController::findItemLotsGroup($purchase_item);
+
                 if (!$lot_group) {
                     throw new Exception("El lote {$purchase_item->lot_code} no existe!");
                 }
+
 
                 // factor de lista de precios
                 $presentation_quantity = (isset($purchase_item->item->presentation->quantity_unit)) ? $purchase_item->item->presentation->quantity_unit : 1;
@@ -664,11 +681,16 @@ trait InventoryTrait
             }
         }
     }
+
+
     /**
      * Borra las series y grupos en la compra para un item
      *
+     * Usado en:
+     * InventoryKardexServiceProvider - purchase_item_delete
+     * InventoryKardexServiceProvider - purchase_item_settlement_delete
+     * 
      * @param PurchaseItem $purchase_item
-     *
      * @throws Exception
      */
     public static function deleteItemSeriesAndGroup($purchase_item)
@@ -691,10 +713,17 @@ trait InventoryTrait
         if($lot_enabled) {
         //if(array_key_exists('lots_enabled', $purchase_item->item)) {
             if ($purchase_item->item->lots_enabled && $purchase_item->lot_code) {
+                
+                /*
                 $lot_group = ItemLotsGroup::where('code', $purchase_item->lot_code)->firstOrFail();
+                */
+
+                $lot_group = PurchaseController::findItemLotsGroup($purchase_item);
+
                 if (!$lot_group) {
                     throw new Exception("El lote {$purchase_item->lot_code} no existe!");
                 }
+
                 $lot_group->delete();
             }
         }
@@ -787,6 +816,17 @@ trait InventoryTrait
         {
             $item->delete();
         }
+    }
+
+    
+    /**
+     *
+     * @param  int $id
+     * @return ItemLotsGroup
+     */
+    public function getItemLotsGroupById($id)
+    {
+        return ItemLotsGroup::find($id);
     }
 
 }

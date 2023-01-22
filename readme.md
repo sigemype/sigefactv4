@@ -41,7 +41,7 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 
 [YouTube Tutorial 1 ](https://youtu.be/a-tH1iYFuYM "Clic")[- YouTube Tutorial 2](https://youtu.be/8oAD2NJdNl8 "Clic")<br>
 [YouTube Dar de alta en Sunat](https://youtu.be/tic_c2SVKdM "Clic")<br>
-[Manual de usuario](https://drive.google.com/file/d/1MRYuJczgGjVsrKMGDjnWlELmVeQ8NZt6/view?usp=sharing "Clic")<br>
+[Manual de usuario](https://docs.google.com/document/d/1-sDf0esGnk9zYNFK6_2_RO5RugKxlp3N/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 [Manual de Tareas Programadas](https://drive.google.com/file/d/1Z35qKjdoY5lMyXhtcUu6D3fjRAw0Je3U/view?usp=sharing "Clic")<br>
 [Manual de Cambio de Entorno](https://drive.google.com/file/d/1gmWB3LXZ2XP57tJWQSuhEjXlHcTPA03V/view?usp=sharing "Clic")<br>
 [Manual de Pruebas](https://drive.google.com/file/d/1qBwn8oebHXMFIW9_ZNg9mMMbnslE5TFD/view?usp=sharing "Clic")
@@ -51,7 +51,8 @@ Linux - Ubuntu 18 - Docker - SSL opcional<br>
 [Documentación API REST PRO4](https://docs.google.com/document/d/1e3-tMzQfG1sKQDl1zFlWicpvHVy7LwGP/edit?usp=sharing&ouid=115578596704941457505&rtpof=true&sd=true "Clic")<br>
 [Descargar colección para Postman](https://drive.google.com/file/d/1eTAJseghS4NW-lc2UnZnxZhfG-eMycCl/view?usp=sharing "Clic")<br>
 [Documentación - json con respuestas](https://drive.google.com/file/d/14G4RcT9yTz83WdrBTO0dmGPjwWGMDdCe/view?usp=sharing "Clic")<br>
-[Documentación - Ejemplos para Lenguajes](https://documenter.getpostman.com/view/1431398/TzJx8bqc#f910e6f8-6a3f-41cf-8a5f-ec1e1f842637 "Clic")<br>
+[Postman Facturador - Ejemplos para Lenguajes](https://documenter.getpostman.com/view/13401528/2s8YehSFx1 "Clic")<br>
+[Postman Apiperu - Ejemplos para Lenguajes](https://documenter.getpostman.com/view/13401528/2s8YehSFoC "Clic")<br>
 
 ## Manuales adicionales
 

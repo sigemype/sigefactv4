@@ -567,6 +567,7 @@ import ItemSetFormItem from './partials/item.vue'
                             this.errors = error.response.data
                         } else {
                             console.log(error)
+                            this.$message.error(error.response.data.message)
                         }
                     })
                     .then(() => {

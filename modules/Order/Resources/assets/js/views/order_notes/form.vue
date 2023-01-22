@@ -146,6 +146,60 @@
                                            v-text="errors.observation[0]"></small>
                                 </div>
                             </div>
+
+                            
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="control-label">Datos adicionales</label>
+                                </div>
+                                
+                                <table class="table table-responsive table-bordered">
+                                    <thead>
+                                        <tr width="100%">
+                                            <template v-if="form.additional_data.length > 0">
+                                                <th class="pb-2" width="40%">Título</th>
+                                                <th class="pb-2" width="40%">Descripción</th>
+                                            </template>
+                                            <th :width="form.additional_data.length > 0 ? '20%':'5%'"><a href="#" @click.prevent="clickAddAdditionalData" class="text-center font-weight-bold text-info">[+ Agregar]</a></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(row, index) in form.additional_data" :key="index" width="100%">
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+
+                                                    <el-input v-model="row.title"></el-input>
+                                                    
+                                                    <template v-if="errors[`additional_data.${index}.title`]">
+                                                        <div class="form-group" :class="{'has-danger': errors[`additional_data.${index}.title`]}">
+                                                            <small class="form-control-feedback" v-text="errors[`additional_data.${index}.title`][0]"></small>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    
+                                                    <el-input v-model="row.description"></el-input>
+                                                    
+                                                    <template v-if="errors[`additional_data.${index}.description`]">
+                                                        <div class="form-group" :class="{'has-danger': errors[`additional_data.${index}.description`]}">
+                                                            <small class="form-control-feedback" v-text="errors[`additional_data.${index}.description`][0]"></small>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </td>
+                                            <td class="series-table-actions text-center">
+                                                <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDeleteAdditionalData(index)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                            <br>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
                         </div>
 
                         <div class="row mt-3">
@@ -408,6 +462,17 @@ export default {
         this.loading_form = true
     },
     methods: {
+        clickAddAdditionalData()
+        {
+            this.form.additional_data.push({
+                title: null,
+                description: null,
+            })
+        },
+        clickDeleteAdditionalData(index)
+        {
+            this.form.additional_data.splice(index, 1)
+        },
         addRowLotGroup(lots_selecteds){
 
             this.form.items[this.current_index_item].IdLoteSelected = lots_selecteds
@@ -550,7 +615,8 @@ export default {
                 shipping_address: null,
                 actions: {
                     format_pdf: 'a4',
-                }
+                },
+                additional_data: [],
             }
 
             this.is_generate_from_quotation = false

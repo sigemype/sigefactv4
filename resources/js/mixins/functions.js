@@ -82,6 +82,16 @@ export const functions = {
                     this.percentage_igv = response.data;
                 });
         },
+        async getPercentageIgvWithParams(establishment_id, date_of_issue) 
+        {
+            await this.$http.post(`/store/get_igv`, {
+                        establishment_id: establishment_id,
+                        date: date_of_issue
+                    })
+                    .then(response => {
+                        this.percentage_igv = response.data
+                    })
+        },
     }
 };
 
@@ -139,14 +149,13 @@ export const serviceNumber = {
                 this.form.name = data.name
                 this.form.trade_name = data.trade_name
                 this.form.address = data.address
-                this.form.department_id = data.department_id
-                this.form.province_id = data.province_id
-                this.form.district_id = data.district_id
+                this.form.location_id = data.location_id
+                // this.form.department_id = data.department_id
+                // this.form.province_id = data.province_id
+                // this.form.district_id = data.district_id
                 this.form.phone = data.phone
-
-                this.filterProvinces()
-                this.filterDistricts()
-
+                // this.filterProvinces()
+                // this.filterDistricts()
             } else {
                 this.$message.error(response.data.message)
             }
@@ -375,6 +384,112 @@ export const pointSystemFunctions = {
         {
             return _.sumBy(this.form.items, (row)=>{
                 return (row.item.exchanged_for_points) ? this.getUsedPoints(row) : 0
+            })
+        },
+    }
+}
+
+
+// funciones para descuentos globales
+// Usado en:
+// tenant\purchases\form.vue
+
+export const operationsForDiscounts = {
+    data() {
+        return {
+            global_discount_types: [],
+            global_discount_type: {},
+            is_amount: true,
+            total_global_discount: 0,
+        }
+    },
+    methods: {
+        deleteDiscountGlobal() 
+        {
+            let discount = _.find(this.form.discounts, {'discount_type_id': this.config.global_discount_type_id})
+            let index = this.form.discounts.indexOf(discount)
+
+            if (index > -1) 
+            {
+                this.form.discounts.splice(index, 1)
+                this.form.total_discount = 0
+            }
+        },
+        discountGlobal(param_percentage_igv = null)
+        {
+            this.deleteDiscountGlobal()
+
+            //input donde se ingresa monto o porcentaje
+            let input_global_discount = parseFloat(this.total_global_discount)
+
+            if (input_global_discount > 0)
+            {
+                const percentage_igv = param_percentage_igv ? param_percentage_igv : this.percentage_igv * 100
+                let base = (this.isGlobalDiscountBase) ? parseFloat(this.form.total_taxed) : parseFloat(this.form.total)
+                let amount = 0
+                let factor = 0
+
+                if (this.is_amount)
+                {
+                    amount = input_global_discount
+                    factor = _.round(amount / base, 5)
+                }
+                else
+                {
+                    factor = _.round(input_global_discount / 100, 5)
+                    amount = factor * base
+                }
+
+                this.form.total_discount = _.round(amount, 2)
+
+                // descuentos que afectan la bi
+                if(this.isGlobalDiscountBase)
+                {
+                    this.form.total_taxed = _.round(base - this.form.total_discount, 2)
+                    this.form.total_value = this.form.total_taxed
+                    this.form.total_igv = _.round(this.form.total_taxed * (percentage_igv / 100), 2)
+
+                    //impuestos (isc + igv + icbper)
+                    let total_plastic_bag_taxes = this.form.total_plastic_bag_taxes ? this.form.total_plastic_bag_taxes : 0
+
+                    this.form.total_taxes = _.round(this.form.total_igv + this.form.total_isc + total_plastic_bag_taxes, 2)
+                    this.form.total = _.round(this.form.total_taxed + this.form.total_taxes, 2)
+                    this.form.subtotal = this.form.total
+
+                    if (this.form.total <= 0 && this.total_global_discount > 0) this.$message.error("El total debe ser mayor a 0, verifique el tipo de descuento asignado (Configuración/Avanzado/Contable)")
+
+                }
+                // descuentos que no afectan la bi
+                else
+                {
+                    this.form.total = _.round(this.form.total - amount, 2)
+                }
+
+                this.setGlobalDiscount(factor, _.round(amount, 2), base)
+
+            }
+
+        },
+        changeTypeDiscount() 
+        {
+            this.calculateTotal()
+        },
+        changeTotalGlobalDiscount() 
+        {
+            this.calculateTotal()
+        },
+        setConfigGlobalDiscountType()
+        {
+            this.global_discount_type = _.find(this.global_discount_types, { id : this.config.global_discount_type_id})
+        },
+        setGlobalDiscount(factor, amount, base)
+        {
+            this.form.discounts.push({
+                discount_type_id: this.global_discount_type.id,
+                description: this.global_discount_type.description,
+                factor: factor,
+                amount: amount,
+                base: base
             })
         },
     }

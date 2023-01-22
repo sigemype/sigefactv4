@@ -1,4 +1,4 @@
-{{-- <!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -14,114 +14,21 @@
     </style>
 </head>
 <body>
-    <p>Estimad@: 
-        @if($document->customer)
-            {{ $document->customer->name }}
-        @else
-            {{ $document->supplier->name }}
-        @endif
-        , informamos que su comprobante electrónico ha sido emitido exitosamente.</p>
-    <p>Los datos de su comprobante electrónico son:</p>
-    <ul>
-        <li>Razon social: {{ $company->name }}</li>
-        <li>Teléfono: {{ $document->establishment->telephone }}</li>
-       <li>Tipo de comprobante: {{ $document->document_type->description }}</li>
-        <li>Fecha de emisión: {{ $document->date_of_issue->format('d/m/Y') }}</li>
-        <li>Nro. de comprobante: {{ $document->series.'-'.$document->number }}</li>
-        <li>Total: {{ $document->total }}</li>
-    </ul>
-    </body>
-</html> --}}
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Envio de Comprobante de Pago Electrónico</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-	<style type="text/css">
-		a[x-apple-data-detectors] {color: inherit !important;}
-	</style>
-
-</head>
-<body style="margin: 0; padding: 0;">
-	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-		<tr>
-			<td style="padding: 20px 0 30px 0;">
-
-<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; border: 1px solid #cccccc;">
-	<tr>
-		<td align="center" bgcolor="#29436D" style="padding: 40px 0 30px 0; color: #ffffff;">
-			{{-- <img src="images/h1.gif" alt="Creating Email Magic." width="300" height="230" style="display: block;" /> --}}
-            <h1>{{ $company->name }}</h1>
-		</td>
-	</tr>
-	<tr>
-		<td bgcolor="#ffffff" style="padding: 40px 30px 40px 30px;">
-			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
-				<tr>
-					<td style="color: #153643; font-family: Arial, sans-serif;">
-						<h1 style="font-size: 24px; margin: 0;">Estimad@: 
-                            @if($document->customer)
-                                {{ $document->customer->name }}
-                            @else
-                                {{ $document->supplier->name }}
-                            @endif</h1>
-					</td>
-				</tr>
-				<tr>
-					<td style="color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 24px; padding: 20px 0 30px 0;">
-						<p style="margin: 0;">Le informamos que su comprobante electrónico ha sido emitido exitosamente.</p>
-					</td>
-				</tr>
-                <tr>
-                    <td style="color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 24px; padding: 20px 0 30px 0;">
-                        <ul>
-                            {{-- <li>Teléfono: {{ $document->establishment->telephone }}</li> --}}
-                            <li>Tipo de comprobante: {{ $document->document_type->description }}</li>
-                            <li>Fecha de emisión: {{ $document->date_of_issue->format('d/m/Y') }}</li>
-                            <li>Nro. de comprobante: {{ $document->series.'-'.$document->number }}</li>
-                            <li>Total: {{ $document->total }}</li>
-                        </ul>
-                    </td>
-                </tr>
-			</table>
-		</td>
-	</tr>
-	<tr>
-		<td bgcolor="#29436D" style="padding: 30px 30px;">
-    		<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
-				<tr>
-					<td style="color: #ffffff; font-family: Arial, sans-serif; font-size: 14px;">
-						<p style="margin: 0;">Sistema de Facturación Electrónica<br/>
-					 <a href="sigefact.pe" style="color: #ffffff;">&reg; sigefact.pe</a></p>
-					</td>
-					{{-- <td align="right">
-						<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-							<tr>
-								<td>
-									<a href="http://www.twitter.com/">
-										<img src="images/tw.gif" alt="Twitter." width="38" height="38" style="display: block;" border="0" />
-									</a>
-								</td>
-								<td style="font-size: 0; line-height: 0;" width="20">&nbsp;</td>
-								<td>
-									<a href="http://www.twitter.com/">
-										<img src="images/fb.gif" alt="Facebook." width="38" height="38" style="display: block;" border="0" />
-									</a>
-								</td>
-							</tr>
-						</table>
-					</td> --}}
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
-
-			</td>
-		</tr>
-	</table>
+<p>Estimad@: 
+    @if($document->customer)
+        {{ $document->customer->name }}
+    @else
+        {{ $document->supplier->name }}
+    @endif
+    , informamos que su comprobante electrónico ha sido emitido exitosamente.</p>
+<p>Los datos de su comprobante electrónico son:</p>
+<ul>
+    <li>Razon social: {{ $company->name }}</li>
+    <li>Teléfono: {{ $document->establishment->telephone }}</li>
+{{--    <li>Tipo de comprobante: {{ $document->document_type->description }}</li>--}}
+    <li>Fecha de emisión: {{ $document->date_of_issue->format('d/m/Y') }}</li>
+    <li>Nro. de comprobante: {{ $document->series.'-'.$document->number }}</li>
+    <li>Total: {{ $document->total }}</li>
+</ul>
 </body>
 </html>

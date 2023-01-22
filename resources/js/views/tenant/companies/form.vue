@@ -60,6 +60,7 @@
                                                    :data="{'type': 'logo'}"
                                                    :headers="headers"
                                                    :on-success="successUpload"
+                                                   :on-error="errorUpload"
                                                    :show-file-list="false"
                                                    action="/companies/uploads">
                                             <el-button icon="el-icon-upload"
@@ -105,6 +106,7 @@
                                                    :data="{'type': 'img_firm'}"
                                                    :headers="headers"
                                                    :on-success="successUpload"
+                                                   :on-error="errorUpload"
                                                    :show-file-list="false"
                                                    action="/companies/uploads">
                                             <el-button icon="el-icon-upload"
@@ -124,6 +126,7 @@
                                                    :data="{'type': 'favicon'}"
                                                    :headers="headers"
                                                    :on-success="successUpload"
+                                                   :on-error="errorUpload"
                                                    :show-file-list="false"
                                                    action="/companies/uploads">
                                             <el-button icon="el-icon-upload"
@@ -136,7 +139,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Logo APP</label>
@@ -146,6 +149,7 @@
                                                    :data="{'type': 'app_logo'}"
                                                    :headers="headers"
                                                    :on-success="successUpload"
+                                                   :on-error="errorUpload"
                                                    :show-file-list="false"
                                                    action="/companies/uploads">
                                             <el-button icon="el-icon-upload"
@@ -297,44 +301,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <template v-if="form.soap_type_id == '02'">
-                            <div class="row">
-                                <div class="col-md-12 mt-2">
-                                    <h4 class="border-bottom">Consulta integrada de CPE - Validador de documentos
-                                        <el-tooltip class="item"
-                                                    content="Obtener los datos desde el portal de Sunat"
-                                                    effect="dark"
-                                                    placement="top-start">
-                                            <i class="fa fa-info-circle"></i>
-                                        </el-tooltip>
-                                    </h4>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div :class="{'has-danger': errors.integrated_query_client_id}"
-                                         class="form-group">
-                                        <label class="control-label">Client ID</label>
-                                        <el-input v-model="form.integrated_query_client_id"></el-input>
-                                        <small v-if="errors.integrated_query_client_id"
-                                               class="form-control-feedback"
-                                               v-text="errors.integrated_query_client_id[0]"></small>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div :class="{'has-danger': errors.integrated_query_client_secret}"
-                                         class="form-group">
-                                        <label class="control-label">Client Secret (Clave)</label>
-                                        <el-input v-model="form.integrated_query_client_secret"></el-input>
-                                        <small v-if="errors.integrated_query_client_secret"
-                                               class="form-control-feedback"
-                                               v-text="errors.integrated_query_client_secret[0]"></small>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
                     </div>
                     <div class="form-actions text-right pt-2">
                         <el-button :loading="loading_submit"
@@ -343,7 +309,122 @@
                         </el-button>
                     </div>
                 </form>
-
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header bg-info">
+                <h3 class="my-0">Consulta integrada de CPE - Validador de documentos
+                    <el-tooltip class="item"
+                                content="Obtener los datos desde el portal de Sunat"
+                                effect="dark"
+                                placement="top-start">
+                        <i class="fa fa-info-circle"></i>
+                    </el-tooltip>
+                </h3>
+            </div>
+            <div class="card-body">
+                <form autocomplete="off"
+                      @submit.prevent="submit">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div :class="{'has-danger': errors.integrated_query_client_id}"
+                                 class="form-group">
+                                <label class="control-label">Client ID</label>
+                                <el-input v-model="form.integrated_query_client_id"></el-input>
+                                <small v-if="errors.integrated_query_client_id"
+                                       class="form-control-feedback"
+                                       v-text="errors.integrated_query_client_id[0]"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div :class="{'has-danger': errors.integrated_query_client_secret}"
+                                 class="form-group">
+                                <label class="control-label">Client Secret (Clave)</label>
+                                <el-input v-model="form.integrated_query_client_secret"></el-input>
+                                <small v-if="errors.integrated_query_client_secret"
+                                       class="form-control-feedback"
+                                       v-text="errors.integrated_query_client_secret[0]"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions text-right pt-2">
+                        <el-button :loading="loading_submit"
+                                   native-type="submit"
+                                   type="primary">Guardar
+                        </el-button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header bg-info">
+                <h3 class="my-0">Guías electrónicas</h3>
+            </div>
+            <div class="card-body">
+                <form autocomplete="off"
+                      @submit.prevent="submit">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="border-bottom">Usuario Secundario Sunat</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div :class="{'has-danger': errors.soap_sunat_username}"
+                                     class="form-group">
+                                    <label class="control-label">SOAP Usuario</label>
+                                    <el-input v-model="form.soap_sunat_username"
+                                              :disabled="!form.config_system_env"></el-input>
+                                    <div class="sub-title text-muted"><small>RUC + Usuario. Ejemplo:
+                                        01234567890ELUSUARIO</small></div>
+                                    <small v-if="errors.soap_sunat_username"
+                                           class="form-control-feedback"
+                                           v-text="errors.soap_sunat_username[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div :class="{'has-danger': errors.soap_sunat_password}"
+                                     class="form-group">
+                                    <label class="control-label">SOAP Password</label>
+                                    <el-input v-model="form.soap_sunat_password"
+                                              :disabled="!form.config_system_env"></el-input>
+                                    <small v-if="errors.soap_sunat_password"
+                                           class="form-control-feedback"
+                                           v-text="errors.soap_sunat_password[0]"></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div :class="{'has-danger': errors.api_sunat_id}"
+                                     class="form-group">
+                                    <label class="control-label">Client ID</label>
+                                    <el-input v-model="form.api_sunat_id"></el-input>
+                                    <small v-if="errors.api_sunat_id"
+                                           class="form-control-feedback"
+                                           v-text="errors.api_sunat_id[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div :class="{'has-danger': errors.api_sunat_secret}"
+                                     class="form-group">
+                                    <label class="control-label">Client Secret (Clave)</label>
+                                    <el-input v-model="form.api_sunat_secret"></el-input>
+                                    <small v-if="errors.api_sunat_secret"
+                                           class="form-control-feedback"
+                                           v-text="errors.api_sunat_secret[0]"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions text-right pt-2">
+                        <el-button :loading="loading_submit"
+                                   native-type="submit"
+                                   type="primary">Guardar
+                        </el-button>
+                    </div>
+                </form>
             </div>
         </div>
         <TokenRucDni></TokenRucDni>
@@ -382,17 +463,17 @@ export default {
             .then(response => {
                 this.soap_sends = response.data.soap_sends
                 this.soap_types = response.data.soap_types
-                console.log(1)
+                // console.log(1)
             })
         await this.$http.get(`/${this.resource}/record`)
             .then(response => {
                 if (response.data !== '') {
                     this.form = response.data.data
                 }
-                console.log(2)
+                // console.log(2)
 
             })
-        
+
         this.events()
     },
     methods: {
@@ -407,7 +488,7 @@ export default {
 
         },
         async getRecord(){
-            
+
             await this.$http.get(`/${this.resource}/record`)
                     .then(response => {
                         if (response.data !== '') {
@@ -442,7 +523,10 @@ export default {
                 integrated_query_client_id: null,
                 integrated_query_client_secret: null,
                 app_logo: null,
-
+                soap_sunat_username: null,
+                soap_sunat_password: null,
+                api_sunat_id: null,
+                api_sunat_secret: null,
             }
         },
         submit() {
@@ -467,6 +551,7 @@ export default {
                 })
         },
         successUpload(response, file, fileList) {
+
             if (response.success) {
                 this.$message.success(response.message)
                 this.form[response.type] = response.name
@@ -474,6 +559,10 @@ export default {
                 this.$message({message: 'Error al subir el archivo', type: 'error'})
             }
         },
+        errorUpload(error)
+        {
+            this.$message({message: 'Error al subir el archivo', type: 'error'})
+        }
     }
 }
 </script>

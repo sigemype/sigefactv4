@@ -33,9 +33,12 @@
 <script>
 
     export default {
-        props: [
-
-        ],
+        props: {
+            warehouseId: {
+                default: null,
+                required: false
+            }
+        },
         data() {
             return {
                 resource: 'advanced-items-search',
@@ -48,11 +51,17 @@
         },
         created() {
             this.initData()
+            this.events()
         },
         methods: {
-            async initData(){
+            events()
+            {
+            },
+            async initData(warehouse_id = null)
+            {
+                const parameters = warehouse_id ? `warehouse_id=${warehouse_id}` : ''
 
-                await this.$http.get(`/${this.resource}`)
+                await this.$http.get(`/${this.resource}?${parameters}`)
                     .then(response => {
                         this.all_items = response.data.items
                         this.initItems()
@@ -65,12 +74,16 @@
             setItem(item_id){
                 this.$emit('eventSetItemId', item_id)
             },
+            cleanItemId()
+            {
+                this.item_id = null
+            },
             async searchRemoteItems(input) {
 
                 if (input.length > 2) {
 
                     this.loading_search = true
-                    let parameters = `search_value=${input}`
+                    let parameters = `search_value=${input}&warehouse_id=${this.warehouseId}`
 
                     await this.$http.get(`/${this.resource}?${parameters}`)
                         .then(response => {

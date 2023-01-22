@@ -29,7 +29,9 @@ class InventoryVoidedServiceProvider extends ServiceProvider
     {
         //Revisar los tipos de documentos, ello varia el control de stock en las anulaciones.
         Document::updated(function ($document) {
-            if($document['document_type_id'] == '01' || $document['document_type_id'] == '03'){
+            // if($document['document_type_id'] == '01' || $document['document_type_id'] == '03'){
+            if(in_array($document['document_type_id'], ['01', '03', '08'], true))
+            {
                 if(in_array($document['state_type_id'], [ '09', '11' ], true)){
                     // $warehouse = $this->findWarehouse($document['establishment_id']);
 

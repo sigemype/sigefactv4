@@ -127,6 +127,8 @@ class ItemSetController extends Controller
             $temp_path = $request->input('temp_path');
             if($temp_path) {
 
+                UploadFileHelper::checkIfValidFile($request->input('image'), $temp_path, true);
+
                 $directory = 'public'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR;
 
                 $file_name_old = $request->input('image');

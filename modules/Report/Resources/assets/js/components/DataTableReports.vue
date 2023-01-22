@@ -81,7 +81,7 @@
                             </el-select>
                         </div>
                     </div>
-                    <div v-show="resource == 'reports/sales' || resource == 'reports/purchases'|| resource == 'reports/fixed-asset-purchases'"
+                    <div v-show="resource == 'reports/sales' || resource == 'reports/purchases'|| resource == 'reports/fixed-asset-purchases' || resource == 'reports/state-account'"
                          class="col-md-3">
                         <div class="form-group">
                             <label class="control-label">Tipo de documento</label>
@@ -95,11 +95,11 @@
                         </div>
                     </div>
 
-                    <div v-if="resource == 'reports/sales' || resource == 'reports/purchases'|| resource == 'reports/fixed-asset-purchases'"
+                    <div v-if="resource == 'reports/sales' || resource == 'reports/purchases'|| resource == 'reports/fixed-asset-purchases' || resource == 'reports/state-account'"
                          class="col-lg-5 col-md-5">
                         <div class="form-group">
                             <label class="control-label">
-                                {{ (resource == 'reports/sales') ? 'Clientes' : 'Proveedores' }}
+                                {{ (resource == 'reports/sales' || resource == 'reports/state-account') ? 'Clientes' : 'Proveedores' }}
                             </label>
 
                             <el-select v-model="form.person_id"
@@ -119,79 +119,81 @@
 
                         </div>
                     </div>
+                    <template>
+                        <template v-if="users.length  < 1">
+                            <div v-if="applyCustomer"
+                                :class="(
+                                resource == 'reports/commissions' ||
+                                resource == 'reports/sales' ||
+                                resource == 'reports/purchases') ? 'col-lg-4 col-md-4':'col-lg-3 col-md-3'">
+                                <div class="form-group">
+                                    <label class="control-label">
+                                        Usuarios
+                                    </label>
 
-                    <template v-if="users.length  < 1">
-                        <div v-if="applyCustomer"
-                             :class="(
-                             resource == 'reports/commissions' ||
-                             resource == 'reports/sales' ||
-                             resource == 'reports/purchases') ? 'col-lg-4 col-md-4':'col-lg-3 col-md-3'">
-                            <div class="form-group">
-                                <label class="control-label">
-                                    Usuarios
-                                </label>
+                                    <el-select v-model="form.seller_id"
+                                            clearable
+                                            filterable
+                                            placeholder="Nombre usuario"
+                                            popper-class="el-select-customers">
+                                        <el-option v-for="option in sellers"
+                                                :key="option.id"
+                                                :label="option.name"
+                                                :value="option.id"></el-option>
+                                    </el-select>
 
-                                <el-select v-model="form.seller_id"
-                                           clearable
-                                           filterable
-                                           placeholder="Nombre usuario"
-                                           popper-class="el-select-customers">
-                                    <el-option v-for="option in sellers"
-                                               :key="option.id"
-                                               :label="option.name"
-                                               :value="option.id"></el-option>
-                                </el-select>
-
+                                </div>
                             </div>
-                        </div>
+                        </template>
+                        <template v-else>
+                            <div class="col-md-2 form-group">
+                                <label class="control-label">Tipo de usuario</label>
+                                <el-select v-model="form.user_type"
+                                        clearable
+                                        @change="ChangedSalesnote">
+                                    <el-option key="CREADOR"
+                                            label="Registrado por"
+                                            value="CREADOR"></el-option>
+                                    <el-option v-show="form.document_type_id !== '80'"
+                                            key="VENDEDOR"
+                                            label="Vendedor asignado"
+                                            value="VENDEDOR"></el-option>
+                                </el-select>
+                            </div>
+                            <div class="col-md-2 form-group">
+                                <label class="control-label">{{
+                                        form.user_type === 'CREADOR' ? 'Usuario' : 'Vendedor'
+                                                            }}</label>
+                                <el-select v-model="form.user_id"
+                                        :disabled="cantChoiseUserWithUserType"
+                                        clearable
+                                        filterable
+                                        multiple>
+                                    <el-option v-for="user in users"
+                                            :key="user.id"
+                                            :label="user.name"
+                                            :value="user.id"></el-option>
+                                </el-select>
+                            </div>
+                        </template>
                     </template>
-                    <template v-else>
-                        <div class="col-md-2 form-group">
-                            <label class="control-label">Tipo de usuario</label>
-                            <el-select v-model="form.user_type"
-                                       clearable
-                                       @change="ChangedSalesnote">
-                                <el-option key="CREADOR"
-                                           label="Registrado por"
-                                           value="CREADOR"></el-option>
-                                <el-option v-show="form.document_type_id !== '80'"
-                                           key="VENDEDOR"
-                                           label="Vendedor asignado"
-                                           value="VENDEDOR"></el-option>
-                            </el-select>
-                        </div>
-                        <div class="col-md-2 form-group">
-                            <label class="control-label">{{
-                                    form.user_type === 'CREADOR' ? 'Usuario' : 'Vendedor'
-                                                         }}</label>
-                            <el-select v-model="form.user_id"
-                                       :disabled="cantChoiseUserWithUserType"
-                                       clearable
-                                       filterable
-                                       multiple>
-                                <el-option v-for="user in users"
-                                           :key="user.id"
-                                           :label="user.name"
-                                           :value="user.id"></el-option>
-                            </el-select>
-                        </div>
-                    </template>
+                    
 
 
-                    <div v-if="resource == 'reports/sales' || resource === 'reports/sale-notes'"
+                    <div v-if="resource == 'reports/sales' || resource === 'reports/sale-notes' || resource !='reports/state-account'|| resource!=='reports/state-account'"
                          class="col-lg-3 col-md-3">
-                        <label>Orden de compra</label>
-                        <el-input v-model="form.purchase_order"
+                        <label v-if="resource!=='reports/state-account'">Orden de compra</label>
+                        <el-input v-if="resource!=='reports/state-account'" v-model="form.purchase_order"
                                   clearable></el-input>
                     </div>
-                    <div class="col-lg-3 col-md-3">
+                    <div class="col-lg-3 col-md-3" v-if="resource !=='reports/state-account'">
                         <div class="form-group">
                             <label class="control-label">Numero de Guía</label>
                             <el-input v-model="form.guides"
                                       clearable></el-input>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3">
+                    <div class="col-lg-3 col-md-3" v-if="resource !=='reports/state-account'">
                         <div class="form-group">
                             <label class="control-label">Plataforma</label>
                             <el-select v-model="form.web_platform_id"
@@ -204,7 +206,7 @@
                         </div>
                     </div>
 
-                    <div v-if="resource == 'reports/sales'"
+                    <div v-if="resource == 'reports/sales' || resource !=='reports/state-account'"
                          class="col-lg-3 col-md-3 mt-4">
                         <div class="form-group">
                             <el-checkbox v-model="form.include_categories">¿Incluir categorías?</el-checkbox>
@@ -212,7 +214,7 @@
                         </div>
                     </div>
 
-                    <div v-if="resource == 'reports/quotations'"
+                    <div v-if="resource == 'reports/quotations' || resource !=='reports/state-account'"
                          class="col-lg-3 col-md-3">
                         <div class="form-group">
                             <label class="control-label">
@@ -233,7 +235,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-6" v-if="resource == 'reports/commissions-detail'">
+                    <div class="col-lg-4 col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Productos
                                 </label>
@@ -260,7 +262,7 @@
 
                         <template v-if="records.length>0 && resource  !== 'reports/document-detractions'">
 
-                            <el-button class="submit"
+                            <el-button v-if="resource!='reports/state-account'" class="submit"
                                        icon="el-icon-tickets"
                                        type="danger"
                                        @click.prevent="clickDownload('pdf')">Exportar PDF
@@ -302,7 +304,7 @@
                         </tbody>
                         <tfoot v-if="resource == 'reports/sales' || resource == 'reports/purchases' || resource == 'reports/fixed-asset-purchases'">
 
-                            <template v-if="resource == 'reports/sales'">
+                            <template v-if="resource == 'reports/sales'|| this.resource === 'reports/state-account'">
                                 <tr>
                                     <td :colspan="13"></td>
                                     <td v-if="visibleColumns.guides.visible"></td>
@@ -463,6 +465,7 @@ export default {
         this.$eventHub.$on('reloadData', () => {
             this.getRecords()
         })
+        //console.log(this.resource)
     },
     async mounted() {
 
@@ -484,7 +487,7 @@ export default {
         await this.getRecords()
         await this.filterPersons()
         // await this.getTotals()
-        this.form.type_person = this.resource === 'reports/sales' ? 'customers' : 'suppliers'
+        this.form.type_person = this.resource === 'reports/sales' || this.resource === 'reports/state-account'? 'customers' : 'suppliers'
 
     },
     methods: {
@@ -509,7 +512,7 @@ export default {
                 this.loading_search = true
                 let parameters = `input=${input}`
 
-                this.form.type_person = this.resource === 'reports/sales' ? 'customers' : 'suppliers'
+                this.form.type_person = this.resource === 'reports/sales'||this.resource === 'reports/state-account' ? 'customers' : 'suppliers'
 
 
                 this.$http.get(`/reports/data-table/persons/${this.form.type_person}?${parameters}`)
@@ -678,7 +681,7 @@ export default {
                 this.pagination.per_page = parseInt(response.data.meta.per_page)
                 this.loading_submit = false
                 // this.initTotals()
-                if (this.resource == 'reports/sales' || this.resource == 'reports/purchases' || this.resource == 'reports/fixed-asset-purchases') this.getTotals(response.data.data)
+                if (this.resource == 'reports/sales' || this.resource == 'reports/purchases' || this.resource == 'reports/fixed-asset-purchases' || this.resource === 'reports/state-account') this.getTotals(response.data.data)
             });
 
 

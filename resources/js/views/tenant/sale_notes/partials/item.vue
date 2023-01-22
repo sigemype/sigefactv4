@@ -169,12 +169,34 @@
                     <div class="col-md-4 col-sm-4">
                         <div :class="{'has-danger': errors.unit_price_value}" class="form-group">
                             <label class="control-label">Precio Unitario</label>
-                            <el-input tabindex="3" v-model="form.unit_price_value" :readonly="!edit_unit_price"
-                                      @input="calculateQuantity">
-                                <template v-if="form.item.currency_type_symbol" slot="prepend">
-                                    {{ form.item.currency_type_symbol }}
-                                </template>
-                            </el-input>
+
+                            <template v-if="applyChangeCurrencyItem && changeCurrencyFromParent">
+
+                                <el-input tabindex="3" v-model="form.unit_price_value" :readonly="!edit_unit_price"
+                                        @input="calculateQuantity">
+                                        
+                                        <template v-if="form.item.currency_type_symbol">
+                                            <el-select slot="prepend" v-model="form.item.currency_type_id" class="custom-change-select-currency">
+                                                <el-option v-for="option in currencyTypes"
+                                                            :key="option.id"
+                                                            :label="option.symbol"
+                                                            :value="option.id"></el-option>
+                                            </el-select>
+                                        </template>
+                                </el-input>
+
+                            </template>
+                            <template v-else>
+
+                                <el-input tabindex="3" v-model="form.unit_price_value" :readonly="!edit_unit_price"
+                                        @input="calculateQuantity">
+                                    <template v-if="form.item.currency_type_symbol" slot="prepend">
+                                        {{ form.item.currency_type_symbol }}
+                                    </template>
+                                </el-input>
+
+                            </template>
+
                             <small v-if="errors.unit_price_value" class="form-control-feedback"
                                    v-text="errors.unit_price[0]"></small>
                         </div>
@@ -516,7 +538,9 @@ export default {
         'configuration',
         'documentTypeId',
         'noteCreditOrDebitTypeId',
-        'percentageIgv'
+        'percentageIgv',
+        'currencyTypes',
+        'showOptionChangeCurrency',
     ],
     components: {
         ItemForm,
@@ -636,7 +660,21 @@ export default {
         },
         isUpdateItem(){
             return !_.isEmpty(this.recordItem)
-        }
+        },
+        enabledSearchFactoryCodeItems()
+        {
+            if(this.configuration) return this.configuration.search_factory_code_items ? 1 : 0
+            return 0
+        },
+        applyChangeCurrencyItem()
+        {
+            if(this.configuration) return this.configuration.change_currency_item
+            return false
+        },
+        changeCurrencyFromParent()
+        {
+            return (this.showOptionChangeCurrency !== undefined && this.showOptionChangeCurrency && this.currencyTypes !== undefined && Array.isArray(this.currencyTypes))
+        },
     },
     methods: {
         ...mapActions([
@@ -738,7 +776,8 @@ export default {
                 this.loading_search = true
                 const params = {
                     'input': input,
-                    'search_by_barcode': this.search_item_by_barcode ? 1 : 0
+                    'search_by_barcode': this.search_item_by_barcode ? 1 : 0,
+                    'search_factory_code_items' : this.enabledSearchFactoryCodeItems
                 }
                 await this.$http.get(`/${this.resource}/search-items/`, {params})
                     .then(response => {

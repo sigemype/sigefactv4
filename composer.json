@@ -19,6 +19,7 @@
         "ifsnop/mysqldump-php": "^2.9",
         "imangazaliev/didom": "^1.13",
         "intervention/image": "^2.5",
+        "jenssegers/agent": "^2.6",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^5.4.0",
@@ -32,6 +33,7 @@
         "robrichards/xmlseclibs": "3.0.*",
         "setasign/fpdf": "1.8.*",
         "setasign/fpdi": "^2.0",
+        "stevebauman/location": "^6.3",
         "symfony/process": "^4.4",
         "thiagoalessio/tesseract_ocr": "^2.7",
         "zanysoft/laravel-zip": "^1.0"

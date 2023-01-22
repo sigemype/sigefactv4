@@ -23,6 +23,7 @@ class InventoryResource extends JsonResource
             'quantity' => $this->stock,
             'warehouse_new_id' => null,
             'quantity_move' => 0,
+            'quantity_real' => 0,
             'lots_enabled' => (bool)$this->item->lots_enabled,
             'series_enabled' => (bool)$this->item->series_enabled,
             'lots' => $this->item->item_lots->where('has_sale', false)->where('warehouse_id', $this->warehouse_id)->transform(function($row) {
@@ -36,6 +37,7 @@ class InventoryResource extends JsonResource
                     'lot_code' => ($row->item_loteable_type) ? (isset($row->item_loteable->lot_code) ? $row->item_loteable->lot_code:null):null
                 ];
             })->values(),
+            'lots_group' => $this->item->getLotsGroupForCompromise()
         ];
     }
 }

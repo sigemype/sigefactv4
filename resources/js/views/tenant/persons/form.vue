@@ -139,6 +139,24 @@
                                            v-text="errors.internal_code[0]"></small>
                                 </div>
                             </div>
+
+                            <div class="col-md-3">
+                                <div :class="{'has-danger': errors.country_id}"
+                                     class="form-group">
+                                    <label class="control-label">Nacionalidad</label>
+                                    <el-select v-model="form.nationality_id"
+                                               dusk="country_id"
+                                               filterable>
+                                        <el-option v-for="option in countries"
+                                                   :key="option.id"
+                                                   :label="option.description"
+                                                   :value="option.id"></el-option>
+                                    </el-select>
+                                    <small v-if="errors.country_id"
+                                           class="form-control-feedback"
+                                           v-text="errors.country_id[0]"></small>
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div :class="{'has-danger': errors.person_type_id}"
                                      class="form-group">
@@ -160,12 +178,12 @@
                             </div>
                             <div class="col-md-3">
                                 <div :class="{'has-danger': errors.barcode}"
-                                    class="form-group">
+                                     class="form-group">
                                     <label class="control-label">Código de barra</label>
                                     <el-input v-model="form.barcode"></el-input>
                                     <small v-if="errors.barcode"
-                                        class="form-control-feedback"
-                                        v-text="errors.barcode[0]"></small>
+                                           class="form-control-feedback"
+                                           v-text="errors.barcode[0]"></small>
                                 </div>
                             </div>
                             <div v-if="form.state"
@@ -229,6 +247,47 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row mt-2" v-if="config.enable_discount_by_customer">
+                            <div class="col-lg-4 col-md-4">
+                                <label class="control-label">
+                                    ¿Tiene descuento?
+                                </label>
+                                <div :class="{'has-danger': errors.has_discount}"
+                                     class="form-group mt-1">
+                                    <el-switch v-model="form.has_discount"
+                                               active-text="Si"
+                                               inactive-text="No"></el-switch>
+                                    <small v-if="errors.has_discount"
+                                           class="form-control-feedback"
+                                           v-text="errors.has_discount[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <div :class="{'has-danger': errors.discount_type}"
+                                     class="form-group">
+                                    <label class="control-label">
+                                        Tipo de descuento
+                                    </label>
+                                    <el-select v-model="form.discount_type">
+                                        <el-option v-for="option in discount_types"
+                                                   :key="option.id"
+                                                   :label="option.name"
+                                                   :value="option.id">{{ option.name }}
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <div :class="{'has-danger': errors.discount_amount }"
+                                     class="form-group">
+                                    <label class="control-label">Descuento ({{ (form.discount_type === '01')?'Monto':'Porcentaje' }})</label>
+                                    <el-input v-model="form.discount_amount"></el-input>
+                                    <small v-if="errors.discount_amount"
+                                           class="form-control-feedback"
+                                           v-text="errors.discount_amount[0]"></small>
+                                </div>
+                            </div>
+                        </div>
                     </el-tab-pane>
 
                     <el-tab-pane class
@@ -236,24 +295,6 @@
                         <span slot="label">Dirección</span>
                         <div class="row">
                             <!-- Nacionalidad -->
-
-                            <div class="col-md-3">
-                                <div :class="{'has-danger': errors.country_id}"
-                                     class="form-group">
-                                    <label class="control-label">Nacionalidad</label>
-                                    <el-select v-model="form.nationality_id"
-                                               dusk="country_id"
-                                               filterable>
-                                        <el-option v-for="option in countries"
-                                                   :key="option.id"
-                                                   :label="option.description"
-                                                   :value="option.id"></el-option>
-                                    </el-select>
-                                    <small v-if="errors.country_id"
-                                           class="form-control-feedback"
-                                           v-text="errors.country_id[0]"></small>
-                                </div>
-                            </div>
                             <!-- País -->
 
                             <div class="col-md-3">
@@ -273,65 +314,79 @@
                                            v-text="errors.country_id[0]"></small>
                                 </div>
                             </div>
+
+                            <div class="col-md-9">
+                                <div :class="{'has-danger': errors.location_id}"
+                                     class="form-group">
+                                    <label class="control-label">Ubigeo</label>
+                                    <el-cascader v-model="form.location_id"
+                                                 :clearable="true"
+                                                 :options="locations"
+                                                 filterable></el-cascader>
+                                    <small v-if="errors.location_id"
+                                           class="form-control-feedback"
+                                           v-text="errors.location_id[0]"></small>
+                                </div>
+                            </div>
                             <!-- Departamento -->
-                            <div class="col-md-3">
-                                <div :class="{'has-danger': errors.department_id}"
-                                     class="form-group">
-                                    <label class="control-label">Departamento</label>
-                                    <el-select v-model="form.department_id"
-                                               dusk="department_id"
-                                               filterable
-                                               popper-class="el-select-departments"
-                                               @change="filterProvince">
-                                        <el-option v-for="option in all_departments"
-                                                   :key="option.id"
-                                                   :label="option.description"
-                                                   :value="option.id"></el-option>
-                                    </el-select>
-                                    <small v-if="errors.department_id"
-                                           class="form-control-feedback"
-                                           v-text="errors.department_id[0]"></small>
-                                </div>
-                            </div>
+<!--                            <div class="col-md-3">-->
+<!--                                <div :class="{'has-danger': errors.department_id}"-->
+<!--                                     class="form-group">-->
+<!--                                    <label class="control-label">Departamento</label>-->
+<!--                                    <el-select v-model="form.department_id"-->
+<!--                                               dusk="department_id"-->
+<!--                                               filterable-->
+<!--                                               popper-class="el-select-departments"-->
+<!--                                               @change="filterProvince">-->
+<!--                                        <el-option v-for="option in all_departments"-->
+<!--                                                   :key="option.id"-->
+<!--                                                   :label="option.description"-->
+<!--                                                   :value="option.id"></el-option>-->
+<!--                                    </el-select>-->
+<!--                                    <small v-if="errors.department_id"-->
+<!--                                           class="form-control-feedback"-->
+<!--                                           v-text="errors.department_id[0]"></small>-->
+<!--                                </div>-->
+<!--                            </div>-->
                             <!-- Provincia -->
-                            <div class="col-md-3">
-                                <div :class="{'has-danger': errors.province_id}"
-                                     class="form-group">
-                                    <label class="control-label">Provincia</label>
-                                    <el-select v-model="form.province_id"
-                                               dusk="province_id"
-                                               filterable
-                                               popper-class="el-select-provinces"
-                                               @change="filterDistrict">
-                                        <el-option v-for="option in provinces"
-                                                   :key="option.id"
-                                                   :label="option.description"
-                                                   :value="option.id"></el-option>
-                                    </el-select>
-                                    <small v-if="errors.province_id"
-                                           class="form-control-feedback"
-                                           v-text="errors.province_id[0]"></small>
-                                </div>
-                            </div>
+<!--                            <div class="col-md-3">-->
+<!--                                <div :class="{'has-danger': errors.province_id}"-->
+<!--                                     class="form-group">-->
+<!--                                    <label class="control-label">Provincia</label>-->
+<!--                                    <el-select v-model="form.province_id"-->
+<!--                                               dusk="province_id"-->
+<!--                                               filterable-->
+<!--                                               popper-class="el-select-provinces"-->
+<!--                                               @change="filterDistrict">-->
+<!--                                        <el-option v-for="option in provinces"-->
+<!--                                                   :key="option.id"-->
+<!--                                                   :label="option.description"-->
+<!--                                                   :value="option.id"></el-option>-->
+<!--                                    </el-select>-->
+<!--                                    <small v-if="errors.province_id"-->
+<!--                                           class="form-control-feedback"-->
+<!--                                           v-text="errors.province_id[0]"></small>-->
+<!--                                </div>-->
+<!--                            </div>-->
                             <!-- Distrito -->
-                            <div class="col-md-3">
-                                <div :class="{'has-danger': errors.province_id}"
-                                     class="form-group">
-                                    <label class="control-label">Distrito</label>
-                                    <el-select v-model="form.district_id"
-                                               dusk="district_id"
-                                               filterable
-                                               popper-class="el-select-districts">
-                                        <el-option v-for="option in districts"
-                                                   :key="option.id"
-                                                   :label="option.description"
-                                                   :value="option.id"></el-option>
-                                    </el-select>
-                                    <small v-if="errors.district_id"
-                                           class="form-control-feedback"
-                                           v-text="errors.district_id[0]"></small>
-                                </div>
-                            </div>
+<!--                            <div class="col-md-3">-->
+<!--                                <div :class="{'has-danger': errors.province_id}"-->
+<!--                                     class="form-group">-->
+<!--                                    <label class="control-label">Distrito</label>-->
+<!--                                    <el-select v-model="form.district_id"-->
+<!--                                               dusk="district_id"-->
+<!--                                               filterable-->
+<!--                                               popper-class="el-select-districts">-->
+<!--                                        <el-option v-for="option in districts"-->
+<!--                                                   :key="option.id"-->
+<!--                                                   :label="option.description"-->
+<!--                                                   :value="option.id"></el-option>-->
+<!--                                    </el-select>-->
+<!--                                    <small v-if="errors.district_id"-->
+<!--                                           class="form-control-feedback"-->
+<!--                                           v-text="errors.district_id[0]"></small>-->
+<!--                                </div>-->
+<!--                            </div>-->
                             <!-- Direccion -->
                             <div class="col-md-12">
                                 <div :class="{'has-danger': errors.address}"
@@ -692,6 +747,7 @@ export default {
             locations: [],
             person_types: [],
             identity_document_types: [],
+            discount_types: [],
             activeName: 'first'
         }
     },
@@ -713,14 +769,15 @@ export default {
                 this.identity_document_types = response.data.identity_document_types;
                 this.locations = response.data.locations;
                 this.person_types = response.data.person_types;
+                this.discount_types = response.data.discount_types;
             })
-        .finally(()=>{
-            if(this.api_service_token === false){
-                if(this.config.api_service_token !== undefined){
-                    this.api_service_token = this.config.api_service_token
+            .finally(() => {
+                if (this.api_service_token === false) {
+                    if (this.config.api_service_token !== undefined) {
+                        this.api_service_token = this.config.api_service_token
+                    }
                 }
-            }
-        })
+            })
 
     },
     computed: {
@@ -754,9 +811,10 @@ export default {
                 trade_name: null,
                 country_id: 'PE',
                 nationality_id: 'PE',
-                department_id: null,
-                province_id: null,
-                district_id: null,
+                location_id: [],
+                // department_id: null,
+                // province_id: null,
+                // district_id: null,
                 address: null,
                 telephone: null,
                 condition: null,
@@ -771,7 +829,11 @@ export default {
                     full_name: null,
                     phone: null,
                 },
-                optional_email: []
+                optional_email: [],
+                has_discount: false,
+                discount_type: '01',
+                discount_amount: 0,
+
             }
             this.updateEmail()
 
@@ -792,7 +854,7 @@ export default {
         create() {
             // console.log(this.input_person)
             this.parent = 0;
-            if(this.parentId !== undefined){
+            if (this.parentId !== undefined) {
                 this.parent = this.parentId;
             }
             /*
@@ -978,6 +1040,15 @@ export default {
                 return this.$message.error(val_digits.message)
             }
 
+            if (!this.config.enable_discount_by_customer) {
+                this.form.has_discount = false;
+            }
+
+            if (!this.form.has_discount) {
+                this.form.discount_type = '01';
+                this.form.discount_amount = 0;
+            }
+
             this.loading_submit = true
             this.form.parent_id = parseInt(this.parent);
             await this.$http.post(`/${this.resource}`, this.form)
@@ -1032,15 +1103,16 @@ export default {
             //cambios apiperu
             this.form.name = data.name;
             this.form.trade_name = data.trade_name;
-            this.form.location_id = data.ubigeo;
+            this.form.location_id = data.location_id;
             this.form.address = data.address;
-            this.form.department_id = data.department_id;
-            this.form.province_id = data.province_id;
-            this.form.district_id = data.district_id;
+            // this.form.department_id = data.department_id;
+            // this.form.department_id = data.department_id;
+            // this.form.province_id = data.province_id;
+            // this.form.district_id = data.district_id;
             this.form.condition = data.condition;
             this.form.state = data.state;
-            this.filterProvinces()
-            this.filterDistricts()
+            // this.filterProvinces()
+            // this.filterDistricts()
 //                this.form.addresses[0].telephone = data.telefono;
         },
         clickRemoveAddress(index) {

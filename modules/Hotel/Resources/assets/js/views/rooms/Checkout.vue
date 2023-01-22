@@ -444,6 +444,10 @@ export default {
             type: Object,
             required: false,
         },
+        affectationIgvTypes: {
+            type: Array,
+            required: true,
+        },
     },
     computed: {
         ...mapState([
@@ -508,14 +512,22 @@ export default {
         this.all_document_types = this.documentTypesInvoice;
         this.title = `Checkout: Habitación ${this.currentRent.room.name}`;
         this.total = this.room.item.total;
+
         this.document.items = await this.currentRent.items.map((i) => {
+
+            if(i.item.affectation_igv_type == undefined || _.isEmpty(i.item.affectation_igv_type))
+            {
+                i.item.affectation_igv_type = _.find(this.affectationIgvTypes, { id : i.item.affectation_igv_type_id })
+            }
+
             return calculateRowItem(i.item, "PEN", 3, this.percentage_igv)
         });
+        
         // console.log(this.document.items);
         await this.onCalculateTotals();
-        console.log(this.document);
-        this.onCalculatePaidAndDebts();
-        this.clickAddPayment();
+        // console.log(this.document);
+        await this.onCalculatePaidAndDebts();
+        await this.clickAddPayment();
         this.validateIdentityDocumentType();
         const date = moment().format("YYYY-MM-DD");
         await this.searchExchangeRateByDate(date).then((res) => {
@@ -573,8 +585,18 @@ export default {
                 this.series.length > 0 ? this.series[0].id : null;
         },
         clickAddPayment() {
+
+            /*
             const payment =
                 this.document.payments.length == 0 ? this.document.total : 0;
+            */
+
+            let payment = 0
+
+            if(this.document.payments.length == 0)
+            {
+                payment = (this.totalDebt > 0) ? this.totalDebt : this.document.total
+            }
 
             this.document.payments.push({
                 id: null,

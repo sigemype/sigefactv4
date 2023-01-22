@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="googlebot" content="noindex">
+    <meta name="robots" content="noindex">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -84,9 +86,9 @@
 </div>
 
     {{--@stack('scripts')--}}
-    
+
     @yield('content-mercadopago')
-    
+
     <script src="{{ asset('js/manifest.js') }}"></script>
     <script src="{{ asset('js/vendor.js') }}"></script>
     <script src="{{ mix('js/app.js') }}"></script>

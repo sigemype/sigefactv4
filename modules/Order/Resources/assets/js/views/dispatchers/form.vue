@@ -57,6 +57,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" :class="{'has-danger': errors.number_mtc}">
+                            <label class="control-label">MTC<span class="text-danger">*</span></label>
+                            <el-input v-model="form.number_mtc" maxlength="12"></el-input>
+                            <small class="form-control-feedback" v-if="errors.number_mtc" v-text="errors.number_mtc[0]"></small>
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <div class="form-actions text-right mt-4">
@@ -114,13 +123,14 @@
                     number: '',
                     name: null,
                     address: null,
+                    number_mtc: null
                 }
             },
             async opened() {
 
             },
             create() {
-                
+
                 this.titleDialog = (this.recordId)? 'Editar Transportista':'Nuevo Transportista'
 
                 if (this.recordId) {
@@ -136,7 +146,7 @@
                     .then(response => {
                         if (response.data.success) {
                             this.$message.success(response.data.message)
-                            
+
                             if (this.external) {
                                 this.$eventHub.$emit('reloadDataDispatchers', response.data.id)
                             } else {

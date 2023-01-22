@@ -83,6 +83,10 @@
                                 <th class="text-center">Fecha comprobante</th>
                                 <th>Cotización</th>
                                 <th>Caso</th>
+                                
+                                <th class="text-center">Productos</th>
+                                <th class="text-right">Descuento</th>
+
                                 <th class="text-right" >T.Exportación</th>
                                 <th class="text-right" >T.Inafecta</th>
                                 <th class="text-right" >T.Exonerado</th>
@@ -132,8 +136,18 @@
                                 <td class="celda">{{ ($value->quotation) ? $value->quotation->number_full : '' }}</td>
                                 <td class="celda">{{ isset($value->quotation->sale_opportunity) ? $value->quotation->sale_opportunity->number_full : '' }}</td>
 
+                                <td>
+                                    @foreach ($value->getItemsforReport() as $key => $item)
+                                        - {{ $item['description'] }} / Cantidad: {{ $item['quantity'] }} 
+                                        @if ($key < count($value->getItemsforReport()) - 1)
+                                        <br/>
+                                        @endif
+                                    @endforeach
+                                </td>
+
                                 @if($value->state_type_id == '11')
 
+                                    <td class="celda">0</td>
                                     <td class="celda">0</td>
                                     <td class="celda">0</td>
                                     <td class="celda">0</td>
@@ -143,6 +157,7 @@
 
                                 @else
 
+                                    <td class="celda">{{ ($value->total_discount) }}</td>
                                     <td class="celda">{{ ($value->total_exportation) }}</td>
                                     <td class="celda">{{ $value->total_unaffected }}</td>
                                     <td class="celda">{{ $value->total_exonerated }}</td>
@@ -197,14 +212,14 @@
 
                             @endforeach
                             <tr>
-                                <td class="celda" colspan="17"></td>
+                                <td class="celda" colspan="20"></td>
                                 <td class="celda" >Totales PEN</td>
                                 <td class="celda">{{$acum_total_taxed}}</td>
                                 <td class="celda">{{$acum_total_igv}}</td>
                                 <td class="celda">{{$acum_total}}</td>
                             </tr>
                             <tr>
-                                <td class="celda" colspan="17"></td>
+                                <td class="celda" colspan="20"></td>
                                 <td class="celda" >Totales USD</td>
                                 <td class="celda">{{$acum_total_taxed_usd}}</td>
                                 <td class="celda">{{$acum_total_igv_usd}}</td>

@@ -55,8 +55,7 @@ trait ReportTrait
         $guides = FunctionController::InArray($request, 'guides');
         $web_platform = FunctionController::InArray($request, 'web_platform_id',0);
 
-
-
+        $session_user_id = FunctionController::InArray($request, 'session_user_id', false);
 
 
         $d_start = null;
@@ -98,8 +97,11 @@ trait ReportTrait
             $state_type_id,
             $purchase_order,
             $guides,
-            $web_platform);
-           return $records;
+            $web_platform,
+            $session_user_id
+        );
+
+        return $records;
 
     }
 
@@ -116,6 +118,7 @@ trait ReportTrait
      * @param      $state_type_id
      * @param      $purchase_order
      * @param null $guides
+     * @param bool $session_user_id
      *
      * @return \App\Models\Tenant\PurchaseItem|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      */
@@ -131,19 +134,35 @@ trait ReportTrait
         $state_type_id,
         $purchase_order,
         $guides = null,
-        $web_platform = null
+        $web_platform = null,
+        $session_user_id = false
     ) {
         $web_platform = (int)$web_platform;
         $document_type_id = ($document_type_id == 'null')?null:$document_type_id;
         // En unas vistas esta consultando "01" en vez 01
         $document_type_id = str_replace('"','',$document_type_id);
+
         if($model !== PurchaseItem::class) {
+
             $data = $model::whereBetween('date_of_issue', [$date_start, $date_end])
-                ->latest()
-                 -> whereTypeUser();
+                            ->latest();
+
+            //usado para reporte en cola (ProcessDocumentReport)
+            if($session_user_id)
+            {
+                $data->whereTypeUser([
+                    'user_id' => $session_user_id
+                ]);
+            }
+            else
+            {
+                $data->whereTypeUser();
+            }
+
         }else{
             $data = PurchaseItem::whereNotNull('id');
         }
+
         /** @var \Illuminate\Database\Eloquent\Builder  $data */
         if ($document_type_id && $establishment_id) {
             if($document_type_id == '80') {

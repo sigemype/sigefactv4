@@ -476,9 +476,11 @@
                                     <tr v-for="(row, index) in form.items"
                                         :key="index">
                                         <td>{{ index + 1 }}</td>
-                                        <td>{{
-                                                row.item.description
-                                            }}<br/><small>{{ row.affectation_igv_type.description }}</small></td>
+                                        <td>
+                                            {{
+                                                setDescriptionOfItem(row.item)
+                                            }}
+                                            <br/><small>{{ row.affectation_igv_type.description }}</small></td>
                                         <td class="text-left">{{ row.warehouse_description }}</td>
                                         <td class="text-left">{{ row.lot_code }}</td>
                                         <td class="text-center">{{ row.item.unit_type_id }}</td>
@@ -493,12 +495,21 @@
                                         <td class="text-right">{{ currency_type.symbol }} {{ row.total_charge }}</td>
                                         <td class="text-right">{{ currency_type.symbol }} {{ row.total }}</td>
                                         <td class="text-right">
+
+                                            <button v-if="applyLotsGroup(row.item)"
+                                                    class="btn waves-effect waves-light btn-xs btn-info mr-2"
+                                                    type="button"
+                                                    @click.prevent="clickOpenLotsGroup(index)">
+                                                Lote
+                                            </button>
+
                                             <button v-if="purchase_order_id && row.item.series_enabled"
                                                     class="btn waves-effect waves-light btn-xs btn-info"
                                                     type="button"
                                                     @click.prevent="clickOpenSeries(index, row.quantity, row.lots)">
                                                 Series
                                             </button>
+
                                             <button class="btn waves-effect waves-light btn-xs btn-danger"
                                                     type="button"
                                                     @click.prevent="clickRemoveItem(index)">x
@@ -510,6 +521,39 @@
                             </div>
                         </div>
                         <div class="col-md-12">
+
+                            <!-- descuentos -->
+
+                            <div class="row mt-1 mb-2"  v-if="form.total > 0">
+
+                                <div class="col-lg-10 float-right">
+                                    <label class="float-right control-label">
+
+                                        <el-tooltip class="item"
+                                            :content="global_discount_type.description"
+                                            effect="dark"
+                                            placement="top">
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+
+                                        DESCUENTO {{ is_amount ? 'MONTO' : '%' }}
+                                        <el-checkbox v-model="is_amount" class="ml-1 mr-1" @change="changeTypeDiscount"></el-checkbox>
+                                        :
+                                    </label>
+                                </div>
+
+                                <div class="col-lg-2 float-right">
+                                    <el-input-number v-model="total_global_discount"
+                                                        :min="0"
+                                                        class="input-custom"
+                                                        controls-position="right"
+                                                        @change="changeTotalGlobalDiscount"></el-input-number>
+                                </div>
+
+                            </div>
+
+                            <!-- descuentos -->
+
                             <p v-if="form.total_exportation > 0"
                                class="text-right">OP.EXPORTACIÓN: {{ currency_type.symbol }}
                                                                  {{ form.total_exportation }}</p>
@@ -532,6 +576,8 @@
 
                             <p v-if="form.total_isc > 0"
                                class="text-right">ISC: {{ currency_type.symbol }} {{ form.total_isc }}</p>
+
+                            <p v-if="form.total_discount > 0" class="text-right">DESCUENTOS TOTALES: {{ currency_type.symbol }} {{ form.total_discount }}</p>
 
                             <h3 v-if="form.total > 0"
                                 class="text-right"><b>TOTAL COMPRAS: </b>{{ currency_type.symbol }} {{ form.total }}
@@ -634,6 +680,13 @@
             @addRowLot="addRowLot">
         </series-form>
 
+        <input-lot-group
+            :showDialog.sync="showDialogInputLotGroup"
+            :rowItem="rowItem"
+            :rowIndex="rowIndex"
+            @saveInputLotGroup="saveInputLotGroup">
+        </input-lot-group>
+
     </div>
 </template>
 
@@ -642,15 +695,16 @@
 import PurchaseFormItem from './partials/item.vue'
 import PersonForm from '../persons/form.vue'
 import PurchaseOptions from './partials/options.vue'
-import {exchangeRate, functions, fnPaymentsFee} from '../../../mixins/functions'
-import {calculateRowItem} from '../../../helpers/functions'
+import {exchangeRate, functions, fnPaymentsFee, operationsForDiscounts} from '../../../mixins/functions'
+import {calculateRowItem, showNamePdfOfDescription} from '../../../helpers/functions'
 import SeriesForm from './partials/series'
 import {mapActions, mapState} from "vuex";
+import InputLotGroup from '@components/secondary/InputLotGroup.vue'
 
 export default {
     props: ['purchase_order_id'],
-    components: {PurchaseFormItem, PersonForm, PurchaseOptions, SeriesForm},
-    mixins: [functions, exchangeRate, fnPaymentsFee],
+    components: {PurchaseFormItem, PersonForm, PurchaseOptions, SeriesForm, InputLotGroup},
+    mixins: [functions, exchangeRate, fnPaymentsFee, operationsForDiscounts],
     computed: {
         ...mapState([
             'config',
@@ -666,6 +720,13 @@ export default {
         isCreditPaymentCondition: function () {
             return ['02', '03'].includes(this.form.payment_condition_id)
         },
+        isGlobalDiscountBase: function () {
+            return (this.config.global_discount_type_id === '02')
+        },
+        isFromPurchaseOrder()
+        {
+            return this.purchase_order_id != undefined && this.purchase_order_id != null
+        }
     },
     data() {
         return {
@@ -705,6 +766,9 @@ export default {
             loading_search: false,
             purchaseNewId: null,
             showDialogLots: false,
+            showDialogInputLotGroup: false,
+            rowItem: null,
+            rowIndex: -1,
         }
     },
     async mounted() {
@@ -723,6 +787,7 @@ export default {
                 this.payment_method_types = data.payment_method_types
                 this.payment_destinations = data.payment_destinations
                 this.all_customers = data.customers
+                this.global_discount_types = data.global_discount_types
 
                 this.charges_types = data.charges_types
                 this.$store.commit('setConfiguration', data.configuration);
@@ -737,7 +802,9 @@ export default {
                 this.changeDateOfIssue()
                 this.changeDocumentType()
                 this.changeCurrencyType()
+                this.setConfigGlobalDiscountType()
             })
+
         this.$eventHub.$on('reloadDataPersons', (supplier_id) => {
             this.reloadDataSuppliers(supplier_id)
         })
@@ -760,6 +827,31 @@ export default {
         this.initGlobalIgv()
     },
     methods: {
+        saveInputLotGroup(params)
+        {
+            this.form.items[params.index].lot_code = params.data.lot_code
+            this.form.items[params.index].date_of_due = params.data.date_of_due
+            this.initDataRow()
+        },
+        initDataRow()
+        {
+            this.rowItem = null
+            this.rowIndex = -1
+        },
+        clickOpenLotsGroup(index)
+        {
+            this.rowItem = this.form.items[index]
+            this.rowIndex = index
+            this.showDialogInputLotGroup = true
+        },
+        applyLotsGroup(item)
+        {
+            return this.isFromPurchaseOrder && item.lots_enabled != undefined && item.lots_enabled
+        },
+        setDescriptionOfItem(item)
+        {
+            return showNamePdfOfDescription(item, this.config.show_pdf_name)
+        },
         ...mapActions([
             'loadConfiguration',
             'loadEstablishment',
@@ -818,8 +910,10 @@ export default {
             return _.round(unit_price, 6)
             // return unit_price.toFixed(6)
         },
-        async isGeneratePurchaseOrder() {
-            if (this.purchase_order_id) {
+        async isGeneratePurchaseOrder() 
+        {
+            if (this.purchase_order_id) 
+            {
 
                 await this.$http.get(`/purchase-orders/record/${this.purchase_order_id}`)
                     .then(response => {
@@ -837,17 +931,31 @@ export default {
                         this.form.supplier_id = purchase_order.supplier_id
                         this.form.currency_type_id = purchase_order.currency_type_id
                         this.form.purchase_order_id = purchase_order.id
-                        this.form.payments[0].payment_method_type_id = purchase_order.payment_method_type_id
-                        this.form.payments[0].payment = purchase_order.total
+                        // this.form.payments[0].payment_method_type_id = purchase_order.payment_method_type_id
+                        // this.form.payments[0].payment = purchase_order.total
+
+                        this.form.total_exportation = purchase_order.total_exportation
+                        this.form.total_taxed = purchase_order.total_taxed
+                        this.form.total_exonerated = purchase_order.total_exonerated
+                        this.form.total_unaffected = purchase_order.total_unaffected
+                        this.form.total_free = purchase_order.total_free
+                        this.form.total_igv = purchase_order.total_igv
+                        this.form.total_value = purchase_order.total_value
+                        this.form.total_taxes = purchase_order.total_taxes
                         this.form.total = purchase_order.total
+
                         this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
 
                         this.form.items.forEach((it) => {
+
                             it.warehouse_id = warehouse.id
                             it.charges = it.charges ? Object.values(it.charges) : []
                             it.attributes = it.attributes ? Object.values(it.attributes) : []
                             it.discounts = it.discounts ? Object.values(it.discounts) : []
                             it.lots = it.item.lots ? it.item.lots : []
+
+                            it.lot_code = null
+                            it.date_of_due = null
                         })
                         // this.changeDocumentType()
 
@@ -1124,6 +1232,10 @@ export default {
 
             this.initGlobalIgv()
 
+            this.total_global_discount = 0
+            this.is_amount = true
+
+
         },
         initGlobalIgv(){
             this.localHasGlobalIgv = this.config.checked_global_igv_to_purchase
@@ -1257,6 +1369,8 @@ export default {
             this.calculatePayments()
             this.calculateFee()
 
+            this.discountGlobal()
+
         },
         setTotalDefaultPayment() {
 
@@ -1313,11 +1427,42 @@ export default {
             }
 
         },
+        validateDataItems()
+        {
+            let errors_lots_group = 0
+
+            this.form.items.forEach(row => {
+
+                // validar lotes cuando se genera desde oc
+                if(this.isFromPurchaseOrder)
+                {
+                    if(row.item.lots_enabled)
+                    {
+                        if(!row.lot_code || !row.date_of_due) errors_lots_group++
+                    }
+                }
+                
+            })
+
+            if(errors_lots_group > 0) return this.getCurrentResponse(false, 'No ha registrado el lote o fecha de vencimiento para el producto')
+
+            return this.getCurrentResponse()
+        },
+        getCurrentResponse(success = true, message = null)
+        {
+            return {
+                success: success,
+                message: message,
+            }
+        },
         async submit() {
             let validate_item_series = await this.validationItemSeries()
             if (!validate_item_series.success) {
                 return this.$message.error(validate_item_series.message);
             }
+            
+            const validate_data_items = await this.validateDataItems()
+            if (!validate_data_items.success) return this.$message.error(validate_data_items.message)
 
             let validate = await this.validate_payments()
             if (!validate.success) {

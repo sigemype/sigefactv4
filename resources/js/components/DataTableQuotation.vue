@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading="loading">
         <div class="row ">
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
@@ -79,6 +79,14 @@
                                                 value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="true"></el-date-picker>
                             </div>
                         </template>
+                        
+                        <div class="col-md-3">
+                            <label class="control-label">Estado</label>
+                            
+                            <el-select v-model="form.state_type_id"  placeholder="Seleccionar" @change="changeStateType" clearable>
+                                <el-option v-for="(option, key) in stateTypes" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                            </el-select>
+                        </div>
  
                     </div>
 
@@ -126,7 +134,11 @@
                 type: Boolean,
                 default: true,
                 required: false
-            }
+            },
+            stateTypes: {
+                type: Array,
+                required: true
+            },
         },
         data () {
             return {
@@ -151,6 +163,7 @@
                         return this.form.month_start > time
                     }
                 },
+                loading: false,
             }
         },
         computed: {
@@ -172,6 +185,10 @@
 
         },
         methods: {
+            changeStateType()
+            {
+                this.getRecords()
+            },
             changeDisabledDates() {
 
                 if (this.form.date_end < this.form.date_start) {
@@ -237,6 +254,7 @@
                     period: 'month',
                     date_start: null,
                     date_end: null,
+                    state_type_id: null,
                 }
 
             },
@@ -244,11 +262,18 @@
                 return (this.pagination.per_page * (this.pagination.current_page - 1)) + index + 1
             },
             getRecords() {
+
+                this.loading = true;
+
                 this.search.form = JSON.stringify(this.form)
+
                 return this.$http.get(`/${this.resource}/records?${this.getQueryParameters()}`).then((response) => {
                     this.records = response.data.data
                     this.pagination = response.data.meta
                     this.pagination.per_page = parseInt(response.data.meta.per_page)
+                })
+                .then(() => {
+                    this.loading = false;
                 });
             },
             getQueryParameters() {

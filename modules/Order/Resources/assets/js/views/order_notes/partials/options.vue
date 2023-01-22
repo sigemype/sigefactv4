@@ -159,6 +159,13 @@
                     </tbody>
                 </table>
             </div>
+
+            
+            <!-- propinas -->
+            <template v-if="configuration.enabled_tips_pos && isInvoiceDocument">
+                <set-tip class="full py-2 border-top mt-2" @changeDataTip="changeDataTip"></set-tip>
+            </template>
+            <!-- propinas -->
         </div>
 
         <span slot="footer" class="dialog-footer">
@@ -183,11 +190,13 @@
 <script>
 import DocumentOptions from "@views/documents/partials/options.vue";
 import SaleNoteOptions from "@views/sale_notes/partials/options.vue";
+import SetTip from '@components/SetTip.vue'
 
 export default {
     components: {
         DocumentOptions,
-        SaleNoteOptions
+        SaleNoteOptions,
+        SetTip
     },
 
     props: ["showDialog", "recordId", "showClose", "showGenerate", "type", 'typeUser', 'configuration'],
@@ -223,7 +232,28 @@ export default {
         this.initDocument();
         // this.clickAddPayment()
     },
+    computed:
+    {
+        isInvoiceDocument()
+        {
+            return ['01', '03'].includes(this.document.document_type_id)
+        }
+    },
     methods: {
+        changeDataTip(tip)
+        {
+            if(tip)
+            {
+                this.document.worker_full_name_tips = tip.worker_full_name_tips 
+                this.document.total_tips = tip.total_tips 
+            }
+        },
+        cleanFormTip()
+        {
+            this.document.worker_full_name_tips = null
+            this.document.total_tips = 0
+            this.$eventHub.$emit('eventInitTip')
+        },
         clickCancel(index) {
             this.document.payments.splice(index, 1);
         },
@@ -329,7 +359,13 @@ export default {
                 payments: [],
                 hotel: {},
                 seller_id: 0,
+                
+                worker_full_name_tips: null, //propinas
+                total_tips: 0, //propinas
             };
+
+            this.cleanFormTip()
+
         },
         changeDateOfIssue() {
             this.document.date_of_due = this.document.date_of_issue;
@@ -553,6 +589,8 @@ export default {
             } else {
                 this.is_document_type_invoice = false;
             }
+
+            if(this.configuration.enabled_tips_pos && !this.isInvoiceDocument) this.cleanFormTip()
         },
         async validateIdentityDocumentType() {
             let identity_document_types = ["0", "1"];

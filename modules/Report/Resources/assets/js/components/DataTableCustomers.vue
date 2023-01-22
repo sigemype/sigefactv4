@@ -3,14 +3,12 @@
         <div class="row">
 
             <div class="col-md-12 col-lg-12 col-xl-12 ">
-                  
-                <div class="row mt-2"> 
-                    
+
+                <div class="row mt-2">
+
                         <div class="col-lg-6 col-md-6" >
-                            <div class="form-group"> 
-                                <label class="control-label">Cliente
-                                </label>
-                                
+                            <div class="form-group">
+                                <label class="control-label">Cliente</label>
                                 <el-select v-model="form.person_id" filterable remote  popper-class="el-select-customers"  clearable
                                     placeholder="Nombre o número de documento"
                                     :remote-method="searchRemotePersons"
@@ -18,7 +16,7 @@
                                     @change="changePersons">
                                     <el-option v-for="option in persons" :key="option.id" :value="option.id" :label="option.description"></el-option>
                                 </el-select>
- 
+
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -62,7 +60,7 @@
                                                 value-format="yyyy-MM-dd" format="dd/MM/yyyy" :clearable="false"></el-date-picker>
                             </div>
                         </template>
-                        
+
                         <!-- <div class="col-md-3">
                             <div class="form-group">
                                 <label class="control-label">Establecimiento</label>
@@ -79,22 +77,22 @@
                                 </el-select>
                             </div>
                         </div> -->
-                        
-                        <div class="col-lg-7 col-md-7 col-md-7 col-sm-12" style="margin-top:29px"> 
+
+                        <div class="col-lg-7 col-md-7 col-md-7 col-sm-12" style="margin-top:29px">
                             <el-button class="submit" type="primary" @click.prevent="getRecordsByFilter" :loading="loading_submit" icon="el-icon-search" >Buscar</el-button>
-                            
-                            <template v-if="records.length>0"> 
+
+                            <template v-if="records.length>0">
 
                                 <el-button class="submit" type="success" @click.prevent="clickDownload('excel')"><i class="fa fa-file-excel" ></i>  Exportal Excel</el-button>
 
                             </template>
 
-                        </div>             
-                    
+                        </div>
+
                 </div>
                 <div class="row mt-1 mb-4">
-                    
-                </div> 
+
+                </div>
             </div>
 
 
@@ -106,7 +104,7 @@
                         </thead>
                         <tbody>
                             <slot v-for="(row, index) in records" :row="row" :index="customIndex(index)"></slot>
-                        </tbody> 
+                        </tbody>
                     </table>
                     <div>
                         <el-pagination
@@ -133,10 +131,11 @@
     import moment from 'moment'
     import queryString from 'query-string'
 
-    export default { 
-        props: {
-            resource: String,
-        },
+    export default {
+        props: [
+            'resource',
+            'customerId'
+        ],
         data () {
             return {
                 loading_submit:false,
@@ -147,11 +146,11 @@
                 records: [],
                 headers: headers_token,
                 document_types: [],
-                pagination: {}, 
-                search: {}, 
-                totals: {}, 
+                pagination: {},
+                search: {},
+                totals: {},
                 establishment: null,
-                establishments: [],       
+                establishments: [],
                 form: {},
                 pickerOptionsDates: {
                     disabledDate: (time) => {
@@ -169,14 +168,28 @@
         },
         computed: {
         },
+        watch: {
+            customerId: function(newVal, oldVal) { // watch it
+                this.onLoadCustomer()
+            }
+        },
         created() {
             this.initForm()
             this.initTotals()
             this.$eventHub.$on('reloadData', () => {
                 this.getRecords()
             })
+
+            // if(this.customerId !== undefined){
+            //     this.form.person_id = this.customerId
+            //     this.getRecordsByFilter()
+            // }
+
+            if(this.customerId !== undefined){
+                this.onLoadCustomer()
+            }
         },
-        async mounted () { 
+        async mounted () {
 
             await this.$http.get(`/${this.resource}/filter`)
                 .then(response => {
@@ -191,46 +204,50 @@
             await this.filterPersons()
             // await this.getTotals()
             this.form.type_person = 'customers'
-
         },
-        methods: { 
+        methods: {
+            onLoadCustomer(){
+                this.initForm()
+                this.form.person_id = this.customerId
+                this.getRecordsByFilter()
+            },
             changePersons(){
                 // this.form.type_person = 'customers'
             },
-            searchRemotePersons(input) {  
-                
-                if (input.length > 0) { 
+            searchRemotePersons(input) {
+
+                if (input.length > 0) {
 
                     this.loading_search = true
                     let parameters = `input=${input}`
-                    
+
                     this.form.type_person = 'customers'
 
                     this.$http.get(`/reports/data-table/persons/${this.form.type_person}?${parameters}`)
-                            .then(response => { 
+                            .then(response => {
                                 this.persons = response.data.persons
                                 this.loading_search = false
-                                
+
                                 if(this.persons.length == 0){
                                     this.filterPersons()
                                 }
-                            })  
+                            })
                 } else {
                     this.filterPersons()
                 }
 
             },
-            filterPersons() { 
+            filterPersons() {
                 this.persons = this.all_persons
-            }, 
-            clickDownload(type) {                 
+            },
+            clickDownload(type) {
                 let query = queryString.stringify({
                     ...this.form
                 });
                 window.open(`/${this.resource}/${type}/?${query}`, '_blank');
             },
             initForm(){
- 
+
                 this.form = {
                     establishment_id: null,
                     person_id: null,
@@ -243,15 +260,15 @@
                     month_end: moment().format('YYYY-MM'),
                 }
 
-            }, 
+            },
             initTotals(){
-                
+
                 this.totals = {
                     acum_total_taxed : 0,
                     acum_total_igv : 0,
-                    acum_total : 0,      
+                    acum_total : 0,
                     acum_total_exonerated : 0,
-                    acum_total_unaffected : 0,         
+                    acum_total_unaffected : 0,
                     acum_total_free : 0,
 
                     acum_total_taxed_usd : 0,
@@ -261,9 +278,9 @@
             },
             customIndex(index) {
                 return (this.pagination.per_page * (this.pagination.current_page - 1)) + index + 1
-            }, 
+            },
             async getRecordsByFilter(){
-                
+
                 if(!this.form.person_id){
                     return this.$message.error('Debe seleccionar un cliente')
                 }
@@ -292,7 +309,7 @@
                     ...this.form
                 })
             },
-            
+
             changeDisabledDates() {
                 if (this.form.date_end < this.form.date_start) {
                     this.form.date_end = this.form.date_start

@@ -21,7 +21,8 @@
                             <td  class="text-left">{{row.series}}-{{row.number}}</td>
                             <td  class="text-center">{{row.item_internal_id}}</td>
                             <td  class="text-center">{{row.item_unit_type_id}}</td>
-                            <td  class="text-center">{{ (row.category)?row.category.name:''}}</td>
+                            <!-- <td  class="text-center">{{ (row.category)?row.category.name:''}}</td> -->
+                            <td  class="text-center">{{ row.category_name }}</td>
                             <td  class="text-center">{{row.item_description}}</td>
                             <td  class="text-center">{{row.item_quantity}}</td>
                             <td  class="text-center">{{row.total_sale}}</td>

@@ -189,8 +189,13 @@
                 </tbody>
             </table>
             <br>
+
             {{-- TOTALES --}}
-            <table class="">
+            @if (!$is_garage)
+                @include('tenant.cash.partials.totals_sold_items')
+            @endif
+            
+            {{-- <table class="">
                 <thead>
                 <tr>
                     <th>#</th>
@@ -254,7 +259,7 @@
 
                 </tr>
                 </tbody>
-            </table>
+            </table> --}}
         </div>
     </div>
 @else

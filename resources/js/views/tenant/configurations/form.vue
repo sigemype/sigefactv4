@@ -345,7 +345,7 @@
 
                                     <el-tooltip
                                         class="item"
-                                        content="Muestra el nombre del producto que se ingresa en el pdf, en vez del nombre del producto. Solo para CPE y Cotización"
+                                        content="Muestra el nombre del producto que se ingresa en el pdf, en vez del nombre del producto. Disponible para CPE, Cotización, Compra y Nota de venta"
                                         effect="dark"
                                         placement="top-start">
                                         <i class="fa fa-info-circle"></i>
@@ -573,7 +573,7 @@
                                 <label class="control-label">
                                     Habilitar registro de propinas
                                     <el-tooltip class="item"
-                                                content="Disponible en POS"
+                                                content="Disponible en POS - Nuevo CPE - Convertir pedido a CPE"
                                                 effect="dark"
                                                 placement="top-start">
                                         <i class="fa fa-info-circle"></i>
@@ -704,6 +704,7 @@
                                 </div>
                             </div>
 
+
                             <div class="col-md-6 mt-4">
 
                                 <label class="control-label">
@@ -727,6 +728,55 @@
                                             v-text="errors.restrict_series_selection_seller[0]"></small>
                                 </div>
                             </div>
+
+
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Cargar voucher - Pagos
+                                    <el-tooltip class="item"
+                                                content="Se visualizará un campo para cargar el voucher de pago al registrar el documento - Disponible en Nuevo CPE y Nota venta"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.show_load_voucher}"
+                                        class="form-group">
+                                    <el-switch v-model="form.show_load_voucher"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.show_load_voucher"
+                                            class="form-control-feedback"
+                                            v-text="errors.show_load_voucher[0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+
+                                <label class="control-label">
+                                    Buscar productos por código de fábrica
+                                    <el-tooltip class="item"
+                                                content="Disponible en Nuevo CPE y Nota de venta"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.search_factory_code_items}"
+                                        class="form-group">
+                                    <el-switch v-model="form.search_factory_code_items"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.search_factory_code_items"
+                                            class="form-control-feedback"
+                                            v-text="errors.search_factory_code_items[0]"></small>
+                                </div>
+                            </div>
+
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="third">
@@ -1091,7 +1141,7 @@
                                 <label class="control-label">Modificar moneda al agregar producto
                                     <el-tooltip
                                         class="item"
-                                        content="Disponible en Nuevo CPE"
+                                        content="Disponible en Nuevo CPE, Notas de venta y Cotizaciones"
                                         effect="dark"
                                         placement="top-start">
                                         <i class="fa fa-info-circle"></i>
@@ -1109,6 +1159,31 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Agregar series al XML - Datos de vehículos
+                                    <el-tooltip class="item"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <div slot="content">
+                                            - Registra las series vendidas como información adicional a nivel de item.<br>
+                                            - Usa el atributo con código 5019 - Serie/Chasis del catálogo 55 - Código de identificación del concepto tributario de Sunat. <br>
+                                            - Disponible para Facturas y Boletas. <br>
+                                        </div>
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.register_series_invoice_xml}"
+                                        class="form-group">
+                                    <el-switch v-model="form.register_series_invoice_xml"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.register_series_invoice_xml"
+                                            class="form-control-feedback"
+                                            v-text="errors.register_series_invoice_xml[0]"></small>
+                                </div>
+                            </div>
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="fourth">
@@ -1282,6 +1357,7 @@
                                         <el-upload slot="append"
                                                     :headers="headers"
                                                     :on-success="successUpload"
+                                                    :on-error="errorUpload"
                                                     :show-file-list="false"
                                                     action="/configurations/uploads">
                                             <el-button icon="el-icon-upload"
@@ -1394,6 +1470,28 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Mostrar precio en etiqueta
+                                    <el-tooltip
+                                        class="item"
+                                        content="Mostrar precio en etiqueta de código de barras de productos"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <div :class="{'has-danger': errors.show_price_barcode_ticket}"
+                                        class="form-group">
+                                    <el-switch v-model="form.show_price_barcode_ticket"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.show_price_barcode_ticket"
+                                            class="form-control-feedback"
+                                            v-text="errors.show_price_barcode_ticket[0]"></small>
+                                </div>
+                            </div>
+
 
                             <div class="col-md-3 mt-4">
                                 <label class="control-label">Modificar cantidad de decimales
@@ -1436,6 +1534,30 @@
                                     </div>
                                 </div>
                             </template>
+
+                            <div class="col-md-6 mt-4">
+                                <!-- <label class="control-label">Agregar imágenes al pdf 
+                                    <el-tooltip
+                                        class="item"
+                                        content="Agrega las imágenes en el footer del pdf - Disponible para Cotización en formato A4, usando la plantilla pdf Default/Default3"
+                                        effect="dark"
+                                        placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label> -->
+                                <div class="form-group">
+                                    <a class="text-center font-weight-bold text-info" href="#" @click.prevent="showDialogPdfFooterImages = true">
+                                        [+ Agregar imágenes al pdf]
+                                        <el-tooltip
+                                            class="item"
+                                            content="Agrega las imágenes en el footer del pdf - Disponible para Cotización en formato A4, usando la plantilla pdf Default/Default3"
+                                            effect="dark"
+                                            placement="top-start">
+                                            <i class="ml-2 fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </a>
+                                </div>
+                            </div>
 
                         </div>
                     </el-tab-pane>
@@ -1539,7 +1661,7 @@
                             <div class="col-md-6 mt-4">
                                 <label class="control-label">Seleccionar nota de venta por defecto
                                     <el-tooltip class="item"
-                                                content="Disponible POS"
+                                                content="Disponible POS y Venta rápida"
                                                 effect="dark"
                                                 placement="top-start">
                                         <i class="fa fa-info-circle"></i>
@@ -1744,7 +1866,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="col-6 mt-4">
                                 <div class="form-group">
                                     <label>
@@ -1815,7 +1937,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="col-6 mt-4">
                                 <div class="form-group">
                                     <label>
@@ -1844,7 +1966,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-6 mt-4">
                                 <div class="form-group">
                                     <label>
@@ -1867,6 +1989,77 @@
                                         <small v-if="errors.change_affectation_exonerated_igv"
                                             class="form-control-feedback"
                                             v-text="errors.change_affectation_exonerated_igv[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Activar descuento por cliente
+                                    </label>
+                                    <div :class="{'has-danger': errors.enable_discount_by_customer}"
+                                         class="form-group">
+                                        <el-switch v-model="form.enable_discount_by_customer"
+                                                   active-text="Si"
+                                                   inactive-text="No"
+                                                   @change="submit"></el-switch>
+                                        <small v-if="errors.enable_discount_by_customer"
+                                               class="form-control-feedback"
+                                               v-text="errors.enable_discount_by_customer[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Habilitar ticket de despacho
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Agrega el ticket de despacho al pdf formato ticket - Disponible en POS (CPE - Nota de venta)
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.enabled_dispatch_ticket_pdf}"
+                                         class="form-group">
+                                        <el-switch v-model="form.enabled_dispatch_ticket_pdf"
+                                                   active-text="Si"
+                                                   inactive-text="No"
+                                                   @change="submit"></el-switch>
+                                        <small v-if="errors.enabled_dispatch_ticket_pdf"
+                                               class="form-control-feedback"
+                                               v-text="errors.enabled_dispatch_ticket_pdf[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Agregar producto al seleccionar precio
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Agrega de forma automática el producto al seleccionar una opción del listado de precios - Disponible en POS/Venta rápida
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.price_selected_add_product}"
+                                         class="form-group">
+                                        <el-switch v-model="form.price_selected_add_product"
+                                                   active-text="Si"
+                                                   inactive-text="No"
+                                                   @change="submit"></el-switch>
+                                        <small v-if="errors.price_selected_add_product"
+                                               class="form-control-feedback"
+                                               v-text="errors.price_selected_add_product[0]"></small>
                                     </div>
                                 </div>
                             </div>
@@ -1966,15 +2159,15 @@
                         </div>
                     </el-tab-pane>
 
-                    
+
                     <el-tab-pane class="mb-3" name="tab_point_system">
                         <span slot="label">S. Puntos</span>
                         <div class="row">
-                            
+
                             <div class="col-md-4">
                                 <label class="control-label">
                                     Habilitar sistema por puntos
-                                    
+
                                     <el-tooltip class="item" effect="dark" placement="top-start">
                                         <i class="fa fa-info-circle"></i>
                                         <div slot="content">
@@ -1998,7 +2191,7 @@
                             </div>
 
                             <template v-if="form.enabled_point_system">
-                                
+
                                 <div class="col-md-4">
                                     <label class="control-label">
                                         Monto de venta
@@ -2047,6 +2240,81 @@
                         </div>
                     </el-tab-pane>
 
+                    <el-tab-pane class="mb-3" name="twelve">
+                        <span slot="label">Usuario</span>
+                        <div class="row">
+                            <div class="col-md-6">
+
+                                <label class="control-label">
+                                    Recordar cambio de contraseña
+                                    <el-tooltip class="item"
+                                                content="Se mostrará una notificación cuando se cumpla el plazo asignado en meses, desde la fecha de la última actualización de contraseña"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.enabled_remember_change_password}"
+                                        class="form-group">
+                                    <el-switch v-model="form.enabled_remember_change_password"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.enabled_remember_change_password"
+                                            class="form-control-feedback"
+                                            v-text="errors.enabled_remember_change_password[0]"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" v-if="form.enabled_remember_change_password">
+
+                                <label class="control-label">
+                                    N° Meses
+                                </label>
+
+                                <div :class="{'has-danger': errors.quantity_month_remember_change_password}"
+                                        class="form-group">
+
+                                        <el-input-number v-model="form.quantity_month_remember_change_password"
+                                                            :min="1"
+                                                            :precision="0"
+                                                            :step="1"
+                                                            @change="submit"></el-input-number>
+                                    <small v-if="errors.quantity_month_remember_change_password"
+                                            class="form-control-feedback"
+                                            v-text="errors.quantity_month_remember_change_password[0]"></small>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-md-6">
+
+                                <label class="control-label">
+                                    Habilitar contraseña segura
+                                    <el-tooltip class="item"
+                                                content="Se solicitará una contraseña segura (cumplir patrón) al registrar usuario"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.regex_password_user}"
+                                        class="form-group">
+                                    <el-switch v-model="form.regex_password_user"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.regex_password_user"
+                                            class="form-control-feedback"
+                                            v-text="errors.regex_password_user[0]"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </el-tab-pane>
+
                 </el-tabs>
                 <terms-condition :form="form"
                                     :showClose="false"
@@ -2058,6 +2326,8 @@
                 <allowance-charge :form="form"
                                     :showClose="false"
                                     :showDialog.sync="showDialogAllowanceCharge"></allowance-charge>
+
+                <pdf-footer-images :showDialog.sync="showDialogPdfFooterImages"></pdf-footer-images>
             </form>
         </template>
     </div>
@@ -2078,6 +2348,8 @@ import TermsConditionSale from '@views/documents/partials/terms_condition.vue'
 import AllowanceCharge from './partials/allowance_charge.vue'
 import {mapActions, mapState} from "vuex";
 import ReportConfigurationsIndex from './partials/report_configurations_index.vue'
+import PdfFooterImages from './partials/pdf_footer_images.vue'
+
 
 export default {
     props: [
@@ -2089,6 +2361,7 @@ export default {
         TermsConditionSale,
         AllowanceCharge,
         ReportConfigurationsIndex,
+        PdfFooterImages,
     },
     computed: {
         ...mapState([
@@ -2100,6 +2373,7 @@ export default {
             headers: headers_token,
             showDialogTermsCondition: false,
             showDialogTermsConditionSales: false,
+            showDialogPdfFooterImages: false,
             showDialogAllowanceCharge: false,
             loading_submit: false,
             resource: 'configurations',
@@ -2241,6 +2515,10 @@ export default {
                 order_cash_income: false,
                 generate_order_note_from_quotation: false,
                 list_items_by_warehouse: false,
+                regex_password_user: false,
+                enabled_remember_change_password: false,
+                quantity_month_remember_change_password: 0,
+
                 ticket_single_shipment: false,
                 hide_pdf_view_documents: false,
 
@@ -2264,6 +2542,12 @@ export default {
                 sellers_discount_limit: 0,
                 enabled_sales_agents: false,
                 change_affectation_exonerated_igv: false,
+                show_load_voucher: false,
+                search_factory_code_items: false,
+                register_series_invoice_xml: false,
+                enable_discount_by_customer: false,
+                enabled_dispatch_ticket_pdf: false,
+                price_selected_add_product: false,
             };
         },
         UpdateFormPurchase(e) {
@@ -2331,6 +2615,10 @@ export default {
             }).then(() => {
                 this.loading_submit = false;
             });
+        },
+        errorUpload(error)
+        {
+            this.$message({message: 'Error al subir el archivo', type: 'error'})
         }
     }
 }

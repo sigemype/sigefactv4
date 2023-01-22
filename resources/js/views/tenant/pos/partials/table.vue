@@ -206,7 +206,16 @@ export default {
         visibleTagsCustomer: {
             type: Boolean,
             default: false
-        }
+        },
+        searchFromBarcode: {
+            type: Boolean,
+            default: false
+        },
+        originIsGarage: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
     },
     data() {
         return {
@@ -257,6 +266,8 @@ export default {
                 this.records[0].unit_type_id = price.unit_type_id;
                 this.records[0].presentation = price;
 
+                this.addItemFromPriceSelected(this.records[0])
+
             } else {
 
                 if (this.currentRow) {
@@ -264,11 +275,23 @@ export default {
                     this.currentRow.sale_unit_price = value;
                     this.currentRow.unit_type_id = price.unit_type_id;
                     this.currentRow.presentation = price;
+
+                    this.addItemFromPriceSelected(this.currentRow)
+
                 }
             }
             
             this.$message.success("Precio seleccionado");
+
             
+        },
+        async addItemFromPriceSelected(item)
+        {
+            if(this.originIsGarage && this.config.price_selected_add_product)
+            {
+                await this.handle13()
+                item.apply_price_selected_add_product = true
+            }
         },
         openTableListPrices113(){
             
@@ -303,6 +326,8 @@ export default {
 
         },
         handle13() {
+            if(this.searchFromBarcode) return
+
             if (this.visibleTagsCustomer) {
                 return false;
             }
@@ -316,6 +341,8 @@ export default {
             }
         },
         handle40() {
+            if(this.searchFromBarcode) return
+
             if (this.visibleTagsCustomer) {
                 return;
             }

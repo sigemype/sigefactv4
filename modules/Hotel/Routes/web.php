@@ -60,6 +60,9 @@ if ($hostname) {
                     Route::post('/{id}/rent/products/store', 'HotelRentController@addProductsToRoom');
                     Route::get('/{id}/rent/checkout', 'HotelRentController@showFormChekout');
                     Route::post('/{id}/rent/finalized', 'HotelRentController@finalizeRent');
+
+                    Route::get('checkout-tables', 'HotelRentController@checkoutTables');
+
                 });
 			});
 	});

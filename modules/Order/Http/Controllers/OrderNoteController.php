@@ -411,7 +411,7 @@
             DB::connection('tenant')->transaction(function () use ($data) {
                 $this->order_note = OrderNote::create($data);
 
-                foreach ($data['items'] as $row) 
+                foreach ($data['items'] as $row)
                 {
                     $this->generalSetIdLoteSelectedToItem($row);
                     $this->order_note->items()->create($row);
@@ -421,7 +421,7 @@
                 $this->createPdf($this->order_note, "a4", $this->order_note->filename);
 
             });
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -668,7 +668,7 @@
 
         public function update(OrderNoteRequest $request)
         {
-
+            
             DB::connection('tenant')->transaction(function () use ($request) {
 
 
@@ -684,7 +684,8 @@
                 foreach ($request['items'] as $row) {
 
                     // $this->order_note->items()->create($row);
-                    $item_id = isset($row['id']) ? $row['id'] : null;
+                    // $item_id = isset($row['id']) ? $row['id'] : null;
+                    $item_id = $this->getRowIdItem($row);
                     $order_note_item = OrderNoteItem::firstOrNew(['id' => $item_id]);
                     $this->generalSetIdLoteSelectedToItem($row);
                     $order_note_item->fill($row);
@@ -704,6 +705,31 @@
             ];
 
         }
+        
+
+        /**
+         * 
+         * Obtener id de la fila al editar pedido
+         *
+         * @param  array $row
+         * @return int|null
+         */
+        private function getRowIdItem($row)
+        {
+            $row_id = null;
+
+            if(isset($row['id']))
+            {
+                $row_id = $row['id'];
+            }
+            else
+            {
+                if(isset($row['record_id'])) $row_id = $row['record_id'];
+            }
+
+            return $row_id;
+        }
+
 
         public function destroy_order_note_item($id)
         {
@@ -825,7 +851,14 @@
 
             file_put_contents($temp, $this->getStorage($order_note->filename, 'order_note'));
 
-            return response()->file($temp);
+            /*
+            $headers = [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$order_note->filename.'"'
+            ];
+            */
+
+            return response()->file($temp, $this->generalPdfResponseFileHeaders($order_note->filename));
         }
 
         public function email(Request $request)

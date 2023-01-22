@@ -12,10 +12,11 @@ use Illuminate\Http\Request;
 use Modules\Document\Http\Resources\ItemLotCollection;
 use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
 use Modules\Item\Models\ItemLot;
+use App\Models\Tenant\Person;
 
 class StoreController extends Controller
 {
-    public function tableToDocument($table ,$table_id)
+    public function tableToDocument($table, $table_id)
     {
         $configuration = Configuration::query()->first();
         $is_contingency = 0;
@@ -34,7 +35,7 @@ class StoreController extends Controller
         $person = $record->person;
 
         $rec = $record->toArray();
-        $document_type_id = $person->identity_document_type_id === '6'?'01':'03';
+        $document_type_id = $person->identity_document_type_id === '6' ? '01' : '03';
 
         $series = Series::query()
             ->select('number')
@@ -44,9 +45,9 @@ class StoreController extends Controller
 
         foreach ($rec['items'] as &$item) {
             $item['total_plastic_bag_taxes'] = 0;
-            $item['attributes'] = ($item['attributes'])?(array)$item['attributes']:[];
-            $item['charges'] = ($item['charges'])?(array)$item['charges']:[];
-            $item['discounts'] = ($item['discounts'])?(array)$item['discounts']:[];
+            $item['attributes'] = ($item['attributes']) ? (array)$item['attributes'] : [];
+            $item['charges'] = ($item['charges']) ? (array)$item['charges'] : [];
+            $item['discounts'] = ($item['discounts']) ? (array)$item['discounts'] : [];
         }
 
         $rec['document_type_id'] = $document_type_id;
@@ -68,11 +69,39 @@ class StoreController extends Controller
         $rec['quotation_id'] = $table_id;
         $rec['additional_information'] = $rec['description'];
 
+        $this->setPaymentsFromQuotation($rec, $record);
+
         return [
             'success' => true,
             'data' => $rec
         ];
     }
+
+    
+    /**
+     * 
+     * Asignar valores relacionados a pago credito
+     *
+     * @param  array $rec
+     * @param  Quotation $document
+     * @return void
+     */
+    private function setPaymentsFromQuotation(&$rec, $document)
+    {
+        $payment_method_type = $document->payment_method_type;
+
+        if($payment_method_type)
+        {
+            if($payment_method_type->isCredit())
+            {
+                //credito o credito con cuotas
+                $rec['payment_condition_id'] = ($payment_method_type->number_days) ? '02' : '03';
+                $rec['data_payments_fee'] = $document->payments;
+                $rec['document_payment_method_type'] = $payment_method_type;
+            }
+        }
+    }  
+
 
     public function getItems()
     {
@@ -101,12 +130,12 @@ class StoreController extends Controller
             ->get()
             ->transform(function ($row) {
                 return [
-                    'id'           => $row->id,
-                    'series'       => $row->series,
-                    'date'         => $row->date,
+                    'id' => $row->id,
+                    'series' => $row->series,
+                    'date' => $row->date,
 //                    'item_id'      => $row->item_id,
 //                    'warehouse_id' => $row->warehouse_id,
-                    'has_sale'     => $row->has_sale,
+                    'has_sale' => $row->has_sale,
 //                    'lot_code'     => ($row->item_loteable_type) ? $lot_code : null,
                 ];
             });
@@ -159,5 +188,23 @@ class StoreController extends Controller
             }
         }
         return 0.18;
+    }
+
+    public function getCustomers(Request $request)
+    {
+        $identity_document_type_id = $request->input('identity_document_type_id');
+        $input = $request->input('input');
+        $customers = Person::query()
+            ->where('number', 'like', "%{$input}%")
+            ->orWhere('name', 'like', "%{$input}%")
+            ->whereType('customers')
+            ->orderBy('name')
+            ->whereIn('identity_document_type_id', $identity_document_type_id)
+            ->whereIsEnabled()
+            ->get()->transform(function ($row) {
+                return $row->getCollectionData();
+            });
+
+        return compact('customers');
     }
 }

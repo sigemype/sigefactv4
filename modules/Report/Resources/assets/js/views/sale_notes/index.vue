@@ -38,6 +38,10 @@
                             <th class="text-center">Comprobantes</th>
                             <th>Cotización</th>
                             <th>Caso</th>
+
+                            <th class="text-center">Productos</th>
+                            <th class="text-right">Descuento</th>
+
                             <th class="text-right" >T.Exportación</th>
                             <th class="text-right" >T.Inafecta</th>
                             <th class="text-right" >T.Exonerado</th>
@@ -78,6 +82,23 @@
                             </td>
                         <td>{{row.quotation_number_full}}</td>
                             <td>{{row.sale_opportunity_number_full}}</td>
+
+
+                            <td class="text-center">
+                                <el-popover
+                                    placement="right"
+                                    width="400"
+                                    trigger="click">
+                                    <el-table :data="row.items_for_report">
+                                        <el-table-column width="80" property="index" label="#"></el-table-column>
+                                        <el-table-column width="220" property="description" label="Producto"></el-table-column>
+                                        <el-table-column width="90" property="quantity" label="Cantidad"></el-table-column>
+                                    </el-table>
+                                    <el-button slot="reference"> <i class="fa fa-eye"></i></el-button>
+                                </el-popover>
+                            </td>
+
+                            <td >{{ (row.state_type_id == '11') ? "0.00" : row.total_discount }}</td>
 
 
                             <td >{{ (row.state_type_id == '11') ? "0.00" : row.total_exportation }}</td>

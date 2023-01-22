@@ -726,7 +726,7 @@
                                                href="{{route('reports.inventory.index')}}">Reporte Inventario</a>
                                         </li>
                                     @endif
-                                    @if(in_array('inventory_report_kardex', $vc_module_levels))
+                                    @if(in_array('inventory_report_valued_kardex', $vc_module_levels))
                                         {{-- <li class="{{ ($firstLevel === 'warehouses')?'nav-active':'' }}">
                                             <a class="nav-link" href="{{route('warehouses.index')}}">Almacenes</a>
                                         </li> --}}
@@ -870,7 +870,8 @@
                         </li>
                     @endif
                     @if(in_array('reports', $vc_modules))
-                        <li class="{{  ($firstLevel === 'reports' && in_array($secondLevel, ['purchases', 'search','sales','customers','items', 'general-items','consistency-documents', 'quotations', 'sale-notes','cash','commissions','document-hotels', 'validate-documents', 'document-detractions','commercial-analysis', 'order-notes-consolidated', 'order-notes-general', 'sales-consolidated', 'user-commissions', 'fixed-asset-purchases', 'massive-downloads', 'tips'])) ? 'nav-active' : ''}} {{ $firstLevel === 'list-reports' ? 'nav-active' : '' }}">
+                        <li class="{{  ($firstLevel === 'reports' && in_array($secondLevel, ['purchases', 'search','sales','customers','items', 'general-items','consistency-documents', 'quotations', 'sale-notes','cash','commissions','document-hotels', 'validate-documents', 'document-detractions','commercial-analysis', 'order-notes-consolidated', 'order-notes-general', 'sales-consolidated', 'user-commissions', 'fixed-asset-purchases', 'massive-downloads', 'tips'])) ? 'nav-active' : ''}} {{ in_array($firstLevel, ['list-reports', 'system-activity-logs']) ? 'nav-active' : '' }}">
+                        {{-- <li class="{{  ($firstLevel === 'reports' && in_array($secondLevel, ['purchases', 'search','sales','customers','items', 'general-items','consistency-documents', 'quotations', 'sale-notes','cash','commissions','document-hotels', 'validate-documents', 'document-detractions','commercial-analysis', 'order-notes-consolidated', 'order-notes-general', 'sales-consolidated', 'user-commissions', 'fixed-asset-purchases', 'massive-downloads', 'tips'])) ? 'nav-active' : ''}} {{ $firstLevel === 'list-reports' ? 'nav-active' : '' }}"> --}}
                             <a class="nav-link"
                                href="{{ url('list-reports') }}">
                                 <svg xmlns="http://www.w3.org/2000/svg"

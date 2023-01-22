@@ -6,6 +6,13 @@
                 :key-code="112"
                 @success="handleFn112"
             />
+            
+            <!-- F4 -->
+            <Keypress :key-code="115"
+                key-event="keyup"
+                @success="handleFn115"/>
+            <!-- F4 -->
+
             <div class="col-md-4">
                 <h2>
                     <el-switch
@@ -138,6 +145,9 @@
                         @keyup.native="keyupTabCustomer"
                         ref="ref_search_items"
                         class="m-bottom mt-3"
+
+                        @focus="searchFromBarcode = true"
+                        @blur="searchFromBarcode = false"
                     >
                         <el-button
                             slot="append"
@@ -275,7 +285,7 @@
                                         </el-input>
                                     </template>
 
-                                    
+
                                 </div>
                                 <div
                                     v-if="configuration.options_pos"
@@ -487,10 +497,10 @@
                                             </el-tooltip>
                                         </el-col>
 
-                                        
+
                                         <el-col :span="6" v-if="allowedChangeAffectationExoneratedIgv(item.sale_affectation_igv_type_id)">
                                             <el-tooltip class="item" effect="dark" content="Modificar el tipo de afectación" placement="bottom-end">
-                                                
+
                                                 <el-popover
                                                     placement="top"
                                                     title="Seleccionar tipo de afectación"
@@ -504,7 +514,7 @@
                                                     <button slot="reference" style="width:100%" type="button" class="btn btn-xs btn-primary-pos">
                                                         <i class="fas fa-sync-alt"></i>
                                                     </button>
-                                                    
+
                                                 </el-popover>
 
                                             </el-tooltip>
@@ -527,6 +537,8 @@
                     :records="items"
                     :typeUser="typeUser"
                     :visibleTagsCustomer="focusClienteSelect"
+                    :searchFromBarcode="searchFromBarcode"
+                    :originIsGarage="true"
                 ></table-items>
 
                 <div v-if="place == 'prod' || place == 'cat2'" class="row">
@@ -619,10 +631,7 @@
                                             <small>
                                                 {{ nameSets(item.item_id) }}
                                             </small>
-
                                         </td>
-
-
                                         <td style="width: 10px; text-align: center; vertical-align: top" class="pos-list-label">
                                             {{ currency_type.symbol }}
                                         </td>
@@ -859,6 +868,7 @@ export default {
             show_fast_payment_garage: false,
             itemUnitTypes: [],
             affectations_exonerated_igv: ['10', '20'],
+            searchFromBarcode: false,
         };
     },
     async created() {
@@ -938,7 +948,7 @@ export default {
     methods: {
         enabledSearchItemByBarcode()
         {
-            if (this.configuration.search_item_by_barcode) 
+            if (this.configuration.search_item_by_barcode)
             {
                 this.search_item_by_barcode = true
             }
@@ -964,6 +974,22 @@ export default {
             {
                 if(exist_item.affectation_igv_type_id != affectation_igv_type.id) this.$message.warning('Ya agregó el producto con otro tipo de afectación, para aplicar el cambio debe eliminarlo y agregarlo nuevamente.')
             }
+
+            item.change_affectation_exonerated_igv = true
+        },
+        setOriginalAffectationToItems()
+        {
+            if(this.configuration !== undefined && this.configuration.change_affectation_exonerated_igv)
+            {
+                this.items.forEach(row => {
+                    
+                    if(row.change_affectation_exonerated_igv !== undefined && row.change_affectation_exonerated_igv && row.sale_affectation_igv_type_id != row.original_affectation_igv_type_id)
+                    {
+                        row.sale_affectation_igv_type_id = row.original_affectation_igv_type_id
+                    }
+
+                })
+            }
         },
         ...mapActions(['loadConfiguration']),
         keyupEnterQuantity() {
@@ -974,6 +1000,10 @@ export default {
         },
         handleFn113() {
             this.setView("cat3");
+        },
+        handleFn115()
+        {
+            this.openDialogNewPerson()
         },
         initFocus() {
             this.$refs.ref_search_items.$el
@@ -1161,9 +1191,36 @@ export default {
                 return;
             }
 
-            if (this.input_person.number) {
-                if (!isNaN(parseInt(this.input_person.number))) {
-                    switch (this.input_person.number.length) {
+            this.openDialogNewPerson()
+
+            // if (this.input_person.number) {
+            //     if (!isNaN(parseInt(this.input_person.number))) {
+            //         switch (this.input_person.number.length) {
+            //             case 8:
+            //                 this.input_person.identity_document_type_id = "1";
+            //                 this.showDialogNewPerson = true;
+            //                 break;
+
+            //             case 11:
+            //                 this.input_person.identity_document_type_id = "6";
+            //                 this.showDialogNewPerson = true;
+            //                 break;
+            //             default:
+            //                 this.input_person.identity_document_type_id = "6";
+            //                 this.showDialogNewPerson = true;
+            //                 break;
+            //         }
+            //     }
+            // }
+        },
+        openDialogNewPerson()
+        {
+            if (this.input_person.number) 
+            {
+                if (!isNaN(parseInt(this.input_person.number))) 
+                {
+                    switch (this.input_person.number.length) 
+                    {
                         case 8:
                             this.input_person.identity_document_type_id = "1";
                             this.showDialogNewPerson = true;
@@ -1257,12 +1314,19 @@ export default {
             });
             this.customer = customer;
 
-            if (this.configuration.default_document_type_03) {
+            if (this.configuration.default_document_type_80)
+            {
+                this.form.document_type_id = "80"
+            }
+            else if (this.configuration.default_document_type_03)
+            {
                 this.form.document_type_id = "03";
             } else {
                 this.form.document_type_id =
                     customer.identity_document_type_id == "6" ? "01" : "03";
             }
+
+            // console.log(this.customer);
 
             if(this.$refs.componentFastPaymentGarage) this.$refs.componentFastPaymentGarage.filterSeries()
 
@@ -1330,6 +1394,7 @@ export default {
                 this.initForm();
                 this.getTables();
                 this.setFormPosLocalStorage();
+                this.setOriginalAffectationToItems()
 
             });
 
@@ -1459,6 +1524,8 @@ export default {
         },
         clickDeleteCustomer() {
             this.form.customer_id = null;
+            this.customer = null;
+            this.setLocalStorageIndex("customer", null);
             this.setFormPosLocalStorage();
         },
         async clickAddItem(item, index, input = false) {
@@ -1552,7 +1619,9 @@ export default {
                     return this.$message.error(response.message);
                 }
 
-                this.form_item.item = item;
+                // this.form_item.item = item;
+                this.form_item.item = { ...item }
+
                 this.form_item.unit_price_value = this.form_item.item.sale_unit_price;
                 this.form_item.has_igv = this.form_item.item.has_igv;
                 this.form_item.has_plastic_bag_taxes = this.form_item.item.has_plastic_bag_taxes;
@@ -1618,6 +1687,20 @@ export default {
             this.loading = false;
 
             await this.setFormPosLocalStorage();
+
+            await this.setDefaultDataPriceSelected(item)
+
+        },
+        setDefaultDataPriceSelected(item)
+        {
+            if(item.apply_price_selected_add_product != undefined && item.apply_price_selected_add_product && this.configuration.price_selected_add_product)
+            {
+                item.sale_unit_price = parseFloat(item.aux_sale_unit_price)
+                item.unit_type_id = item.aux_unit_type_id
+                item.presentation = null
+
+                item.apply_price_selected_add_product = false
+            }
         },
         async getStatusStock(item_id, quantity) {
             let data = {};

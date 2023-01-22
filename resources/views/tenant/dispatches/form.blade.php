@@ -1,11 +1,10 @@
 @extends('tenant.layouts.app')
 
 @section('content')
-    <tenant-dispatches-form
+    <tenant-dispatches-create
         :document="{{ json_encode($document) }}"
-        :document-items="{{ json_encode($items) }}"
-        :type-document="{{ json_encode($type) }}"
-        :dispatch="{{ json_encode($dispatch) }}"
+        :parent-table="{{ json_encode($parentTable) }}"
+        :parent-id="{{ json_encode($parentId) }}"
         :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
         :auth-user="{{json_encode(Auth::user()->getDataOnlyAuthUser())}}"
 
@@ -13,5 +12,5 @@
             :sale_note="{{ json_encode($sale_note) }}"
         @endif
 
-    ></tenant-dispatches-form>
+    ></tenant-dispatches-create>
 @endsection

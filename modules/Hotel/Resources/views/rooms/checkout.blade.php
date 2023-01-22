@@ -10,6 +10,7 @@
         :all-series='{{ $series }}'
         :document-types-invoice='{{ $document_types_invoice }}'
         :configuration="{{\App\Models\Tenant\Configuration::getPublicConfig()}}"
+        :affectation-igv-types='{{ $affectation_igv_types }}'
     >
     </tenant-hotel-rent-checkout>
 @endsection

@@ -196,6 +196,39 @@ export const deletable = {
                 });
             })
         },
+        forceSendBySummary(url, params) 
+        {
+            return new Promise((resolve) => {
+                this.$confirm('Debe validar que la boleta no se encuentre en Sunat, ya que si la envió de forma individual al menos una vez, puede que ya se encuentre registrada.', '¿Desea enviar la boleta por resumen?', {
+                    confirmButtonText: 'Modificar',
+                    cancelButtonText: 'Cancelar',
+                    type: 'warning'
+                }).then(() => {
+
+                    this.$http.post(url, params)
+                        .then(res => {
+                            if (res.data.success) 
+                            {
+                                this.$message.success(res.data.message)
+                                resolve()
+                            }
+                            else
+                            {
+                                this.$message.error(res.data.message)
+                            }
+                        })
+                        .catch(error => {
+                            if (error.response.status === 500) {
+                                this.$message.error('Error desconocido');
+                            } else {
+                                console.log(error.response.data.message)
+                            }
+                        })
+                }).catch(error => {
+                    console.log(error)
+                });
+            })
+        },
 
     }
 }

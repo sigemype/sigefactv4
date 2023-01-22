@@ -645,6 +645,7 @@ import ItemSetFormItem from './partials/item.vue'
                         if (error.response.status === 422) {
                             this.errors = error.response.data
                         } else {
+                            this.$message.error(error.response.data.message)
                             console.log(error)
                         }
                     })

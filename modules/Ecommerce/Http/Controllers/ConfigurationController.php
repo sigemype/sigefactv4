@@ -8,6 +8,7 @@ use App\Models\Tenant\ConfigurationEcommerce;
 use App\Models\Tenant\Company;
 use App\Http\Requests\Tenant\ConfigurationEcommerceRequest;
 use App\Http\Resources\Tenant\ConfigurationEcommerceResource;
+use Modules\Finance\Helpers\UploadFileHelper;
 
 
 class ConfigurationController extends Controller
@@ -107,6 +108,8 @@ class ConfigurationController extends Controller
             $name = $type.'_'.$company->number.'.'.$ext;
 
             request()->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+            
+            UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
 
             $file->storeAs('public/uploads/logos', $name);
 

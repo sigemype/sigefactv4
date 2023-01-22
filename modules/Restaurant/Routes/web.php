@@ -28,7 +28,11 @@ Route::prefix('restaurant')->group(function() {
     Route::get('get-roles', 'RestaurantConfigurationController@getRoles')->name('tenant.restaurant.roles.get');
     Route::post('user/set-role', 'RestaurantConfigurationController@setRole')->name('tenant.restaurant.role.set');
 
-
+    Route::prefix('notes')->group(function () {
+        Route::get('records', 'NotesController@records');
+        Route::post('/', 'NotesController@store');
+        Route::delete('{id}', 'NotesController@destroy');
+    });
 
     //Promotion
     Route::prefix('promotions')->group(function() {
@@ -86,6 +90,13 @@ Route::prefix('restaurant')->group(function() {
         Route::get('report/products-excel/{cash}', 'CashController@report_products_excel');
 
 
+    });
+
+      //Waiters
+      Route::prefix('waiter')->group(function() {
+        Route::post('', 'WaiterController@store');
+        Route::get('', 'WaiterController@records');
+        Route::delete('{id}', 'WaiterController@destroy');
     });
 
 

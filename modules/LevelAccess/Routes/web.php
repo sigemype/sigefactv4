@@ -1,13 +1,32 @@
 <?php
 
-$current_hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
+$hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
 
-if($current_hostname) 
-{
-    Route::domain($current_hostname->fqdn)->group(function () {
+if($hostname) {
+    Route::domain($hostname->fqdn)->group(function () {
+        Route::middleware(['auth', 'locked.tenant'])->group(function() {
 
-        Route::middleware(['auth', 'locked.tenant'])->group(function () {
+            Route::prefix('system-activity-logs')->group(function () {
 
+                Route::prefix('generals')->group(function () {
+
+                    Route::get('', 'SystemActivityLogGeneralController@index')->name('tenant.system_activity_logs.generals.index');
+                    Route::get('records', 'SystemActivityLogGeneralController@records');
+                    Route::get('columns', 'SystemActivityLogGeneralController@columns');
+                    Route::post('check-last-password-update', 'SystemActivityLogGeneralController@checkLastPasswordUpdate');
+                    Route::get('report/{type}', 'SystemActivityLogGeneralController@exportReport');
+                });
+
+                Route::prefix('transactions')->group(function () {
+
+                    Route::get('', 'SystemActivityLogTransactionController@index')->name('tenant.system_activity_logs.transactions.index');
+                    Route::get('records', 'SystemActivityLogTransactionController@records');
+                    Route::get('columns', 'SystemActivityLogTransactionController@columns');
+                    Route::get('report/{type}', 'SystemActivityLogTransactionController@exportReport');
+                });
+            });
+
+            
             Route::prefix('authorized-discount-users')->group(function () {
 
                 Route::post('', 'AuthorizedDiscountUserController@store');

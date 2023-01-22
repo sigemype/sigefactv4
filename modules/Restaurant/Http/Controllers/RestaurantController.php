@@ -20,6 +20,8 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\Tenant\EmailController;
 use App\Mail\Tenant\CulqiEmail;
 use Modules\Restaurant\Models\RestaurantConfiguration;
+use Modules\Restaurant\Models\RestaurantNote;
+
 
 
 
@@ -224,4 +226,14 @@ class RestaurantController extends Controller
         }
     }
 
+    public function savePrice(Request $request) {
+        $item = Item::find($request->id);
+        $item->sale_unit_price = $request->sale_unit_price;
+        $item->save();
+
+        return [
+            'success' => true,
+            'message' => 'Precio editado correctamente.'
+        ];
+    }
 }

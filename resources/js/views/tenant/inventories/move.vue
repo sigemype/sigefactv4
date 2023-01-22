@@ -5,7 +5,7 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="form-group">
-                            <label class="control-label">Producto</label>
+                            <label class="control-label">Producto111</label>
                             <el-input v-model="form.item_description" :readonly="true"></el-input>
                         </div>
                     </div>

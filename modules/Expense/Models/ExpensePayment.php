@@ -171,4 +171,44 @@
             ]);
         }
 
+            
+        /**
+         * 
+         * Tipo de transaccion para caja
+         *
+         * @return string
+         */
+        public function getTransactionTypeCash()
+        {
+            return 'egress';
+        }
+
+
+        /**
+         * 
+         * Tipo de documento para caja
+         *
+         * @return string
+         */
+        public function getDocumentTypeCash()
+        {
+            return $this->getTable();
+        }
+
+        
+        /**
+         * 
+         * Datos para resumen diario de operaciones
+         *
+         * @return array
+         */
+        public function applySummaryDailyOperations()
+        {
+            return [
+                'transaction_type' => $this->getTransactionTypeCash(),
+                'document_type' => $this->getDocumentTypeCash(),
+                'apply' => false,
+            ];
+        }
+
     }

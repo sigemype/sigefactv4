@@ -358,6 +358,27 @@
                             </div>
                         </div>
 
+                        <div class="col-md-3">
+                            <div :class="{'has-danger': errors.factory_code}"
+                                 class="form-group">
+                                <label class="control-label">
+                                    Código de fábrica
+                                    <el-tooltip
+                                        class="item"
+                                        content="Para habilitar la búsqueda debe realizarlo en configuración/avanzado"
+                                        effect="dark"
+                                        placement="top">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <el-input v-model="form.factory_code">
+                                </el-input>
+                                <small v-if="errors.factory_code"
+                                       class="form-control-feedback"
+                                       v-text="errors.factory_code[0]"></small>
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <div class="table-responsive">
                                 <table class="table table-sm mb-0 table-borderless">
@@ -482,7 +503,7 @@
                             </div>
                         </template>
 
-                        
+
                         <div class="col-md-3">
                             <div :class="{'has-danger': errors.subject_to_detraction}"
                                  class="form-group">
@@ -584,7 +605,7 @@
                              class="col-md-12">
                             <div class="table-responsive">
                                 <table class="table table-sm mb-0">
-                                    <thead>
+                                    <thead class="bg-light">
                                     <tr>
                                         <th class="text-center">Código de barra</th>
                                         <th class="text-center">Unidad</th>
@@ -1525,6 +1546,7 @@ export default {
 
                 exchange_points: false,
                 quantity_of_points: 0,
+                factory_code: null,
 
             }
 
@@ -1763,6 +1785,7 @@ this.activeName =  'first'
                         this.errors = error.response.data
                     } else {
                         console.log(error)
+                        this.$message.error(error.response.data.message)
                     }
                 })
                 .then(() => {

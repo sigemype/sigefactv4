@@ -23,11 +23,37 @@
                     >
                     </el-switch>
 
-                    <template v-if="search_item_by_barcode">
+                    <!-- <template v-if="search_item_by_barcode">
                         <el-checkbox class="ml-2 mt-1" v-model="search_item_by_barcode_presentation">Por presentación</el-checkbox>
-                    </template>
-
+                    </template> -->
                 </h2>
+                
+                <div class="row" v-if="search_item_by_barcode">
+                    <div class="col-md-12">
+                        <el-checkbox class="mt-1 font-weight-bold" v-model="search_item_by_barcode_presentation">Por presentación</el-checkbox>
+                    </div>
+                    <div class="col-md-12">
+
+                        <el-checkbox class="mt-1 mb-1 font-weight-bold" v-model="electronic_scale_barcode">Balanza electrónica</el-checkbox>
+                        
+                        <el-tooltip class="item" effect="dark" placement="top-start">
+
+                            <div slot="content">
+                                <b>El código de barras generado por la balanza debe tener 16 caracteres:</b><br/><br/>
+                                - Los 5 primeros caracteres representan el código de barras del producto.<br/>
+                                - Los 5 siguientes caracteres representan el peso, los 2 primeros son el valor entero y los 3 siguientes son decimales.<br/>
+                                - Los 6 siguientes caracteres representan el total, los 4 primeros son el valor entero y los 2 siguientes son decimales.<br/> <br/>
+
+                                <b>Ejemplo: Para el código 1000314964299280</b> <br/><br/>
+                                <b>10003</b>  = Código de barras del producto  <br/>
+                                <b>14964</b>  = Peso = 14.964  <br/>
+                                <b>299280</b> = Total = 2992.80
+                            </div>
+                            <i class="fa fa-info-circle"></i>
+
+                        </el-tooltip>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
                 <h2>
@@ -152,6 +178,9 @@
                         @keyup.native="keyupTabCustomer"
                         ref="ref_search_items"
                         class="m-bottom mt-3"
+                        
+                        @focus="searchFromBarcode = true"
+                        @blur="searchFromBarcode = false"
                     >
                         <el-button
                             slot="append"
@@ -520,6 +549,7 @@
                     :records="items"
                     :typeUser="typeUser"
                     :visibleTagsCustomer="focusClienteSelect"
+                    :searchFromBarcode="searchFromBarcode"
                 ></table-items>
 
                 <div v-if="place == 'prod' || place == 'cat2'" class="row">
@@ -871,6 +901,7 @@
             :showDialog.sync="showDialogHistorySales"
             :item_id="history_item_id"
             :customer_id="form.customer_id"
+            :type="false"
         ></history-sales-form>
 
         <history-purchases-form
@@ -1020,6 +1051,8 @@ export default {
             history_item_id: null,
             search_item_by_barcode: false,
             search_item_by_barcode_presentation: false,
+            electronic_scale_barcode: false,
+            electronic_scale_data: {},
             is_print: true,
             warehousesDetail: [],
             unittypeDetail: [],
@@ -1053,6 +1086,7 @@ export default {
             category_selected: "",
             focusClienteSelect: false,
             itemUnitTypes: [],
+            searchFromBarcode: false,
         };
     },
     async created() {
@@ -1132,6 +1166,10 @@ export default {
                 return this.configuration.allow_edit_unit_price_to_seller;
             }
             return false;
+        },
+        changeValuesElectronicScale() 
+        {
+            return this.electronic_scale_barcode && this.electronic_scale_data.pass_validations
         }
     },
     methods: {
@@ -1587,7 +1625,7 @@ export default {
                 created_from_pos: true,
                 token_validated_for_discount: false,
                 agent_id: null,
-
+                dispatch_ticket_pdf: this.configuration ? this.configuration.enabled_dispatch_ticket_pdf : false,
             };
             // console.log(this.configuration.show_terms_condition_pos);
             if (this.configuration.show_terms_condition_pos) {
@@ -1598,6 +1636,26 @@ export default {
             this.initFormItem();
             this.changeDateOfIssue();
             this.initInputPerson();
+
+            this.initElectronicScaleData()
+
+        },
+        initElectronicScaleData()
+        {
+            this.electronic_scale_data = {
+                barcode: '',
+                parse_weight: '',
+                parse_total: '',
+
+                integer_weight: 0,
+                decimal_weight: 0,
+                weight: 0,
+
+                integer_total: 0,
+                decimal_total: 0,
+                total: 0,
+                pass_validations: false,
+            }
         },
         initInputPerson() {
             this.input_person = {
@@ -1660,6 +1718,23 @@ export default {
             this.form.customer_id = null;
             this.setFormPosLocalStorage();
         },
+        getQuantityFromElectronicScale()
+        {
+            return _.round(this.electronic_scale_data.weight, 4)
+        },
+        getUnitPriceFromElectronicScale()
+        {
+            return _.round(this.electronic_scale_data.total / this.electronic_scale_data.weight, 6)
+        },
+        setScaleQuantityIfNotExistItem()
+        {
+            if(this.changeValuesElectronicScale)
+            {
+                this.form_item.item.aux_quantity = this.getQuantityFromElectronicScale()
+                this.form_item.quantity = this.getQuantityFromElectronicScale()
+                this.form_item.aux_quantity = this.getQuantityFromElectronicScale()
+            }
+        },
         async clickAddItem(item, index, input = false) {
             this.loading = true;
             let exchangeRateSale = this.form.exchange_rate_sale;
@@ -1719,8 +1794,19 @@ export default {
                         return this.$message.error(response.message);
                     }
 
-                    exist_item.quantity++;
-                    exist_item.item.aux_quantity++;
+                    // balanza
+                    if(this.changeValuesElectronicScale)
+                    {
+                        exist_item.quantity += this.getQuantityFromElectronicScale()
+                        exist_item.item.aux_quantity += this.getQuantityFromElectronicScale()
+                    }
+                    // balanza
+                    else
+                    {
+                        exist_item.quantity++;
+                        exist_item.item.aux_quantity++;
+                    }
+
                 }
 
                 // console.log(exist_item)
@@ -1738,6 +1824,14 @@ export default {
                     ? exist_item.item.sale_unit_price
                     : exist_item.item.sale_unit_price * (1 + this.percentage_igv);
                 // exist_item.unit_price = unit_price
+
+                // balanza
+                if(this.changeValuesElectronicScale)
+                {
+                    unit_price = this.getUnitPriceFromElectronicScale()
+                }
+                // balanza
+
                 exist_item.item.unit_price = unit_price;
 
                 exist_item.has_plastic_bag_taxes = exist_item.item.has_plastic_bag_taxes;
@@ -1759,8 +1853,9 @@ export default {
                 this.row["unit_type_id"] = item.unit_type_id;
 
                 this.form.items[pos] = this.row;
-            } else {
-
+            } 
+            else 
+            {
                 response = await this.getStatusStock(
                     item.item_id,
                     presentation
@@ -1785,6 +1880,15 @@ export default {
                 let unit_price = this.form_item.has_igv
                     ? this.form_item.unit_price_value
                     : this.form_item.unit_price_value * (1 + this.percentage_igv);
+
+                // balanza
+                this.setScaleQuantityIfNotExistItem()
+                
+                if(this.changeValuesElectronicScale)
+                {
+                    unit_price = this.getUnitPriceFromElectronicScale()
+                }
+                // balanza
 
                 this.form_item.unit_price = unit_price;
                 this.form_item.item.unit_price = unit_price;
@@ -1847,6 +1951,9 @@ export default {
             this.loading = false;
 
             await this.setFormPosLocalStorage();
+
+            // balanza
+            this.initElectronicScaleData()
         },
         async getStatusStock(item_id, quantity) {
             let data = {};
@@ -1917,7 +2024,8 @@ export default {
                     total_free += parseFloat(row.total_value);
                 }
 
-                if (["10", "20", "30", "40"].indexOf(row.affectation_igv_type_id) > -1)
+                // if (["10", "20", "30", "40"].indexOf(row.affectation_igv_type_id) > -1)
+                if (["10", "20", "30", "40", '21'].indexOf(row.affectation_igv_type_id) > -1)
                 {
                     // total_igv += parseFloat(row.total_igv);
                     // total += parseFloat(row.total);
@@ -1926,7 +2034,11 @@ export default {
                 }
 
                 // total_value += parseFloat(row.total_value);
-                total_value += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
+                
+                if(!['21', '37'].includes(row.affectation_igv_type_id)) 
+                {
+                    total_value += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
+                }
 
                 total_plastic_bag_taxes += parseFloat(row.total_plastic_bag_taxes)
 
@@ -2071,12 +2183,84 @@ export default {
                 this.filterItems();
             }
         },
-        async searchItemsBarcode() {
-            // console.log(query)
-            // console.log("in:" + this.input_item)
-            if (this.input_item.length > 1) {
+        getResponseValidate(success, message)
+        {
+            return {
+                success: success,
+                message: message
+            }
+        },
+        setDataToElectronicScaleData()
+        {
+            const start = 0
+            const end_barcode = 5
+            const end_parse_weight = 10
+            const str_input_item = this.input_item.trim()
+
+            if(str_input_item.length !== 16) return this.getResponseValidate(false, 'El código de barras ingresado no cumple el formato establecido.')
+
+            // obtener valores del codigo de barras de la balanza
+            this.electronic_scale_data.barcode = str_input_item.substring(start, end_barcode)
+            this.electronic_scale_data.parse_weight = str_input_item.substring(end_barcode, end_parse_weight)
+            this.electronic_scale_data.parse_total = str_input_item.substring(end_parse_weight)
+
+            // obtener el peso del codigo
+            const end_weight = this.electronic_scale_data.parse_weight.length - 3
+            this.electronic_scale_data.integer_weight = this.electronic_scale_data.parse_weight.substring(start, end_weight)
+            this.electronic_scale_data.decimal_weight = this.electronic_scale_data.parse_weight.substring(end_weight)
+            this.electronic_scale_data.weight = parseFloat(`${this.electronic_scale_data.integer_weight}.${this.electronic_scale_data.decimal_weight}`)
+
+            if(isNaN(this.electronic_scale_data.weight)) return this.getResponseValidate(false, 'El peso no cumple con el formato establecido, no se pudo obtener un valor numérico correcto.')
+
+            // obtener el total del codigo
+            const end_total = this.electronic_scale_data.parse_total.length - 2
+            this.electronic_scale_data.integer_total = this.electronic_scale_data.parse_total.substring(start, end_total)
+            this.electronic_scale_data.decimal_total = this.electronic_scale_data.parse_total.substring(end_total)
+            this.electronic_scale_data.total = parseFloat(`${this.electronic_scale_data.integer_total}.${this.electronic_scale_data.decimal_total}`)
+
+            if(isNaN(this.electronic_scale_data.total)) return this.getResponseValidate(false, 'El total no cumple con el formato establecido, no se pudo obtener un valor numérico correcto.')
+
+            this.electronic_scale_data.pass_validations = true
+
+            // console.log("*******************************")
+            // console.log("barcode", this.electronic_scale_data.barcode)
+            // console.log("weight", this.electronic_scale_data.weight)
+            // console.log("total", this.electronic_scale_data.total)
+            
+            // console.log("parse_weight", this.electronic_scale_data.parse_weight)
+            // console.log("parse_total", this.electronic_scale_data.parse_total)
+
+            // console.log("*******************************")
+            // console.log("integer_weight", this.electronic_scale_data.integer_weight)
+            // console.log("decimal_weight", this.electronic_scale_data.decimal_weight)
+            // console.log("*******************************")
+            // console.log("integer_total", this.electronic_scale_data.integer_total)
+            // console.log("decimal_total", this.electronic_scale_data.decimal_total)
+
+            return {
+                success: true
+            }
+
+        },
+        async searchItemsBarcode() 
+        {
+            if (this.input_item.length > 1) 
+            {
                 this.loading = true;
                 let parameters = `input_item=${this.input_item}&search_item_by_barcode_presentation=${this.search_item_by_barcode_presentation}`;
+
+                if(this.electronic_scale_barcode)
+                {
+                    const check_electronic_scale_data = this.setDataToElectronicScaleData()
+
+                    if(!check_electronic_scale_data.success)
+                    {
+                        this.loading = false
+                        return this.$message.error(check_electronic_scale_data.message)
+                    }
+
+                    parameters = `input_item=${this.electronic_scale_data.barcode}&search_item_by_barcode_presentation=${this.search_item_by_barcode_presentation}`
+                }
 
                 await this.$http
                     .get(`/${this.resource}/search_items?${parameters}`)

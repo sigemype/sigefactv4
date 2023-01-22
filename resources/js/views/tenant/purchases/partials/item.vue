@@ -249,6 +249,18 @@
                                        v-text="errors.lot_code[0]"></small>
                             </div>
                         </div>
+                        
+                        <div v-if="config.edit_name_product"
+                            class="col-md-12 col-sm-12 mt-2">
+                            <div class="form-group">
+                                <label class="control-label">Nombre producto en PDF</label>
+                                <vue-ckeditor
+                                    v-model="form.name_product_pdf"
+                                    :editors="editors"
+                                    type="classic"></vue-ckeditor>
+                            </div>
+                        </div>
+
                     </div>
 
                 </el-tab-pane>
@@ -570,6 +582,9 @@ import Keypress from "vue-keypress";
 import {ItemOptionDescription, ItemSlotTooltip} from "../../../../helpers/modal_item";
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 import moment from "moment";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import VueCkeditor from 'vue-ckeditor5'
+
 
 export default {
     props: [
@@ -579,7 +594,12 @@ export default {
         'localHasGlobalIgv',
         'percentageIgv'
     ],
-    components: {itemForm, LotsForm, Keypress},
+    components: {
+        itemForm, 
+        LotsForm, 
+        Keypress,
+        'vue-ckeditor': VueCkeditor.component
+    },
     computed: {
         ...mapState([
             'config',
@@ -669,6 +689,9 @@ export default {
             lot_code: null,
             change_affectation_igv_type_id: false,
             prices: {},
+            editors: {
+                classic: ClassicEditor
+            },
         }
     },
     created() {
@@ -799,6 +822,7 @@ export default {
                 update_date_of_due: false,
                 update_purchase_price: this.config.checked_update_purchase_price,
                 // update_purchase_price: true,
+                name_product_pdf: ''
             }
 
             this.item_unit_type = {};
@@ -971,6 +995,7 @@ export default {
 
             this.row.date_of_due = date_of_due
 
+            this.row.item.name_product_pdf = this.row.name_product_pdf || ''
 
             this.initForm()
 

@@ -399,7 +399,7 @@
                                     <tr v-for="(row, index) in form.items" :key="index">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{
-                                                row.item.description
+                                                setDescriptionOfItem(row.item)
                                             }}<br/><small>{{ row.affectation_igv_type.description }}</small></td>
                                         <td class="text-left">{{ getWarehouseDescription(row) }}</td>
                                         <!-- <td class="text-left">{{ (row.warehouse_description) ? row.warehouse_description : row.warehouse.description  }}</td> -->
@@ -534,7 +534,7 @@ import PurchaseFormItem from './partials/item.vue'
 import PersonForm from '../persons/form.vue'
 import PurchaseOptions from './partials/options.vue'
 import {functions, exchangeRate, fnPaymentsFee} from '../../../mixins/functions'
-import {calculateRowItem} from '../../../helpers/functions'
+import {calculateRowItem, showNamePdfOfDescription} from '../../../helpers/functions'
 
 export default {
     props: {
@@ -640,6 +640,10 @@ export default {
         },
     },
     methods: {
+        setDescriptionOfItem(item)
+        {
+            return showNamePdfOfDescription(item, this.configuration.show_pdf_name)
+        },
         getWarehouse(id) {
             return _.find(this.warehouses, {id: id})
         },

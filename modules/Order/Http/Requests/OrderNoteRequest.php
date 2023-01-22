@@ -37,6 +37,10 @@ class OrderNoteRequest extends FormRequest
             'date_of_issue' => [
                 'required',
             ],
+
+            'additional_data' => 'nullable|array',
+            'additional_data.*.title' => 'required',
+            'additional_data.*.description' => 'required',
         ];
     }
 }

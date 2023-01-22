@@ -37,6 +37,7 @@ class AppConfigurationController extends Controller
         $record->card_color = $request->card_color;
         $record->header_waves = $request->header_waves;
         $record->app_mode = $request->app_mode;
+        $record->direct_send_documents_whatsapp = $request->direct_send_documents_whatsapp;
         $record->save();
 
         return [

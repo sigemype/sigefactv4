@@ -2,7 +2,7 @@
 
     namespace Modules\Finance\Traits;
 
-    use App\Models\Tenant\{DocumentPayment, PurchasePayment, SaleNotePayment};
+    use App\Models\Tenant\{DocumentPayment, PurchasePayment, SaleNotePayment, PurchaseSettlementPayment};
     use App\Models\Tenant\BankAccount;
     use App\Models\Tenant\Cash;
     use App\Models\Tenant\Company;
@@ -151,6 +151,7 @@
                 ['id' => IncomePayment::class, 'description' => 'INGRESO'],
                 // ['id'=> CashTransaction::class, 'description' => 'CAJA CHICA POS'],
                 ['id' => TechnicalServicePayment::class, 'description' => 'SERVICIO TÉCNICO'],
+                ['id' => PurchaseSettlementPayment::class, 'description' => 'LIQUIDACION COMPRA'],
             ];
         }
 
@@ -241,6 +242,7 @@
             $income_payment = $this->getSumPayment($cash, IncomePayment::class, $requestCurrencyTipeId);
             $cash_pos = $this->getSumPaymentCashPos($cash, CashTransaction::class);
             $technical_service_payment = $this->getSumPayment($cash, TechnicalServicePayment::class, $requestCurrencyTipeId);
+            $purchase__settlement_payment = $this->getSumPayment($cash, PurchaseSettlementPayment::class, $requestCurrencyTipeId);
             $cash_ids = $cash->pluck('destination_id')->unique();
 
             $transfer_beween_account = 0;
@@ -428,6 +430,7 @@
             $contract_payment = $this->getSumPayment($bank_account->global_destination, ContractPayment::class);
             $income_payment = $this->getSumPayment($bank_account->global_destination, IncomePayment::class);
             $technical_service_payment = $this->getSumPayment($bank_account->global_destination, TechnicalServicePayment::class);
+            $purchase_settlement_payment = $this->getSumPayment($bank_account->global_destination, PurchaseSettlementPayment::class);
             $transfer_beween_account = $this->getTransferAccountPayment($bank_account);
             $initial_balance = $bank_account->initial_balance;
 
@@ -490,6 +493,7 @@
                 $contract_payment = $this->getSumPayment($row->global_destination, ContractPayment::class, $requestCurrencyTipeId);
                 $income_payment = $this->getSumPayment($row->global_destination, IncomePayment::class, $requestCurrencyTipeId);
                 $technical_service_payment = $this->getSumPayment($row->global_destination, TechnicalServicePayment::class, $requestCurrencyTipeId);
+                $purchase_settlement_payment = $this->getSumPayment($row->global_destination, PurchaseSettlementPayment::class, $requestCurrencyTipeId);
                 $transfer_beween_account = $this->getTransferAccountPayment($row);
 
                 // BankLoan es el total otorgado, se suma
@@ -564,6 +568,7 @@
                 $document_payment = $this->getSumByPMT($row->document_payments, true);
                 $sale_note_payment = $this->getSumByPMT($row->sale_note_payments);
                 $purchase_payment = $this->getSumByPMT($row->purchase_payments) ;
+                $purchase_settlement_payment = $this->getSumByPMT($row->purchase_settlement_payments) ;
                 $quotation_payment = $this->getSumByPMT($row->quotation_payments);
                 $contract_payment = $this->getSumByPMT($row->contract_payments);
                 // $contract_payment = 0; //$this->getSumByPMT($row->contract_payments);
@@ -592,6 +597,7 @@
 
                     'document_payment' => self::FormatNumber($document_payment),
                     'purchase_payment' => self::FormatNumber($purchase_payment),
+                    'purchase_settlement_payment' => self::FormatNumber($purchase_settlement_payment),
                     'quotation_payment' => self::FormatNumber($quotation_payment),
                     'contract_payment' => self::FormatNumber($contract_payment),
                     'income_payment' => self::FormatNumber($income_payment),
@@ -652,6 +658,7 @@
                     'income_payment' => '-',
                     'purchase_payment' => '-',
                     'technical_service_payment' => '-',
+                    'purchase_settlement_payment' => '-',
                     'balance' => self::FormatNumber($expense_payment),
 
                 ];
@@ -675,6 +682,7 @@
             $t_quotations = 0;
             $t_contracts = 0;
             $t_purchases = 0;
+            $t_purchase_settlement = 0;
             $t_expenses = 0;
             $t_income = 0;
             $t_technical_services = 0;
@@ -684,6 +692,7 @@
             $t_quotations = $records_by_pmt->sum('quotation_payment');
             $t_contracts = $records_by_pmt->sum('contract_payment');
             $t_purchases = $records_by_pmt->sum('purchase_payment') ;
+            $t_purchase_settlement = $records_by_pmt->sum('purchase_settlement_payment') ;
             $t_income = $records_by_pmt->sum('income_payment');
             $t_technical_services = $records_by_pmt->sum('technical_service_payment');
             $t_balance = $records_by_pmt->sum('balance') - $records_by_emt->sum('balance');
@@ -717,6 +726,7 @@
                 't_quotations' => self::FormatNumber($t_quotations),
                 't_contracts' => self::FormatNumber($t_contracts),
                 't_purchases' => self::FormatNumber($t_purchases),
+                't_purchase_settlement' => self::FormatNumber($t_purchase_settlement),
                 't_expenses' => self::FormatNumber($t_expenses),
                 't_income' => self::FormatNumber($t_income),
                 't_technical_services' => self::FormatNumber($t_technical_services),

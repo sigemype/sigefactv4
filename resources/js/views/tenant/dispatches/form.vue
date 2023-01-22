@@ -1,7 +1,7 @@
 <template>
     <div class="card mb-0 pt-2 pt-md-0">
         <div class="card-header bg-info">
-            <h3 class="my-0">Nueva Guía de Remisión</h3>
+            <h3 class="my-0">Nueva Guía de Remisión 1</h3>
         </div>
         <div class="card-body">
             <form autocomplete="off" @submit.prevent="submit">
@@ -55,7 +55,7 @@
                                     Cliente
                                     <!--<a href="#" @click.prevent="showDialogNewPerson = true">[+ Nuevo]</a>-->
                                     <span class="text-danger"> *</span></label>
-                                <el-select v-model="form.customer_id" :disabled="true">
+                                <el-select v-model="form.customer_id">
                                     <el-option v-for="option in customers" :key="option.id" :label="option.description"
                                                :value="option.id"></el-option>
                                 </el-select>
@@ -89,15 +89,10 @@
                                        v-text="errors.transfer_reason_type_id[0]"></small>
                             </div>
                         </div>
-
-
-
-                        <!-- numero de DAM -->
                         <template v-if="form.transfer_reason_type_id === '09'">
-
                             <div class="col-lg-3">
                                 <div :class="{'has-danger': errors['related.number']}"
-                                    class="form-group">
+                                     class="form-group">
                                     <label class="control-label">Número de documento (DAM)
                                         <el-tooltip class="item"
                                                     content="Formato del campo: XXXX-XX-XXX-XXXXXX, Ejemplo: 0001-01-002-001234"
@@ -108,27 +103,27 @@
                                         <span class="text-danger"> *</span>
                                     </label>
                                     <el-input v-model="form.related.number" placeholder="0001-01-002-001234"></el-input>
-                                    <small v-if="errors['related.number']" class="form-control-feedback" v-text="errors['related.number'][0]"></small>
+                                    <small v-if="errors['related.number']" class="form-control-feedback"
+                                           v-text="errors['related.number'][0]"></small>
                                 </div>
                             </div>
 
                             <div class="col-lg-3">
                                 <div :class="{'has-danger': errors['related.document_type_id']}"
-                                    class="form-group">
-                                    <label class="control-label">Tipo documento relacionado<span class="text-danger"> *</span></label>
+                                     class="form-group">
+                                    <label class="control-label">Tipo documento relacionado<span
+                                        class="text-danger"> *</span></label>
                                     <el-select v-model="form.related.document_type_id" disabled>
                                         <el-option v-for="option in related_document_types"
-                                                :key="option.id"
-                                                :label="option.description"
-                                                :value="option.id"></el-option>
+                                                   :key="option.id"
+                                                   :label="option.description"
+                                                   :value="option.id"></el-option>
                                     </el-select>
-                                    <small v-if="errors['related.document_type_id']" class="form-control-feedback" v-text="errors['related.document_type_id'][0]"></small>
+                                    <small v-if="errors['related.document_type_id']" class="form-control-feedback"
+                                           v-text="errors['related.document_type_id'][0]"></small>
                                 </div>
                             </div>
                         </template>
-                        <!-- numero de DAM -->
-
-
                         <div :class="form.transfer_reason_type_id === '09' ? 'col-lg-12' : 'col-lg-6'">
                             <div :class="{'has-danger': errors.transfer_reason_description}" class="form-group">
                                 <label class="control-label">Descripción de motivo de traslado</label>
@@ -138,23 +133,6 @@
                                        v-text="errors.transfer_reason_description[0]"></small>
                             </div>
                         </div>
-                        <!--<div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.port_code}">
-                        <label class="control-label">Codigo del Puerto</label>
-                        <el-input v-model="form.port_code" maxlength="3"></el-input>
-                        <small class="form-control-feedback" v-if="errors.port_code" v-text="errors.port_code[0]"></small>
-                        </div>
-                        </div>
-                        <div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.transshipment_indicator}">
-                        <label class="control-label">Transbordo</label>
-                        <div class="form-group">
-                        <el-radio v-model="form.transshipment_indicator" label="1">Si</el-radio>
-                        <el-radio v-model="form.transshipment_indicator" label="0">No</el-radio>
-                        </div>
-                        <small class="form-control-feedback" v-if="errors.transshipment_indicator" v-text="errors.transshipment_indicator[0]"></small>
-                        </div>
-                        </div>-->
                         <div class="col-lg-2">
                             <div :class="{'has-danger': errors.unit_type_id}" class="form-group">
                                 <label class="control-label">Unidad de medida<span class="text-danger"> *</span></label>
@@ -215,14 +193,15 @@
                                     </el-tooltip>
                                 </label>
                                 <el-input v-model="form.order_form_external"></el-input>
-                                <small v-if="errors.order_form_external" class="form-control-feedback" v-text="errors.order_form_external[0]"></small>
+                                <small v-if="errors.order_form_external" class="form-control-feedback"
+                                       v-text="errors.order_form_external[0]"></small>
                             </div>
                         </div>
 
                     </div>
                     <hr>
                     <h4>Datos envío</h4>
-                    <h6>Dirección partida</h6>
+                    <h6>Dirección partida2</h6>
                     <div class="row">
                         <div class="col-lg-2">
                             <div :class="{'has-danger': errors.origin}" class="form-group">
@@ -240,40 +219,10 @@
                                 <label class="control-label">Ubigeo<span class="text-danger"> *</span></label>
                                 <el-cascader v-model="form.origin.location_id" :options="locations"
                                              filterable></el-cascader>
-                                <!--<el-select v-model="form.delivery.department_id" filterable @change="filterProvince(false)">
-                                <el-option v-for="option in departments" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                </el-select>-->
                                 <small v-if="errors.origin" class="form-control-feedback"
                                        v-text="errors.origin.location_id[0]"></small>
                             </div>
                         </div>
-                        <!--<div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.origin}">
-                        <label class="control-label">Departamento</label>
-                        <el-select v-model="form.origin.department_id" filterable @change="filterProvince">
-                        <el-option v-for="option in departments" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                        </el-select>
-                        <small class="form-control-feedback" v-if="errors.origin" v-text="errors.origin.department_id[0]"></small>
-                        </div>
-                        </div>
-                        <div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.origin}">
-                        <label class="control-label">Provincia</label>
-                        <el-select v-model="form.origin.province_id" filterable @change="filterDistrict">
-                        <el-option v-for="option in provincesOrigin" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                        </el-select>
-                        <small class="form-control-feedback" v-if="errors.origin" v-text="errors.origin.province_id[0]"></small>
-                        </div>
-                        </div>
-                        <div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.origin}">
-                        <label class="control-label">Distrito</label>
-                        <el-select v-model="form.origin.location_id" filterable>
-                        <el-option v-for="option in districtsOrigin" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                        </el-select>
-                        <small class="form-control-feedback" v-if="errors.origin" v-text="errors.origin.location_id[0]"></small>
-                        </div>
-                        </div>-->
                         <div class="col-lg-6">
                             <div :class="{'has-danger': errors['origin.address']}" class="form-group">
                                 <label class="control-label">Dirección<span class="text-danger"> *</span></label>
@@ -302,31 +251,10 @@
                                 <label class="control-label">Ubigeo<span class="text-danger"> *</span></label>
                                 <el-cascader v-model="form.delivery.location_id" :options="locations"
                                              filterable></el-cascader>
-                                <!--<el-select v-model="form.delivery.department_id" filterable @change="filterProvince(false)">
-                                <el-option v-for="option in departments" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                                </el-select>-->
                                 <small v-if="errors.delivery" class="form-control-feedback"
                                        v-text="errors.delivery.location_id[0]"></small>
                             </div>
                         </div>
-                        <!--<div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.delivery}">
-                        <label class="control-label">Provincia<span class="text-danger"> *</span></label>
-                        <el-select v-model="form.delivery.province_id" filterable @change="filterDistrict(false)">
-                        <el-option v-for="option in provincesDelivery" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                        </el-select>
-                        <small class="form-control-feedback" v-if="errors.delivery" v-text="errors.delivery.province_id[0]"></small>
-                        </div>
-                        </div>
-                        <div class="col-lg-2">
-                        <div class="form-group" :class="{'has-danger': errors.delivery}">
-                        <label class="control-label">Distrito<span class="text-danger"> *</span></label>
-                        <el-select v-model="form.delivery.location_id" filterable>
-                        <el-option v-for="option in districtsDelivery" :key="option.id" :value="option.id" :label="option.description"></el-option>
-                        </el-select>
-                        <small class="form-control-feedback" v-if="errors.delivery" v-text="errors.delivery.location_id[0]"></small>
-                        </div>
-                        </div>-->
                         <div class="col-lg-6">
                             <div :class="{'has-danger': errors['delivery.address']}" class="form-group">
                                 <label class="control-label">Dirección<span class="text-danger"> *</span></label>
@@ -348,13 +276,7 @@
                                         v-for="option in dispachers"
                                         :key="option.id"
                                         :label="option.number +' - '+ option.name"
-                                        :value="option.id"
-                                    ></el-option><!--
-                                     'identity_document_type_id',
-                                    'number',
-                                    'name',
-                                    'address',
-                                    -->
+                                        :value="option.id"></el-option>
                                 </el-select>
                                 <small v-if="errors.dispacher" class="form-control-feedback"
                                        v-text="errors.dispacher[0]"></small>
@@ -407,14 +329,7 @@
                                         v-for="option in drivers"
                                         :key="option.id"
                                         :label="option.number +' - '+ option.name"
-                                        :value="option.id"
-                                    ></el-option><!--
-                                    'identity_document_type_id',
-                                    'number',
-                                    'name',
-                                    'license',
-                                    'telephone',
-                                    -->
+                                        :value="option.id"></el-option>
                                 </el-select>
                                 <small v-if="errors.dispacher" class="form-control-feedback"
                                        v-text="errors.dispacher[0]"></small>
@@ -436,11 +351,8 @@
                         </div>
                         <div class="col-lg-4">
                             <div :class="{'has-danger': errors['driver.number']}" class="form-group">
-                                <label class="control-label">Número
-                                    <!-- <span class="text-danger"> *</span> -->
-                                </label>
+                                <label class="control-label">Número</label>
                                 <el-input v-model="form.driver.number" :maxlength="11"
-
                                           placeholder="Número..."></el-input>
                                 <small v-if="errors['driver.number']" class="form-control-feedback"
                                        v-text="errors['driver.number'][0]"></small>
@@ -449,7 +361,6 @@
                         <div class="col-lg-4">
                             <div :class="{'has-danger': errors.license_plate}" class="form-group">
                                 <label class="control-label">Número de placa del vehiculo
-                                    <!-- <span class="text-danger"> *</span> -->
                                 </label>
                                 <el-input v-model="form.license_plate" :maxlength="8"
                                           placeholder="Numero de placa del vehiculo..."></el-input>
@@ -491,11 +402,10 @@
                             <tr v-for="(row, index) in form.items" :key="index">
                                 <td>{{ index + 1 }}</td>
                                 <td>{{ setDescriptionOfItem(row) }}</td>
-                                <!-- <td>{{ row.item.description }}</td> -->
                                 <template v-if="!filterIndex(index)">
                                     <td class="text-right">{{ row.quantity }}</td>
                                 </template>
-                                
+
                                 <template v-if="filterIndex(index)">
                                     <el-input
                                         :tabindex="'2'"
@@ -506,7 +416,7 @@
                                                 :disabled="row.quantity < 0.01"
                                                 icon="el-icon-minus"
                                                 style="padding-right: 5px ;padding-left: 12px"
-                                                
+
                                                 @click="clickDecrease(index)"></el-button>
                                         <el-button slot="append"
                                                 icon="el-icon-plus"
@@ -528,6 +438,7 @@
                                         </button>
                                     </td>
                                 </template>
+                                <td class="text-right">{{ row.quantity }}</td>
                                 <td class="text-right">
                                     <button class="btn waves-effect waves-light btn-xs btn-danger" type="button"
                                             @click.prevent="clickRemoveItem(index)">x
@@ -538,11 +449,6 @@
                         </table>
                     </div>
                 </div>
-                <!--<div class="col-lg-12">
-                <div class="form-group">
-                <button type="button" class="btn waves-effect waves-light btn-primary" @click.prevent="showDialogAddItems = true">+ Agregar Producto</button>
-                </div>
-                </div>-->
                 <div class="form-actions text-right mt-4">
                     <el-button @click.prevent="close()">Cancelar</el-button>
                     <el-button v-if="(form.items.length > 0)" :loading="loading_submit" native-type="submit"
@@ -551,11 +457,6 @@
                 </div>
             </form>
         </div>
-
-        <!--<person-form :showDialog.sync="showDialogNewPerson" type="customers" :external="true"></person-form>-->
-
-        <!--<items :dialogVisible.sync="showDialogAddItems" @addItem="addItem"></items>-->
-
         <dispatch-options :isUpdate="true"
                           :recordId="recordId"
                           :showClose="false"
@@ -598,25 +499,15 @@ export default {
             resource: 'dispatches',
             establishment_id: null,
             loading_submit: false,
-            provincesDelivery: [],
-            districtsDelivery: [],
-            provincesOrigin: [],
-            districtsOrigin: [],
             related_document_types: [],
             establishments: [],
-            districtsAll: [],
-            provincesAll: [],
-            departments: [],
             drivers: [],
             driver: null,
             dispachers: [],
             dispacher: null,
             countries: [],
-//                seriesAll: [],
             unitTypes: [],
             customers: [],
-//                code: null,
-//                series: [],
             all_series: [],
             series: [],
             locations: [],
@@ -653,9 +544,6 @@ export default {
             this.transferReasonTypes = response.data.transferReasonTypes;
             this.transportModeTypes = response.data.transportModeTypes;
             this.establishments = response.data.establishments;
-            this.departments = response.data.departments;
-            this.provincesAll = response.data.provinces;
-            this.districtsAll = response.data.districts;
             this.unitTypes = response.data.unitTypes;
             this.customers = response.data.customers;
             this.countries = response.data.countries;
@@ -664,7 +552,6 @@ export default {
             this.drivers = response.data.drivers;
             this.dispachers = response.data.dispachers;
             this.related_document_types = response.data.related_document_types
-
         }).then(() => {
             this.form.establishment_id = this.document.establishment_id
             this.form.date_of_issue = this.document.date_of_issue
@@ -673,16 +560,13 @@ export default {
             this.form.transfer_reason_type_id = '01'
             this.form.transport_mode_type_id = '02'
             this.form.items = this.document.items
-            if(this.documentItems !== undefined){
+            if (this.documentItems !== undefined) {
                 this.form.items = this.documentItems
             }
             this.form.origin.country_id = this.document.establishment.country_id
-
-            if(this.configuration.set_address_by_establishment)
-            {
+            if (this.configuration.set_address_by_establishment) {
                 this.setOriginAddressByEstablishment()
-            }else
-            {
+            } else {
                 this.form.origin.location_id = [
                     this.document.establishment.department_id,
                     this.document.establishment.province_id,
@@ -690,8 +574,6 @@ export default {
                 ]
                 this.form.origin.address = this.document.establishment.address
             }
-
-
             this.form.delivery.country_id = this.document.customer.country_id
             this.form.delivery.location_id = [
                 this.document.customer.department_id,
@@ -703,12 +585,9 @@ export default {
             this.form.packages_number = _.sumBy(this.document.items, (o) => {
                 return parseFloat(o.quantity)
             })
-
             let total_weight = 0
-
             this.form.items.forEach(element => {
                 if (element.attributes) {
-
                     Object.values(element.attributes).forEach(attr => {
                         if (attr.attribute_type_id === '5032') {
                             total_weight += parseFloat(attr.value) * parseFloat(element.quantity)
@@ -716,20 +595,16 @@ export default {
                     });
                 }
             })
-
             this.form.total_weight = total_weight
-
-
             if (this.dispatch) {
-
                 this.form.transfer_reason_description = this.dispatch.transfer_reason_description
                 this.form.unit_type_id = this.dispatch.unit_type_id
                 this.form.total_weight = this.dispatch.total_weight
                 this.form.packages_number = this.dispatch.packages_number
                 this.form.observations = this.dispatch.observations
 
-                this.form.origin.address = (!this.document.establishment.address || this.document.establishment.address == '-') ? this.dispatch.origin.address : this.document.establishment.address
-                this.form.delivery.address = (!this.document.customer.address || this.document.customer.address == '-') ? this.dispatch.delivery.address : this.document.customer.address
+                this.form.origin.address = (!this.document.establishment.address || this.document.establishment.address === '-') ? this.dispatch.origin.address : this.document.establishment.address
+                this.form.delivery.address = (!this.document.customer.address || this.document.customer.address === '-') ? this.dispatch.delivery.address : this.document.customer.address
 
                 this.form.dispatcher = this.dispatch.dispatcher
                 this.form.driver = this.dispatch.driver
@@ -743,79 +618,22 @@ export default {
         }).then(() => {
             this.changeEstablishment()
         });
-
-
-        // console.log(this.dispatch)
-
+    },
+    computed: {
+        ...mapState([
+            'config',
+        ]),
+        showOrderFormExternal() {
+            return ['i', 'on'].includes(this.typeDocument)
+        },
     },
     methods: {
-        setDescriptionOfItem(item) {
-            if(this.configuration.show_pdf_name) {
-                if(item.name_product_pdf !== '' && !_.isNull(item.name_product_pdf)) {
-                    return item.name_product_pdf;
-                }
-            }
-            return item.description;
-        },
-        changeTransferReasonType(){
-
-            // exportacion
-            if(this.form.transfer_reason_type_id === '09')
-            {
-                this.form.related = {
-                    number: null,
-                    document_type_id: '01'
-                }
-
-            }else
-            {
-                this.form.related = {}
-            }
-
-        },
-        setOriginAddressByEstablishment(){
-
-            if(this.configuration.set_address_by_establishment){
-
-                let establishment = _.find(this.establishments, { id : this.form.establishment_id})
-
-                if(this.form.origin && establishment){
-
-                    this.form.origin.address = establishment.address
-                    this.form.origin.location_id = [
-                        establishment.department_id,
-                        establishment.province_id,
-                        establishment.district_id
-                    ]
-                }
-            }
-
-        },
-        ...mapActions([
-            'loadConfiguration',
-        ]),
-        changeTransport() {
-            let v = _.find(this.dispachers, {'id': this.dispacher})
-            if (v !== undefined) {
-                this.form.dispatcher.number = v.number;
-                this.form.dispatcher.name = v.name;
-                this.form.dispatcher.identity_document_type_id = v.identity_document_type_id;
-            }
-        },
-        changeDriver() {
-            let v = _.find(this.drivers, {'id': this.driver})
-            if (v !== undefined) {
-                this.form.driver.number = v.number;
-                this.form.driver.license = v.license;
-                this.form.driver.identity_document_type_id = v.identity_document_type_id;
-            }
-        },
         initForm() {
             this.errors = {}
             this.form = {
-                reference_document_id: this.typeDocument == 'i' ? this.document.id : null,
-                reference_quotation_id: this.typeDocument == 'q' ? this.document.id : null,
-                reference_order_note_id: this.typeDocument == 'on' ? this.document.id : null,
+                reference_document_id: this.typeDocument === 'i' ? this.document.id : null,
+                reference_quotation_id: this.typeDocument === 'q' ? this.document.id : null,
+                reference_order_note_id: this.typeDocument === 'on' ? this.document.id : null,
                 reference_sale_note_id: this.sale_note ? this.sale_note.id : null,
                 establishment_id: null,
                 document_type_id: '09',
@@ -865,6 +683,56 @@ export default {
                 terms_condition: null,
             }
         },
+        setDescriptionOfItem(item) {
+            if (this.configuration.show_pdf_name) {
+                if (item.name_product_pdf !== '' && !_.isNull(item.name_product_pdf)) {
+                    return item.name_product_pdf;
+                }
+            }
+            return item.description;
+        },
+        changeTransferReasonType() {
+            if (this.form.transfer_reason_type_id === '09') {
+                this.form.related = {
+                    number: null,
+                    document_type_id: '01'
+                }
+            } else {
+                this.form.related = {}
+            }
+        },
+        setOriginAddressByEstablishment() {
+            if (this.configuration.set_address_by_establishment) {
+                let establishment = _.find(this.establishments, {id: this.form.establishment_id})
+                if (this.form.origin && establishment) {
+                    this.form.origin.address = establishment.address
+                    this.form.origin.location_id = [
+                        establishment.department_id,
+                        establishment.province_id,
+                        establishment.district_id
+                    ]
+                }
+            }
+        },
+        ...mapActions([
+            'loadConfiguration',
+        ]),
+        changeTransport() {
+            let v = _.find(this.dispachers, {'id': this.dispacher})
+            if (v !== undefined) {
+                this.form.dispatcher.number = v.number;
+                this.form.dispatcher.name = v.name;
+                this.form.dispatcher.identity_document_type_id = v.identity_document_type_id;
+            }
+        },
+        changeDriver() {
+            let v = _.find(this.drivers, {'id': this.driver})
+            if (v !== undefined) {
+                this.form.driver.number = v.number;
+                this.form.driver.license = v.license;
+                this.form.driver.identity_document_type_id = v.identity_document_type_id;
+            }
+        },
         changeEstablishment() {
             this.form.establishment = _.find(this.establishments, {'id': this.form.establishment_id})
             this.filterSeries()
@@ -882,68 +750,6 @@ export default {
             })
             this.form.series_id = (this.series.length > 0) ? this.series[0].id : null
         },
-
-//            changeEstablishment() {
-//                this.series = _.filter(this.seriesAll, {
-//                    'establishment_id': this.form.establishment_id,
-//                    'document_type_id': this.form.document_type_id
-//                });
-//                this.form.series_id = this.series.id
-////                this.code = this.form.establishment_id;
-////                this.establishment_id = this.form.establishment_id;
-//            },
-//            filterProvince(origin = true) {
-//                if (origin) {
-//                    this.provincesOrigin = _.filter(this.provincesAll, {
-//                        'department_id': this.form.origin.department_id
-//                    });
-//
-//                    this.$set(this.form.origin, 'province_id', null);
-//                    this.$set(this.form.origin, 'location_id', null);
-//
-//                    return;
-//                }
-//
-//                this.provincesDelivery = _.filter(this.provincesAll, {
-//                    'department_id': this.form.delivery.department_id
-//                });
-//
-//                this.$set(this.form.delivery, 'province_id', null);
-//                this.$set(this.form.delivery, 'location_id', null);
-//            },
-//            filterDistrict(origin = true) {
-//                if (origin) {
-//                    this.districtsOrigin = _.filter(this.districtsAll, {
-//                        'province_id': this.form.origin.province_id
-//                    });
-//
-//                    this.$set(this.form.origin, 'location_id', null);
-//
-//                    return;
-//                }
-//
-//                this.districtsDelivery = _.filter(this.districtsAll, {
-//                    'province_id': this.form.delivery.province_id
-//                });
-//
-//                this.$set(this.form.delivery, 'location_id', null);
-//            },
-//            addItem(form) {
-//                let exist = this.form.items.find((item) => item.internal_id == form.item.internal_id);
-//
-//                if (exist) {
-//                    exist.quantity += form.quantity;
-//
-//                    return;
-//                }
-//
-//                this.form.items.push({
-//                    'description': form.item.description,
-//                    'internal_id': form.item.internal_id,
-//                    'quantity': form.quantity,
-//                    'id': form.item.id
-//                });
-//            },
         clickRemoveItem(index) {
             this.form.items.splice(index, 1);
         },
@@ -954,15 +760,10 @@ export default {
             }
 
             this.loading_submit = true;
-
             this.$http.post(`/${this.resource}`, this.form).then(response => {
                 if (response.data.success) {
-
-                    // this.$message.success(response.data.message)
-                    // location.href = '/dispatches'
                     this.recordId = response.data.data.id
                     this.showDialogOptions = true
-
                 } else {
                     this.$message.error(response.data.message)
                 }
@@ -976,11 +777,6 @@ export default {
                 this.loading_submit = false;
             });
         },
-        // clean() {
-        //     this.form = {
-        //
-        //     }
-        // },
         close() {
             location.href = '/dispatches';
         },
@@ -1033,28 +829,20 @@ export default {
             if (this.form.items[index].quantity <= this.getMinQuantity()) {
                 await this.setMinQuantity(index)
             }
-            
+
             if (this.form.items[index].quantity >= this.getMaxQuantity(index)) {
                 await this.setMaxQuantity(index)
             }
 
         },
         async clickEditSuccess(index){
-            
+
             await this.indexAffect.splice(this.indexAffect.indexOf(index), 1);
         },
         filterIndex(index){
             let value_index=this.indexAffect.some(i=>i==index)
             return value_index
         }
-    },
-    computed: {
-        ...mapState([
-            'config',
-        ]),
-        showOrderFormExternal(){
-            return ['i', 'on'].includes(this.typeDocument)
-        },
     },
 }
 </script>

@@ -23,12 +23,7 @@ use Modules\Finance\Traits\FinanceTrait;
 use Modules\Pos\Models\CashTransaction;
 use App\Models\Tenant\CashDocumentCredit;
 
-/**
- * Class CashController
- *
- * @package App\Http\Controllers\Tenant
- * @mixin  Controller
- */
+
 class CashController extends Controller
 {
 

@@ -23,6 +23,7 @@
       :action="`/configurations/visual/upload_skin`"
       :show-file-list="true"
       :on-success="onSuccess"
+      :on-error="errorUpload"
       :limit="1">
       <el-button slot="trigger" size="small" type="primary">Selecciona un archivo</el-button>
       <div slot="tip" class="el-upload__tip">Solo archivos css</div>
@@ -57,6 +58,10 @@
         this.records[this.index_file].temp_path = null
         this.fileList = []
         this.index_file = null
+      },
+      errorUpload(error)
+      {
+          this.$message({message: 'Error al subir el archivo', type: 'error'})
       },
       onSuccess(response, file, fileList) {
         this.fileList = fileList

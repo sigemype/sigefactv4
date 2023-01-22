@@ -347,6 +347,7 @@
                             :configuration="configuration"
                             :editNameProduct="configuration.edit_name_product"
                             :percentage-igv="percentage_igv"
+                            :isCreditNoteAndType03="isCreditNoteAndType03"
                             @add="addRow"></document-form-item>
 
         <document-options :showDialog.sync="showDialogOptions"
@@ -439,6 +440,10 @@ export default {
         },
         isCreditNote: function () {
             return (this.form.document_type_id === '07')
+        },
+        isDebitNote()
+        {
+            return (this.form.document_type_id === '08')
         },
     },
     methods: {
@@ -895,7 +900,36 @@ export default {
             this.form.total = _.round(total, 2) + this.form.total_plastic_bag_taxes
 
         },
+        checkPercentageIgvDebitNote()
+        {
+            this.form.items.forEach(row => {
+
+                if(this.applyPercentageChange(row.affectation_igv_type_id))
+                {
+                    if(row.aux_percentage_igv == undefined) row.aux_percentage_igv = row.percentage_igv
+                    row.percentage_igv = 0
+                    row.changed_percentage_debit_note = true
+                }
+                else
+                {
+                    if(row.changed_percentage_debit_note != undefined && row.changed_percentage_debit_note)
+                    {
+                        row.changed_percentage_debit_note = false
+                        row.percentage_igv = row.aux_percentage_igv
+                    }
+                }
+            })
+        },
+        applyPercentageChange(affectation_igv_type_id)
+        {
+            const affectations = ['20', '30', '40']
+            const debit_note_types = ['02', '01', '03']
+
+            return (affectations.includes(affectation_igv_type_id) && this.isDebitNote && debit_note_types.includes(this.form.note_credit_or_debit_type_id))
+        },
         async submit() {
+
+            await this.checkPercentageIgvDebitNote()
 
             if (this.isCreditNote && this.hasDiscounts && this.form.total > this.document.total) {
                 return this.$message.error(`El monto total de la nota de credito debe ser menor o igual al monto del documento relacionado (${this.document.total})`)

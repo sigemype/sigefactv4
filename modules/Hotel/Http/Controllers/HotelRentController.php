@@ -147,6 +147,7 @@ class HotelRentController extends Controller
         $payment_destinations = $this->getPaymentDestinations();
         $series = Series::where('establishment_id',  auth()->user()->establishment_id)->get();
         $document_types_invoice = DocumentType::whereIn('id', ['01', '03', '80'])->get();
+		$affectation_igv_types = AffectationIgvType::whereActive()->get();
 
 		return view('hotel::rooms.checkout', compact(
             'rent', 'room',
@@ -154,7 +155,8 @@ class HotelRentController extends Controller
             'payment_method_types',
             'payment_destinations',
             'series',
-            'document_types_invoice'
+            'document_types_invoice',
+			'affectation_igv_types'
         ));
 	}
 

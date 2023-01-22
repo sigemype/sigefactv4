@@ -324,6 +324,8 @@
                              :configuration="config"
                              :customer-id="form.customer_id"
                              :percentage-igv="percentage_igv"
+                             :currency-types="currency_types"
+                             :show-option-change-currency="true"
                            @add="addRow"></quotation-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"

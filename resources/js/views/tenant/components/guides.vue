@@ -222,6 +222,12 @@ export default {
                     this.onClose()
 
                 })
+                .catch(error => {
+                    if (error.response.status === 500) {
+                        console.log(error)
+                        this.$message.error(error.response.data.message)
+                    }
+                })
                 .finally(() => {
                     this.loading = false;
                 })

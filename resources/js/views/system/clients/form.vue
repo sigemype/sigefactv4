@@ -107,12 +107,24 @@
                              class="form-group">
                             <label class="control-label">
                                 Contraseña
+                                
+                                <el-tooltip class="item" effect="dark" placement="top-start" v-if="regex_password_client">
+                                    <i class="fa fa-info-circle"></i>
+                                    <div slot="content">
+                                        <strong>FORMATO DE CONTRASEÑA</strong><br/><br/>
+                                        La contraseña debe contener al menos una letra minúscula.<br/>
+                                        La contraseña debe contener al menos una letra mayúscula.<br/>
+                                        La contraseña debe contener al menos un dígito.<br/>
+                                        La contraseña debe contener al menos un carácter especial [@.$!%*#?&-].<br/>
+                                    </div>
+                                </el-tooltip>
                             </label>
                             <el-input
                                 v-model="form.password"
                                 :disabled="form.is_update"
                                 dusk="password"
-                                type="password">
+                                type="password"
+                                show-password>
                             </el-input>
                             <small
                                 v-if="errors.password"
@@ -618,6 +630,7 @@ export default {
             soap_password: null,
             collapse: 1,
             business: null,
+            regex_password_client: false,
         }
     },
     updated() {
@@ -644,6 +657,8 @@ export default {
                 this.group_hotel_apps = response.data.group_hotel_apps
                 this.group_pharmacy_apps = response.data.group_pharmacy_apps
                 this.group_restaurant_apps = response.data.group_restaurant_apps
+                this.regex_password_client = response.data.regex_password_client
+                
             })
 
         await this.initForm()
@@ -835,6 +850,7 @@ export default {
             })
             this.form.modules = modules;
             this.form.levels = levels;
+            this.form.regex_password_client = this.regex_password_client
 
             if (modules.length < 1) {
                 return this.$message.error('Debe seleccionar al menos un módulo')

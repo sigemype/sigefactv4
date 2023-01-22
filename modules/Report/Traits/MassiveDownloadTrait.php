@@ -137,7 +137,12 @@
             $temp = tempnam(sys_get_temp_dir(), $folder);
             file_put_contents($temp, $view);
 
-            return response()->file($temp);
+            $headers = [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="file.pdf"'
+            ];
+
+            return response()->file($temp, $headers);
 
         }
 
@@ -382,7 +387,7 @@
                 $pdf_margin_right = 1;
                 $pdf_margin_bottom = 5;
                 $pdf_margin_left = 1;
-                
+
 
                 $pdf_data = [
 

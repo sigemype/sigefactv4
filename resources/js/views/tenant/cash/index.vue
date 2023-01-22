@@ -55,8 +55,11 @@
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'a4')">PDF A4</a>
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'ticket')">PDF Ticket</a>
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'ticket', '58')">PDF Ticket 58</a>
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'simple_a4')">Simple A4</a>
                                     <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadReport(row.id, 'excel')">Excel</a>
                                     <!-- <a class="dropdown-item text-1" href="#" @click.prevent="clickDownloadProducts(row.id, 'excel')">Excel</a> -->
+
+                                    <a class="dropdown-item text-1" href="#" @click.prevent="clickReportSummaryDailyOperations(row.id)">Resumen de Operaciones Diarias</a>
                                 </div>
                             </div>
 
@@ -148,6 +151,8 @@
             clickDownloadReport(id, template, mm = 80){
                 if(template == 'ticket') {
                     window.open(`/${this.resource}/report-${template}/${id}/${mm}`, '_blank');
+                } else if(template == 'simple_a4') {
+                    window.open(`/${this.resource}/simple/report-a4/${id}/`, '_blank');
                 } else {
                     window.open(`/${this.resource}/report-${template}/${id}`, '_blank');
 
@@ -255,6 +260,10 @@
             },
             clickDownloadReportIncomeEgress(id){
                 window.open(`/${this.resource}/report-cash-income-egress/${id}`, '_blank');
+            },
+            clickReportSummaryDailyOperations(id)
+            {
+                window.open(`/cash-reports/summary-daily-operations/${id}`, '_blank');
             },
         }
     }

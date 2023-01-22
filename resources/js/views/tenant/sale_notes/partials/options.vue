@@ -18,6 +18,9 @@
                         <el-tab-pane label="Imprimir Ticket 58MM" name="third" v-if="ShowTicket58">
                             <iframe :src="form.print_ticket_58" type="application/pdf" width="100%" height="400px"/>
                         </el-tab-pane>
+                        <el-tab-pane label="Imprimir Ticket 50MM" name="fifth" v-if="ShowTicket50">
+                            <iframe :src="form.print_ticket_50" type="application/pdf" width="100%" height="400px"/>
+                        </el-tab-pane>
                         <el-tab-pane label="Imprimir A5" name="second">
                             <iframe :src="form.print_a5" type="application/pdf" width="100%" height="400px"/>
                         </el-tab-pane>
@@ -40,6 +43,11 @@
                         <i class="far fa-file-pdf"></i>
                         <br>
                         <span>PDF TICKET 58MM</span>
+                    </a>
+                    <a :href="`https://docs.google.com/viewer?url=${form.print_ticket_50}?format=pdf`" class="btn mx-3 btn-primary btn-lg" target="_BLANK">
+                        <i class="far fa-file-pdf"></i>
+                        <br>
+                        <span>PDF TICKET 50MM</span>
                     </a>
                     <a :href="`https://docs.google.com/viewer?url=${form.print_ticket}?format=pdf`" class="btn mx-3 btn-primary btn-lg" target="_BLANK">
                         <i class="far fa-file-pdf"></i>

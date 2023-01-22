@@ -20,6 +20,7 @@
                       action="/ecommerce/uploads"
                       :show-file-list="false"
                       :on-success="successUpload"
+                      :on-error="errorUpload"
                     >
                       <el-button type="primary" icon="el-icon-upload"></el-button>
                     </el-upload>
@@ -103,7 +104,11 @@ export default {
           this.loading_submit = false;
         });
     },
-    submit_paypal() {}
+    submit_paypal() {},
+    errorUpload(error)
+    {
+        this.$message({message: 'Error al subir el archivo', type: 'error'})
+    }
   }
 };
 </script>

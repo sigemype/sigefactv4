@@ -39,6 +39,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Facturación Electrónica</title>
+    <meta name="googlebot" content="noindex">
+    <meta name="robots" content="noindex">
 
     <link async href="{{ mix('css/app.css') }}" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -125,6 +127,9 @@
                 @include('tenant.layouts.partials.header')
               @yield('content')
               @include('tenant.layouts.partials.sidebar_styles')
+
+              @include('tenant.layouts.partials.check_last_password_update')
+
             </section>
 
             @yield('package-contents')

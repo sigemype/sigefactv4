@@ -58,7 +58,13 @@ export default {
               message: response.data.message,
               type: "success",
             });
-          }).finally(() => this.loading = false);
+          })
+          .catch(error => {
+              if (error.response.status === 500) {
+                  this.$message.error(error.response.data.message)
+              }
+          })
+          .finally(() => this.loading = false);
       }
     },
   },

@@ -43,7 +43,7 @@ class HistoryController extends Controller
                                     ->join('persons', 'persons.id', '=', 'documents.customer_id')->select(DB::raw('document_items.id as id, documents.series as series, documents.number as number,
                                     document_items.unit_price as price, documents.date_of_issue as date_of_issue,persons.name as name'));
 
-        $records = $documents->union($sale_notes);
+        $records = $documents->union($sale_notes)->orderBy('date_of_issue', 'desc');
 
         return new HistorySalesCollection($records->paginate(config('tenant.items_per_page_simple_d_table_params')));
 

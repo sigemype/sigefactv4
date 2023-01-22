@@ -448,6 +448,7 @@
                             this.records[index].errors = error.response.data;
                         } else {
                             console.log(error);
+                            this.$message.error(error.response.data.message)
                         }
                     })
             },

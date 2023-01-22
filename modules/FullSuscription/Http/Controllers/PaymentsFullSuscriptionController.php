@@ -59,12 +59,14 @@
                     return $row->getCollectionData();
                 });
 
+            $establishment_id = auth()->user()->establishment_id;
+
             return compact(
                 'periods',
                 'customers',
                 'startDate',
-                'plans'
-
+                'plans',
+                'establishment_id'
             );
 
         }

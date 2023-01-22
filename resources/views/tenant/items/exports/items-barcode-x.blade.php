@@ -76,20 +76,26 @@
                                         </tr>
                                     </td>
                                 @elseif($format == 2)
-                                    <td class="celda" width="33%" style="text-align: center; padding-top: 10px; padding-bottom: 10px; font-size: 9px; vertical-align: top;">
+                                    <td class="celda" width="50%" style="text-align: center; padding-bottom: 10px; font-size: 9px; vertical-align: top;">
                                         <table width="100%" class="table">
                                             <tr>
-                                                <td colspan="2">
-                                                    {{ $record->name }}
+                                                <td colspan="2" style="text-align: left; padding-left: 10%;">
+                                                    <b>{{ $record->name ? $record->name : $record->description }}</b>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>
-                                                    MOD: {{ $record->model }}
-                                                </td>
-                                                <td>
+                                                @php
+                                                    $show_price = \App\Models\Tenant\Configuration::first()->isShowPriceBarcodeTicket();
+                                                @endphp
+                                                <td style="text-align: left; padding-left: 10%;">
+                                                    MOD: {{ $record->model }}<br>
                                                     COD: {{ $record->internal_id }}
                                                 </td>
+                                                @if($show_price)
+                                                    <td>
+                                                        <strong>{{ $record->currency_type->symbol }} {{ round($record->sale_unit_price, 2) }}</strong>
+                                                    </td>
+                                                @endif
                                             </tr>
                                             <tr>
                                                 <td colspan="2">

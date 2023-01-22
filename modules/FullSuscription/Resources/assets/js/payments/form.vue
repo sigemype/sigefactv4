@@ -439,7 +439,7 @@
 
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
-import {serviceNumber} from '../../../../../../resources/js/mixins/functions'
+import {serviceNumber, functions} from '../../../../../../resources/js/mixins/functions'
 import {
     calculateRowItem,
     FormatUnitPriceRow,
@@ -449,7 +449,8 @@ import moment from 'moment'
 
 export default {
     mixins: [
-        serviceNumber
+        serviceNumber,
+        functions
     ],
     props: [
         'showDialog',
@@ -519,6 +520,8 @@ export default {
                 this.customers = response.data.customers
                 this.$store.commit('setAllCustomers', response.data.customers)
                 this.$store.commit('setPlans', response.data.plans)
+
+                this.getPercentageIgvWithParams(response.data.establishment_id, moment().format('YYYY-MM-DD'))
             })
         this.getCommonData()
     },
@@ -781,7 +784,7 @@ export default {
                 let citems = this.form.items;
                 Object.keys(citems).forEach(key => {
                     let row = citems[key] // value of the current key
-                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale))
+                    items.push(calculateRowItem(row, this.form.currency_type_id, this.form.exchange_rate_sale, this.percentage_igv))
                 })
             }
 

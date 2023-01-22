@@ -7,16 +7,15 @@ use App\Models\Tenant\ModelTenant;
 
 class Dispatcher extends ModelTenant
 {
-
     protected $with = ['identity_document_type'];
- 
+
     protected $fillable = [
         'identity_document_type_id',
         'number',
         'name',
         'address',
+        'number_mtc'
     ];
-
 
     public function identity_document_type()
     {

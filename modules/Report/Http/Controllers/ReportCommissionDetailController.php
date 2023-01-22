@@ -137,14 +137,16 @@ class ReportCommissionDetailController extends Controller
                 $data = $model::whereHas('sale_note',function($query) use($date_start, $date_end, $establishment_id){
                     $query->whereBetween('date_of_issue', [$date_start, $date_end])
                         ->where('establishment_id', $establishment_id)
-                        ->whereStateTypeAccepted();
+                        ->whereStateTypeAccepted()
+                        ->whereNotChanged();
                     });
     
             }else{
     
                     $data = $model::whereHas('sale_note',function($query) use($date_start, $date_end){
                                 $query->whereBetween('date_of_issue', [$date_start, $date_end])
-                                    ->whereStateTypeAccepted();
+                                    ->whereStateTypeAccepted()
+                                    ->whereNotChanged();
                                 });
                         
             }

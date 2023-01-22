@@ -2,9 +2,26 @@
     <div class="row">
         <div class="col-md-12 col-lg-12 col-xl-12 ">
             <div class="row mt-2">
+
+
                 <template v-if="isEnabledAdvancedRecordsSearch">
+                    
                     <div class="col-md-6">
-                        <advanced-items-search @eventSetItemId="setItemId"></advanced-items-search>
+                        <label class="control-label">Almacén</label>
+                        <el-select v-model="form.warehouse_id"
+                                    @change="changeWarehouseAdvancedSearch">
+                            <el-option v-for="option in warehouses" :key="option.id" :value="option.id"
+                                        :label="option.name"></el-option>
+                        </el-select>
+                    </div>
+
+                    <div class="col-md-6" v-if="load_warehouses">
+                        <advanced-items-search 
+                            @eventSetItemId="setItemId"
+                            :warehouse-id="form.warehouse_id"
+                            ref="advanced_items_search"
+                            >
+                        </advanced-items-search>
                     </div>
                 </template>
                 <template v-else>
@@ -114,6 +131,7 @@ export default {
                     return this.form.date_start > time
                 }
             },
+            load_warehouses: false,
         }
     },
     created() {
@@ -144,8 +162,45 @@ export default {
                 await this.changeWarehouse();
             }
         }
+        else
+        {
+            this.getFilters()
+        }
     },
     methods: {
+        changeWarehouseAdvancedSearch()
+        {
+            this.form.item_id = null
+            this.$refs.advanced_items_search.cleanItemId()
+            this.$refs.advanced_items_search.initData(this.form.warehouse_id)
+        },
+        async getFilters()
+        {
+            await this.$http.get(`/${this.resource}/filter`)
+                .then(response => {
+                    this.warehouses = response.data.warehouses
+                    this.setWarehouseId()
+                })
+                .then(()=>{
+                    this.load_warehouses = true
+                })
+        },
+        setWarehouseId()
+        {
+            if(this.warehouses.length > 0) 
+            {
+                const all_filter_id = 'all'
+                const warehouse = _.find(this.warehouses, {'id': all_filter_id})
+                this.form.warehouse_id = !_.isEmpty(warehouse) ? all_filter_id : _.head(this.warehouses).id
+            }
+        },
+        async getCurrentWarehouse()
+        {
+            await this.$http.get(`/general-get-current-warehouse`)
+                .then(response => {
+                    this.form.warehouse_id = response.data.id
+                })
+        },
         initForm() {
             this.form = {
                 warehouse_id: 'all',

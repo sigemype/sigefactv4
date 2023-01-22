@@ -9,7 +9,7 @@
                 <div class="text-center">
                     <el-upload class="uploader" ref="upload" slot="append" :auto-upload="false" :headers="headers"
                                :data="{'type': 'logo'}" action="/companies/uploads" :show-file-list="false"
-                               :before-upload="beforeUpload" :on-success="successUpload" :on-change="preview">
+                               :before-upload="beforeUpload" :on-success="successUpload" :on-error="errorUpload" :on-change="preview">
                         <img v-if="imageUrl" width="100%" :src="imageUrl" alt="">
                         <i v-else class="el-icon-plus uploader-icon"></i>
                     </el-upload>
@@ -95,11 +95,10 @@ export default {
             this.$message({message: 'Error al subir el archivo', type: 'error'});
             this.imageUrl = '';
         },
-//            closed() {
-//                this.dialogVisible = false;
-//
-//                if (this.load) location.href = this.url;
-//            }
+        errorUpload(error)
+        {
+            this.$message({message: 'Error al subir el archivo', type: 'error'})
+        }
     }
 }
 </script>

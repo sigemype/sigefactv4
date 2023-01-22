@@ -20,7 +20,7 @@ class PaymentFileController extends Controller
     public function uploadAttached(Request $request)
     {
         // dd($request->all());
-        $validate_upload = UploadFileHelper::validateUploadFile($request, 'file');
+        $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg,pdf', false);
         
         if(!$validate_upload['success']){
             return $validate_upload;

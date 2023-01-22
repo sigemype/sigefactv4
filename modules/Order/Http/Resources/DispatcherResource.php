@@ -9,7 +9,7 @@ class DispatcherResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request
+     * @param \Illuminate\Http\Request
      * @return array
      */
     public function toArray($request)
@@ -20,7 +20,7 @@ class DispatcherResource extends JsonResource
             'number' => $this->number,
             'name' => $this->name,
             'address' => $this->address,
-
+            'number_mtc' => $this->number_mtc
         ];
     }
 }

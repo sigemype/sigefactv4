@@ -84,6 +84,11 @@ export default {
               type: "success",
             });
           })
+          .catch(error => {
+              if (error.response.status === 500) {
+                  this.$message.error(error.response.data.message)
+              }
+          })
           .finally(() => (this.loading = false));
       }
     },

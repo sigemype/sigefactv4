@@ -190,6 +190,15 @@ class PurchaseOrderController extends Controller
                 $file_name_old_array = explode('.', $file_name_old);
                 $file_name = Str::slug($this->purchase_order->id).'-'.$datenow.'.'.$file_name_old_array[1];
                 $file_content = file_get_contents($temp_path);
+
+                // validaciones archivos
+                $allowed_file_types_images = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/svg'];
+                $is_image = UploadFileHelper::getIsImage($temp_path, $allowed_file_types_images);
+
+                $allowed_file_types = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/svg', 'application/pdf'];
+                UploadFileHelper::checkIfValidFile($file_name, $temp_path, $is_image, 'jpg,jpeg,png,gif,svg,pdf', $allowed_file_types);
+                // validaciones archivos
+
                 Storage::disk('tenant')->put('purchase_order_attached'.DIRECTORY_SEPARATOR.$file_name, $file_content);
                 $this->purchase_order->upload_filename = $file_name;
                 $this->purchase_order->save();
@@ -343,8 +352,14 @@ class PurchaseOrderController extends Controller
 
         file_put_contents($temp, $this->getStorage($purchase_order->filename, 'purchase_order'));
 
-        return response()->file($temp);
+        /*
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$purchase_order->filename.'"'
+        ];
+        */
 
+        return response()->file($temp, $this->generalPdfResponseFileHeaders($purchase_order->filename));
     }
 
 
@@ -451,7 +466,7 @@ class PurchaseOrderController extends Controller
     public function uploadAttached(Request $request)
     {
 
-        $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg,pdf');
+        $validate_upload = UploadFileHelper::validateUploadFile($request, 'file', 'jpg,jpeg,png,gif,svg,pdf', false);
 
         if(!$validate_upload['success']){
             return $validate_upload;

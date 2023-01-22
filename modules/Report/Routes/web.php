@@ -82,6 +82,10 @@
                             ->name('tenant.reports.sales.records');
                        Route::get('/pdf-simple', 'ReportDocumentController@pdfSimple')
                             ->name('tenant.reports.sales.pdfSimple');
+                         Route::post('/email', 'ReportDocumentController@email')
+                            ->name('tenant.reports.sales.email');
+                         Route::post('/export', 'ReportDocumentController@export')
+                         ->name('tenant.reports.sales.email');
                    });
                    /**
                     * /reports/sale-notes
@@ -266,6 +270,29 @@
                        // /reports/extra-general-items/records
                    });
 
+                   /**
+                    * /reports/state-account
+                    * /reports/state-account/pdf
+                    * /reports/state-account/filter
+                    * /reports/state-account/excel
+                    * /reports/state-account/records
+                    */
+                    Route::prefix('state-account')->group(function () {
+                         Route::get('', 'ReportStateAccountController@index')
+                             ->name('tenant.reports.state_account.index')
+                              ->middleware('tenant.internal.mode');
+                         Route::get('/pdf', 'ReportStateAccountController@pdf')
+                             ->name('tenant.reports.state_account.pdf');
+                         Route::get('/excel', 'ReportStateAccountController@excel')
+                             ->name('tenant.reports.state_account.excel');
+                         Route::get('/filter', 'ReportStateAccountController@filter')
+                              ->name('tenant.reports.state_account.filter');
+                         Route::get('/records', 'ReportStateAccountController@records')
+                              ->name('tenant.reports.state_account.records');
+                         Route::get('/pdf-simple', 'ReportStateAccountController@pdfSimple')
+                              ->name('tenant.reports.state_account.pdfSimple');
+                     });
+
                    Route::get('order-notes-general', 'ReportOrderNoteGeneralController@index')
                          ->name('tenant.reports.order_notes_general.index');
                     Route::get('order-notes-general/excel', 'ReportOrderNoteGeneralController@excel');
@@ -373,4 +400,43 @@
 
             });
         });
-    }
+     }
+     else
+     {
+          $prefix = env('PREFIX_URL',null);
+          $prefix = !empty($prefix)?$prefix.".":'';
+          $app_url = $prefix. env('APP_URL_BASE');
+
+          Route::domain($app_url)->group(function () {
+               Route::middleware('auth:admin')->group(function () {
+                    
+                    Route::prefix('reports')->group(function () {
+                         
+                         Route::get('list', 'System\ReportController@listReports')->name('system.list-reports');
+                         
+                         Route::get('clients', 'System\ReportController@clients');
+
+                         Route::prefix('report-login-lockout')->group(function () {
+
+                              Route::get('', 'System\ReportLoginLockoutController@index')->name('system.report_login_lockout.index');
+                              Route::get('columns', 'System\ReportLoginLockoutController@columns');
+                              Route::get('records', 'System\ReportLoginLockoutController@records');
+                              // Route::get('report/{type}', 'System\ReportLoginLockoutController@exportReport');
+
+                         });
+
+                         
+                         Route::prefix('user-not-change-password')->group(function () {
+
+                              Route::get('', 'System\ReportUserNotChangePasswordController@index')->name('system.user_not_change_password.index');
+                              Route::get('columns', 'System\ReportUserNotChangePasswordController@columns');
+                              Route::get('records', 'System\ReportUserNotChangePasswordController@records');
+                              // Route::get('report/{type}', 'System\ReportUserNotChangePasswordController@exportReport');
+
+                         });
+                    });
+
+               });
+          });
+     }
+ 

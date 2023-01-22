@@ -7,6 +7,7 @@
     use App\Models\Tenant\DocumentPayment;
     use App\Models\Tenant\ModelTenant;
     use App\Models\Tenant\PurchasePayment;
+    use App\Models\Tenant\PurchaseSettlementPayment;
     use App\Models\Tenant\SaleNotePayment;
     use App\Models\Tenant\SoapType;
     use App\Models\Tenant\TransferAccountPayment;
@@ -159,6 +160,12 @@
         {
             return $this->belongsTo(PurchasePayment::class, 'payment_id')
                 ->wherePaymentType(PurchasePayment::class);
+        }
+
+        public function pur_settl_payment()
+        {
+            return $this->belongsTo(PurchaseSettlementPayment::class, 'payment_id')
+                ->wherePaymentType(PurchaseSettlementPayment::class);
         }
 
         /**
@@ -345,6 +352,19 @@
         {
             return $this->destination_type === Cash::class ? 'cash' : 'bank_account';
         }
+        
+
+        /**
+         * 
+         * Determina si tiene como destino caja general
+         *
+         * @return bool
+         */
+        public function isCashDestination()
+        {
+            return $this->destination_type === Cash::class;
+        }
+
 
         /**
          * @return string
@@ -355,6 +375,7 @@
                 DocumentPayment::class => 'document',
                 SaleNotePayment::class => 'sale_note',
                 PurchasePayment::class => 'purchase',
+                PurchaseSettlementPayment::class => 'purchase_settlement',
                 ExpensePayment::class => 'expense',
                 QuotationPayment::class => 'quotation',
                 ContractPayment::class => 'contract',
@@ -383,6 +404,9 @@
                     break;
                 case 'purchase':
                     $description = 'COMPRA';
+                    break;
+                case 'purchase_settlement':
+                    $description = 'LIQUIDACION COMPRA';
                     break;
                 case 'expense':
                     $description = 'GASTO';
@@ -431,6 +455,7 @@
                     $type = 'input';
                     break;
                 case 'purchase':
+                case 'purchase_settlement':
                 case 'bank_loan_payment':
                 case 'expense':
                     $type = 'output';
@@ -459,6 +484,7 @@
                     $person['number'] = $record->customer->number;
                     break;
                 case 'purchase':
+                case 'purchase_settlement':
                 case 'expense':
                     $person['name'] = $record->supplier->name;
                     $person['number'] = $record->supplier->number;
@@ -542,6 +568,20 @@
             });
             /*PurchasePayment*/
             $query->OrWhereHas('pur_payment', function ($q) use ($params) {
+                if ($params->date_start) {
+                    $q->where('date_of_payment', '>=', $params->date_start);
+                }
+                if ($params->date_end) {
+                    $q->where('date_of_payment', '<=', $params->date_end);
+                }
+                // $q->whereBetween('date_of_payment', [$params->date_start, $params->date_end])
+                $q->whereHas('associated_record_payment', function ($p) use ($params){
+                    $p->whereStateTypeAccepted()->whereTypeUser((array)$params);
+                });
+
+            });
+            /*PurchasePayment*/
+            $query->OrWhereHas('pur_settl_payment', function ($q) use ($params) {
                 if ($params->date_start) {
                     $q->where('date_of_payment', '>=', $params->date_start);
                 }

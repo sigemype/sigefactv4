@@ -1,0 +1,25 @@
+{
+    "name": "eriquegasparcarlos/template",
+    "description": "",
+    "authors": [
+        {
+            "name": "Erique Gaspar Carlos Alfredo",
+            "email": "eriquegasparcarlos@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Template\\Providers\\TemplateServiceProvider"
+            ],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Template\\": ""
+        }
+    }
+}

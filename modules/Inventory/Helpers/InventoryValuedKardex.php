@@ -57,15 +57,39 @@ class InventoryValuedKardex
 
     }
 
+    
+    /**
+     * 
+     * Cantidad de unidades de la presentación
+     *
+     * @param  DocumentItem|SaleNoteItem $row
+     * @return float
+     */
+    public static function getQuantityUnitByPresentation($row)
+    {
+        $presentation = $row->item->presentation ?? [];
+
+        return (!empty($presentation)) ? $presentation->quantity_unit : 1;
+    }
+
+
     public static function getValuesRecords($document_items, $sale_note_items)
     {
-
         //quantity
+        
         $quantity_doc_items = $document_items->sum(function($row){
-            return ($row->document->document_type_id == '07') ? -$row->quantity : $row->quantity;
+            
+            $quantity = ($row->document->document_type_id == '07') ? -$row->quantity : $row->quantity;
+
+            return $quantity * self::getQuantityUnitByPresentation($row);
+
         });
 
-        $quantity_sln_items = $sale_note_items->sum('quantity');
+        // $quantity_sln_items = $sale_note_items->sum('quantity');
+
+        $quantity_sln_items = $sale_note_items->sum(function($row){
+            return $row->quantity * self::getQuantityUnitByPresentation($row);
+        });
 
         $quantity_sale = $quantity_doc_items + $quantity_sln_items;
 

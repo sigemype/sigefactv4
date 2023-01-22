@@ -48,6 +48,12 @@ class DocumentExport implements  FromView, ShouldAutoSize
         return $this;
     }
 
+    public function columns($columns) {
+        $this->columns = $columns;
+
+        return $this;
+    }
+
     public function view(): View {
         return view('report::documents.report_excel', [
             'records'=> $this->records,
@@ -56,6 +62,7 @@ class DocumentExport implements  FromView, ShouldAutoSize
             'filters'=>$this->filters,
             'categories'=>$this->categories,
             'categories_services'=>$this->categories_services,
+            'columns'=>$this->columns,
         ]);
     }
 }

@@ -35,6 +35,7 @@
                         <th>Cliente</th>
                         <th>Nota de Venta</th>
                         <th>Estado</th>
+                        <th class="text-right" v-if="columns.exchange_rate_sale.visible">T.C.</th>
                         <th class="text-center">Moneda</th>
                         <th class="text-right" v-if="columns.due_date.visible">F. Vencimiento</th>
                         <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
@@ -84,6 +85,7 @@
                         <td>{{ row.full_number }}
                         </td>
                         <td>{{ row.state_type_description }}</td>
+                        <td class="text-center" v-if="columns.exchange_rate_sale.visible" >{{ row.exchange_rate_sale }}</td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
 
                         <td class="text-right"  v-if="columns.due_date.visible" >{{ row.due_date }}</td>
@@ -213,7 +215,7 @@
                                         effect="dark"
                                         content="Generar guía desde Nota Venta"
                                         placement="left">
-                                        <a :href="`/dispatches/generate/${row.id}`"
+                                        <a :href="`/dispatches/create_new/sale_note/${row.id}`"
                                         class="dropdown-item"
                                         >
                                             Generar guía
@@ -356,6 +358,10 @@
                 columns: {
                     due_date: {
                         title: 'Fecha de Vencimiento',
+                        visible: false
+                    },
+                    exchange_rate_sale: {
+                        title: 'Tipo de cambio',
                         visible: false
                     },
                     total_free: {

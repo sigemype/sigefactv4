@@ -129,4 +129,23 @@
 //
 //        return $query;
 //    }
+
+
+        /**
+         * 
+         * Obtener stock del producto por almacen
+         *
+         * @param  Builder $query
+         * @param  int $item_id
+         * @param  int $warehouse_id
+         * @return Builder
+         */
+        public function scopeGetItemStockData($query, $item_id, $warehouse_id)
+        {
+            return $query->where([
+                        ['item_id', $item_id], 
+                        ['warehouse_id', $warehouse_id]
+                    ]);
+        }
+        
     }

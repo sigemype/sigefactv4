@@ -24,14 +24,16 @@ class DispatcherRequest extends FormRequest
             ],
             'identity_document_type_id' => [
                 'required',
-            ], 
+            ],
             'name' => [
                 'required',
             ],
             'address' => [
                 'required'
-            ], 
-            
+            ],
+            'number_mtc' => [
+                'required'
+            ]
         ];
     }
 

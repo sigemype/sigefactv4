@@ -1525,4 +1525,116 @@
             }});
         }
 
+        
+        /**
+         * Total del servicio tecnico
+         *
+         * @return float
+         */
+        public function getTotalRecordAttribute()
+        {
+            return $this->cost + $this->total;
+        }
+
+
+        /**
+         * 
+         * Total pagado
+         *
+         * @return float
+         */
+        public function getTotalPaidAttribute()
+        {
+            return (float) $this->payments()->sum('payment');
+        }
+
+
+        /**
+         *
+         * Validar si esta pagado a la totalidad
+         *
+         * @return bool
+         */
+        public function hasFullPayment()
+        {
+            return $this->total_record == $this->total_paid;
+        }
+
+
+        /**
+         *
+         * Validar si cumple las condiciones para sumar a los ingresos en reporte (pos)
+         *
+         * @return bool
+         */
+        public function applyToCash()
+        {
+            return $this->hasFullPayment();
+        }
+
+            
+        /**
+         * 
+         * Tipo de transaccion para caja
+         *
+         * @return string
+         */
+        public function getTransactionTypeCash()
+        {
+            return 'income';
+        }
+
+
+        /**
+         * 
+         * Tipo de documento para caja
+         *
+         * @return string
+         */
+        public function getDocumentTypeCash()
+        {
+            return $this->getTable();
+        }
+
+        
+        /**
+         * 
+         * Datos para resumen diario de operaciones
+         *
+         * @return array
+         */
+        public function applySummaryDailyOperations()
+        {
+            return [
+                'transaction_type' => $this->getTransactionTypeCash(),
+                'document_type' => $this->getDocumentTypeCash(),
+                'apply' => true,
+            ];
+        }
+
+
+        /**
+         *
+         * Obtener total de pagos en efectivo sin considerar destino
+         *
+         * @return float
+         */
+        public function totalCashPaymentsWithoutDestination()
+        {
+            return $this->payments()->filterCashPaymentWithoutDestination()->sum('payment');
+        }
+
+        
+        /**
+         *
+         * Obtener total de pagos en transferencia
+         *
+         * @return float
+         */
+        public function totalTransferPayments()
+        {
+            return $this->payments()->filterTransferPayment()->sum('payment');
+        }
+        
+
     }

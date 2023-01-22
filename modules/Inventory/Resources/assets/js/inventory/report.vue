@@ -5,8 +5,6 @@
             <ol class="breadcrumbs">
                 <li class="active"><span>{{ title }}</span></li>
             </ol>
-
-
         </div>
         <div class="card mb-0">
             <div class="card-header bg-info">

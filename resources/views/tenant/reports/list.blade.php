@@ -66,6 +66,28 @@
                                 Bandeja descarga de reportes
                             </a>
                         </li>
+                        
+                        {{-- Actividades del sistema --}}
+                        <li>
+                            <a href="#" data-toggle="collapse" data-target="#system_activity_logs_id">
+                                Actividades del sistema
+                            </a>
+                        </li>
+
+                        <ul id="system_activity_logs_id" class="collapse">
+                            <li>
+                                <a href="{{route('tenant.system_activity_logs.generals.index')}}">
+                                    Generales
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{route('tenant.system_activity_logs.transactions.index')}}">
+                                    Documentos electrónicos
+                                </a>
+                            </li>
+                        </ul>
+                        {{-- Actividades del sistema --}}
+
                     </ul>
                 </div>
             </div>
@@ -152,6 +174,10 @@
                         
                         <li>
                             <a href="{{route('tenant.reports.tips.index')}}">Propinas</a>
+                        </li>
+
+                        <li>
+                            <a href="{{route('tenant.reports.state_account.index')}}">Estado de cuenta</a>
                         </li>
                         
                     </ul>

@@ -104,7 +104,8 @@ class ReportGeneralItemController extends Controller
     {
         /* columna state_type_id */
         $documents_excluded = [
-            '11' // Documentos anulados
+            '11', // Documentos anulados
+            '09' // Documentos rechazados
         ];
         if( $document_type_id && $document_type_id == '80' ) {
             $relation = 'sale_note';

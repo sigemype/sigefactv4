@@ -232,6 +232,7 @@
                 row.prefix = 'NV'
 
                 row.order_note_id = this.records[index].index_id
+                row.seller_id = q.user_id
 
                 return row
             },

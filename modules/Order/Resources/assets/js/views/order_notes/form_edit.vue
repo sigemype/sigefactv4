@@ -89,16 +89,6 @@
                                 </div>
                             </div> -->
 
-                            <div class="col-lg-6">
-                                <div class="form-group" :class="{'has-danger': errors.observation}">
-                                    <label class="control-label">Observación
-                                    </label>
-                                    <el-input type="textarea" :rows="3" v-model="form.observation"></el-input>
-                                    <small class="form-control-feedback" v-if="errors.observation"
-                                           v-text="errors.observation[0]"></small>
-                                </div>
-                            </div>
-
                             <div class="col-lg-2">
                                 <div class="form-group" :class="{'has-danger': errors.payment_method_type_id}">
                                     <label class="control-label">
@@ -130,6 +120,71 @@
                                     <small class="form-control-feedback" v-if="errors.exchange_rate_sale" v-text="errors.exchange_rate_sale[0]"></small>
                                 </div>
                             </div>
+
+                            <div class="col-lg-6">
+                                <div class="form-group" :class="{'has-danger': errors.observation}">
+                                    <label class="control-label">Observación
+                                    </label>
+                                    <el-input type="textarea" :rows="3" v-model="form.observation"></el-input>
+                                    <small class="form-control-feedback" v-if="errors.observation"
+                                           v-text="errors.observation[0]"></small>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="control-label">Datos adicionales</label>
+                                </div>
+                                
+                                <table class="table table-responsive table-bordered">
+                                    <thead>
+                                        <tr width="100%">
+                                            <template v-if="form.additional_data.length > 0">
+                                                <th class="pb-2" width="40%">Título</th>
+                                                <th class="pb-2" width="40%">Descripción</th>
+                                            </template>
+                                            <th :width="form.additional_data.length > 0 ? '20%':'5%'"><a href="#" @click.prevent="clickAddAdditionalData" class="text-center font-weight-bold text-info">[+ Agregar]</a></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(row, index) in form.additional_data" :key="index" width="100%">
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+
+                                                    <el-input v-model="row.title"></el-input>
+                                                    
+                                                    <template v-if="errors[`additional_data.${index}.title`]">
+                                                        <div class="form-group" :class="{'has-danger': errors[`additional_data.${index}.title`]}">
+                                                            <small class="form-control-feedback" v-text="errors[`additional_data.${index}.title`][0]"></small>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    
+                                                    <el-input v-model="row.description"></el-input>
+                                                    
+                                                    <template v-if="errors[`additional_data.${index}.description`]">
+                                                        <div class="form-group" :class="{'has-danger': errors[`additional_data.${index}.description`]}">
+                                                            <small class="form-control-feedback" v-text="errors[`additional_data.${index}.description`][0]"></small>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </td>
+                                            <td class="series-table-actions text-center">
+                                                <button  type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDeleteAdditionalData(index)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                            <br>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            
                         </div>
 
                         <div class="row mt-2">
@@ -171,6 +226,9 @@
 
                                                     <template v-if="row.id">
                                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDeleteONItem(row.id, index)">x</button>
+                                                    </template>
+                                                    <template v-else-if="row.record_id">
+                                                        <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickDeleteONItem(row.record_id, index)">x</button>
                                                     </template>
                                                     <template v-else>
                                                         <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickRemoveItem(index)">x</button>
@@ -317,7 +375,19 @@
             });
 
         },
-        methods: {
+        methods: 
+        {
+            clickAddAdditionalData()
+            {
+                this.form.additional_data.push({
+                    title: null,
+                    description: null,
+                })
+            },
+            clickDeleteAdditionalData(index)
+            {
+                this.form.additional_data.splice(index, 1)
+            },
             changeCustomer(){
                 this.setAddressByCustomer()
             },
@@ -425,12 +495,16 @@
                         this.form.shipping_address = data.shipping_address
                         this.form.items = data.items
                         this.form.observation = data.observation
+                        this.form.additional_data = this.prepareAdditionalData(data)
                         this.calculateTotal()
                         this.reloadDataCustomers(this.form.customer_id)
                     })
                 await this.getPercentageIgv();
             },
-
+            prepareAdditionalData(data)
+            {
+                return data.additional_data ? Object.values(data.additional_data) : []
+            },
             searchRemoteCustomers(input) {
 
                 if (input.length > 0) {
@@ -494,7 +568,8 @@
                     observation: null,
                     actions: {
                         format_pdf:'a4',
-                    }
+                    },
+                    additional_data: [],
                 }
                 this.initInputPerson()
             },

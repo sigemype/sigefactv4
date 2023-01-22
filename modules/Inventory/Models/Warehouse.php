@@ -4,6 +4,7 @@ namespace Modules\Inventory\Models;
 
 use App\Models\Tenant\Establishment;
 use App\Models\Tenant\ModelTenant;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Modules\Inventory\Models\Warehouse
@@ -115,6 +116,36 @@ class Warehouse extends ModelTenant
             'warehouse_description' => $this->description,
             'establishment_description' => $this->establishment->description,
         ];
+    }
+
+    
+    /**
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeSelectBasicColumns($query)
+    {
+        return $query->select([
+            'id',
+            'description',
+        ]);
+    }
+
+    
+    /**
+     * 
+     * Obtener id del almacen
+     *
+     * @param  Builder $query
+     * @param  int $establishment_id
+     * @return Builder
+     */
+    public function scopeGetWarehouseId($query, $establishment_id = null)
+    {
+        $establishment_id = $establishment_id ?? auth()->user()->establishment_id;
+
+        return $query->where('establishment_id', $establishment_id)->select('id')->firstOrFail()->id;
     }
 
 }

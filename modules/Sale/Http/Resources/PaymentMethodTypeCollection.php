@@ -20,7 +20,7 @@ class PaymentMethodTypeCollection extends ResourceCollection
             /** @var \App\Models\Tenant\PaymentMethodType  $row */
             $show_actions = true;
 
-            if(in_array($row->id, ['01', '05', '08', '09'])){
+            if(in_array($row->id, ['01', '05', '08', '09', '04'])){
                 $show_actions = false;
             }
             $return = $row->toArray();

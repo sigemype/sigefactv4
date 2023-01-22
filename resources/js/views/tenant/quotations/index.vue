@@ -6,7 +6,8 @@
                 <li class="active"><span>Cotizaciones</span></li>
             </ol>
             <div class="right-wrapper pull-right">
-                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i
+                    class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
         <div class="card mb-0">
@@ -23,7 +24,7 @@
                 </el-dropdown>
             </div>
             <div class="card-body">
-                <data-table :resource="resource">
+                <data-table :resource="resource" :state-types="state_types">
                     <tr slot="heading">
                         <th>#</th>
                         <th class="text-center">Fecha Emisión</th>
@@ -40,6 +41,7 @@
                         <th v-if="columns.referential_information.visible">Inf.Referencial</th>
                         <th v-if="columns.contract.visible">Contrato</th>
                         <!-- <th>Estado</th> -->
+                        <th v-if="columns.exchange_rate_sale.visible">T.C.</th>
                         <th class="text-center">Moneda</th>
                         <th class="text-center"></th>
                         <th class="text-right" v-if="columns.total_exportation.visible">T.Exportación</th>
@@ -50,7 +52,8 @@
                         <th class="text-right">T.Igv</th>
                         <th class="text-right">Total</th>
                         <th class="text-center">PDF</th>
-                        <th class="text-right">Acciones</th>
+                        <th class="text-right"></th>
+                        <!-- <th class="text-right">Acciones</th> -->
                     <tr>
                     <tr slot-scope="{ index, row }" :class="{ anulate_color : row.state_type_id == '11' }">
                         <td>{{ index }}</td>
@@ -61,11 +64,13 @@
                         <td>{{ row.customer_name }}<br/><small v-text="row.customer_number"></small></td>
                         <td>
                             <template v-if="row.state_type_id == '11'">
-                                {{row.state_type_description}}
+                                {{ row.state_type_description }}
                             </template>
                             <template v-else>
-                                <el-select v-model="row.state_type_id" @change="changeStateType(row)" style="width:120px !important">
-                                    <el-option v-for="option in state_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                <el-select v-model="row.state_type_id" @change="changeStateType(row)"
+                                           style="width:120px !important">
+                                    <el-option v-for="option in state_types" :key="option.id" :value="option.id"
+                                               :label="option.description"></el-option>
                                 </el-select>
                             </template>
                         </td>
@@ -73,7 +78,15 @@
                         </td>
                         <td>
                             <template v-for="(document,i) in row.documents">
-                                <label :key="i" v-text="document.number_full" class="d-block"></label>
+                                <template v-if="document.is_voided_or_rejected">
+                                    <label :key="i" class="d-block text-danger">
+                                        {{ document.number_full }}
+                                        <!-- {{ document.number_full }} ({{document.state_type_description}}) -->
+                                    </label>
+                                </template>
+                                <template v-else>
+                                    <label :key="i" v-text="document.number_full" class="d-block"></label>
+                                </template>
                             </template>
                         </td>
                         <td>
@@ -82,12 +95,12 @@
                                 <label :key="i" v-text="sale_note.number_full" class="d-block"></label>
                             </template>
                         </td>
-                    <td v-if="columns.order_note.visible">
-                        <!-- Pedidos -->
-                        <template v-if="row.order_note !== undefined && row.order_note.full_number !== undefined">
-                            <label  class="d-block">{{row.order_note.full_number}}  </label>
-                        </template>
-                    </td>
+                        <td v-if="columns.order_note.visible">
+                            <!-- Pedidos -->
+                            <template v-if="row.order_note !== undefined && row.order_note.full_number !== undefined">
+                                <label class="d-block">{{ row.order_note.full_number }} </label>
+                            </template>
+                        </td>
                         <td>
                             <!-- {{ row.sale_opportunity_number_full }} -->
 
@@ -101,52 +114,54 @@
                                     <table>
                                         <tr>
                                             <td><strong>O. Venta: </strong></td>
-                                            <td><strong>{{row.sale_opportunity_number_full}}</strong></td>
+                                            <td><strong>{{ row.sale_opportunity_number_full }}</strong></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Detalle: </strong></td>
-                                            <td><strong>{{row.sale_opportunity.detail}}</strong></td>
+                                            <td><strong>{{ row.sale_opportunity.detail }}</strong></td>
                                         </tr>
-                                        <tr  class="mt-4 mb-4">
+                                        <tr class="mt-4 mb-4">
                                             <td><strong>F. Emisión:</strong></td>
-                                            <td><strong>{{row.date_of_issue}}</strong></td>
+                                            <td><strong>{{ row.date_of_issue }}</strong></td>
                                         </tr>
                                     </table>
                                     <div class="table-responsive mt-4">
                                         <table class="table">
                                             <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Descripción</th>
-                                                    <th>Cantidad</th>
-                                                    <th>Total</th>
-                                                </tr>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Descripción</th>
+                                                <th>Cantidad</th>
+                                                <th>Total</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="(row, index) in row.sale_opportunity.items" :key="index">
-                                                    <td>{{index+1}}</td>
-                                                    <td>{{row.item.description}}</td>
-                                                    <td>{{row.quantity}}</td>
-                                                    <td>{{row.total}}</td>
-                                                </tr>
+                                            <tr v-for="(row, index) in row.sale_opportunity.items" :key="index">
+                                                <td>{{ index + 1 }}</td>
+                                                <td>{{ row.item.description }}</td>
+                                                <td>{{ row.quantity }}</td>
+                                                <td>{{ row.total }}</td>
+                                            </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-                                <el-button slot="reference"> <i class="fa fa-eye"></i></el-button>
+                                <el-button slot="reference"><i class="fa fa-eye"></i></el-button>
                             </el-popover>
                         </td>
                         <!-- <td>{{ row.state_type_description }}</td> -->
                         <td v-if="columns.referential_information.visible">{{ row.referential_information }}</td>
                         <td v-if="columns.contract.visible">{{ row.contract_number_full }}</td>
+                        <td v-if="columns.exchange_rate_sale.visible">{{ row.exchange_rate_sale }}</td>
                         <td class="text-center">{{ row.currency_type_id }}</td>
 
                         <td class="text-right">
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickPayment(row.id)">Pagos</button>
+                                    @click.prevent="clickPayment(row.id)">Pagos
+                            </button>
                         </td>
 
-                        <td class="text-right"  v-if="columns.total_exportation.visible" >{{ row.total_exportation }}</td>
+                        <td class="text-right" v-if="columns.total_exportation.visible">{{ row.total_exportation }}</td>
                         <td class="text-right" v-if="columns.total_free.visible">{{ row.total_free }}</td>
                         <td class="text-right" v-if="columns.total_unaffected.visible">{{ row.total_unaffected }}</td>
                         <td class="text-right" v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}</td>
@@ -156,50 +171,138 @@
                         <td class="text-right">
 
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickOptionsPdf(row.id)">PDF</button>
+                                    @click.prevent="clickOptionsPdf(row.id)">PDF
+                            </button>
                         </td>
 
                         <td class="text-right">
 
-<!--                            /*-->
-<!--                             #830-->
-<!--                             */-->
-                            <button v-if="row.btn_options"
-                                    type="button"
-                                    class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickGenerateDocument(row.id)" >
-                                Generar comprobante
-                            </button>
-<!--                            /*-->
-<!--                             #830-->
-<!--                             */-->
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 
-                            <button v-if="row.btn_options"
+                                    <button v-if="row.btn_options"
+                                        class="dropdown-item"
+                                        @click.prevent="clickGenerateDocument(row.id)">
+                                        Generar comprobante
+                                    </button>
+
+                                    <button v-if="row.btn_options"
+                                        class="dropdown-item"
+                                        @click.prevent="clickOptions(row.id)">
+                                        Generar nota de venta
+                                    </button>
+
+                                    <a v-if="row.documents.length == 0 && row.state_type_id != '11'"
+                                        :href="`/${resource}/edit/${row.id}`" type="button"
+                                        class="dropdown-item">
+                                        Editar
+                                    </a>
+
+                                    <button v-if="row.documents.length == 0 && row.state_type_id != '11'" type="button"
+                                        class="dropdown-item"
+                                        @click.prevent="clickAnulate(row.id)">
+                                        Anular
+                                    </button>
+
+                                    <button @click="duplicate(row.id)" type="button"
+                                        class="dropdown-item">
+                                        Duplicar
+                                    </button>
+
+                                    <a :href="`/dispatches/create_new/quotation/${row.id}`"
+                                        class="dropdown-item">
+                                        Guía
+                                    </a>
+
+                                    <template v-if="row.btn_generate_cnt && row.state_type_id != '11'">
+                                        <a :href="`/contracts/generate-quotation/${row.id}`"
+                                            class="dropdown-item">
+                                            Generar contrato
+                                        </a>
+                                    </template>
+                                    <template v-else>
+                                        <button type="button" @click="clickPrintContract(row.external_id_contract)"
+                                            class="dropdown-item">
+                                            Ver contrato
+                                        </button>
+                                    </template>
+
+                                    <!-- pedidos -->
+                                    <button
+                                        v-if="canMakeOrderNote(row)"
+                                        @click="makeOrder(row.id)"
+                                        type="button"
+                                        class="dropdown-item">
+                                        Generar Pedido
+                                    </button>
+
+                                    <button
+                                        @click="clickSendQuotation(row.id)"
+                                        type="button"
+                                        class="dropdown-item">
+                                        Enviar cotización
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!--                            /*-->
+                            <!--                             #830-->
+                            <!--                             */-->
+                            <!-- <button v-if="row.btn_options"
                                     type="button"
                                     class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickOptions(row.id)" >
+                                    @click.prevent="clickGenerateDocument(row.id)">
+                                Generar comprobante
+                            </button> -->
+                            <!--                            /*-->
+                            <!--                             #830-->
+                            <!--                             */-->
+
+                            <!-- <button v-if="row.btn_options"
+                                    type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info"
+                                    @click.prevent="clickOptions(row.id)">
                                 Generar nota de venta
                             </button>
 
-                            <a v-if="row.documents.length == 0 && row.state_type_id != '11'" :href="`/${resource}/edit/${row.id}`" type="button" class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
-                            <button v-if="row.documents.length == 0 && row.state_type_id != '11'" type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickAnulate(row.id)">Anular</button>
-                            <button @click="duplicate(row.id)"  type="button" class="btn waves-effect waves-light btn-xs btn-info">Duplicar</button>
-                            <a :href="`/dispatches/create/${row.id}/q`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2">Guía</a>
+                            <a v-if="row.documents.length == 0 && row.state_type_id != '11'"
+                               :href="`/${resource}/edit/${row.id}`" type="button"
+                               class="btn waves-effect waves-light btn-xs btn-info">Editar</a>
+
+                            <button v-if="row.documents.length == 0 && row.state_type_id != '11'" type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-danger"
+                                    @click.prevent="clickAnulate(row.id)">Anular
+                            </button>
+
+                            <button @click="duplicate(row.id)" type="button"
+                                    class="btn waves-effect waves-light btn-xs btn-info">Duplicar
+                            </button>
+
+                            <a :href="`/dispatches/create/${row.id}/q`"
+                               class="btn waves-effect waves-light btn-xs btn-warning m-1__2">Guía</a>
 
                             <template v-if="row.btn_generate_cnt && row.state_type_id != '11'">
-                                <a  :href="`/contracts/generate-quotation/${row.id}`" class="btn waves-effect waves-light btn-xs btn-primary m-1__2">Generar contrato</a>
+                                <a :href="`/contracts/generate-quotation/${row.id}`"
+                                   class="btn waves-effect waves-light btn-xs btn-primary m-1__2">Generar contrato</a>
                             </template>
                             <template v-else>
-                                <button  type="button" @click="clickPrintContract(row.external_id_contract)"  class="btn waves-effect waves-light btn-xs btn-primary m-1__2">Ver contrato</button>
-                            </template>
+                                <button type="button" @click="clickPrintContract(row.external_id_contract)"
+                                        class="btn waves-effect waves-light btn-xs btn-primary m-1__2">Ver contrato
+                                </button>
+                            </template> -->
+
                             <!-- pedidos -->
-                            <button
+                            <!-- <button
                                 v-if="canMakeOrderNote(row)"
                                 @click="makeOrder(row.id)"
                                 type="button"
                                 class="btn waves-effect waves-light btn-xs btn-tumblr">
                                 Generar Pedido
-                            </button>
+                            </button> -->
 
                         </td>
 
@@ -209,176 +312,187 @@
 
 
             <quotation-options :showDialog.sync="showDialogOptions"
-                              :recordId="recordId"
-                              :showGenerate="true"
-                              :showClose="true"></quotation-options>
+                               :recordId="recordId"
+                               :showGenerate="true"
+                               :showClose="true"></quotation-options>
 
             <quotation-options-pdf :showDialog.sync="showDialogOptionsPdf"
-                              :recordId="recordId"
-                              :showClose="true"></quotation-options-pdf>
+                                   :recordId="recordId"
+                                   :showClose="true"></quotation-options-pdf>
 
 
             <quotation-payments :showDialog.sync="showDialogPayments"
                                 :recordId="recordId"></quotation-payments>
+
+
+            <send-email-document :showDialog.sync="showDialogSendEmailDocument"
+                                :recordId="recordId"
+                                :resource="resource"></send-email-document>
+
         </div>
     </div>
 </template>
 <style scoped>
-    .anulate_color{
-        color:red;
-    }
+.anulate_color {
+    color: red;
+}
 </style>
 <script>
 
-    import QuotationOptions from './partials/options.vue'
-    import QuotationOptionsPdf from './partials/options_pdf.vue'
-    import DataTable from '../../../components/DataTableQuotation.vue'
-    import {deletable} from '../../../mixins/deletable'
-    import QuotationPayments from './partials/payments.vue'
-    import {mapActions, mapState} from "vuex";
+import QuotationOptions from './partials/options.vue'
+import QuotationOptionsPdf from './partials/options_pdf.vue'
+import DataTable from '../../../components/DataTableQuotation.vue'
+import {deletable} from '../../../mixins/deletable'
+import QuotationPayments from './partials/payments.vue'
+import {mapActions, mapState} from "vuex";
+import SendEmailDocument from '@components/secondary/SendEmailDocument.vue'
 
-    export default {
-        props:[
-            'typeUser',
-            'soapCompany',
-            'generateOrderNoteFromQuotation',
-        ],
-        mixins: [
-            deletable
-        ],
-        components: {
-            DataTable,
-            QuotationOptions,
-            QuotationOptionsPdf,
-            QuotationPayments
-        },
-        computed: {
-            ...mapState([
-                'config',
-            ]),
+export default {
+    props: [
+        'typeUser',
+        'soapCompany',
+        'generateOrderNoteFromQuotation',
+    ],
+    mixins: [
+        deletable
+    ],
+    components: {
+        DataTable,
+        QuotationOptions,
+        QuotationOptionsPdf,
+        QuotationPayments,
+        SendEmailDocument
+    },
+    computed: {
+        ...mapState([
+            'config',
+        ]),
 
+    },
+    data() {
+        return {
+            resource: 'quotations',
+            showDialogSendEmailDocument: false,
+            recordId: null,
+            showDialogPayments: false,
+            showDialogOptions: false,
+            showDialogOptionsPdf: false,
+            state_types: [],
+            columns: {
+                total_exportation: {
+                    title: 'T.Exportación',
+                    visible: false
+                },
+                total_unaffected: {
+                    title: 'T.Inafecto',
+                    visible: false
+                },
+                total_exonerated: {
+                    title: 'T.Exonerado',
+                    visible: false
+                },
+                total_free: {
+                    title: 'T.Gratuito',
+                    visible: false
+                },
+                contract: {
+                    title: 'Contrato',
+                    visible: false
+                },
+                delivery_date: {
+                    title: 'T.Entrega',
+                    visible: false
+                },
+                referential_information: {
+                    title: 'Inf.Referencial',
+                    visible: false,
+                },
+                order_note: {
+                    title: 'Pedidos',
+                    visible: false,
+                },
+                exchange_rate_sale: {
+                    title: 'Tipo de cambio',
+                    visible: false
+                },
+            }
+        }
+    },
+    async created() {
+        await this.filter()
+    },
+    mounted() {
+        this.loadConfiguration()
+    },
+    methods: {
+        clickSendQuotation(id)
+        {
+            this.recordId = id
+            this.showDialogSendEmailDocument = true
         },
-        data() {
-            return {
-                resource: 'quotations',
-                recordId: null,
-                showDialogPayments: false,
-                showDialogOptions: false,
-                showDialogOptionsPdf: false,
-                state_types: [],
-                columns: {
-                    total_exportation: {
-                        title: 'T.Exportación',
-                        visible: false
-                    },
-                    total_unaffected: {
-                        title: 'T.Inafecto',
-                        visible: false
-                    },
-                    total_exonerated: {
-                        title: 'T.Exonerado',
-                        visible: false
-                    },
-                    total_free: {
-                        title: 'T.Gratuito',
-                        visible: false
-                    },
-                    contract: {
-                        title: 'Contrato',
-                        visible: false
-                    },
-                    delivery_date: {
-                        title: 'T.Entrega',
-                        visible: false
-                    },
-                    referential_information: {
-                        title: 'Inf.Referencial',
-                        visible: false,
-                    },
-                    order_note: {
-                        title: 'Pedidos',
-                        visible: false,
-                    }
+        ...mapActions([
+            'loadConfiguration',
+        ]),
+        canMakeOrderNote(row) {
+
+            let permission = true
+
+            // Si ya tiene Pedidos, no se genera uno nuevo
+            if (row.order_note.full_number) {
+                permission = false
+            } else {
+                if (this.typeUser !== 'admin') {
+                    permission = this.generateOrderNoteFromQuotation
                 }
             }
+
+            return permission
         },
-        async created() {
-            await this.filter()
+        clickPrintContract(external_id) {
+            window.open(`/contracts/print/${external_id}/a4`, '_blank');
         },
-        mounted() {
-            this.loadConfiguration()
+        clickPayment(recordId) {
+            this.recordId = recordId;
+            this.showDialogPayments = true;
         },
-        methods: {
-            ...mapActions([
-                'loadConfiguration',
-            ]),
-            canMakeOrderNote(row){
+        async changeStateType(row) {
 
-                let permission = true
+            await this.updateStateType(`/${this.resource}/state-type/${row.state_type_id}/${row.id}`).then(() =>
+                this.$eventHub.$emit('reloadData')
+            )
 
-                // Si ya tiene Pedidos, no se genera uno nuevo
-                if(row.order_note.full_number)
-                {
-                    permission = false
-                }
-                else
-                {
-                    if(this.typeUser !== 'admin')
-                    {
-                        permission = this.generateOrderNoteFromQuotation
-                    }
-                }
-
-                return permission
-            },
-            clickPrintContract(external_id){
-                window.open(`/contracts/print/${external_id}/a4`, '_blank');
-            } ,
-            clickPayment(recordId) {
-                this.recordId = recordId;
-                this.showDialogPayments = true;
-            },
-            async changeStateType(row){
-
-                await this.updateStateType(`/${this.resource}/state-type/${row.state_type_id}/${row.id}`).then(() =>
-                    this.$eventHub.$emit('reloadData')
-                )
-
-            },
-            filter(){
-                this.$http.get(`/${this.resource}/filter`)
-                            .then(response => {
-                                this.state_types = response.data.state_types
-                            })
-            },
-            clickEdit(id)
-            {
-                this.recordId = id
-                this.showDialogFormEdit = true
-            },
-            clickOptions(recordId = null) {
-                this.recordId = recordId
-                this.showDialogOptions = true
-            },
-            clickOptionsPdf(recordId = null) {
-                this.recordId = recordId
-                this.showDialogOptionsPdf = true
-            },
-            clickAnulate(id)
-            {
-                this.anular(`/${this.resource}/anular/${id}`).then(() =>
-                    this.$eventHub.$emit('reloadData')
-                )
-            },
-            makeOrder(quotation){
-                let tos = parseInt(quotation);
-                localStorage.setItem('Quotation', tos)
-                localStorage.setItem('FromQuotation', true)
-                window.location.href = "/order-notes/create";
-            },
-            duplicate(id)
-            {
-                this.$http.post(`${this.resource}/duplicate`, {id})
+        },
+        async filter() {
+            await this.$http.get(`/${this.resource}/filter`)
+                .then(response => {
+                    this.state_types = response.data.state_types
+                })
+        },
+        clickEdit(id) {
+            this.recordId = id
+            this.showDialogFormEdit = true
+        },
+        clickOptions(recordId = null) {
+            this.recordId = recordId
+            this.showDialogOptions = true
+        },
+        clickOptionsPdf(recordId = null) {
+            this.recordId = recordId
+            this.showDialogOptionsPdf = true
+        },
+        clickAnulate(id) {
+            this.anular(`/${this.resource}/anular/${id}`).then(() =>
+                this.$eventHub.$emit('reloadData')
+            )
+        },
+        makeOrder(quotation) {
+            let tos = parseInt(quotation);
+            localStorage.setItem('Quotation', tos)
+            localStorage.setItem('FromQuotation', true)
+            window.location.href = "/order-notes/create";
+        },
+        duplicate(id) {
+            this.$http.post(`${this.resource}/duplicate`, {id})
                 .then(response => {
                     if (response.data.success) {
                         this.$message.success('Se guardaron los cambios correctamente.')
@@ -390,11 +504,11 @@
                 .catch(error => {
 
                 })
-                this.$eventHub.$emit('reloadData')
-            },
-            clickGenerateDocument(recordId) {
-                window.location.href = `/documents/create/quotations/${recordId}`;
-            }
+            this.$eventHub.$emit('reloadData')
+        },
+        clickGenerateDocument(recordId) {
+            window.location.href = `/documents/create/quotations/${recordId}`;
         }
     }
+}
 </script>

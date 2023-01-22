@@ -12,6 +12,7 @@ use App\Models\Tenant\Company;
 use App\Models\Tenant\Kardex;
 use App\Models\Tenant\Item;
 use Carbon\Carbon;
+use Modules\Inventory\Models\Guide;
 use Modules\Inventory\Models\InventoryKardex;
 use Modules\Inventory\Models\Warehouse;
 use Modules\Inventory\Http\Resources\ReportKardexCollection;
@@ -32,6 +33,7 @@ class ReportKardexController extends Controller
     protected $models = [
         "App\Models\Tenant\Document",
         "App\Models\Tenant\Purchase",
+        "App\Models\Tenant\PurchaseSettlement",
         "App\Models\Tenant\SaleNote",
         "Modules\Inventory\Models\Inventory",
         "Modules\Order\Models\OrderNote",
@@ -427,5 +429,40 @@ class ReportKardexController extends Controller
 
     //     return view('inventory::reports.kardex.index', compact('items', 'reports', 'balance','models', 'a', 'd','item_selected'));
     // }
+    public function getPdfGuide($guide_id)
+    {
+        $company = Company::query()->first();
 
+        $record = Guide::query()
+            ->with('inventory_transaction', 'warehouse', 'document_type', 'items', 'items.item')
+            ->find($guide_id);
+
+        $items = [];
+        foreach ($record->items as $i) {
+            $items[] = [
+                'item_internal_id' => $i->item->internal_id,
+                'item_name' => $i->item_name,
+                'unit_type_id' => $i->item->unit_type_id,
+                'quantity' => $i->quantity,
+                'lot' => ''
+            ];
+        }
+
+        $data = [
+            'company_number' => $company->number,
+            'document_type_name' => $record->document_type->description,
+            'document_number' => $record->series . '-' . $record->number,
+            'document_date_of_issue' => $record->date_of_issue->format('d/m/Y'),
+            'warehouse_name' => $record->warehouse->description,
+            'transaction_name' => $record->inventory_transaction->name,
+            'items' => $items
+        ];
+
+        $pdf = PDF::loadView('inventory::reports.kardex.guide', $data);
+        $pdf->setPaper('A4', 'portrait');
+        // $pdf->setPaper('A4', 'landscape');
+        $filename = 'Guia_' . date('YmdHis');
+
+        return $pdf->download($filename . '.pdf');
+    }
 }

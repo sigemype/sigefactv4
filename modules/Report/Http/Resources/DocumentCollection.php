@@ -3,6 +3,8 @@
 namespace Modules\Report\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use \App\CoreFacturalo\Helpers\Template\ReportHelper;
+use App\CoreFacturalo\Helpers\Template\TemplateHelper;
 
 class DocumentCollection extends ResourceCollection
 {
@@ -28,6 +30,22 @@ class DocumentCollection extends ResourceCollection
             $web_platforms = $row->getPlatformThroughItems();
             $seller = $row->getSellerData();
 
+            $stablishment_info=ReportHelper::getLocationData($row);
+
+            $payments_total= [];
+            $payment_description='';
+            $payments_total = TemplateHelper::getDetailedPayment($row);
+
+            foreach ($payments_total as $payment){
+                foreach ($payment as $pay){
+                    $payment_description=$pay['description'];
+                    if (count($payment) > 1){
+                        $payment_description.=' - ';
+                    }
+                }
+            }
+
+            //dd($row->sale_note);
             return [
                 'id' => $row->id,
                 'group_id' => $row->group_id,
@@ -35,10 +53,20 @@ class DocumentCollection extends ResourceCollection
                 'soap_type_description' => $row->soap_type->description,
                 'date_of_issue' => $row->date_of_issue->format('Y-m-d'),
                 'date_of_due' => (in_array($row->document_type_id, ['01', '03'])) ? $row->invoice->date_of_due->format('Y-m-d') : null,
-                'number' => $row->number_full,
+                'serie' => $row->series,
+                'number' => $row->number,
                 'customer_name' => $row->customer->name,
                 'customer_number' => $row->customer->number,
                 'currency_type_id' => $row->currency_type_id,
+                'district' => $stablishment_info['district'],
+                'department' => $stablishment_info['department'],
+                'province' => $stablishment_info['province'],
+                'client_direction' => $row->customer->name,
+                'ruc' => $row->customer->number,
+                'note_sale' => $row->sale_note?$row->sale_note->number_full:'',
+                'date_sale' => $row->sale_note?$row->sale_note->date_of_issue->format('Y-m-d'):'',
+                'payment_form' => ($row->payments()->count() > 0) ? $row->payments()->first()->payment_method_type->description : '',
+                'payment_method' => $payment_description,
                 'series' => $row->series,
                 'establishment_id' => $row->establishment_id,
                 'alone_number' => $row->number,
@@ -89,6 +117,7 @@ class DocumentCollection extends ResourceCollection
 
                 'agent_name' => optional($row->agent)->search_description,
                 'reference_data' => $row->reference_data,
+                'plate_number' => $row->getPlateNumberSaleReport(),
 
             ];
         });

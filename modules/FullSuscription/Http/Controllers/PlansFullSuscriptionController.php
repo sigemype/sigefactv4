@@ -48,9 +48,11 @@
         {
 
             $periods = CatPeriod::where('active', 1)->get();
+            $establishment_id = auth()->user()->establishment_id;
 
             return compact(
-                'periods'
+                'periods',
+                'establishment_id'
             );
 
         }

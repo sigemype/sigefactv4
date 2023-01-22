@@ -58,7 +58,7 @@
     </td>
     --}}
     <td class="celda"> {{$purchase->currency_type_id}} {{ $description_apply_conversion_to_pen ?? ''}}</td>
-    <td class="celda"> {{$purchase->exchange_rate_sale}}</td>
+    {{-- <td class="celda"> {{$purchase->exchange_rate_sale}}</td> --}}
     <td class="celda"> {{$value->item->unit_type_id}}</td>
     <td class="celda"> {{$value->relation_item ? $value->relation_item->internal_id:''}}</td>
     <td class="celda"> {{$value->item->description}}</td>

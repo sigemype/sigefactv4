@@ -152,7 +152,7 @@
                                 type="button" class="btn waves-effect waves-light btn-xs btn-danger"
                                 @click.prevent="clickAnulate(row.id)">Anular</button>
                             <button @click="duplicate(row.id)"  type="button" class="btn waves-effect waves-light btn-xs btn-info">Duplicar</button>
-                            <a :href="`/dispatches/create/${row.id}/on`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2">Guía</a>
+                            <a :href="`/dispatches/create_new/order_note/${row.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2">Guía</a>
 
 
                         </td>

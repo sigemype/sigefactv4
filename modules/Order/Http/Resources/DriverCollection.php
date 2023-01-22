@@ -19,6 +19,7 @@ class DriverCollection extends ResourceCollection
                 'id' => $row->id,
                 'number' => $row->number,
                 'name' => $row->name,
+                'license' => $row->license,
                 'document_type' => $row->identity_document_type->description,
                 'created_at' => $row->created_at->format('Y-m-d H:i:s'),
                 'updated_at' => $row->updated_at->format('Y-m-d H:i:s'),

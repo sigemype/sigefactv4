@@ -19,10 +19,10 @@ class SaleConsolidatedCollection extends ResourceCollection
         return $this->collection->transform(function($row, $key){
             $unit_type_id = $row->relation_item->unit_type_id;
             $unit_price = 1;
-            $category  = [
-                'id' => '',
-                'name' => ''
-            ];
+            // $category  = [
+            //     'id' => '',
+            //     'name' => ''
+            // ];
             $brand = [
                 'id' => '',
                 'name' => ''
@@ -46,7 +46,7 @@ class SaleConsolidatedCollection extends ResourceCollection
                     $item = Item::select('brand_id')->where('internal_id',$row->item->internal_id)->first();
                     if(!empty($item)){
                         $brand = $item->brand;
-                        $category = $item->category;
+                        // $category = $item->category;
                     }
                 }
                 // category_id
@@ -62,7 +62,8 @@ class SaleConsolidatedCollection extends ResourceCollection
                 'item_unit_type_id' => $unit_type_id,
                 // 'item_unit_type_id' => $row->relation_item->unit_type_id,
                 'brand' => $brand,
-                'category' => $category,
+                // 'category' => $category,
+                'category_name' => optional($row->relation_item->category)->name,
                 'item_description' => $row->item->description,
                 'item_quantity' => $row->quantity,
                 'total_sale' => $unit_price * $row->quantity,

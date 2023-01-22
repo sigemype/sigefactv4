@@ -15,51 +15,67 @@
                     <span>Si al seleccionar lotes la cantidad es mayor, el último lote quedara con la diferencia. </span>
                 </div>
                 <div class="col-md-6 text-right">
-                    <h5>Cant. Pedida: {{quantity}}</h5>
-                    <h5 v-bind:class="{ 'text-danger': (toAttend < 0) }">Por Atender: {{toAttend}}</h5>
+                    <h5>Cant. Pedida: {{ quantity }}</h5>
+                    <h5 v-bind:class="{ 'text-danger': (toAttend < 0) }">Por Atender: {{ toAttend }}</h5>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-5 col-md-5 col-sm-12 pb-2">
                     <el-input placeholder="Buscar código ..."
-                        v-model="search"
-                        style="width: 100%;"
-                        prefix-icon="el-icon-search"
-                        @input="filter">
+                              v-model="search"
+                              style="width: 100%;"
+                              prefix-icon="el-icon-search"
+                              @input="filter">
                     </el-input>
+                </div>
+
+                <div class="col-lg-5 col-md-5 col-sm-12 pb-2" v-if="showCompromiseAllQuantity">
+                    <el-checkbox v-model="set_compromise_all_quantity" @change="changeCompromiseAllQuantity">Comprometer
+                        todos los lotes
+                    </el-checkbox>
                 </div>
 
                 <div class="col-lg-12 col-md-12">
                     <table class="table">
                         <thead>
-                            <tr>
-                                <!--<th>Seleccionado</th>-->
-                                <th width="145">Comprometer</th>
-                                <th>codigo</th>
-                                <th>Cantidad</th>
-                                <th>Fecha vencimiento  <el-button icon="el-icon-d-caret" @click="orderData()" plain></el-button> </th>
-                            </tr>
+                        <tr>
+                            <!--<th>Seleccionado</th>-->
+                            <th width="145">Comprometer</th>
+                            <th></th>
+                            <th>Código</th>
+                            <th>Cantidad</th>
+                            <th>Fecha vencimiento
+                                <el-button icon="el-icon-d-caret" @click="orderData()" plain></el-button>
+                            </th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr
-                                v-for="(row, index) in lotsGroupOrdered"
-                                :key="index"
-                                v-show="row.quantity > 0"
-                            >
-                                <!--<th align="center">
-                                    <el-checkbox
-                                        :disabled="quantityCompleted && row.checked == false"
-                                        v-model="row.checked"
-                                        @change="changeSelect($event, index)"
-                                    ></el-checkbox>
-                                </th>-->
-                                <th>
-                                    <el-input-number v-model="row.compromise_quantity" v-bind:class="{ 'text-danger': (row.compromise_quantity > row.quantity) }" ></el-input-number>
-                                </th>
-                                <th>{{ row.code }}</th>
-                                <th class>{{ row.quantity }}</th>
-                                <th class>{{ row.date_of_due }}</th>
-                            </tr>
+                        <tr
+                            v-for="(row, index) in lotsGroupOrdered"
+                            :key="index"
+                            v-show="row.quantity > 0"
+                        >
+                            <!--<th align="center">
+                                <el-checkbox
+                                    :disabled="quantityCompleted && row.checked == false"
+                                    v-model="row.checked"
+                                    @change="changeSelect($event, index)"
+                                ></el-checkbox>
+                            </th>-->
+                            <th>
+                                <el-input-number v-model="row.compromise_quantity"
+                                                 v-bind:class="{ 'text-danger': (row.compromise_quantity > row.quantity) }"></el-input-number>
+                            </th>
+
+                            <th>
+                                <el-button icon="el-icon-d-arrow-left" round @click="setTotalQuantityToCompromise(row)">
+                                </el-button>
+                            </th>
+
+                            <th>{{ row.code }}</th>
+                            <th class>{{ row.quantity }}</th>
+                            <th class>{{ row.date_of_due }}</th>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -75,7 +91,15 @@
 
 <script>
 export default {
-    props: ["showDialog", "lots_group", "stock", "recordId", "quantity"],
+    name: 'ItemLotsGroup',
+    props: ["showDialog",
+        'lotsGroupAll',
+        'lotsGroup',
+        'stock',
+        'recordId',
+        'quantity',
+        'compromiseAllQuantity'
+    ],
     data() {
         return {
             titleDialog: "Lotes",
@@ -86,51 +110,65 @@ export default {
             idSelected: null,
             search: '',
             lots_group_: [],
-            orderT: 'desc'
+            orderT: 'desc',
+            set_compromise_all_quantity: false,
         };
     },
     async created() {
-      
+
     },
     computed: {
         lotsGroupOrdered() {
             return _.orderBy(this.lots_group_, 'date_of_due', this.orderT)
         },
-        quantityCompleted(){
-            return this.lots_group_.filter(x => x.checked == true).reduce((accum,item) => accum + Number(item.quantity), 0) >= this.quantity 
+        quantityCompleted() {
+            return this.lots_group_.filter(x => x.checked == true).reduce((accum, item) => accum + Number(item.quantity), 0) >= this.quantity
         },
         toAttend() {
-            return this.quantity - this.lots_group_.filter(x => x.compromise_quantity > 0).reduce((accum,item) => accum + Number(item.compromise_quantity), 0)
+            return this.quantity - this.lots_group_.filter(x => x.compromise_quantity > 0).reduce((accum, item) => accum + Number(item.compromise_quantity), 0)
+        },
+        showCompromiseAllQuantity() {
+            if (this.compromiseAllQuantity !== undefined && this.compromiseAllQuantity) return this.compromiseAllQuantity
+
+            return false
         }
     },
     methods: {
-        orderData() {
-            this.orderT =  this.orderT == 'desc' ? 'asc' : 'desc'
-        },
-        filter(){
+        changeCompromiseAllQuantity() {
+            this.lotsGroupOrdered.forEach(row => {
 
-            if(this.search)
-            {
-                this.lots_group_ = _.filter(this.lots_group, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
-            }
-            else{
-                this.lots_group_ = this.lots_group
+                if (this.set_compromise_all_quantity) {
+                    this.setTotalQuantityToCompromise(row, false)
+                } else {
+                    row.compromise_quantity = 0
+                }
+            })
+            this.$message.success('La cantidad comprometida de todos los lotes fue actualizada')
+        },
+        setTotalQuantityToCompromise(row, show_message = true) {
+            row.compromise_quantity = parseFloat(row.quantity)
+            if (show_message) this.$message.success('Cantidad asignada')
+        },
+        orderData() {
+            this.orderT = this.orderT == 'desc' ? 'asc' : 'desc'
+        },
+        filter() {
+            if (this.search) {
+                this.lots_group_ = _.filter(this.lotsGroupAll, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
+            } else {
+                this.lots_group_ = this.lotsGroupAll
             }
         },
         changeSelect(event, index) {
             /*if(this.quantityCompleted) {
                 this.$message.warning('La cantidad está completada');
             }*/
-
             this.lots_group_[index].checked = event
-            this.idSelected = this.lots_group_.filter(x => x.checked == true).map( x => x.id);
-
-            let sum = this.lots_group_.filter(x => x.checked == true).reduce((accum,item) => accum + Number(item.quantity), 0)
-
+            this.idSelected = this.lots_group_.filter(x => x.checked == true).map(x => x.id);
+            let sum = this.lots_group_.filter(x => x.checked == true).reduce((accum, item) => accum + Number(item.quantity), 0)
             if (sum >= this.quantity) {
                 this.$message.warning('La cantidad está completada.');
             }
-
         },
         handleSelectionChange(val) {
             //this.$refs.multipleTable.clearSelection();
@@ -138,20 +176,18 @@ export default {
             this.multipleSelection = [row];
         },
         create() {
-          this.filter()
+            this.filter()
+            this.set_compromise_all_quantity = false
         },
-
         async submit() {
-            
             //validar cantidad comprometida igual a cantidad pedida
-            let compromise_quantity = this.lots_group_.filter(x => x.compromise_quantity > 0).reduce((accum,item) => accum + Number(item.compromise_quantity), 0)
+            let compromise_quantity = this.lots_group_.filter(x => x.compromise_quantity > 0).reduce((accum, item) => accum + Number(item.compromise_quantity), 0)
             if (compromise_quantity != this.quantity) {
                 return this.$message.warning('La suma de cantidades comprometidas de los lotes debe der igual a la cantidad pedida.');
             }
-
             //validar cantridad comprometer en lote
-            const successValid = this.lots_group_.filter(x => x.compromise_quantity > 0).filter( x => x.compromise_quantity > x.quantity )
-            if(successValid.length) {
+            const successValid = this.lots_group_.filter(x => x.compromise_quantity > 0).filter(x => x.compromise_quantity > x.quantity)
+            if (successValid.length) {
                 return this.$message.warning('La cantidades comprometida de un lote no debe sobrepasar su capacidad.');
             }
 

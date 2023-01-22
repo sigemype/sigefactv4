@@ -490,7 +490,10 @@
                             <tbody>
                             <tr v-for="row in supplies">
                                 <th>{{ row.individual_item.description }}</th>
-                                <th>{{ row.quantity }}</th>
+                                <th>
+                                    <!-- {{ row.quantity }} -->
+                                    <el-input-number v-model="row.quantity" :min="0.01" :step="1"></el-input-number>
+                                </th>
                                 <th>
 
                                     <el-select v-model="row.warehouse_id"

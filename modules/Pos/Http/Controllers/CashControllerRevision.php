@@ -100,7 +100,12 @@ class CashControllerRevision extends Controller
         $temp = tempnam(sys_get_temp_dir(), 'cash_pdf_ticket');
         file_put_contents($temp, $this->getPdf($cash, 'ticket'));
 
-        return response()->file($temp);
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Reporte"'
+        ];
+
+        return response()->file($temp, $headers);
     }
 
     public function reportA4($cash)
@@ -108,7 +113,12 @@ class CashControllerRevision extends Controller
         $temp = tempnam(sys_get_temp_dir(), 'cash_pdf_a4');
         file_put_contents($temp, $this->getPdf($cash, 'a4'));
 
-        return response()->file($temp);
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Reporte"'
+        ];
+
+        return response()->file($temp, $headers);
     }
 
     public function reportExcel($cash)

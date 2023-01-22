@@ -146,7 +146,7 @@
                                 $unit_type_id = 'ZZ';
 
                                 $brand = "";
-                                $category = "";
+                                // $category = "";
                                 $unit_price = 1;
                                 if (property_exists( $value->item,'presentation') &&  $value->item->presentation) {
                                     $unit_type_id = $value->item->presentation->unit_type_id;
@@ -156,8 +156,8 @@
                                     if(!empty($item)){
                                         $brand = $item->brand;
                                         $brand = $brand['name'];
-                                        $category = $item->category;
-                                        $category = $category['name'];
+                                        // $category = $item->category;
+                                        // $category = $category['name'];
                                     }
                                 }
                                 if (property_exists($value->item,'unit_price')) {
@@ -170,7 +170,9 @@
                                     <td class="celda">{{$value->series}}-{{$value->number}}</td>
                                     <td class="celda">{{$value->relation_item->internal_id}}</td>
                                     <td class="celda">{{ (property_exists( $value->item,'presentation') && $value->item->presentation) ? $value->item->presentation->unit_type_id : $value->relation_item->unit_type_id}}</td>
-                                     <td class="celda">{{$category}}</td>
+                                    <td class="celda">{{ optional($value->relation_item->category)->name }}</td>
+                                    {{-- <td class="celda">{{$category}}</td> --}}
+                                    
                                     {{-- <td class="celda">{{$value->relation_item->unit_type_id}}</td> --}}
                                     <td class="celda">{{$value->item->description}}</td>
                                     <td class="celda">{{$value->quantity}}</td>

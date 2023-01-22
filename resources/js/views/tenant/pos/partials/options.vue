@@ -32,7 +32,7 @@
                         <el-tab-pane label="Imprimir Ticket 58" name="second" v-if="config.show_ticket_58">
                             <embed v-if="config.show_ticket_58" :src="form.print_ticket_58" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
-                        <el-tab-pane label="Imprimir Ticket 50" name="third" v-if="config.show_ticket_50 && this.resource=='documents'">
+                        <el-tab-pane label="Imprimir Ticket 50" name="third" v-if="config.show_ticket_50">
                             <embed v-if="config.show_ticket_50" :src="form.print_ticket_50" type="application/pdf" width="100%" height="450px"/>
                         </el-tab-pane>
                         <el-tab-pane label="Imprimir A4" name="quarter">
@@ -74,7 +74,7 @@
                             <p>Ticket 58</p>
                         </div>
                         <div
-                            v-if="config.show_ticket_50&& this.resource=='documents'"
+                            v-if="config.show_ticket_50"
                             class="col text-center font-weight-bold mt-3">
                             <button class="btn btn-lg btn-info waves-effect waves-light"
                                     type="button"

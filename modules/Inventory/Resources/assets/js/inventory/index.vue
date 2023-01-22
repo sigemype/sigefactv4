@@ -6,8 +6,30 @@
                 <li class="active"><span>{{ title }}</span></li>
             </ol>
             <div v-if="typeUser == 'admin'" class="right-wrapper pull-right">
-                <!--<button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i class="fa fa-upload"></i> Importar</button>-->
+                <button type="button" class="btn btn-success btn-sm  mt-2 mr-2" @click.prevent="clickImport()"><i class="fa fa-upload"></i> Imp. Ajuste de stock</button>
+                <button type="button" class="btn btn-success btn-sm  mt-2 mr-2" @click.prevent="clickReportStock()"><i class="fa fa-file-excel"></i> Reporte Aj. stock</button>
                 <button type="button" class="btn btn-success btn-sm  mt-2 mr-2" @click.prevent="clickReport()"><i class="fa fa-file-excel"></i> Reporte</button>
+
+                
+                <div class="btn-group flex-wrap">
+                    <button
+                        aria-expanded="false"
+                        class="btn btn-custom btn-sm mt-2 mr-2 dropdown-toggle"
+                        data-toggle="dropdown"
+                        type="button"
+                    >
+                        <i class="fa fa-upload"></i> Importar
+                        <span class="caret"></span>
+                    </button>
+                    <div
+                        class="dropdown-menu"
+                        role="menu"
+                        style="position: absolute;will-change: transform;top: 0px;left: 0px;transform: translate3d(0px, 42px, 0px);" x-placement="bottom-start">
+                        <a class="dropdown-item text-1" href="#" @click.prevent="clickImportSpecialAttributes('item-lots-group')">Lotes</a>
+                        <a class="dropdown-item text-1" href="#" @click.prevent="clickImportSpecialAttributes('item-lots')">Series</a>
+                    </div>
+                </div>
+
                 <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickCreate('input')"><i class="fa fa-plus-circle"></i> Ingreso</button>
                 <button type="button" class="btn btn-custom btn-sm  mt-2 mr-2" @click.prevent="clickOutput()"><i class="fa fa-minus-circle"></i> Salida</button>
             </div>
@@ -30,6 +52,7 @@
                                     <el-dropdown-item @click.native="onChecktAll">Seleccionar todo</el-dropdown-item>
                                     <el-dropdown-item @click.native="onUnCheckAll">Deseleccionar todo</el-dropdown-item>
                                     <el-dropdown-item @click.native="onOpenModalMoveGlobal">Trasladar</el-dropdown-item>
+                                    <el-dropdown-item @click.native="onOpenModalStockGlobal">Ajustar stock</el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
                         </th>
@@ -37,7 +60,7 @@
                         <th>Almacén</th>
                         <th class="text-right">Stock</th>
                         <th class="text-right">Acciones</th>
-                    <tr>
+                    </tr>
                     <tr slot-scope="{ index, row }" :key="index">
                         <td>
                             <el-switch v-model="row.selected" @click="onChangeSelectedStatus(row)"></el-switch>
@@ -51,6 +74,16 @@
                                     @click.prevent="clickMove(row.id)">Trasladar</button>
                             <button v-if="typeUser == 'admin'" type="button" class="btn waves-effect waves-light btn-xs btn-warning"
                                     @click.prevent="clickRemove(row.id)">Remover</button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-warning"
+                                    @click.prevent="clickStock(row.id)">
+                                    Ajuste
+                                    <el-tooltip class="item"
+                                                    content="Ajuste: stock del sistema no cuadre con el stock real"
+                                                    effect="dark"
+                                                    placement="top">
+                                            <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                            </button>
                         </td>
                     </tr>
                 </data-table>
@@ -75,6 +108,23 @@
                             :showDialog.sync="showDialogMovementReport"
                                 ></movement-report>
 
+            <inventories-stock :showDialog.sync="showDialogStock"
+                              :recordId="recordId"></inventories-stock>
+                            
+            <StockGlobal :products="selectedItems" :show.sync="showHideStockMoveGlobal"></StockGlobal>
+
+            <stock-import :showDialog.sync="showImportDialog"></stock-import>
+
+            <stock-report
+                            :showDialog.sync="showDialogStockReport"
+                                ></stock-report>
+
+
+            <import-special-attributes 
+                :showDialog.sync="showDialogSpecialAttributes"
+                :special-attribute-type="special_attribute_type"
+                ></import-special-attributes>
+
         </div>
     </div>
 </template>
@@ -90,9 +140,19 @@
     import MoveGlobal from './MoveGlobal.vue';
     import MovementReport from './reports/movement_report.vue';
 
+    import InventoriesStock from './stock.vue'
+
+    import StockGlobal from './StockGlobal.vue';
+
+    import StockImport from './import.vue'
+
+    import StockReport from './reports/stock_report.vue';
+    import ImportSpecialAttributes from './partials/import_special_attributes.vue'
+
+
     export default {
         props: ['type', 'typeUser'],
-        components: {DataTable, InventoriesForm, InventoriesMove, InventoriesRemove, InventoriesFormOutput, MoveGlobal, MovementReport},
+        components: {DataTable, InventoriesForm, InventoriesMove, InventoriesRemove, InventoriesFormOutput, MoveGlobal, MovementReport, InventoriesStock, StockGlobal, StockImport, StockReport, ImportSpecialAttributes},
         data() {
             return {
                 showHideModalMoveGlobal: false,
@@ -105,13 +165,24 @@
                 resource: 'inventory',
                 recordId: null,
                 typeTransaction:null,
-                showDialogMovementReport:false
+                showDialogMovementReport:false,
+                showDialogStock: false,
+                showHideStockMoveGlobal: false,
+                showImportDialog: false,
+                showDialogStockReport:false,
+                showDialogSpecialAttributes:false,
+                special_attribute_type: null,
             }
         },
         created() {
             this.title = 'Inventario'
         },
         methods: {
+            clickImportSpecialAttributes(type)
+            {
+                this.showDialogSpecialAttributes = true
+                this.special_attribute_type = type
+            },
             clickReport(){
                 this.showDialogMovementReport = true
             },
@@ -164,7 +235,29 @@
             clickOutput() {
                 this.recordId = null
                 this.showDialogOutput = true
-            }
+            },
+            clickStock(recordId) {
+                this.recordId = recordId
+                this.showDialogStock = true
+            },
+            async onOpenModalStockGlobal() {
+                const itemsSelecteds = await this.$refs.datatable.records.filter(p => p.selected);
+                if (itemsSelecteds.length > 0) {
+                    this.selectedItems = itemsSelecteds;
+                    this.showHideStockMoveGlobal = true;
+                } else {
+                    this.$message({
+                        message: 'Selecciona uno o más productos.',
+                        type: 'warning'
+                    });
+                }
+            },
+            clickImport(){
+                this.showImportDialog = true
+            },
+            clickReportStock(){
+                this.showDialogStockReport = true
+            },
 
         }
     }

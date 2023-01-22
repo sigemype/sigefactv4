@@ -75,6 +75,7 @@
                                             :show-file-list="true"
                                             :file-list="fileList"
                                             :on-success="onSuccess"
+                                            :on-error="errorUpload"
                                             :limit="1"
                                             >
                                         <el-button slot="trigger" type="primary">Adjuntar pago</el-button>
@@ -237,6 +238,10 @@
             await this.getConfiguration()
         },
         methods: {
+            errorUpload(error)
+            {
+                this.$message({message: 'Error al subir el archivo', type: 'error'})
+            },
             clickQueryStatusMP(){
 
                 this.loading = true

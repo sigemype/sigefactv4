@@ -407,7 +407,14 @@
 
             file_put_contents($temp, $this->getStorage($technical_service->filename, 'technical_service'));
 
-            return response()->file($temp);
+            /*
+            $headers = [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$technical_service->filename.'"'
+            ];
+            */
+
+            return response()->file($temp, $this->generalPdfResponseFileHeaders($technical_service->filename));
         }
 
         private function reloadPDF($technical_service, $format, $filename)

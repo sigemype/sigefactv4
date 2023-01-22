@@ -249,6 +249,7 @@
             :typeUser="config.typeUser"
             :displayDiscount="false"
             @add="addRow"
+            :percentage-igv="percentage_igv"
         >
 
         </tenant-quotations-item-form>
@@ -274,7 +275,8 @@
 
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
-import {serviceNumber} from '../../../../../../resources/js/mixins/functions'
+import {serviceNumber, functions} from '../../../../../../resources/js/mixins/functions'
+
 import {
     calculateRowItem,
     FormatUnitPriceRow,
@@ -283,7 +285,8 @@ import {
 
 export default {
     mixins: [
-        serviceNumber
+        serviceNumber,
+        functions
     ],
     props: [
         'showDialog',
@@ -305,16 +308,23 @@ export default {
             recordItem: null,
             fakeForm: {},
             //identity_document_types: []
+            form: {
+                date_of_issue: moment().format('YYYY-MM-DD'),
+                establishment_id: null
+            }, //usado para obtener los datos del igv
         }
     },
-    created() {
-        this.initForm()
-        this.$http
+    async created() {
+        await this.initForm()
+        await this.$http
             .post(`/full_suscription/${this.resource}/tables`, {})
             .then(response => {
                 this.$store.commit('setPeriods', response.data.periods)
+
+                this.form.establishment_id = response.data.establishment_id
             })
-        this.getCommonData()
+        await this.getCommonData()
+        await this.getPercentageIgv()
     },
     computed: {
         ...mapState([

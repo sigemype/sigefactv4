@@ -361,7 +361,14 @@ class SaleOpportunityController extends Controller
 
         file_put_contents($temp, $this->getStorage($sale_opportunity->filename, 'sale_opportunity'));
 
-        return response()->file($temp);
+        /*
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$sale_opportunity->filename.'"'
+        ];
+        */
+
+        return response()->file($temp, $this->generalPdfResponseFileHeaders($sale_opportunity->filename));
     }
 
 
