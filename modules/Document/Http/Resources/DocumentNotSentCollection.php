@@ -21,19 +21,21 @@ class DocumentNotSentCollection extends ResourceCollection
 
         return $this->collection->transform(function($row, $key) use($configuration) {
             
-            $btn_resend = false; 
+            // $btn_resend = false; 
+            $btn_resend = $row->isAvailableResend();
+
             $text_tooltip = '';
             $affected_document = null;
             
-            if ($row->group_id === '01') {
-                if ($row->state_type_id === '01') {
-                    $btn_resend = true;
-                }
+            // if ($row->group_id === '01') {
+            //     if ($row->state_type_id === '01') {
+            //         $btn_resend = true;
+            //     }
                 
-                if ($row->state_type_id === '05') { 
-                    $btn_resend = false; 
-                } 
-            } 
+            //     if ($row->state_type_id === '05') { 
+            //         $btn_resend = false; 
+            //     } 
+            // } 
 
             if ($row->group_id === '02') {
                 if ($row->state_type_id === '01') {

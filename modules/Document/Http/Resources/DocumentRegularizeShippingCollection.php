@@ -16,19 +16,20 @@ class DocumentRegularizeShippingCollection extends ResourceCollection
     public function toArray($request) {
         return $this->collection->transform(function($row, $key) {
 
-            $btn_resend = false;
+            $btn_resend = $row->isAvailableResend();
             $text_tooltip = '';
             $affected_document = null;
+            $btn_consult_cdr = $row->isAvailableConsultCdr();
 
-            if ($row->group_id === '01') {
-                if ($row->state_type_id === '01') {
-                    $btn_resend = true;
-                }
+            // if ($row->group_id === '01') {
+            //     if ($row->state_type_id === '01') {
+            //         $btn_resend = true;
+            //     }
 
-                if ($row->state_type_id === '05') {
-                    $btn_resend = false;
-                }
-            }
+            //     if ($row->state_type_id === '05') {
+            //         $btn_resend = false;
+            //     }
+            // }
 
             if ($row->group_id === '02') {
                 if ($row->state_type_id === '01') {
@@ -64,6 +65,7 @@ class DocumentRegularizeShippingCollection extends ResourceCollection
                 'user_email' => ($row->user) ? $row->user->email : '',
                 'text_tooltip' => $text_tooltip,
                 'message_regularize_shipping' => $message_regularize_shipping,
+                'btn_consult_cdr' => $btn_consult_cdr,
             ];
         });
     }

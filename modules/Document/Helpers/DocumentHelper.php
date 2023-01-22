@@ -6,7 +6,8 @@ use Exception;
 use Carbon\Carbon;
 use App\Models\Tenant\{
     Configuration,
-    Document
+    Document,
+    SaleNote,
 };
 use Hyn\Tenancy\Environment;
 use App\Models\System\Client;
@@ -115,6 +116,71 @@ class DocumentHelper
             'end_date' => $end,
         ];
 
+    }
+
+        
+    /**
+     * Obtener modelo por tipo de documento
+     *
+     * @param  string $document_type_id
+     * @return string
+     */
+    public function getModelByDocumentType($document_type_id)
+    {
+        $model = null;
+
+        switch ($document_type_id)
+        {
+            case '01':
+            case '03':
+                $model = Document::class;
+                break;
+            
+            case '80':
+                $model = SaleNote::class;
+                break;
+        }
+
+        if(is_null($model)) throw new Exception('No se encontró un modelo para el tipo de documento.');
+
+        return $model;
+    }
+
+    
+    /**
+     * 
+     * Obtener documento para envio de mensaje por ws
+     *
+     * @param  string $model
+     * @param  string $id
+     * @return Document|SaleNote
+     */
+    public function getDocumentDataForSendMessage($model, $id)
+    {
+        return $model::filterDataForSendMessage()->findOrFail($id);
+    }
+
+    
+    /**
+     *
+     *  Obtener parametros para envio de mensaje por ws
+     *
+     * @param  mixed $phone_number
+     * @param  mixed $format
+     * @param  mixed $document
+     * @return void
+     */
+    public function getParamsForAppSendMessage($phone_number, $format, $document)
+    {
+        return [
+            'send_type' => 'text',
+            'phone_number' => $phone_number,
+            'message' => "Su comprobante {$document->number_full} ha sido generado correctamente.",
+            'document' => [
+                'filename'=> "{$document->filename}.pdf",
+                'link'=> $document->getUrlPrintByFormat($format)
+            ]
+        ];
     }
  
 }

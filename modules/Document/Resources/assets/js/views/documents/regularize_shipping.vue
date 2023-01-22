@@ -35,7 +35,8 @@
                         </th>
 
                         <td class="text-center">
-                            <template v-if="row.soap_type_id == '02' && row.group_id == '01'">
+                            <template v-if="row.btn_consult_cdr">
+                            <!-- <template v-if="row.soap_type_id == '02' && row.group_id == '01'"> -->
                                 <el-button type="success"  class="btn btn-sm" @click.prevent="clickConsultCdr(row.id)" v-if="!isClient"><i class="el-icon-check"></i></el-button>
                             </template>
                         </td>
