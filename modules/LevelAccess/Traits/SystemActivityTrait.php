@@ -16,10 +16,10 @@ use Exception;
 
 
 trait SystemActivityTrait
-{ 
-    
+{
+
     /**
-     * 
+     *
      * Registrar datos en log de actividades para el usuario, inicio y cierre de sesión
      * Para cada Tenant
      *
@@ -29,7 +29,7 @@ trait SystemActivityTrait
      */
     public function saveSystemActivityUser($event, $system_activity_log_type_id)
     {
-        try 
+        try
         {
             if($this->isGuardWeb($event))
             {
@@ -55,16 +55,16 @@ trait SystemActivityTrait
 
                 $this->onlyCreateSystemActivityLog($this->getParamsSystemActivity($client_data, $base_data));
             }
-        } 
-        catch (Exception $e) 
+        }
+        catch (Exception $e)
         {
             $this->showErrorLog($e, User::class, $system_activity_log_type_id);
         }
     }
 
-        
+
     /**
-     * 
+     *
      * Registrar datos en log de actividades para el usuario, bloqueo por exceder limite de intentos
      * Para cada Tenant
      *
@@ -75,7 +75,7 @@ trait SystemActivityTrait
         $system_activity_log_type_id = 'login_lockout';
         $email = $request['email'] ?? null;
 
-        try 
+        try
         {
             $connection_name = (new User)->getDbConnectionName();
 
@@ -95,16 +95,16 @@ trait SystemActivityTrait
                 $this->onlyCreateSystemActivityLog($this->getParamsSystemActivity($client_data, $base_data));
             }
 
-        } 
-        catch (Exception $e) 
+        }
+        catch (Exception $e)
         {
             $this->setErrorLog($e, " Se ha excedido el límite de intentos permitidos al iniciar sesión - admin/system - {$system_activity_log_type_id} ");
         }
     }
 
-    
+
     /**
-     * 
+     *
      * Registrar datos en log de actividades - transacciones en general
      *
      * @param  string $model
@@ -113,10 +113,10 @@ trait SystemActivityTrait
      */
     public function saveGeneralSystemActivity($model, $system_activity_log_type_id, $route = null)
     {
-        try 
+        try
         {
             $client_data = $this->getClientData();
-    
+
             $base_data = [
                 'user_id' => auth()->id(),
                 'system_activity_log_type_id' => $system_activity_log_type_id,
@@ -124,16 +124,16 @@ trait SystemActivityTrait
                 'time' => date('H:i:s'),
                 'route' => $route,
             ];
-    
+
             $model->system_activity_logs()->create($this->getParamsSystemActivity($client_data, $base_data));
-        } 
-        catch (Exception $e) 
+        }
+        catch (Exception $e)
         {
             $this->showErrorLog($e, get_class($model), $system_activity_log_type_id);
         }
     }
 
-    
+
     /**
      *
      * @param  Exception $e
@@ -145,12 +145,12 @@ trait SystemActivityTrait
     {
         $this->setErrorLog($e, 'Ocurrió un error al registrar las actividades del sistema - SystemActivityLog, modelo asociado: '.$model. ' - tipo transacción: '.$system_activity_log_type_id.' - Detalle del error: ');
     }
-    
+
 
     /**
-     * 
+     *
      * Verificar cambios en las columnas del modelo y registra en tabla de actividades del sistema si hubo cambio
-     * 
+     *
      * El modelo asociado debe tener los metodos definidos:
      * getCheckColumnsForSystemActivity - Columnas que serviran para verificar si hubo cambio en ellas
      * getTransactionTypeForSystemActivity - Obtener descripcion del tipo de transacción
@@ -163,15 +163,15 @@ trait SystemActivityTrait
         foreach ($model->getCheckColumnsForSystemActivity() as $column)
         {
             if($model->wasChanged($column))
-            {   
+            {
                 $this->saveGeneralSystemActivity($model, $model->getTransactionTypeForSystemActivity($column));
             }
         }
     }
 
-    
+
     /**
-     * 
+     *
      * Registro en bd
      *
      * @param  array $data
@@ -182,9 +182,9 @@ trait SystemActivityTrait
         SystemActivityLog::create($data);
     }
 
-        
+
     /**
-     * 
+     *
      * Data para registro de actividades
      *
      * @param  array $new_data
@@ -197,31 +197,31 @@ trait SystemActivityTrait
     }
 
     /**
-     * 
+     *
      * Obtener información del cliente
      *
      * @return array
      */
     public function getClientData()
     {
-        $agent = new Agent();
-        $browser = $agent->browser();
-        $platform = $agent->platform();
-        $data_client_helper = new DataClientHelper();
+        // $agent = new Agent();
+        // $browser = $agent->browser();
+        // $platform = $agent->platform();
+        // $data_client_helper = new DataClientHelper();
 
-        return [
-            'platform_name' => $platform,
-            'platform_version' => $agent->version($platform),
-            'browser_name' => $browser,
-            'browser_version' => $agent->version($browser),
-            'device_name' => $agent->device(),
-            'device_type' => $agent->deviceType(),
-            'ip' => $data_client_helper->getClientIp(),
-            'location' => $data_client_helper->getLocation(),
-        ];
+        // return [
+        //     'platform_name' => $platform,
+        //     'platform_version' => $agent->version($platform),
+        //     'browser_name' => $browser,
+        //     'browser_version' => $agent->version($browser),
+        //     'device_name' => $agent->device(),
+        //     'device_type' => $agent->deviceType(),
+        //     'ip' => $data_client_helper->getClientIp(),
+        //     'location' => $data_client_helper->getLocation(),
+        // ];
     }
 
-    
+
     /**
      *
      * @return bool
@@ -230,8 +230,8 @@ trait SystemActivityTrait
     {
         return $event->guard === 'web';
     }
-    
-    
+
+
     /**
      *
      * @param  string $connection
@@ -242,7 +242,7 @@ trait SystemActivityTrait
         return $connection === 'tenant';
     }
 
-    
+
     /**
      *
      * @param  Exception $exception
