@@ -188,9 +188,9 @@
     <cac:PaymentTerms>
         <cbc:ID>FormaPago</cbc:ID>
         <cbc:PaymentMeansID>Credito</cbc:PaymentMeansID>
-        <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $document->fees()->sum('amount') }}</cbc:Amount>
+        <cbc:Amount currencyID="{{ $document->currency_type_id }}">{{ $document->fee()->sum('amount') }}</cbc:Amount>
     </cac:PaymentTerms>
-    @foreach($document->fees as $fee)
+    @foreach($document->fee as $fee)
         <cac:PaymentTerms>
             <cbc:ID>FormaPago</cbc:ID>
             <cbc:PaymentMeansID>Cuota{{ sprintf("%03d", $loop->iteration) }}</cbc:PaymentMeansID>
