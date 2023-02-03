@@ -100,9 +100,3 @@
     </div>
 </table>
 </body>
-
-<table class="full-width">
-    <tr>
-        <td class="text-center desc font-bold">Para consultar el comprobante ingresar a {!! url('/buscar') !!}</td>
-    </tr>
-</table>
