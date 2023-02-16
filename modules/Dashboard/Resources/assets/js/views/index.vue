@@ -35,7 +35,7 @@
                                         <el-option key="all" value="all" label="Todos"></el-option>
                                         <el-option key="last_week" value="last_week" label="Última semana"></el-option>
                                         <el-option key="month" value="month" label="Por mes"></el-option>
-                                        <el-option key="between_months" value="between_months" label="Entre meses"></el-option>
+                                        <!-- <el-option key="between_months" value="between_months" label="Entre meses"></el-option> -->
                                         <el-option key="date" value="date" label="Por fecha"></el-option>
                                         <el-option key="between_dates" value="between_dates" label="Entre fechas"></el-option>
                                     </el-select>
@@ -692,7 +692,7 @@ export default {
         enabled_expense: null,
         enabled_move_item: false,
         enabled_transaction_customer: false,
-        period: "date",
+        period: "last_week",
         date_start: moment().subtract(7, 'days').format("YYYY-MM-DD"),
         date_end: moment().format("YYYY-MM-DD"),
         month_start: moment().format("YYYY-MM"),
