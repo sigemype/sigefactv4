@@ -1,7 +1,7 @@
 <?php
 
 namespace App\CoreFacturalo\Services\IntegratedQuery;
- 
+
 use App\Models\Tenant\Company;
 use Exception;
 
@@ -18,23 +18,27 @@ class AuthApi
 
             $company = Company::active();
 
-            if(!$company->integrated_query_client_id || !$company->integrated_query_client_secret){
-                return [
-                    'success' => false,
-                    'message' => 'No ha configurado correctamente el campo client_id o client_secret',
-                ];
-            }
+            // if(!$company->integrated_query_client_id || !$company->integrated_query_client_secret){
+            //     return [
+            //         'success' => false,
+            //         'message' => 'No ha configurado correctamente el campo client_id o client_secret',
+            //     ];
+            // }
 
             $curl = curl_init();
-            
+
             $form_params = [
                 'grant_type' => self::GRANT_TYPE,
                 'scope' => self::SCOPE,
-                'client_id' => $company->integrated_query_client_id,
-                'client_secret' => $company->integrated_query_client_secret, 
+                // 'client_id' => $company->integrated_query_client_id,
+                // 'client_secret' => $company->integrated_query_client_secret,
+
+                'client_secret' => "LnhRnq6GhhL5jcL3F/r51A==",
+                'client_id' => "7a58f5f1-8648-4cc8-8b89-0cb8f069e743",
             ];
 
             curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api-seguridad.sunat.gob.pe/v1/clientesextranet/7a58f5f1-8648-4cc8-8b89-0cb8f069e743/oauth2/token",
                 CURLOPT_URL => "https://api-seguridad.sunat.gob.pe/v1/clientesextranet/{$company->integrated_query_client_id}/oauth2/token",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
@@ -56,7 +60,7 @@ class AuthApi
             $data = json_decode($response, true);
 
             if(array_key_exists('access_token', $data)){
-                
+
                 return [
                     'success' => true,
                     'data' => [
@@ -71,13 +75,13 @@ class AuthApi
 
             $error_description = $data['error_description'] ?? '';
             $error = $data['error'] ?? '';
-            
+
             return [
                 'success' => false,
                 'message' => 'Error al obtener token - error_description: '.$error_description.' error: '.$error
             ];
 
-            
+
         } catch (Exception $e) {
 
             return [
@@ -87,6 +91,6 @@ class AuthApi
 
         }
 
-    } 
+    }
 
 }
