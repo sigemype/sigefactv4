@@ -693,7 +693,7 @@ export default {
         enabled_move_item: false,
         enabled_transaction_customer: false,
         period: "date",
-        date_start: moment().format("YYYY-MM-DD"),
+        date_start: moment().subtract(7, 'days').format("YYYY-MM-DD"),
         date_end: moment().format("YYYY-MM-DD"),
         month_start: moment().format("YYYY-MM"),
         customer_id: null,

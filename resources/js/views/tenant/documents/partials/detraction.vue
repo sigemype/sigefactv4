@@ -242,11 +242,11 @@
                         return {success:false, message:'El campo Detalle del viaje es obligatorio'}
 
 
-                }else{
-                    
-                    if(detraction.detraction_type_id == '027')
-                        return {success:false, message:'El campo Bienes y servicios sujetos a detracciones debe ser diferente de: Servicio de transporte de carga'}
-                        
+                // }else{
+
+                //     if(detraction.detraction_type_id == '027')
+                //         return {success:false, message:'El campo Bienes y servicios sujetos a detracciones debe ser diferente de: Servicio de transporte de carga'}
+
                 }
 
                 return {success:true}
@@ -265,7 +265,7 @@
                 }
             },
             async create(){
-                
+
                 this.$message.warning('Sujeta a detracción');
                 await this.filterDetractionTypes()
                 await this.setDataUpdateDocument()
@@ -277,7 +277,7 @@
                 if(this.isUpdateDocument){
 
                     this.payment_method_type = this.detraction.payment_method_id
-                    
+
                     if(!this.form.temp_path && this.detraction.image_pay_constancy){
                         this.form.imageUrl = `/storage/uploads/image_detractions/${this.detraction.image_pay_constancy}`
                     }
