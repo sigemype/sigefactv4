@@ -220,7 +220,7 @@ class CashController extends Controller
                     'type_transaction'          => 'Venta',
                     'document_type_description' => 'NOTA DE VENTA',
                     'number'                    => $sale_note->number_full,
-                    'date_of_issue'             => $date_payment ? $date_payment->format('Y-m-d') : null ,
+                    'date_of_issue'             => $date_payment ? $date_payment : null ,
                     'date_sort'                 => $sale_note->date_of_issue,
                     'customer_name'             => $sale_note->customer->name,
                     'customer_number'           => $sale_note->customer->number,
