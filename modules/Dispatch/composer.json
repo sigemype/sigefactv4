@@ -1,0 +1,25 @@
+{
+    "name": "eriquegasparcarlos/dispatch",
+    "description": "",
+    "authors": [
+        {
+            "name": "Carlos Alfredo Erique",
+            "email": "eriquegasparcarlos@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Dispatch\\Providers\\DispatchServiceProvider"
+            ],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Dispatch\\": ""
+        }
+    }
+}
