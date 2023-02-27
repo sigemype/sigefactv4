@@ -148,7 +148,7 @@
          */
         public function scopeOnlyAvaibleDocuments($query)
         {
-            return $query->OnlyActive()->wherein('id', ['01', '03', '07', '08', '09', '20', '40', '80', '04', 'U2', 'U3', 'U4']);
+            return $query->OnlyActive()->wherein('id', ['01', '03', '07', '08', '09', '20', '40', '80', '04', 'U2', 'U3', 'U4', '31']);
         }
 
         /**
@@ -310,18 +310,18 @@
 
 
         /**
-         * 
+         *
          * Filtro para la descripción
          *
          * @param Builder $query
          * @return Builder
-         */  
+         */
         public function scopeFilterOnlyDescription($query)
         {
             return $query->select('id', 'description');
         }
 
-        
+
         /**
          *
          * @return bool
@@ -330,5 +330,5 @@
         {
             return in_array($this->id, self::INVOICE_DOCUMENTS_IDS, true);
         }
-        
+
     }

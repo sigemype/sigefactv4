@@ -349,4 +349,17 @@
             return (bool)$this->is_credit;
         }
 
+        
+        /**
+         * 
+         * Filtrar por metodos de pago contado
+         * 
+         * @param Builder$query
+         * @return Builder
+         */
+        public function scopeFilterCashPayments($query)
+        {
+            return $query->where('is_credit', false);
+        }
+
     }

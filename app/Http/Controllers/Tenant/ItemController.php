@@ -321,11 +321,17 @@ class ItemController extends Controller
 
             $directory = 'public'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR;
 
+            $slug_name = Str::slug($item->description);
+            $prefix_name = Str::limit($slug_name, 20, '');
+            if($item->internal_id){
+                $prefix_name = $item->internal_id;
+            }
+
             $file_name_old = $request->input('image');
             $file_name_old_array = explode('.', $file_name_old);
             $file_content = file_get_contents($temp_path);
             $datenow = date('YmdHis');
-            $file_name = Str::slug($item->description).'-'.$datenow.'.'.$file_name_old_array[1];
+            $file_name = $prefix_name.'-'.$datenow.'.'.$file_name_old_array[1];
 
             UploadFileHelper::checkIfValidFile($file_name, $temp_path, true);
 
@@ -334,7 +340,7 @@ class ItemController extends Controller
 
             //--- IMAGE SIZE MEDIUM
             $image = \Image::make($temp_path);
-            $file_name = Str::slug($item->description).'-'.$datenow.'_medium'.'.'.$file_name_old_array[1];
+            $file_name = $prefix_name.'-'.$datenow.'_medium'.'.'.$file_name_old_array[1];
             $image->resize(512, null, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
@@ -344,7 +350,7 @@ class ItemController extends Controller
 
               //--- IMAGE SIZE SMALL
             $image = \Image::make($temp_path);
-            $file_name = Str::slug($item->description).'-'.$datenow.'_small'.'.'.$file_name_old_array[1];
+            $file_name = $prefix_name.'-'.$datenow.'_small'.'.'.$file_name_old_array[1];
             $image->resize(256, null, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
@@ -447,8 +453,6 @@ class ItemController extends Controller
             $v_lots = isset($request->lots) ? $request->lots:[];
 
             foreach ($v_lots as $lot) {
-
-                // $item->lots()->create($lot);
                 $item->lots()->create([
                     'date' => $lot['date'],
                     'series' => $lot['series'],
@@ -936,7 +940,6 @@ class ItemController extends Controller
                 'id' => $row->id,
                 'item_id' => $row->item_id,
                 'image' => $row->image,
-                'id' => $row->id,
                 'name' => $row->image,
                 'url'=> asset('storage'.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'items'.DIRECTORY_SEPARATOR.$row->image)
             ];
@@ -1304,8 +1307,8 @@ class ItemController extends Controller
     public function printBarCodeX(Request $request)
     {
         ini_set("pcre.backtrack_limit", "50000000");
-        $id = $request->id;
-        $format = $request->format;
+        $id = $request->input('id');
+        $format = $request->input('format');
 
         $record = Item::find($id);
         $item_warehouse = ItemWarehouse::where([['item_id', $id], ['warehouse_id', auth()->user()

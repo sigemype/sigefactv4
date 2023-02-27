@@ -190,7 +190,7 @@
                 'exchange_points' => $this->exchange_points,
                 'quantity_of_points' => $this->quantity_of_points,
                 'factory_code' => $this->factory_code,
-
+                'restrict_sale_cpe' => $this->restrict_sale_cpe,
             ];
         }
     }

@@ -12,6 +12,7 @@ class DispatchTransform
     public static function transform($inputs)
     {
         $data = [
+            'id' => null,
             'series' => Functions::valueKeyInArray($inputs, 'serie_documento'),
             'number' => Functions::valueKeyInArray($inputs, 'numero_documento'),
             'date_of_issue' => Functions::valueKeyInArray($inputs, 'fecha_de_emision'),
@@ -30,11 +31,12 @@ class DispatchTransform
             'total_weight' => Functions::valueKeyInArray($inputs, 'peso_total'),
             'packages_number' => Functions::valueKeyInArray($inputs, 'numero_de_bultos'),
             'container_number' => Functions::valueKeyInArray($inputs, 'numero_de_contenedor'),
-            'license_plate' => Functions::valueKeyInArray($inputs, 'numero_de_placa'),
+//            'license_plate' => Functions::valueKeyInArray($inputs, 'numero_de_placa'),
             'origin' => self::origin($inputs),
             'delivery' => self::delivery($inputs),
             'dispatcher' => self::dispatcher($inputs),
             'driver' => self::driver($inputs),
+            'transport' => self::transport($inputs),
             'items' => self::items($inputs),
             'legends' => LegendTransform::transform($inputs),
             'actions' => ActionTransform::transform($inputs),
@@ -104,15 +106,27 @@ class DispatchTransform
 
     private static function driver($inputs)
     {
-        $driver = null;
         if (key_exists('chofer', $inputs)) {
             $driver = $inputs['chofer'];
             return [
                 'identity_document_type_id' => $driver['codigo_tipo_documento_identidad'],
                 'number' => $driver['numero_documento'],
-                'names' => Functions::valueKeyInArray($driver, 'nombres'),
-                'lastnames' => Functions::valueKeyInArray($driver, 'apellidos'),
-                'license' => Functions::valueKeyInArray($driver, 'numero_licencia')
+                'name' => Functions::valueKeyInArray($driver, 'nombres'),
+                'license' => Functions::valueKeyInArray($driver, 'numero_licencia'),
+                'telephone' => Functions::valueKeyInArray($driver, 'telefono')
+            ];
+        }
+        return null;
+    }
+
+    private static function transport($inputs)
+    {
+        if (key_exists('vehiculo', $inputs)) {
+            $transport = $inputs['vehiculo'];
+            return [
+                'plate_number' => $transport['numero_de_placa'],
+                'model' => Functions::valueKeyInArray($transport, 'modelo'),
+                'brand' => Functions::valueKeyInArray($transport, 'marca'),
             ];
         }
         return null;

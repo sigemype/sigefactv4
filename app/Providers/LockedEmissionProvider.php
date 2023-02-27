@@ -12,9 +12,17 @@ use Modules\Document\Helpers\DocumentHelper;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Tenant\SaleNote;
+use App\Models\Tenant\{
+    Establishment
+};
+use App\Traits\LockedEmissionTrait;
+
 
 class LockedEmissionProvider extends ServiceProvider
 {
+
+    use LockedEmissionTrait;
+
     /**
      * Register services.
      *
@@ -35,6 +43,10 @@ class LockedEmissionProvider extends ServiceProvider
         $this->locked_emission();
         $this->locked_users();
         $this->update_quantity_documents();
+
+        $this->lockedCreateEstablishments();
+
+        $this->lockedEmissionSaleNotes();
     }
 
 
@@ -49,18 +61,32 @@ class LockedEmissionProvider extends ServiceProvider
         }); 
     }
     
-
+    
+    /**
+     * 
+     * Controlar limite de ventas y cantidad de documentos mensual
+     *
+     * @return void
+     */
     private function locked_emission()
     {
 
         Document::created(function ($document) {
 
             $configuration = Configuration::firstOrFail();
-            
+
             if($configuration->locked_emission)
             {
                 $exceed_limit = DocumentHelper::exceedLimitDocuments($configuration);
                 if($exceed_limit['success']) throw new Exception($exceed_limit['message']);
+            }
+
+
+            //limite de ventas mensual
+            if($configuration->isRestrictSalesLimit())
+            {
+                $exceed_sales_limit = $this->exceedSalesLimit();
+                if($exceed_sales_limit['success']) $this->throwException($exceed_sales_limit['message']);
             }
 
             // $configuration = Configuration::first();
@@ -75,6 +101,26 @@ class LockedEmissionProvider extends ServiceProvider
 
         });
 
+    }
+
+    
+    /**
+     * 
+     * Controlar limite de ventas y cantidad de documentos mensual
+     *
+     * @return void
+     */
+    private function lockedEmissionSaleNotes()
+    {
+        SaleNote::created(function ($sale_note) {
+
+            if($this->getConfigurationColumn('restrict_sales_limit'))
+            {
+                $exceed_sales_limit = $this->exceedSalesLimit('sale-note');
+                if($exceed_sales_limit['success']) $this->throwException($exceed_sales_limit['message']);
+            }
+
+        });
     }
 
 
@@ -109,4 +155,33 @@ class LockedEmissionProvider extends ServiceProvider
         
         }); 
     }
+    
+    
+    /**
+     * 
+     * Validar creacion de establecimientos en base al plan
+     *
+     * @return void
+     */
+    private function lockedCreateEstablishments()
+    {
+        Establishment::creating(function ($establishment) {
+            
+            $locked_create_establishments = $this->getConfigurationColumn('locked_create_establishments');
+
+            if($locked_create_establishments)
+            {
+                $plan = $this->getClientPlan(['id', 'name', 'establishments_limit', 'establishments_unlimited']);
+
+                if(!$plan->isEstablishmentsUnlimited())
+                {
+                    $establishments_quantity = $this->getQuantityByModel(Establishment::class);
+
+                    if($establishments_quantity >= $plan->establishments_limit) $this->throwException('Ha superado el límite permitido para la creación de establecimientos');
+                }
+            }
+        });
+    }
+
+
 }

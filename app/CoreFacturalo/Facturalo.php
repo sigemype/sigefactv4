@@ -3,14 +3,13 @@
 namespace App\CoreFacturalo;
 
 use App\Http\Controllers\Tenant\EmailController;
+use App\Models\Tenant\DispatchItem;
 use Exception;
 use Mpdf\Mpdf;
 use Mpdf\HTMLParserMode;
 use App\Traits\KardexTrait;
 use App\Models\Tenant\Voided;
 use App\Models\Tenant\Company;
-use App\Models\Tenant\DocumentItem;
-use App\Models\Tenant\Invoice;
 use App\Models\Tenant\Summary;
 use App\Models\Tenant\Establishment;
 use Mpdf\Config\FontVariables;
@@ -21,7 +20,6 @@ use Mpdf\Config\ConfigVariables;
 use App\Models\Tenant\Perception;
 use App\Mail\Tenant\DocumentEmail;
 use App\Models\Tenant\Configuration;
-use Illuminate\Support\Facades\Mail;
 use Modules\Finance\Traits\FinanceTrait;
 use App\CoreFacturalo\WS\Client\WsClient;
 use App\CoreFacturalo\Helpers\Xml\XmlHash;
@@ -190,7 +188,10 @@ class Facturalo
                 $this->document = PurchaseSettlement::find($document->id);
                 break;
             default:
-                $document = Dispatch::create($inputs);
+                DispatchItem::query()->where('dispatch_id', $inputs['id'])->delete();
+                $document = Dispatch::query()->updateOrCreate([
+                    'id' => $inputs['id']
+                ], $inputs);
                 foreach ($inputs['items'] as $row) {
                     $document->items()->create($row);
                 }
@@ -404,9 +405,14 @@ class Facturalo
             $company_name      = (strlen($this->company->name) / 20) * 10;
             $company_address   = (strlen($this->document->establishment->address) / 30) * 10;
             $company_number    = $this->document->establishment->telephone != '' ? '10' : '0';
-            $customer_name     = strlen($this->document->customer->name) > '25' ? '10' : '0';
-            $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
-            $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
+            $customer_name = 0;
+            $customer_address = 0;
+            $customer_department_id = 0;
+            if($this->document->customer) {
+                $customer_name     = strlen($this->document->customer->name) > '25' ? '10' : '0';
+                $customer_address  = (strlen($this->document->customer->address) / 200) * 10;
+                $customer_department_id  = ($this->document->customer->department_id == 16) ? 20:0;
+            }
             $p_order           = $this->document->purchase_order != '' ? '10' : '0';
 
             $total_prepayment = $this->document->total_prepayment != '' ? '10' : '0';

@@ -16,7 +16,6 @@ use App\Models\Tenant\Catalogs\{
     AffectationIgvType,
     ChargeDiscountType
 };
-use GuzzleHttp\Client;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
@@ -26,7 +25,6 @@ use App\Models\Tenant\Company;
 use App\Models\Tenant\Establishment;
 use App\Models\Tenant\FormatTemplate;
 use Modules\LevelAccess\Models\ModuleLevel;
-use Validator;
 use App\Models\Tenant\Skin;
 use Modules\Finance\Helpers\UploadFileHelper;
 
@@ -321,14 +319,17 @@ class ConfigurationController extends Controller
 
     public function store(ConfigurationRequest $request)
     {
+        $cp = Company::query()
+            ->select('id', 'number')
+            ->first();
+
         $id = $request->input('id');
         $configuration = Configuration::find($id);
         $configuration->fill($request->all());
         $configuration->save();
 
-        Cache::forget('token_sunat');
+        Cache::forget("{$cp->number}_token_sunat");
 
-        Log::error('Cache toke_sunat eliminado');
         return [
             'success' => true,
             'configuration' => $configuration->getCollectionData(),
@@ -613,9 +614,9 @@ class ConfigurationController extends Controller
         ];
     }
 
-    
+
     /**
-     * 
+     *
      * Consulta de imagenes footer
      *
      * @return array
@@ -624,10 +625,10 @@ class ConfigurationController extends Controller
     {
         return Configuration::first()->getDataPdfFooterImages();
     }
-    
+
 
     /**
-     * 
+     *
      * Cargar imagenes para pdf footer
      *
      * @param  Request $request
@@ -640,7 +641,7 @@ class ConfigurationController extends Controller
         $configuration = Configuration::first();
         $folder = 'pdf_footer_images';
 
-        foreach ($images as $index => $image) 
+        foreach ($images as $index => $image)
         {
             $temp_path = $image['temp_path'] ?? null;
 

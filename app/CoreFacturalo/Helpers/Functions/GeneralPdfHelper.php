@@ -9,6 +9,7 @@ use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use App\Models\Tenant\Establishment;
 use App\Models\Tenant\Company;
+use App\Models\Tenant\PaymentMethodType;
 
 
 class GeneralPdfHelper
@@ -170,6 +171,21 @@ class GeneralPdfHelper
     public static function setNumberFormat($value, $decimals = 2)
     {
         return number_format($value, $decimals, ".", "");
+    }
+
+    
+    /**
+     *
+     * @param  string $id
+     * @return string
+     */
+    public static function getPaymentMethodTypeDescription($id)
+    {
+        $record = PaymentMethodType::select('description')->find($id);
+
+        if($record) return mb_strtoupper($record->description);
+
+        return $id;
     }
 
 }

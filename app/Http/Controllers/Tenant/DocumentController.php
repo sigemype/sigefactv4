@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenant;
 
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
-use App\Exports\DocumentIndexExport;
 use App\CoreFacturalo\Helpers\Template\ReportHelper;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
@@ -50,7 +49,6 @@ use App\Models\Tenant\SaleNote;
 use App\Models\Tenant\Series;
 use App\Models\Tenant\StateType;
 use App\Models\Tenant\User;
-use Barryvdh\DomPDF\Facade as PDF;
 use App\Traits\OfflineTrait;
 use Carbon\Carbon;
 use Exception;
@@ -571,18 +569,34 @@ class DocumentController extends Controller
         return $record;
     }
 
+
+    /**
+     *
+     * Generar cpe
+     *
+     * @param  DocumentRequest $request
+     * @return array
+     */
     public function store(DocumentRequest $request)
     {
+        try
+        {
+            $validate = $this->validateDocument($request);
+            if (!$validate['success']) return $validate;
 
-        $validate = $this->validateDocument($request);
-        if (!$validate['success']) return $validate;
+            $res = $this->storeWithData($request->all());
+            $document_id = $res['data']['id'];
+            $this->associateDispatchesToDocument($request, $document_id);
+            $this->associateSaleNoteToDocument($request, $document_id);
 
-        $res = $this->storeWithData($request->all());
-        $document_id = $res['data']['id'];
-        $this->associateDispatchesToDocument($request, $document_id);
-        $this->associateSaleNoteToDocument($request, $document_id);
+            return $res;
+        }
+        catch(Exception $e)
+        {
+            $this->generalWriteErrorLog($e);
 
-        return $res;
+            return $this->generalResponse(false, 'Ocurrió un error: '.$e->getMessage());
+        }
     }
 
 
@@ -1236,25 +1250,6 @@ class DocumentController extends Controller
         });
 
         return $items;
-
-    }
-
-    public function report_documents($start, $end, $type = 'pdf'){
-        $records = Document::whereBetween('date_of_issue', [$start , $end])->get();
-        $date_now = Carbon::now();
-
-        if ($type == 'pdf') {
-            $pdf = PDF::loadView('tenant.documents.report', compact("records", "date_now"))->setPaper('a4', 'landscape');
-            $filename = "Reporte_Documentos_".Carbon::now();
-            // return $pdf->stream($filename.'.pdf');
-            return $pdf->download($filename.'.pdf');
-
-        } elseif ($type == 'excel') {
-            $filename = "Reporte_Documentos_".Carbon::now();
-            return (new DocumentIndexExport)
-                ->records($records)
-                ->download($filename.Carbon::now().'.xlsx');
-        }
 
     }
 

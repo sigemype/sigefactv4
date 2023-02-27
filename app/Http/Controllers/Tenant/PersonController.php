@@ -110,7 +110,7 @@ class PersonController extends Controller
         $person->fill($data);
 
         $location_id = $request->input('location_id');
-        if(count($location_id) === 3) {
+        if(is_array($location_id) && count($location_id) === 3) {
             $person->district_id = $location_id[2];
             $person->province_id = $location_id[1];
             $person->department_id = $location_id[0];

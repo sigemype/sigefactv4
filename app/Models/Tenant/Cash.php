@@ -281,4 +281,21 @@ class Cash extends ModelTenant
                     ]);
     }
 
+    
+    /**
+     * 
+     * Filtro para reporte general de caja v2
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeFilterDataGeneralCashReport($query)
+    {
+        return $query->with([
+            'global_destination' => function($query){
+                return $query->generalCashReportWithPayments()->latest();
+            }
+        ]);
+    }
+
 }

@@ -182,6 +182,7 @@ class Item extends ModelTenant
         'exchange_points',
         'quantity_of_points',
         'factory_code',
+        'restrict_sale_cpe',
 
         // 'warehouse_id'
     ];
@@ -198,6 +199,7 @@ class Item extends ModelTenant
         'favorite' => 'boolean',
         'exchange_points' => 'boolean',
         'quantity_of_points' => 'float',
+        'restrict_sale_cpe' => 'boolean',
     ];
 
     /**
@@ -1015,7 +1017,8 @@ class Item extends ModelTenant
             'exchanged_for_points' => false, //para determinar si desea canjear el producto
             'used_points_for_exchange' => null, //total de puntos
             'factory_code' => $this->factory_code,
-            
+            'restrict_sale_cpe' => $this->restrict_sale_cpe,
+
         ];
 
         // El nombre de producto, por defecto, sera la misma descripcion.
@@ -1023,6 +1026,20 @@ class Item extends ModelTenant
 
         return $data;
     }
+
+
+    /**
+     * Obtener atributos del campo attributes
+     *
+     * @return array
+     */
+    public function getItemAttributes()
+    {
+        $attributes = $this->getAttributesAttribute($this->attributes['attributes']);
+
+        return $attributes ?? [];
+    }
+
 
     /**
      * @return Model|\Illuminate\Database\Query\Builder|mixed|CatDigemid|object|null
@@ -2405,15 +2422,15 @@ class Item extends ModelTenant
             'has_isc' => (bool)$this->has_isc,
             'system_isc_type_id' => $this->system_isc_type_id,
             'percentage_isc' => $this->percentage_isc,
-            
+
             'warehouses' => $this->getApiDataWarehouses(),
             'item_unit_types' => $this->getApiDataItemUnitTypes(),
         ];
     }
 
-    
+
     /**
-     * 
+     *
      * Datos de almacenes asociados al item
      *
      * @return array
@@ -2429,9 +2446,9 @@ class Item extends ModelTenant
         });
     }
 
-    
+
     /**
-     * 
+     *
      * Datos de lista de precios asociados al item
      *
      * @return array
@@ -2451,7 +2468,7 @@ class Item extends ModelTenant
             ];
         });
     }
-    
+
 
     /**
      *
@@ -2528,9 +2545,9 @@ class Item extends ModelTenant
         return $query;
     }
 
-    
+
     /**
-     * 
+     *
      * Obtener stock del almacen asociado al usuario
      *
      * @param  Warehouse $warehouse
@@ -2547,7 +2564,7 @@ class Item extends ModelTenant
             if($warehouse)
             {
                 $item_warehouse =  ItemWarehouse::select('stock')->where([['item_id', $this->id],['warehouse_id', $warehouse->id]])->first();
-                
+
                 if($item_warehouse) $stock = $item_warehouse->stock;
             }
         }
@@ -2555,7 +2572,7 @@ class Item extends ModelTenant
         return (float) $stock;
     }
 
-    
+
     /**
      *
      * Filtro para no incluir todas las relaciones en consulta
@@ -2628,7 +2645,7 @@ class Item extends ModelTenant
         ];
     }
 
-    
+
     /**
      * Stock de variantes para revision inventario
      *
@@ -2660,10 +2677,10 @@ class Item extends ModelTenant
 
         return $query;
     }
-    
+
 
     /**
-     * 
+     *
      * Filtro por coincidencia para X campo
      *
      * @param  Builder $query
@@ -2678,7 +2695,7 @@ class Item extends ModelTenant
 
 
     /**
-     * 
+     *
      * Filtro por coincidencia para X campo de una tabla relacionada
      *
      * @param  Builder $query
@@ -2696,7 +2713,7 @@ class Item extends ModelTenant
 
 
     /**
-     * 
+     *
      * Filtro para reporte ajuste stock - inventario
      *
      * @param  Builder $query
@@ -2706,7 +2723,7 @@ class Item extends ModelTenant
      */
     public function scopeFilterRecordsStockReport($query, $column, $input)
     {
-        switch($column) 
+        switch($column)
         {
             case 'description':
             case 'internal_id':
@@ -2723,7 +2740,7 @@ class Item extends ModelTenant
         return $query;
     }
 
-    
+
     /**
      * @return bool
      */
@@ -2732,7 +2749,7 @@ class Item extends ModelTenant
         return $this->unit_type_id !== self::SERVICE_UNIT_TYPE;
     }
 
-    
+
     /**
      * @return bool
      */
@@ -2741,11 +2758,11 @@ class Item extends ModelTenant
         return $this->is_set;
     }
 
-    
+
     /**
-     * 
+     *
      * Obtener item por codigo interno
-     * 
+     *
      * Usado para importacion lotes/series en movimientos
      *
      * @return Item
@@ -2755,7 +2772,7 @@ class Item extends ModelTenant
         return self::whereFilterWithOutRelations()
                     ->where('internal_id', $internal_id)
                     ->select([
-                        'id', 
+                        'id',
                         'internal_id',
                         'series_enabled',
                         'lots_enabled'
@@ -2763,9 +2780,9 @@ class Item extends ModelTenant
                     ->first();
     }
 
-        
+
     /**
-     * 
+     *
      * Obtener lotes para gestionar compra/venta/movimiento
      *
      * @return array

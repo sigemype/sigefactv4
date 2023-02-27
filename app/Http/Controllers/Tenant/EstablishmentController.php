@@ -13,6 +13,7 @@ use App\Http\Resources\Tenant\EstablishmentCollection;
 use App\Models\Tenant\Warehouse;
 use App\Models\Tenant\Person;
 use Modules\Finance\Helpers\UploadFileHelper;
+use Exception;
 
 
 class EstablishmentController extends Controller
@@ -53,40 +54,56 @@ class EstablishmentController extends Controller
 
         return $record;
     }
-
+    
+    
+    /**
+     *
+     * @param  EstablishmentRequest $request
+     * @return array
+     */
     public function store(EstablishmentRequest $request)
     {
-        $id = $request->input('id');
-        $has_igv_31556 = ($request->input('has_igv_31556') === 'true');
-        $establishment = Establishment::firstOrNew(['id' => $id]);
-        if ($request->hasFile('file') && $request->file('file')->isValid()) {
-            $request->validate(['file' => 'mimes:jpeg,png,jpg|max:1024']);
-            $file = $request->file('file');
-            $ext = $file->getClientOriginalExtension();
-            $filename = time() . '.' . $ext;
+        try 
+        {
+            $id = $request->input('id');
+            $has_igv_31556 = ($request->input('has_igv_31556') === 'true');
+            $establishment = Establishment::firstOrNew(['id' => $id]);
+            if ($request->hasFile('file') && $request->file('file')->isValid()) {
+                $request->validate(['file' => 'mimes:jpeg,png,jpg|max:1024']);
+                $file = $request->file('file');
+                $ext = $file->getClientOriginalExtension();
+                $filename = time() . '.' . $ext;
 
-            UploadFileHelper::checkIfValidFile($filename, $file->getPathName(), true);
+                UploadFileHelper::checkIfValidFile($filename, $file->getPathName(), true);
 
-            $file->storeAs('public/uploads/logos', $filename);
-            $path = 'storage/uploads/logos/' . $filename;
-            $request->merge(['logo' => $path]);
+                $file->storeAs('public/uploads/logos', $filename);
+                $path = 'storage/uploads/logos/' . $filename;
+                $request->merge(['logo' => $path]);
+            }
+            $establishment->fill($request->all());
+            $establishment->has_igv_31556 = $has_igv_31556;
+            $establishment->save();
+
+            if(!$id) {
+                $warehouse = new Warehouse();
+                $warehouse->establishment_id = $establishment->id;
+                $warehouse->description = 'Almacén - '.$establishment->description;
+                $warehouse->save();
+            }
+
+            return [
+                'success' => true,
+                'message' => ($id)?'Establecimiento actualizado':'Establecimiento registrado'
+            ];
+        } 
+        catch(Exception $e)
+        {
+            $this->generalWriteErrorLog($e);
+
+            return $this->generalResponse(false, 'Error desconocido: '.$e->getMessage());
         }
-        $establishment->fill($request->all());
-        $establishment->has_igv_31556 = $has_igv_31556;
-        $establishment->save();
-
-        if(!$id) {
-            $warehouse = new Warehouse();
-            $warehouse->establishment_id = $establishment->id;
-            $warehouse->description = 'Almacén - '.$establishment->description;
-            $warehouse->save();
-        }
-
-        return [
-            'success' => true,
-            'message' => ($id)?'Establecimiento actualizado':'Establecimiento registrado'
-        ];
     }
+
 
     public function records()
     {

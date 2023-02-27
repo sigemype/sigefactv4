@@ -23,6 +23,13 @@ class PlanCollection extends ResourceCollection
                 'limit_documents' => $row->limit_documents,
                 // 'plan_documents' => $row->plan_documents, 
                 'locked' => (bool) $row->locked, 
+                
+                'establishments_limit' => $row->establishments_limit,
+                'establishments_unlimited' => $row->establishments_unlimited,
+
+                'sales_limit' => $row->sales_limit,
+                'sales_unlimited' => $row->sales_unlimited,
+                'include_sale_notes_sales_limit' => $row->include_sale_notes_sales_limit,
             ];
         });
     }

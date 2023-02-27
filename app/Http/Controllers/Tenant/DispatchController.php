@@ -8,12 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\DispatchRequest;
 use App\Http\Resources\Tenant\DispatchCollection;
 use App\Models\Tenant\Catalogs\AffectationIgvType;
-use App\Models\Tenant\Catalogs\Country;
-use App\Models\Tenant\Catalogs\Department;
-use App\Models\Tenant\Catalogs\District;
 use App\Models\Tenant\Catalogs\DocumentType;
-use App\Models\Tenant\Catalogs\IdentityDocumentType;
-use App\Models\Tenant\Catalogs\Province;
 use App\Models\Tenant\Catalogs\TransferReasonType;
 use App\Models\Tenant\Catalogs\TransportModeType;
 use App\Models\Tenant\Catalogs\UnitType;
@@ -32,15 +27,21 @@ use App\Models\Tenant\Series;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Modules\ApiPeruDev\Http\Controllers\ServiceDispatchController;
+use Modules\Dispatch\Http\Controllers\DispatcherController;
+use Modules\Dispatch\Http\Controllers\DriverController;
+use Modules\Dispatch\Http\Controllers\OriginAddressController;
+use Modules\Dispatch\Http\Controllers\TransportController;
+use Modules\Dispatch\Models\DeliveryAddress;
+use Modules\Dispatch\Models\Dispatcher;
+use Modules\Dispatch\Models\Driver;
+use Modules\Dispatch\Models\OriginAddress;
+use Modules\Dispatch\Models\Transport;
 use Modules\Document\Traits\SearchTrait;
 use Modules\Finance\Traits\FinanceTrait;
 use Modules\Inventory\Models\Warehouse as ModuleWarehouse;
 use Modules\Order\Http\Resources\DispatchResource;
 use Modules\Order\Mail\DispatchEmail;
-use Modules\Order\Models\Dispatcher;
-use Modules\Order\Models\Driver;
 use Modules\Order\Models\OrderNote;
 use App\Models\Tenant\PaymentCondition;
 use App\Models\Tenant\Catalogs\RelatedDocumentType;
@@ -95,23 +96,26 @@ class DispatchController extends Controller
 
 
         if ($d_start && $d_end) {
-            $records = Dispatch::where('series', 'like', '%' . $series . '%')->whereBetween('date_of_issue', [$d_start, $d_end]);
+            $query = Dispatch::query()
+                ->where('document_type_id', '09')
+                ->where('series', 'like', '%' . $series . '%')
+                ->whereBetween('date_of_issue', [$d_start, $d_end]);
         } else {
-            $records = Dispatch::where('series', 'like', '%' . $series . '%');
+            $query = Dispatch::query()
+                ->where('document_type_id', '09')
+                ->where('series', 'like', '%' . $series . '%');
         }
 
         if ($number) {
-            $records = $records->where('number', $number);
+            $query->where('number', $number);
         }
 
         if ($customer_id) {
-            $records = $records->where('customer_id', $customer_id);
+            $query->where('customer_id', $customer_id);
         }
 
-        return $records->latest();
-
+        return $query->latest();
     }
-
 
     public function data_table()
     {
@@ -185,8 +189,10 @@ class DispatchController extends Controller
         } elseif ($parentTable === 'order_note') {
             $reference_order_note_id = $parentId;
             $query = OrderNote::query();
+        } elseif ($parentTable === 'dispatch') {
+            $query = Dispatch::query();
         }
-        $document = $query->select('id', 'customer_id')->find($parentId);
+        $document = $query->find($parentId);
         $configuration = Configuration::query()->first();
         $items = [];
         foreach ($document->items as $item) {
@@ -201,15 +207,42 @@ class DispatchController extends Controller
             ];
         }
 
-        $data = [
-            'customer_id' => $document->customer_id,
-            'items' => $items,
-            'reference_document_id' => $reference_document_id,
-            'reference_quotation_id' => $reference_quotation_id,
-            'reference_sale_note_id' => $reference_sale_note_id,
-            'reference_order_form_id' => $reference_order_form_id,
-            'reference_order_note_id' => $reference_order_note_id,
-        ];
+        if ($parentTable === 'dispatch') {
+            $data = [
+                'id' => $document->id,
+                'series' => $document->series,
+                'number' => $document->number,
+                'establishment_id' => $document->establishment_id,
+                'customer_id' => $document->customer_id,
+                'items' => $items,
+                'date_of_issue' => $document->date_of_issue->format('Y-m-d'),
+                'date_of_shipping' => $document->date_of_shipping->format('Y-m-d'),
+                'packages_number' => $document->packages_number,
+                'total_weight' => $document->total_weight,
+                'transfer_reason_type_id' => $document->transfer_reason_type_id,
+                'transfer_reason_description' => $document->transfer_reason_description,
+                'transport_mode_type_id' => $document->transport_mode_type_id,
+                'transshipment_indicator' => $document->transshipment_indicator,
+                'unit_type_id' => $document->unit_type_id,
+                'observations' => $document->observations,
+                'driver_id' => $document->driver_id,
+                'dispatcher_id' => $document->dispatcher_id,
+                'transport_id' => $document->transport_id,
+                'origin_address_id' => $document->origin_address_id,
+                'delivery_address_id' => $document->delivery_address_id,
+            ];
+        } else {
+            $data = [
+                'establishment_id' => $document->establishment_id,
+                'customer_id' => $document->customer_id,
+                'items' => $items,
+                'reference_document_id' => $reference_document_id,
+                'reference_quotation_id' => $reference_quotation_id,
+                'reference_sale_note_id' => $reference_sale_note_id,
+                'reference_order_form_id' => $reference_order_form_id,
+                'reference_order_note_id' => $reference_order_note_id,
+            ];
+        }
 
         return view('tenant.dispatches.form', [
             'document' => $data,
@@ -279,7 +312,7 @@ class DispatchController extends Controller
                 $facturalo->signXmlUnsigned();
 //                $facturalo->createXmlUnsigned();
 //                $facturalo->signXmlUnsigned();
-//                $facturalo->createPdf();
+                $facturalo->createPdf();
 //                if($configuration->isAutoSendDispatchsToSunat()) {
 //                     $facturalo->senderXmlSignedBill();
 //                }
@@ -319,6 +352,7 @@ class DispatchController extends Controller
             'message' => $message,
             'data' => [
                 'id' => $document->id,
+                'send_sunat' => $configuration->auto_send_dispatchs_to_sunat
             ],
         ];
     }
@@ -461,8 +495,9 @@ class DispatchController extends Controller
         $establishments = Establishment::all();
         $series = Series::all()->toArray();
         $company = Company::select('number')->first();
-        $drivers = Driver::all();
-        $dispachers = Dispatcher::all();
+        $drivers = (new DriverController())->getOptions();
+        $transports = (new TransportController())->getOptions();
+        $dispatchers = (new DispatcherController())->getOptions();
         $related_document_types = RelatedDocumentType::get();
 
         return compact(
@@ -481,7 +516,8 @@ class DispatchController extends Controller
             'locations',
             'company',
             'drivers',
-            'dispachers',
+            'dispatchers',
+            'transports',
             'related_document_types',
             'itemsFromSummary'
         );
@@ -657,16 +693,13 @@ class DispatchController extends Controller
      */
     public function getDispatchSaleUnitPrice($item, $dispatch, $relation_external_document, $set_unit_price_dispatch_related_record)
     {
-
         if ($dispatch->isGeneratedFromExternalDocument($relation_external_document) && $set_unit_price_dispatch_related_record) {
             $exist_item = $relation_external_document->items->where('item_id', $item->id)->first();
-
             if ($exist_item) return $exist_item->unit_price;
         }
 
         return $item->sale_unit_price;
     }
-
 
     public function setDocumentId($id)
     {
@@ -753,5 +786,74 @@ class DispatchController extends Controller
         return $document_types_guide;
     }
 
+    public function getOriginAddresses($id)
+    {
+        $records = [];
+        $record = Establishment::query()
+            ->find($id);
+        $records[] = [
+            'id' => 0,
+            'location_id' => [
+                $record->department_id,
+                $record->province_id,
+                $record->district_id,
+            ],
+            'address' => $record->address,
+        ];
 
+        $origin_addresses = OriginAddress::query()
+            ->where('is_active', true)
+            ->get();
+        foreach ($origin_addresses as $row) {
+            $records[] = [
+                'id' => $row->id,
+                'address' => $row->address,
+                'location_id' => $row->location_id,
+            ];
+        }
+
+        return $records;
+    }
+
+    public function getDeliveryAddresses($id)
+    {
+        $records = [];
+        $record = Person::query()
+//            ->with('person_addresses')
+            ->find($id);
+        $records[] = [
+            'id' => 0,
+            'location_id' => [
+                $record->department_id,
+                $record->province_id,
+                $record->district_id,
+            ],
+            'address' => $record->address,
+        ];
+//        foreach ($record->person_addresses as $row) {
+//            $records[] = [
+//                'id' => $row->id,
+//                'location_id' => [
+//                    $row->department_id,
+//                    $row->province_id,
+//                    $row->district_id,
+//                ],
+//                'address' => $row->address,
+//            ];
+//        }
+
+        $delivery_addresses = DeliveryAddress::query()
+            ->where('person_id', $id)
+            ->where('is_active', true)
+            ->get();
+        foreach ($delivery_addresses as $row) {
+            $records[] = [
+                'id' => $row->id,
+                'address' => $row->address,
+                'location_id' => $row->location_id,
+            ];
+        }
+
+        return $records;
+    }
 }

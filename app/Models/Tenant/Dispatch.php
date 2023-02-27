@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
+use Modules\Dispatch\Models\DispatchAddress;
 use Modules\Order\Models\OrderForm;
 use Modules\Inventory\Models\InventoryKardex;
 use Modules\Order\Models\OrderNote;
@@ -97,8 +98,11 @@ class Dispatch extends ModelTenant
         'container_number',
         'origin',
         'delivery',
+        'dispatcher_id',
         'dispatcher',
+        'driver_id',
         'driver',
+        'transport_id',
         'license_plate',
 
         'legends',
@@ -130,14 +134,33 @@ class Dispatch extends ModelTenant
         'additional_data',
         'ticket',
         'reception_date',
-        'qr_url'
+        'qr_url',
+        'origin_address_id',
+        'delivery_address_id',
+        'transport_data',
+
+        'sender_id',
+        'sender_data',
+
+        'receiver_id',
+        'receiver_data',
+
+        'sender_address_id',
+        'sender_address_data',
+
+        'receiver_address_id',
+        'receiver_address_data',
     ];
 
     protected $casts = [
         'date_of_issue' => 'date',
         'date_of_shipping' => 'date',
         'send_to_pse' => 'bool',
-        'reception_date' => 'timestamp'
+        'transport_data' => 'array',
+        'receiver_data' => 'array',
+        'sender_data' => 'array',
+        'sender_address_data' => 'array',
+        'receiver_address_data' => 'array'
     ];
 
     public function getAdditionalDataAttribute($value)
@@ -348,6 +371,26 @@ class Dispatch extends ModelTenant
         return $this->hasOne(Document::class);
     }
 
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'sender_id');
+    }
+
+    public function receiver(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'receiver_id');
+    }
+
+    public function sender_address(): BelongsTo
+    {
+        return $this->belongsTo(DispatchAddress::class, 'sender_address_id');
+    }
+
+    public function receiver_address(): BelongsTo
+    {
+        return $this->belongsTo(DispatchAddress::class, 'receiver_address_id');
+    }
+
     /**
      * @return string
      */
@@ -355,6 +398,7 @@ class Dispatch extends ModelTenant
     {
         return $this->series . '-' . $this->number;
     }
+
 
     /**
      * @return string
@@ -488,23 +532,55 @@ class Dispatch extends ModelTenant
         if ($this->reference_document) $documents [] = ['description' => $this->reference_document->number_full];
 
 
-        $btn_pdf = false;
+        $btn_pdf = true;
         $btn_send = false;
         $btn_options = false;
         $btn_status_ticket = false;
-        $btn_generate_document = false;
+        $btn_edit = false;
+        $btn_generate_document = config('tenant.internal_dispatch') ? config('tenant.internal_dispatch') : false;
+
         if ($this->state_type_id === '01') {
             $btn_send = true;
         }
         if ($this->state_type_id === '03' && !is_null($this->ticket)) {
             $btn_status_ticket = true;
         }
-        if($this->state_type_id === '05') {
-            $btn_pdf = true;
+        if ($this->state_type_id === '05') {
+            //$btn_pdf = true;
             $btn_options = true;
             $btn_generate_document = true;
         }
-        //
+
+        if ($this->state_type_id !== '05') {
+            $btn_edit = true;
+        }
+
+//        if(!is_null($this->reference_sale_note_id) || !is_null($this->reference_document_id) ||
+//            !is_null($this->reference_quotation_id) || !is_null($this->reference_order_form_id) ||
+//            !is_null($this->reference_order_note_id) ) {
+//            $btn_edit = false;
+//        }
+        $customer_name = null;
+        $customer_number = null;
+        if($this->customer) {
+            $customer_name= $this->customer->name;
+            $customer_number = $this->customer->identity_document_type->description . ' ' . $this->customer->number;
+        }
+
+        $sender_name = null;
+        $sender_number = null;
+        if($this->sender_data) {
+            $sender_name= $this->sender_data['name'];
+            $sender_number = $this->sender_data['number'];
+        }
+
+        $receiver_name = null;
+        $receiver_number = null;
+        if($this->receiver_data) {
+            $receiver_name= $this->receiver_data['name'];
+            $receiver_number = $this->receiver_data['number'];
+        }
+
         return [
             'id' => $this->id,
             'external_id' => $this->external_id,
@@ -513,8 +589,12 @@ class Dispatch extends ModelTenant
             'date_of_issue' => $this->date_of_issue->format('Y-m-d'),
             'number' => $this->number_full,
             'customer_id' => $this->customer_id,
-            'customer_name' => $this->customer->name,
-            'customer_number' => $this->customer->identity_document_type->description . ' ' . $this->customer->number,
+            'customer_name' => $customer_name,
+            'customer_number' => $customer_number,
+            'sender_name' => $sender_name,
+            'sender_number' => $sender_number,
+            'receiver_name' => $receiver_name,
+            'receiver_number' => $receiver_number,
             'user_id' => $this->user_id,
             'user_name' => $this->user->name,
             'date_of_shipping' => $this->date_of_shipping->format('Y-m-d'),
@@ -544,7 +624,8 @@ class Dispatch extends ModelTenant
             'btn_send' => $btn_send,
             'btn_pdf' => $btn_pdf,
             'btn_options' => $btn_options,
-         ];
+            'btn_edit' => $btn_edit,
+        ];
     }
 
 

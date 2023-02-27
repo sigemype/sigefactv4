@@ -23,6 +23,7 @@
     use Illuminate\Support\Facades\DB;
     use Modules\Document\Helpers\DocumentHelper;
     use Modules\MobileApp\Models\System\AppModule;
+    use App\CoreFacturalo\ClientHelper;
 
 
     class ClientController extends Controller
@@ -180,6 +181,7 @@
                 $row->document_regularize_shipping = $quantity_pending_documents['document_regularize_shipping'];
                 $row->document_not_sent = $quantity_pending_documents['document_not_sent'];
                 $row->document_to_be_canceled = $quantity_pending_documents['document_to_be_canceled'];
+                $row->monthly_sales_total = 0;
 
                 if ($row->start_billing_cycle) {
 
@@ -211,11 +213,25 @@
                     ->quantity_sales_notes;
                     //dd($row->count_sales_notes);
 
+                    $client_helper = new ClientHelper();
+                    $row->monthly_sales_total = $client_helper->getSalesTotal($init->format('Y-m-d'), $end->format('Y-m-d'), $row->plan);
                 }
-
+                
+                $row->quantity_establishments = $this->getQuantityRecordsFromTable('establishments');
             }
 
             return new ClientCollection($records);
+        }
+
+        
+        /**
+         *
+         * @param  string $table
+         * @return int
+         */
+        private function getQuantityRecordsFromTable($table)
+        {
+            return DB::connection('tenant')->table($table)->count();
         }
 
 
@@ -996,6 +1012,26 @@
                     //'temp_image' => 'data:' . $mime . ';base64,' . base64_encode($data)
                 ]
             ];
+        }
+
+                
+        /**
+         *
+         * @param  Request $request
+         * @return array
+         */
+        public function lockedByColumn(Request $request)
+        {
+            $column = $request->column;
+            $client = Client::findOrFail($request->id);
+            $client->{$column} = $request->{$column};
+            $client->save();
+
+            $tenancy = app(Environment::class);
+            $tenancy->tenant($client->hostname->website);
+            DB::connection('tenant')->table('configurations')->where('id', 1)->update([$column => $client->{$column}]);
+
+            return $this->generalResponse(true, $client->{$column} ? 'Activado correctamente' : 'Desactivado correctamente');
         }
 
 

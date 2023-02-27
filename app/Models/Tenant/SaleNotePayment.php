@@ -4,9 +4,13 @@ namespace App\Models\Tenant;
 
 use Modules\Finance\Models\GlobalPayment;
 use Modules\Finance\Models\PaymentFile;
+use App\Traits\PaymentModelHelperTrait;
+
 
 class SaleNotePayment extends ModelTenant
 {
+    use PaymentModelHelperTrait;
+
     protected $with = ['payment_method_type', 'card_brand'];
     public $timestamps = false;
 

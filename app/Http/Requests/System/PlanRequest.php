@@ -37,6 +37,56 @@ class PlanRequest extends FormRequest
             'plan_documents' => [
                 // 'required'
             ],
+            
+            'establishments_limit' => $this->validationEstablishmentsLimit(),
+            'sales_limit' => $this->validationSalesLimit(),
         ];
     }
+
+    
+    /**
+     * 
+     * Validacion para limite de ventas
+     *
+     * @return array
+     */
+    private function validationSalesLimit()
+    {
+
+        if(!$this->input('sales_unlimited'))
+        {
+            return [
+                'required',
+                // 'integer', 
+                'numeric' ,
+                'gt:0', 
+            ];
+        }
+
+        return [];
+    }
+
+
+    /**
+     * 
+     * Validacion para limite establecimiento
+     *
+     * @return array
+     */
+    private function validationEstablishmentsLimit()
+    {
+
+        if(!$this->input('establishments_unlimited'))
+        {
+            return [
+                'required',
+                'integer', 
+                'numeric' ,
+                'gt:0', 
+            ];
+        }
+
+        return [];
+    }
+
 }

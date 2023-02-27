@@ -1674,7 +1674,7 @@ class Document extends ModelTenant
         return $qrCode->displayPNGBase64($text);
     }
 
-
+                
     /**
      *
      * @param  string $format
@@ -1685,7 +1685,7 @@ class Document extends ModelTenant
         return url("print/document/{$this->external_id}/{$format}");
     }
 
-
+    
     /**
      *
      * Filtrar registro para envio de mensajes por whatsapp
@@ -1705,9 +1705,9 @@ class Document extends ModelTenant
                     ]);
     }
 
-
+    
     /**
-     *
+     * 
      * Placa para reporte de ventas
      *
      * @return string
@@ -1716,7 +1716,7 @@ class Document extends ModelTenant
     {
         return $this->plate_number;
     }
-
+    
 
     /**
      *
@@ -1729,7 +1729,7 @@ class Document extends ModelTenant
 
 
     /**
-     *
+     * 
      * Determina si es nota credito tipo 13
      *
      * @return bool
@@ -1747,9 +1747,9 @@ class Document extends ModelTenant
         return false;
     }
 
-
+        
     /**
-     *
+     * 
      * Tipo de transaccion para caja
      *
      * @return string
@@ -1761,7 +1761,7 @@ class Document extends ModelTenant
 
 
     /**
-     *
+     * 
      * Tipo de documento para caja
      *
      * @return string
@@ -1771,9 +1771,9 @@ class Document extends ModelTenant
         return $this->getTable();
     }
 
-
+    
     /**
-     *
+     * 
      * Datos para resumen diario de operaciones
      *
      * @return array
@@ -1799,7 +1799,7 @@ class Document extends ModelTenant
         return $this->payments()->filterCashPaymentWithoutDestination()->sum('payment');
     }
 
-
+    
     /**
      *
      * Obtener total de pagos en transferencia
@@ -1810,10 +1810,10 @@ class Document extends ModelTenant
     {
         return $this->payments()->filterTransferPayment()->sum('payment');
     }
-
+    
 
     /**
-     *
+     * 
      * Validar si tiene estado permitido para calculos/etc
      *
      * @return bool

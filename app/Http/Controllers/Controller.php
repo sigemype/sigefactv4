@@ -399,4 +399,15 @@ $string = var_export($header,true);
             throw new Exception('El tipo de documento no existe');
         }
         
+            
+        /**
+         *
+         * @param  Exception $exception
+         * @return void
+         */
+        public function generalWriteErrorLog($exception, $message = null)
+        {
+            Log::error(($message ?? '')."Line: {$exception->getLine()} - Message: {$exception->getMessage()} - File: {$exception->getFile()}");
+        }
+
     }

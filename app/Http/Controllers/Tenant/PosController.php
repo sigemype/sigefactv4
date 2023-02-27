@@ -132,6 +132,7 @@ class PosController extends Controller
                         'exchanged_for_points' => false, //para determinar si desea canjear el producto
                         'used_points_for_exchange' => null, //total de puntos
                         'original_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
+                        'restrict_sale_cpe' => $row->restrict_sale_cpe,
                     ];
                 });
 
@@ -264,7 +265,7 @@ class PosController extends Controller
                         'exchanged_for_points' => false, //para determinar si desea canjear el producto
                         'used_points_for_exchange' => null, //total de puntos
                         'original_affectation_igv_type_id' => $row->sale_affectation_igv_type_id,
-
+                        'restrict_sale_cpe' => $row->restrict_sale_cpe,
                     ];
                 });
             return $items;

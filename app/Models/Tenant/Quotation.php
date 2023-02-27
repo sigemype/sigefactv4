@@ -653,5 +653,18 @@ class Quotation extends ModelTenant
     {
         return in_array($this->state_type_id, self::STATE_TYPES_ACCEPTED, true);
     }
+    
+
+    /**
+     * 
+     * Validar que no tenga comprobantes asociados
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    public function scopeWhereNotHasDocuments($query)
+    {
+        return $query->whereDoesntHave('documents');
+    }
 
 }

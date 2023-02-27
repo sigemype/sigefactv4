@@ -126,6 +126,7 @@ class ExchangeRate
 
     private function searchByDay($date)
     {
+
         $day = $date->day;
         $year = $date->year;
         $month = $date->month;

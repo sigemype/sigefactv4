@@ -186,7 +186,7 @@ class DocumentInput
                 if($register_series_invoice_xml && in_array($inputs['document_type_id'], ['01', '03']))
                 {
                     self::registerSeriesInvoiceXml($items_attributes, $row);
-                }
+                } 
 
                 $arayItem = [
                     'item_id' => $item->id,
@@ -206,9 +206,9 @@ class DocumentInput
                         'sanitary' => $item->sanitary,
                         'cod_digemid' => $item->cod_digemid,
                         'date_of_due' => (!empty($item->date_of_due)) ? $item->date_of_due->format('Y-m-d') : null,
-                        'has_igv' => $item->has_igv = 1 ? true : false,
+                        'has_igv' => $row['item']['has_igv'] ?? true,
                         'unit_price' => $row['unit_price'] ?? 0,
-                        'purchase_unit_price' => $item->purchase_unit_price ?? 0,
+                        'purchase_unit_price' => $row['item']['purchase_unit_price'] ?? 0,
                         'exchanged_for_points' => $row['item']['exchanged_for_points'] ?? false,
                         'used_points_for_exchange' => $row['item']['used_points_for_exchange'] ?? null,
                     ],
@@ -321,9 +321,9 @@ class DocumentInput
         return null;
     }
 
-
+    
     /**
-     *
+     * 
      * Registrar series como atributos (5019) para vehiculos
      *
      * @param  array $items_attributes
@@ -333,25 +333,25 @@ class DocumentInput
     public static function registerSeriesInvoiceXml(&$items_attributes, $row)
     {
         $series = self::lots($row);
-
+        
         if(!empty($series))
         {
             $series_to_attributes = self::getVehicleSeriesToAttributes($series);
 
-            if(is_null($items_attributes))
+            if(is_null($items_attributes)) 
             {
                 $items_attributes = $series_to_attributes;
             }
             else if(is_array($items_attributes))
             {
                 $items_attributes = array_merge($items_attributes, $series_to_attributes);
-            }
+            } 
         }
     }
 
-
+    
     /**
-     *
+     * 
      * Generar arreglo de atributos en base a las series - Vehiculos
      *
      * @param  array $series
@@ -363,7 +363,7 @@ class DocumentInput
         $attribute_type_id = '5019';
         $description = 'Serie/Chasis';
 
-        foreach ($series as $serie)
+        foreach ($series as $serie) 
         {
             $attributes [] = [
                 'attribute_type_id' => $attribute_type_id,

@@ -10,6 +10,9 @@ class Template
         if($template === 'credit' || $template === 'debit') {
             $template = 'note';
         }
+        if($document->document_type_id === '31') {
+            $template = 'dispatch_carrier';
+        }
 
         $path_template =  $this->validate_template($base_template, $template, $format_pdf);
         // Log::info($document);
@@ -157,10 +160,10 @@ class Template
         return str_replace(DIRECTORY_SEPARATOR, '.', $path_template_default);
     }
 
-        
+
     /**
      * Imagenes en footer pdf
-     * 
+     *
      * Disponible para cotizacion a4, en template default/default3
      *
      * @param  string $base_template
