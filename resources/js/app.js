@@ -84,6 +84,7 @@ Vue.component('tenant-retentions-form', require('./views/tenant/retentions/form.
 Vue.component('tenant-perceptions-index', require('./views/tenant/perceptions/index.vue'));
 Vue.component('tenant-perceptions-form', require('./views/tenant/perceptions/form.vue'));
 Vue.component('tenant-dispatches-index', require('./views/tenant/dispatches/index.vue'));
+
 Vue.component('tenant-dispatches-form', require('./views/tenant/dispatches/form.vue'));
 Vue.component('tenant-dispatches-create', require('./views/tenant/dispatches/create.vue'));
 Vue.component('tenant-guides-modal', require('./views/tenant/components/guides.vue'));
@@ -91,6 +92,9 @@ Vue.component('tenant-purchases-index', require('./views/tenant/purchases/index.
 Vue.component('tenant-purchases-form', require('./views/tenant/purchases/form.vue'));
 Vue.component('tenant-purchases-edit', require('./views/tenant/purchases/form_edit.vue'));
 Vue.component('tenant-transfer-reason-types-index', require('./views/tenant/transfer_reason_types/index.vue'));
+
+Vue.component('tenant-dispatch_carrier-index', require('./views/tenant/dispatches/Carrier/Index'));
+Vue.component('tenant-dispatch_carrier-form', require('./views/tenant/dispatches/Carrier/Form'));
 
 Vue.component('tenant-purchases-items', require('./views/tenant/dispatches/items.vue'));
 Vue.component('tenant-attribute_types-index', require('./views/tenant/attribute_types/index.vue'));
@@ -275,9 +279,12 @@ Vue.component('tenant-expense-types-index', require('@viewsModuleExpense/expense
 Vue.component('tenant-expense-reasons-index', require('@viewsModuleExpense/expense_reasons/index.vue'));
 Vue.component('tenant-expense-method-types-index', require('@viewsModuleExpense/expense_method_types/index.vue'));
 
-//Order
-Vue.component('tenant-drivers-index', require('@viewsModuleOrder/drivers/index.vue'));
-Vue.component('tenant-dispatchers-index', require('@viewsModuleOrder/dispatchers/index.vue'));
+
+Vue.component('tenant-drivers-index', require('./views/tenant/dispatches/drivers/index.vue'));
+Vue.component('tenant-dispatchers-index', require('./views/tenant/dispatches/dispatchers/index.vue'));
+Vue.component('tenant-transports-index', require('./views/tenant/dispatches/transports/index.vue'));
+Vue.component('tenant-origin_addresses-index', require('./views/tenant/dispatches/OriginAddress/Index'));
+
 Vue.component('tenant-order-forms-index', require('@viewsModuleOrder/order_forms/index.vue'));
 Vue.component('tenant-order-forms-form', require('@viewsModuleOrder/order_forms/form.vue'));
 
@@ -494,6 +501,13 @@ Vue.mixin({
                     type: 'info',
                     message: response.data.message
                   });
+            }
+        },
+        getResponseValidations(success = true, message = null)
+        {
+            return {
+                success: success,
+                message: message
             }
         }
     }
