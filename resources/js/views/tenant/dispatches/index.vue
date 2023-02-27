@@ -3,7 +3,7 @@
         <div class="page-header pr-0">
             <h2><a href="/dashboard"><i class="fas fa-tachometer-alt"></i></a></h2>
             <ol class="breadcrumbs">
-                <li class="active"><span>Guias de remisión</span></li>
+                <li class="active"><span>Guías de remisión</span></li>
             </ol>
             <div class="right-wrapper pull-right">
                 <a :href="`/${resource}/create`" class="btn btn-custom btn-sm  mt-2 mr-2"><i
@@ -69,6 +69,8 @@
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="sendSunat(row.external_id)" v-if="row.btn_send">Enviar a Sunat
                             </button>
+                            <a :href="`/dispatches/create_new/dispatch/${row.id}`"
+                               class="btn waves-effect waves-light btn-xs btn-warning m-1__2" v-if="row.btn_edit">Editar</a>
                         </td>
                     </tr>
                 </data-table>

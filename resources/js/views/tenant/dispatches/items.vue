@@ -44,7 +44,7 @@
             v-if="item"
             :quantity="form.quantity"
             :showDialog.sync="showDialogLots"
-            :lots_group="item.lots_group"
+            :lotsGroup="item.lots_group"
             @addRowLotGroup="addRowLotGroup">
         </lots-group>
     </el-dialog>
