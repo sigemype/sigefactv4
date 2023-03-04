@@ -39,6 +39,7 @@
             </cac:ExternalReference>
         </cac:DigitalSignatureAttachment>
     </cac:Signature>
+    <!-- DATOS DEL EMISOR (TRANSPORTISTA) -->
     <cac:DespatchSupplierParty>
         <cac:Party>
             <cac:PartyIdentification>
@@ -52,56 +53,45 @@
             </cac:PartyLegalEntity>
         </cac:Party>
     </cac:DespatchSupplierParty>
+    <!-- DATOS DEL RECEPTOR (DESTINATARIO) -->
     <cac:DeliveryCustomerParty>
         <cac:Party>
             <cac:PartyIdentification>
                 <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
                         schemeAgencyName="PE:SUNAT"
                         schemeName="Documento de Identidad"
-                        schemeID="{{ $document['customer_identity_document_type_id'] }}">{{ $document['customer_number'] }}</cbc:ID>
+                        schemeID="{{ $document['receiver_identity_document_type_id'] }}">{{ $document['receiver_number'] }}</cbc:ID>
             </cac:PartyIdentification>
             <cac:PartyLegalEntity>
-                <cbc:RegistrationName><![CDATA[{{ $document['customer_name'] }}]]></cbc:RegistrationName>
+                <cbc:RegistrationName><![CDATA[{{ $document['receiver_name'] }}]]></cbc:RegistrationName>
             </cac:PartyLegalEntity>
         </cac:Party>
     </cac:DeliveryCustomerParty>
+    <!-- DATOS DE QUIEN PAGA EL SERVICIO -->
+{{--    <cac:OriginatorCustomerParty>--}}
+{{--        <cac:Party>--}}
+{{--            <cac:PartyIdentification>--}}
+{{--                <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"--}}
+{{--                        schemeAgencyName="PE:SUNAT"--}}
+{{--                        schemeName="Documento de Identidad"--}}
+{{--                        schemeID="6">10417844398</cbc:ID>--}}
+{{--            </cac:PartyIdentification>--}}
+{{--            <cac:PartyLegalEntity>--}}
+{{--                <cbc:RegistrationName>ERIQUE GASPAR CARLOS ALFREDO</cbc:RegistrationName>--}}
+{{--            </cac:PartyLegalEntity>--}}
+{{--        </cac:Party>--}}
+{{--    </cac:OriginatorCustomerParty>--}}
     <cac:Shipment>
         <!-- ID OBLIGATORIO POR UBL -->
         <cbc:ID>1</cbc:ID>
-        <!-- MOTIVO DEL TRASLADO -->
-        <cbc:HandlingCode listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo20"
-                          listName="Motivo de traslado"
-                          listAgencyName="PE:SUNAT">{{ $document['transfer_reason_type_id'] }}</cbc:HandlingCode>
-        <cbc:HandlingInstructions>{{ $document['transfer_reason_type_name'] }}</cbc:HandlingInstructions>
         <!-- PESO BRUTO TOTAL DE LA CARGA-->
         <cbc:GrossWeightMeasure
             unitCode="{{ $document['unit_type_id'] }}">{{ $document['total_weight'] }}</cbc:GrossWeightMeasure>
         <cac:ShipmentStage>
-            <!-- MODALIDAD DE TRASLADO -->
-            <cbc:TransportModeCode listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo18"
-                                   listName="Modalidad de traslado"
-                                   listAgencyName="PE:SUNAT">{{ $document['transport_mode_type_id'] }}</cbc:TransportModeCode>
-            <!-- FECHA DE INICIO DEL TRASLADO o FECHA DE ENTREGA DE BIENES AL TRANSPORTISTA -->
+            <!-- FECHA DE INICIO DEL TRASLADO -->
             <cac:TransitPeriod>
                 <cbc:StartDate>{{ $document['date_of_shipping'] }}</cbc:StartDate>
             </cac:TransitPeriod>
-            @if($document['transport_mode_type_id'] === '01')
-                <cac:CarrierParty>
-                    <cac:PartyIdentification>
-                        <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
-                                schemeAgencyName="PE:SUNAT"
-                                schemeName="Documento de Identidad"
-                                schemeID="{{ $document['dispatcher_identity_document_type_id'] }}">{{ $document['dispatcher_number'] }}</cbc:ID>
-                    </cac:PartyIdentification>
-                    <cac:PartyLegalEntity>
-                        <!-- NOMBRE/RAZON SOCIAL DEL TRANSPORTISTA-->
-                        <cbc:RegistrationName><![CDATA[{{ $document['dispatcher_name'] }}]]></cbc:RegistrationName>
-                        <!-- NUMERO DE REGISTRO DEL MTC -->
-                        <cbc:CompanyID>{{ $document['dispatcher_number_mtc'] }}</cbc:CompanyID>
-                    </cac:PartyLegalEntity>
-                </cac:CarrierParty>
-            @endif
-            @if($document['transport_mode_type_id'] === '02')
             <!-- CONDUCTOR PRINCIPAL -->
                 <cac:DriverPerson>
                     <!-- TIPO Y NUMERO DE DOCUMENTO DE IDENTIDAD -->
@@ -120,22 +110,15 @@
                         <cbc:ID>{{ $document['driver_license'] }}</cbc:ID>
                     </cac:IdentityDocumentReference>
                 </cac:DriverPerson>
-            @endif
         </cac:ShipmentStage>
         <cac:Delivery>
             <!-- DIRECCION DEL PUNTO DE LLEGADA -->
             <cac:DeliveryAddress>
                 <!-- UBIGEO DE LLEGADA -->
                 <cbc:ID schemeAgencyName="PE:INEI"
-                        schemeName="Ubigeos">{{ $document['delivery_location_id'] }}</cbc:ID>
-                <!-- CODIGO DE ESTABLECIMIENTO ANEXO DE LLEGADA -->
-                @if($document['customer_identity_document_type_id'] === '6')
-                <cbc:AddressTypeCode listAgencyName="PE:SUNAT"
-                                     listName="Establecimientos anexos"
-                                     listID="{{ $document['customer_number'] }}">0000</cbc:AddressTypeCode>
-                @endif
+                        schemeName="Ubigeos">{{ $document['receiver_address_location_id'] }}</cbc:ID>
                 <cac:AddressLine>
-                    <cbc:Line><![CDATA[{{ $document['delivery_address'] }}]]></cbc:Line>
+                    <cbc:Line><![CDATA[{{ $document['receiver_address_address'] }}]]></cbc:Line>
                 </cac:AddressLine>
             </cac:DeliveryAddress>
             <cac:Despatch>
@@ -143,29 +126,35 @@
                 <cac:DespatchAddress>
                     <!-- UBIGEO DE PARTIDA -->
                     <cbc:ID schemeAgencyName="PE:INEI"
-                            schemeName="Ubigeos">{{ $document['origin_location_id'] }}</cbc:ID>
-                    <!-- CODIGO DE ESTABLECIMIENTO ANEXO DE PARTIDA -->
-                    <cbc:AddressTypeCode listName="Establecimientos anexos"
-                                         listAgencyName="PE:SUNAT"
-                                         listID="{{ $document['company_number'] }}">0000</cbc:AddressTypeCode>
+                            schemeName="Ubigeos">{{ $document['sender_address_location_id'] }}</cbc:ID>
                     <!-- DIRECCION COMPLETA Y DETALLADA DE PARTIDA -->
                     <cac:AddressLine>
-                        <cbc:Line><![CDATA[{{ $document['origin_address'] }}]]></cbc:Line>
+                        <cbc:Line><![CDATA[{{ $document['sender_address_address'] }}]]></cbc:Line>
                     </cac:AddressLine>
                 </cac:DespatchAddress>
+                <!-- DATOS DEL REMITENTE -->
+                <cac:DespatchParty>
+                    <cac:PartyIdentification>
+                        <cbc:ID schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"
+                                schemeAgencyName="PE:SUNAT"
+                                schemeName="Documento de Identidad"
+                                schemeID="{{ $document['sender_identity_document_type_id'] }}">{{ $document['sender_number'] }}</cbc:ID>
+                    </cac:PartyIdentification>
+                    <cac:PartyLegalEntity>
+                        <cbc:RegistrationName><![CDATA[{{ $document['sender_name'] }}]]></cbc:RegistrationName>
+                    </cac:PartyLegalEntity>
+                </cac:DespatchParty>
             </cac:Despatch>
         </cac:Delivery>
-        @if($document['transport_mode_type_id'] === '02')
-{{--            @if($document['license_plate'])--}}
-                <cac:TransportHandlingUnit>
-                    <cac:TransportEquipment>
-                        <!-- VEHICULO PRINCIPAL -->
-                        <!-- PLACA - VEHICULO PRINCIPAL -->
-                        <cbc:ID>{{ $document['transport_plate_number'] }}</cbc:ID>
-                    </cac:TransportEquipment>
-                </cac:TransportHandlingUnit>
-{{--            @endif--}}
-        @endif
+        <cac:TransportHandlingUnit>
+            <!-- NUMERO DE CONTENEDOR -->
+            <cbc:ID>-</cbc:ID>
+            <cac:TransportEquipment>
+                <!-- VEHICULO PRINCIPAL -->
+                <!-- PLACA - VEHICULO PRINCIPAL -->
+                <cbc:ID>{{ $document['transport_plate_number'] }}</cbc:ID>
+            </cac:TransportEquipment>
+        </cac:TransportHandlingUnit>
     </cac:Shipment>
     <!-- DETALLES DE BIENES A TRASLADAR -->
     @foreach($document['items'] as $row)
