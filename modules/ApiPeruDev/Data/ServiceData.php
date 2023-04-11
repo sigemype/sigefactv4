@@ -216,18 +216,19 @@ class ServiceData
                 'sale' => $exchange->sale
             ];
         }
+      
         $form_params = [
             'fecha' => $date,
         ];
 
         $this->parameters['form_params'] = $form_params;
-        $res = $this->client->request('POST', '/api/tipo_de_cambio', $this->parameters);
+        $res = $this->client->request('GET', '/api/tipo_de_cambio', $this->parameters);
         $response = json_decode($res->getBody()->getContents(), true);
-
+    
         if ($response['success']) {
             $data = $response['data'];
             ExchangeRate::query()->create([
-                'date' => $data['fecha_busqueda'],
+                'date' => $date,
                 'date_original' => $data['fecha_sunat'],
                 'sale_original' => $data['venta'],
                 'sale' => $data['venta'],

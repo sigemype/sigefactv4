@@ -3,7 +3,6 @@
 namespace Modules\ApiPeruDev\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Factory;
 
 class ApiPeruDevServiceProvider extends ServiceProvider
 {
@@ -14,7 +13,6 @@ class ApiPeruDevServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
     }
 
     /**
