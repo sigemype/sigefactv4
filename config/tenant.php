@@ -47,5 +47,5 @@ return [
     'save_qrcode' => env('SAVE_QRCODE', true),
 
     'socket_server' => env('SOCKET_SERVER', 'http://localhost:8070'),
-
+    'internal_dispatch' => env('INTERNAL_DISPATCH', false),
 ];
