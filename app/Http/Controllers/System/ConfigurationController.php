@@ -249,11 +249,63 @@ class ConfigurationController extends Controller
     {
         $record = Configuration::first();
         $record->regex_password_client = $request->regex_password_client;
+        $record->tenant_show_ads = $request->tenant_show_ads;
         $record->save();
 
         return [
             'success' => true,
             'message' => 'Configuración actualizada',
+        ];
+    }
+
+
+    /**
+     *
+     * @return array
+     */
+    public function getOtherConfiguration()
+    {
+        return Configuration::select([
+                                'regex_password_client',
+                                'tenant_show_ads',
+                                'tenant_image_ads'
+                            ])
+                            ->firstOrFail();
+    }
+
+
+    /**
+     *
+     * @param  Request $request
+     * @return array
+     */
+    public function uploadTenantAds(Request $request)
+    {
+        if ($request->hasFile('file')) 
+        {
+            $configuration = Configuration::firstOrFail();
+
+            $file = $request->file('file');
+            $ext = $file->getClientOriginalExtension();
+            $name = 'tenant_image_ads_'.date('YmdHis').'.'.$ext;
+
+            request()->validate(['file' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048']);
+            UploadFileHelper::checkIfValidFile($name, $file->getPathName(), true);
+            $file->storeAs('public/uploads/system_ads', $name);
+
+            $configuration->tenant_image_ads = $name;
+            $configuration->save();
+
+            return [
+                'success' => true,
+                'message' => __('app.actions.upload.success'),
+                'name' => $name,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' =>  __('app.actions.upload.error'),
         ];
     }
 

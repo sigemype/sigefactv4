@@ -1823,4 +1823,33 @@ class Document extends ModelTenant
         return in_array($this->state_type_id, self::STATE_TYPES_ACCEPTED, true);
     }
 
+    
+    /**
+     *
+     * @return bool
+     */
+    public function hasNationalCurrency()
+    {
+        return $this->currency_type_id === self::NATIONAL_CURRENCY_ID;
+    }
+
+    
+    /**
+     * 
+     * Obtener base imponible de la retencion en soles
+     *
+     * @return float
+     */
+    public function getRetentionTaxBase()
+    {
+        $base = 0;
+
+        if($this->retention)
+        {
+            $base = $this->hasNationalCurrency() ? $this->retention->base : $this->generalConvertValueToPen($this->retention->base, $this->retention->exchange_rate);
+        }
+
+        return round($base, 2);
+    }
+
 }

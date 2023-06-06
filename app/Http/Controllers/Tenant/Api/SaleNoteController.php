@@ -17,8 +17,12 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Tenant\Series;
 use App\Models\Tenant\Company;
-
 // use App\Models\Tenant\Warehouse;
+use App\Models\Tenant\Cash;
+use App\Models\Tenant\CashDocument;
+use App\Http\Requests\Tenant\CashRequest;
+use App\Http\Resources\Tenant\CashCollection;
+use App\Http\Resources\Tenant\CashResource;
 use Mpdf\Config\FontVariables;
 use App\CoreFacturalo\Template;
 use App\Models\Tenant\SaleNote;
@@ -117,6 +121,13 @@ class SaleNoteController extends Controller
 
             $this->setFilename();
             $this->createPdf($this->sale_note, 'a4', $this->sale_note->filename);
+
+        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
+        // dd($cash);
+        if ($cash!=null) {
+                $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'sale_note_id' => $this->sale_note->id]);
+        }
+
         });
 
         return [
@@ -134,8 +145,15 @@ class SaleNoteController extends Controller
     public function mergeData($inputs)
     {
         $this->company = Company::active();
-        // self::ExtraLog(__FILE__."::".__LINE__."  \n Campos ".__FUNCTION__." \n". json_encode($inputs) ."\n\n\n\n");
+        // self::ExtraLog(__FILE__."::".__LINE__."  \n Campos ".__FUNCTION__." \n". json_encode($inputs) ."\n\n\n\n"); 
 
+        // agregado por loretosoft para terminos y condiciones
+        $configuration = Configuration::first();
+        if ($configuration->terms_condition_sale!=null || $configuration->terms_condition_sale != '') {
+            $inputs['terms_condition'] = $configuration->terms_condition_sale;
+        }
+        //termina aqui  
+        
         $type_period = $inputs['type_period'];
         $quantity_period = $inputs['quantity_period'];
         $force_create_if_not_exist = isset($inputs['force_create_if_not_exist']) ? (bool)$inputs['force_create_if_not_exist'] : false;
@@ -317,6 +335,7 @@ class SaleNoteController extends Controller
 
     public function createPdf($sale_note = null, $format_pdf = null, $filename = null, $output = 'pdf')
     {
+        ini_set("pcre.backtrack_limit", "50000000");
         $template = new Template();
         $pdf = new Mpdf();
 

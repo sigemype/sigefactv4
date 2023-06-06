@@ -362,4 +362,26 @@
             return $query->where('is_credit', false);
         }
 
+                
+        /**
+         * 
+         * Obtener metodos de pago al contado/efectivo
+         *
+         * @return array
+         */
+        public static function getTableCashPaymentMethodTypes()
+        {
+            return self::notCredit()
+                        ->select([
+                            'id',
+                            'description'
+                        ])
+                        ->get();
+        }
+        
+
+        public static function getDescriptionById($id)
+        {
+            return self::findOrFail($id)->getDescription();
+        }
     }

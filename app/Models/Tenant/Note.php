@@ -108,4 +108,43 @@ class Note extends ModelTenant
         return $this->note_credit_type_id === NoteCreditType::PAYMENT_DATE_ADJUSTMENTS_CODE;
     }
 
+    
+    /**
+     * @return bool
+     */
+    public function isCredit()
+    {
+        return $this->note_type === 'credit';
+    }
+
+    
+    /**
+     * 
+     * Obtener datos del documento afectado por la nota
+     * Usado en pdf
+     *
+     * @return string
+     */
+    public function getAffectedDocumentNumberFull()
+    {
+        if($this->affected_document)
+        {
+            return $this->affected_document->series.'-'.str_pad($this->affected_document->number, 8, '0', STR_PAD_LEFT);
+        }
+        
+        return $this->data_affected_document->series.'-'.str_pad($this->data_affected_document->number, 8, '0', STR_PAD_LEFT);
+    }
+
+    
+    /**
+     * 
+     * Obtener descripcion del tipo de nota
+     *
+     * @return string
+     */
+    public function getNoteTypeDescription()
+    {
+        return $this->isCredit() ? $this->note_credit_type->description : $this->note_debit_type->description;
+    }
+
 }

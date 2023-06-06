@@ -86,6 +86,7 @@ class QuotationController extends Controller
             'seller_name' => 'Vendedor',
             'referential_information' => 'Inf.Referencial',
             'number' => 'Número',
+            'observations' => 'Observaciones',
         ];
     }
 
@@ -126,7 +127,10 @@ class QuotationController extends Controller
             $query->whereHas('seller', function ($q) use ($value) {
                 $q->where('name', 'like', "%{$value}%");
             });
-
+        } else if ($column === 'observations') {
+            if (!is_null($value) && $value !== '') {
+                $query->where('description', 'like', "%{$value}%");
+            }
         } else if ($column === 'number') {
             if (!is_null($value) && $value !== '') {
                 $query->where('id', $value);
@@ -145,7 +149,7 @@ class QuotationController extends Controller
         }
 
         $state_type_id = $form->state_type_id ?? null;
-        if($state_type_id) $records->where('state_type_id', $state_type_id);
+        if ($state_type_id) $records->where('state_type_id', $state_type_id);
 
         return $records;
     }
@@ -810,7 +814,7 @@ class QuotationController extends Controller
 
                 $pdf->SetHTMLFooter($html_footer_term_condition . $html_footer_images . $html_footer . $html_footer_legend);
                 // $pdf->SetHTMLFooter($html_footer_term_condition . $html_footer . $html_footer_legend);
-                
+
             }
             //$html_footer = $template->pdfFooter();
             //$pdf->SetHTMLFooter($html_footer);
@@ -821,21 +825,20 @@ class QuotationController extends Controller
         $this->uploadFile($filename, $pdf->output('', 'S'), 'quotation');
     }
 
-    
+
     /**
      * Asignar imagenes en footer
      *
-     * @param  string $html_footer_images
-     * @param  Configuration $configuration
-     * @param  string $format_pdf
-     * @param  Template $template
-     * @param  string $base_template
+     * @param string $html_footer_images
+     * @param Configuration $configuration
+     * @param string $format_pdf
+     * @param Template $template
+     * @param string $base_template
      * @return void
      */
     public function setPdfFooterImages(&$html_footer_images, $configuration, $format_pdf, $template, $base_template)
     {
-        if($format_pdf === 'a4' && $configuration->applyImagesInPdfFooter() && in_array($base_template, ['default', 'default3']))
-        {
+        if ($format_pdf === 'a4' && $configuration->applyImagesInPdfFooter() && in_array($base_template, ['default', 'default3'])) {
             $html_footer_images = $template->pdfFooterImages($base_template, $configuration->getBase64PdfFooterImages());
         }
     }

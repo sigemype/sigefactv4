@@ -90,9 +90,9 @@ class DispatchInput
             'additional_data' => Functions::valueKeyInArray($inputs, 'additional_data'),
             'origin_address_id' => Functions::valueKeyInArray($inputs, 'origin_address_id', 0),
             'delivery_address_id' => Functions::valueKeyInArray($inputs, 'delivery_address_id', 0),
-            'driver_id' => self::getDriverId($inputs),
-            'dispatcher_id' => self::getDispatcherId($inputs),
-            'sender_id' => self::getSenderId($inputs),
+            'driver_id' => self::getDriverId($inputs), //Functions::valueKeyInArray($inputs, 'driver_id'),
+            'dispatcher_id' => self::getDispatcherId($inputs), //Functions::valueKeyInArray($inputs, 'dispatcher_id'),
+            'transport_id' => self::getTransportId($inputs),// Functions::valueKeyInArray($inputs, 'transport_id'),
             'receiver_id' => self::getReceiverId($inputs),
             'sender_address_id' => self::getSenderAddressId($inputs),
             'receiver_address_id' => self::getReceiverAddressId($inputs),
@@ -105,7 +105,6 @@ class DispatchInput
         if (isset($inputs['data_affected_document'])) {
             $data['data_affected_document'] = $inputs['data_affected_document'];
         }
-
         return $data;
     }
 

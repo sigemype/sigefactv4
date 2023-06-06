@@ -77,7 +77,7 @@ class LockedEmissionProvider extends ServiceProvider
 
             if($configuration->locked_emission)
             {
-                $exceed_limit = DocumentHelper::exceedLimitDocuments($configuration);
+                $exceed_limit = (new DocumentHelper)->exceedLimitDocuments();
                 if($exceed_limit['success']) throw new Exception($exceed_limit['message']);
             }
 
@@ -113,6 +113,12 @@ class LockedEmissionProvider extends ServiceProvider
     private function lockedEmissionSaleNotes()
     {
         SaleNote::created(function ($sale_note) {
+            
+            if($this->getConfigurationColumn('locked_emission'))
+            {
+                $exceed_limit = (new DocumentHelper)->exceedLimitDocuments('sale-note');
+                if($exceed_limit['success']) $this->throwException($exceed_limit['message']);
+            }
 
             if($this->getConfigurationColumn('restrict_sales_limit'))
             {

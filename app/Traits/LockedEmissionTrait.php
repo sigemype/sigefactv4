@@ -9,7 +9,8 @@ use App\Models\System\{
     Plan
 };
 use App\Models\Tenant\{
-    Configuration
+    Configuration,
+    SaleNote
 };
 use Exception;
 use Modules\Document\Helpers\DocumentHelper;
@@ -178,6 +179,24 @@ trait LockedEmissionTrait
             'document_totals' => $document_totals,
             'total' => $total,
         ];
+    }
+
+    
+    /**
+     * 
+     * Obtener cantidad de notas de venta
+     * 
+     * Usado en: 
+     * App\Http\Controllers\System\ClientController - Lista de clientes
+     * Modules\Document\Helpers\DocumentHelper
+     *
+     * @param  string $start_date
+     * @param  string $end_date
+     * @return int
+     */
+    public function getQuantitySaleNotesByDates($start_date, $end_date)
+    {
+        return SaleNote::whereBetween('date_of_issue', [$start_date, $end_date])->count();
     }
 
 

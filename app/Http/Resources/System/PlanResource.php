@@ -30,6 +30,7 @@ class PlanResource extends JsonResource
             'sales_limit' => $this->sales_limit,
             'sales_unlimited' => $this->sales_unlimited,
             'include_sale_notes_sales_limit' => $this->include_sale_notes_sales_limit,
+            'include_sale_notes_limit_documents' => $this->include_sale_notes_limit_documents,
             
         ];
     }

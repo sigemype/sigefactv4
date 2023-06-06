@@ -94,7 +94,14 @@ class CashDocument extends ModelTenant
      */ 
     public function scopeGetSaleNoteIdsReport($query, $cash)
     {
-        return $query->select('sale_note_id')->whereHas('sale_note')->where('cash_id', $cash->id)->get()->pluck('sale_note_id')->toArray();
+        return $query->select('sale_note_id')
+                    ->whereHas('sale_note', function($q){
+                        return $q->whereStateTypeAccepted();
+                    })
+                    ->where('cash_id', $cash->id)
+                    ->get()
+                    ->pluck('sale_note_id')
+                    ->toArray();
     }
 
 

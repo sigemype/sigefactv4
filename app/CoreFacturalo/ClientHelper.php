@@ -9,10 +9,10 @@ class ClientHelper
 {
     use LockedEmissionTrait;
 
-    
+
     /**
      * Obtener total de ventas mensual
-     * 
+     *
      * Usado en:
      * ClientController - Lista de clientes
      *
@@ -24,7 +24,7 @@ class ClientHelper
     public function getSalesTotal($start_date, $end_date, $plan)
     {
         $totals = $this->getTotalsDocumentSaleNote($start_date, $end_date, $plan->includeSaleNotesSalesLimit());
-        
+
         return $totals['total'];
     }
 

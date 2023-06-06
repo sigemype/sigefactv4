@@ -82,6 +82,7 @@ class EstablishmentController extends Controller
             }
             $establishment->fill($request->all());
             $establishment->has_igv_31556 = $has_igv_31556;
+            $establishment->email = $request->email;
             $establishment->save();
 
             if(!$id) {

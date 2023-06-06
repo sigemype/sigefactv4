@@ -11,6 +11,7 @@ use Exception;
 use Facades\App\Http\Controllers\Tenant\DocumentController as DocumentControllerSend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Tenant\Cash;
 
 class DocumentController extends Controller
 {
@@ -37,16 +38,24 @@ class DocumentController extends Controller
 
             return $facturalo;
         });
-
         $document = $fact->getDocument();
         $response = $fact->getResponse();
 
+        $cash = Cash::where([['user_id', auth()->user()->id],['state', true],])->first();
+// dd($cash);
+if ($cash!=null) {
+        $cash->cash_documents()->updateOrCreate(['id' => $cash->id, 'document_id' => $document->id]);
+}
         return [
             'success' => true,
             'data' => [
                 'number' => $document->number_full,
                 'filename' => $document->filename,
                 'external_id' => $document->external_id,
+                'customer_address' => $document->customer->address,
+                'customer_address_dev_id' => $document->customer->department_id,
+                'customer_address_prov_id' => $document->customer->province_id,
+                'customer_address_dis_id' => $document->customer->district_id,
                 'state_type_id' => $document->state_type_id,
                 'state_type_description' => $this->getStateTypeDescription($document->state_type_id),
                 'number_to_letter' => $document->number_to_letter,
@@ -171,6 +180,42 @@ class DocumentController extends Controller
         }
 
         $records = new DocumentCollection($record);
+        return $records;
+    }
+
+    public function getRecords($startDate,$endDate){
+
+        $records = Document::query();
+
+        if ($startDate && $endDate) {
+             $records->whereBetween('date_of_issue', [$startDate, $endDate]);
+        }
+
+        $records->whereTypeUser()->latest();
+
+        return $records;
+    }
+
+    public function filterCPE($state)
+    {
+
+
+        $records = $this->getFilterRecords($state);
+
+        return new DocumentCollection($records->paginate(config('tenant.items_per_page')));
+
+    }
+
+    public function getFilterRecords($state){
+
+        $records = Document::query();
+
+        if ($state!=0) {
+            $records->whereTypeUser()->where("state_type_id", $state)->latest();
+        }else{
+             $records->whereTypeUser()->latest();
+       }
+
         return $records;
     }
 

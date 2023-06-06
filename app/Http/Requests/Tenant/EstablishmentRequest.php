@@ -4,6 +4,8 @@ namespace App\Http\Requests\Tenant;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\Tenant\Configuration;
+
 
 class EstablishmentRequest extends FormRequest
 {
@@ -11,10 +13,13 @@ class EstablishmentRequest extends FormRequest
     {
         return true;
     }
-
+    
     public function rules()
     {
         $id = $this->get('id');
+
+        $validate_email = Configuration::getRecordIndividualColumn('remove_validation_email_establishments') ? '' : 'email';
+
         return [
             'description' => [
                 'required',
@@ -33,8 +38,9 @@ class EstablishmentRequest extends FormRequest
                 'required',
             ],
             'email' => [
-                'required',
-                'email'
+                'nullable',
+                'max:255',
+                $validate_email
             ],
             'telephone' => [
                 'required',

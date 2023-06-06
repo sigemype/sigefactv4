@@ -65,6 +65,7 @@ class DocumentTransform
             'legends' => LegendTransform::transform($inputs),
             'additional_information' => Functions::valueKeyInArray($inputs, 'informacion_adicional'),
             'additional_data' => Functions::valueKeyInArray($inputs, 'dato_adicional'),
+            'terms_condition' => Functions::valueKeyInArray($inputs, 'terminos_condiciones'),
             'actions' => ActionTransform::transform($inputs),
             'hotel' => Functions::valueKeyInArray($inputs, 'hotel',[]),
             'transport' => Functions::valueKeyInArray($inputs, 'transport',[]),
@@ -73,6 +74,8 @@ class DocumentTransform
             'fee' => self::fee($inputs),
             'payment_condition_id' => Functions::valueKeyInArray($inputs, 'codigo_condicion_de_pago', '01'),
             'sale_note_id' => Functions::valueKeyInArray($inputs, 'codigo_nota_venta'),
+            'payments' => Functions::valueKeyInArray($inputs, 'payments'),
+            'total_detraction' => Functions::valueKeyInArray($inputs, 'total_detraccion', 0),
         ];
 
         $inputs_transform = self::invoice($inputs_transform, $inputs);
@@ -133,6 +136,9 @@ class DocumentTransform
                     'name_product_pdf' => Functions::valueKeyInArray($row, 'nombre_producto_pdf'),
                     'name_product_xml' => Functions::valueKeyInArray($row, 'nombre_producto_xml'),
                     'additional_data' => Functions::valueKeyInArray($row, 'dato_adicional'),
+                    'quantity_factor' => Functions::valueKeyInArray($row, 'cantidad_factor', 1),
+                    'presentation_description' => Functions::valueKeyInArray($row, 'presentation_description', null),
+                    'presentation_unit_type_id' => Functions::valueKeyInArray($row, 'presentation_unit_type_id', null),
                 ];
             }
 
@@ -197,6 +203,24 @@ class DocumentTransform
             }
 
             return $discounts;
+        }
+        return null;
+    }
+
+    private static function detractionOther($inputs)
+    {
+        if (array_key_exists('detraction', $inputs)) {
+            $detraction = $inputs['detraccion'];
+            return [
+                'detraction_type_id' => $detraction['codigo_tipo_detraccion'],
+                'currency_type_id' => Functions::valueKeyInArray($inputs, 'codigo_tipo_moneda'),
+                'exchange_rate_sale' => Functions::valueKeyInArray($inputs, 'factor_tipo_de_cambio', 1),
+                'base' => $detraction['base'],
+                'percentage' => $detraction['porcentaje'],
+                'amount' => $detraction['monto'],
+                'bank_account' => $detraction['cuenta_bancaria'],
+            ];
+            //return $inputs['detraction'];
         }
         return null;
     }
@@ -414,6 +438,7 @@ class DocumentTransform
                         'payment_method_type_id' => $row['codigo_metodo_pago'],
                         'payment_destination_id' => $row['codigo_destino_pago'],
                         'reference' => Functions::valueKeyInArray($row, 'referencia'),
+                        'change' => Functions::valueKeyInArray($row, 'cambio'),
                         'payment' => Functions::valueKeyInArray($row, 'monto', 0),
                         'payment_received' => Functions::valueKeyInArray($row, 'pago_recibido'),
                     ];

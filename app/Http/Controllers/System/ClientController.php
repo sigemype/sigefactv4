@@ -162,6 +162,15 @@
                 $tenancy = app(Environment::class);
                 $tenancy->tenant($row->hostname->website);
                 // $row->count_doc = DB::connection('tenant')-> table('documents') ->count();
+
+                // #1256 aqui
+                $current_day = Carbon::now();
+                $current_month_start = $current_day->startOfMonth()->format('Y-m-d');
+                $current_month_end = $current_day->endOfMonth()->format('Y-m-d');
+                $row->current_count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [$current_month_start, $current_month_end])->count(); // contador mensual
+                $row->count_doc_pse = DB::connection('tenant')->table('documents')->where('send_to_pse', true)->count();
+                // dd($row->count_doc_pse);
+
                 $row->count_doc = DB::connection('tenant')
                     ->table('configurations')
                     ->first()
@@ -192,8 +201,15 @@
                     // $row->init_cycle = $init;
                     // $row->end_cycle = $end;
                     // dd($start_end_date);
+                    $client_helper = new ClientHelper();
 
                     $row->count_doc_month = DB::connection('tenant')->table('documents')->whereBetween('date_of_issue', [$init, $end])->count();
+                    $row->sale_notes_quantity_if_include = 0;
+
+                    if($row->plan->includeSaleNotesLimitDocuments())
+                    {
+                        $row->sale_notes_quantity_if_include = $client_helper->getQuantitySaleNotesByDates($init->format('Y-m-d'), $end->format('Y-m-d'));
+                    }
 
                     $row->count_sales_notes_month = DB::connection('tenant')->table('sale_notes')->whereBetween('date_of_issue', [$init, $end])->count();
 
@@ -213,17 +229,16 @@
                     ->quantity_sales_notes;
                     //dd($row->count_sales_notes);
 
-                    $client_helper = new ClientHelper();
                     $row->monthly_sales_total = $client_helper->getSalesTotal($init->format('Y-m-d'), $end->format('Y-m-d'), $row->plan);
                 }
-                
+
                 $row->quantity_establishments = $this->getQuantityRecordsFromTable('establishments');
             }
 
             return new ClientCollection($records);
         }
 
-        
+
         /**
          *
          * @param  string $table
@@ -1014,7 +1029,7 @@
             ];
         }
 
-                
+
         /**
          *
          * @param  Request $request
