@@ -553,6 +553,7 @@
                     total_other_taxes: 0,
                     total_taxes: 0,
                     total_value: 0,
+                    subtotal: 0,
                     total: 0,
                     payment_method_type_id:null,
                     operation_type_id: null,
@@ -685,6 +686,7 @@
                 this.form.total_igv = _.round(total_igv, 2)
                 this.form.total_value = _.round(total_value, 2)
                 this.form.total_taxes = _.round(total_igv, 2)
+                this.form.subtotal = _.round(total, 2)
                 this.form.total = _.round(total, 2)
              },
             async submit() {

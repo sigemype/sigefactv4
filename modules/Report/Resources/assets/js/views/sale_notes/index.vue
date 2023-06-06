@@ -10,7 +10,7 @@
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item v-for="(column, index) in columns" :key="index">
-                            <el-checkbox v-model="column.visible">{{ column.title }}</el-checkbox>
+                            <el-checkbox  @change="generalSetColumnsToShow(true)" v-model="column.visible">{{ column.title }}</el-checkbox>
                         </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -127,10 +127,12 @@
 <script>
 
     import DataTable from '../../components/DataTableReports.vue'
+    import {fnListVisibleColumns} from '@mixins/functions'
 
     export default {
         props: ['configuration'],
         components: {DataTable},
+        mixins: [fnListVisibleColumns],
         data() {
             return {
                 resource: 'reports/sale-notes',
@@ -144,14 +146,16 @@
                         title: 'Region',
                         visible: false
                     },
-                }
+                },
+                name_report_colums: 'sale_notes_reports_index'
 
             }
         },
-        async created() {
+        async created() 
+        {
+            this.generalSetColumnsToShow()
         },
         methods: {
-
 
         }
     }

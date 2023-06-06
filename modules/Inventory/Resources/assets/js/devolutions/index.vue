@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="card mb-0">
-            <div class="data-table-visible-columns"> 
+            <div class="data-table-visible-columns">
             </div>
             <div class="card-body">
                 <data-table :resource="resource">
@@ -20,21 +20,21 @@
                         <th>Usuario</th>
                         <th>Devolución</th>
                         <th>Motivo</th>
-                        <th>Observación</th> 
+                        <th>Observación</th>
                         <th class="text-center">Descargas</th>
                     <tr>
                     <tr slot-scope="{ index, row }" >
                         <td>{{ index }}</td>
                         <td class="text-center">{{ row.date_of_issue }}</td>
                         <td>{{ row.user_name }}</td>
-                        <td>{{ row.number_full }}</td> 
-                        <td>{{ row.devolution_reason_description }}</td> 
+                        <td>{{ row.number_full }}</td>
+                        <td>{{ row.devolution_reason_description }}</td>
                         <td>{{ row.observation }}</td>
                         <td class="text-center">
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickDownload(row.external_id)">PDF</button>
                         </td>
- 
+
 
                     </tr>
                 </data-table>
@@ -45,7 +45,7 @@
                               :recordId="recordId"
                               :showGenerate="true"
                               :showClose="true"></quotation-options> -->
- 
+
         </div>
     </div>
 </template>
@@ -69,12 +69,12 @@
                 resource: 'devolutions',
                 recordId: null,
                 showDialogOptions: false,
-                showDialogOptionsPdf: false, 
+                showDialogOptionsPdf: false,
             }
         },
         created() {
         },
-        methods: { 
+        methods: {
             clickDownload(external_id) {
                 window.open(`${this.resource}/download/${external_id}/a4`, '_blank');
             },

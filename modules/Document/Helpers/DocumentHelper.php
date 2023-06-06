@@ -11,10 +11,13 @@ use App\Models\Tenant\{
 };
 use Hyn\Tenancy\Environment;
 use App\Models\System\Client;
+use App\Traits\LockedEmissionTrait;
 
 
 class DocumentHelper
 {
+
+    use LockedEmissionTrait;
     
     /**
      * Obtener fecha de ciclo de facturacion desde client (system), relacionado al tenant
@@ -37,19 +40,29 @@ class DocumentHelper
      * App\Providers\LockedEmissionProvider
      * App\Http\Controllers\Tenant\DocumentController
      * 
-     * @param  $configuration
+     * @param  string $type
      * @return array
      */     
-    public static function exceedLimitDocuments($configuration = null)
+    public function exceedLimitDocuments($type = 'document')
     {
-
+        /*
         $configuration = $configuration ?? Configuration::firstOrFail();
 
         //cantidad limite de documentos permitidos para emitir (0 = ilimitado)
         $limit_documents = $configuration->limit_documents;
+        */
+
+        //obtener limite desde el plan en bd admin
+        $plan = $this->getClientPlan(['id', 'name', 'limit_documents', 'include_sale_notes_limit_documents']);
+
+        //cantidad limite de documentos permitidos para emitir (0 = ilimitado)
+        $limit_documents = $plan->limit_documents;
 
         if($limit_documents !== 0)
         {
+            if($type === 'document' || ($type === 'sale-note' && $plan->includeSaleNotesLimitDocuments()))
+            {
+                
             //fecha de inicio del ciclo de facturacion
             $start_billing_cycle = self::getStartBillingCycleFromSystem();
             
@@ -60,6 +73,11 @@ class DocumentHelper
     
                 //cantidad de documentos emitidos en el rango de fechas obtenido desde el ciclo de facturacion
                 $quantity_documents = Document::whereBetween('date_of_issue', [ $start_end_date['start_date'], $start_end_date['end_date'] ])->count();
+
+                if($plan->includeSaleNotesLimitDocuments())
+                {
+                    $quantity_documents += $this->getQuantitySaleNotesByDates($start_end_date['start_date']->format('Y-m-d'), $start_end_date['end_date']->format('Y-m-d'));
+                }
     
                 if($quantity_documents > $limit_documents)
                 {
@@ -71,6 +89,7 @@ class DocumentHelper
 
             }
 
+            }
         }
 
         return [

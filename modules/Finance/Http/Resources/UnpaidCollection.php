@@ -13,6 +13,7 @@ use App\Models\Tenant\Invoice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Finance\Traits\UnpaidTrait;
+use App\CoreFacturalo\Helpers\Functions\GeneralPdfHelper;
 
 
 class UnpaidCollection extends ResourceCollection
@@ -101,6 +102,7 @@ class UnpaidCollection extends ResourceCollection
                 "total_payment" => $row->total_payment,
                 "web_platforms" => $web_platforms,
                 "purchase_order" => $purchase_order,
+                "retention_amount" => GeneralPdfHelper::setNumberFormat($this->getRetentionAmount($row)),
             ];
         });
     }

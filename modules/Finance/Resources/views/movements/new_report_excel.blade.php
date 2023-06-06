@@ -67,6 +67,7 @@ $i = 0
                     <th class="">Documento/Transacción</th>
                     <th class="">Detalle</th>
                     <th class="">Moneda</th>
+                    <th class="">Referencia</th>
                     <th class="">Destino</th>
                     <th class="">Cod.</th>
                     <th class="">Tipo</th>
@@ -86,6 +87,7 @@ $i = 0
                     $destination_array = $value['destination_array'] ?? [];
 
                     $destination_name = $value['destination_name'] ?? '';
+                    $reference = $value['reference'] ?? '';
                     $payments = !isset($value['payments']) ? 0 : (float)$value['payments'];
                     $type_movement = $value['type_movement'] ?? '';
                     $destination = $value['destination_description'] ?? '';
@@ -118,6 +120,7 @@ $i = 0
                             @endforeach
                         </td>
                         <td class="celda">{{$value['currency_type_id']}}</td>
+                        <td class="celda">{{ $reference }}</td>
                         <td class="celda">{{ $destination_name }}</td>
                         <td class="celda"> {{$destination_array['cci'] . " "}} &nbsp;</td>
                         <td class="celda">{{$value['instance_type_description']}}</td>

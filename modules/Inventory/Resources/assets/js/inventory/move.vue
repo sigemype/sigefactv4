@@ -84,7 +84,7 @@
             :lots-group="form.lots_group"
             :quantity="form.quantity_move"
             :warehouseId="form.warehouse_id"
-            @addRowOutputLot="addRowOutputLot">
+            @addRowLotGroup="addRowLotGroup">
         </output-lots-group-form>
     </el-dialog>
 
@@ -148,7 +148,7 @@ export default {
             }
         },
         async create() {
-            this.titleDialog = 'Traslado entre almacenes 3'
+            this.titleDialog = 'Traslado entre almacenes'
             await this.$http.get(`/${this.resource}/record/${this.recordId}`)
                 .then(response => {
                     let data = response.data.data;
@@ -193,6 +193,9 @@ export default {
         close() {
             this.$emit('update:showDialog', false)
             this.initForm()
+        },
+        addRowLotGroup(id) {
+            this.form.lots_group = id
         },
     }
 }

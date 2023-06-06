@@ -5,7 +5,7 @@
 
 
                 <template v-if="isEnabledAdvancedRecordsSearch">
-                    
+
                     <div class="col-md-6">
                         <label class="control-label">Almacén</label>
                         <el-select v-model="form.warehouse_id"
@@ -16,7 +16,7 @@
                     </div>
 
                     <div class="col-md-6" v-if="load_warehouses">
-                        <advanced-items-search 
+                        <advanced-items-search
                             @eventSetItemId="setItemId"
                             :warehouse-id="form.warehouse_id"
                             ref="advanced_items_search"
@@ -187,7 +187,7 @@ export default {
         },
         setWarehouseId()
         {
-            if(this.warehouses.length > 0) 
+            if(this.warehouses.length > 0)
             {
                 const all_filter_id = 'all'
                 const warehouse = _.find(this.warehouses, {'id': all_filter_id})
@@ -255,6 +255,7 @@ export default {
             this.records = [];
             await this.$http.get(`/${this.resource}/records?${this.getQueryParameters()}`).then((response) => {
                 this.records = response.data.data
+                console.log(response.data.data)
                 this.pagination = response.data.meta
                 this.pagination.per_page = parseInt(response.data.meta.per_page)
                 this.loading_submit = false

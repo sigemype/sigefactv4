@@ -251,6 +251,7 @@
                                             <th>Moneda</th>
                                             <th class="text-right">Por cobrar</th>
                                             <th class="text-right">T. Nota Crédito</th>
+                                            <th class="text-center" v-if="columns.retention_amount.visible">Monto retención</th>
                                             <th class="text-right">Total</th>
                                             <th></th>
                                         </tr>
@@ -347,6 +348,10 @@
                                                         <template v-else>
                                                             -
                                                         </template>
+                                                    </td>
+
+                                                    <td class="text-center" v-if="columns.retention_amount.visible">
+                                                        {{ row.type == 'document' ? row.retention_amount : '-'}}
                                                     </td>
 
                                                     <td class="text-right">{{ row.total }}</td>
@@ -453,6 +458,10 @@
                     web_platforms: {
                         title: 'Plataformas web',
                         visible: false
+                    },
+                    retention_amount: {
+                        title: 'Monto Retención',
+                        visible: true
                     },
                 }
             }

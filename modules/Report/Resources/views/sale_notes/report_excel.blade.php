@@ -21,22 +21,25 @@
                     <td>
                         <p><b>Empresa: </b></p>
                     </td>
-                    <td align="center">
+                    <td align="center" colspan="5">
                         <p><strong>{{$company->name}}</strong></p>
-                    </td>
-                    <td>
-                        <p><strong>Fecha: </strong></p>
-                    </td>
-                    <td align="center">
-                        <p><strong>{{date('Y-m-d')}}</strong></p>
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <p><strong>Ruc: </strong></p>
                     </td>
-                    <td align="center">{{$company->number}}</td>
-
+                    <td align="center" colspan="3">{{$company->number}}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>Fecha: </strong></p>
+                    </td>
+                    <td align="center" colspan="3">
+                        <p>{{date('Y-m-d')}}</p>
+                    </td>
+                </tr>
+                <tr>
                     @inject('reportService', 'Modules\Report\Services\ReportService')
                     @if($filters['seller_id'])
                     <td>
@@ -83,7 +86,7 @@
                                 <th class="text-center">Fecha comprobante</th>
                                 <th>Cotización</th>
                                 <th>Caso</th>
-                                
+
                                 <th class="text-center">Productos</th>
                                 <th class="text-right">Descuento</th>
 
@@ -101,114 +104,129 @@
                         </thead>
                         <tbody>
                             @foreach($records as $key => $value)
-                            <tr>
-                                <td>{{$loop->iteration}}</td>
-                                <td>{{$value->date_of_issue->format('Y-m-d')}}</td>
-                                <td class="celda">{{$value->time_of_issue}}</td>
-                                <td class="celda">{{$value->user->name}}</td>
-                                <td>{{$value->customer->name}}</td>
-                                <td>{{$value->number_full}}</td>
-                                <td>
-                                    {{$value->total_canceled ? 'Pagado':'Pendiente'}}
-                                </td>
-                                <td>{{$value->state_type->description}}</td>
-                                <td>{{$value->currency_type_id}}</td>
-                                <td class="celda">
-                                    @foreach ($value->getPlatformThroughItems() as $platform)
-                                        <label class="d-block">{{$platform->name}}</label>
-                                    @endforeach
-                                </td>
-                                <td>{{$value->purchase_order}}</td>
-                                <td>{{$value->customer->department->description}}</td>
-                                @php
-                                    $documents = $value->documents;
-                                @endphp
-                                <td>
-                                    @foreach ($documents as $doc)
-                                        <p class="d-block">{{$doc->number_full}}</p>
-                                    @endforeach
-                                </td>
-                                <td>
-                                    @foreach ($documents as $doc)
-                                        <p class="d-block">{{ $doc->date_of_issue->format('Y-m-d') }}</p>
-                                    @endforeach
-                                </td>
-                                <td class="celda">{{ ($value->quotation) ? $value->quotation->number_full : '' }}</td>
-                                <td class="celda">{{ isset($value->quotation->sale_opportunity) ? $value->quotation->sale_opportunity->number_full : '' }}</td>
+                                {{-- {{ dd($value->items)}} --}}
+                                <tr>
+                                    <td>{{$loop->iteration}}</td>
+                                    <td>{{$value->date_of_issue->format('Y-m-d')}}</td>
+                                    <td class="celda">{{$value->time_of_issue}}</td>
+                                    <td class="celda">{{$value->user->name}}</td>
+                                    <td>{{$value->customer->name}}</td>
+                                    <td>{{$value->number_full}}</td>
+                                    <td>
+                                        {{$value->total_canceled ? 'Pagado':'Pendiente'}}
+                                    </td>
+                                    <td>{{$value->state_type->description}}</td>
+                                    <td>{{$value->currency_type_id}}</td>
+                                    <td class="celda">
+                                        @foreach ($value->getPlatformThroughItems() as $platform)
+                                            <label class="d-block">{{$platform->name}}</label>
+                                        @endforeach
+                                    </td>
+                                    <td>{{$value->purchase_order}}</td>
+                                    <td>{{$value->customer->department->description}}</td>
+                                    @php
+                                        $documents = $value->documents;
+                                    @endphp
+                                    <td>
+                                        @foreach ($documents as $doc)
+                                            <p class="d-block">{{$doc->number_full}}</p>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @foreach ($documents as $doc)
+                                            <p class="d-block">{{ $doc->date_of_issue->format('Y-m-d') }}</p>
+                                        @endforeach
+                                    </td>
+                                    <td class="celda">{{ ($value->quotation) ? $value->quotation->number_full : '' }}</td>
+                                    <td class="celda">{{ isset($value->quotation->sale_opportunity) ? $value->quotation->sale_opportunity->number_full : '' }}</td>
 
-                                <td>
+
+                                    <td>
+                                        @foreach ($value->getItemsforReport() as $key => $item)
+                                            @if($loop->first)
+                                            {{ $item['description'] }} / Cantidad: {{ $item['quantity'] }}
+                                            @endif
+                                        @endforeach
+                                    </td>
+
+
+                                    @if($value->state_type_id == '11')
+
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+                                        <td class="celda">0</td>
+
+                                    @else
+
+                                        <td class="celda">{{ ($value->total_discount) }}</td>
+                                        <td class="celda">{{ ($value->total_exportation) }}</td>
+                                        <td class="celda">{{ $value->total_unaffected }}</td>
+                                        <td class="celda">{{ $value->total_exonerated }}</td>
+                                        <td class="celda">{{ $value->total_taxed}}</td>
+                                        <td class="celda">{{ $value->total_igv}}</td>
+                                        <td class="celda">{{ $value->total}}</td>
+
+                                    @endif
+
+                                    @if ($enabled_sales_agents)
+                                        <td>{{optional($value->agent)->search_description}}</td>
+                                        <td>{{$value->reference_data}}</td>
+                                    @endif
+                                </tr>
+                                @if(count($value->getItemsforReport()) > 1)
                                     @foreach ($value->getItemsforReport() as $key => $item)
-                                        - {{ $item['description'] }} / Cantidad: {{ $item['quantity'] }} 
-                                        @if ($key < count($value->getItemsforReport()) - 1)
-                                        <br/>
+                                        @if(!$loop->first)
+                                            <tr>
+                                                <td colspan="16"></td>
+                                                <td>
+                                                    {{ $item['description'] }} / Cantidad: {{ $item['quantity'] }}
+                                                </td>
+                                            </tr>
                                         @endif
                                     @endforeach
-                                </td>
-
-                                @if($value->state_type_id == '11')
-
-                                    <td class="celda">0</td>
-                                    <td class="celda">0</td>
-                                    <td class="celda">0</td>
-                                    <td class="celda">0</td>
-                                    <td class="celda">0</td>
-                                    <td class="celda">0</td>
-                                    <td class="celda">0</td>
-
-                                @else
-
-                                    <td class="celda">{{ ($value->total_discount) }}</td>
-                                    <td class="celda">{{ ($value->total_exportation) }}</td>
-                                    <td class="celda">{{ $value->total_unaffected }}</td>
-                                    <td class="celda">{{ $value->total_exonerated }}</td>
-                                    <td class="celda">{{ $value->total_taxed}}</td>
-                                    <td class="celda">{{ $value->total_igv}}</td>
-                                    <td class="celda">{{ $value->total}}</td>
-
                                 @endif
-                                
-                                @if ($enabled_sales_agents)
-                                    <td>{{optional($value->agent)->search_description}}</td>
-                                    <td>{{$value->reference_data}}</td>
-                                @endif
-                            </tr>
 
-                            @php
 
-                                if($value->currency_type_id == 'PEN'){
+                                @php
 
-                                    if($value->state_type_id == '11'){
+                                    if($value->currency_type_id == 'PEN'){
 
-                                        $acum_total += 0;
-                                        $acum_total_taxed += 0;
-                                        $acum_total_igv += 0;
+                                        if($value->state_type_id == '11'){
 
-                                    }else{
+                                            $acum_total += 0;
+                                            $acum_total_taxed += 0;
+                                            $acum_total_igv += 0;
 
-                                        $acum_total += $value->total;
-                                        $acum_total_taxed += $value->total_taxed;
-                                        $acum_total_igv += $value->total_igv;
+                                        }else{
+
+                                            $acum_total += $value->total;
+                                            $acum_total_taxed += $value->total_taxed;
+                                            $acum_total_igv += $value->total_igv;
+
+                                        }
+
+                                    }else if($value->currency_type_id == 'USD'){
+
+                                        if($value->state_type_id == '11'){
+
+                                            $acum_total_usd += 0;
+                                            $acum_total_taxed_usd += 0;
+                                            $acum_total_igv_usd += 0;
+
+                                        }else{
+
+                                            $acum_total_usd += $value->total;
+                                            $acum_total_taxed_usd += $value->total_taxed;
+                                            $acum_total_igv_usd += $value->total_igv;
+
+                                        }
 
                                     }
-
-                                }else if($value->currency_type_id == 'USD'){
-
-                                    if($value->state_type_id == '11'){
-
-                                        $acum_total_usd += 0;
-                                        $acum_total_taxed_usd += 0;
-                                        $acum_total_igv_usd += 0;
-
-                                    }else{
-
-                                        $acum_total_usd += $value->total;
-                                        $acum_total_taxed_usd += $value->total_taxed;
-                                        $acum_total_igv_usd += $value->total_igv;
-
-                                    }
-
-                                }
-                            @endphp
+                                @endphp
 
                             @endforeach
                             <tr>
@@ -225,6 +243,7 @@
                                 <td class="celda">{{$acum_total_igv_usd}}</td>
                                 <td class="celda">{{$acum_total_usd}}</td>
                             </tr>
+                            {{-- {{ dd($acum_total_taxed) }} --}}
                         </tbody>
                     </table>
                 </div>

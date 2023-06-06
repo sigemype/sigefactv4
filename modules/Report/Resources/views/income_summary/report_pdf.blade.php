@@ -122,7 +122,7 @@ $totals_income_summary = $cash->getTotalsIncomeSummary();
             // dd($order_cash_income);
         @endphp
 
-        @if ($order_cash_income)
+        @if (isset($order_cash_income))
             @include('report::income_summary.partials.table_payments')
         @else
             

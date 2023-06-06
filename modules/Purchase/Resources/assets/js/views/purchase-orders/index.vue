@@ -58,7 +58,7 @@
               <small v-text="row.document_type_description"></small>
               <br />
             </td>
-            
+
             <td class="text-center">
                 <span class="badge bg-secondary text-white" :class="{'bg-danger': (row.state_type_id === '11'), 'bg-warning': (row.state_type_id === '13'), 'bg-secondary': (row.state_type_id === '01')}">
                     {{ row.state_type_description }}
@@ -78,13 +78,13 @@
             <td class="text-right">{{ row.total_igv }}</td>
             <!-- <td class="text-right">{{ row.total_perception ? row.total_perception : 0 }}</td> -->
             <td class="text-right">{{ row.total }}</td>
-            
-                        <td class="text-center"> 
+
+                        <td class="text-center">
 
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
                                     @click.prevent="clickDownload(row.external_id)">PDF</button>
                         </td>
-                        
+
             <td class="text-right">
               <!-- <el-button
                 @click.prevent="clickOptions(row.id)"
@@ -102,15 +102,15 @@
 
               <button type="button" v-if="row.show_actions_row" class="btn waves-effect waves-light btn-xs btn-custom m-1__2"
                       @click.prevent="clickCreate(row.id)">Editar</button>
-                      
-              <a :href="`/purchases/create/${row.id}`" class="btn waves-effect waves-light btn-xs btn-success m-1__2"  
+
+              <a :href="`/purchases/create/${row.id}`" class="btn waves-effect waves-light btn-xs btn-success m-1__2"
                       v-if="row.show_actions_row">Generar compra</a>
 
               <button type="button" v-if="row.show_actions_row" class="btn waves-effect waves-light btn-xs btn-danger m-1__2"
                       @click.prevent="clickAnulate(row.id)">Anular</button>
 
               <button type="button" class="btn waves-effect waves-light btn-xs btn-info m-1__2"
-                      @click.prevent="clickOptions(row.id)">Opciones</button>  
+                      @click.prevent="clickOptions(row.id)">Opciones</button>
             </td>
           </tr>
         </data-table>
@@ -125,7 +125,7 @@
         :showClose="true"
       ></document-generate> -->
 
-      
+
         <purchase-options :showDialog.sync="showDialogOptions"
                           :recordId="recordId"
                           :showClose="true"></purchase-options>
@@ -165,7 +165,7 @@ export default {
             this.showDialogVoided = true;
           },
                   clickDownload(external_id) {
-                      window.open(`/${this.resource}/download/${external_id}`, '_blank');                
+                      window.open(`/${this.resource}/download/${external_id}`, '_blank');
                   },
           clickGenerateDocument(recordId) {
             this.recordId = recordId;
@@ -179,7 +179,7 @@ export default {
           clickOptions(recordId = null) {
               this.recordId = recordId
               this.showDialogOptions = true
-          },  
+          },
     }
 };
 </script>

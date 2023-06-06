@@ -225,7 +225,7 @@ export default {
         },
         async create() {
             this.loading = true;
-            this.titleDialog = (this.type === 'input') ? 'Ingreso de producto al almacén' : 'Salida de producto del almacén'
+            this.titleDialog = (this.type === 'input') ? 'Ingreso de producto al almacén 3' : 'Salida de producto del almacén'
             await this.initTables();
             this.initForm();
             this.loading = false;

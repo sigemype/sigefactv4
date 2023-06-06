@@ -27,6 +27,8 @@
     use App\Models\Tenant\Configuration;
     use App\Models\Tenant\Establishment;
     use App\Models\Tenant\Item;
+    use App\Models\Tenant\Document;
+    use App\Models\Tenant\SaleNote;
     use App\Models\Tenant\PaymentMethodType;
     use App\Models\Tenant\Person;
     use App\Models\Tenant\Quotation;
@@ -106,7 +108,10 @@
         {
             $records = $this->getRecords($request);
 
-            return new OrderNoteCollection($records->paginate(config('tenant.items_per_page')));
+            // $collect = new OrderNoteCollection($records->paginate(config('tenant.items_per_page')));
+            $collect = new OrderNoteCollection($records->paginate(5));
+
+            return $collect;
         }
 
         private function getRecords($request)
@@ -126,6 +131,26 @@
                     ->whereTypeUser()
                     ->latest();
 
+            }
+
+            if($request->state) {
+                $records->where('state_type_id', $request->state);
+            }
+
+            if($request->state_payment != '') {
+                $ids = $records->pluck('id');
+                $documents = Document::whereIn('order_note_id', $ids)
+                                    ->where('total_canceled', $request->state_payment)
+                                    ->pluck('order_note_id');
+                $sale_note = SaleNote::whereIn('order_note_id', $ids)
+                                    ->where('total_canceled', $request->state_payment)
+                                    ->pluck('order_note_id');
+
+                $union = $documents->union($sale_note);
+
+                $records = OrderNote::whereIn('id', $union)
+                                    ->whereTypeUser()
+                                    ->latest();
             }
 
             return $records;
@@ -232,8 +257,9 @@
             $company = Company::active();
             $document_type_03_filter = config('tenant.document_type_03_filter');
             $payment_method_types = PaymentMethodType::orderBy('id', 'desc')->get();
+            $payment_destinations = $this->getPaymentDestinations();
 
-            return compact('customers', 'establishments', 'currency_types', 'discount_types', 'charge_types', 'company', 'document_type_03_filter', 'payment_method_types');
+            return compact('customers', 'establishments', 'currency_types', 'discount_types', 'charge_types', 'company', 'document_type_03_filter', 'payment_method_types', 'payment_destinations');
         }
 
         public function table($table)
@@ -528,6 +554,7 @@
                     }
                 }
                 $legends = $document->legends != '' ? '10' : '0';
+                $payments_quantity = count($document->getCollectPrepayments());
 
                 $pdf = new Mpdf([
                     'mode' => 'utf-8',
@@ -535,6 +562,7 @@
                         $width,
                         120 +
                         ($quantity_rows * 8) +
+                        ($payments_quantity * 8) +
                         ($discount_global * 3) +
                         $company_name +
                         $company_address +
@@ -668,7 +696,7 @@
 
         public function update(OrderNoteRequest $request)
         {
-            
+
             DB::connection('tenant')->transaction(function () use ($request) {
 
 
@@ -705,10 +733,10 @@
             ];
 
         }
-        
+
 
         /**
-         * 
+         *
          * Obtener id de la fila al editar pedido
          *
          * @param  array $row

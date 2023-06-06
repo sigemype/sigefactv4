@@ -48,32 +48,28 @@
                         <td>
                             <el-popover placement="right"
                                         trigger="click"
-                                        width="400">
+                                        width="500">
                                 <el-table :data="row.inventory">
                                     <el-table-column label="Producto"
                                                      property="description"
                                                      width="260"></el-table-column>
 
                                     <el-table-column label="Cantidad"
-                                                     property="quantity"
-                                                     width="100"></el-table-column>
+                                                     property="quantity"></el-table-column>
 
-                                    <el-table-column fixed="right"
-                                                     label="Series"
-                                                     width="120">
-                                        <template slot-scope="scope">
-                                            <el-popover placement="right"
-                                                        trigger="click"
-                                                        width="150">
-                                                <el-table :data="scope.row.lots"
-                                                          width="80">
-                                                    <el-table-column label="Series"
-                                                                     prop="series"
-                                                                     width="180"></el-table-column>
-                                                </el-table>
-                                                <el-button slot="reference"
-                                                           icon="el-icon-zoom-in"></el-button>
-                                            </el-popover>
+                                    <el-table-column label="Series/Lotes">
+                                        <template slot-scope="scope"
+                                                  width="100">
+                                            <ul v-if="scope.row.lots" class="list-unstyled">
+                                                <li v-for="(item, index) in scope.row.lots" :key="index">
+                                                    {{ item.series }}
+                                                </li>
+                                            </ul>
+                                            <ul v-if="scope.row.lots_enabled" class="list-unstyled">
+                                                <li v-for="(item, index) in scope.row.lot_codes" :key="index">
+                                                    {{ item.lot_code }}
+                                                </li>
+                                            </ul>
                                         </template>
                                     </el-table-column>
                                 </el-table>

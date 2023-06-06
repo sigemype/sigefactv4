@@ -5,6 +5,7 @@ namespace Modules\Item\Models;
 use App\Models\Tenant\Item;
 use App\Models\Tenant\ModelTenant;
 use Modules\Inventory\Models\Warehouse;
+use Modules\Inventory\Models\InventoryTransferItem;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -50,6 +51,11 @@ class ItemLot extends ModelTenant
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function inventory_transfer_item()
+    {
+        return $this->hasMany(InventoryTransferItem::class);
     }
 
     /**

@@ -123,6 +123,11 @@ class InventoryTransfer extends ModelTenant
         return $this->hasMany(Inventory::class, 'inventories_transfer_id');
     }
 
+    public function inventory_transfer_item()
+    {
+        return $this->hasMany(InventoryTransferItem::class);
+    }
+
 
     public function getPdfData()
     {
@@ -138,6 +143,20 @@ class InventoryTransfer extends ModelTenant
         $data['warehouse_to'] = $this->warehouse_destination;
         $data['user'] = $this->user;
         $data['inventories'] = $this->inventories;
+        $data['item_transfers'] = $this->inventory_transfer_item->transform(function($o) {
+            if($o->item_lots_group_id != null) {
+                return [
+                    'item_id' => $o->item_lots_group->item_id,
+                    'code' => $o->item_lots_group->code,
+                ];
+            }
+            if($o->item_lot_id != null) {
+                return [
+                    'item_id' => $o->item_lot->item_id,
+                    'code' => $o->item_lot->series,
+                ];
+            }
+        });;
         $data['configuration'] = Configuration::first();
         $data['company'] = Company::active();
 

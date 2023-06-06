@@ -22,6 +22,7 @@ use Modules\Inventory\Models\ItemWarehouse;
 use Modules\Inventory\Traits\InventoryTrait;
 use Modules\Inventory\Models\InventoryKardex;
 use Modules\Inventory\Models\InventoryTransaction;
+use Modules\Inventory\Models\InventoryTransferItem;
 use Modules\Inventory\Http\Requests\InventoryRequest;
 use Modules\Inventory\Http\Resources\InventoryResource;
 use Modules\Inventory\Http\Resources\InventoryCollection;
@@ -691,6 +692,24 @@ class InventoryController extends Controller
                     'series' => $series->number,
                     'number' => '#',
                 ]);
+
+            if($request->lots_group) {
+                foreach($request->lots_group as $lot) {
+                    InventoryTransferItem::query()->create([
+                        'inventory_transfer_id' => $row->id,
+                        'item_lots_group_id' => $lot['id'],
+                    ]);
+                }
+            }
+
+            if($request->lots) {
+                foreach($request->lots as $lot) {
+                    InventoryTransferItem::query()->create([
+                        'inventory_transfer_id' => $row->id,
+                        'item_lot_id' => $lot['id'],
+                    ]);
+                }
+            }
 
             $inventory = new Inventory();
             $inventory->type = 2;

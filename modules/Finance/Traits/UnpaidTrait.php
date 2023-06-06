@@ -99,6 +99,7 @@ trait UnpaidTrait
                 "purchase_order" => $purchase_order,
                 "web_platforms" => $web_platforms ,
                 "total_credit_notes" => $this->getTotalCreditNote($row) ,
+                "retention_amount" => $this->getRetentionAmount($row),
             ];
 
         });
@@ -114,7 +115,7 @@ trait UnpaidTrait
      */
     public function getTotalToPay($row)
     {
-        return (float)$row->total - (float)$row->total_payment - (float) $this->getTotalCreditNote($row);
+        return (float)$row->total - (float)$row->total_payment - (float) $this->getTotalCreditNote($row) - (float) $this->getRetentionAmount($row);
     }
 
 
@@ -127,6 +128,18 @@ trait UnpaidTrait
     public function getTotalCreditNote($row)
     {
         return ($row->total_credit_notes ?? 0);
+    }
+
+    
+    /**
+     * Validar y obtener total retencion
+     *
+     * @param  object $row
+     * @return float
+     */
+    public function getRetentionAmount($row)
+    {
+        return $row->retention_amount ?? 0;
     }
 
 }

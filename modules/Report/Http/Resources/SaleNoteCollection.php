@@ -46,6 +46,7 @@
                     'number' => $row->number_full,
                     'customer_name' => $row->customer->name,
                     'customer_number' => $row->customer->number,
+                    'client_direction' => $row->customer->address ?? '',
                     'currency_type_id' => $row->currency_type_id,
                     'series' => $row->series,
                     'establishment_id' => $row->establishment_id,

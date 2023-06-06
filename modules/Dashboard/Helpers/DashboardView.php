@@ -292,6 +292,8 @@ class DashboardView
             ->select('document_id', DB::raw('SUM(payment) as total_payment'))
             ->groupBy('document_id');
 
+        $retention_amount = "IFNULL(JSON_EXTRACT(`retention`, '$.amount'), 0)";
+
         $document_select = "documents.id as id, " .
             "DATE_FORMAT(documents.date_of_issue, '%Y/%m/%d') as date_of_issue, " .
             "persons.name as customer_name,".
@@ -301,7 +303,8 @@ class DashboardView
             "documents.total as total, " .
             "IFNULL(payments.total_payment, 0) as total_payment, " .
             "IFNULL(credit_notes.total_credit_notes, 0) as total_credit_notes, " .
-            "documents.total - IFNULL(total_payment, 0) - IFNULL(total_credit_notes, 0)  as total_subtraction, " .
+            "{$retention_amount} AS retention_amount, " .
+            "documents.total - IFNULL(total_payment, 0) - IFNULL(total_credit_notes, 0) - {$retention_amount}  as total_subtraction, " .
             "'document' AS 'type', " .
             "documents.currency_type_id, " .
             "documents.exchange_rate_sale, " .
@@ -317,6 +320,7 @@ class DashboardView
             "sale_notes.total as total, " .
             "IFNULL(payments.total_payment, 0) as total_payment, " .
             "null as total_credit_notes," .
+            "null as retention_amount," .
             "sale_notes.total - IFNULL(total_payment, 0)  as total_subtraction, " .
             "'sale_note' AS 'type', " .
             "sale_notes.currency_type_id, " .

@@ -4,6 +4,7 @@ namespace Modules\Item\Models;
 
 use App\Models\Tenant\Item;
 use App\Models\Tenant\ModelTenant;
+use Modules\Inventory\Models\InventoryTransferItem;
 
 
 /**
@@ -31,6 +32,11 @@ class ItemLotsGroup extends ModelTenant
     public function item()
     {
         return $this->belongsTo(Item::class);
+    }
+
+    public function inventory_transfer_item()
+    {
+        return $this->hasMany(InventoryTransferItem::class);
     }
 
     /**
@@ -108,10 +114,10 @@ class ItemLotsGroup extends ModelTenant
         $this->item_id = $item_id;
         return $this;
     }
-    
+
 
     /**
-     * 
+     *
      * Obtener datos para formulario de venta de lotes
      *
      * @return array

@@ -1635,6 +1635,19 @@
         {
             return $this->payments()->filterTransferPayment()->sum('payment');
         }
+
         
+        /**
+         * 
+         * Validar que no tenga comprobantes asociados
+         *
+         * @param  Builder $query
+         * @return Builder
+         */
+        public function scopeWhereNotHasDocuments($query)
+        {
+            return $query->whereDoesntHave('document');
+        }
+
 
     }

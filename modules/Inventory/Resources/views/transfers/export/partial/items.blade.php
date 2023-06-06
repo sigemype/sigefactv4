@@ -7,7 +7,8 @@
             use App\Models\Tenant\Configuration;
             use App\Models\Tenant\User;
             use Modules\Inventory\Models\Inventory;
-            use Modules\Inventory\Models\InventoryTransfer;use Modules\Inventory\Models\Warehouse;
+            use Modules\Inventory\Models\InventoryTransfer;
+            use Modules\Inventory\Models\Warehouse;
             use Illuminate\Support\Carbon;
             use Illuminate\Database\Eloquent\Collection;
 
@@ -40,13 +41,14 @@
                 <th class="fourteen-width text-left">DESCRIPCIÓN PRODUCTO</th>
                 <th class="ten-width">UNIDAD</th>
                 <th class="ten-width">CANTIDAD</th>
-                <th class="ten-width">LOTE</th>
+                <th class="ten-width">LOTE/SERIE</th>
                 <!--        <th width="10%">SERIE</th>-->
             </tr>
             </thead>
             <tbody>
             @foreach ($inventories as $index => $inventory)
                 <?php
+                // dd($inventory->inventories_transfer);
                 /** @var \Modules\Inventory\Models\Inventory $inventory */
                 $item = $inventory->item;
                 $itemCollection = $item->getCollectionData($configuration);
@@ -54,11 +56,19 @@
                 $itemCollection['description'] = substr($itemCollection['description'], 0, 49);
                 $itemCollection['internal_id'] = substr($itemCollection['internal_id'], 0, 10);
                 $itemCollection['unit_type_text'] = substr($itemCollection['unit_type_text'], 0, 10);
+
+                $item_transfers = !empty($data['item_transfers']) ? $data['item_transfers'] : null;
+                $lots = $item_transfers->filter(function($value) use ($item) {
+                    return $value['item_id'] == $item->id;
+                });
+
                 $qty = $inventory->quantity;
                 $lot_code = $inventory->lot_code;
                 /*
                 @todo BUSCAR DONDE SE GUARDA LA SERIE en modules/Inventory/Http/Controllers/TransferController.php 237
                 */
+                // $is_serie = (bool)$inventory->item->series_enabled;
+                // $serie = $inventory->item->item_lots->where('updated_at', $inventory->inventories_transfer->created_at)->first();
                 ?>
                 <tr>
                     <td class="celda text-center">{{$index + 1}}</td>
@@ -66,8 +76,14 @@
                     <td class="celda text-left">{{$itemCollection['description']}}</td>
                     <td class="celda">{{$itemCollection['unit_type_text']}}</td>
                     <td class="celda">{{$qty}}</td>
-                    <td class="celda">{{$lot_code}}</td>
-                    <!--            <td>SERIE</td>-->
+                    <td class="celda">
+                        @foreach($lots->unique('code') as $lot)
+                            {{ $lot['code'] }}
+                            @if(!$loop->last)
+                                <br>
+                            @endif
+                        @endforeach
+                    </td>
                 </tr>
             @endforeach
 

@@ -462,6 +462,10 @@ export default {
                 return true;
             }
             return false;
+        },
+        hasDebt()
+        {
+            return this.totalDebt > 0
         }
     },
     created() {
@@ -522,12 +526,14 @@ export default {
 
             return calculateRowItem(i.item, "PEN", 3, this.percentage_igv)
         });
-        
+
         // console.log(this.document.items);
         await this.onCalculateTotals();
         // console.log(this.document);
         await this.onCalculatePaidAndDebts();
-        await this.clickAddPayment();
+        
+        if(this.hasDebt) await this.clickAddPayment();
+        
         this.validateIdentityDocumentType();
         const date = moment().format("YYYY-MM-DD");
         await this.searchExchangeRateByDate(date).then((res) => {
@@ -595,7 +601,10 @@ export default {
 
             if(this.document.payments.length == 0)
             {
-                payment = (this.totalDebt > 0) ? this.totalDebt : this.document.total
+                if(this.totalDebt > 0)
+                {
+                    payment = this.totalDebt
+                }
             }
 
             this.document.payments.push({
@@ -621,6 +630,14 @@ export default {
             return {
                 error_by_item: error_by_item,
             };
+        },
+        validateTotalPayments()
+        {
+            const total_payments = _.sumBy(this.document.payments, 'payment')
+
+            if(total_payments > this.totalDebt) return this.getResponseValidations(false, 'El total de los pagos agregados es superior al monto pendiente de pago "Debe".')
+            
+            return this.getResponseValidations()
         },
         initForm() {
             this.form_cash_document = {
@@ -658,7 +675,7 @@ export default {
 
         },
         async onGoToInvoice() {
-            console.log('onGoToInvoice');
+            // console.log('onGoToInvoice');
             await this.onUpdateItemsWithExtras();
             await this.onCalculateTotals();
             let validate_payment_destination = this.validatePaymentDestination();
@@ -666,6 +683,9 @@ export default {
             if (validate_payment_destination.error_by_item > 0) {
                 return this.$message.error("El destino del pago es obligatorio");
             }
+
+            const validate_total_payments = this.validateTotalPayments()
+            if(!validate_total_payments.success) return this.$message.error(validate_total_payments.message)
 
             this.updateDataForSend()
             this.loading = true;

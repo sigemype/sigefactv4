@@ -16,6 +16,7 @@ class EcommerceServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->registerMiddleware();
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
@@ -106,5 +107,16 @@ class EcommerceServiceProvider extends ServiceProvider
     public function provides()
     {
         return [];
+    }
+
+    protected $middleware = [
+        'check.permission' => \Modules\Ecommerce\Http\Middleware\CheckPermission::class,
+    ];
+
+    private function registerMiddleware()
+    {
+        foreach( $this->middleware as $name => $class ) {
+            $this->app['router']->aliasMiddleware($name, $class);
+        }
     }
 }

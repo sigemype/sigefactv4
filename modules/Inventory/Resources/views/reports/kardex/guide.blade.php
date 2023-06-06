@@ -71,7 +71,7 @@
         <th>DESCRIPCIÓN</th>
         <th>UNIDAD</th>
         <th style="text-align: right">CANTIDAD</th>
-        <th>LOTE</th>
+        <th>LOTE/SERIE</th>
     </tr>
     </thead>
     <tbody>
@@ -82,7 +82,24 @@
             <td>{{$row['item_name']}}</td>
             <td>{{$row['unit_type_id']}}</td>
             <td style="text-align: right">{{$row['quantity']}}</td>
-            <td>{{$row['lot']}}</td>
+            <td style="text-align: right">
+                @if($row['series_enabled'])
+                    @foreach($row['series'] as $serie)
+                        @if(!$loop->first)
+                            -
+                        @endif
+                        {{$serie['series']}}
+                    @endforeach
+                @endif
+                @if($row['lot_enabled'])
+                    @foreach($row['lot'] as $lot)
+                        @if(!$loop->first)
+                            -
+                        @endif
+                        {{$lot['code']}}
+                    @endforeach
+                @endif
+            </td>
         </tr>
     @endforeach
     </tbody>

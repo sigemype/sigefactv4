@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\DB;
 use Modules\Inventory\Exports\InventoryTransferExport;
 use Modules\Inventory\Http\Resources\TransferCollection;
 use Modules\Inventory\Http\Resources\TransferResource;
-use Modules\Inventory\Models\Inventory;
 use Modules\Inventory\Traits\InventoryTrait;
+use Modules\Inventory\Models\Inventory;
 use Modules\Inventory\Models\ItemWarehouse;
+use Modules\Inventory\Models\InventoryTransferItem;
 use Modules\Inventory\Models\Warehouse;
 use Modules\Inventory\Models\InventoryTransfer;
 use Modules\Inventory\Http\Requests\InventoryRequest;
@@ -50,6 +51,13 @@ class TransferController extends Controller
         ];
     }
 
+    /**
+     * It returns a collection of records from the database
+     *
+     * @param Request request
+     *
+     * @return A collection of records.
+     */
     public function records(Request $request)
     {
         if ($request->column) {
@@ -340,13 +348,26 @@ class TransferController extends Controller
                 $inventory->save();
 
                 foreach ($it['lots'] as $lot) {
-
                     if ($lot['has_sale']) {
                         $item_lot = ItemLot::findOrFail($lot['id']);
                         $item_lot->warehouse_id = $inventory->warehouse_destination_id;
                         $item_lot->update();
-                    }
 
+                        // historico de item para traslado
+                        InventoryTransferItem::query()->create([
+                            'inventory_transfer_id' => $row->id,
+                            'item_lot_id' => $lot['id'],
+                        ]);
+                    }
+                }
+            }
+
+            if($request->lot_groups_total) {
+                foreach($request->lot_groups_total as $lot) {
+                    InventoryTransferItem::query()->create([
+                        'inventory_transfer_id' => $row->id,
+                        'item_lots_group_id' => $lot['id'],
+                    ]);
                 }
             }
 
@@ -421,13 +442,14 @@ class TransferController extends Controller
     public function getPdf(InventoryTransfer $inventoryTransfer): \Illuminate\Http\Response
     {
         $data = $inventoryTransfer->getPdfData();
+        // dd($inventoryTransfer->getPdfData());
         // return View('inventory::transfers.export.pdf', compact('data'));
         $pdf = PDF::loadView('inventory::transfers.export.pdf', compact('data'));
         $pdf->setPaper('A4', 'portrait');
         // $pdf->setPaper('A4', 'landscape');
         $filename = 'Reporte_Traslado_' . $inventoryTransfer->id . '_' . date('YmdHis');
 
-        return $pdf->download($filename . '.pdf');
+        return $pdf->stream($filename . '.pdf');
 
     }
 

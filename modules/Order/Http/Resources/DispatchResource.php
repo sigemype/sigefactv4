@@ -14,7 +14,7 @@ class DispatchResource extends JsonResource
      */
     public function toArray($request)
     {
-        
+
         $response_message = null;
         $response_type = null;
         $code = null;
@@ -34,9 +34,8 @@ class DispatchResource extends JsonResource
                 } else {
                     $response_type = 'warning';
                 }
- 
-            }
 
+            }
         }
 
         $has_cdr = false;
@@ -48,9 +47,10 @@ class DispatchResource extends JsonResource
         return [
             'id' => $this->id,
             'external_id' => $this->external_id,
+            'document_type_id' => $this->document_type_id,
             'number' => $this->number_full,
             'date_of_issue' => $this->date_of_issue->format('Y-m-d'),
-            'customer_email' => $this->customer->email,
+            'customer_email' => optional($this->customer)->email,
             'download_external_pdf' => $this->download_external_pdf,
             'customer_telephone' => optional($this->person)->telephone,
             'response_message' => in_array($this->state_type_id, ['07', '09']) ? ($code ? "{$code} - " : '')."{$response_message}" : $response_message,
@@ -58,7 +58,7 @@ class DispatchResource extends JsonResource
             'response_type' => $response_type,
             'download_cdr' => $this->download_external_cdr,
             'message_text' => "Su guía {$this->number_full} ha sido generada correctamente, puede revisarla en el siguiente enlace: ".url('')."/downloads/dispatch/pdf/{$this->external_id}"."",
-            
+
             'send_to_pse' => $this->send_to_pse,
             'response_signature_pse' => optional($this->response_signature_pse)->message,
             'response_send_cdr_pse' => optional($this->response_send_cdr_pse)->message,

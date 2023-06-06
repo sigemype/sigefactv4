@@ -11,7 +11,7 @@
 |
 */
 
-Route::middleware(['locked.tenant'])->prefix('ecommerce')->group(function() {
+Route::middleware(['check.permission', 'locked.tenant'])->prefix('ecommerce')->group(function() {
    // Route::get('/', 'EcommerceController@index');
 
     Route::get('/', 'EcommerceController@index')->name('tenant.ecommerce.index');
@@ -51,7 +51,7 @@ Route::middleware(['locked.tenant'])->prefix('ecommerce')->group(function() {
     Route::get('record', 'ConfigurationController@record');
 
     Route::post('uploads', 'ConfigurationController@uploadFile');
-    
+
 
     //Item Sets
     Route::prefix('item-sets')->group(function() {

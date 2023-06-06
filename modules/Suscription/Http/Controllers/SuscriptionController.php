@@ -200,7 +200,7 @@
 
             $payments_credit = PaymentMethodType::select('id')->NonCredit()->get()->toArray();
             $payments_credit = PaymentMethodType:: getPaymentMethodTypes($payments_credit);
-            $startDate = Carbon::createFromFormat('Y-m-d','2022-01-01')->format('Y-m-d');
+            $startDate = Carbon::now()->startOfYear()->format('Y-m-d');
             $grades = SuscriptionGrade::all();
             $sections = SuscriptionSection::all();
 

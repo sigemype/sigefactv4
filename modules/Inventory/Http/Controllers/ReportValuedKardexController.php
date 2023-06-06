@@ -121,6 +121,8 @@ class ReportValuedKardexController extends Controller
 
         $data = InventoryValuedKardex::getDataFormatSunat($params);
         $additionalData = InventoryValuedKardex::getDataAdditional($request, $params, $data['item']);
+
+        // dd($data, $additionalData);
         $records = $data['records'];
 
 

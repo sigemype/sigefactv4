@@ -110,6 +110,7 @@
                     <th>PROV</th>
 
                     <th>Direccion de cliente</th>
+                    <th>Tipo de Cliente</th>
                     <th>Cliente</th>
                     <th>RUC</th>
                     <th>Estado</th>
@@ -209,6 +210,10 @@
                         <td class="celda">{{$stablihsment['province']}}</td>
 
                         <td class="celda">{{$value->customer->address}}</td>
+                        @php
+                            $customer = \App\Models\Tenant\Person::find($value->customer_id);
+                        @endphp
+                        <td class="celda">{{ optional($customer->person_type)->description}}</td>
                         <td class="celda">{{$value->customer->name}}</td>
                         <td class="celda">{{$value->customer->number}}</td>
                         <td class="celda">{{$value->state_type->description}}</td>
@@ -361,7 +366,7 @@
 
                         @endphp
                         <td>{{$quality_item}}</td>
-                        
+
                         @if ($enabled_sales_agents)
                             <td>{{optional($value->agent)->search_description}}</td>
                             <td>{{$value->reference_data}}</td>

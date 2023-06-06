@@ -191,7 +191,7 @@
                     <strong>
                         Ingreso caja:
                     </strong>
-                    S/. {{$data['total_cash_income_pmt_01']}} 
+                    {{-- S/. {{$data['total_cash_income_pmt_01']}}  --}}
                     {{-- total de ingresos en efectivo y destino caja --}}
                 </p>
             </td>
@@ -200,7 +200,13 @@
                     <strong>
                         Egreso caja:
                     </strong>
-                    S/. {{$data['total_cash_egress_pmt_01']}} 
+                    S/. 
+                    @if(isset($data['total_cash_egress_pmt_01']))
+                        {{$data['total_cash_egress_pmt_01']}}
+                    @else
+                        0.00
+                    @endif
+
                     {{-- total de egresos (compras + gastos) en efectivo y destino caja --}}
                 </p>
             </td>
@@ -211,7 +217,12 @@
                     <strong>
                         Total caja:
                     </strong>
-                    S/. {{$data['total_cash_payment_method_type_01']}} 
+                    S/. 
+                    @if(isset($data['total_cash_payment_method_type_01']))
+                        {{$data['total_cash_payment_method_type_01']}}
+                    @else
+                        0.00
+                    @endif
                     {{-- (Saldo inicial + ingreso caja - egreso caja) --}}
                 </p>
             </td>
@@ -320,7 +331,7 @@
             </table>
 
 
-            @if ($data['separate_cash_transactions'])
+            @if (isset($data['separate_cash_transactions']))
 
                 @include('pos::cash.partials.cash_transactions_table')
         

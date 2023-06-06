@@ -2,20 +2,17 @@
     <div v-loading="loading_submit">
         <div class="row ">
 
-            <div class="col-md-12 col-lg-12 col-xl-12 ">
+            <div class="col-md-9 col-lg-9 col-xl-9 ">
                 <div class="row" v-if="applyFilter">
                     <div class="col-lg-4 col-md-4 col-sm-12 pb-2">
-                        <div class="d-flex">
-                            <div style="width:100px">
-                                Filtrar por:
-                            </div>
-                            <el-select v-model="search.column"  placeholder="Select" @change="changeClearInput">
-                                <el-option v-for="(label, key) in columns" :key="key" :value="key" :label="label"></el-option>
-                            </el-select>
-                        </div>
+                        <label for="">Tipo</label>
+                        <el-select v-model="search.column"  placeholder="Select" @change="changeClearInput">
+                            <el-option v-for="(label, key) in columns" :key="key" :value="key" :label="label"></el-option>
+                        </el-select>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-12 pb-2">
                         <template v-if="search.column=='date_of_issue' || search.column=='date_of_due' || search.column=='date_of_payment' || search.column=='delivery_date'">
+                            <label for="">Fecha</label>
                             <el-date-picker
                                 v-model="search.value"
                                 type="date"
@@ -26,6 +23,7 @@
                             </el-date-picker>
                         </template>
                         <template v-else>
+                            <label for="">Nombre</label>
                             <el-input placeholder="Buscar"
                                 v-model="search.value"
                                 style="width: 100%;"
@@ -34,13 +32,26 @@
                             </el-input>
                         </template>
                     </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 pb-2" v-if="config.order_node_advanced">
+                        <label for="status">Estado</label>
+                        <el-select v-model="search.state"  placeholder="Select" @change="getRecords">
+                            <el-option v-for="(label, key) in state_types" :key="key" :value="label.id" :label="label.description"></el-option>
+                        </el-select>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 pb-2" v-if="config.order_node_advanced">
+                        <label for="status">Pago</label>
+                        <el-select v-model="search.state_payment"  placeholder="Select" @change="getRecords">
+                            <el-option v-for="(label, key) in state_payments" :key="key" :value="label.id" :label="label.description"></el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-3 col-md-4 col-sm-12 pb-2">
                         <el-button type="primary" v-if="typeUser == 'admin' &&  soapCompany != '03'" @click.prevent="clickGenerateDocuments()" >
                             Generar comprobantes
                         </el-button>
                     </div>
                 </div>
-
             </div>
 
 
@@ -77,6 +88,7 @@
     import moment from 'moment'
     import queryString from 'query-string'
     import GenerateDocuments from './partials/documents.vue'
+    import {mapActions, mapState} from "vuex"
 
     export default {
         components: {GenerateDocuments},
@@ -100,15 +112,32 @@
                 records: [],
                 pagination: {},
                 showDialogDocuments: false,
-                loading_submit: false
+                loading_submit: false,
+                state_types: [
+                    {id: '', description: 'Todos'},
+                    {id:'01', description: 'Pendiente', class: 'text-warning'},
+                    {id:'03', description: 'Por Entregar', class: 'text-info'},
+                    {id:'05', description: 'Entregado', class: 'text-success'},
+                    {id:'11', description: 'Anulado', class: 'text-danger'}
+                ],
+                state_payments: [
+                    {id:'', description: 'Todos'},
+                    {id:'0', description: 'Pendiente'},
+                    {id:'1', description: 'Completado'}
+                ]
             }
         },
-        computed: {
+        computed:{
+            ...mapState([
+                'config',
+            ]),
         },
         created() {
             this.$eventHub.$on('reloadData', () => {
                 this.getRecords()
             })
+            this.$store.commit('setConfiguration', this.configuration)
+            this.loadConfiguration()
         },
         async mounted () {
             let column_resource = _.split(this.resource, '/')
@@ -118,9 +147,11 @@
                 this.search.column = _.head(Object.keys(this.columns))
             });
             await this.getRecords()
-
         },
         methods: {
+            ...mapActions([
+                'loadConfiguration',
+            ]),
             clickGenerateDocuments(){
                 this.showDialogDocuments = true
             },

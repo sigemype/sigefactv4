@@ -6,10 +6,13 @@ use Modules\Finance\Models\GlobalPayment;
 use App\Models\Tenant\PaymentMethodType;
 use App\Models\Tenant\ModelTenant;
 use App\Models\Tenant\Cash;
+use App\Traits\PaymentModelHelperTrait;
 
 
 class TechnicalServicePayment extends ModelTenant
 {
+    use PaymentModelHelperTrait;
+
     protected $with = ['payment_method_type'];
     public $timestamps = false;
 

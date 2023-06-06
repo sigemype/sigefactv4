@@ -47,19 +47,14 @@ class DocumentController extends Controller
 
     public function records(Request $request)
     {
-
         $records = $this->getRecords($request);
 
         return new DocumentNotSentCollection($records->paginate(config('tenant.items_per_page')));
-
     }
 
     public function getRecords($request)
     {
-
-        /** @var User $user */
         $user = \Auth::user();
-
         $d_end = $request->d_end;
         $d_start = $request->d_start;
         $date_of_issue = $request->date_of_issue;
@@ -69,14 +64,14 @@ class DocumentController extends Controller
         $state_type_id = $request->state_type_id;
         $pending_payment = ($request->pending_payment == "true") ? true : false;
         $customer_id = $request->customer_id;
+        $observations = $request->observations;
 
-        $records = Document::
-        where('series', 'like', '%' . $series . '%')
+        $records = Document::query()
+            ->where('series', 'like', '%' . $series . '%')
             ->where('number', 'like', '%' . $number . '%')
             ->where('state_type_id', 'like', '%' . $state_type_id . '%')
             ->where('document_type_id', 'like', '%' . $document_type_id . '%')
-            ->whereNotSent()//->whereTypeUser()
-        ;
+            ->whereNotSent();
 
         if ($d_start && $d_end) {
             $records->whereBetween('date_of_issue', [$d_start, $d_end]);
@@ -92,8 +87,11 @@ class DocumentController extends Controller
             $records = $records->where('customer_id', $customer_id);
         }
 
-        return $records;
+        if ($observations) {
+            $records = $records->where('additional_information', 'like', '%' . $observations . '%');
+        }
 
+        return $records;
     }
 
     public function data_table()
@@ -355,7 +353,7 @@ class DocumentController extends Controller
         } else if ($sale_note_item_id) {
             $query = $this->getRecordsForSaleNoteItem($query, $sale_note_item_id, $request);
         } else {
-            if(is_null($warehouse_id)) {
+            if (is_null($warehouse_id)) {
                 $warehouse = ModuleWarehouse::query()
                     ->select('id')
                     ->where('establishment_id', auth()->user()->establishment_id)
@@ -369,7 +367,7 @@ class DocumentController extends Controller
                 ->latest();
         }
 
-        return new ItemLotCollection($query->get());
+        return new ItemLotCollection($query->paginate(config('tenant.items_per_page')));
     }
 
 

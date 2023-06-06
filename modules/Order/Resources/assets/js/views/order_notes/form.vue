@@ -97,7 +97,7 @@
                                            v-text="errors.shipping_address[0]"></small>
                                 </div>
                             </div>
-                            <div class="col-lg-2">
+                            <!-- <div class="col-lg-2">
                                 <div class="form-group" :class="{'has-danger': errors.payment_method_type_id}">
                                     <label class="control-label">
                                         Término de pago
@@ -110,7 +110,7 @@
                                     <small class="form-control-feedback" v-if="errors.payment_method_type_id"
                                            v-text="errors.payment_method_type_id[0]"></small>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-lg-2">
                                 <div class="form-group" :class="{'has-danger': errors.currency_type_id}">
                                     <label class="control-label">Moneda</label>
@@ -147,12 +147,12 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="control-label">Datos adicionales</label>
                                 </div>
-                                
+
                                 <table class="table table-responsive table-bordered">
                                     <thead>
                                         <tr width="100%">
@@ -167,9 +167,18 @@
                                         <tr v-for="(row, index) in form.additional_data" :key="index" width="100%">
                                             <td>
                                                 <div class="form-group mb-2 mr-2">
-
-                                                    <el-input v-model="row.title"></el-input>
-                                                    
+                                                    <!-- <el-input v-model="row.title"></el-input> -->
+                                                    <el-select
+                                                        v-model="row.title"
+                                                        filterable
+                                                        allow-create>
+                                                        <el-option
+                                                        v-for="item in aditional_titles"
+                                                        :key="item.value"
+                                                        :label="item.label"
+                                                        :value="item.value">
+                                                        </el-option>
+                                                    </el-select>
                                                     <template v-if="errors[`additional_data.${index}.title`]">
                                                         <div class="form-group" :class="{'has-danger': errors[`additional_data.${index}.title`]}">
                                                             <small class="form-control-feedback" v-text="errors[`additional_data.${index}.title`][0]"></small>
@@ -179,9 +188,9 @@
                                             </td>
                                             <td>
                                                 <div class="form-group mb-2 mr-2">
-                                                    
+
                                                     <el-input v-model="row.description"></el-input>
-                                                    
+
                                                     <template v-if="errors[`additional_data.${index}.description`]">
                                                         <div class="form-group" :class="{'has-danger': errors[`additional_data.${index}.description`]}">
                                                             <small class="form-control-feedback" v-text="errors[`additional_data.${index}.description`][0]"></small>
@@ -199,6 +208,67 @@
                                     </tbody>
                                 </table>
 
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="control-label">
+                                    Pagos referenciales
+                                    <el-tooltip class="item"
+                                        effect="dark"
+                                        placement="top">
+                                        <div slot="content">
+                                            Los pagos son referenciales para el pedido, no afectan flujos de caja, entre otros.<br>
+                                            Sirven para autocompletar la información al convertirlo a CPE o Nota de venta.
+                                        </div>
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+                                <table>
+                                    <thead>
+                                        <tr width="100%">
+                                            <th v-if="form.prepayments.length>0">M. Pago</th>
+                                            <th v-if="form.prepayments.length>0">Destino</th>
+                                            <th v-if="form.prepayments.length>0">Referencia</th>
+                                            <th v-if="form.prepayments.length>0">Monto</th>
+                                            <th width="15%">
+                                                <a href="#" @click.prevent="clickAddPayment" class="text-center font-weight-bold text-info">[+ Agregar]</a>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(row, index) in form.prepayments" :key="index">
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-select v-model="row.payment_method_type_id">
+                                                        <el-option v-for="option in payment_method_types" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                                    </el-select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-select v-model="row.payment_destination_id" filterable :disabled="row.payment_destination_disabled">
+                                                        <el-option v-for="option in payment_destinations" :key="option.id" :value="option.id" :label="option.description"></el-option>
+                                                    </el-select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-input v-model="row.reference"></el-input>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-2 mr-2">
+                                                    <el-input v-model="row.payment"></el-input>
+                                                </div>
+                                            </td>
+                                            <td class="series-table-actions text-center">
+                                                <button type="button" class="btn waves-effect waves-light btn-xs btn-danger" @click.prevent="clickCancel(index)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                            <br />
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -386,6 +456,29 @@ export default {
             showDialogLotsGroup: false,
             lots_group: [],
             input_person: {},
+            aditional_titles: [{
+                value: 'INGRESO',
+                label: 'INGRESO'
+            },{
+                value: 'ENTREGA',
+                label: 'ENTREGA'
+            },{
+                value: 'DOCUMENTO',
+                label: 'DOCUMENTO'
+            },{
+                value: 'CONTACTO',
+                label: 'CONTACTO'
+            },{
+                value: 'CELULAR',
+                label: 'CELULAR'
+            },{
+                value: 'TRANSPORTE',
+                label: 'TRANSPORTE'
+            },{
+                value: 'FORMA DE PAGO',
+                label: 'FORMA DE PAGO'
+            }],
+            payment_destinations: [],
         }
     },
     created() {
@@ -415,6 +508,7 @@ export default {
                 this.form.currency_type_id = (this.currency_types.length > 0) ? this.currency_types[0].id : null
                 this.form.establishment_id = (this.establishments.length > 0) ? this.establishments[0].id : null
                 this.payment_method_types = response.data.payment_method_types
+                this.payment_destinations = response.data.payment_destinations
 
                 this.changeEstablishment()
                 this.changeDateOfIssue()
@@ -601,6 +695,7 @@ export default {
                 total_other_taxes: 0,
                 total_taxes: 0,
                 total_value: 0,
+                subtotal: 0,
                 total: 0,
                 operation_type_id: null,
                 date_of_due: null,
@@ -610,18 +705,37 @@ export default {
                 discounts: [],
                 attributes: [],
                 guides: [],
-                payment_method_type_id: '10',
+                payment_method_type_id: null,
                 additional_information: null,
                 shipping_address: null,
                 actions: {
                     format_pdf: 'a4',
                 },
                 additional_data: [],
+                prepayments: [],
             }
 
             this.is_generate_from_quotation = false
 
             this.initInputPerson()
+            this.clickAddPayment()
+        },
+        clickCancel(index) {
+            this.form.prepayments.splice(index, 1);
+        },
+        clickAddPayment() {
+            let payment = (this.form.prepayments.length == 0) ? this.form.total : 0
+            const payment_method_type_id = '10'
+
+            this.form.prepayments.push({
+                id: null,
+                document_id: null,
+                date_of_payment: moment().format("YYYY-MM-DD"),
+                payment_method_type_id: payment_method_type_id,
+                payment_destination_id: null,
+                reference: null,
+                payment: payment
+            });
         },
         resetForm() {
             this.activePanel = 0
@@ -736,6 +850,7 @@ export default {
             this.form.total_igv = _.round(total_igv, 2)
             this.form.total_value = _.round(total_value, 2)
             this.form.total_taxes = _.round(total_igv, 2)
+            this.form.subtotal = _.round(total, 2)
             this.form.total = _.round(total, 2)
         },
 

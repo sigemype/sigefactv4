@@ -20,16 +20,14 @@ use Mpdf\Config\FontVariables;
 use Exception;
 use Modules\Inventory\Models\Devolution;
 use Modules\Inventory\Models\DevolutionReason;
-use Modules\Inventory\Models\DevolutionItem;
 use Modules\Inventory\Http\Resources\DevolutionCollection;
-use Modules\Inventory\Http\Resources\DevolutionResource;
 use Modules\Inventory\Http\Requests\DevolutionRequest;
 use App\Models\Tenant\Configuration;
+use Illuminate\Support\Facades\Storage;
 
 
 class DevolutionController extends Controller
 {
-
     use StorageDocument;
 
     protected $devolution;
@@ -80,11 +78,11 @@ class DevolutionController extends Controller
         return compact('items');
     }
 
-    public function record($id)
-    {
-        $record = new DevolutionResource(Devolution::findOrFail($id));
-        return $record;
-    }
+//    public function record($id)
+//    {
+//        $record = new DevolutionResource(Devolution::findOrFail($id));
+//        return $record;
+//    }
 
     public function getFullDescription($row){
 
@@ -113,9 +111,9 @@ class DevolutionController extends Controller
                         'description' => trim($row['item']['description']),
                         'internal_id' => $row['item']['internal_id'],
                         'unit_type_id' => $row['item']['unit_type_id'],
-                        'lot_selected' => isset($row['item']['lot_selected']) ? $row['item']['lot_selected'] : null,
-                        'lots' => self::lots($row),
-                        'IdLoteSelected' => ( isset($row['IdLoteSelected']) ? $row['IdLoteSelected'] : null )
+                        'lots_group_selected' => isset($row['lots_group']) ? $row['lots_group'] : null,
+//                        'lots' => self::lots($row),
+                        'lots_selected' =>  isset($row['item']['lots']) ? $row['item']['lots'] : null
                     ],
                     'quantity' => $row['quantity'],
                 ]);
@@ -264,7 +262,15 @@ class DevolutionController extends Controller
 
         if (!$devolution) throw new Exception("El código {$external_id} es inválido, no se encontro el documento relacionado");
 
-        return $this->downloadStorage($devolution->filename, 'devolution');
+        $document = $this->getStorage($devolution->filename, 'devolution', null);
+
+        // dd($devolution);-
+        $this->createPdf($devolution, "a4", $devolution->filename);
+
+        $path = Storage::disk('tenant')->path($this->_folder.DIRECTORY_SEPARATOR.$this->_filename);
+        return response()->download($path, $this->_filename, ['Content-Type' => 'application/pdf'] , 'inline');
+
+        // return $this->downloadStorage($devolution->filename, 'devolution');
     }
 
 

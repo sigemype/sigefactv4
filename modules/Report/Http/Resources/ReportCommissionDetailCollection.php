@@ -16,7 +16,6 @@ class ReportCommissionDetailCollection extends ResourceCollection
     public function toArray($request)
     {
         return $this->collection->transform(function($row, $key) {
-
             $type_document = '';
             $relation = $row->document_id ? $row->document : $row->sale_note;
 
@@ -50,5 +49,5 @@ class ReportCommissionDetailCollection extends ResourceCollection
             ];
         });
     }
-    
+
 }

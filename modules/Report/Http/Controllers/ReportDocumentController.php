@@ -89,7 +89,7 @@ class ReportDocumentController extends Controller
     }
 
 
-    public function pdf(Request $request) 
+    public function pdf(Request $request)
     {
         set_time_limit (1800); // Maximo 30 minutos
         $company = Company::first();
@@ -146,7 +146,7 @@ class ReportDocumentController extends Controller
     }
 
 
-    public function excel(Request $request) 
+    public function excel(Request $request)
     {
         $company = Company::first();
         $establishment = ($request->establishment_id) ? Establishment::findOrFail($request->establishment_id) : auth()->user()->establishment;
@@ -187,9 +187,9 @@ class ReportDocumentController extends Controller
 
     }
 
-    
+
     /**
-     * 
+     *
      * Generar reportes en cola
      *
      * @param  Request $request
@@ -257,9 +257,9 @@ class ReportDocumentController extends Controller
         */
     }
 
-    
+
     /**
-     * 
+     *
      * Asignar datos para filtros en query
      *
      * @param  mixed $filters
@@ -274,9 +274,9 @@ class ReportDocumentController extends Controller
         $filters['session_user_id'] = $user->id;
     }
 
-    
+
     /**
-     * 
+     *
      * Retorna modelo (transaccion) dependiendo del tipo de documento seleccionado
      *
      * @param  Request $request
@@ -295,7 +295,7 @@ class ReportDocumentController extends Controller
 
         return $documentType->getCurrentRelatiomClass();
     }
-    
+
 
     public function getCategories($records, $is_service) {
 
@@ -327,13 +327,13 @@ class ReportDocumentController extends Controller
 
         $mailable = new DocumentEmail($company, $this->getPdf($data,$columns), $this->getExcel($data,$columns));
         $sendIt = EmailController::SendMail($email, $mailable);
-        
+
         return [
             'success' => true
         ];
     }
 
-    private function getPdf($request,$columns, $format = 'ticket', $mm = null) 
+    private function getPdf($request,$columns, $format = 'ticket', $mm = null)
     {
         $reques=json_decode(json_encode($request, JSON_FORCE_OBJECT));
         set_time_limit (1800); // Maximo 30 minutos
@@ -375,7 +375,7 @@ class ReportDocumentController extends Controller
     }
 
 
-    private function getExcel($request,$columns) 
+    private function getExcel($request,$columns)
     {
         $reques=json_decode(json_encode($request, JSON_FORCE_OBJECT));
         set_time_limit (1800); // Maximo 30 minutos
@@ -414,7 +414,7 @@ class ReportDocumentController extends Controller
             ->categories($categories)
             ->categories_services($categories_services)
             ->columns($columns);
-        $attachment = Excel::raw($documentExport, 
+        $attachment = Excel::raw($documentExport,
             BaseExcel::XLSX
         );
 

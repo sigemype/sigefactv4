@@ -11,10 +11,13 @@ use Modules\Finance\Models\PaymentFile;
 use App\Models\Tenant\{
     Cash,
 };
+use App\Traits\PaymentModelHelperTrait;
 
 
 class QuotationPayment extends ModelTenant
 {
+    use PaymentModelHelperTrait;
+
     protected $with = ['payment_method_type', 'card_brand'];
     public $timestamps = false;
 

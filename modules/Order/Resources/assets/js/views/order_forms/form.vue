@@ -284,8 +284,8 @@
 
 <script>
     import PersonForm from '@views/persons/form.vue';
-    import DispatcherForm from '../dispatchers/form.vue';
-    import DriverForm from '../drivers/form.vue';
+    import DispatcherForm from '../../../../../../../resources/js/views/tenant/dispatches/dispatchers/form.vue';
+    import DriverForm from '../../../../../../../resources/js/views/tenant/dispatches/drivers/form.vue';
     import OrderFormOptions from './partials/options.vue'
     import Items from './items.vue';
 

@@ -387,7 +387,8 @@ export default {
         'showDialog',
         'currencyTypeIdActive',
         'exchangeRateSale',
-        'percentageIgv'
+        'percentageIgv',
+        'recordItem',
     ],
     components: {itemForm, LotsForm, 'vue-ckeditor': VueCkeditor.component},
 
@@ -682,6 +683,9 @@ export default {
             this.form.affectation_igv_type = _.find(this.affectation_igv_types, {'id': this.form.affectation_igv_type_id})
             this.row = calculateRowItem(this.form, this.currencyTypeIdActive, this.exchangeRateSale, this.percentageIgv)
             this.row = this.changeWarehouse(this.row)
+            if (this.recordItem) {
+                this.row.indexi = this.recordItem.indexi
+            }
 
             this.initForm()
             // this.initializeFields()
@@ -710,19 +714,43 @@ export default {
             }
         },
         reloadDataItems(item_id) {
-            this.$http.get(`/${this.resource}/table/items`).then((response) => {
-                this.items = response.data
-                this.form.item_id = item_id
-                this.changeItem()
-                // this.filterItems()
+            if (!item_id) {
+                this.$http.get(`/${this.resource}/table/items`).then((response) => {
+                    this.items = response.data
+                    this.form.item_id = item_id
+                    this.changeItem()
+                    // this.filterItems()
+                })
+            } else {
+                this.$http.get(`/${this.resource}/search/item/${item_id}`).then((response) => {
+                    this.items = response.data
+                    this.form.item_id = item_id
+                    this.form.item = _.find(this.items.items, {'id': this.form.item_id})
 
-            })
+
+                    if(this.recordItem) {
+                        this.form.unit_price = this.recordItem.unit_value
+                        this.form.quantity = this.recordItem.quantity
+                        this.form.affectation_igv_type = this.recordItem.affectation_igv_type
+                        this.form.affectation_igv_type_id = this.recordItem.affectation_igv_type_id
+                        this.form.wharehouse_description = this.recordItem.wharehouse_description
+                        this.form.wharehouse_id = this.recordItem.wharehouse_id
+                    }
+
+                })
+            }
         },
         clickLotcode() {
             this.showDialogLots = true
         },
         addRowLot(val) {
             this.form.item.lots = val
+        },
+        create() {
+            this.titleDialog = (this.recordItem) ? ' Editar Producto o Servicio' : ' Agregar Producto o Servicio';
+            if (this.recordItem) {
+                this.reloadDataItems(this.recordItem.item_id)
+            }
         }
     }
 }

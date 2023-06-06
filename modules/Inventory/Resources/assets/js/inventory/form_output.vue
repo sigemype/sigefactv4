@@ -47,8 +47,7 @@
                                    v-text="errors.warehouse_id[0]"></small>
                         </div>
                     </div>
-                    <div style="padding-top: 3%;" class="col-md-2 col-sm-2"
-                         v-if="form.item_id && form.lots_enabled && form.lots_group.length > 0">
+                    <div style="padding-top: 3%;" class="col-md-2 col-sm-2" v-if="form.item_id && form.lots_enabled && form.warehouse_id">
                         <a href="#" class="text-center font-weight-bold text-info" @click.prevent="clickLotGroup">[&#10004;
                             Seleccionar lote]</a>
                     </div>
@@ -107,10 +106,10 @@
             </div>
         </form>
 
-
         <lots-group
             :quantity="form.quantity"
             :showDialog.sync="showDialogLots"
+            :lots-group-all="lotsGroupAll"
             :lots_group="form.lots_group"
             @addRowLotGroup="addRowLotGroup">
         </lots-group>
@@ -158,6 +157,7 @@ export default {
             warehouses: [],
             inventory_transactions: [],
             lotsAll: [],
+            lotsGroupAll: []
         }
     },
     created() {
@@ -173,7 +173,9 @@ export default {
             // this.form.lots = lots
             this.form.lots_enabled = item.lots_enabled
             this.form.series_enabled = item.series_enabled
-            this.form.lots_group = item.lots_group
+            this.form.lots_group = [];
+
+            this.lotsGroupAll = item.lots_group;
         },
         // addRowOutputLot(lots) {
         //     this.form.lots = lots
@@ -301,6 +303,7 @@ export default {
             this.showDialogLots = true
         },
         addRowLotGroup(id) {
+            console.log(id);
             this.form.IdLoteSelected = id
         },
         async clickSelectLots() {

@@ -13,8 +13,9 @@ use Modules\Sale\Models\TechnicalServicePayment;
 use Modules\Expense\Models\ExpensePayment;
 use Modules\Finance\Models\IncomePayment;
 use Modules\Pos\Models\CashTransaction;
-
 use Illuminate\Support\ServiceProvider;
+use Modules\Hotel\Models\HotelRentItemPayment;
+
 
 class GlobalPaymentServiceProvider extends ServiceProvider
 {
@@ -35,7 +36,8 @@ class GlobalPaymentServiceProvider extends ServiceProvider
         $this->deletingPayment(IncomePayment::class);
         $this->deletingPayment(CashTransaction::class);
         $this->deletingPayment(TechnicalServicePayment::class);
-
+        $this->deletingPayment(HotelRentItemPayment::class);
+        
         $this->paymentsPurchases(); 
 
     }

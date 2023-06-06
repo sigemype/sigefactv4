@@ -301,7 +301,7 @@
 
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
 
-import {serviceNumber} from '../../../../../../resources/js/mixins/functions'
+import {functions, serviceNumber} from '../../../../../../resources/js/mixins/functions'
 import {
     calculateRowItem,
     FormatUnitPriceRow,
@@ -310,7 +310,7 @@ import {
 
 export default {
     mixins: [
-        serviceNumber
+        functions, serviceNumber
     ],
     props: [
         'showDialog',
@@ -420,6 +420,7 @@ export default {
                         // this.filterDistricts()
                     })
             }
+            this.getPercentageIgv();
         },
 
         submit() {
@@ -453,6 +454,22 @@ export default {
             this.searchServiceNumberByType()
         },
         addRow(row) {
+            //row no tiene totales
+            let quantity = row.quantity
+            row.percentage_igv = this.percentage_igv
+            row.total = _.round(row.unit_price * quantity, 2)
+            row.total_without_rounding = row.unit_price * quantity
+            row.total_base_igv = _.round(row.total / ( 1 + this.percentage_igv ),2)
+            row.total_base_igv_without_rounding = row.total / ( 1 + this.percentage_igv )
+            row.total_igv = _.round(row.total - row.total_base_igv,2)
+            row.total_igv_without_rounding = row.total - row.total_base_igv
+            row.total_taxes = row.total_igv
+            row.total_taxes_without_rounding = row.total_igv_without_rounding
+            row.total_value = row.total_base_igv
+            row.total_value = _.round(row.total_base_igv, 2)
+            row.total_value_without_rounding = row.total_base_igv
+            row.unit_value = row.total_base_igv / quantity
+
             /* Extraido de resources/js/views/tenant/quotations/form.vue */
             if (this.recordItem) {
                 this.fakeForm.items[this.recordItem.indexi] = row

@@ -168,6 +168,7 @@
             'observation',
             'total_igv_free',
             'additional_data',
+            'subtotal',
 
         ];
 
@@ -308,7 +309,7 @@
         {
             $this->attributes['additional_data'] = (is_null($value)) ? null : json_encode($value);
         }
-        
+
         public function getIdentifierAttribute()
         {
             return $this->prefix . '-' . $this->id;
@@ -544,7 +545,7 @@
                 if (isset($item->lots_group)) {
                     if(is_array($item->lots_group) && count($item->lots_group) > 0) {
                             $lots_group = $item->lots_group;
-    
+
                             foreach ($lots_group as $ltg) {
                                 $lot = ItemLotsGroup::query()->find($ltg->id);
                                 $lot->quantity = $lot->quantity + $ltg->compromise_quantity;
@@ -593,6 +594,32 @@
                     ];
             }
 
+            $documents = $this->documents->transform(function ($row) {
+                /** @var Document $row */
+                return [
+                    'id' => $row->id,
+                    'number_full' => $row->number_full,
+                    'state_type_id' => $row->state_type_id,
+                    'order_note_id' => $row->order_note_id,
+                    'series' => $row->series,
+                    'total_payments' => $row->payments->sum('payment'),
+                ];
+            });
+            $total_payment_documents = $documents->sum('total_payments');
+
+            $sale_notes = $this->sale_notes->transform(function ($row) {
+                /** @var Document $row */
+                return [
+                    'id' => $row->id,
+                    'number_full' => $row->series.'-'.$row->number,
+                    'state_type_id' => $row->state_type_id,
+                    'order_note_id' => $row->order_note_id,
+                    'series' => $row->series,
+                    'total_payments' => $row->payments->sum('payment'),
+                ];
+            });
+            $total_payment_sale_notes = $sale_notes->sum('total_payments');
+
             return [
                 'id' => $this->id,
                 'quotation' => (object)$quotation,
@@ -617,17 +644,10 @@
                 'total' => number_format($this->total, 2),
                 'state_type_id' => $this->state_type_id,
                 'state_type_description' => $state_type_description,
-                'documents' => $this->documents->transform(function ($row) {
-                    /** @var Document $row */
-                    return [
-                        'id' => $row->id,
-                        'number_full' => $row->number_full,
-                        'state_type_id' => $row->state_type_id,
-                        'order_note_id' => $row->order_note_id,
-                        'series' => $row->series,
-                    ];
-                }),
-                'sale_notes' => $this->sale_notes,
+                'documents' => $documents,
+                'has_payment_documents' => ($total_payment_documents == $this->total),
+                'sale_notes' => $sale_notes,
+                'has_payment_sale_notes' => ($total_payment_sale_notes == $this->total),
                 'items_details' => $this->items->transform(function ($row) {
                     /** @var Document $row */
                     return [
@@ -651,9 +671,9 @@
             ];
         }
 
-        
+
         /**
-         * 
+         *
          * Obtener url para impresión
          *
          * @param  string $format
@@ -663,7 +683,7 @@
         {
             return url("order-notes/print/{$this->external_id}/{$format}");
         }
-        
+
 
         /**
          * @return Dispatch[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection|mixed
@@ -700,7 +720,7 @@
             return $this->hasMany(GuideFile::class);
         }
 
-        
+
         /**
          * @param $query
          *
@@ -713,7 +733,7 @@
 
 
         /**
-         * 
+         *
          * Obtener total y realizar conversión al tipo de cambio si se requiere
          *
          * @return float
@@ -722,10 +742,10 @@
         {
             return ($this->currency_type_id === 'PEN') ? $this->total : ($this->total * $this->exchange_rate_sale);
         }
-        
-        
+
+
         /**
-         * 
+         *
          * Obtener suma total del pedidos
          *
          * @param  Builder $query
@@ -748,5 +768,43 @@
             return $query;
         }
 
+        
+        /**
+         * 
+         * Obtener pagos referenciales para el pdf
+         *
+         * @return array
+         */
+        public function getPrepaymentsForPdf()
+        {
+            return $this->getCollectPrepayments()->transform(function($row){
+                return (object)[
+                    'id' => $row->id,
+                    'payment' => $row->payment,
+                    'reference' => $row->reference,
+                    'document_id' => $row->document_id,
+                    'date_of_payment' => $row->date_of_payment,
+                    'payment_destination_id' => $row->payment_destination_id,
+                    'payment_method_type_id' => $row->payment_method_type_id,
+                    'payment_method_type_description' => PaymentMethodType::getDescriptionById($row->payment_method_type_id)
+                ];
+            });
+        }
+        
+
+        /**
+         * 
+         * Validar si tiene pagos y retornar coleccion
+         *
+         * @return Collection
+         */
+        public function getCollectPrepayments()
+        {
+            $data = collect();
+
+            if($this->prepayments) $data = collect($this->prepayments);
+
+            return $data;
+        }
 
     }

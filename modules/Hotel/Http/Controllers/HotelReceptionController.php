@@ -97,4 +97,12 @@ class HotelReceptionController extends Controller
             return $room;
         });
     }
+
+    public function getItem($id)
+    {
+        $rent = HotelRent::findOrFail($id);
+
+        $item = $rent->items->where('type', 'HAB')->first();
+        return $item;
+    }
 }

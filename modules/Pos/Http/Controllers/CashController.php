@@ -108,7 +108,6 @@ class CashController extends Controller
         $cash_final_balance = 0;
         $cash_documents = $cash->cash_documents;
         $all_documents = [];
-        $pays = [];
 
         // Metodos de pago de no credito
         $methods_payment_credit = PaymentMethodType::NonCredit()->get()->transform(function ($row) {
@@ -220,11 +219,12 @@ class CashController extends Controller
                     'type_transaction'          => 'Venta',
                     'document_type_description' => 'NOTA DE VENTA',
                     'number'                    => $sale_note->number_full,
-                    'date_of_issue'             => $date_payment ? $date_payment : null ,
+                    'date_of_issue'             => $date_payment,
                     'date_sort'                 => $sale_note->date_of_issue,
                     'customer_name'             => $sale_note->customer->name,
                     'customer_number'           => $sale_note->customer->number,
-                    'total'                     => ((!in_array($sale_note->state_type_id, $status_type_id)) ? 0 : $sale_note->total),
+                    'total'                     => ((!in_array($sale_note->state_type_id, $status_type_id)) ? 0
+                        : $sale_note->total),
                     'currency_type_id'          => $sale_note->currency_type_id,
                     'usado'                     => $usado." ".__LINE__,
                     'tipo'                      => 'sale_note',
@@ -367,7 +367,7 @@ class CashController extends Controller
                 // fin items
             }
             /** Documentos de Tipo Servicio tecnico */
-            elseif ($cash_document->technical_service)
+            elseif ($cash_document->technical_service) 
             {
                 $usado = '<br>Se usan para cash<br>';
                 $technical_service = $cash_document->technical_service;
@@ -1014,6 +1014,7 @@ class CashController extends Controller
         $data['cash_date_closed'] = $cash->date_closed;
         $data['cash_time_closed'] = $cash->time_closed;
         $data['cash_time_opening'] = $cash->time_opening;
+        $data['cash_beginning_balance'] = $cash->beginning_balance;
         $data['company_name'] = $company->name;
         $data['company_number'] = $company->number;
 

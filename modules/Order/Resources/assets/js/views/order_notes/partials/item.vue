@@ -6,7 +6,8 @@
                @close="close"
                @open="create">
         <form autocomplete="off"
-              @submit.prevent="clickAddItem">
+              @submit.prevent="clickAddItem"
+              v-loading="loading_dialog">
             <div class="form-body">
                 <div class="row">
                     <div class="col-md-7 col-lg-7 col-xl-7 col-sm-7">
@@ -142,6 +143,13 @@
                                    v-text="errors.unit_price[0]"></small>
                         </div>
                     </div>
+                    <!-- <div class="col-md-4 col-sm-4">
+                        <div class="form-group">
+                            <label class="control-label">Total</label>
+                            <el-input v-model="readonly_total"
+                                      readonly></el-input>
+                        </div>
+                    </div> -->
                      <div v-if="showLots" class="col-md-3 col-sm-3" style="padding-top: 1%;">
                         <a class="text-center font-weight-bold text-info" href="#" @click.prevent="clickLotGroup">[&#10004;
                                                                                                                   Seleccionar
@@ -528,6 +536,8 @@ export default {
             editors: {
                 classic: ClassicEditor
             },
+            loading_dialog: false,
+            readonly_total: 0,
         }
     },
 
@@ -671,7 +681,6 @@ export default {
 
             this.calculateTotal()
         },
-
         changeValidateQuantity(event) {
             this.calculateTotal()
         },
@@ -681,7 +690,6 @@ export default {
         setMinQuantity() {
             this.form.quantity = this.getMinQuantity()
         },
-
         clickDecrease() {
 
             this.form.quantity = parseInt(this.form.quantity - 1)
@@ -815,7 +823,8 @@ export default {
                 lots_group: [],
                 IdLoteSelected: null,
                 document_item_id: null,
-                name_product_pdf: ''
+                name_product_pdf: '',
+                calculate_quantity: false,
             };
 
             this.activePanel = 0;
@@ -977,26 +986,47 @@ export default {
             this.initForm()
             this.$emit('update:showDialog', false)
         },
-        changeItem() {
-            this.getItems();
+        async changeItem()
+        {
+            this.getItems()
+
             this.form.item = _.find(this.items, {'id': this.form.item_id});
             this.form.unit_price = this.form.item.sale_unit_price;
-
-            this.lots = this.form.item.lots
-
+            this.form.unit_price_value = this.form.item.sale_unit_price;
+            this.lots = this.form.item.lots;
             this.form.has_igv = this.form.item.has_igv;
-
             this.form.affectation_igv_type_id = this.form.item.sale_affectation_igv_type_id;
             this.form.quantity = 1;
             this.item_unit_types = this.form.item.item_unit_types;
-
             (this.item_unit_types.length > 0) ? this.has_list_prices = true : this.has_list_prices = false;
-
             this.form.lots_group = this.form.item.lots_group
 
+            this.setDefaultAttributes();
             this.cleanTotalItem();
+            this.calculateTotal();
         },
+        setDefaultAttributes()
+        {
+            this.form.attributes = []
 
+            if(this.hasAttributes())
+            {
+                this.form.item.item_attributes.forEach(row => {
+                    this.form.attributes.push({
+                        attribute_type_id: row.attribute_type_id,
+                        description: row.description,
+                        duration: row.duration,
+                        end_date: row.end_date,
+                        start_date: row.start_date,
+                        value: row.value,
+                    })
+                })
+            }
+        },
+        hasAttributes()
+        {
+            return this.form.item != undefined && this.form.item.item_attributes && Array.isArray(this.form.item.item_attributes) && this.form.item.item_attributes.length > 0
+        },
         focusTotalItem(change) {
             if (!change && this.form.item.calculate_quantity) {
                 this.$refs.total_item.$el.getElementsByTagName('input')[0].focus()
@@ -1017,11 +1047,13 @@ export default {
 
         calculateTotal() {
             this.readonly_total = _.round((this.form.quantity * this.form.unit_price_value), 4)
+            console.log(this.readonly_total)
         },
         calculateQuantity() {
             if (this.form.item.calculate_quantity) {
                 this.form.quantity = _.round((this.total_item / this.form.unit_price), 4)
             }
+            this.calculateTotal()
         },
         cleanTotalItem() {
             this.total_item = null;
@@ -1131,9 +1163,15 @@ export default {
 
             this.calculateQuantity()
         },
-        getItems() {
-            this.$http.get(`/${this.resource}/item/tables`).then(response => {
+        async getItems()
+        {
+            this.loading_dialog = true
+
+            await this.$http.get(`/${this.resource}/item/tables`).then(response => {
                 this.items = response.data.items
+            })
+            .then(()=>{
+                this.loading_dialog = false
             })
         },
         addRowLotGroup(id) {

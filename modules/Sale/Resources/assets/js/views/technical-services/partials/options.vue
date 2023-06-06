@@ -256,10 +256,11 @@ import queryString from 'query-string'
 // import SaleNoteOptions from "../../sale_notes/partials/options.vue";
 import SeriesForm from "./series_form";
 import {mapActions, mapState} from "vuex/dist/vuex.mjs";
+import {functions} from '@mixins/functions'
 
 export default {
     components: {DocumentOptions, SaleNoteOptions, SeriesForm},
-
+    mixins: [functions],
     computed: {
         ...mapState([
             'exchange_rate',
@@ -301,7 +302,8 @@ export default {
             payment_destinations: [],
             loading_search: false,
             payment_method_types: [],
-            record: {}
+            record: {},
+            percentage_igv: '',
         };
     },
     async created() {
@@ -379,8 +381,9 @@ export default {
                     //     'description': `Descripción: ${this.record.description+"\n"}Estado: ${this.record.state+"\n"}Razón: ${this.record.reason+"\n"}`,
                     //     'unit_price': this.record.cost
                     // });
+                    this.getPercentageIgv()
                     let total = _.round(parseFloat(this.record.cost), 2);
-                    let unit_value = this.record.cost / (1 + this.percentageIgv);
+                    let unit_value = this.record.cost / (1 + this.percentage_igv);
                     let total_taxed = _.round(unit_value, 2);
                     let total_igv = _.round(total - total_taxed, 2);
                     let item_description = `Descripción: ${this.record.description}, Estado: ${this.record.state}, Razón: ${this.record.reason + "\n"}`;
@@ -400,7 +403,7 @@ export default {
                         'unit_type_id': 'ZZ',
                         'affectation_igv_type_id': '10',
                         'description': item_description,
-                        'percentage_igv': this.percentageIgv * 100,
+                        'percentage_igv': this.percentage_igv * 100,
                         'currency_type_id': 'PEN',
                         'unit_value': unit_value,
                         'unit_price': total,

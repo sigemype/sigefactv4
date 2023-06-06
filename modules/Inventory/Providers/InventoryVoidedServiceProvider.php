@@ -20,6 +20,7 @@ class InventoryVoidedServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->voided();
+        $this->voidedCreditNote();
         $this->voided_order_note();
         $this->voided_dispatch();
         $this->verifyRelatedPrepaymentDocument();
@@ -78,6 +79,45 @@ class InventoryVoidedServiceProvider extends ServiceProvider
             }         
         });
     }
+
+    
+    /**
+     * 
+     * Flujo para nota credito cuando se anula o rechaza
+     *
+     * @return void
+     */
+    public function voidedCreditNote()
+    {
+        Document::updated(function ($document) {
+
+            if($document->isCreditNote() && $document->isVoidedOrRejected())
+            {
+                // si es nota credito tipo 13, no se asocia a inventario
+                if($document->isCreditNoteAndType13()) return;
+
+                foreach ($document->items as $document_item) 
+                {
+                    if(!$document_item->item->is_set)
+                    {
+                        $warehouse = ($document_item->warehouse_id) ? $this->findWarehouse($this->findWarehouseById($document_item->warehouse_id)->establishment_id) : $this->findWarehouse($document->establishment_id);
+                        $presentation_quantity = (!empty($document_item->item->presentation)) ? $document_item->item->presentation->quantity_unit : 1;
+                        
+                        $factor = -1;
+                        $calculate_quantity = $factor * ($document_item->quantity * $presentation_quantity);
+
+                        $this->createInventoryKardex($document, $document_item->item_id, $calculate_quantity, $warehouse->id);
+
+                        if(!$document_item->document->sale_note_id && !$document_item->document->order_note_id && !$document_item->document->dispatch_id && !$document_item->document->sale_notes_relateds)
+                        {
+                            $this->updateStock($document_item->item_id, $calculate_quantity, $warehouse->id);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
 
     
     private function voidedWasDeductedPrepayment($document)

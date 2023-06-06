@@ -78,6 +78,7 @@
                         <th class="text-right" v-if="columns.total_exonerated.visible">T.Exonerado</th>
                         <th class="text-right" v-if="columns.total_taxed.visible">T.Gravado</th>
                         <th class="text-right" v-if="columns.total_igv.visible">T.Igv</th>
+                        <th class="text-right">Saldo</th>
                         <th class="text-right">Total</th>
                         <th class="text-center">PDF</th>
                         <th class="text-right">Acciones</th>
@@ -88,7 +89,12 @@
                         <td class="text-center" v-if="columns.delivery_date.visible">{{ row.delivery_date }}</td>
                         <td>{{ row.user_name }}</td>
                         <td>{{ row.customer_name }}<br/><small v-text="row.customer_number"></small></td>
-                        <td>{{row.state_type_description}}</td>
+                        <td>
+                            <StateType
+                                :key="'state_type_'+row.id"
+                                :id="row.state_type_id"
+                                :description="row.state_type_description" />
+                        </td>
                         <td>{{ row.identifier }}
                         </td>
                         <td>
@@ -98,7 +104,7 @@
                         </td>
                         <td v-if="columns.sale_notes.visible">
                             <template v-for="(sale_note,i) in row.sale_notes">
-                                <label :key="i" v-text="sale_note.identifier" class="d-block"></label>
+                                <label :key="i" v-text="sale_note.number_full" class="d-block"></label>
                             </template>
                         </td>
 
@@ -130,6 +136,10 @@
                         <td class="text-right" v-if="columns.total_exonerated.visible">{{ row.total_exonerated }}</td>
                         <td class="text-right" v-if="columns.total_taxed.visible">{{ row.total_taxed }}</td>
                         <td class="text-right" v-if="columns.total_igv.visible">{{ row.total_igv }}</td>
+                        <td class="text-right">
+                            <label v-if="row.documents.length > 0" :key="'doc_payment_'+index" v-text="calculatePayments(row.documents)"></label>
+                            <label v-if="row.sale_notes.length > 0" :key="'sale_note_payment_'+index" v-text="calculatePayments(row.sale_notes)"></label>
+                        </td>
                         <td class="text-right">{{ row.total }}</td>
                         <td class="text-right">
 
@@ -154,7 +164,11 @@
                             <button @click="duplicate(row.id)"  type="button" class="btn waves-effect waves-light btn-xs btn-info">Duplicar</button>
                             <a :href="`/dispatches/create_new/order_note/${row.id}`" class="btn waves-effect waves-light btn-xs btn-warning m-1__2">Guía</a>
 
-
+                            <ChangeStateType
+                                :key="'change_state_type_'+row.id"
+                                :state="row.state_type_id"
+                                :id="row.id"
+                                v-if="config.order_node_advanced"/>
                         </td>
 
                     </tr>
@@ -194,6 +208,9 @@
     import {deletable} from '@mixins/deletable'
     import {mapActions, mapState} from "vuex";
 
+    import StateType from "../../../../../../OrderNote/Resources/assets/js/components/StateType.vue"
+    import ChangeStateType from "../../../../../../OrderNote/Resources/assets/js/components/ChangeStateType.vue"
+
     export default {
         props:[
             'typeUser',
@@ -207,7 +224,9 @@
             DataTable,
             QuotationOptions,
             MiTiendaPe,
-            QuotationOptionsPdf
+            QuotationOptionsPdf,
+            StateType,
+            ChangeStateType,
         },
         created() {
             this.$store.commit('setConfiguration',this.configuration)
@@ -265,7 +284,8 @@
                         title: 'Pedido MiTienda.Pe',
                         visible: false,
                     },
-                }
+                },
+                state_type_accepted: ['01', '03', '05', '07', '13']
             }
         },
         computed:{
@@ -307,7 +327,10 @@
                 if(document.state_type_id == '11') return document.number_full + ' (Anulado)';
                  return document.number_full;
             },
-            canAnulate(row){
+            canAnulate(row)
+            {
+                if(row.state_type_id === '11') return false
+
                 if(
                     row &&
                     row.documents
@@ -316,18 +339,41 @@
                         row.documents.length == 0 &&
                         row.state_type_id != '11'
                     ) return true;
-                    if (
-                        row.documents.length > 0
-                    ) {
-                        let sal = false;
-                        row.documents.forEach(function(doc){
-                            sal = doc.state_type_id === '11';
+
+                    if (row.documents.length > 0) 
+                    {
+                        let can_anulate = false
+ 
+                        const exist_accepted_document = row.documents.find((document)=>{
+                            return this.state_type_accepted.includes(document.state_type_id)
                         })
-                        return sal;
+
+                        if(!exist_accepted_document) can_anulate = true
+
+                        return can_anulate
                     }
                 }
 
-                return false;
+                return false
+
+                // if(
+                //     row &&
+                //     row.documents
+                // ) {
+                //     if (
+                //         row.documents.length == 0 &&
+                //         row.state_type_id != '11'
+                //     ) return true;
+                //     if (
+                //         row.documents.length > 0
+                //     ) {
+                //         let sal = false;
+                //         row.documents.forEach(function(doc){
+                //             sal = doc.state_type_id === '11';
+                //         })
+                //         return sal;
+                //     }
+                // }
             },
             clickEdit(id)
             {
@@ -362,7 +408,6 @@
                 })
                 this.$eventHub.$emit('reloadData')
             },
-
             getMiTiendaDataData(){
                 this.$http.post(`/mi_tienda_pe/getdata`)
                     .then((response) => {
@@ -371,6 +416,14 @@
 
                     });
 
+            },
+            calculatePayments(documents){
+                let payments = 0
+                documents.forEach(doc => {
+                    payments = payments + doc.total_payments
+                })
+
+                return payments.toFixed(2)
             },
         }
     }

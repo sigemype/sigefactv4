@@ -105,6 +105,15 @@
                                     >
                                         <i class="fa fa-plus-circle"></i>
                                     </el-button>
+
+                                    <el-button
+                                        style="margin-left: 0.5rem"
+                                        title="Extender Tiempo"
+                                        type="primary"
+                                        @click="ShowDialogExtendTimeRoom(ro)"
+                                    >
+                                        <i class="fa fa-plus"></i>
+                                    </el-button>
                                 </template>
                                 <el-button
                                     v-if="ro.status === 'DISPONIBLE'"
@@ -123,10 +132,11 @@
                             </div>
                             <div
                                 v-if="ro.status === 'OCUPADO'"
-                                class="d-flex justify-content-center align-items-center"
+                                class="text-center"
                             >
                                 <i class="fa fa-user-tie fa-2x"></i>
                                 <span class="h6 ml-3">{{ ro.rent.customer.name }}</span>
+                                <p class="ml-3 text-white">Salida: {{ ro.rent.output_date }} / {{ ro.rent.output_time }}</p>
                             </div>
                         </el-card>
                     </div>
@@ -139,15 +149,22 @@
             @onAddRoomRate="onAddRoomRate"
             @onDeleteRate="onDeleteRate"
         ></ModalRoomRates>
+        <ExtendTimeRoom
+            :room="roomToExtend"
+            :visible.sync="openDialogExtendTimeRoom"
+            @onRefresh="onRefresh">
+        </ExtendTimeRoom>
     </div>
 </template>
 
 <script>
+import ExtendTimeRoom from './partials/ExtendTimeRoom.vue';
 import ModalRoomRates from "./RoomRates";
 
 export default {
     components: {
         ModalRoomRates,
+        ExtendTimeRoom,
     },
     props: {
         roomStatus: {
@@ -172,6 +189,8 @@ export default {
             items: [],
             room: null,
             openModalRoomRates: false,
+            roomToExtend: {},
+            openDialogExtendTimeRoom: false,
         };
     },
     mounted() {
@@ -290,6 +309,15 @@ export default {
             }
             return "";
         },
+        ShowDialogExtendTimeRoom(room) {
+            this.roomToExtend = room
+            if(this.roomToExtend){
+                this.openDialogExtendTimeRoom = true
+            }
+        },
+        onRefresh() {
+            this.searchRooms()
+        }
     },
 };
 </script>

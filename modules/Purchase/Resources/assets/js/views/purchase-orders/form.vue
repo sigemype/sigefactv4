@@ -217,6 +217,10 @@
                                                         class="btn waves-effect waves-light btn-xs btn-danger"
                                                         @click.prevent="clickRemoveItem(index)">x
                                                 </button>
+                                                <button class="btn waves-effect waves-light btn-xs btn-info"
+                                                    type="button"
+                                                    @click="ediItem(row, index)">
+                                                <span style='font-size:10px;'>&#9998;</span></button>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -307,6 +311,7 @@
                             :currency-type-id-active="form.currency_type_id"
                             :exchange-rate-sale="form.exchange_rate_sale"
                             :percentage-igv="percentage_igv"
+                            :recordItem="recordItem"
                             @add="addRow"></purchase-form-item>
 
         <person-form :showDialog.sync="showDialogNewPerson"
@@ -365,7 +370,8 @@ export default {
             propIsUpdate: false,
             fileList: [],
             currency_type: {},
-            purchaseNewId: null
+            purchaseNewId: null,
+            recordItem: null,
         }
     },
     async created() {
@@ -641,7 +647,13 @@ export default {
             this.filterSuppliers()
         },
         addRow(row) {
-            this.form.items.push(row)
+            if (this.recordItem) {
+                //this.form.items.$set(this.recordItem.indexi, row)
+                this.form.items[this.recordItem.indexi] = row
+                this.recordItem = null
+            } else {
+                this.form.items.push(row)
+            }
             this.calculateTotal()
         },
         clickRemoveItem(index) {
@@ -801,6 +813,11 @@ export default {
                 this.selectSupplier()
 
             })
+        },
+        async ediItem(row, index) {
+            row.indexi = index
+            this.recordItem = row
+            this.showDialogAddItem = true
         },
     }
 }

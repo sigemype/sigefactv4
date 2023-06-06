@@ -28,6 +28,24 @@ class HotelRentRequest extends FormRequest
 			'product'                  => 'required',
 			'hotel_rate_id'              => 'required|numeric',
 			'affectation_igv_type_id' => 'required',
+
+            'rent_payment.payment_method_type_id' => 'required_if:payment_status,"PAID"',
+            'rent_payment.payment_destination_id' => 'required_if:payment_status,"PAID"',
+            'rent_payment.payment' => 'required_if:payment_status,"PAID"',
 		];
 	}
+
+	    
+    /**
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'rent_payment.payment_method_type_id.required_if' => 'El campo m. pago es obligatorio cuando estado de pago es PAGADO.',
+            'rent_payment.payment_destination_id.required_if' => 'El campo destino es obligatorio cuando estado de pago es PAGADO.',
+        ];
+    }
+	
 }

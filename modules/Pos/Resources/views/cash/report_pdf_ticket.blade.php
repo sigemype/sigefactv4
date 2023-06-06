@@ -77,7 +77,13 @@
     <p><strong>Saldo final: </strong>S/. {{$data['cash_final_balance']}} </p>
     <p><strong>Egreso: </strong>S/. {{$data['cash_egress']}} </p>
 
-    <p><strong>Total caja: </strong>S/. {{$data['total_cash_payment_method_type_01']}} </p>
+    <p><strong>Total caja: </strong>S/. 
+        @if(isset($data['total_cash_payment_method_type_01']))
+            {{$data['total_cash_payment_method_type_01']}}
+        @else
+            0.00
+        @endif
+    </p>
 
     <p>&nbsp;</p>
     <p><strong>Por cobrar: </strong>S/. {{$data['credit']}} </p>

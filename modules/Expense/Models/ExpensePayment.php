@@ -211,4 +211,28 @@
             ];
         }
 
+            
+        /**
+         * 
+         * Obtener informacion del pago y registro origen relacionado
+         *
+         * @return array
+         */
+        public function getRowResourceCashPayment()
+        {
+            return [
+                'type' => 'expense_payment',
+                'type_transaction' => 'egress',
+                'type_transaction_description' => 'Gasto',
+                'date_of_issue' => $this->associated_record_payment->date_of_issue->format('Y-m-d'),
+                'number_full' => $this->associated_record_payment->number_full,
+                'acquirer_name' => $this->associated_record_payment->supplier->name,
+                'acquirer_number' => $this->associated_record_payment->supplier->number,
+                'currency_type_id' => $this->associated_record_payment->currency_type_id,
+                'document_type_description' => $this->associated_record_payment->expense_type->description,
+                'payment_method_type_id' => $this->expense_method_type_id,
+                'payment' => $this->associated_record_payment->isVoidedOrRejected() ? 0 : $this->payment,
+            ];
+        }
+
     }

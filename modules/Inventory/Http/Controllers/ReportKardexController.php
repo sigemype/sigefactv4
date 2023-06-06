@@ -184,7 +184,12 @@ class ReportKardexController extends Controller
 
         $data
             ->orderBy('item_id')
-            ->orderBy('id');
+            ->orderBy('id')
+            ->get()->transform(function($row) {
+                return $row->getCollectionData();
+            });
+
+        // dd($data->first());
         return $data;
 
     }
@@ -437,16 +442,44 @@ class ReportKardexController extends Controller
             ->with('inventory_transaction', 'warehouse', 'document_type', 'items', 'items.item')
             ->find($guide_id);
 
+        // dd($record->inventory_transaction);
+
         $items = [];
-        foreach ($record->items as $i) {
+        foreach ($record->items as $item) {
+
+            $is_lot_group = (bool)$item->item->lots_enabled;
+            $is_serie = (bool)$item->item->series_enabled;
+            $lots = null;
+            $series = null;
+            if($record->inventory_transaction->type == 'input') {
+                if($is_lot_group){
+                    $lots = ItemLotsGroup::where('item_id', $item->item_id)->where('created_at', $record->created_at)->get();
+                }
+                if($is_serie){
+                    $series = $item->item->item_lots->where('created_at', $record->created_at)->all();
+                }
+            } else {
+                if($is_lot_group){
+                    $lots = ItemLotsGroup::where('item_id', $item->item_id)->where('updated_at', $record->created_at)->get();
+                }
+                if($is_serie){
+                    $series = $item->item->item_lots->where('updated_at', $record->created_at)->all();
+                }
+            }
+
             $items[] = [
-                'item_internal_id' => $i->item->internal_id,
-                'item_name' => $i->item_name,
-                'unit_type_id' => $i->item->unit_type_id,
-                'quantity' => $i->quantity,
-                'lot' => ''
+                'item_internal_id' => $item->item->internal_id,
+                'item_name' => $item->item_name,
+                'unit_type_id' => $item->item->unit_type_id,
+                'quantity' => $item->quantity,
+                'lot_enabled' => $is_lot_group,
+                'lot' => $is_lot_group?$lots:null,
+                'series_enabled' => $is_serie,
+                'series' => $is_serie?$series:null,
             ];
         }
+
+        // dd($items);
 
         $data = [
             'company_number' => $company->number,
@@ -463,6 +496,6 @@ class ReportKardexController extends Controller
         // $pdf->setPaper('A4', 'landscape');
         $filename = 'Guia_' . date('YmdHis');
 
-        return $pdf->download($filename . '.pdf');
+        return $pdf->stream($filename . '.pdf');
     }
 }

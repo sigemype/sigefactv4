@@ -95,37 +95,6 @@ if($current_hostname) {
 
             });
 
-            Route::prefix('drivers')->group(function () {
-                /**
-                 * drivers/
-                 * drivers/columns
-                 * drivers/records
-                 * drivers/record/{id}
-                 * drivers/tables
-                 * drivers/{id}
-                */
-
-                Route::get('/', 'DriverController@index')->name('tenant.order_forms.drivers.index');
-                Route::get('columns', 'DriverController@columns');
-                Route::get('records', 'DriverController@records');
-                Route::get('record/{id}', 'DriverController@record');
-                Route::get('tables', 'DriverController@tables');
-                Route::post('/', 'DriverController@store');
-                Route::delete('/{id}', 'DriverController@destroy');
-
-            });
-
-            Route::prefix('dispatchers')->group(function () {
-
-                Route::get('/', 'DispatcherController@index')->name('tenant.order_forms.dispatchers.index');
-                Route::get('columns', 'DispatcherController@columns');
-                Route::get('records', 'DispatcherController@records');
-                Route::get('record/{id}', 'DispatcherController@record');
-                Route::get('tables', 'DispatcherController@tables');
-                Route::post('/', 'DispatcherController@store');
-                Route::delete('/{id}', 'DispatcherController@destroy');
-
-            });
             Route::prefix('mi_tienda_pe')->group(function () {
                 Route::get('/', 'MiTiendaPeController@index')->name('tenant.mi_tienda_pe.configuration.index');
                 Route::post('/', 'MiTiendaPeController@tables');
