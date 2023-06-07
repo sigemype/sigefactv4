@@ -53,6 +53,7 @@
                                 <th>Orden de compra</th>
                                 <th>Por cobrar</th>
                                 <th class="text-right">Total N. Crédito</th>
+                                <th class="text-right">Monto retención</th>
                                 <th>Total</th>
 
 
@@ -77,6 +78,7 @@
                                         <td class="celda">{{$value['purchase_order']}}</td>
                                         <td class="celda">{{$value['total_to_pay']}}</td>
                                         <td class="celda">{{$value['total_credit_notes']}}</td>
+                                        <td class="celda">{{$value['retention_amount']}}</td>
                                         <td class="celda">{{$value['total']}}</td>
                                     </tr>
                                 @endif

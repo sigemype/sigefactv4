@@ -291,6 +291,12 @@
                                         </template>
                                         <!-- sistema por puntos -->
 
+                                        <template v-if="fnApplyRestrictSaleItemsCpe && isGeneratedFromExternal">
+                                            <template v-if="fnIsRestrictedForSale(row.item, form.document_type_id)">
+                                                <span class="text-danger mt-1 mb-2 d-block">Restringido para venta en CPE</span>
+                                            </template>
+                                        </template>
+
                                     </td>
                                     <td class="text-center">{{ row.item.unit_type_id }}</td>
 
@@ -541,7 +547,7 @@
                                                         <!-- Crédito con cuotas -->
                                                         <div v-if="form.payment_condition_id === '03'"
                                                              class="table-responsive">
-                                                            <table 
+                                                            <table
                                                                    class="text-left table"
                                                                    width="100%">
                                                                 <thead>
@@ -1628,7 +1634,7 @@
 import DocumentFormItem from './partials/item.vue'
 import PersonForm from '../persons/form.vue'
 import DocumentOptions from '../documents/partials/options.vue'
-import {exchangeRate, functions, pointSystemFunctions} from '../../../mixins/functions'
+import {exchangeRate, functions, pointSystemFunctions, fnRestrictSaleItemsCpe} from '../../../mixins/functions'
 import {calculateRowItem, showNamePdfOfDescription} from '../../../helpers/functions'
 import Logo from '../companies/logo.vue'
 import DocumentHotelForm from '../../../../../modules/BusinessTurn/Resources/assets/js/views/hotels/form.vue'
@@ -1640,6 +1646,8 @@ import Keypress from "vue-keypress";
 import StoreItemSeriesIndex from "../Store/ItemSeriesIndex";
 import DocumentReportCustomer from './partials/report_customer.vue'
 import SetTip from '@components/SetTip.vue'
+
+import LotsForm from './partials/lots.vue'
 
 export default {
     props: [
@@ -1664,8 +1672,9 @@ export default {
         DocumentTransportForm,
         DocumentReportCustomer,
         SetTip,
+        LotsForm,
     },
-    mixins: [functions, exchangeRate, pointSystemFunctions],
+    mixins: [functions, exchangeRate, pointSystemFunctions, fnRestrictSaleItemsCpe],
     data() {
         return {
             datEmision: {
@@ -1968,8 +1977,8 @@ export default {
         {
             if(tip)
             {
-                this.form.worker_full_name_tips = tip.worker_full_name_tips 
-                this.form.total_tips = tip.total_tips 
+                this.form.worker_full_name_tips = tip.worker_full_name_tips
+                this.form.total_tips = tip.total_tips
             }
         },
         onSuccessUploadVoucher(response, file, fileList, index)
@@ -2064,7 +2073,7 @@ export default {
                 has_retention: false,
                 retention: {},
                 quotation_id: null,
-                
+
                 worker_full_name_tips: null, //propinas
                 total_tips: 0, //propinas
             }
@@ -2406,7 +2415,7 @@ export default {
                     this.clickAddFeeNew()
                     const index = 0
                     this.readonly_date_of_due = true
-                    
+
                     this.form.fee[index].payment_method_type_id = data.document_payment_method_type.id
                     this.form.fee[index].amount = _.sumBy(data.data_payments_fee, 'payment')
 
@@ -2450,7 +2459,7 @@ export default {
 
             this.form.has_retention = !_.isEmpty(this.form.retention)
 
-            if (this.form.has_retention) 
+            if (this.form.has_retention)
             {
                 this.setTotalPendingAmountRetention(this.form.retention.amount)
 
@@ -3054,7 +3063,7 @@ export default {
 
         },
         changeRetention() {
-            
+
             if (this.form.has_retention) {
 
                 let base = this.form.total
@@ -3859,6 +3868,7 @@ export default {
         },
         async submit() {
 
+
             //Validando las series seleccionadas
             let errorSeries = false;
             _.forEach(this.form.items, row => {
@@ -3916,6 +3926,13 @@ export default {
                 if(!validate_exchange_points.success) return this.$message.error(validate_exchange_points.message)
             }
             // validacion sistema por puntos
+
+            if(this.isGeneratedFromExternal)
+            {
+                // validacion restriccion de productos
+                const validate_restrict_sale_items_cpe = this.fnValidateRestrictSaleItemsCpe(this.form)
+                if(!validate_restrict_sale_items_cpe.success) return this.$message.error(validate_restrict_sale_items_cpe.message)
+            }
 
             this.loading_submit = true
             let path = `/${this.resource}`;

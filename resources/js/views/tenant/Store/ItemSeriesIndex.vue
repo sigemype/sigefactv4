@@ -59,6 +59,16 @@
                         </tr>
                         </tbody>
                     </table>
+                    <div>
+                        <el-pagination
+                            @current-change="getRecords"
+                            layout="total, prev, pager, next"
+                            :total="pagination.total"
+                            :current-page.sync="pagination.current_page"
+                            :page-size="pagination.per_page"
+                        >
+                        </el-pagination>
+                    </div>
                 </div>
             </div>
             <div class="col-md-12 text-right">
@@ -69,6 +79,7 @@
 </template>
 
 <script>
+import queryString from "query-string";
 
 export default {
     name: 'StoreItemSeriesIndex',
@@ -83,6 +94,7 @@ export default {
             records: [],
             search_series_by_barcode: false,
             lots: [],
+            pagination: {},
         }
     },
     computed: {
@@ -114,19 +126,26 @@ export default {
         async searchSeriesBarcode() {
             await this.getRecords()
         },
-        changeHasSale() {
+        changeHasSale(row, index) {
+            let lots_current = this.lots;
             this.lots = [];
             _.forEach(this.records, r => {
                 if (r.has_sale) {
                     this.lots.push(r)
                 }
             });
+
+            this.lots = this.lots.concat(lots_current)
         },
         getRecords() {
             this.loading = true
-            return this.$http.post(`/${this.resource}/get_item_series`, this.form)
+            return this.$http.post(`/${this.resource}/get_item_series?${this.getQueryParameters()}`, this.form)
                 .then((response) => {
-                    this.records = response.data;
+                    this.records = response.data.data;
+                    this.pagination = response.data.meta;
+                    this.pagination.per_page = parseInt(
+                        response.data.meta.per_page
+                    );
                     this.checkedLot()
                 })
                 .catch(error => {
@@ -135,6 +154,11 @@ export default {
                 .then(() => {
                     this.loading = false
                 })
+        },
+        getQueryParameters() {
+            return queryString.stringify({
+                page: this.pagination.current_page
+            });
         },
         checkedLot() {
             if(this.documentId) {
@@ -147,6 +171,7 @@ export default {
                         row.has_sale = true;
                     }
                 });
+                console.log('aqui')
             }
 
         },

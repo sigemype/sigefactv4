@@ -515,6 +515,18 @@
                             </div>
                         </div>
 
+                        
+                        <div class="col-md-3" v-if="showRestrictSaleItemsCpe">
+                            <div :class="{'has-danger': errors.restrict_sale_cpe}"
+                                 class="form-group">
+                                <el-checkbox v-model="form.restrict_sale_cpe">Restringir venta en CPE</el-checkbox>
+                                <br>
+                                <small v-if="errors.restrict_sale_cpe"
+                                       class="form-control-feedback"
+                                       v-text="errors.restrict_sale_cpe[0]"></small>
+                            </div>
+                        </div>
+
                         <template v-if="showPointSystem">
                             <div class="col-md-3">
                                 <div :class="{'has-danger': errors.exchange_points}"
@@ -1261,6 +1273,12 @@ export default {
             if(this.config) return this.config.enabled_point_system
 
             return false
+        },
+        showRestrictSaleItemsCpe()
+        {
+            if(this.config) return this.config.restrict_sale_items_cpe
+
+            return false
         }
 
     },
@@ -1547,6 +1565,7 @@ export default {
                 exchange_points: false,
                 quantity_of_points: 0,
                 factory_code: null,
+                restrict_sale_cpe: false,
 
             }
 

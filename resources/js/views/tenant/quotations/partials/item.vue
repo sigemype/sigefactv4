@@ -539,7 +539,7 @@
                    :showDialog.sync="showDialogNewItem"></item-form>
 
         <lots-group
-            :lots_group="form.lots_group"
+            :lotsGroup="form.lots_group"
             :quantity="form.quantity"
             :showDialog.sync="showDialogLots"
             @addRowLotGroup="addRowLotGroup">
@@ -848,7 +848,6 @@ export default {
             } else {
                 this.filterItems()
             }
-
         },
         filterItems() {
             this.items = this.all_items
@@ -1344,6 +1343,7 @@ export default {
             this.form.IdLoteSelected = id
         },
         clickLotGroup() {
+            console.log(this.form.lots_group)
             this.showDialogLots = true
         },
         async clickSelectLots() {

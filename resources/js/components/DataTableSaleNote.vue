@@ -51,10 +51,8 @@
                     <div class="col-lg-2 col-md-2 form-group">
                         <el-input v-model="search.purchase_order" placeholder="Orden de compra" clearable></el-input>
                     </div>
-                    <div class="col-lg-1 col-md-2 form-group">
-                        <el-button class="w-100" type="primary" @click="getRequestData">
-                            <i class="fa fa-search"></i>
-                        </el-button>
+                    <div class="col-lg-4 col-md-4 form-group">
+                        <el-input v-model="search.observations" placeholder="Observaciones" clearable></el-input>
                     </div>
                     <el-checkbox v-model="search_by_plate" :disabled="recordItem != null">
                         Filtrar por placa
@@ -64,7 +62,11 @@
                             <el-input v-model="search.license_plate"  placeholder="Placa" clearable></el-input>
                         </div>
                     </div>
-
+                    <div class="col-lg-1 col-md-2 form-group">
+                        <el-button class="w-100" type="primary" @click="getRequestData">
+                            <i class="fa fa-search"></i>
+                        </el-button>
+                    </div>
                 </div>
 
             </div>
@@ -124,7 +126,8 @@
                     column: null,
                     value: null,
                     series: null,
-                    total_canceled: null
+                    total_canceled: null,
+                    observations: null
                 },
                 totals: {
                     total_pen: 0,

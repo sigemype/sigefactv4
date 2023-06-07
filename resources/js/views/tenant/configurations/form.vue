@@ -777,6 +777,30 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 mt-4">
+
+                                <label class="control-label">
+                                    Restringir venta de productos
+                                    <el-tooltip class="item"
+                                                content="Disponible para CPE"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.restrict_sale_items_cpe}"
+                                        class="form-group">
+                                    <el-switch v-model="form.restrict_sale_items_cpe"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.restrict_sale_items_cpe"
+                                            class="form-control-feedback"
+                                            v-text="errors.restrict_sale_items_cpe[0]"></small>
+                                </div>
+                            </div>
+
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="third">
@@ -1536,7 +1560,7 @@
                             </template>
 
                             <div class="col-md-6 mt-4">
-                                <!-- <label class="control-label">Agregar imágenes al pdf 
+                                <!-- <label class="control-label">Agregar imágenes al pdf
                                     <el-tooltip
                                         class="item"
                                         content="Agrega las imágenes en el footer del pdf - Disponible para Cotización en formato A4, usando la plantilla pdf Default/Default3"
@@ -1591,9 +1615,37 @@
                     <el-tab-pane class="mb-3" name="six">
                         <span slot="label">Datos</span>
                         <div class="row">
+                            
+                            <div class="col-md-6 mt-4 mb-2">
+                                <label class="control-label">
+                                    Omitir validación para correo electrónico
+                                    <el-tooltip class="item"
+                                                effect="dark"
+                                                placement="top-start">
+                                        <div slot="content">
+                                            No se validará el campo "correo de contacto" en establecimientos, podrá ingresar un texto libre.
+                                        </div>
+                                        <i class="fa fa-info-circle"></i>
+                                    </el-tooltip>
+                                </label>
+
+                                <div :class="{'has-danger': errors.remove_validation_email_establishments}"
+                                        class="form-group">
+                                    <el-switch v-model="form.remove_validation_email_establishments"
+                                                active-text="Si"
+                                                inactive-text="No"
+                                                @change="submit"></el-switch>
+                                    <small v-if="errors.remove_validation_email_establishments"
+                                            class="form-control-feedback"
+                                            v-text="errors.remove_validation_email_establishments[0]"></small>
+                                </div>
+                            </div>
+
+
                             <div class="col-12 mt-4">
                                 <tenant-options-form></tenant-options-form>
                             </div>
+                            
                         </div>
                     </el-tab-pane>
                     <el-tab-pane class="mb-3" name="seven">
@@ -2037,7 +2089,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-6 mt-4">
                                 <div class="form-group">
                                     <label>
@@ -2060,6 +2112,34 @@
                                         <small v-if="errors.price_selected_add_product"
                                                class="form-control-feedback"
                                                v-text="errors.price_selected_add_product[0]"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-6 mt-4">
+                                <div class="form-group">
+                                    <label>
+                                        Convertir a CPE
+                                        <el-tooltip class="item"
+                                                    effect="dark"
+                                                    placement="top-start">
+                                            <div slot="content">
+                                                Al finalizar la venta en POS, se mostrará un atajo para convertir la nota de venta a cpe
+                                            </div>
+                                            <i class="fa fa-info-circle"></i>
+                                        </el-tooltip>
+                                    </label>
+                                    <div :class="{'has-danger': errors.show_convert_cpe_pos}"
+                                         class="form-group">
+                                        <el-switch v-model="form.show_convert_cpe_pos"
+                                                   active-text="Si"
+                                                   inactive-text="No"
+                                                   @change="submit"></el-switch>
+                                        <small v-if="errors.show_convert_cpe_pos"
+                                               class="form-control-feedback"
+                                               v-text="errors.show_convert_cpe_pos[0]"></small>
                                     </div>
                                 </div>
                             </div>
@@ -2089,6 +2169,21 @@
                                     <small v-if="errors.mi_tienda_pe"
                                            class="form-control-feedback"
                                            v-text="errors.mi_tienda_pe[0]"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">
+                                    Gestión avanzada de pedidos
+                                </label>
+                                <div :class="{'has-danger': errors.order_node_advanced}"
+                                     class="form-group">
+                                    <el-switch v-model="form.order_node_advanced"
+                                               active-text="Si"
+                                               inactive-text="No"
+                                               @change="submit"></el-switch>
+                                    <small v-if="errors.order_node_advanced"
+                                           class="form-control-feedback"
+                                           v-text="errors.order_node_advanced[0]"></small>
                                 </div>
                             </div>
                         </div>
@@ -2548,6 +2643,10 @@ export default {
                 enable_discount_by_customer: false,
                 enabled_dispatch_ticket_pdf: false,
                 price_selected_add_product: false,
+                restrict_sale_items_cpe: false,
+                show_convert_cpe_pos: false,
+                order_node_advanced: false,
+                remove_validation_email_establishments: false,
             };
         },
         UpdateFormPurchase(e) {

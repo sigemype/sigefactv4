@@ -60,6 +60,16 @@
                             </div>
                         </template>
                         <!-- sistema por puntos -->
+
+                        
+                        <!-- restriccion venta productos -->
+                        <template v-if="isRestrictedForSale(item.item)">
+                            <div class="col-2"></div>
+                            <div class="col-10 px-0">
+                                <span class="text-danger mt-1 mb-2 d-block">Restringido para venta en CPE</span>
+                            </div>
+                        </template>
+
                     </div>
                 </template>
 
@@ -490,6 +500,7 @@
             :resource="resource_options"
             :showDialog.sync="showDialogOptions"
             :statusDocument="statusDocument"
+            :fromPos="true"
         ></options-form>
 
         <multiple-payment-form
@@ -661,10 +672,20 @@ export default {
         isInvoiceDocument()
         {
             return ['01', '03'].includes(this.form.document_type_id)
-        }
+        },
+        applyRestrictSaleItemsCpe()
+        {
+            if (this.configuration) return this.configuration.restrict_sale_items_cpe
+
+            return false 
+        },
     },
     methods: 
     {
+        isRestrictedForSale(item)
+        {
+            return this.applyRestrictSaleItemsCpe && this.isInvoiceDocument && (item != undefined && item.restrict_sale_cpe)
+        },
         changeAgent(agent_id)
         {
             this.form.agent_id = agent_id
@@ -1246,8 +1267,35 @@ export default {
                 success: true
             }
         },
+        validateRestrictSaleItemsCpe()
+        {
+            if(this.applyRestrictSaleItemsCpe)
+            {
+                let errors_restricted = 0
+
+                this.form.items.forEach(row => {
+                    if(this.isRestrictedForSale(row.item)) errors_restricted++
+                })
+
+                if(errors_restricted > 0) return this.getObjectResponse(false, 'No puede generar el comprobante, tiene productos restringidos.')
+            }
+            
+
+            return this.getObjectResponse()
+        },
+        getObjectResponse(success = true, message = null)
+        {
+            return {
+                success: success,
+                message: message,
+            }
+        },
         async clickPayment() 
         {
+            // validacion restriccion de productos
+            const validate_restrict_sale_items_cpe = this.validateRestrictSaleItemsCpe()
+            if(!validate_restrict_sale_items_cpe.success) return this.$message.error(validate_restrict_sale_items_cpe.message)
+
             // validacion restriccion de descuento
             const validate_restrict_seller_discount = this.validateRestrictSellerDiscount()
             if(!validate_restrict_seller_discount.success) return

@@ -6,36 +6,22 @@
                 :key-code="112"
                 @success="handleFn112"
             />
-            <!-- <Keypress key-event="keyup" :key-code="113" @success="handleFn113" /> -->
-
-            <!-- <h2 class="text-sm">POS</h2>
-      <div class="right-wrapper pull-right">
-        <h2 class="text-sm pr-5">T/C 3.321</h2>
-        <h2 class="text-sm">{{user.name}}</h2>
-      </div> -->
-            <div class="col-md-5">
-                <!-- <h2 class="text-sm">POS</h2> -->
-                <h2>
-                    <el-switch
-                        v-model="search_item_by_barcode"
-                        active-text="Buscar con escáner de código de barras"
-                        @change="changeSearchItemBarcode"
-                    >
-                    </el-switch>
-
-                    <!-- <template v-if="search_item_by_barcode">
-                        <el-checkbox class="ml-2 mt-1" v-model="search_item_by_barcode_presentation">Por presentación</el-checkbox>
-                    </template> -->
-                </h2>
-                
+            <div class="col-md-6 pl-2" :class="{'pt-2 mt-1': !search_item_by_barcode}">
+                <el-switch
+                    v-model="search_item_by_barcode"
+                    active-text="Buscar con escáner de código de barras"
+                    @change="changeSearchItemBarcode"
+                >
+                </el-switch>
                 <div class="row" v-if="search_item_by_barcode">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <el-checkbox class="mt-1 font-weight-bold" v-model="search_item_by_barcode_presentation">Por presentación</el-checkbox>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-6">
 
-                        <el-checkbox class="mt-1 mb-1 font-weight-bold" v-model="electronic_scale_barcode">Balanza electrónica</el-checkbox>
-                        
+                        <el-checkbox class="mt-1 mb-1 font-weight-bold" v-model="electronic_scale_barcode">
+                            Balanza electrónica
+                        </el-checkbox>
                         <el-tooltip class="item" effect="dark" placement="top-start">
 
                             <div slot="content">
@@ -50,79 +36,72 @@
                                 <b>299280</b> = Total = 2992.80
                             </div>
                             <i class="fa fa-info-circle"></i>
-
                         </el-tooltip>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <h2>
+            <div class="col-md-2 text-right pr-3">
+                <el-button-group>
                     <el-tooltip
                         class="item"
                         effect="dark"
                         content="Todas las categorías"
                         placement="top-start"
                     >
-                        <button
+                        <el-button
                             type="button"
                             @click="back()"
                             class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fa fa-border-all"></i>
-                        </button>
+                        </el-button>
                     </el-tooltip>
-                </h2>
-                <h2>
                     <el-tooltip
                         class="item"
                         effect="dark"
                         content="Categorías y productos"
                         placement="top-start"
                     >
-                        <button
+                        <el-button
                             type="button"
                             :disabled="place == 'cat2'"
                             @click="setView('cat2')"
                             class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </el-button>
                     </el-tooltip>
-                </h2>
-                <h2>
                     <el-tooltip
                         class="item"
                         effect="dark"
                         content="Listado de todos los productos"
                         placement="top-start"
                     >
-                        <button
+                        <el-button
                             type="button"
                             :disabled="place == 'cat3'"
                             @click="setView('cat3')"
                             class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fas fa-list-ul"></i>
-                        </button>
+                        </el-button>
                     </el-tooltip>
-                </h2>
-                <h2>
                     <el-tooltip
                         class="item"
                         effect="dark"
                         content="Regresar"
                         placement="top-start"
                     >
-                        <button
+                        <el-button
                             type="button"
                             :disabled="place == 'cat'"
                             @click="back()"
                             class="btn btn-custom btn-sm  mt-2 mr-2 mr-sm-0"
                         >
                             <i class="fa fa-undo"></i>
-                        </button>
+                        </el-button>
                     </el-tooltip>
-                </h2>
+                </el-button-group>
             </div>
             <div class="col-md-4">
                 <div class="right-wrapper">
@@ -178,7 +157,7 @@
                         @keyup.native="keyupTabCustomer"
                         ref="ref_search_items"
                         class="m-bottom mt-3"
-                        
+
                         @focus="searchFromBarcode = true"
                         @blur="searchFromBarcode = false"
                     >
@@ -1167,7 +1146,7 @@ export default {
             }
             return false;
         },
-        changeValuesElectronicScale() 
+        changeValuesElectronicScale()
         {
             return this.electronic_scale_barcode && this.electronic_scale_data.pass_validations
         }
@@ -1853,8 +1832,8 @@ export default {
                 this.row["unit_type_id"] = item.unit_type_id;
 
                 this.form.items[pos] = this.row;
-            } 
-            else 
+            }
+            else
             {
                 response = await this.getStatusStock(
                     item.item_id,
@@ -1883,7 +1862,7 @@ export default {
 
                 // balanza
                 this.setScaleQuantityIfNotExistItem()
-                
+
                 if(this.changeValuesElectronicScale)
                 {
                     unit_price = this.getUnitPriceFromElectronicScale()
@@ -2034,8 +2013,8 @@ export default {
                 }
 
                 // total_value += parseFloat(row.total_value);
-                
-                if(!['21', '37'].includes(row.affectation_igv_type_id)) 
+
+                if(!['21', '37'].includes(row.affectation_igv_type_id))
                 {
                     total_value += (row.total_value_without_rounding) ? parseFloat(row.total_value_without_rounding) : parseFloat(row.total_value)
                 }
@@ -2226,7 +2205,7 @@ export default {
             // console.log("barcode", this.electronic_scale_data.barcode)
             // console.log("weight", this.electronic_scale_data.weight)
             // console.log("total", this.electronic_scale_data.total)
-            
+
             // console.log("parse_weight", this.electronic_scale_data.parse_weight)
             // console.log("parse_total", this.electronic_scale_data.parse_total)
 
@@ -2242,9 +2221,9 @@ export default {
             }
 
         },
-        async searchItemsBarcode() 
+        async searchItemsBarcode()
         {
-            if (this.input_item.length > 1) 
+            if (this.input_item.length > 1)
             {
                 this.loading = true;
                 let parameters = `input_item=${this.input_item}&search_item_by_barcode_presentation=${this.search_item_by_barcode_presentation}`;

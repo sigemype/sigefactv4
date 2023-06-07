@@ -134,6 +134,12 @@
                             <el-input v-model="search.purchase_order" clearable></el-input>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 pb-2">
+                        <div class="form-group"  >
+                            <label class="control-label">Observaciones</label>
+                            <el-input v-model="search.observations" clearable></el-input>
+                        </div>
+                    </div>
                     <div class="col-lg-2 col-md-2 col-sm-12 pb-2">
                         <div class="form-group"  >
                             <label class="control-label">Numero de Guía</label>
@@ -355,6 +361,7 @@ export default {
                     d_start:null,
                     d_end:null,
                     pending_payment:false,
+                    observations: null
                 }
             },
             changeDocumentType(){

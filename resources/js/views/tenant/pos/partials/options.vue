@@ -116,22 +116,39 @@
                     <div class="col-md-6 mt-4">
                     </div>
                     <div class="col-md-6 mt-4">
+
                         <el-button  type="primary"  class="float-right" @click="clickNewSale">Nueva venta</el-button>
+
+                        <template v-if="showButtonConvertCpePos && isFromPos">
+                            <el-button  type="success"  class="float-right ml-3 mr-3" @click="clickConvertCpe">Convertir a CPE</el-button>
+                        </template>
+
                     </div>
                 </div>
 
             </div>
         </div>
+        
+        <sale-note-generate :show.sync="showDialogGenerate"
+                           :recordId="recordId"
+                           :showGenerate="true"
+                           :showClose="false"
+                           @hasGeneratedDocument="hasGeneratedDocument"></sale-note-generate>
     </el-dialog>
 </template>
 
 <script>
+
     import {mapState, mapActions} from "vuex/dist/vuex.mjs";
     import Keypress from 'vue-keypress'
+    import SaleNoteGenerate from '@views/sale_notes/partials/option_documents.vue'
+
+
     export default {
-        props: ['showDialog', 'recordId', 'statusDocument','resource'],
+        props: ['showDialog', 'recordId', 'statusDocument','resource', 'fromPos'],
         components: {
-           Keypress
+           Keypress,
+           SaleNoteGenerate
         },
         data() {
             return {
@@ -142,7 +159,8 @@
                 company: {},
                 configuration: {},
                 activeName: 'first',
-
+                showDialogGenerate: false,
+                button_convert_cpe_pos: true,
             }
         },
         created() {
@@ -160,8 +178,30 @@
             ...mapState([
                 'config',
             ]),
+            applyConvertCpePos()
+            {
+                if(this.configuration && this.configuration.show_convert_cpe_pos) return this.configuration.show_convert_cpe_pos
+
+                return false
+            },
+            showButtonConvertCpePos()
+            {
+                return this.applyConvertCpePos && this.resource === 'sale-notes' && this.button_convert_cpe_pos
+            },
+            isFromPos()
+            {
+                return this.fromPos != undefined && this.fromPos
+            }
         },
         methods: {
+            hasGeneratedDocument()
+            {
+                this.button_convert_cpe_pos = false
+            },
+            clickConvertCpe()
+            {
+                this.showDialogGenerate = true
+            },
             ...mapActions(['loadConfiguration']),
             clickSendWhatsapp() {
 
@@ -253,6 +293,8 @@
                 }
 
                 this.changeActiveName();
+
+                this.button_convert_cpe_pos = true
             },
             create() {
                 this.$http.get(`/${this.resource}/record/${this.recordId}`).then(response => {

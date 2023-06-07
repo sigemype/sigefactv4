@@ -2,10 +2,10 @@
     <el-dialog :title="titleDialog" :visible="showDialog" @close="close" @open="create">
         <form autocomplete="off" @submit.prevent="submit">
             <div class="form-body">
-                <div class="col-md-12 text-right">
+                <!-- <div class="col-md-12 text-right">
                     <h5>Cant. Pedida: {{quantity}}</h5>
                     <h5 v-bind:class="{ 'text-danger': (toAttend < 0) }">Por Atender: {{toAttend}}</h5>
-                </div>
+                </div> -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group" :class="{'has-danger': errors.name}">
@@ -37,10 +37,59 @@
                             <label class="control-label">Límite de documentos</label>
                             <el-input v-model="limit_documents" @input="validateLDocuments" :disabled="documents_unlimited"></el-input>
                             <el-checkbox v-model="documents_unlimited" @change="setUnlimitDocuments">Ilimitado</el-checkbox><br>
+
+                            <el-checkbox v-model="form.include_sale_notes_limit_documents">Incluir notas de venta</el-checkbox><br>
+
                             <small class="form-control-feedback d-block" v-if="errors.limit_documents" v-text="errors.limit_documents[0]"></small>
                             <small class="form-control-feedback" v-if="errorLDocument.limit_documents" v-text="errorLDocument.limit_documents[0]"></small>
                         </div>
                     </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group" :class="{'has-danger': errors.establishments_limit}">
+                            <label class="control-label">Límite de establecimientos</label>
+
+                            <template v-if="form.establishments_unlimited">
+                                <el-input value="∞" disabled></el-input>
+                            </template>
+                            <template v-else>
+                                <el-input v-model="form.establishments_limit"></el-input>
+                            </template>
+
+                            <el-checkbox v-model="form.establishments_unlimited">Ilimitado</el-checkbox><br>
+
+                            <small class="form-control-feedback d-block" v-if="errors.establishments_limit" v-text="errors.establishments_limit[0]"></small>
+                        </div>
+                    </div>
+
+                    
+                    <div class="col-md-6">
+                        <div class="form-group" :class="{'has-danger': errors.sales_limit}">
+                            <label class="control-label">
+                                Límite de ventas mensual
+                                <el-tooltip class="item"
+                                            :content="form.include_sale_notes_sales_limit ? 'Disponible para CPE y Nota de venta' : 'Disponible para CPE'"
+                                            effect="dark"
+                                            placement="top">
+                                    <i class="fa fa-info-circle"></i>
+                                </el-tooltip>
+                            </label>
+
+                            <template v-if="form.sales_unlimited">
+                                <el-input value="∞" disabled></el-input>
+                            </template>
+                            <template v-else>
+                                <el-input v-model="form.sales_limit"></el-input>
+                            </template>
+
+                            <el-checkbox v-model="form.sales_unlimited">Ilimitado</el-checkbox><br>
+                            <el-checkbox v-model="form.include_sale_notes_sales_limit">Incluir notas de venta</el-checkbox><br>
+
+
+                            <small class="form-control-feedback d-block" v-if="errors.sales_limit" v-text="errors.sales_limit[0]"></small>
+                        </div>
+                    </div>
+
                 </div>
                 <!-- <div class="row">
                     <div class="col-md-12 mt-3">
@@ -71,8 +120,6 @@
 
 <script>
 
-    import {EventBus} from '../../../helpers/bus'
-
     export default {
         props: ['showDialog', 'recordId','plan_documents'],
         data() {
@@ -90,10 +137,15 @@
                 form: {}, 
             }
         },
-        created() {
+        created() 
+        {
             this.initForm() 
         },
         methods: {
+            notEmpty(value)
+            {
+                return !_.isEmpty(value)
+            },
             initForm() {
                 this.limit_users = null
                 this.limit_documents = null
@@ -102,14 +154,24 @@
                 this.errors = {}
                 this.errorLDocument = {}
                 this.errorLUser = {}
+                
                 this.form = {
                     id: null,
                     name: null,
                     pricing: null,
                     limit_users: null,
                     limit_documents: null,
-                    plan_documents:[]
+                    plan_documents:[],
+
+                    establishments_limit : 0,
+                    establishments_unlimited : true,
+
+                    sales_limit : 0,
+                    sales_unlimited : true,
+                    include_sale_notes_sales_limit : false,
+                    include_sale_notes_limit_documents: false,
                 }
+
             },
             create() {
 
@@ -120,11 +182,28 @@
                         })
                 }
             },
+            validateInputs()
+            {
+                if(!this.form.establishments_unlimited)
+                {
+                    if(isNaN(this.form.establishments_limit)) return this.getResponseValidations(false, 'Límite de establecimientos no es un número válido.')
+                } 
+
+                if(!this.form.sales_unlimited)
+                {
+                    if(isNaN(this.form.sales_limit)) return this.getResponseValidations(false, 'Límite de ventas no es un número válido.')
+                } 
+
+                return this.getResponseValidations()
+            },
             submit() {   
 
                 if(this.validateLUsers().limit_users || this.validateLDocuments().limit_documents)
                     return
                     
+                const validate_inputs = this.validateInputs()
+                if(!validate_inputs.success) return this.$message.error(validate_inputs.message)
+                
                 this.transform()
 
                 this.loading_submit = true  

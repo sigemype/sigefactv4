@@ -10,7 +10,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
 {{--    <title>{{ config('app.name', 'Facturación Electrónica') }}</title>--}}
-    <title>Facturación Electrónica</title>
+    <title>Sigefact - Facturación Electrónica</title>
     <!-- Scripts -->
 
     <!-- Fonts -->

@@ -153,12 +153,20 @@ export default {
             this.orderT = this.orderT == 'desc' ? 'asc' : 'desc'
         },
         filter() {
-            if (this.search) {
-                this.lots_group_ = _.filter(this.lotsGroupAll, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
+            if(_.isNull(this.lotsGroupAll) ||_.isUndefined(this.lotsGroupAll)) {
+                if (this.search) {
+                    this.lots_group_ = _.filter(this.lotsGroup, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
+                } else {
+                    this.lots_group_ = this.lotsGroup
+                }
             } else {
-                this.lots_group_ = this.lotsGroupAll
+                if (this.search) {
+                    this.lots_group_ = _.filter(this.lotsGroupAll, x => x.code.toUpperCase().includes(this.search.toUpperCase()))
+                } else {
+                    this.lots_group_ = this.lotsGroupAll
+                }
             }
-        },
+       },
         changeSelect(event, index) {
             /*if(this.quantityCompleted) {
                 this.$message.warning('La cantidad está completada');
@@ -199,7 +207,7 @@ export default {
                     date_of_due: item.date_of_due,
                 }
             })
-
+            console.log(lots_selecteds);
             await this.$emit("addRowLotGroup", lots_selecteds);
             await this.$emit("update:showDialog", false);
         },

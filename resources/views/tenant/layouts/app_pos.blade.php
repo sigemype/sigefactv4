@@ -14,7 +14,7 @@
     <meta name="robots" content="noindex">
 
     {{--    <title>{{ config('app.name', 'Facturación Electrónica') }}</title>--}}
-    <title>Facturación Electrónica</title>
+    <title>Sigefact - Facturación Electrónica</title>
 
     <!-- Scripts -->
 

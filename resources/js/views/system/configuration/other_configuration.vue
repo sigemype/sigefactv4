@@ -9,6 +9,50 @@
                 <div class="col-md-6">
                     
                     <label class="control-label">
+                        Mostrar publicidad
+                        <el-tooltip class="item"
+                                    content="Se visualizará la imágen cargada en el header de todos los clientes."
+                                    effect="dark"
+                                    placement="top-start">
+                            <i class="fa fa-info-circle"></i>
+                        </el-tooltip>
+                    </label>
+                    
+                    <div :class="{'has-danger': errors.tenant_show_ads}"
+                            class="form-group">
+                        <el-switch v-model="form.tenant_show_ads"
+                                    active-text="Si"
+                                    inactive-text="No"
+                                    @change="submit"></el-switch>
+                        <small v-if="errors.tenant_show_ads"
+                                class="form-control-feedback"
+                                v-text="errors.tenant_show_ads[0]"></small>
+                    </div>
+                </div>
+
+                <div class="col-md-6" v-if="form.tenant_show_ads">
+                    <div class="form-group">
+                        <label class="control-label">Imágen para publicidad</label>
+                        <el-input v-model="form.tenant_image_ads" :readonly="true">
+                            <el-upload
+                                slot="append"
+                                :headers="headers"
+                                :on-success="successUpload"
+                                :on-error="errorUpload"
+                                :show-file-list="false"
+                                action="/configurations/upload-tenant-ads">
+                                <el-button icon="el-icon-upload" type="primary"></el-button>
+                            </el-upload>
+                        </el-input>
+                        <div class="sub-title text-danger"><small>Se recomienda resoluciones 500x50</small>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="col-md-6">
+                    
+                    <label class="control-label">
                         Habilitar contraseña segura
                         <el-tooltip class="item"
                                     content="Se solicitará una contraseña segura (cumplir patrón) al registrar cliente"
@@ -42,6 +86,7 @@
 export default {
     data() {
         return {
+            headers: headers_token,
             loading_submit: false,
             resource: 'configurations',
             errors: {},
@@ -50,12 +95,35 @@ export default {
     },
     async created() {
         await this.initForm()
+        await this.getData()
     },
     methods: {
+        async getData()
+        {
+            await this.$http.get(`/${this.resource}/get-other-configuration`)
+                .then(response => {
+                    this.form = response.data
+                })
+        },
+        successUpload(response, file, fileList) 
+        { 
+            if (response.success) {
+                this.$message.success(response.message)
+                this.form.tenant_image_ads = response.name
+            } else {
+                this.$message({message: 'Error al subir el archivo', type: 'error'})
+            }
+        },
+        errorUpload(error)
+        {
+            this.$message({message: 'Error al subir el archivo', type: 'error'})
+        },
         initForm() {
             this.errors = {}
             this.form = {
-                regex_password_client: false
+                regex_password_client: false,
+                tenant_show_ads: false,
+                tenant_image_ads: null,
             }
         },
         submit() {

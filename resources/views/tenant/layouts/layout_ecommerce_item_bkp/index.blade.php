@@ -6,13 +6,12 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
-    <title>eCommerce</title>
+    <title>Sigefact - eCommerce</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="keywords" content="HTML5 Template" />
     <meta name="description" content="Porto - Bootstrap eCommerce Template">
     <meta name="author" content="SW-THEMES">
-        
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('porto-ecommerce/assets/images/icons/favicon.ico') }}">
 
@@ -27,7 +26,7 @@
 </head>
 <body>
     <div class="page-wrapper">
-        
+
         @include('tenant.layouts.partials_ecommerce.header')
         @include('tenant.layouts.partials_ecommerce.header_bottom_sticky')
 
@@ -90,7 +89,7 @@
                         <div class="row row-sm">
 
                                 @yield('content')
-                                
+
                         </div><!-- End .row -->
 
                         <nav class="toolbox toolbox-pagination">
@@ -123,7 +122,7 @@
                             @include('tenant.layouts.partials_ecommerce.sidebar_filter')
 
                             <div class="widget widget-featured">
-                               
+
                                 @include('tenant.layouts.partials_ecommerce.widget_products')
 
                             </div><!-- End .widget -->
