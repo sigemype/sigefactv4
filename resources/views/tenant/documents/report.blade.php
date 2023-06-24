@@ -94,11 +94,6 @@
                                 <th>Estado</th>
                                 <th>Forma de Pago</th>
                                 <th class="">Moneda</th>
-                                {{-- <th>Plataforma</th> --}}
-                                {{-- <th>Orden de compra</th> --}}
-                                <!-- <th>Total Exonerado</th>
-                                <th>Total Inafecto</th>
-                                    <th>Total Gratutio</th> -->
                                 <th>Total Gravado</th>
                                 <th>Total IGV</th>
                                 <th>Total</th>
@@ -142,7 +137,7 @@
                                     <td class="celda">{{$value->state_type->description}}</td>
                                     <td class="celda">
                                         @php
-                                            $fees = $value->fees;
+                                            $fees = $value->fee;
                                             $cantfees = $fees->count();
                                         @endphp
                                         @if ($fees->count())
@@ -248,7 +243,7 @@
             </div>
         @else
             <div class="callout callout-info">
-                <p>No se encontraron registros.</p>
+                <p>No se encontraron registros. {{ $records->count() }}</p>
             </div>
         @endif
     </body>

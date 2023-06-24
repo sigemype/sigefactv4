@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\CoreFacturalo\Facturalo;
 use App\CoreFacturalo\Helpers\Storage\StorageDocument;
 use App\CoreFacturalo\Helpers\Template\ReportHelper;
+use App\Exports\DocumentIndexExport;
 use App\Exports\PaymentExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SearchItemController;
@@ -51,6 +52,7 @@ use App\Models\Tenant\StateType;
 use App\Models\Tenant\User;
 use App\Traits\OfflineTrait;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade as PDF;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Builder;
@@ -1278,6 +1280,25 @@ class DocumentController extends Controller
             $this->max_count_payment = $value;
         }
         // $this->max_count_payment = 20 ;//( $value > $this->max_count_payment) ? $value : $this->$max_count_payment;
+    }
+
+    public function report_documents($start, $end, $type = 'pdf'){
+        $records = Document::whereBetween('date_of_issue', [$start , $end])->get();
+        $date_now = Carbon::now();
+
+        if ($type == 'pdf') {
+            $pdf = PDF::loadView('tenant.documents.report', compact("records", "date_now"))->setPaper('a4', 'landscape');
+            $filename = "Reporte_Documentos_".Carbon::now();
+            // return $pdf->stream($filename.'.pdf');
+            return $pdf->download($filename.'.pdf');
+
+        } elseif ($type == 'excel') {
+            $filename = "Reporte_Documentos_".Carbon::now();
+            return (new DocumentIndexExport)
+                ->records($records)
+                ->download($filename.Carbon::now().'.xlsx');
+        }
+
     }
 
     private function transformReportPayment($resource)
